@@ -82,12 +82,12 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
                 <Bed className="h-4 w-4 text-primary" />
                 Min Bedrooms
               </Label>
-              <Select value={searchParams.bed_min || ''} onValueChange={(value) => updateParam('bed_min', value || undefined)}>
+              <Select value={searchParams.bed_min || 'any'} onValueChange={(value) => updateParam('bed_min', value === 'any' ? undefined : value)}>
                 <SelectTrigger className="bg-background/50">
                   <SelectValue placeholder="Any" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Any</SelectItem>
+                  <SelectItem value="any">Any</SelectItem>
                   <SelectItem value="1">1+</SelectItem>
                   <SelectItem value="2">2+</SelectItem>
                   <SelectItem value="3">3+</SelectItem>
@@ -103,12 +103,12 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
                 <Bath className="h-4 w-4 text-primary" />
                 Min Bathrooms
               </Label>
-              <Select value={searchParams.bathrooms || ''} onValueChange={(value) => updateParam('bathrooms', value || undefined)}>
+              <Select value={searchParams.bathrooms || 'any'} onValueChange={(value) => updateParam('bathrooms', value === 'any' ? undefined : value)}>
                 <SelectTrigger className="bg-background/50">
                   <SelectValue placeholder="Any" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Any</SelectItem>
+                  <SelectItem value="any">Any</SelectItem>
                   <SelectItem value="1">1+</SelectItem>
                   <SelectItem value="1.5">1.5+</SelectItem>
                   <SelectItem value="2">2+</SelectItem>
