@@ -4,6 +4,7 @@ import { PropertyCard } from '@/components/PropertyCard';
 import { PropertyModal } from '@/components/PropertyModal';
 import { AIAnalysisPanel } from '@/components/AIAnalysisPanel';
 import { TopDealsSection } from '@/components/TopDealsSection';
+import { DealAnalysisPanel } from '@/components/DealAnalysisPanel';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -339,6 +340,10 @@ export default function RealEstateWholesaler() {
                   <Brain className="h-4 w-4 mr-2" />
                   AI Analysis
                 </TabsTrigger>
+                <TabsTrigger value="deal-analysis" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                  <TrendingUp className="h-4 w-4 mr-2" />
+                  Deal Analysis
+                </TabsTrigger>
               </TabsList>
 
               {properties.length > 0 && (
@@ -438,6 +443,10 @@ export default function RealEstateWholesaler() {
                   </CardContent>
                 </Card>
               )}
+            </TabsContent>
+
+            <TabsContent value="deal-analysis" className="space-y-6">
+              <DealAnalysisPanel />
             </TabsContent>
           </Tabs>
         )}
