@@ -70,9 +70,16 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
               <div className="flex items-center gap-2 mt-1">
                 <MapPin className="h-4 w-4 text-muted-foreground" />
                 <span className="text-muted-foreground">{property.propertyType || 'Property'}</span>
-                <Badge className={getStatusColor(property.status)}>
-                  {property.status}
-                </Badge>
+                <div className="flex gap-2 flex-wrap">
+                  <Badge className={getStatusColor(property.status)}>
+                    {property.status}
+                  </Badge>
+                  {property.isFSBO && (
+                    <Badge variant="secondary" className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                      FSBO
+                    </Badge>
+                  )}
+                </div>
               </div>
             </div>
             <div className="text-right">

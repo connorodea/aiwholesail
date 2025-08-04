@@ -48,9 +48,16 @@ export function PropertyCard({ property, onViewDetails }: PropertyCardProps) {
               {property.propertyType || 'Property'}
             </div>
           </div>
-          <Badge className={getStatusColor(property.status)}>
-            {property.status}
-          </Badge>
+          <div className="flex gap-2 flex-wrap">
+            <Badge className={getStatusColor(property.status)}>
+              {property.status}
+            </Badge>
+            {property.isFSBO && (
+              <Badge variant="secondary" className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                FSBO
+              </Badge>
+            )}
+          </div>
         </div>
       </CardHeader>
 

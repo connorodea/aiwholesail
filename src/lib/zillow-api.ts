@@ -17,8 +17,8 @@ export class ZillowAPI {
         sortOrder: "Homes_for_you",
         listingStatus: "For_Sale",
         maxHOA: "Any",
-        listingType: "By_Agent",
-        listingTypeOptions: "Agent listed,New Construction,Fore-closures,Auctions",
+        listingType: "All",
+        listingTypeOptions: "Agent listed,New Construction,Fore-closures,Auctions,For Sale by Owner",
         daysOnZillow: "Any",
         soldInLast: "Any",
         v_cmr: "4.5",
@@ -121,6 +121,8 @@ export class ZillowAPI {
     const state = flattened.property_address_state || '';
     const fullAddress = city && state ? `${address}, ${city}, ${state}` : address;
 
+    const isFSBO = this.detectFSBO(flattened);
+
     return {
       id: flattened.property_zpid || flattened.id || flattened.zpid || Math.random().toString(36),
       address: fullAddress,
@@ -137,6 +139,7 @@ export class ZillowAPI {
       zestimate: this.parseNumber(flattened.property_estimates_zestimate || flattened.zestimate),
       images: this.extractImages(flattened),
       description: flattened.description || flattened.summary || '',
+      isFSBO,
       ...flattened // Include all original data
     };
   }
@@ -170,6 +173,32 @@ export class ZillowAPI {
     }
 
     return images;
+  }
+
+  private detectFSBO(data: any): boolean {
+    // Check various fields that might indicate FSBO status
+    const listingType = (data.property_listing_listingType || data.listingType || '').toLowerCase();
+    const agentName = (data.property_listing_agentName || data.agentName || '').toLowerCase();
+    const listingAgency = (data.property_listing_listingAgency || data.listingAgency || '').toLowerCase();
+    const description = (data.description || data.summary || '').toLowerCase();
+    const listingSubType = (data.property_listingSubType_description || data.listingSubType || '').toLowerCase();
+    
+    // FSBO indicators
+    const fsboIndicators = [
+      'for sale by owner',
+      'fsbo',
+      'owner listing',
+      'no agent',
+      'direct from owner',
+      'private sale'
+    ];
+    
+    // Check if any field contains FSBO indicators
+    const fields = [listingType, agentName, listingAgency, description, listingSubType];
+    
+    return fsboIndicators.some(indicator => 
+      fields.some(field => field.includes(indicator))
+    ) || listingType === 'fsbo' || listingSubType.includes('owner');
   }
 
   async testConnection(): Promise<boolean> {

@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { PropertySearchParams } from '@/types/zillow';
-import { Search, MapPin, Home, Bed, Bath, DollarSign, TrendingDown, MessageSquare, Gavel } from 'lucide-react';
+import { Search, MapPin, Home, Bed, Bath, DollarSign, TrendingDown, MessageSquare, Gavel, Building2 } from 'lucide-react';
 
 interface PropertySearchProps {
   onSearch: (params: PropertySearchParams) => void;
@@ -26,7 +26,7 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
     }
   };
 
-  const updateParam = (key: keyof PropertySearchParams, value: string) => {
+  const updateParam = (key: keyof PropertySearchParams, value: string | boolean) => {
     setSearchParams(prev => ({ ...prev, [key]: value }));
   };
 
@@ -206,9 +206,27 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
             <p className="text-xs text-muted-foreground">
               Filter out auction and foreclosure properties
             </p>
+
+            {/* FSBO Toggle */}
+            <div className="flex items-center justify-between space-x-2">
+              <div className="flex items-center space-x-2">
+                <Building2 className="h-4 w-4 text-primary" />
+                <Label htmlFor="fsbo-toggle" className="text-sm font-medium">
+                  FSBO Properties Only
+                </Label>
+              </div>
+              <Switch
+                id="fsbo-toggle"
+                checked={searchParams.fsboOnly || false}
+                onCheckedChange={(checked) => updateParam('fsboOnly', checked)}
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Show only For Sale By Owner properties
+            </p>
           </div>
 
-          <Button 
+          <Button
             type="submit" 
             className="w-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-200"
             disabled={isLoading || !searchParams.location.trim()}

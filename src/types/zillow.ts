@@ -13,6 +13,7 @@ export interface PropertySearchParams {
   listingStatus?: string;
   wholesaleOnly?: boolean;
   auctionOnly?: boolean;
+  fsboOnly?: boolean;
   keywords?: string;
 }
 
@@ -32,6 +33,7 @@ export interface Property {
   zestimate?: number;
   images?: string[];
   description?: string;
+  isFSBO?: boolean;
   // AttomData enhanced fields
   attomData?: {
     propertyType?: string;

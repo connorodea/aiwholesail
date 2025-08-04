@@ -157,6 +157,11 @@ export default function RealEstateWholesaler() {
         });
       }
 
+      // Filter for FSBO properties only
+      if (params.fsboOnly) {
+        filteredResults = filteredResults.filter(property => property.isFSBO);
+      }
+
       // Filter by keywords in description
       if (params.keywords && params.keywords.trim()) {
         const keywords = params.keywords.toLowerCase().split(',').map(k => k.trim());
