@@ -10,14 +10,45 @@ import { zillowAPI } from '@/lib/zillow-api';
 import { TrendingUp, MapPin, RefreshCw } from 'lucide-react';
 
 const TOP_MARKETS = [
+  // Midwest
   'Detroit, MI',
   'Cleveland, OH', 
+  'Indianapolis, IN',
+  'Kansas City, MO',
+  'St. Louis, MO',
+  'Milwaukee, WI',
+  'Columbus, OH',
+  'Cincinnati, OH',
+  
+  // South
   'Memphis, TN',
   'Birmingham, AL',
-  'St. Louis, MO',
-  'Kansas City, MO',
-  'Indianapolis, IN',
-  'Jacksonville, FL'
+  'Jacksonville, FL',
+  'Tampa, FL',
+  'Atlanta, GA',
+  'New Orleans, LA',
+  'Louisville, KY',
+  'Nashville, TN',
+  
+  // Southwest
+  'Houston, TX',
+  'Dallas, TX',
+  'San Antonio, TX',
+  'Phoenix, AZ',
+  'Tucson, AZ',
+  'Oklahoma City, OK',
+  
+  // West
+  'Las Vegas, NV',
+  'Fresno, CA',
+  'Bakersfield, CA',
+  'Stockton, CA',
+  
+  // Northeast
+  'Buffalo, NY',
+  'Rochester, NY',
+  'Pittsburgh, PA',
+  'Baltimore, MD'
 ];
 
 export function TopDealsSection() {
@@ -90,12 +121,21 @@ export function TopDealsSection() {
     try {
       const allProperties: Property[] = [];
       
-      // Search a few markets concurrently
-      const searchPromises = TOP_MARKETS.slice(0, 4).map(market => 
+      // Randomly shuffle markets and search 8-10 of them for variety
+      const shuffledMarkets = [...TOP_MARKETS].sort(() => Math.random() - 0.5);
+      const marketsToSearch = shuffledMarkets.slice(0, 10);
+      
+      console.log('Searching markets:', marketsToSearch);
+      
+      // Search markets concurrently
+      const searchPromises = marketsToSearch.map(market => 
         zillowAPI.searchProperties({
           location: market,
           homeType: 'Houses',
           price_max: '200000'
+        }).then(properties => {
+          console.log(`${market}: Found ${properties.length} properties`);
+          return properties;
         }).catch(error => {
           console.error(`Error searching ${market}:`, error);
           return [];
@@ -105,7 +145,11 @@ export function TopDealsSection() {
       const results = await Promise.all(searchPromises);
       results.forEach(properties => allProperties.push(...properties));
       
+      console.log(`Total properties found: ${allProperties.length}`);
+      
       const deals = identifyWholesaleDeals(allProperties);
+      console.log(`Wholesale deals identified: ${deals.length}`);
+      
       setTopDeals(deals);
       setLastUpdated(new Date());
     } catch (error) {
