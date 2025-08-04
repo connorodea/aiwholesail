@@ -10,45 +10,191 @@ import { zillowAPI } from '@/lib/zillow-api';
 import { TrendingUp, MapPin, RefreshCw } from 'lucide-react';
 
 const TOP_MARKETS = [
-  // Midwest
-  'Detroit, MI',
-  'Cleveland, OH', 
-  'Indianapolis, IN',
-  'Kansas City, MO',
-  'St. Louis, MO',
-  'Milwaukee, WI',
-  'Columbus, OH',
-  'Cincinnati, OH',
+  // Alabama
+  'Birmingham, AL', 'Montgomery, AL', 'Mobile, AL', 'Huntsville, AL',
   
-  // South
-  'Memphis, TN',
-  'Birmingham, AL',
-  'Jacksonville, FL',
-  'Tampa, FL',
-  'Atlanta, GA',
-  'New Orleans, LA',
-  'Louisville, KY',
-  'Nashville, TN',
+  // Alaska
+  'Anchorage, AK', 'Fairbanks, AK',
   
-  // Southwest
-  'Houston, TX',
-  'Dallas, TX',
-  'San Antonio, TX',
-  'Phoenix, AZ',
-  'Tucson, AZ',
-  'Oklahoma City, OK',
+  // Arizona
+  'Phoenix, AZ', 'Tucson, AZ', 'Mesa, AZ', 'Chandler, AZ', 'Scottsdale, AZ',
   
-  // West
-  'Las Vegas, NV',
-  'Fresno, CA',
-  'Bakersfield, CA',
-  'Stockton, CA',
+  // Arkansas
+  'Little Rock, AR', 'Fort Smith, AR', 'Fayetteville, AR',
   
-  // Northeast
-  'Buffalo, NY',
-  'Rochester, NY',
-  'Pittsburgh, PA',
-  'Baltimore, MD'
+  // California
+  'Los Angeles, CA', 'San Diego, CA', 'San Jose, CA', 'San Francisco, CA',
+  'Fresno, CA', 'Sacramento, CA', 'Long Beach, CA', 'Oakland, CA',
+  'Bakersfield, CA', 'Anaheim, CA', 'Santa Ana, CA', 'Riverside, CA',
+  'Stockton, CA', 'Irvine, CA', 'Fremont, CA', 'San Bernardino, CA',
+  'Modesto, CA', 'Fontana, CA', 'Oxnard, CA', 'Moreno Valley, CA',
+  
+  // Colorado
+  'Denver, CO', 'Colorado Springs, CO', 'Aurora, CO', 'Fort Collins, CO',
+  'Lakewood, CO', 'Thornton, CO', 'Arvada, CO', 'Westminster, CO',
+  
+  // Connecticut
+  'Bridgeport, CT', 'New Haven, CT', 'Hartford, CT', 'Stamford, CT',
+  'Waterbury, CT',
+  
+  // Delaware
+  'Wilmington, DE', 'Dover, DE',
+  
+  // Florida
+  'Jacksonville, FL', 'Miami, FL', 'Tampa, FL', 'Orlando, FL',
+  'St. Petersburg, FL', 'Hialeah, FL', 'Tallahassee, FL', 'Fort Lauderdale, FL',
+  'Port St. Lucie, FL', 'Cape Coral, FL', 'Pembroke Pines, FL', 'Hollywood, FL',
+  'Gainesville, FL', 'Miami Gardens, FL', 'Clearwater, FL', 'Brandon, FL',
+  
+  // Georgia
+  'Atlanta, GA', 'Augusta, GA', 'Columbus, GA', 'Macon, GA',
+  'Savannah, GA', 'Athens, GA', 'Sandy Springs, GA', 'Roswell, GA',
+  
+  // Hawaii
+  'Honolulu, HI', 'Pearl City, HI', 'Hilo, HI',
+  
+  // Idaho
+  'Boise, ID', 'Meridian, ID', 'Nampa, ID', 'Idaho Falls, ID',
+  
+  // Illinois
+  'Chicago, IL', 'Aurora, IL', 'Rockford, IL', 'Joliet, IL',
+  'Naperville, IL', 'Springfield, IL', 'Peoria, IL', 'Elgin, IL',
+  
+  // Indiana
+  'Indianapolis, IN', 'Fort Wayne, IN', 'Evansville, IN', 'South Bend, IN',
+  'Carmel, IN', 'Fishers, IN', 'Bloomington, IN', 'Hammond, IN',
+  
+  // Iowa
+  'Des Moines, IA', 'Cedar Rapids, IA', 'Davenport, IA', 'Sioux City, IA',
+  
+  // Kansas
+  'Wichita, KS', 'Overland Park, KS', 'Kansas City, KS', 'Topeka, KS',
+  'Olathe, KS', 'Lawrence, KS',
+  
+  // Kentucky
+  'Louisville, KY', 'Lexington, KY', 'Bowling Green, KY', 'Owensboro, KY',
+  
+  // Louisiana
+  'New Orleans, LA', 'Baton Rouge, LA', 'Shreveport, LA', 'Lafayette, LA',
+  'Lake Charles, LA', 'Kenner, LA',
+  
+  // Maine
+  'Portland, ME', 'Lewiston, ME', 'Bangor, ME',
+  
+  // Maryland
+  'Baltimore, MD', 'Frederick, MD', 'Rockville, MD', 'Gaithersburg, MD',
+  'Bowie, MD', 'Hagerstown, MD',
+  
+  // Massachusetts
+  'Boston, MA', 'Worcester, MA', 'Springfield, MA', 'Lowell, MA',
+  'Cambridge, MA', 'New Bedford, MA', 'Brockton, MA', 'Quincy, MA',
+  
+  // Michigan
+  'Detroit, MI', 'Grand Rapids, MI', 'Warren, MI', 'Sterling Heights, MI',
+  'Lansing, MI', 'Ann Arbor, MI', 'Flint, MI', 'Dearborn, MI',
+  
+  // Minnesota
+  'Minneapolis, MN', 'St. Paul, MN', 'Rochester, MN', 'Duluth, MN',
+  'Bloomington, MN', 'Brooklyn Park, MN',
+  
+  // Mississippi
+  'Jackson, MS', 'Gulfport, MS', 'Southaven, MS', 'Hattiesburg, MS',
+  
+  // Missouri
+  'Kansas City, MO', 'St. Louis, MO', 'Springfield, MO', 'Independence, MO',
+  'Columbia, MO', 'Lee\'s Summit, MO', 'O\'Fallon, MO', 'St. Joseph, MO',
+  
+  // Montana
+  'Billings, MT', 'Missoula, MT', 'Great Falls, MT', 'Bozeman, MT',
+  
+  // Nebraska
+  'Omaha, NE', 'Lincoln, NE', 'Bellevue, NE', 'Grand Island, NE',
+  
+  // Nevada
+  'Las Vegas, NV', 'Henderson, NV', 'Reno, NV', 'North Las Vegas, NV',
+  'Sparks, NV', 'Carson City, NV',
+  
+  // New Hampshire
+  'Manchester, NH', 'Nashua, NH', 'Concord, NH', 'Derry, NH',
+  
+  // New Jersey
+  'Newark, NJ', 'Jersey City, NJ', 'Paterson, NJ', 'Elizabeth, NJ',
+  'Edison, NJ', 'Woodbridge, NJ', 'Lakewood, NJ', 'Toms River, NJ',
+  
+  // New Mexico
+  'Albuquerque, NM', 'Las Cruces, NM', 'Rio Rancho, NM', 'Santa Fe, NM',
+  
+  // New York
+  'New York, NY', 'Buffalo, NY', 'Rochester, NY', 'Yonkers, NY',
+  'Syracuse, NY', 'Albany, NY', 'New Rochelle, NY', 'Mount Vernon, NY',
+  
+  // North Carolina
+  'Charlotte, NC', 'Raleigh, NC', 'Greensboro, NC', 'Durham, NC',
+  'Winston-Salem, NC', 'Fayetteville, NC', 'Cary, NC', 'Wilmington, NC',
+  
+  // North Dakota
+  'Fargo, ND', 'Bismarck, ND', 'Grand Forks, ND', 'Minot, ND',
+  
+  // Ohio
+  'Columbus, OH', 'Cleveland, OH', 'Cincinnati, OH', 'Toledo, OH',
+  'Akron, OH', 'Dayton, OH', 'Parma, OH', 'Canton, OH',
+  
+  // Oklahoma
+  'Oklahoma City, OK', 'Tulsa, OK', 'Norman, OK', 'Broken Arrow, OK',
+  'Lawton, OK', 'Edmond, OK',
+  
+  // Oregon
+  'Portland, OR', 'Eugene, OR', 'Salem, OR', 'Gresham, OR',
+  'Hillsboro, OR', 'Bend, OR',
+  
+  // Pennsylvania
+  'Philadelphia, PA', 'Pittsburgh, PA', 'Allentown, PA', 'Erie, PA',
+  'Reading, PA', 'Scranton, PA', 'Bethlehem, PA', 'Lancaster, PA',
+  
+  // Rhode Island
+  'Providence, RI', 'Warwick, RI', 'Cranston, RI', 'Pawtucket, RI',
+  
+  // South Carolina
+  'Columbia, SC', 'Charleston, SC', 'North Charleston, SC', 'Mount Pleasant, SC',
+  'Rock Hill, SC', 'Greenville, SC', 'Summerville, SC', 'Sumter, SC',
+  
+  // South Dakota
+  'Sioux Falls, SD', 'Rapid City, SD', 'Aberdeen, SD', 'Brookings, SD',
+  
+  // Tennessee
+  'Memphis, TN', 'Nashville, TN', 'Knoxville, TN', 'Chattanooga, TN',
+  'Clarksville, TN', 'Murfreesboro, TN', 'Franklin, TN', 'Johnson City, TN',
+  
+  // Texas
+  'Houston, TX', 'San Antonio, TX', 'Dallas, TX', 'Austin, TX',
+  'Fort Worth, TX', 'El Paso, TX', 'Arlington, TX', 'Corpus Christi, TX',
+  'Plano, TX', 'Laredo, TX', 'Lubbock, TX', 'Garland, TX',
+  'Irving, TX', 'Amarillo, TX', 'Grand Prairie, TX', 'Brownsville, TX',
+  
+  // Utah
+  'Salt Lake City, UT', 'West Valley City, UT', 'Provo, UT', 'West Jordan, UT',
+  'Orem, UT', 'Sandy, UT', 'Ogden, UT', 'St. George, UT',
+  
+  // Vermont
+  'Burlington, VT', 'Essex, VT', 'South Burlington, VT', 'Colchester, VT',
+  
+  // Virginia
+  'Virginia Beach, VA', 'Norfolk, VA', 'Chesapeake, VA', 'Richmond, VA',
+  'Newport News, VA', 'Alexandria, VA', 'Hampton, VA', 'Portsmouth, VA',
+  
+  // Washington
+  'Seattle, WA', 'Spokane, WA', 'Tacoma, WA', 'Vancouver, WA',
+  'Bellevue, WA', 'Kent, WA', 'Everett, WA', 'Renton, WA',
+  
+  // West Virginia
+  'Charleston, WV', 'Huntington, WV', 'Parkersburg, WV', 'Morgantown, WV',
+  
+  // Wisconsin
+  'Milwaukee, WI', 'Madison, WI', 'Green Bay, WI', 'Kenosha, WI',
+  'Racine, WI', 'Appleton, WI', 'Waukesha, WI', 'Eau Claire, WI',
+  
+  // Wyoming
+  'Cheyenne, WY', 'Casper, WY', 'Laramie, WY', 'Gillette, WY'
 ];
 
 export function TopDealsSection() {
