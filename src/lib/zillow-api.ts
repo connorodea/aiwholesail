@@ -11,12 +11,15 @@ export class ZillowAPI {
 
   async searchProperties(params: PropertySearchParams): Promise<Property[]> {
     try {
+      console.log('Starting property search for:', params.location);
       let allProperties: Property[] = [];
       let currentPage = 1;
       let hasMorePages = true;
 
       // Fetch all pages of results
       while (hasMorePages && currentPage <= 20) { // Cap at 20 pages to prevent infinite loops
+        console.log(`Fetching page ${currentPage}`);
+        
         const searchParams: Record<string, string> = {
           location: params.location,
           homeType: params.homeType,
@@ -49,22 +52,32 @@ export class ZillowAPI {
         if (params.mustHaveBasement) searchParams.mustHaveBasement = params.mustHaveBasement;
         if (params.parkingSpots) searchParams.parkingSpots = params.parkingSpots;
 
+        console.log('Search params:', searchParams);
+
         const response = await fetch(`${BASE_URL}?${new URLSearchParams(searchParams)}`, {
           method: 'GET',
           headers: this.headers
         });
 
+        console.log(`Page ${currentPage} response status:`, response.status);
+
         if (!response.ok) {
+          console.error(`API request failed for page ${currentPage}:`, response.status, response.statusText);
           throw new Error(`API request failed: ${response.status} ${response.statusText}`);
         }
 
         const data: ZillowAPIResponse = await response.json();
+        console.log(`Page ${currentPage} raw response:`, data);
+        
         const pageProperties = this.processPropertyData(data);
+        console.log(`Page ${currentPage} processed properties:`, pageProperties.length);
         
         if (pageProperties.length === 0) {
+          console.log(`No more properties found on page ${currentPage}, stopping pagination`);
           hasMorePages = false;
         } else {
           allProperties = [...allProperties, ...pageProperties];
+          console.log(`Total properties so far: ${allProperties.length}`);
           currentPage++;
           
           // Add small delay between requests to avoid rate limiting
@@ -74,7 +87,7 @@ export class ZillowAPI {
         }
       }
 
-      console.log(`Fetched ${allProperties.length} total properties across ${currentPage - 1} pages`);
+      console.log(`Final result: ${allProperties.length} total properties across ${currentPage - 1} pages`);
       return allProperties;
     } catch (error) {
       console.error('Error fetching properties:', error);
