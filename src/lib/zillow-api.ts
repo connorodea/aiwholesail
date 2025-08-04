@@ -85,7 +85,7 @@ export class ZillowAPI {
       }
     }
 
-    return properties.map(this.flattenProperty).filter(prop => prop.address);
+    return properties.map(prop => this.flattenProperty(prop)).filter(prop => prop.address);
   }
 
   private flattenProperty(prop: any): Property {
