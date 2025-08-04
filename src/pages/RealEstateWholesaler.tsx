@@ -3,6 +3,7 @@ import { PropertySearch } from '@/components/PropertySearch';
 import { PropertyCard } from '@/components/PropertyCard';
 import { PropertyModal } from '@/components/PropertyModal';
 import { AIAnalysisPanel } from '@/components/AIAnalysisPanel';
+import { TopDealsSection } from '@/components/TopDealsSection';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -316,6 +317,9 @@ export default function RealEstateWholesaler() {
             </Button>
           </div>
         </div>
+
+        {/* Top Deals Section */}
+        <TopDealsSection />
 
         {/* Search Section */}
         <div className="mb-8">
