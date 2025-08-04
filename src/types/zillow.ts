@@ -31,6 +31,67 @@ export interface Property {
   zestimate?: number;
   images?: string[];
   description?: string;
+  // AttomData enhanced fields
+  attomData?: {
+    propertyType?: string;
+    yearBuilt?: number;
+    lotSizeAcres?: number;
+    totalRooms?: number;
+    totalBaths?: number;
+    totalBedrooms?: number;
+    livingAreaSqFt?: number;
+    avm?: {
+      amount?: number;
+      confidence?: string;
+      date?: string;
+    };
+    marketValue?: number;
+    taxAssessedValue?: number;
+    comparables?: Array<{
+      address?: string;
+      distance?: number;
+      salePrice?: number;
+      saleDate?: string;
+      livingAreaSqFt?: number;
+    }>;
+    saleHistory?: Array<{
+      saleDate?: string;
+      salePrice?: number;
+      saleType?: string;
+      deed?: string;
+    }>;
+    owner?: {
+      name?: string;
+      mailingAddress?: string;
+      ownerOccupied?: boolean;
+    };
+    taxInfo?: {
+      taxAmount?: number;
+      taxYear?: number;
+      exemptions?: string[];
+      millRate?: number;
+    };
+    mortgageInfo?: {
+      lenderName?: string;
+      loanAmount?: number;
+      loanType?: string;
+      interestRate?: number;
+      loanDate?: string;
+    };
+    demographics?: {
+      medianHouseholdIncome?: number;
+      medianAge?: number;
+      populationDensity?: number;
+      crimeIndex?: number;
+      schoolRating?: number;
+    };
+    foreclosureStatus?: string;
+    preForeclosure?: boolean;
+    distressIndicators?: string[];
+    equityPosition?: number;
+    priceReductions?: number;
+    motivatedSeller?: boolean;
+  };
   [key: string]: any;
 }
 

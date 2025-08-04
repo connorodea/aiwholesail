@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { Property, PropertySearchParams, AIAnalysis } from '@/types/zillow';
 import { zillowAPI } from '@/lib/zillow-api';
+import { AttomAPI } from '@/lib/attom-api';
 import { aiAnalyzer } from '@/lib/ai-analyzer';
 import { Brain, Home, Download, Zap, TrendingUp, AlertCircle, CheckCircle } from 'lucide-react';
 
@@ -21,32 +22,59 @@ export default function RealEstateWholesaler() {
   const [isLoading, setIsLoading] = useState(false);
   const [analysis, setAnalysis] = useState<AIAnalysis | null>(null);
   const [isConnected, setIsConnected] = useState<boolean | null>(null);
+  const [attomConnected, setAttomConnected] = useState<boolean | null>(null);
   const { toast } = useToast();
+  
+  // Initialize APIs
+  const attomAPI = new AttomAPI();
 
   const testAPIConnection = async () => {
     try {
       setIsLoading(true);
-      const connected = await zillowAPI.testConnection();
-      setIsConnected(connected);
       
-      if (connected) {
+      // Test both APIs
+      const [zillowConnected, attomConnectedResult] = await Promise.allSettled([
+        zillowAPI.testConnection(),
+        attomAPI.testConnection()
+      ]);
+      
+      const zillowStatus = zillowConnected.status === 'fulfilled' ? zillowConnected.value : false;
+      const attomStatus = attomConnectedResult.status === 'fulfilled' ? attomConnectedResult.value : false;
+      
+      setIsConnected(zillowStatus);
+      setAttomConnected(attomStatus);
+      
+      if (zillowStatus && attomStatus) {
         toast({
-          title: "API Connected",
-          description: "Successfully connected to Zillow API",
+          title: "APIs Connected",
+          description: "Successfully connected to both Zillow and AttomData APIs",
+        });
+      } else if (zillowStatus) {
+        toast({
+          title: "Partial Connection",
+          description: "Connected to Zillow API. AttomData connection failed.",
+          variant: "destructive"
+        });
+      } else if (attomStatus) {
+        toast({
+          title: "Partial Connection", 
+          description: "Connected to AttomData API. Zillow connection failed.",
+          variant: "destructive"
         });
       } else {
         toast({
           title: "Connection Failed",
-          description: "Unable to connect to Zillow API. Please check your connection.",
+          description: "Unable to connect to either API. Please check your connection.",
           variant: "destructive"
         });
       }
     } catch (error) {
       console.error('Connection test failed:', error);
       setIsConnected(false);
+      setAttomConnected(false);
       toast({
         title: "Connection Error",
-        description: "Failed to test API connection",
+        description: "Failed to test API connections",
         variant: "destructive"
       });
     } finally {
@@ -76,8 +104,38 @@ export default function RealEstateWholesaler() {
         return;
       }
 
+      // Enhance properties with AttomData (in parallel for first 10 properties)
+      toast({
+        title: "Enhancing Data",
+        description: "Getting additional property data from AttomData...",
+      });
+
+      const enhancedResults = await Promise.allSettled(
+        searchResults.slice(0, 10).map(async (property) => {
+          try {
+            const attomData = await attomAPI.getEnhancedPropertyData(
+              property.address,
+              property.city || '',
+              property.state || ''
+            );
+            return { ...property, attomData };
+          } catch (error) {
+            console.error(`Failed to enhance property ${property.address}:`, error);
+            return property;
+          }
+        })
+      );
+
+      // Combine enhanced and remaining properties
+      const finalResults = [
+        ...enhancedResults.map(result => 
+          result.status === 'fulfilled' ? result.value : searchResults[enhancedResults.indexOf(result)]
+        ),
+        ...searchResults.slice(10)
+      ];
+
       // Filter for wholesale opportunities and keywords
-      let filteredResults = searchResults;
+      let filteredResults = finalResults;
       
       // Filter by wholesale opportunities (price < zestimate)
       if (params.wholesaleOnly) {
@@ -119,12 +177,12 @@ export default function RealEstateWholesaler() {
       const aiAnalysis = aiAnalyzer.analyzeProperties(filteredResults);
       setAnalysis(aiAnalysis);
 
-      toast({
-        title: "Search Complete",
-        description: params.wholesaleOnly 
-          ? `Found ${filteredResults.length} wholesale opportunities out of ${searchResults.length} total properties`
-          : `Found ${filteredResults.length} properties with AI analysis`,
-      });
+        toast({
+          title: "Search Complete",
+          description: params.wholesaleOnly 
+            ? `Found ${filteredResults.length} wholesale opportunities out of ${searchResults.length} total properties (enhanced with AttomData)`
+            : `Found ${filteredResults.length} properties with AI analysis and AttomData enhancement`,
+        });
 
     } catch (error) {
       console.error('Search failed:', error);
@@ -194,7 +252,7 @@ export default function RealEstateWholesaler() {
           </p>
           
           {/* API Status */}
-          <div className="flex items-center justify-center gap-4 mt-4">
+          <div className="flex items-center justify-center gap-6 mt-4">
             <div className="flex items-center gap-2">
               {isConnected === null ? (
                 <AlertCircle className="h-4 w-4 text-muted-foreground" />
@@ -204,9 +262,23 @@ export default function RealEstateWholesaler() {
                 <AlertCircle className="h-4 w-4 text-destructive" />
               )}
               <span className="text-sm">
-                API Status: {isConnected === null ? 'Unknown' : isConnected ? 'Connected' : 'Disconnected'}
+                Zillow: {isConnected === null ? 'Unknown' : isConnected ? 'Connected' : 'Disconnected'}
               </span>
             </div>
+            
+            <div className="flex items-center gap-2">
+              {attomConnected === null ? (
+                <AlertCircle className="h-4 w-4 text-muted-foreground" />
+              ) : attomConnected ? (
+                <CheckCircle className="h-4 w-4 text-success" />
+              ) : (
+                <AlertCircle className="h-4 w-4 text-destructive" />
+              )}
+              <span className="text-sm">
+                AttomData: {attomConnected === null ? 'Unknown' : attomConnected ? 'Connected' : 'Disconnected'}
+              </span>
+            </div>
+            
             <Button
               variant="outline"
               size="sm"
@@ -214,7 +286,7 @@ export default function RealEstateWholesaler() {
               disabled={isLoading}
             >
               <Zap className="h-4 w-4 mr-1" />
-              Test Connection
+              Test APIs
             </Button>
           </div>
         </div>

@@ -236,6 +236,117 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
             </div>
           )}
 
+          {/* AttomData Enhanced Information */}
+          {property.attomData && (
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                <TrendingUp className="h-5 w-5 text-primary" />
+                Enhanced Property Data
+              </h3>
+              
+              {/* Valuations */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {property.attomData.avm && (
+                  <div className="p-3 bg-accent/10 rounded-lg border border-accent/20">
+                    <div className="text-sm text-muted-foreground">AttomData AVM</div>
+                    <div className="text-lg font-bold text-accent">{formatPrice(property.attomData.avm.amount || 0)}</div>
+                    <div className="text-xs text-muted-foreground">
+                      Confidence: {property.attomData.avm.confidence}
+                    </div>
+                  </div>
+                )}
+
+                {property.attomData.taxAssessedValue && (
+                  <div className="p-3 bg-muted/30 rounded-lg">
+                    <div className="text-sm text-muted-foreground">Tax Assessment</div>
+                    <div className="text-lg font-bold">{formatPrice(property.attomData.taxAssessedValue)}</div>
+                    {property.attomData.taxInfo?.taxAmount && (
+                      <div className="text-xs text-muted-foreground">
+                        Annual Tax: {formatPrice(property.attomData.taxInfo.taxAmount)}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Owner & Mortgage Info */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {property.attomData.owner && (
+                  <div className="p-3 bg-muted/30 rounded-lg">
+                    <div className="text-sm text-muted-foreground">Owner Information</div>
+                    {property.attomData.owner.name && (
+                      <div className="font-medium">{property.attomData.owner.name}</div>
+                    )}
+                    <Badge variant={property.attomData.owner.ownerOccupied ? "default" : "secondary"} className="mt-1">
+                      {property.attomData.owner.ownerOccupied ? "Owner Occupied" : "Non-Owner Occupied"}
+                    </Badge>
+                  </div>
+                )}
+
+                {property.attomData.mortgageInfo && (
+                  <div className="p-3 bg-muted/30 rounded-lg">
+                    <div className="text-sm text-muted-foreground">Mortgage Info</div>
+                    {property.attomData.mortgageInfo.loanAmount && (
+                      <div className="font-medium">{formatPrice(property.attomData.mortgageInfo.loanAmount)}</div>
+                    )}
+                    {property.attomData.equityPosition && (
+                      <div className="text-sm text-success">
+                        Equity: {formatPrice(property.attomData.equityPosition)}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Wholesale Indicators */}
+              {property.attomData.motivatedSeller && (
+                <div className="p-3 bg-warning/10 rounded-lg border border-warning/20">
+                  <div className="text-sm text-warning font-medium mb-2">🎯 Wholesale Opportunity</div>
+                  {property.attomData.distressIndicators && (
+                    <div className="flex flex-wrap gap-1">
+                      {property.attomData.distressIndicators.map((indicator, index) => (
+                        <Badge key={index} variant="outline" className="text-xs">
+                          {indicator}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Sale History & Comparables */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {property.attomData.saleHistory && property.attomData.saleHistory.length > 0 && (
+                  <div className="p-3 bg-muted/30 rounded-lg">
+                    <div className="text-sm text-muted-foreground mb-2">Recent Sales</div>
+                    <div className="space-y-1 max-h-24 overflow-y-auto">
+                      {property.attomData.saleHistory.slice(0, 3).map((sale, index) => (
+                        <div key={index} className="text-xs flex justify-between">
+                          <span>{sale.salePrice ? formatPrice(sale.salePrice) : 'N/A'}</span>
+                          <span>{sale.saleDate ? new Date(sale.saleDate).toLocaleDateString() : 'N/A'}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {property.attomData.comparables && property.attomData.comparables.length > 0 && (
+                  <div className="p-3 bg-muted/30 rounded-lg">
+                    <div className="text-sm text-muted-foreground mb-2">Recent Comps</div>
+                    <div className="space-y-1 max-h-24 overflow-y-auto">
+                      {property.attomData.comparables.slice(0, 3).map((comp, index) => (
+                        <div key={index} className="text-xs flex justify-between">
+                          <span>{comp.salePrice ? formatPrice(comp.salePrice) : 'N/A'}</span>
+                          <span>{comp.distance ? `${comp.distance.toFixed(1)}mi` : 'N/A'}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Additional Details */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {property.lotSize && (

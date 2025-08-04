@@ -2,7 +2,7 @@ import { Property } from '@/types/zillow';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MapPin, Bed, Bath, Square, Calendar, TrendingUp, Eye } from 'lucide-react';
+import { MapPin, Bed, Bath, Square, Calendar, TrendingUp, Eye, AlertTriangle, DollarSign, Users, Star } from 'lucide-react';
 
 interface PropertyCardProps {
   property: Property;
@@ -97,19 +97,92 @@ export function PropertyCard({ property, onViewDetails }: PropertyCardProps) {
           )}
         </div>
 
-        {/* Zestimate */}
-        {property.zestimate && (
-          <div className="p-3 bg-muted/50 rounded-lg">
-            <div className="text-xs text-muted-foreground">Zestimate</div>
-            <div className="font-semibold text-accent">
-              {formatPrice(property.zestimate)}
+        {/* Zestimate & AttomData AVM */}
+        <div className="space-y-2">
+          {property.zestimate && (
+            <div className="p-3 bg-muted/50 rounded-lg">
+              <div className="text-xs text-muted-foreground">Zestimate</div>
+              <div className="font-semibold text-accent">
+                {formatPrice(property.zestimate)}
+              </div>
+              {property.price && (
+                <div className="text-xs">
+                  {property.price > property.zestimate ? 
+                    <span className="text-warning">Above estimate</span> :
+                    <span className="text-success">Below estimate</span>
+                  }
+                </div>
+              )}
             </div>
-            {property.price && (
-              <div className="text-xs">
-                {property.price > property.zestimate ? 
-                  <span className="text-warning">Above estimate</span> :
-                  <span className="text-success">Below estimate</span>
-                }
+          )}
+          
+          {property.attomData?.avm?.amount && (
+            <div className="p-3 bg-accent/10 rounded-lg border border-accent/20">
+              <div className="text-xs text-muted-foreground flex items-center gap-1">
+                <Star className="h-3 w-3" />
+                AttomData AVM ({property.attomData.avm.confidence})
+              </div>
+              <div className="font-semibold text-accent">
+                {formatPrice(property.attomData.avm.amount)}
+              </div>
+              {property.price && (
+                <div className="text-xs">
+                  {property.price > property.attomData.avm.amount ? 
+                    <span className="text-warning">Above AVM</span> :
+                    <span className="text-success">Below AVM</span>
+                  }
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* AttomData Wholesale Indicators */}
+        {property.attomData && (
+          <div className="space-y-2">
+            {/* Motivated Seller Indicators */}
+            {property.attomData.motivatedSeller && property.attomData.distressIndicators && (
+              <div className="p-2 bg-warning/10 rounded border border-warning/20">
+                <div className="flex items-center gap-1 text-xs text-warning font-medium">
+                  <AlertTriangle className="h-3 w-3" />
+                  Motivated Seller
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {property.attomData.distressIndicators.join(', ')}
+                </div>
+              </div>
+            )}
+
+            {/* Owner Info */}
+            {property.attomData.owner && (
+              <div className="p-2 bg-info/10 rounded border border-info/20">
+                <div className="flex items-center gap-1 text-xs text-info font-medium">
+                  <Users className="h-3 w-3" />
+                  Owner Info
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {property.attomData.owner.ownerOccupied ? 'Owner Occupied' : 'Non-Owner Occupied'}
+                </div>
+              </div>
+            )}
+
+            {/* Equity Position */}
+            {property.attomData.equityPosition && (
+              <div className="p-2 bg-success/10 rounded border border-success/20">
+                <div className="flex items-center gap-1 text-xs text-success font-medium">
+                  <DollarSign className="h-3 w-3" />
+                  Equity Position
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {formatPrice(property.attomData.equityPosition)}
+                </div>
+              </div>
+            )}
+
+            {/* Tax Assessment */}
+            {property.attomData.taxAssessedValue && (
+              <div className="text-xs text-muted-foreground">
+                Tax Assessment: {formatPrice(property.attomData.taxAssessedValue)}
               </div>
             )}
           </div>
