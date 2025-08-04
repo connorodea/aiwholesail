@@ -17,8 +17,8 @@ export class ZillowAPI {
         sortOrder: "Homes_for_you",
         listingStatus: "For_Sale",
         maxHOA: "Any",
-        listingType: "All",
-        listingTypeOptions: "Agent listed,New Construction,Fore-closures,Auctions,For Sale by Owner",
+        listingType: "By_Agent",
+        listingTypeOptions: "Agent listed,New Construction,Fore-closures,Auctions",
         daysOnZillow: "Any",
         soldInLast: "Any",
         v_cmr: "4.5",
@@ -43,6 +43,8 @@ export class ZillowAPI {
       if (params.parkingSpots) searchParams.parkingSpots = params.parkingSpots;
       if (params.page) searchParams.page = params.page;
 
+      console.log('Searching with params:', searchParams);
+
       const response = await fetch(`${BASE_URL}?${new URLSearchParams(searchParams)}`, {
         method: 'GET',
         headers: this.headers
@@ -53,6 +55,7 @@ export class ZillowAPI {
       }
 
       const data: ZillowAPIResponse = await response.json();
+      console.log('API Response:', data);
       return this.processPropertyData(data);
     } catch (error) {
       console.error('Error fetching properties:', error);
@@ -72,7 +75,7 @@ export class ZillowAPI {
     // Try different possible keys for property listings
     const potentialKeys = [
       'searchResults', 'props', 'results', 'listings', 'properties', 'data', 'homes', 
-      'searchResults', 'mapResults', 'listResults', 'items', 'records'
+      'mapResults', 'listResults', 'items', 'records'
     ];
 
     let properties: any[] = [];
