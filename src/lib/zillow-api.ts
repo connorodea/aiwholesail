@@ -96,9 +96,17 @@ export class ZillowAPI {
   }
 
   private processPropertyData(data: ZillowAPIResponse): Property[] {
+    console.log('Processing property data:', data);
+    
+    // Check if the response indicates no results
+    if (data.message === "404: No results" || data.resultsCount?.totalMatchingCount === 0) {
+      console.log('API returned no results');
+      return [];
+    }
+
     // Try different possible keys for property listings
     const potentialKeys = [
-      'props', 'results', 'listings', 'properties', 'data', 'homes', 
+      'searchResults', 'props', 'results', 'listings', 'properties', 'data', 'homes', 
       'searchResults', 'mapResults', 'listResults', 'items', 'records'
     ];
 
@@ -107,12 +115,14 @@ export class ZillowAPI {
     for (const key of potentialKeys) {
       if (data[key] && Array.isArray(data[key])) {
         properties = data[key];
+        console.log(`Found properties in key: ${key}, count: ${properties.length}`);
         break;
       } else if (data[key] && typeof data[key] === 'object') {
         // Check nested structures
         for (const nestedKey of potentialKeys) {
           if (data[key][nestedKey] && Array.isArray(data[key][nestedKey])) {
             properties = data[key][nestedKey];
+            console.log(`Found properties in nested key: ${key}.${nestedKey}, count: ${properties.length}`);
             break;
           }
         }
@@ -120,7 +130,11 @@ export class ZillowAPI {
       }
     }
 
-    return properties.map(prop => this.flattenProperty(prop)).filter(prop => prop.address);
+    console.log(`Total properties found: ${properties.length}`);
+    const processedProperties = properties.map(prop => this.flattenProperty(prop)).filter(prop => prop.address);
+    console.log(`Properties after processing and filtering: ${processedProperties.length}`);
+    
+    return processedProperties;
   }
 
   private flattenProperty(prop: any): Property {
