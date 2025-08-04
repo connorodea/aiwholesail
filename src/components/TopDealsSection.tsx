@@ -205,30 +205,47 @@ export function TopDealsSection() {
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
   const identifyWholesaleDeals = (properties: Property[]): Property[] => {
-    return properties
-      .filter(property => {
-        // Filter criteria for wholesale potential
-        const hasPrice = property.price && property.price > 0;
-        const hasSqft = property.sqft && property.sqft > 0;
-        const pricePerSqft = hasPrice && hasSqft ? property.price / property.sqft : 0;
-        
-        return (
-          hasPrice &&
-          hasSqft &&
-          property.price <= 200000 && // Under $200k
-          pricePerSqft < 100 && // Low price per sqft
-          pricePerSqft > 20 && // Not too low to be suspicious
-          (property.daysOnMarket === undefined || property.daysOnMarket > 30) && // On market for a while
-          property.yearBuilt && property.yearBuilt >= 1950 // Not too old
-        );
-      })
-      .sort((a, b) => {
-        // Sort by wholesale potential score
-        const scoreA = calculateWholesaleScore(a);
-        const scoreB = calculateWholesaleScore(b);
-        return scoreB - scoreA;
-      })
-      .slice(0, 8); // Top 8 deals
+    // Group properties by state for geographic diversity
+    const propertiesByState = new Map<string, Property[]>();
+    
+    const filtered = properties.filter(property => {
+      // Basic filtering criteria
+      const hasPrice = property.price && property.price > 0;
+      const hasSqft = property.sqft && property.sqft > 0;
+      const pricePerSqft = hasPrice && hasSqft ? property.price / property.sqft : 0;
+      
+      return (
+        hasPrice &&
+        hasSqft &&
+        property.price <= 300000 && // Increased max price
+        pricePerSqft < 150 && // More flexible price per sqft
+        pricePerSqft > 15 && // Lower minimum to catch more deals
+        property.yearBuilt && property.yearBuilt >= 1940 // Accept older properties
+      );
+    });
+
+    // Group by state for diversity
+    filtered.forEach(property => {
+      const state = property.address?.split(', ').pop() || 'Unknown';
+      if (!propertiesByState.has(state)) {
+        propertiesByState.set(state, []);
+      }
+      propertiesByState.get(state)!.push(property);
+    });
+
+    // Get top deals from each state for geographic diversity
+    const diverseDeals: Property[] = [];
+    propertiesByState.forEach((stateProperties, state) => {
+      const sortedByScore = stateProperties
+        .sort((a, b) => calculateWholesaleScore(b) - calculateWholesaleScore(a))
+        .slice(0, 2); // Top 2 from each state
+      diverseDeals.push(...sortedByScore);
+    });
+
+    // Final sort by score and take top 12
+    return diverseDeals
+      .sort((a, b) => calculateWholesaleScore(b) - calculateWholesaleScore(a))
+      .slice(0, 12);
   };
 
   const calculateWholesaleScore = (property: Property): number => {
@@ -238,28 +255,46 @@ export function TopDealsSection() {
     
     const pricePerSqft = property.price / property.sqft;
     
+    // Calculate estimated ARV (After Repair Value) and wholesale margin
+    const avgPricePerSqft = 120; // National average
+    const estimatedARV = property.sqft * avgPricePerSqft;
+    const wholesaleMargin = estimatedARV - property.price;
+    const marginPercentage = (wholesaleMargin / property.price) * 100;
+    
+    // High margin deals get massive bonus
+    if (marginPercentage > 100) score += 50; // 100%+ margin
+    else if (marginPercentage > 75) score += 40; // 75%+ margin  
+    else if (marginPercentage > 50) score += 30; // 50%+ margin
+    else if (marginPercentage > 25) score += 20; // 25%+ margin
+    else if (marginPercentage > 10) score += 10; // 10%+ margin
+    
     // Lower price per sqft = higher score
-    if (pricePerSqft < 50) score += 30;
-    else if (pricePerSqft < 75) score += 20;
+    if (pricePerSqft < 40) score += 35;
+    else if (pricePerSqft < 60) score += 25;
+    else if (pricePerSqft < 80) score += 15;
     else if (pricePerSqft < 100) score += 10;
     
-    // Price range bonus
-    if (property.price < 100000) score += 20;
-    else if (property.price < 150000) score += 15;
-    else if (property.price < 200000) score += 10;
+    // Price range bonus (sweet spot for wholesaling)
+    if (property.price < 80000) score += 25;
+    else if (property.price < 120000) score += 20;
+    else if (property.price < 180000) score += 15;
+    else if (property.price < 250000) score += 10;
     
     // Days on market bonus
-    if (property.daysOnMarket && property.daysOnMarket > 60) score += 15;
+    if (property.daysOnMarket && property.daysOnMarket > 90) score += 20;
+    else if (property.daysOnMarket && property.daysOnMarket > 60) score += 15;
     else if (property.daysOnMarket && property.daysOnMarket > 30) score += 10;
     
-    // FSBO bonus
+    // FSBO and auction bonus
     if (property.isFSBO) score += 25;
+    if (property.isAuction) score += 20;
     
-    // Property age bonus
-    if (property.yearBuilt && property.yearBuilt >= 1980) score += 10;
+    // Property condition and age
+    if (property.yearBuilt && property.yearBuilt >= 2000) score += 15;
+    else if (property.yearBuilt && property.yearBuilt >= 1980) score += 10;
     else if (property.yearBuilt && property.yearBuilt >= 1960) score += 5;
     
-    return score;
+    return Math.round(score);
   };
 
   const fetchTopDeals = async () => {
@@ -278,7 +313,7 @@ export function TopDealsSection() {
         zillowAPI.searchProperties({
           location: market,
           homeType: 'Houses',
-          price_max: '200000'
+          price_max: '300000'
         }).then(properties => {
           console.log(`${market}: Found ${properties.length} properties`);
           return properties;
