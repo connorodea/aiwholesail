@@ -14,6 +14,7 @@ import { aiAnalyzer } from '@/lib/ai-analyzer';
 import { Brain, Home, Download, Zap, TrendingUp, AlertCircle, CheckCircle } from 'lucide-react';
 
 export default function RealEstateWholesaler() {
+  console.log('RealEstateWholesaler component is rendering');
   const [properties, setProperties] = useState<Property[]>([]);
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
