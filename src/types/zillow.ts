@@ -11,6 +11,7 @@ export interface PropertySearchParams {
   page?: string;
   sortOrder?: string;
   listingStatus?: string;
+  wholesaleOnly?: boolean;
 }
 
 export interface Property {

@@ -4,8 +4,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Switch } from '@/components/ui/switch';
 import { PropertySearchParams } from '@/types/zillow';
-import { Search, MapPin, Home, Bed, Bath, DollarSign } from 'lucide-react';
+import { Search, MapPin, Home, Bed, Bath, DollarSign, TrendingDown } from 'lucide-react';
 
 interface PropertySearchProps {
   onSearch: (params: PropertySearchParams) => void;
@@ -146,6 +147,26 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
                 className="bg-background/50"
               />
             </div>
+          </div>
+
+          {/* Wholesale Filter */}
+          <div className="border-t pt-4">
+            <div className="flex items-center justify-between space-x-2">
+              <div className="flex items-center space-x-2">
+                <TrendingDown className="h-4 w-4 text-primary" />
+                <Label htmlFor="wholesale-toggle" className="text-sm font-medium">
+                  Wholesale Opportunities Only
+                </Label>
+              </div>
+              <Switch
+                id="wholesale-toggle"
+                checked={searchParams.wholesaleOnly || false}
+                onCheckedChange={(checked) => setSearchParams(prev => ({ ...prev, wholesaleOnly: checked }))}
+              />
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Only show properties priced below Zestimate (market value)
+            </p>
           </div>
 
           <Button 

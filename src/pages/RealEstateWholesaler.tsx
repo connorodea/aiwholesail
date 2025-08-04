@@ -76,15 +76,35 @@ export default function RealEstateWholesaler() {
         return;
       }
 
-      setProperties(searchResults);
+      // Filter for wholesale opportunities if enabled
+      let filteredResults = searchResults;
+      if (params.wholesaleOnly) {
+        filteredResults = searchResults.filter(property => {
+          // Property is wholesale opportunity if price < zestimate
+          return property.price && property.zestimate && property.price < property.zestimate;
+        });
+
+        if (filteredResults.length === 0) {
+          toast({
+            title: "No Wholesale Opportunities Found",
+            description: "No properties found priced below Zestimate. Try searching without the wholesale filter.",
+            variant: "destructive"
+          });
+          return;
+        }
+      }
+
+      setProperties(filteredResults);
       
       // Generate AI analysis
-      const aiAnalysis = aiAnalyzer.analyzeProperties(searchResults);
+      const aiAnalysis = aiAnalyzer.analyzeProperties(filteredResults);
       setAnalysis(aiAnalysis);
 
       toast({
         title: "Search Complete",
-        description: `Found ${searchResults.length} properties with AI analysis`,
+        description: params.wholesaleOnly 
+          ? `Found ${filteredResults.length} wholesale opportunities out of ${searchResults.length} total properties`
+          : `Found ${filteredResults.length} properties with AI analysis`,
       });
 
     } catch (error) {
