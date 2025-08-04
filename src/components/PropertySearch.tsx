@@ -194,7 +194,7 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
               <div className="flex items-center space-x-2">
                 <Gavel className="h-4 w-4 text-primary" />
                 <Label htmlFor="auction-toggle" className="text-sm font-medium">
-                  Auction Properties Only
+                  Hide Auction Properties
                 </Label>
               </div>
               <Switch
@@ -204,7 +204,7 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
               />
             </div>
             <p className="text-xs text-muted-foreground">
-              Only show properties being sold at auction
+              Filter out auction and foreclosure properties
             </p>
           </div>
 

@@ -144,16 +144,16 @@ export default function RealEstateWholesaler() {
         });
       }
 
-      // Filter by auction properties
+      // Filter out auction properties
       if (params.auctionOnly) {
         filteredResults = filteredResults.filter(property => {
           const description = (property.description || '').toLowerCase();
           const listingType = (property.listingSubType?.description || '').toLowerCase();
-          return description.includes('auction') || 
-                 description.includes('foreclosure') ||
-                 description.includes('sheriff') ||
-                 listingType.includes('auction') ||
-                 property.listingSubType?.description?.includes('Auction');
+          return !description.includes('auction') && 
+                 !description.includes('foreclosure') &&
+                 !description.includes('sheriff') &&
+                 !listingType.includes('auction') &&
+                 !property.listingSubType?.description?.includes('Auction');
         });
       }
 
