@@ -11,84 +11,49 @@ export class ZillowAPI {
 
   async searchProperties(params: PropertySearchParams): Promise<Property[]> {
     try {
-      console.log('Starting property search for:', params.location);
-      let allProperties: Property[] = [];
-      let currentPage = 1;
-      let hasMorePages = true;
+      const searchParams: Record<string, string> = {
+        location: params.location,
+        homeType: params.homeType,
+        sortOrder: "Homes_for_you",
+        listingStatus: "For_Sale",
+        maxHOA: "Any",
+        listingType: "All",
+        listingTypeOptions: "Agent listed,New Construction,Fore-closures,Auctions,For Sale by Owner",
+        daysOnZillow: "Any",
+        soldInLast: "Any",
+        v_cmr: "4.5",
+        v_dpr: "0.2",
+        v_ptr: "0.012",
+        v_ir: "0.015",
+        v_mr: "0.1",
+        v_pmr: "0.1",
+        v_vr: "0.05",
+        v_rc: "25000",
+        v_ltm: "360",
+        v_aa: "0.03"
+      };
 
-      // Fetch all pages of results
-      while (hasMorePages && currentPage <= 20) { // Cap at 20 pages to prevent infinite loops
-        console.log(`Fetching page ${currentPage}`);
-        
-        const searchParams: Record<string, string> = {
-          location: params.location,
-          homeType: params.homeType,
-          sortOrder: "Homes_for_you",
-          listingStatus: "For_Sale",
-          maxHOA: "Any",
-          listingType: "All",
-          listingTypeOptions: "Agent listed,New Construction,Fore-closures,Auctions,For Sale by Owner",
-          daysOnZillow: "Any",
-          soldInLast: "Any",
-          page: currentPage.toString(),
-          v_cmr: "4.5",
-          v_dpr: "0.2",
-          v_ptr: "0.012",
-          v_ir: "0.015",
-          v_mr: "0.1",
-          v_pmr: "0.1",
-          v_vr: "0.05",
-          v_rc: "25000",
-          v_ltm: "360",
-          v_aa: "0.03"
-        };
+      // Add optional parameters if they exist
+      if (params.bed_min) searchParams.bed_min = params.bed_min;
+      if (params.bed_max) searchParams.bed_max = params.bed_max;
+      if (params.bathrooms) searchParams.bathrooms = params.bathrooms;
+      if (params.price_min) searchParams.price_min = params.price_min;
+      if (params.price_max) searchParams.price_max = params.price_max;
+      if (params.mustHaveBasement) searchParams.mustHaveBasement = params.mustHaveBasement;
+      if (params.parkingSpots) searchParams.parkingSpots = params.parkingSpots;
+      if (params.page) searchParams.page = params.page;
 
-        // Add optional parameters if they exist
-        if (params.bed_min) searchParams.bed_min = params.bed_min;
-        if (params.bed_max) searchParams.bed_max = params.bed_max;
-        if (params.bathrooms) searchParams.bathrooms = params.bathrooms;
-        if (params.price_min) searchParams.price_min = params.price_min;
-        if (params.price_max) searchParams.price_max = params.price_max;
-        if (params.mustHaveBasement) searchParams.mustHaveBasement = params.mustHaveBasement;
-        if (params.parkingSpots) searchParams.parkingSpots = params.parkingSpots;
+      const response = await fetch(`${BASE_URL}?${new URLSearchParams(searchParams)}`, {
+        method: 'GET',
+        headers: this.headers
+      });
 
-        console.log('Search params:', searchParams);
-
-        const response = await fetch(`${BASE_URL}?${new URLSearchParams(searchParams)}`, {
-          method: 'GET',
-          headers: this.headers
-        });
-
-        console.log(`Page ${currentPage} response status:`, response.status);
-
-        if (!response.ok) {
-          console.error(`API request failed for page ${currentPage}:`, response.status, response.statusText);
-          throw new Error(`API request failed: ${response.status} ${response.statusText}`);
-        }
-
-        const data: ZillowAPIResponse = await response.json();
-        console.log(`Page ${currentPage} raw response:`, data);
-        
-        const pageProperties = this.processPropertyData(data);
-        console.log(`Page ${currentPage} processed properties:`, pageProperties.length);
-        
-        if (pageProperties.length === 0) {
-          console.log(`No more properties found on page ${currentPage}, stopping pagination`);
-          hasMorePages = false;
-        } else {
-          allProperties = [...allProperties, ...pageProperties];
-          console.log(`Total properties so far: ${allProperties.length}`);
-          currentPage++;
-          
-          // Add small delay between requests to avoid rate limiting
-          if (hasMorePages && currentPage <= 20) {
-            await new Promise(resolve => setTimeout(resolve, 100));
-          }
-        }
+      if (!response.ok) {
+        throw new Error(`API request failed: ${response.status} ${response.statusText}`);
       }
 
-      console.log(`Final result: ${allProperties.length} total properties across ${currentPage - 1} pages`);
-      return allProperties;
+      const data: ZillowAPIResponse = await response.json();
+      return this.processPropertyData(data);
     } catch (error) {
       console.error('Error fetching properties:', error);
       throw error;
