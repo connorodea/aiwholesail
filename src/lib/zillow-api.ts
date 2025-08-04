@@ -111,33 +111,32 @@ export class ZillowAPI {
 
     flatten(prop);
 
-    // Debug logging to see available fields
-    console.log('Available fields in flattened data:', Object.keys(flattened));
-    console.log('Address fields found:', {
-      address: flattened.address,
-      streetAddress: flattened.streetAddress,
-      fullAddress: flattened.fullAddress,
-      formattedChip: flattened.formattedChip,
-      hdpUrl: flattened.hdpUrl
-    });
-
     // Map common fields to standardized property structure
+    const address = flattened.property_address_streetAddress || 
+                   flattened.rental_metrics_streetAddress ||
+                   flattened.address || 
+                   'Unknown Address';
+    
+    const city = flattened.property_address_city || '';
+    const state = flattened.property_address_state || '';
+    const fullAddress = city && state ? `${address}, ${city}, ${state}` : address;
+
     return {
-      id: flattened.id || flattened.zpid || flattened.listingId || Math.random().toString(36),
-      address: flattened.address || flattened.streetAddress || flattened.fullAddress || flattened.formattedChip || flattened.hdpUrl || 'Unknown Address',
-      price: this.parseNumber(flattened.price || flattened.listPrice || flattened.askingPrice),
-      bedrooms: this.parseNumber(flattened.bedrooms || flattened.beds),
-      bathrooms: this.parseNumber(flattened.bathrooms || flattened.baths),
-      sqft: this.parseNumber(flattened.sqft || flattened.livingArea || flattened.floorSize),
-      propertyType: flattened.propertyType || flattened.homeType || flattened.type,
-      yearBuilt: this.parseNumber(flattened.yearBuilt),
-      lotSize: this.parseNumber(flattened.lotSize || flattened.lotAreaValue),
-      status: flattened.status || flattened.listingStatus || 'For Sale',
-      daysOnMarket: this.parseNumber(flattened.daysOnMarket || flattened.dom),
-      pricePerSqft: this.parseNumber(flattened.pricePerSqft),
-      zestimate: this.parseNumber(flattened.zestimate),
+      id: flattened.property_zpid || flattened.id || flattened.zpid || Math.random().toString(36),
+      address: fullAddress,
+      price: this.parseNumber(flattened.property_price_value || flattened.property_hdpView_price || flattened.price),
+      bedrooms: this.parseNumber(flattened.property_bedrooms || flattened.bedrooms),
+      bathrooms: this.parseNumber(flattened.property_bathrooms || flattened.bathrooms),
+      sqft: this.parseNumber(flattened.property_livingArea || flattened.sqft),
+      propertyType: flattened.property_propertyType || flattened.propertyType || 'Unknown',
+      yearBuilt: this.parseNumber(flattened.property_yearBuilt || flattened.yearBuilt),
+      lotSize: this.parseNumber(flattened.property_lotSizeWithUnit_lotSize || flattened.lotSize),
+      status: flattened.property_listing_listingStatus || flattened.property_hdpView_listingStatus || flattened.status || 'For Sale',
+      daysOnMarket: this.parseNumber(flattened.property_daysOnZillow || flattened.daysOnMarket),
+      pricePerSqft: this.parseNumber(flattened.property_price_pricePerSquareFoot || flattened.pricePerSqft),
+      zestimate: this.parseNumber(flattened.property_estimates_zestimate || flattened.zestimate),
       images: this.extractImages(flattened),
-      description: flattened.description || flattened.summary,
+      description: flattened.description || flattened.summary || '',
       ...flattened // Include all original data
     };
   }
