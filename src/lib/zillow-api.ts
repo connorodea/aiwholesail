@@ -111,10 +111,20 @@ export class ZillowAPI {
 
     flatten(prop);
 
+    // Debug logging to see available fields
+    console.log('Available fields in flattened data:', Object.keys(flattened));
+    console.log('Address fields found:', {
+      address: flattened.address,
+      streetAddress: flattened.streetAddress,
+      fullAddress: flattened.fullAddress,
+      formattedChip: flattened.formattedChip,
+      hdpUrl: flattened.hdpUrl
+    });
+
     // Map common fields to standardized property structure
     return {
       id: flattened.id || flattened.zpid || flattened.listingId || Math.random().toString(36),
-      address: flattened.address || flattened.streetAddress || flattened.fullAddress || 'Unknown Address',
+      address: flattened.address || flattened.streetAddress || flattened.fullAddress || flattened.formattedChip || flattened.hdpUrl || 'Unknown Address',
       price: this.parseNumber(flattened.price || flattened.listPrice || flattened.askingPrice),
       bedrooms: this.parseNumber(flattened.bedrooms || flattened.beds),
       bathrooms: this.parseNumber(flattened.bathrooms || flattened.baths),
