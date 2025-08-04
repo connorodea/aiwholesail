@@ -90,7 +90,7 @@ export default function RealEstateWholesaler() {
 
       toast({
         title: "Searching Properties",
-        description: `Looking for properties in ${params.location}...`,
+        description: `Looking for ALL properties in ${params.location}... This may take a moment.`,
       });
 
       const searchResults = await zillowAPI.searchProperties(params);
