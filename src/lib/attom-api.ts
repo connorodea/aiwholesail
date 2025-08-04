@@ -90,10 +90,7 @@ export class AttomAPI {
   private async makeRequest(endpoint: string, params: Record<string, any> = {}): Promise<any> {
     const url = new URL(`${this.baseUrl}${endpoint}`);
     
-    // Add API key and common parameters
-    url.searchParams.append('apikey', this.apiKey);
-    
-    // Add other parameters
+    // Add other parameters first
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
         url.searchParams.append(key, value.toString());
@@ -105,11 +102,35 @@ export class AttomAPI {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
+          'apikey': this.apiKey, // Try apikey in header instead of query param
         },
       });
 
       if (!response.ok) {
-        throw new Error(`AttomData API error: ${response.status} ${response.statusText}`);
+        // Try alternative authentication method with query parameter
+        const urlWithApiKey = new URL(`${this.baseUrl}${endpoint}`);
+        urlWithApiKey.searchParams.append('apikey', this.apiKey);
+        
+        Object.entries(params).forEach(([key, value]) => {
+          if (value !== undefined && value !== null) {
+            urlWithApiKey.searchParams.append(key, value.toString());
+          }
+        });
+
+        const retryResponse = await fetch(urlWithApiKey.toString(), {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!retryResponse.ok) {
+          const errorText = await retryResponse.text();
+          throw new Error(`AttomData API error: ${retryResponse.status} ${retryResponse.statusText}. Response: ${errorText}`);
+        }
+
+        return await retryResponse.json();
       }
 
       return await response.json();
