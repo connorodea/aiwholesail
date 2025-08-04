@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { PropertySearchParams } from '@/types/zillow';
-import { Search, MapPin, Home, Bed, Bath, DollarSign, TrendingDown } from 'lucide-react';
+import { Search, MapPin, Home, Bed, Bath, DollarSign, TrendingDown, MessageSquare } from 'lucide-react';
 
 interface PropertySearchProps {
   onSearch: (params: PropertySearchParams) => void;
@@ -146,6 +146,23 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
                 type="number"
                 className="bg-background/50"
               />
+            </div>
+
+            {/* Keywords */}
+            <div className="space-y-2 md:col-span-2">
+              <Label className="flex items-center gap-2">
+                <MessageSquare className="h-4 w-4 text-primary" />
+                Wholesaling Keywords
+              </Label>
+              <Input
+                value={searchParams.keywords || ''}
+                onChange={(e) => updateParam('keywords', e.target.value || undefined)}
+                placeholder="e.g., needs TLC, repairs, fixer upper, motivated seller"
+                className="bg-background/50"
+              />
+              <p className="text-xs text-muted-foreground">
+                Search for properties with specific keywords in descriptions (TLC, repairs, motivated, etc.)
+              </p>
             </div>
           </div>
 

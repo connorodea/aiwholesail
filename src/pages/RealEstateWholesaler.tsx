@@ -76,22 +76,41 @@ export default function RealEstateWholesaler() {
         return;
       }
 
-      // Filter for wholesale opportunities if enabled
+      // Filter for wholesale opportunities and keywords
       let filteredResults = searchResults;
+      
+      // Filter by wholesale opportunities (price < zestimate)
       if (params.wholesaleOnly) {
-        filteredResults = searchResults.filter(property => {
-          // Property is wholesale opportunity if price < zestimate
+        filteredResults = filteredResults.filter(property => {
           return property.price && property.zestimate && property.price < property.zestimate;
         });
+      }
 
-        if (filteredResults.length === 0) {
-          toast({
-            title: "No Wholesale Opportunities Found",
-            description: "No properties found priced below Zestimate. Try searching without the wholesale filter.",
-            variant: "destructive"
-          });
-          return;
+      // Filter by keywords in description
+      if (params.keywords && params.keywords.trim()) {
+        const keywords = params.keywords.toLowerCase().split(',').map(k => k.trim());
+        filteredResults = filteredResults.filter(property => {
+          const description = (property.description || '').toLowerCase();
+          return keywords.some(keyword => description.includes(keyword));
+        });
+      }
+
+      if (filteredResults.length === 0) {
+        let message = "No properties found matching your criteria.";
+        if (params.wholesaleOnly && params.keywords) {
+          message = "No properties found with wholesale opportunities and matching keywords.";
+        } else if (params.wholesaleOnly) {
+          message = "No properties found priced below Zestimate.";
+        } else if (params.keywords) {
+          message = "No properties found with the specified keywords.";
         }
+        
+        toast({
+          title: "No Results Found",
+          description: message,
+          variant: "destructive"
+        });
+        return;
       }
 
       setProperties(filteredResults);
