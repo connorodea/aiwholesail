@@ -51,10 +51,13 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
                 id="location"
                 value={searchParams.location}
                 onChange={(e) => updateParam('location', e.target.value)}
-                placeholder="e.g., New York, NY"
+                placeholder="e.g., New York, NY or Michigan or California"
                 className="bg-background/50"
                 required
               />
+              <p className="text-xs text-muted-foreground mt-1">
+                Search by city (New York, NY) or entire state (Michigan, California, etc.)
+              </p>
             </div>
 
             {/* Property Type */}
