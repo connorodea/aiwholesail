@@ -12,6 +12,7 @@ export interface PropertySearchParams {
   sortOrder?: string;
   listingStatus?: string;
   wholesaleOnly?: boolean;
+  auctionOnly?: boolean;
   keywords?: string;
 }
 

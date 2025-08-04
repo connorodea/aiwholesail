@@ -134,13 +134,26 @@ export default function RealEstateWholesaler() {
         ...searchResults.slice(10)
       ];
 
-      // Filter for wholesale opportunities and keywords
+      // Filter for wholesale opportunities, auctions, and keywords
       let filteredResults = finalResults;
       
       // Filter by wholesale opportunities (price < zestimate)
       if (params.wholesaleOnly) {
         filteredResults = filteredResults.filter(property => {
           return property.price && property.zestimate && property.price < property.zestimate;
+        });
+      }
+
+      // Filter by auction properties
+      if (params.auctionOnly) {
+        filteredResults = filteredResults.filter(property => {
+          const description = (property.description || '').toLowerCase();
+          const listingType = (property.listingSubType?.description || '').toLowerCase();
+          return description.includes('auction') || 
+                 description.includes('foreclosure') ||
+                 description.includes('sheriff') ||
+                 listingType.includes('auction') ||
+                 property.listingSubType?.description?.includes('Auction');
         });
       }
 
@@ -155,10 +168,18 @@ export default function RealEstateWholesaler() {
 
       if (filteredResults.length === 0) {
         let message = "No properties found matching your criteria.";
-        if (params.wholesaleOnly && params.keywords) {
+        if (params.wholesaleOnly && params.auctionOnly && params.keywords) {
+          message = "No properties found with wholesale opportunities, auction properties, and matching keywords.";
+        } else if (params.wholesaleOnly && params.auctionOnly) {
+          message = "No properties found with both wholesale opportunities and auction properties.";
+        } else if (params.wholesaleOnly && params.keywords) {
           message = "No properties found with wholesale opportunities and matching keywords.";
+        } else if (params.auctionOnly && params.keywords) {
+          message = "No auction properties found with matching keywords.";
         } else if (params.wholesaleOnly) {
           message = "No properties found priced below Zestimate.";
+        } else if (params.auctionOnly) {
+          message = "No auction properties found.";
         } else if (params.keywords) {
           message = "No properties found with the specified keywords.";
         }
