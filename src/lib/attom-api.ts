@@ -110,12 +110,13 @@ export class AttomAPI {
 
   async getPropertyDetails(address: string, city?: string, state?: string): Promise<AttomPropertyData | null> {
     try {
-      const params: Record<string, any> = {
-        address1: address,
-      };
+      // Parse the full address if city/state are not provided separately
+      const parsedAddress = this.parseAddress(address, city, state);
       
-      if (city) params.locality = city;
-      if (state) params.postalcode = state;
+      const params: Record<string, any> = {
+        address1: parsedAddress.streetAddress,
+        address2: parsedAddress.cityState,
+      };
 
       const response = await this.makeRequest('/property/detail', params);
       
@@ -132,12 +133,13 @@ export class AttomAPI {
 
   async getPropertyValuation(address: string, city?: string, state?: string): Promise<AttomPropertyData | null> {
     try {
-      const params: Record<string, any> = {
-        address1: address,
-      };
+      // Parse the full address if city/state are not provided separately
+      const parsedAddress = this.parseAddress(address, city, state);
       
-      if (city) params.locality = city;
-      if (state) params.postalcode = state;
+      const params: Record<string, any> = {
+        address1: parsedAddress.streetAddress,
+        address2: parsedAddress.cityState,
+      };
 
       const response = await this.makeRequest('/property/avm', params);
       
@@ -154,14 +156,15 @@ export class AttomAPI {
 
   async getComparables(address: string, city?: string, state?: string, radius: number = 0.5): Promise<AttomPropertyData | null> {
     try {
+      // Parse the full address if city/state are not provided separately
+      const parsedAddress = this.parseAddress(address, city, state);
+      
       const params: Record<string, any> = {
-        address1: address,
+        address1: parsedAddress.streetAddress,
+        address2: parsedAddress.cityState,
         radius: radius,
         minSaleDate: new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 1 year ago
       };
-      
-      if (city) params.locality = city;
-      if (state) params.postalcode = state;
 
       const response = await this.makeRequest('/property/compsales', params);
       
@@ -178,12 +181,13 @@ export class AttomAPI {
 
   async getSalesHistory(address: string, city?: string, state?: string): Promise<AttomPropertyData | null> {
     try {
-      const params: Record<string, any> = {
-        address1: address,
-      };
+      // Parse the full address if city/state are not provided separately
+      const parsedAddress = this.parseAddress(address, city, state);
       
-      if (city) params.locality = city;
-      if (state) params.postalcode = state;
+      const params: Record<string, any> = {
+        address1: parsedAddress.streetAddress,
+        address2: parsedAddress.cityState,
+      };
 
       const response = await this.makeRequest('/property/salehistory', params);
       
@@ -294,6 +298,58 @@ export class AttomAPI {
     }));
 
     return { saleHistory: history };
+  }
+
+  private parseAddress(address: string, city?: string, state?: string): { streetAddress: string; cityState: string } {
+    if (city && state) {
+      // If city and state are provided separately, use them
+      return {
+        streetAddress: address,
+        cityState: `${city}, ${state}`
+      };
+    }
+    
+    // Parse the full address string
+    // Expected format: "123 Main St, City, ST" or "123 Main St, City, ST 12345"
+    const parts = address.split(',').map(part => part.trim());
+    
+    if (parts.length >= 3) {
+      // Full address with street, city, and state
+      const streetAddress = parts[0];
+      const city = parts[1];
+      const stateZip = parts[2];
+      
+      return {
+        streetAddress,
+        cityState: `${city}, ${stateZip}`
+      };
+    } else if (parts.length === 2) {
+      // Address with street and city/state combined
+      const streetAddress = parts[0];
+      const cityState = parts[1];
+      
+      return {
+        streetAddress,
+        cityState
+      };
+    } else {
+      // Single part - treat as street address and try to extract city/state
+      const addressMatch = address.match(/^(.+?),\s*([^,]+),\s*([A-Z]{2})\s*(\d{5})?$/);
+      
+      if (addressMatch) {
+        const [, street, city, state, zip] = addressMatch;
+        return {
+          streetAddress: street,
+          cityState: zip ? `${city}, ${state} ${zip}` : `${city}, ${state}`
+        };
+      }
+      
+      // Fallback - use entire address for both fields
+      return {
+        streetAddress: address,
+        cityState: address
+      };
+    }
   }
 
   private calculateWholesaleMetrics(data: AttomPropertyData): void {
