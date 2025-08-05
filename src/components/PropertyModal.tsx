@@ -96,6 +96,29 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
         </DialogHeader>
 
         <div className="space-y-6">
+          {/* Property Images */}
+          {property.images && property.images.length > 0 && (
+            <div className="space-y-3">
+              <h3 className="font-semibold flex items-center gap-2">
+                <Home className="h-5 w-5 text-primary" />
+                Property Photos
+              </h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 max-h-40 overflow-y-auto">
+                {property.images.slice(0, 8).map((image, index) => (
+                  <img 
+                    key={index} 
+                    src={image} 
+                    alt={`Property ${index + 1}`}
+                    className="w-full h-20 object-cover rounded-lg border"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = 'none';
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Basic Property Details */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="flex items-center gap-2 p-3 bg-muted/30 rounded-lg">
@@ -124,6 +147,151 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
               <div>
                 <div className="font-semibold">{property.yearBuilt || 'N/A'}</div>
                 <div className="text-xs text-muted-foreground">Year Built</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Extended Property Details from Zillow API */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+              <Home className="h-5 w-5 text-primary" />
+              Additional Property Details
+            </h3>
+            
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {property.lotSize && (
+                <div className="p-3 bg-muted/30 rounded-lg">
+                  <div className="text-sm text-muted-foreground">Lot Size</div>
+                  <div className="font-semibold">{formatNumber(property.lotSize)} sq ft</div>
+                  {property.property_lotSizeWithUnit_lotSizeUnit && (
+                    <div className="text-xs text-muted-foreground">{property.property_lotSizeWithUnit_lotSizeUnit}</div>
+                  )}
+                </div>
+              )}
+
+              {property.property_estimates_rentZestimate && (
+                <div className="p-3 bg-muted/30 rounded-lg">
+                  <div className="text-sm text-muted-foreground">Rent Estimate</div>
+                  <div className="font-semibold">{formatPrice(property.property_estimates_rentZestimate)}/mo</div>
+                  <div className="text-xs text-muted-foreground">Rent Zestimate</div>
+                </div>
+              )}
+
+              {property.property_taxAssessment_taxAssessedValue && (
+                <div className="p-3 bg-muted/30 rounded-lg">
+                  <div className="text-sm text-muted-foreground">Tax Assessment</div>
+                  <div className="font-semibold">{formatPrice(property.property_taxAssessment_taxAssessedValue)}</div>
+                  {property.property_taxAssessment_taxAssessmentYear && (
+                    <div className="text-xs text-muted-foreground">{property.property_taxAssessment_taxAssessmentYear}</div>
+                  )}
+                </div>
+              )}
+
+              {property.property_listing_listingSubType_isFSBA && (
+                <div className="p-3 bg-blue-50 dark:bg-blue-950 rounded-lg border border-blue-200 dark:border-blue-800">
+                  <div className="text-sm text-blue-600 dark:text-blue-400">Listing Type</div>
+                  <div className="font-semibold text-blue-800 dark:text-blue-200">For Sale By Agent</div>
+                </div>
+              )}
+            </div>
+
+            {/* MLS and Agent Information */}
+            {(property.property_propertyDisplayRules_mls_brokerName || property.property_propertyDisplayRules_agent_agentName) && (
+              <div className="p-4 bg-accent/10 rounded-lg border border-accent/20">
+                <h4 className="font-semibold mb-3 text-accent">Listing Information</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {property.property_propertyDisplayRules_agent_agentName && (
+                    <div>
+                      <div className="text-sm text-muted-foreground">Listing Agent</div>
+                      <div className="font-medium">{property.property_propertyDisplayRules_agent_agentName}</div>
+                    </div>
+                  )}
+                  {property.property_propertyDisplayRules_mls_brokerName && (
+                    <div>
+                      <div className="text-sm text-muted-foreground">Brokerage</div>
+                      <div className="font-medium">{property.property_propertyDisplayRules_mls_brokerName}</div>
+                    </div>
+                  )}
+                  {property.property_propertyDisplayRules_mls_mlsName && (
+                    <div>
+                      <div className="text-sm text-muted-foreground">MLS</div>
+                      <div className="font-medium">{property.property_propertyDisplayRules_mls_mlsName}</div>
+                      {property.property_propertyDisplayRules_mls_mlsStatus && (
+                        <Badge variant="outline" className="mt-1">
+                          {property.property_propertyDisplayRules_mls_mlsStatus}
+                        </Badge>
+                      )}
+                    </div>
+                  )}
+                  {property.property_listing_palsId && (
+                    <div>
+                      <div className="text-sm text-muted-foreground">MLS ID</div>
+                      <div className="font-mono text-sm">{property.property_listing_palsId}</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Price History and Market Data */}
+            {property.property_price_changedDate && (
+              <div className="p-4 bg-muted/30 rounded-lg">
+                <h4 className="font-semibold mb-3">Price History</h4>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">Current Price:</span>
+                    <span className="font-semibold">{formatPrice(property.price)}</span>
+                  </div>
+                  {property.property_price_priceChange && (
+                    <div className="flex justify-between items-center">
+                      <span className="text-muted-foreground">Price Change:</span>
+                      <span className={`font-semibold ${property.property_price_priceChange > 0 ? 'text-destructive' : 'text-success'}`}>
+                        {property.property_price_priceChange > 0 ? '+' : ''}{formatPrice(property.property_price_priceChange)}
+                      </span>
+                    </div>
+                  )}
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">Last Changed:</span>
+                    <span className="text-sm">{new Date(property.property_price_changedDate).toLocaleDateString()}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Property Features and Amenities */}
+            <div className="space-y-3">
+              <h4 className="font-semibold">Property Features</h4>
+              <div className="flex flex-wrap gap-2">
+                {property.property_media_hasVRModel && (
+                  <Badge variant="secondary" className="bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
+                    🏠 3D Tour Available
+                  </Badge>
+                )}
+                {property.property_media_hasVideos && (
+                  <Badge variant="secondary" className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+                    🎥 Video Tour
+                  </Badge>
+                )}
+                {property.property_media_hasApprovedThirdPartyVirtualTour && (
+                  <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                    🌐 Virtual Tour
+                  </Badge>
+                )}
+                {property.property_isShowcaseListing && (
+                  <Badge variant="secondary" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+                    ⭐ Showcase Listing
+                  </Badge>
+                )}
+                {property.property_isFeatured && (
+                  <Badge variant="secondary" className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                    🏆 Featured
+                  </Badge>
+                )}
+                {property.property_isPreforeclosureAuction && (
+                  <Badge variant="destructive">
+                    ⚠️ Pre-foreclosure
+                  </Badge>
+                )}
               </div>
             </div>
           </div>
@@ -354,23 +522,85 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
             </div>
           )}
 
-          {/* Additional Details */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {property.lotSize && (
-              <div className="p-3 bg-muted/30 rounded-lg">
-                <div className="text-sm text-muted-foreground">Lot Size</div>
-                <div className="font-semibold">{formatNumber(property.lotSize)} sq ft</div>
+          {/* School and Neighborhood Information */}
+          {(property.property_region || property.property_location_latitude) && (
+            <div className="p-4 bg-muted/30 rounded-lg">
+              <h4 className="font-semibold mb-3">Location Details</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {property.property_location_latitude && property.property_location_longitude && (
+                  <div>
+                    <div className="text-sm text-muted-foreground">Coordinates</div>
+                    <div className="font-mono text-sm">
+                      {property.property_location_latitude.toFixed(6)}, {property.property_location_longitude.toFixed(6)}
+                    </div>
+                  </div>
+                )}
+                {property.property_bestGuessTimeZone && (
+                  <div>
+                    <div className="text-sm text-muted-foreground">Time Zone</div>
+                    <div className="font-medium">{property.property_bestGuessTimeZone}</div>
+                  </div>
+                )}
               </div>
-            )}
-            
-            {/* Raw data preview for debugging */}
-            <details className="p-3 bg-muted/30 rounded-lg">
-              <summary className="text-sm font-medium cursor-pointer">Raw Property Data</summary>
-              <pre className="text-xs mt-2 overflow-auto max-h-32 text-muted-foreground">
-                {JSON.stringify(property, null, 2)}
-              </pre>
-            </details>
-          </div>
+            </div>
+          )}
+
+          {/* Investment Analysis */}
+          {property.rental_metrics_monthlyCashFlow !== undefined && (
+            <div className="p-4 bg-gradient-to-r from-success/10 to-primary/10 rounded-lg border border-success/20">
+              <h4 className="font-semibold mb-3 text-success">Rental Investment Analysis</h4>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div>
+                  <div className="text-sm text-muted-foreground">Monthly Cash Flow</div>
+                  <div className={`font-bold ${property.rental_metrics_monthlyCashFlow >= 0 ? 'text-success' : 'text-destructive'}`}>
+                    {property.rental_metrics_monthlyCashFlow >= 0 ? '+' : ''}{formatPrice(property.rental_metrics_monthlyCashFlow)}
+                  </div>
+                </div>
+                {property.rental_metrics_cashOnCashReturn !== undefined && (
+                  <div>
+                    <div className="text-sm text-muted-foreground">Cash on Cash Return</div>
+                    <div className={`font-bold ${property.rental_metrics_cashOnCashReturn >= 0 ? 'text-success' : 'text-destructive'}`}>
+                      {property.rental_metrics_cashOnCashReturn.toFixed(1)}%
+                    </div>
+                  </div>
+                )}
+                {property.rental_metrics_capRate !== undefined && (
+                  <div>
+                    <div className="text-sm text-muted-foreground">Cap Rate</div>
+                    <div className={`font-bold ${property.rental_metrics_capRate >= 0 ? 'text-success' : 'text-destructive'}`}>
+                      {property.rental_metrics_capRate.toFixed(1)}%
+                    </div>
+                  </div>
+                )}
+                {property.rental_metrics_totalReturn5yr !== undefined && (
+                  <div>
+                    <div className="text-sm text-muted-foreground">5-Year Return</div>
+                    <div className={`font-bold ${property.rental_metrics_totalReturn5yr >= 0 ? 'text-success' : 'text-destructive'}`}>
+                      {property.rental_metrics_totalReturn5yr.toFixed(1)}%
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Raw Zillow Data Explorer */}
+          <details className="p-3 bg-muted/30 rounded-lg">
+            <summary className="text-sm font-medium cursor-pointer">All Zillow API Data</summary>
+            <div className="mt-3 space-y-2 max-h-96 overflow-auto">
+              {Object.entries(property)
+                .filter(([key]) => key.startsWith('property_') || key.startsWith('rental_'))
+                .sort(([a], [b]) => a.localeCompare(b))
+                .map(([key, value]) => (
+                  <div key={key} className="flex text-xs border-b border-muted/20 pb-1">
+                    <span className="text-muted-foreground w-1/3 break-words">{key.replace(/^property_|^rental_/, '')}:</span>
+                    <span className="w-2/3 font-mono break-words">
+                      {typeof value === 'object' ? JSON.stringify(value) : String(value)}
+                    </span>
+                  </div>
+                ))}
+            </div>
+          </details>
 
           {/* Action Buttons */}
           <div className="flex gap-2 pt-4 border-t">
