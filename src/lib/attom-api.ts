@@ -327,11 +327,24 @@ export class AttomAPI {
 
   async testConnection(): Promise<boolean> {
     try {
+      console.log('Testing AttomData API connection...');
       const { data, error } = await supabase.functions.invoke('get-attom-data', {
         body: { action: 'test' }
       });
 
-      return !error && data?.success;
+      console.log('AttomData test response:', { data, error });
+      
+      if (error) {
+        console.error('Supabase function error:', error);
+        return false;
+      }
+      
+      if (!data?.success) {
+        console.error('AttomData API error:', data?.error);
+        return false;
+      }
+
+      return true;
     } catch (error) {
       console.error('AttomData connection test failed:', error);
       return false;

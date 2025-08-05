@@ -73,14 +73,21 @@ serve(async (req) => {
     let requestHeaders: Record<string, string>
 
     if (action === 'test') {
-      // Test connection with a basic property search
-      url = new URL(`${baseUrl}/property/snapshot`)
-      url.searchParams.append('cityname', 'Los Angeles')
+      // Test connection with multiple approaches
+      console.log(`[${new Date().toISOString()}] Testing AttomData API with key: ${apiKey.substring(0, 8)}...`)
+      
+      // Try the basic profile endpoint first (simpler)
+      url = new URL(`${baseUrl}/property/basicprofile`)
+      url.searchParams.append('address1', '123 Main St')
+      url.searchParams.append('address2', 'Los Angeles, CA')
       
       requestHeaders = {
         'Accept': 'application/json',
         'apikey': apiKey,
       }
+      
+      console.log(`[${new Date().toISOString()}] Test URL: ${url.toString()}`)
+      console.log(`[${new Date().toISOString()}] Test Headers:`, Object.keys(requestHeaders))
     } else {
       // Regular API request
       url = new URL(`${baseUrl}${endpoint}`)
@@ -115,8 +122,12 @@ serve(async (req) => {
     if (!response.ok) {
       const errorText = await response.text()
       console.error(`[${new Date().toISOString()}] AttomData API error for ${clientIP}: ${response.status} ${response.statusText}`)
-      console.error(`[${new Date().toISOString()}] Error response body:`, errorText)
-      throw new Error(`AttomData API error: ${response.status} ${response.statusText}`)
+      console.error(`[${new Date().toISOString()}] Full error response:`, errorText)
+      console.error(`[${new Date().toISOString()}] Request URL was:`, url.toString())
+      console.error(`[${new Date().toISOString()}] Request headers were:`, requestHeaders)
+      
+      // Return more specific error for debugging
+      throw new Error(`AttomData API error: ${response.status} ${response.statusText} - ${errorText.substring(0, 200)}`)
     }
 
     const data = await response.json()
@@ -132,15 +143,13 @@ serve(async (req) => {
     const duration = Date.now() - startTime
     console.error(`[${new Date().toISOString()}] Error in get-attom-data for ${clientIP} after ${duration}ms:`, error)
     
-    // Sanitize error message to avoid information leakage
-    const sanitizedError = error instanceof Error && error.message.includes('API') 
-      ? 'External service error' 
-      : error.message || 'Failed to fetch AttomData'
+    // Return actual error for debugging AttomData issues
+    const errorMessage = error instanceof Error ? error.message : 'Failed to fetch AttomData'
     
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: sanitizedError
+        error: errorMessage
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
     )
