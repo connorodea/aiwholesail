@@ -31,10 +31,12 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
   };
 
   return (
-    <Card className="bg-card/50 backdrop-blur-sm border-border/50">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-foreground">
-          <Search className="h-5 w-5 text-primary" />
+    <Card className="glass-card border-0 shadow-elegant">
+      <CardHeader className="pb-6">
+        <CardTitle className="flex items-center gap-3 text-2xl gradient-text">
+          <div className="p-2 bg-gradient-to-br from-primary/20 to-accent/20 rounded-lg">
+            <Search className="h-6 w-6 text-primary" />
+          </div>
           Property Search
         </CardTitle>
       </CardHeader>
@@ -228,17 +230,19 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
 
           <Button
             type="submit" 
-            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-200"
+            variant="premium"
+            size="lg"
+            className="w-full shadow-elegant hover:shadow-glow transition-all duration-300"
             disabled={isLoading || !searchParams.location.trim()}
           >
             {isLoading ? (
               <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground mr-2" />
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary-foreground mr-3" />
                 Searching Properties...
               </>
             ) : (
               <>
-                <Search className="h-4 w-4 mr-2" />
+                <Search className="h-5 w-5 mr-3" />
                 Search Properties
               </>
             )}

@@ -36,24 +36,24 @@ export function PropertyCard({ property, onViewDetails }: PropertyCardProps) {
   };
 
   return (
-    <Card className="group hover:shadow-lg transition-all duration-300 bg-card/50 backdrop-blur-sm border-border/50 hover:border-primary/50">
-      <CardHeader className="pb-3">
+    <Card className="group smooth-hover hover:shadow-elegant glass-card border-0 hover:scale-[1.02]">
+      <CardHeader className="pb-4">
         <div className="flex justify-between items-start">
-          <div className="space-y-1">
-            <h3 className="font-semibold text-lg text-foreground group-hover:text-primary transition-colors">
+          <div className="space-y-2">
+            <h3 className="font-semibold text-lg text-foreground group-hover:text-primary transition-colors leading-tight">
               {property.address}
             </h3>
             <div className="flex items-center text-muted-foreground text-sm">
-              <MapPin className="h-4 w-4 mr-1" />
+              <MapPin className="h-4 w-4 mr-1.5 text-primary/70" />
               {property.propertyType || 'Property'}
             </div>
           </div>
           <div className="flex gap-2 flex-wrap">
-            <Badge className={getStatusColor(property.status)}>
+            <Badge className={`${getStatusColor(property.status)} rounded-full px-3 py-1 text-xs font-medium`}>
               {property.status}
             </Badge>
             {property.isFSBO && (
-              <Badge variant="secondary" className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+              <Badge className="bg-gradient-to-r from-info/20 to-info/30 text-info border border-info/30 rounded-full px-3 py-1 text-xs font-medium">
                 FSBO
               </Badge>
             )}
@@ -61,25 +61,25 @@ export function PropertyCard({ property, onViewDetails }: PropertyCardProps) {
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-6">
         {/* Price */}
-        <div className="text-2xl font-bold text-primary">
+        <div className="text-3xl font-bold gradient-text">
           {property.price ? formatPrice(property.price) : 'Price N/A'}
         </div>
 
         {/* Property Details */}
-        <div className="grid grid-cols-3 gap-4 text-sm">
-          <div className="flex items-center gap-1">
-            <Bed className="h-4 w-4 text-muted-foreground" />
-            <span>{property.bedrooms || 'N/A'} bed</span>
+        <div className="grid grid-cols-3 gap-4">
+          <div className="flex items-center gap-2 p-2 bg-muted/30 rounded-lg">
+            <Bed className="h-4 w-4 text-primary" />
+            <span className="text-sm font-medium">{property.bedrooms || 'N/A'} bed</span>
           </div>
-          <div className="flex items-center gap-1">
-            <Bath className="h-4 w-4 text-muted-foreground" />
-            <span>{property.bathrooms || 'N/A'} bath</span>
+          <div className="flex items-center gap-2 p-2 bg-muted/30 rounded-lg">
+            <Bath className="h-4 w-4 text-primary" />
+            <span className="text-sm font-medium">{property.bathrooms || 'N/A'} bath</span>
           </div>
-          <div className="flex items-center gap-1">
-            <Square className="h-4 w-4 text-muted-foreground" />
-            <span>{property.sqft ? formatNumber(property.sqft) : 'N/A'} sqft</span>
+          <div className="flex items-center gap-2 p-2 bg-muted/30 rounded-lg">
+            <Square className="h-4 w-4 text-primary" />
+            <span className="text-sm font-medium">{property.sqft ? formatNumber(property.sqft) : 'N/A'} sqft</span>
           </div>
         </div>
 
@@ -196,10 +196,12 @@ export function PropertyCard({ property, onViewDetails }: PropertyCardProps) {
         )}
       </CardContent>
 
-      <CardFooter>
+      <CardFooter className="pt-6">
         <Button 
           onClick={() => onViewDetails(property)}
-          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+          variant="premium"
+          size="lg"
+          className="w-full shadow-md hover:shadow-lg"
         >
           <Eye className="h-4 w-4 mr-2" />
           View Details

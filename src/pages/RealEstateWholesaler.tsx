@@ -14,7 +14,7 @@ import { Property, PropertySearchParams, AIAnalysis } from '@/types/zillow';
 import { zillowAPI } from '@/lib/zillow-api';
 import { AttomAPI } from '@/lib/attom-api';
 import { aiAnalyzer } from '@/lib/ai-analyzer';
-import { Brain, Home, Download, Zap, TrendingUp, AlertCircle, CheckCircle } from 'lucide-react';
+import { Brain, Home, Download, Zap, TrendingUp, AlertCircle, CheckCircle, DollarSign } from 'lucide-react';
 
 export default function RealEstateWholesaler() {
   console.log('RealEstateWholesaler component is rendering');
@@ -263,57 +263,62 @@ export default function RealEstateWholesaler() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background">
+      <div className="container mx-auto px-4 py-12">
         {/* Header */}
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="p-3 bg-primary/10 rounded-full">
-              <Home className="h-8 w-8 text-primary" />
+        <div className="text-center mb-16">
+          <div className="flex items-center justify-center gap-4 mb-6">
+            <div className="p-4 bg-gradient-to-br from-primary/10 to-accent/10 rounded-2xl border border-primary/20">
+              <Home className="h-10 w-10 text-primary" />
             </div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              AI Real Estate Wholesaler
-            </h1>
+            <div>
+              <h1 className="text-5xl lg:text-6xl font-bold gradient-text mb-2">
+                AI Real Estate Wholesaler
+              </h1>
+              <div className="h-1 w-24 bg-gradient-to-r from-primary to-accent rounded-full mx-auto"></div>
+            </div>
           </div>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Find and analyze wholesale real estate opportunities using AI-powered market insights
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+            Discover profitable wholesale opportunities with AI-powered market analysis, 
+            enhanced property data, and automated deal scoring
           </p>
           
           {/* API Status */}
-          <div className="flex items-center justify-center gap-6 mt-4">
-            <div className="flex items-center gap-2">
+          <div className="flex items-center justify-center gap-8 mt-8 p-4 glass-card rounded-2xl max-w-2xl mx-auto">
+            <div className="flex items-center gap-3">
               {isConnected === null ? (
-                <AlertCircle className="h-4 w-4 text-muted-foreground" />
+                <AlertCircle className="h-5 w-5 text-muted-foreground" />
               ) : isConnected ? (
-                <CheckCircle className="h-4 w-4 text-success" />
+                <CheckCircle className="h-5 w-5 text-success" />
               ) : (
-                <AlertCircle className="h-4 w-4 text-destructive" />
+                <AlertCircle className="h-5 w-5 text-destructive" />
               )}
-              <span className="text-sm">
-                Zillow: {isConnected === null ? 'Unknown' : isConnected ? 'Connected' : 'Disconnected'}
+              <span className="font-medium">
+                Zillow API: {isConnected === null ? 'Unknown' : isConnected ? 'Connected' : 'Disconnected'}
               </span>
             </div>
             
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               {attomConnected === null ? (
-                <AlertCircle className="h-4 w-4 text-muted-foreground" />
+                <AlertCircle className="h-5 w-5 text-muted-foreground" />
               ) : attomConnected ? (
-                <CheckCircle className="h-4 w-4 text-success" />
+                <CheckCircle className="h-5 w-5 text-success" />
               ) : (
-                <AlertCircle className="h-4 w-4 text-destructive" />
+                <AlertCircle className="h-5 w-5 text-destructive" />
               )}
-              <span className="text-sm">
-                AttomData: {attomConnected === null ? 'Unknown' : attomConnected ? 'Connected' : 'Disconnected'}
+              <span className="font-medium">
+                AttomData API: {attomConnected === null ? 'Unknown' : attomConnected ? 'Connected' : 'Disconnected'}
               </span>
             </div>
             
             <Button
-              variant="outline"
+              variant="premium"
               size="sm"
               onClick={testAPIConnection}
               disabled={isLoading}
+              className="shadow-lg"
             >
-              <Zap className="h-4 w-4 mr-1" />
+              <Zap className="h-4 w-4 mr-2" />
               Test APIs
             </Button>
           </div>
@@ -323,31 +328,31 @@ export default function RealEstateWholesaler() {
         <TopDealsSection />
 
         {/* Search Section */}
-        <div className="mb-8">
+        <div className="mb-12">
           <PropertySearch onSearch={handleSearch} isLoading={isLoading} />
         </div>
 
         {/* Results Section */}
         {(properties.length > 0 || analysis) && (
-          <Tabs defaultValue="properties" className="space-y-6">
+          <Tabs defaultValue="properties" className="space-y-8">
             <div className="flex items-center justify-between">
-              <TabsList className="bg-muted/50">
-                <TabsTrigger value="properties" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <TabsList className="glass-card p-1.5 h-auto">
+                <TabsTrigger value="properties" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-6 py-3 font-medium smooth-hover">
                   <Home className="h-4 w-4 mr-2" />
                   Properties ({properties.length})
                 </TabsTrigger>
-                <TabsTrigger value="analysis" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                <TabsTrigger value="analysis" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-6 py-3 font-medium smooth-hover">
                   <Brain className="h-4 w-4 mr-2" />
                   AI Analysis
                 </TabsTrigger>
-                <TabsTrigger value="deal-analysis" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                <TabsTrigger value="deal-analysis" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-6 py-3 font-medium smooth-hover">
                   <TrendingUp className="h-4 w-4 mr-2" />
                   Deal Analysis
                 </TabsTrigger>
               </TabsList>
 
               {properties.length > 0 && (
-                <Button onClick={exportResults} variant="outline">
+                <Button onClick={exportResults} variant="outline" size="lg" className="shadow-md">
                   <Download className="h-4 w-4 mr-2" />
                   Export CSV
                 </Button>
@@ -358,22 +363,28 @@ export default function RealEstateWholesaler() {
               {properties.length > 0 ? (
                 <>
                   {/* Quick Stats */}
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <Card className="bg-card/50 backdrop-blur-sm border-border/50">
-                      <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-muted-foreground">Total Properties</CardTitle>
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    <Card className="glass-card border-0 shadow-card smooth-hover hover:shadow-elegant">
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                          <Home className="h-4 w-4 text-primary" />
+                          Total Properties
+                        </CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <div className="text-2xl font-bold text-primary">{properties.length}</div>
+                        <div className="text-3xl font-bold gradient-text">{properties.length}</div>
                       </CardContent>
                     </Card>
                     
-                    <Card className="bg-card/50 backdrop-blur-sm border-border/50">
-                      <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-muted-foreground">Avg Price</CardTitle>
+                    <Card className="glass-card border-0 shadow-card smooth-hover hover:shadow-elegant">
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                          <DollarSign className="h-4 w-4 text-primary" />
+                          Avg Price
+                        </CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <div className="text-2xl font-bold text-primary">
+                        <div className="text-3xl font-bold gradient-text">
                           {properties.filter(p => p.price).length > 0 
                             ? `$${Math.round(properties.filter(p => p.price).reduce((sum, p) => sum + (p.price || 0), 0) / properties.filter(p => p.price).length).toLocaleString()}`
                             : 'N/A'
@@ -382,23 +393,29 @@ export default function RealEstateWholesaler() {
                       </CardContent>
                     </Card>
 
-                    <Card className="bg-card/50 backdrop-blur-sm border-border/50">
-                      <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-muted-foreground">Below Market</CardTitle>
+                    <Card className="glass-card border-0 shadow-card smooth-hover hover:shadow-elegant">
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                          <TrendingUp className="h-4 w-4 text-success" />
+                          Below Market
+                        </CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <div className="text-2xl font-bold text-success">
+                        <div className="text-3xl font-bold text-success">
                           {properties.filter(p => p.price && p.zestimate && p.price < p.zestimate).length}
                         </div>
                       </CardContent>
                     </Card>
 
-                    <Card className="bg-card/50 backdrop-blur-sm border-border/50">
-                      <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium text-muted-foreground">Long on Market</CardTitle>
+                    <Card className="glass-card border-0 shadow-card smooth-hover hover:shadow-elegant">
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                          <AlertCircle className="h-4 w-4 text-warning" />
+                          Long on Market
+                        </CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <div className="text-2xl font-bold text-warning">
+                        <div className="text-3xl font-bold text-warning">
                           {properties.filter(p => p.daysOnMarket && p.daysOnMarket > 60).length}
                         </div>
                       </CardContent>
@@ -406,7 +423,7 @@ export default function RealEstateWholesaler() {
                   </div>
 
                   {/* Property Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {properties.map((property) => (
                       <PropertyCard
                         key={property.id}
