@@ -2,7 +2,7 @@ import { Property } from '@/types/zillow';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MapPin, Bed, Bath, Square, Calendar, TrendingUp, Eye, AlertTriangle, DollarSign, Users, Star } from 'lucide-react';
+import { MapPin, Bed, Bath, Square, Calendar, TrendingUp, Eye, AlertTriangle, DollarSign, Users, Star, ExternalLink } from 'lucide-react';
 
 interface PropertyCardProps {
   property: Property;
@@ -197,15 +197,29 @@ export function PropertyCard({ property, onViewDetails }: PropertyCardProps) {
       </CardContent>
 
       <CardFooter className="pt-6">
-        <Button 
-          onClick={() => onViewDetails(property)}
-          variant="default"
-          size="lg"
-          className="w-full"
-        >
-          <Eye className="h-4 w-4 mr-2" />
-          View Details
-        </Button>
+        <div className="flex gap-3 w-full">
+          <Button 
+            onClick={() => onViewDetails(property)}
+            variant="default"
+            size="lg"
+            className="flex-1"
+          >
+            <Eye className="h-4 w-4 mr-2" />
+            View Details
+          </Button>
+          <Button 
+            variant="outline" 
+            size="lg" 
+            className="px-4"
+            onClick={(e) => {
+              e.stopPropagation();
+              const zillowUrl = `https://www.zillow.com/homes/${encodeURIComponent(property.address)}_rb/`;
+              window.open(zillowUrl, '_blank');
+            }}
+          >
+            <ExternalLink className="h-5 w-5" />
+          </Button>
+        </div>
       </CardFooter>
     </Card>
   );
