@@ -432,14 +432,14 @@ export function TopDealsSection() {
         </div>
       ) : topDeals.length > 0 ? (
         <div className="space-y-8">
-          {/* Top 3 Featured Deals */}
+          {/* Top 6 Featured Deals */}
           <div className="space-y-4">
             <h2 className="text-3xl font-bold gradient-text flex items-center gap-3">
-              <span className="text-4xl">⭐</span>
+              <span className="text-4xl flex items-center justify-center w-12 h-12 bg-gradient-to-r from-yellow-400 to-yellow-600 rounded-full">⭐</span>
               Premium Picks
             </h2>
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {topDeals.slice(0, 3).map((property, index) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {topDeals.slice(0, 6).map((property, index) => (
                 <div key={property.id} className="relative group">
                   <div className="neon-card p-8 rounded-3xl glow-hover cursor-pointer" onClick={() => handlePropertyClick(property)}>
                     {/* Rank Badge */}
@@ -531,56 +531,6 @@ export function TopDealsSection() {
             </div>
           </div>
 
-          {/* Remaining Deals Grid */}
-          {topDeals.length > 3 && (
-            <div className="space-y-4">
-              <h2 className="text-2xl font-bold gradient-text flex items-center gap-3">
-                <span className="text-3xl">💎</span>
-                More Opportunities ({topDeals.length - 3})
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {topDeals.slice(3).map((property) => (
-                  <div key={property.id} className="relative">
-                    <div className="glass-card p-6 rounded-2xl smooth-hover hover:shadow-elegant cursor-pointer group" onClick={() => handlePropertyClick(property)}>
-                      {/* Score Badge */}
-                      <div className="absolute -top-3 -right-3 z-10">
-                        <div className="bg-gradient-to-r from-primary to-accent text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center text-xs font-bold shadow-lg">
-                          {calculateWholesaleScore(property)}
-                        </div>
-                      </div>
-
-                      <div className="space-y-4">
-                        <div>
-                          <h4 className="font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2">
-                            {property.address}
-                          </h4>
-                          <div className="text-sm text-muted-foreground mt-1">
-                            {property.propertyType || 'Property'}
-                          </div>
-                        </div>
-
-                        <div className="text-xl font-bold gradient-text">
-                          {property.price ? `$${property.price.toLocaleString()}` : 'N/A'}
-                        </div>
-
-                        <div className="flex justify-between text-sm">
-                          <span>{property.bedrooms || 'N/A'} bed</span>
-                          <span>{property.bathrooms || 'N/A'} bath</span>
-                          <span>{property.sqft ? `${Math.round(property.sqft / 1000)}k` : 'N/A'} sqft</span>
-                        </div>
-
-                        {property.daysOnMarket && (
-                          <div className="text-xs text-warning">
-                            📅 {property.daysOnMarket} days on market
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       ) : (
         <div className="text-center py-16 space-y-6">
