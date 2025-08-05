@@ -106,21 +106,29 @@ export default function RealEstateWholesaler() {
         return;
       }
 
-      // Enhance properties with AttomData (in parallel for first 10 properties)
+      // Enhance properties with AttomData (first 20 properties for better coverage)
       toast({
         title: "Enhancing Data",
         description: "Getting additional property data from AttomData...",
       });
 
+      const propertiesForEnhancement = searchResults.slice(0, Math.min(20, searchResults.length));
+      
       const enhancedResults = await Promise.allSettled(
-        searchResults.slice(0, 10).map(async (property) => {
+        propertiesForEnhancement.map(async (property) => {
           try {
-            const attomData = await attomAPI.getEnhancedPropertyData(
-              property.address,
-              property.city || '',
-              property.state || ''
-            );
-            return { ...property, attomData };
+            // Get enhanced AttomData for each property
+            const attomData = await attomAPI.getEnhancedPropertyData(property.address);
+            
+            // Merge AttomData with existing property data
+            return { 
+              ...property, 
+              attomData,
+              // Update core fields if AttomData provides better info
+              yearBuilt: attomData.yearBuilt || property.yearBuilt,
+              sqft: attomData.livingAreaSqFt || property.sqft,
+              lotSize: attomData.lotSizeAcres ? attomData.lotSizeAcres * 43560 : property.lotSize, // Convert acres to sqft
+            };
           } catch (error) {
             console.error(`Failed to enhance property ${property.address}:`, error);
             return property;
@@ -129,11 +137,13 @@ export default function RealEstateWholesaler() {
       );
 
       // Combine enhanced and remaining properties
+      const enhancedProperties = enhancedResults.map(result => 
+        result.status === 'fulfilled' ? result.value : propertiesForEnhancement[enhancedResults.indexOf(result)]
+      );
+      
       const finalResults = [
-        ...enhancedResults.map(result => 
-          result.status === 'fulfilled' ? result.value : searchResults[enhancedResults.indexOf(result)]
-        ),
-        ...searchResults.slice(10)
+        ...enhancedProperties,
+        ...searchResults.slice(Math.min(20, searchResults.length))
       ];
 
       // Filter for wholesale opportunities, auctions, and keywords
