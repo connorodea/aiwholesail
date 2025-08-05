@@ -57,6 +57,8 @@ serve(async (req) => {
     const { endpoint, params, action = 'request' } = await req.json()
 
     const apiKey = Deno.env.get('ATTOM_API_KEY')
+    console.log(`[${new Date().toISOString()}] API Key available: ${!!apiKey}, first 10 chars: ${apiKey?.substring(0, 10)}...`)
+    
     if (!apiKey) {
       console.error(`[${new Date().toISOString()}] AttomData API key not configured`)
       return new Response(
@@ -71,10 +73,9 @@ serve(async (req) => {
     let requestHeaders: Record<string, string>
 
     if (action === 'test') {
-      // Test connection
-      url = new URL(`${baseUrl}/property/basicprofile`)
-      url.searchParams.append('address1', '123 Main St')
-      url.searchParams.append('address2', 'Los Angeles, CA')
+      // Test connection with a basic property search
+      url = new URL(`${baseUrl}/property/snapshot`)
+      url.searchParams.append('cityname', 'Los Angeles')
       
       requestHeaders = {
         'Accept': 'application/json',
@@ -98,7 +99,13 @@ serve(async (req) => {
       }
     }
 
-    console.log(`[${new Date().toISOString()}] Making AttomData API request for ${clientIP}:`, { action, endpoint, url: url.toString() })
+    console.log(`[${new Date().toISOString()}] Making AttomData API request for ${clientIP}:`, { 
+      action, 
+      endpoint, 
+      url: url.toString(),
+      hasApiKey: !!apiKey,
+      headers: Object.keys(requestHeaders)
+    })
 
     const response = await fetch(url.toString(), {
       method: 'GET',
@@ -107,7 +114,8 @@ serve(async (req) => {
 
     if (!response.ok) {
       const errorText = await response.text()
-      console.warn(`[${new Date().toISOString()}] AttomData API error for ${clientIP}: ${response.status}`)
+      console.error(`[${new Date().toISOString()}] AttomData API error for ${clientIP}: ${response.status} ${response.statusText}`)
+      console.error(`[${new Date().toISOString()}] Error response body:`, errorText)
       throw new Error(`AttomData API error: ${response.status} ${response.statusText}`)
     }
 
