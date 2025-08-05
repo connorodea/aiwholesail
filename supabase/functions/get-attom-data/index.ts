@@ -73,13 +73,13 @@ serve(async (req) => {
     let requestHeaders: Record<string, string>
 
     if (action === 'test') {
-      // Test connection with multiple approaches
+      // Test connection by checking API status
       console.log(`[${new Date().toISOString()}] Testing AttomData API with key: ${apiKey.substring(0, 8)}...`)
       
-      // Try the basic profile endpoint first (simpler)
+      // Use a simple test that doesn't require a specific address
       url = new URL(`${baseUrl}/property/basicprofile`)
-      url.searchParams.append('address1', '123 Main St')
-      url.searchParams.append('address2', 'Los Angeles, CA')
+      url.searchParams.append('address1', '1600 Pennsylvania Avenue')
+      url.searchParams.append('address2', 'Washington, DC')
       
       requestHeaders = {
         'Accept': 'application/json',
