@@ -7,7 +7,7 @@ import { Button } from './ui/button';
 import { Skeleton } from './ui/skeleton';
 import { Property } from '@/types/zillow';
 import { zillowAPI } from '@/lib/zillow-api';
-import { TrendingUp, MapPin, RefreshCw } from 'lucide-react';
+import { TrendingUp, MapPin, RefreshCw, ExternalLink } from 'lucide-react';
 
 const TOP_MARKETS = [
   // Alabama
@@ -510,15 +510,29 @@ export function TopDealsSection() {
                         </div>
                       )}
 
-                      <Button 
-                        variant="default" 
-                        size="lg" 
-                        className="w-full"
-                        onClick={() => handlePropertyClick(property)}
-                      >
-                        <TrendingUp className="h-5 w-5 mr-2" />
-                        Analyze Deal
-                      </Button>
+                      <div className="flex gap-3">
+                        <Button 
+                          variant="default" 
+                          size="lg" 
+                          className="flex-1"
+                          onClick={() => handlePropertyClick(property)}
+                        >
+                          <TrendingUp className="h-5 w-5 mr-2" />
+                          Analyze Deal
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="lg" 
+                          className="px-4"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const zillowUrl = `https://www.zillow.com/homes/${encodeURIComponent(property.address)}_rb/`;
+                            window.open(zillowUrl, '_blank');
+                          }}
+                        >
+                          <ExternalLink className="h-5 w-5" />
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </div>
