@@ -1,3 +1,5 @@
+import { supabase } from '@/integrations/supabase/client';
+
 export interface AttomPropertyData {
   // Property Details
   propertyType?: string;
@@ -80,60 +82,26 @@ export interface AttomPropertyData {
 }
 
 export class AttomAPI {
-  private apiKey: string;
-  private baseUrl = 'https://api.gateway.attomdata.com/propertyapi/v1.0.0';
-
-  constructor() {
-    this.apiKey = '11465f2de3edc232490d8c2ccccacb83';
-  }
 
   private async makeRequest(endpoint: string, params: Record<string, any> = {}): Promise<any> {
-    const url = new URL(`${this.baseUrl}${endpoint}`);
-    
-    // Add other parameters first
-    Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        url.searchParams.append(key, value.toString());
-      }
-    });
-
     try {
-      const response = await fetch(url.toString(), {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-          'apikey': this.apiKey, // Try apikey in header instead of query param
-        },
+      const { data, error } = await supabase.functions.invoke('get-attom-data', {
+        body: { 
+          endpoint,
+          params,
+          action: 'request'
+        }
       });
 
-      if (!response.ok) {
-        // Try alternative authentication method with query parameter
-        const urlWithApiKey = new URL(`${this.baseUrl}${endpoint}`);
-        urlWithApiKey.searchParams.append('apikey', this.apiKey);
-        
-        Object.entries(params).forEach(([key, value]) => {
-          if (value !== undefined && value !== null) {
-            urlWithApiKey.searchParams.append(key, value.toString());
-          }
-        });
-
-        const retryResponse = await fetch(urlWithApiKey.toString(), {
-          method: 'GET',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (!retryResponse.ok) {
-          const errorText = await retryResponse.text();
-          throw new Error(`AttomData API error: ${retryResponse.status} ${retryResponse.statusText}. Response: ${errorText}`);
-        }
-
-        return await retryResponse.json();
+      if (error) {
+        throw new Error(`AttomData API request failed: ${error.message}`);
       }
 
-      return await response.json();
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to fetch AttomData');
+      }
+
+      return data.data;
     } catch (error) {
       console.error('AttomData API request failed:', error);
       throw error;
@@ -359,16 +327,16 @@ export class AttomAPI {
 
   async testConnection(): Promise<boolean> {
     try {
-      // Test with a simple property search
-      await this.makeRequest('/property/basicprofile', {
-        address1: '123 Main St',
-        locality: 'Los Angeles',
-        postalcode: 'CA',
+      const { data, error } = await supabase.functions.invoke('get-attom-data', {
+        body: { action: 'test' }
       });
-      return true;
+
+      return !error && data?.success;
     } catch (error) {
       console.error('AttomData connection test failed:', error);
       return false;
     }
   }
 }
+
+export const attomAPI = new AttomAPI();

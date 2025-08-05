@@ -1,62 +1,29 @@
 import { PropertySearchParams, Property, ZillowAPIResponse } from '@/types/zillow';
-
-const API_KEY = "9990f8d025msh4a6e7dc2a6a79d8p1aeabejsn13949d9a34fd";
-const BASE_URL = "https://zillow-working-api.p.rapidapi.com/custom_ae/searchbyaddress";
+import { supabase } from '@/integrations/supabase/client';
 
 export class ZillowAPI {
-  private headers = {
-    "x-rapidapi-key": API_KEY,
-    "x-rapidapi-host": "zillow-working-api.p.rapidapi.com"
-  };
 
   async searchProperties(params: PropertySearchParams): Promise<Property[]> {
     try {
-      const searchParams: Record<string, string> = {
-        location: params.location,
-        homeType: params.homeType,
-        sortOrder: "Homes_for_you",
-        listingStatus: "For_Sale",
-        maxHOA: "Any",
-        listingType: "By_Agent",
-        listingTypeOptions: "Agent listed,New Construction,Fore-closures,Auctions",
-        daysOnZillow: "Any",
-        soldInLast: "Any",
-        v_cmr: "4.5",
-        v_dpr: "0.2",
-        v_ptr: "0.012",
-        v_ir: "0.015",
-        v_mr: "0.1",
-        v_pmr: "0.1",
-        v_vr: "0.05",
-        v_rc: "25000",
-        v_ltm: "360",
-        v_aa: "0.03"
-      };
+      console.log('Searching with params:', params);
 
-      // Add optional parameters if they exist
-      if (params.bed_min) searchParams.bed_min = params.bed_min;
-      if (params.bed_max) searchParams.bed_max = params.bed_max;
-      if (params.bathrooms) searchParams.bathrooms = params.bathrooms;
-      if (params.price_min) searchParams.price_min = params.price_min;
-      if (params.price_max) searchParams.price_max = params.price_max;
-      if (params.mustHaveBasement) searchParams.mustHaveBasement = params.mustHaveBasement;
-      if (params.parkingSpots) searchParams.parkingSpots = params.parkingSpots;
-      if (params.page) searchParams.page = params.page;
-
-      console.log('Searching with params:', searchParams);
-
-      const response = await fetch(`${BASE_URL}?${new URLSearchParams(searchParams)}`, {
-        method: 'GET',
-        headers: this.headers
+      const { data, error } = await supabase.functions.invoke('get-zillow-data', {
+        body: { 
+          searchParams: params,
+          action: 'search'
+        }
       });
 
-      if (!response.ok) {
-        throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+      if (error) {
+        throw new Error(`Zillow API request failed: ${error.message}`);
       }
 
-      const data: ZillowAPIResponse = await response.json();
-      console.log('API Response:', data);
-      return this.processPropertyData(data);
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to fetch Zillow data');
+      }
+
+      console.log('API Response:', data.data);
+      return this.processPropertyData(data.data);
     } catch (error) {
       console.error('Error fetching properties:', error);
       throw error;
@@ -220,18 +187,11 @@ export class ZillowAPI {
 
   async testConnection(): Promise<boolean> {
     try {
-      const testParams: Record<string, string> = {
-        location: "New York, NY",
-        homeType: "Houses",
-        page: "1"
-      };
-
-      const response = await fetch(`${BASE_URL}?${new URLSearchParams(testParams)}`, {
-        method: 'GET',
-        headers: this.headers
+      const { data, error } = await supabase.functions.invoke('get-zillow-data', {
+        body: { action: 'test' }
       });
 
-      return response.ok;
+      return !error && data?.success;
     } catch {
       return false;
     }

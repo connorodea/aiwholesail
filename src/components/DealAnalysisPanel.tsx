@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Loader2, TrendingUp } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import ReactMarkdown from 'react-markdown';
 
 interface DealAnalysisResponse {
@@ -20,10 +21,31 @@ export function DealAnalysisPanel() {
   const { toast } = useToast();
 
   const analyzeDeal = async () => {
+    // Input validation
     if (!propertyUrl.trim()) {
       toast({
-        title: "URL Required",
-        description: "Please enter a property URL to analyze",
+        title: "Invalid Input",
+        description: "Please enter a property URL.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Basic URL validation
+    try {
+      const url = new URL(propertyUrl);
+      if (!url.hostname.includes('zillow.com') && !url.hostname.includes('realty.com')) {
+        toast({
+          title: "Invalid URL",
+          description: "Please enter a valid Zillow or Realty.com property URL.",
+          variant: "destructive",
+        });
+        return;
+      }
+    } catch {
+      toast({
+        title: "Invalid URL",
+        description: "Please enter a valid property URL.",
         variant: "destructive",
       });
       return;
@@ -31,33 +53,28 @@ export function DealAnalysisPanel() {
 
     setIsLoading(true);
     try {
-      const response = await fetch('/supabase/functions/v1/analyze-deal', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ property_url: propertyUrl }),
+      const { data, error } = await supabase.functions.invoke('analyze-deal', {
+        body: { property_url: propertyUrl }
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to analyze deal');
+      if (error) {
+        throw new Error(error.message);
       }
-
-      const data: DealAnalysisResponse = await response.json();
       
       if (data.success) {
         setAnalysis(data.analysis);
         toast({
           title: "Analysis Complete",
-          description: "AI deal analysis has been generated successfully",
+          description: "Property analysis has been generated successfully.",
         });
       } else {
         throw new Error(data.error || 'Analysis failed');
       }
     } catch (error) {
+      console.error('Error analyzing deal:', error);
       toast({
         title: "Analysis Failed",
-        description: error instanceof Error ? error.message : "Failed to analyze deal",
+        description: error instanceof Error ? error.message : "Failed to analyze the property deal.",
         variant: "destructive",
       });
     } finally {
