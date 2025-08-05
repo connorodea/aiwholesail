@@ -207,14 +207,20 @@ export function TopDealsSection() {
   const calculateSpread = (property: Property): number => {
     if (!property.price || property.price <= 0) return 0;
     
-    // Use Zestimate first, then AttomData AVM, then estimated ARV as fallback
-    const marketValue = property.zestimate || 
-                       property.attomData?.avm?.amount || 
+    // Prioritize AttomData AVM, then Zestimate, then estimated ARV as fallback
+    const marketValue = property.attomData?.avm?.amount || 
+                       property.zestimate || 
                        (property.sqft ? property.sqft * 120 : 0);
     
     if (!marketValue || marketValue <= property.price) return 0;
     
     return marketValue - property.price;
+  };
+
+  const calculateProfitMarginPercentage = (property: Property): number => {
+    const spread = calculateSpread(property);
+    if (!spread || !property.price) return 0;
+    return (spread / property.price) * 100;
   };
 
   const identifyWholesaleDeals = (properties: Property[]): Property[] => {
@@ -223,22 +229,35 @@ export function TopDealsSection() {
       const hasPrice = property.price && property.price > 0;
       const hasSqft = property.sqft && property.sqft > 0;
       const spread = calculateSpread(property);
+      const profitMargin = calculateProfitMarginPercentage(property);
       const pricePerSqft = hasPrice && hasSqft ? property.price / property.sqft : 0;
       
       return (
         hasPrice &&
         hasSqft &&
-        spread > 10000 && // Must have at least $10k spread
-        property.price <= 300000 &&
-        pricePerSqft < 150 &&
-        pricePerSqft > 15 &&
+        spread > 15000 && // Must have at least $15k spread for better opportunities
+        profitMargin > 15 && // Must have at least 15% profit margin
+        property.price <= 400000 && // Increased upper limit for more opportunities
+        pricePerSqft < 200 && // Increased for higher-value markets
+        pricePerSqft > 10 && // Minimum to filter out unrealistic data
         property.yearBuilt && property.yearBuilt >= 1940
       );
     });
 
-    // Sort by largest spreads first for Premium Picks
+    // Advanced sorting: Primary by profit margin %, secondary by absolute spread
     return filtered
-      .sort((a, b) => calculateSpread(b) - calculateSpread(a))
+      .sort((a, b) => {
+        const marginA = calculateProfitMarginPercentage(a);
+        const marginB = calculateProfitMarginPercentage(b);
+        
+        // If profit margins are close (within 5%), sort by absolute spread
+        if (Math.abs(marginA - marginB) < 5) {
+          return calculateSpread(b) - calculateSpread(a);
+        }
+        
+        // Otherwise sort by profit margin percentage
+        return marginB - marginA;
+      })
       .slice(0, 12);
   };
 
