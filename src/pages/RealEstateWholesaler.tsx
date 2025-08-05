@@ -324,40 +324,46 @@ export default function RealEstateWholesaler() {
           </div>
         </div>
 
-        {/* Top Deals Section */}
-        <TopDealsSection />
+        {/* Top Deals Section - now removed from here, moved to tab */}
 
         {/* Search Section */}
         <div className="mb-12">
           <PropertySearch onSearch={handleSearch} isLoading={isLoading} />
         </div>
 
-        {/* Results Section */}
-        {(properties.length > 0 || analysis) && (
-          <Tabs defaultValue="properties" className="space-y-8">
-            <div className="flex items-center justify-between">
-              <TabsList className="glass-card p-1.5 h-auto">
-                <TabsTrigger value="properties" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-6 py-3 font-medium smooth-hover">
-                  <Home className="h-4 w-4 mr-2" />
-                  Properties ({properties.length})
-                </TabsTrigger>
-                <TabsTrigger value="analysis" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-6 py-3 font-medium smooth-hover">
-                  <Brain className="h-4 w-4 mr-2" />
-                  AI Analysis
-                </TabsTrigger>
-                <TabsTrigger value="deal-analysis" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-6 py-3 font-medium smooth-hover">
-                  <TrendingUp className="h-4 w-4 mr-2" />
-                  Deal Analysis
-                </TabsTrigger>
-              </TabsList>
+        {/* Results Section - Always show tabs, even if no properties searched yet */}
+        <Tabs defaultValue="top-deals" className="space-y-8">
+          <div className="flex items-center justify-between">
+            <TabsList className="glass-card p-1.5 h-auto">
+              <TabsTrigger value="top-deals" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-6 py-3 font-medium smooth-hover">
+                <TrendingUp className="h-4 w-4 mr-2" />
+                🔥 Top Deals
+              </TabsTrigger>
+              <TabsTrigger value="properties" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-6 py-3 font-medium smooth-hover">
+                <Home className="h-4 w-4 mr-2" />
+                Properties ({properties.length})
+              </TabsTrigger>
+              <TabsTrigger value="analysis" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-6 py-3 font-medium smooth-hover">
+                <Brain className="h-4 w-4 mr-2" />
+                AI Analysis
+              </TabsTrigger>
+              <TabsTrigger value="deal-analysis" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-6 py-3 font-medium smooth-hover">
+                <TrendingUp className="h-4 w-4 mr-2" />
+                Deal Analysis
+              </TabsTrigger>
+            </TabsList>
 
-              {properties.length > 0 && (
-                <Button onClick={exportResults} variant="outline" size="lg" className="shadow-md">
-                  <Download className="h-4 w-4 mr-2" />
-                  Export CSV
-                </Button>
-              )}
-            </div>
+            {properties.length > 0 && (
+              <Button onClick={exportResults} variant="outline" size="lg" className="shadow-md">
+                <Download className="h-4 w-4 mr-2" />
+                Export CSV
+              </Button>
+            )}
+          </div>
+
+          <TabsContent value="top-deals" className="space-y-6">
+            <TopDealsSection />
+          </TabsContent>
 
             <TabsContent value="properties" className="space-y-6">
               {properties.length > 0 ? (
@@ -466,7 +472,6 @@ export default function RealEstateWholesaler() {
               <DealAnalysisPanel />
             </TabsContent>
           </Tabs>
-        )}
 
         {/* Property Details Modal */}
         <PropertyModal

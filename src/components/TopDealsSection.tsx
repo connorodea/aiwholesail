@@ -358,92 +358,251 @@ export function TopDealsSection() {
   };
 
   return (
-    <>
-      <Card className="mb-6">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-primary" />
-              <CardTitle className="text-xl">Top Deals of the Day</CardTitle>
-              <Badge variant="secondary" className="ml-2">
-                <MapPin className="h-3 w-3 mr-1" />
-                Nationwide
-              </Badge>
+    <div className="space-y-8">
+      {/* Header Section */}
+      <div className="text-center space-y-6">
+        <div className="relative">
+          <h1 className="text-5xl lg:text-7xl font-bold gradient-text-intense mb-4">
+            🔥 TOP DEALS
+          </h1>
+          <div className="absolute -inset-4 bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 blur-xl -z-10 rounded-full"></div>
+        </div>
+        <p className="text-xl text-muted-foreground max-w-4xl mx-auto leading-relaxed">
+          Elite wholesale opportunities discovered by AI across {TOP_MARKETS.length}+ markets nationwide. 
+          Updated in real-time with profit scoring algorithms.
+        </p>
+        
+        {/* Stats Bar */}
+        <div className="flex items-center justify-center gap-8 p-6 neon-card rounded-2xl max-w-4xl mx-auto">
+          <div className="text-center">
+            <div className="text-3xl font-bold gradient-text">{TOP_MARKETS.length}+</div>
+            <div className="text-sm text-muted-foreground font-medium">Markets Monitored</div>
+          </div>
+          <div className="h-12 w-px bg-border"></div>
+          <div className="text-center">
+            <div className="text-3xl font-bold gradient-text">{topDeals.length}</div>
+            <div className="text-sm text-muted-foreground font-medium">Active Deals</div>
+          </div>
+          <div className="h-12 w-px bg-border"></div>
+          <div className="text-center">
+            <div className="text-3xl font-bold gradient-text">
+              {lastUpdated ? formatTimeAgo(lastUpdated) : 'Never'}
             </div>
-            <div className="flex items-center gap-2">
-              {lastUpdated && (
-                <span className="text-sm text-muted-foreground">
-                  Updated {formatTimeAgo(lastUpdated)}
-                </span>
-              )}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={fetchTopDeals}
-                disabled={isLoading}
-              >
-                <RefreshCw className={`h-4 w-4 mr-1 ${isLoading ? 'animate-spin' : ''}`} />
-                Refresh
-              </Button>
+            <div className="text-sm text-muted-foreground font-medium">Last Updated</div>
+          </div>
+          <div className="h-12 w-px bg-border"></div>
+          <Button
+            variant="premium"
+            size="lg"
+            onClick={fetchTopDeals}
+            disabled={isLoading}
+            className="shadow-intense glow-hover"
+          >
+            <RefreshCw className={`h-5 w-5 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+            {isLoading ? 'Scanning...' : 'Refresh Deals'}
+          </Button>
+        </div>
+      </div>
+
+      {/* Deals Grid */}
+      {isLoading ? (
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            {Array.from({ length: 12 }).map((_, i) => (
+              <div key={i} className="neon-card p-6 rounded-2xl space-y-4 animate-pulse">
+                <div className="flex justify-between items-start">
+                  <Skeleton className="h-6 w-16 rounded-full" />
+                  <Skeleton className="h-6 w-20 rounded-full" />
+                </div>
+                <Skeleton className="h-32 w-full rounded-xl" />
+                <div className="space-y-3">
+                  <Skeleton className="h-8 w-3/4" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-2/3" />
+                </div>
+                <div className="flex justify-between">
+                  <Skeleton className="h-6 w-16" />
+                  <Skeleton className="h-6 w-16" />
+                  <Skeleton className="h-6 w-16" />
+                </div>
+                <Skeleton className="h-12 w-full rounded-lg" />
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : topDeals.length > 0 ? (
+        <div className="space-y-8">
+          {/* Top 3 Featured Deals */}
+          <div className="space-y-4">
+            <h2 className="text-3xl font-bold gradient-text flex items-center gap-3">
+              <span className="text-4xl">⭐</span>
+              Premium Picks
+            </h2>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {topDeals.slice(0, 3).map((property, index) => (
+                <div key={property.id} className="relative group">
+                  <div className="neon-card p-8 rounded-3xl glow-hover cursor-pointer" onClick={() => handlePropertyClick(property)}>
+                    {/* Rank Badge */}
+                    <div className="absolute -top-4 -left-4 z-20">
+                      <div className="bg-gradient-to-r from-primary to-accent text-primary-foreground rounded-full w-12 h-12 flex items-center justify-center font-bold text-lg shadow-intense">
+                        #{index + 1}
+                      </div>
+                    </div>
+                    
+                    {/* Hot Deal Badge */}
+                    <div className="absolute -top-4 -right-4 z-20">
+                      <div className="bg-gradient-to-r from-red-500 to-orange-500 text-white rounded-full px-4 py-2 text-sm font-bold shadow-intense animate-pulse">
+                        🔥 HOT
+                      </div>
+                    </div>
+
+                    <div className="space-y-6">
+                      {/* Address & Location */}
+                      <div>
+                        <h3 className="text-xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">
+                          {property.address}
+                        </h3>
+                        <div className="flex items-center text-muted-foreground">
+                          <MapPin className="h-4 w-4 mr-2 text-primary" />
+                          {property.propertyType || 'Property'}
+                        </div>
+                      </div>
+
+                      {/* Price & Score */}
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <div className="text-3xl font-bold gradient-text">
+                            {property.price ? `$${property.price.toLocaleString()}` : 'N/A'}
+                          </div>
+                          <div className="text-sm text-muted-foreground">List Price</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-2xl font-bold text-accent">
+                            {calculateWholesaleScore(property)}
+                          </div>
+                          <div className="text-xs text-muted-foreground">AI Score</div>
+                        </div>
+                      </div>
+
+                      {/* Property Details */}
+                      <div className="grid grid-cols-3 gap-4">
+                        <div className="text-center p-3 bg-muted/30 rounded-xl">
+                          <div className="font-bold text-foreground">{property.bedrooms || 'N/A'}</div>
+                          <div className="text-xs text-muted-foreground">Beds</div>
+                        </div>
+                        <div className="text-center p-3 bg-muted/30 rounded-xl">
+                          <div className="font-bold text-foreground">{property.bathrooms || 'N/A'}</div>
+                          <div className="text-xs text-muted-foreground">Baths</div>
+                        </div>
+                        <div className="text-center p-3 bg-muted/30 rounded-xl">
+                          <div className="font-bold text-foreground">
+                            {property.sqft ? `${Math.round(property.sqft / 1000)}k` : 'N/A'}
+                          </div>
+                          <div className="text-xs text-muted-foreground">Sqft</div>
+                        </div>
+                      </div>
+
+                      {/* Profit Potential */}
+                      {property.price && property.sqft && (
+                        <div className="p-4 bg-gradient-to-r from-success/20 to-primary/20 rounded-xl border border-success/30">
+                          <div className="text-sm text-success-foreground font-medium mb-1">💰 Profit Potential</div>
+                          <div className="text-lg font-bold text-success">
+                            ${Math.round((120 * property.sqft) - property.price).toLocaleString()}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            Est. profit after repairs (ARV: ${Math.round(120 * property.sqft).toLocaleString()})
+                          </div>
+                        </div>
+                      )}
+
+                      <Button 
+                        variant="premium" 
+                        size="lg" 
+                        className="w-full shadow-elegant glow-hover"
+                        onClick={() => handlePropertyClick(property)}
+                      >
+                        <TrendingUp className="h-5 w-5 mr-2" />
+                        Analyze Deal
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground mb-4">
-            Handpicked properties from top wholesale markets across the US with the highest profit potential.
-          </p>
-          
-          {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className="space-y-3">
-                  <Skeleton className="h-48 w-full rounded-lg" />
-                  <div className="space-y-2">
-                    <Skeleton className="h-4 w-3/4" />
-                    <Skeleton className="h-4 w-1/2" />
-                    <Skeleton className="h-4 w-full" />
+
+          {/* Remaining Deals Grid */}
+          {topDeals.length > 3 && (
+            <div className="space-y-4">
+              <h2 className="text-2xl font-bold gradient-text flex items-center gap-3">
+                <span className="text-3xl">💎</span>
+                More Opportunities ({topDeals.length - 3})
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {topDeals.slice(3).map((property) => (
+                  <div key={property.id} className="relative">
+                    <div className="glass-card p-6 rounded-2xl smooth-hover hover:shadow-elegant cursor-pointer group" onClick={() => handlePropertyClick(property)}>
+                      {/* Score Badge */}
+                      <div className="absolute -top-3 -right-3 z-10">
+                        <div className="bg-gradient-to-r from-primary to-accent text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center text-xs font-bold shadow-lg">
+                          {calculateWholesaleScore(property)}
+                        </div>
+                      </div>
+
+                      <div className="space-y-4">
+                        <div>
+                          <h4 className="font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2">
+                            {property.address}
+                          </h4>
+                          <div className="text-sm text-muted-foreground mt-1">
+                            {property.propertyType || 'Property'}
+                          </div>
+                        </div>
+
+                        <div className="text-xl font-bold gradient-text">
+                          {property.price ? `$${property.price.toLocaleString()}` : 'N/A'}
+                        </div>
+
+                        <div className="flex justify-between text-sm">
+                          <span>{property.bedrooms || 'N/A'} bed</span>
+                          <span>{property.bathrooms || 'N/A'} bath</span>
+                          <span>{property.sqft ? `${Math.round(property.sqft / 1000)}k` : 'N/A'} sqft</span>
+                        </div>
+
+                        {property.daysOnMarket && (
+                          <div className="text-xs text-warning">
+                            📅 {property.daysOnMarket} days on market
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          ) : topDeals.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {topDeals.map((property) => (
-                <div key={property.id} className="relative">
-                  <div onClick={() => handlePropertyClick(property)} className="cursor-pointer">
-                    <PropertyCard 
-                      property={property} 
-                      onViewDetails={handlePropertyClick}
-                    />
-                  </div>
-                  <div className="absolute top-2 left-2 z-10">
-                    <Badge className="bg-red-500 text-white">
-                      🔥 HOT DEAL
-                    </Badge>
-                  </div>
-                  <div className="absolute top-2 right-2 z-10">
-                    <Badge variant="secondary" className="text-xs">
-                      Score: {calculateWholesaleScore(property)}
-                    </Badge>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-8">
-              <p className="text-muted-foreground">
-                No deals found. Try refreshing to search for new opportunities.
-              </p>
+                ))}
+              </div>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      ) : (
+        <div className="text-center py-16 space-y-6">
+          <div className="text-6xl">🔍</div>
+          <div className="space-y-2">
+            <h3 className="text-2xl font-bold text-foreground">No Deals Found</h3>
+            <p className="text-muted-foreground max-w-md mx-auto">
+              Our AI is scanning nationwide markets. Try refreshing to discover new wholesale opportunities.
+            </p>
+          </div>
+          <Button variant="premium" size="lg" onClick={fetchTopDeals} className="shadow-elegant">
+            <RefreshCw className="h-5 w-5 mr-2" />
+            Search for Deals
+          </Button>
+        </div>
+      )}
 
       <PropertyModal
         property={selectedProperty}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
       />
-    </>
+    </div>
   );
 }

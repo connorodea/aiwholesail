@@ -8,38 +8,38 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Base colors inspired by Reveni's clean, modern palette */
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
+    /* Dark theme as default - inspired by modern dark UIs */
+    --background: 224 71% 4%;
+    --foreground: 213 31% 91%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
+    --card: 224 71% 4%;
+    --card-foreground: 213 31% 91%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
+    --popover: 224 71% 4%;
+    --popover-foreground: 213 31% 91%;
 
-    /* Primary - Modern blue/purple */
-    --primary: 251 91% 48%;
-    --primary-foreground: 0 0% 98%;
-    --primary-glow: 251 91% 68%;
+    /* Primary - Electric blue */
+    --primary: 217 91% 60%;
+    --primary-foreground: 222.2 84% 4.9%;
+    --primary-glow: 217 91% 75%;
 
-    /* Secondary - Soft gray */
-    --secondary: 210 40% 95%;
-    --secondary-foreground: 222.2 84% 4.9%;
+    /* Secondary - Dark purple/gray */
+    --secondary: 222.2 84% 4.9%;
+    --secondary-foreground: 210 40% 98%;
 
-    --muted: 210 40% 98%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 223 47% 11%;
+    --muted-foreground: 215.4 16.3% 56.9%;
 
-    /* Accent - Complementary orange/coral */
-    --accent: 14 100% 57%;
-    --accent-foreground: 0 0% 98%;
+    /* Accent - Electric purple */
+    --accent: 270 95% 75%;
+    --accent-foreground: 224 71% 4%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 251 91% 48%;
+    --border: 216 34% 17%;
+    --input: 216 34% 17%;
+    --ring: 217 91% 60%;
 
     --radius: 0.75rem;
 
@@ -48,18 +48,19 @@ All colors MUST be HSL.
     --success-foreground: 0 0% 98%;
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 98%;
-    --info: 221 83% 53%;
+    --info: 199 89% 48%;
     --info-foreground: 0 0% 98%;
 
-    /* Modern gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
-    --gradient-hero: linear-gradient(135deg, hsl(var(--primary) / 0.05), hsl(var(--accent) / 0.05));
-    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%), hsl(var(--muted)));
+    /* Dark theme gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
+    --gradient-hero: linear-gradient(135deg, hsl(var(--background)), hsl(var(--muted)));
+    --gradient-card: linear-gradient(145deg, hsl(var(--card)), hsl(var(--muted) / 0.5));
     
-    /* Refined shadows */
-    --shadow-glow: 0 0 40px hsl(var(--primary) / 0.15);
-    --shadow-elegant: 0 4px 32px -4px hsl(var(--primary) / 0.15);
-    --shadow-card: 0 1px 3px 0 hsl(var(--foreground) / 0.1), 0 1px 2px 0 hsl(var(--foreground) / 0.06);
+    /* Dark shadows with color */
+    --shadow-glow: 0 0 40px hsl(var(--primary) / 0.3);
+    --shadow-elegant: 0 8px 32px -8px hsl(var(--primary) / 0.2);
+    --shadow-card: 0 4px 16px -4px hsl(var(--background) / 0.8);
+    --shadow-intense: 0 20px 64px -12px hsl(var(--primary) / 0.4);
 
     --sidebar-background: 0 0% 98%;
 
@@ -79,33 +80,34 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    /* Keep same dark theme for dark mode toggle */
+    --background: 224 71% 4%;
+    --foreground: 213 31% 91%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 224 71% 4%;
+    --card-foreground: 213 31% 91%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 224 71% 4%;
+    --popover-foreground: 213 31% 91%;
 
-    --primary: 251 91% 68%;
+    --primary: 217 91% 60%;
     --primary-foreground: 222.2 84% 4.9%;
 
-    --secondary: 217.2 32.6% 17.5%;
+    --secondary: 222.2 84% 4.9%;
     --secondary-foreground: 210 40% 98%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 223 47% 11%;
+    --muted-foreground: 215.4 16.3% 56.9%;
 
-    --accent: 14 100% 57%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 270 95% 75%;
+    --accent-foreground: 224 71% 4%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 251 91% 68%;
+    --border: 216 34% 17%;
+    --input: 216 34% 17%;
+    --ring: 217 91% 60%;
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -145,14 +147,26 @@ All colors MUST be HSL.
 
 @layer components {
   .glass-card {
-    @apply bg-white/80 backdrop-blur-xl border border-white/20 shadow-card;
+    @apply bg-card/90 backdrop-blur-xl border border-border/50 shadow-card;
+  }
+
+  .neon-card {
+    @apply bg-card/80 backdrop-blur-xl border border-primary/20 shadow-glow;
   }
 
   .gradient-text {
     @apply bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent;
   }
 
+  .gradient-text-intense {
+    @apply bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-pulse;
+  }
+
   .smooth-hover {
     @apply transition-all duration-300 ease-out;
+  }
+
+  .glow-hover {
+    @apply transition-all duration-300 ease-out hover:shadow-glow hover:scale-105;
   }
 }
