@@ -92,10 +92,12 @@ export default function RealEstateWholesaler() {
 
       toast({
         title: "Searching Properties",
-        description: `Looking for ALL properties in ${params.location}... This may take a moment.`,
+        description: `Looking for properties in ${params.location} (fetching multiple pages)... This may take a moment.`,
       });
 
-      const searchResults = await zillowAPI.searchProperties(params);
+      // Fetch up to 5 pages for more comprehensive results
+      const maxPages = params.wholesaleOnly ? 5 : 3; // More pages for wholesale searches
+      const searchResults = await zillowAPI.searchProperties(params, maxPages);
       
       if (searchResults.length === 0) {
         toast({

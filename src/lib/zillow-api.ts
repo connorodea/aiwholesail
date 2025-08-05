@@ -3,31 +3,73 @@ import { supabase } from '@/integrations/supabase/client';
 
 export class ZillowAPI {
 
-  async searchProperties(params: PropertySearchParams): Promise<Property[]> {
+  async searchProperties(params: PropertySearchParams, maxPages: number = 3): Promise<Property[]> {
     try {
-      console.log('Searching with params:', params);
+      console.log('Searching with params:', params, `Max pages: ${maxPages}`);
+      
+      let allProperties: Property[] = [];
+      let currentPage = 1;
+      let totalPages = 1;
 
-      const { data, error } = await supabase.functions.invoke('get-zillow-data', {
-        body: { 
-          searchParams: params,
-          action: 'search'
+      // Fetch first page to get pagination info
+      const firstPageData = await this.fetchPage(params, currentPage);
+      if (!firstPageData.success) {
+        throw new Error(firstPageData.error || 'Failed to fetch Zillow data');
+      }
+
+      console.log('First page response:', firstPageData.data);
+      
+      // Get pagination info from first response
+      const pagesInfo = firstPageData.data.pagesInfo;
+      if (pagesInfo) {
+        totalPages = Math.min(pagesInfo.totalPages || 1, maxPages);
+        console.log(`Found ${pagesInfo.totalMatchingCount} total properties across ${pagesInfo.totalPages} pages. Fetching ${totalPages} pages.`);
+      }
+
+      // Process first page
+      const firstPageProperties = this.processPropertyData(firstPageData.data);
+      allProperties.push(...firstPageProperties);
+
+      // Fetch remaining pages in parallel for better performance
+      if (totalPages > 1) {
+        const remainingPagePromises = [];
+        for (let page = 2; page <= totalPages; page++) {
+          remainingPagePromises.push(this.fetchPage(params, page));
         }
-      });
 
-      if (error) {
-        throw new Error(`Zillow API request failed: ${error.message}`);
+        const remainingPagesData = await Promise.allSettled(remainingPagePromises);
+        
+        for (const result of remainingPagesData) {
+          if (result.status === 'fulfilled' && result.value.success) {
+            const pageProperties = this.processPropertyData(result.value.data);
+            allProperties.push(...pageProperties);
+          } else {
+            console.warn('Failed to fetch page:', result.status === 'rejected' ? result.reason : result.value.error);
+          }
+        }
       }
 
-      if (!data.success) {
-        throw new Error(data.error || 'Failed to fetch Zillow data');
-      }
-
-      console.log('API Response:', data.data);
-      return this.processPropertyData(data.data);
+      console.log(`Total properties fetched across ${totalPages} pages: ${allProperties.length}`);
+      return allProperties;
     } catch (error) {
       console.error('Error fetching properties:', error);
       throw error;
     }
+  }
+
+  private async fetchPage(params: PropertySearchParams, page: number) {
+    const { data, error } = await supabase.functions.invoke('get-zillow-data', {
+      body: { 
+        searchParams: { ...params, page },
+        action: 'search'
+      }
+    });
+
+    if (error) {
+      throw new Error(`Zillow API request failed: ${error.message}`);
+    }
+
+    return data;
   }
 
   private processPropertyData(data: ZillowAPIResponse): Property[] {
