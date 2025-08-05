@@ -65,24 +65,46 @@ serve(async (req) => {
       )
     }
 
-    const baseUrl = "https://zillow-working-api.p.rapidapi.com/custom_ae/searchbyaddress"
+    const baseUrls: Record<string, string> = {
+      search: "https://zillow-working-api.p.rapidapi.com/custom_ae/searchbyaddress",
+      propertyDetails: "https://zillow-working-api.p.rapidapi.com/property",
+      priceHistory: "https://zillow-working-api.p.rapidapi.com/propertyPriceHistory",
+      photos: "https://zillow-working-api.p.rapidapi.com/propertyImages",
+      comps: "https://zillow-working-api.p.rapidapi.com/propertyComps",
+      zestimate: "https://zillow-working-api.p.rapidapi.com/propertyZestimate",
+      extendedSearch: "https://zillow-working-api.p.rapidapi.com/propertyExtendedSearch",
+      reviews: "https://zillow-working-api.p.rapidapi.com/propertyReviews",
+      taxes: "https://zillow-working-api.p.rapidapi.com/propertyTaxes",
+      walkScore: "https://zillow-working-api.p.rapidapi.com/propertyWalkScore",
+      schools: "https://zillow-working-api.p.rapidapi.com/propertySchools",
+      neighborhood: "https://zillow-working-api.p.rapidapi.com/propertyNeighborhood",
+      mapBoundaries: "https://zillow-working-api.p.rapidapi.com/propertyMapBoundaries",
+      rentalManager: "https://zillow-working-api.p.rapidapi.com/propertyRentalManager",
+      contactAgent: "https://zillow-working-api.p.rapidapi.com/propertyContactAgent",
+      deepSearch: "https://zillow-working-api.p.rapidapi.com/propertyDeepSearch",
+      deepComps: "https://zillow-working-api.p.rapidapi.com/propertyDeepComps",
+      updatedDetails: "https://zillow-working-api.p.rapidapi.com/propertyUpdatedDetails",
+      listingStatus: "https://zillow-working-api.p.rapidapi.com/propertyListingStatus",
+      rentalEstimate: "https://zillow-working-api.p.rapidapi.com/propertyRentalEstimate"
+    };
+
     const headers = {
       "x-rapidapi-key": apiKey,
       "x-rapidapi-host": "zillow-working-api.p.rapidapi.com"
-    }
+    };
 
-    let url: string
-    let requestParams: Record<string, string>
+    let url: string;
+    let requestParams: Record<string, string> = {};
 
     if (action === 'test') {
-      // Test connection
       requestParams = {
         location: "New York, NY",
         homeType: "Houses",
         page: "1"
-      }
-    } else {
-      // Regular search
+      };
+      url = `${baseUrls.search}?${new URLSearchParams(requestParams)}`;
+    } else if (action === 'search') {
+      // Existing search logic
       requestParams = {
         location: searchParams.location,
         homeType: searchParams.homeType,
@@ -103,22 +125,68 @@ serve(async (req) => {
         v_rc: "25000",
         v_ltm: "360",
         v_aa: "0.03"
+      };
+      if (searchParams.bed_min) requestParams.bed_min = searchParams.bed_min;
+      if (searchParams.bed_max) requestParams.bed_max = searchParams.bed_max;
+      if (searchParams.bathrooms) requestParams.bathrooms = searchParams.bathrooms;
+      if (searchParams.price_min) requestParams.price_min = searchParams.price_min;
+      if (searchParams.price_max) requestParams.price_max = searchParams.price_max;
+      if (searchParams.mustHaveBasement) requestParams.mustHaveBasement = searchParams.mustHaveBasement;
+      if (searchParams.parkingSpots) requestParams.parkingSpots = searchParams.parkingSpots;
+      if (searchParams.page) requestParams.page = searchParams.page;
+      url = `${baseUrls.search}?${new URLSearchParams(requestParams)}`;
+    } else if ([
+      'propertyDetails', 'priceHistory', 'photos', 'comps', 'zestimate',
+      'reviews', 'taxes', 'walkScore', 'schools', 'neighborhood', 'mapBoundaries',
+      'rentalManager', 'contactAgent', 'listingStatus', 'rentalEstimate', 'updatedDetails'
+    ].includes(action)) {
+      // These actions require a zpid
+      if (!searchParams.zpid) {
+        return new Response(
+          JSON.stringify({ success: false, error: 'Missing required parameter: zpid' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+        );
       }
-
-      // Add optional parameters
-      if (searchParams.bed_min) requestParams.bed_min = searchParams.bed_min
-      if (searchParams.bed_max) requestParams.bed_max = searchParams.bed_max
-      if (searchParams.bathrooms) requestParams.bathrooms = searchParams.bathrooms
-      if (searchParams.price_min) requestParams.price_min = searchParams.price_min
-      if (searchParams.price_max) requestParams.price_max = searchParams.price_max
-      if (searchParams.mustHaveBasement) requestParams.mustHaveBasement = searchParams.mustHaveBasement
-      if (searchParams.parkingSpots) requestParams.parkingSpots = searchParams.parkingSpots
-      if (searchParams.page) requestParams.page = searchParams.page
+      requestParams = { zpid: searchParams.zpid };
+      url = `${baseUrls[action]}?${new URLSearchParams(requestParams)}`;
+    } else if ([
+      'deepSearch'
+    ].includes(action)) {
+      // deepSearch requires address, citystatezip
+      if (!searchParams.address || !searchParams.citystatezip) {
+        return new Response(
+          JSON.stringify({ success: false, error: 'Missing required parameters: address, citystatezip' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+        );
+      }
+      requestParams = { address: searchParams.address, citystatezip: searchParams.citystatezip };
+      url = `${baseUrls[action]}?${new URLSearchParams(requestParams)}`;
+    } else if ([
+      'extendedSearch'
+    ].includes(action)) {
+      // extendedSearch can take a variety of parameters
+      requestParams = { ...searchParams };
+      url = `${baseUrls[action]}?${new URLSearchParams(requestParams)}`;
+    } else if ([
+      'deepComps'
+    ].includes(action)) {
+      // deepComps requires zpid and count
+      if (!searchParams.zpid || !searchParams.count) {
+        return new Response(
+          JSON.stringify({ success: false, error: 'Missing required parameters: zpid, count' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+        );
+      }
+      requestParams = { zpid: searchParams.zpid, count: searchParams.count };
+      url = `${baseUrls[action]}?${new URLSearchParams(requestParams)}`;
+    } else {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Invalid action specified' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+      );
     }
 
-    url = `${baseUrl}?${new URLSearchParams(requestParams)}`
-
-    console.log(`[${new Date().toISOString()}] Making Zillow API request for ${clientIP}:`, { action, url: baseUrl })
+    console.log(`[${new Date().toISOString()}] Making Zillow API request for ${clientIP}:`, { action, url })
 
     const response = await fetch(url, {
       method: 'GET',

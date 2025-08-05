@@ -238,6 +238,160 @@ export class ZillowAPI {
       return false;
     }
   }
+
+  async getPropertyDetails(zpid: string): Promise<any> {
+    try {
+      const { data, error } = await supabase.functions.invoke('get-zillow-data', {
+        body: { action: 'propertyDetails', searchParams: { zpid } }
+      });
+      
+      if (error) throw error;
+      return data?.data;
+    } catch (error) {
+      console.error('Property details fetch failed:', error);
+      throw error;
+    }
+  }
+
+  async getPriceHistory(zpid: string): Promise<any> {
+    try {
+      const { data, error } = await supabase.functions.invoke('get-zillow-data', {
+        body: { action: 'priceHistory', searchParams: { zpid } }
+      });
+      
+      if (error) throw error;
+      return data?.data;
+    } catch (error) {
+      console.error('Price history fetch failed:', error);
+      throw error;
+    }
+  }
+
+  async getPropertyPhotos(zpid: string): Promise<any> {
+    try {
+      const { data, error } = await supabase.functions.invoke('get-zillow-data', {
+        body: { action: 'photos', searchParams: { zpid } }
+      });
+      
+      if (error) throw error;
+      return data?.data;
+    } catch (error) {
+      console.error('Property photos fetch failed:', error);
+      throw error;
+    }
+  }
+
+  async getPropertyComps(zpid: string): Promise<any> {
+    try {
+      const { data, error } = await supabase.functions.invoke('get-zillow-data', {
+        body: { action: 'comps', searchParams: { zpid } }
+      });
+      
+      if (error) throw error;
+      return data?.data;
+    } catch (error) {
+      console.error('Property comps fetch failed:', error);
+      throw error;
+    }
+  }
+
+  async getZestimate(zpid: string): Promise<any> {
+    try {
+      const { data, error } = await supabase.functions.invoke('get-zillow-data', {
+        body: { action: 'zestimate', searchParams: { zpid } }
+      });
+      
+      if (error) throw error;
+      return data?.data;
+    } catch (error) {
+      console.error('Zestimate fetch failed:', error);
+      throw error;
+    }
+  }
+
+  async getPropertySchools(zpid: string): Promise<any> {
+    try {
+      const { data, error } = await supabase.functions.invoke('get-zillow-data', {
+        body: { action: 'schools', searchParams: { zpid } }
+      });
+      
+      if (error) throw error;
+      return data?.data;
+    } catch (error) {
+      console.error('Property schools fetch failed:', error);
+      throw error;
+    }
+  }
+
+  async getWalkScore(zpid: string): Promise<any> {
+    try {
+      const { data, error } = await supabase.functions.invoke('get-zillow-data', {
+        body: { action: 'walkScore', searchParams: { zpid } }
+      });
+      
+      if (error) throw error;
+      return data?.data;
+    } catch (error) {
+      console.error('Walk score fetch failed:', error);
+      throw error;
+    }
+  }
+
+  async getPropertyTaxes(zpid: string): Promise<any> {
+    try {
+      const { data, error } = await supabase.functions.invoke('get-zillow-data', {
+        body: { action: 'taxes', searchParams: { zpid } }
+      });
+      
+      if (error) throw error;
+      return data?.data;
+    } catch (error) {
+      console.error('Property taxes fetch failed:', error);
+      throw error;
+    }
+  }
+
+  async getRentalEstimate(zpid: string): Promise<any> {
+    try {
+      const { data, error } = await supabase.functions.invoke('get-zillow-data', {
+        body: { action: 'rentalEstimate', searchParams: { zpid } }
+      });
+      
+      if (error) throw error;
+      return data?.data;
+    } catch (error) {
+      console.error('Rental estimate fetch failed:', error);
+      throw error;
+    }
+  }
+
+  async getDeepComps(zpid: string, count: string = "5"): Promise<any> {
+    try {
+      const { data, error } = await supabase.functions.invoke('get-zillow-data', {
+        body: { action: 'deepComps', searchParams: { zpid, count } }
+      });
+      
+      if (error) throw error;
+      return data?.data;
+    } catch (error) {
+      console.error('Deep comps fetch failed:', error);
+      throw error;
+    }
+  }
+
+  async deepSearch(address: string, citystatezip: string): Promise<any> {
+    try {
+      const { data, error } = await supabase.functions.invoke('get-zillow-data', {
+        body: { action: 'deepSearch', searchParams: { address, citystatezip } }
+      });
+      
+      if (error) throw error;
+      return data?.data;
+    } catch (error) {
+      console.error('Deep search failed:', error);
+      throw error;
+    }
+  }
 }
 
 export const zillowAPI = new ZillowAPI();
