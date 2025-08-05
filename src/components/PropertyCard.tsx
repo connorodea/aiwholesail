@@ -36,7 +36,7 @@ export function PropertyCard({ property, onViewDetails }: PropertyCardProps) {
   };
 
   return (
-    <Card className="group smooth-hover hover:shadow-elegant glass-card border-0 hover:scale-[1.02]">
+    <Card className="group simple-card smooth-transition hover:shadow-elegant">
       <CardHeader className="pb-4">
         <div className="flex justify-between items-start">
           <div className="space-y-2">
@@ -199,9 +199,9 @@ export function PropertyCard({ property, onViewDetails }: PropertyCardProps) {
       <CardFooter className="pt-6">
         <Button 
           onClick={() => onViewDetails(property)}
-          variant="premium"
+          variant="default"
           size="lg"
-          className="w-full shadow-md hover:shadow-lg"
+          className="w-full"
         >
           <Eye className="h-4 w-4 mr-2" />
           View Details

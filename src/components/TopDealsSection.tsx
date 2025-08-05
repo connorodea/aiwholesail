@@ -392,11 +392,11 @@ export function TopDealsSection() {
           </div>
           <div className="h-12 w-px bg-border"></div>
           <Button
-            variant="premium"
+            variant="default"
             size="lg"
             onClick={fetchTopDeals}
             disabled={isLoading}
-            className="shadow-intense glow-hover"
+            className=""
           >
             <RefreshCw className={`h-5 w-5 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
             {isLoading ? 'Scanning...' : 'Refresh Deals'}
@@ -516,9 +516,9 @@ export function TopDealsSection() {
                       )}
 
                       <Button 
-                        variant="premium" 
+                        variant="default" 
                         size="lg" 
-                        className="w-full shadow-elegant glow-hover"
+                        className="w-full"
                         onClick={() => handlePropertyClick(property)}
                       >
                         <TrendingUp className="h-5 w-5 mr-2" />
@@ -591,7 +591,7 @@ export function TopDealsSection() {
               Our AI is scanning nationwide markets. Try refreshing to discover new wholesale opportunities.
             </p>
           </div>
-          <Button variant="premium" size="lg" onClick={fetchTopDeals} className="shadow-elegant">
+          <Button variant="default" size="lg" onClick={fetchTopDeals} className="">
             <RefreshCw className="h-5 w-5 mr-2" />
             Search for Deals
           </Button>

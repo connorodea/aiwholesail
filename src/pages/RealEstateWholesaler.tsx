@@ -312,11 +312,11 @@ export default function RealEstateWholesaler() {
             </div>
             
             <Button
-              variant="premium"
+              variant="default"
               size="sm"
               onClick={testAPIConnection}
               disabled={isLoading}
-              className="shadow-lg"
+              className=""
             >
               <Zap className="h-4 w-4 mr-2" />
               Test APIs
