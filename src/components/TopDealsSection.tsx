@@ -204,47 +204,41 @@ export function TopDealsSection() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
-  const identifyWholesaleDeals = (properties: Property[]): Property[] => {
-    // Group properties by state for geographic diversity
-    const propertiesByState = new Map<string, Property[]>();
+  const calculateSpread = (property: Property): number => {
+    if (!property.price || property.price <= 0) return 0;
     
+    // Use Zestimate first, then AttomData AVM, then estimated ARV as fallback
+    const marketValue = property.zestimate || 
+                       property.attomData?.avm?.amount || 
+                       (property.sqft ? property.sqft * 120 : 0);
+    
+    if (!marketValue || marketValue <= property.price) return 0;
+    
+    return marketValue - property.price;
+  };
+
+  const identifyWholesaleDeals = (properties: Property[]): Property[] => {
+    // Filter properties with meaningful spreads
     const filtered = properties.filter(property => {
-      // Basic filtering criteria
       const hasPrice = property.price && property.price > 0;
       const hasSqft = property.sqft && property.sqft > 0;
+      const spread = calculateSpread(property);
       const pricePerSqft = hasPrice && hasSqft ? property.price / property.sqft : 0;
       
       return (
         hasPrice &&
         hasSqft &&
-        property.price <= 300000 && // Increased max price
-        pricePerSqft < 150 && // More flexible price per sqft
-        pricePerSqft > 15 && // Lower minimum to catch more deals
-        property.yearBuilt && property.yearBuilt >= 1940 // Accept older properties
+        spread > 10000 && // Must have at least $10k spread
+        property.price <= 300000 &&
+        pricePerSqft < 150 &&
+        pricePerSqft > 15 &&
+        property.yearBuilt && property.yearBuilt >= 1940
       );
     });
 
-    // Group by state for diversity
-    filtered.forEach(property => {
-      const state = property.address?.split(', ').pop() || 'Unknown';
-      if (!propertiesByState.has(state)) {
-        propertiesByState.set(state, []);
-      }
-      propertiesByState.get(state)!.push(property);
-    });
-
-    // Get top deals from each state for geographic diversity
-    const diverseDeals: Property[] = [];
-    propertiesByState.forEach((stateProperties, state) => {
-      const sortedByScore = stateProperties
-        .sort((a, b) => calculateWholesaleScore(b) - calculateWholesaleScore(a))
-        .slice(0, 2); // Top 2 from each state
-      diverseDeals.push(...sortedByScore);
-    });
-
-    // Final sort by score and take top 12
-    return diverseDeals
-      .sort((a, b) => calculateWholesaleScore(b) - calculateWholesaleScore(a))
+    // Sort by largest spreads first for Premium Picks
+    return filtered
+      .sort((a, b) => calculateSpread(b) - calculateSpread(a))
       .slice(0, 12);
   };
 
@@ -503,14 +497,15 @@ export function TopDealsSection() {
                       </div>
 
                       {/* Profit Potential */}
-                      {property.price && property.sqft && (
+                      {calculateSpread(property) > 0 && (
                         <div className="p-4 bg-gradient-to-r from-success/20 to-primary/20 rounded-xl border border-success/30">
-                          <div className="text-sm text-success-foreground font-medium mb-1">💰 Profit Potential</div>
+                          <div className="text-sm text-success-foreground font-medium mb-1">💰 Market Spread</div>
                           <div className="text-lg font-bold text-success">
-                            ${Math.round((120 * property.sqft) - property.price).toLocaleString()}
+                            ${calculateSpread(property).toLocaleString()}
                           </div>
                           <div className="text-xs text-muted-foreground">
-                            Est. profit after repairs (ARV: ${Math.round(120 * property.sqft).toLocaleString()})
+                            {property.zestimate ? 'vs Zestimate' : property.attomData?.avm?.amount ? 'vs AVM' : 'vs Est. ARV'}: 
+                            ${(property.zestimate || property.attomData?.avm?.amount || (property.sqft ? property.sqft * 120 : 0)).toLocaleString()}
                           </div>
                         </div>
                       )}
