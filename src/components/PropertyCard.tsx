@@ -125,16 +125,30 @@ export function PropertyCard({ property, onViewDetails, highlightWholesaleDeals 
         {/* Zestimate & AttomData AVM */}
         <div className="space-y-2">
           {property.zestimate && (
-            <div className="p-3 bg-muted/50 rounded-lg">
-              <div className="text-xs text-muted-foreground">Zestimate</div>
-              <div className="font-semibold text-accent">
+            <div className={`p-3 rounded-lg ${
+              isHighValueDeal() 
+                ? 'bg-gradient-to-r from-success/20 to-success/10 border-2 border-success/40 shadow-md' 
+                : 'bg-muted/50'
+            }`}>
+              <div className="text-xs text-muted-foreground flex items-center gap-1">
+                {isHighValueDeal() && <Star className="h-3 w-3 text-success" />}
+                Zestimate
+                {isHighValueDeal() && (
+                  <span className="text-success font-medium">
+                    (+${formatNumber(property.zestimate - property.price)} spread)
+                  </span>
+                )}
+              </div>
+              <div className={`font-semibold ${isHighValueDeal() ? 'text-success' : 'text-accent'}`}>
                 {formatPrice(property.zestimate)}
               </div>
               {property.price && (
                 <div className="text-xs">
                   {property.price > property.zestimate ? 
                     <span className="text-warning">Above estimate</span> :
-                    <span className="text-success">Below estimate</span>
+                    <span className={isHighValueDeal() ? 'text-success font-medium' : 'text-success'}>
+                      Below estimate
+                    </span>
                   }
                 </div>
               )}
