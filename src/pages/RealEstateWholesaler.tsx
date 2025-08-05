@@ -25,6 +25,7 @@ export default function RealEstateWholesaler() {
   const [analysis, setAnalysis] = useState<AIAnalysis | null>(null);
   const [isConnected, setIsConnected] = useState<boolean | null>(null);
   const [attomConnected, setAttomConnected] = useState<boolean | null>(null);
+  const [isWholesaleMode, setIsWholesaleMode] = useState(false);
   const { toast } = useToast();
   
   // Initialize APIs
@@ -112,6 +113,7 @@ export default function RealEstateWholesaler() {
       // If wholesale filter is on, enhance ALL properties to get AVM data for comparison
       // Otherwise, enhance first 20 for performance
       const shouldEnhanceAll = params.wholesaleOnly;
+      setIsWholesaleMode(params.wholesaleOnly || false); // Track wholesale mode for highlighting
       const propertiesForEnhancement = shouldEnhanceAll ? searchResults : searchResults.slice(0, Math.min(20, searchResults.length));
       
       toast({
@@ -461,6 +463,7 @@ export default function RealEstateWholesaler() {
                         key={property.id}
                         property={property}
                         onViewDetails={handleViewDetails}
+                        highlightWholesaleDeals={isWholesaleMode}
                       />
                     ))}
                   </div>

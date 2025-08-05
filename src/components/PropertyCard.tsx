@@ -7,9 +7,10 @@ import { MapPin, Bed, Bath, Square, Calendar, TrendingUp, Eye, AlertTriangle, Do
 interface PropertyCardProps {
   property: Property;
   onViewDetails: (property: Property) => void;
+  highlightWholesaleDeals?: boolean;
 }
 
-export function PropertyCard({ property, onViewDetails }: PropertyCardProps) {
+export function PropertyCard({ property, onViewDetails, highlightWholesaleDeals = false }: PropertyCardProps) {
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -35,8 +36,25 @@ export function PropertyCard({ property, onViewDetails }: PropertyCardProps) {
     }
   };
 
+  // Calculate if this is a high-value wholesale deal (35k+ spread)
+  const isHighValueDeal = () => {
+    if (!highlightWholesaleDeals || !property.price || !property.zestimate) return false;
+    const spread = property.zestimate - property.price;
+    return spread >= 35000;
+  };
+
+  const cardClassName = isHighValueDeal() 
+    ? "group simple-card smooth-transition hover:shadow-elegant bg-gradient-to-br from-success/10 to-success/5 border-2 border-success/30 shadow-lg"
+    : "group simple-card smooth-transition hover:shadow-elegant";
+
   return (
-    <Card className="group simple-card smooth-transition hover:shadow-elegant">
+    <Card className={cardClassName}>
+      {isHighValueDeal() && (
+        <div className="bg-gradient-to-r from-success to-success/80 text-success-foreground px-3 py-2 text-sm font-medium flex items-center gap-2">
+          <Star className="h-4 w-4" />
+          High-Value Wholesale Deal - ${formatNumber(property.zestimate - property.price)} Spread
+        </div>
+      )}
       <CardHeader className="pb-4">
         <div className="flex justify-between items-start">
           <div className="space-y-2">
