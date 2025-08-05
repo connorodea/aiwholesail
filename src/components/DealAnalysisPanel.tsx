@@ -31,13 +31,37 @@ export function DealAnalysisPanel() {
       return;
     }
 
-    // Basic URL validation
+    // Enhanced URL validation with comprehensive regex
     try {
       const url = new URL(propertyUrl);
-      if (!url.hostname.includes('zillow.com') && !url.hostname.includes('realty.com')) {
+      const allowedDomains = [
+        'zillow.com',
+        'realty.com', 
+        'realtor.com',
+        'homes.com',
+        'redfin.com',
+        'trulia.com'
+      ];
+      
+      const isValidDomain = allowedDomains.some(domain => 
+        url.hostname === domain || url.hostname.endsWith('.' + domain)
+      );
+      
+      if (!isValidDomain) {
         toast({
           title: "Invalid URL",
-          description: "Please enter a valid Zillow or Realty.com property URL.",
+          description: "Please enter a valid property URL from a supported real estate website (Zillow, Realtor.com, Redfin, etc.).",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Additional URL structure validation
+      const propertyPathPattern = /\/(homedetails|property|listing|homes?)\//i;
+      if (!propertyPathPattern.test(url.pathname)) {
+        toast({
+          title: "Invalid Property URL",
+          description: "Please ensure the URL is a direct link to a property listing page.",
           variant: "destructive",
         });
         return;

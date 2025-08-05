@@ -4,17 +4,60 @@ import "https://deno.land/x/xhr@0.1.0/mod.ts"
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
+  'X-XSS-Protection': '1; mode=block',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'Content-Security-Policy': "default-src 'self'; script-src 'none'; object-src 'none';",
 }
 
+// Rate limiting map to track requests per IP
+const rateLimitMap = new Map()
+const RATE_LIMIT_WINDOW = 60000 // 1 minute
+const RATE_LIMIT_MAX_REQUESTS = 10
+
 serve(async (req) => {
+  const startTime = Date.now()
+  const clientIP = req.headers.get('x-forwarded-for') || req.headers.get('cf-connecting-ip') || 'unknown'
+  
+  console.log(`[${new Date().toISOString()}] ${req.method} request from ${clientIP}`)
+
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
 
+  // Rate limiting check
+  const now = Date.now()
+  if (!rateLimitMap.has(clientIP)) {
+    rateLimitMap.set(clientIP, [])
+  }
+  
+  const requests = rateLimitMap.get(clientIP)
+  const recentRequests = requests.filter((time: number) => now - time < RATE_LIMIT_WINDOW)
+  
+  if (recentRequests.length >= RATE_LIMIT_MAX_REQUESTS) {
+    console.warn(`[${new Date().toISOString()}] Rate limit exceeded for IP: ${clientIP}`)
+    return new Response(
+      JSON.stringify({ success: false, error: 'Rate limit exceeded. Please try again later.' }),
+      { 
+        headers: { 
+          ...corsHeaders, 
+          'Content-Type': 'application/json',
+          'Retry-After': '60'
+        }, 
+        status: 429 
+      }
+    )
+  }
+  
+  recentRequests.push(now)
+  rateLimitMap.set(clientIP, recentRequests)
+
   // Get authorization header for basic security
   const authHeader = req.headers.get('Authorization')
   if (!authHeader) {
+    console.warn(`[${new Date().toISOString()}] Unauthorized request from ${clientIP}`)
     return new Response(
       JSON.stringify({ success: false, error: 'Authorization required' }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
@@ -25,8 +68,32 @@ serve(async (req) => {
     const { property_url } = await req.json()
 
     if (!property_url) {
+      console.warn(`[${new Date().toISOString()}] Missing property_url from ${clientIP}`)
       return new Response(
         JSON.stringify({ success: false, error: 'Property URL is required' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+      )
+    }
+
+    // Enhanced URL validation
+    try {
+      const url = new URL(property_url)
+      const allowedDomains = ['zillow.com', 'realty.com', 'realtor.com', 'homes.com']
+      const isValidDomain = allowedDomains.some(domain => 
+        url.hostname === domain || url.hostname.endsWith('.' + domain)
+      )
+      
+      if (!isValidDomain) {
+        console.warn(`[${new Date().toISOString()}] Invalid domain ${url.hostname} from ${clientIP}`)
+        return new Response(
+          JSON.stringify({ success: false, error: 'Invalid property URL domain. Please use Zillow, Realtor.com, or similar real estate websites.' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+        )
+      }
+    } catch (urlError) {
+      console.warn(`[${new Date().toISOString()}] Invalid URL format from ${clientIP}: ${property_url}`)
+      return new Response(
+        JSON.stringify({ success: false, error: 'Invalid URL format' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
       )
     }
@@ -34,11 +101,14 @@ serve(async (req) => {
     // Get OpenAI API key from environment
     const openaiApiKey = Deno.env.get('OPENAI_API_KEY')
     if (!openaiApiKey) {
+      console.error(`[${new Date().toISOString()}] OpenAI API key not configured`)
       return new Response(
         JSON.stringify({ success: false, error: 'OpenAI API key not configured' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
       )
     }
+
+    console.log(`[${new Date().toISOString()}] Starting analysis for ${property_url} from ${clientIP}`)
 
     const dealAnalysisPrompt = `You are RealEstateGPT, an expert real-estate investment analyst.  
 When I give you a Zillow (or similar) property URL, you will:
@@ -110,17 +180,27 @@ Please analyze this property: ${property_url}`
       throw new Error('No analysis generated')
     }
 
+    const duration = Date.now() - startTime
+    console.log(`[${new Date().toISOString()}] Analysis completed for ${clientIP} in ${duration}ms`)
+
     return new Response(
       JSON.stringify({ success: true, analysis }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
 
   } catch (error) {
-    console.error('Error analyzing deal:', error)
+    const duration = Date.now() - startTime
+    console.error(`[${new Date().toISOString()}] Error analyzing deal for ${clientIP} after ${duration}ms:`, error)
+    
+    // Sanitize error message to avoid information leakage
+    const sanitizedError = error instanceof Error && error.message.includes('API') 
+      ? 'External service error' 
+      : error.message || 'Failed to analyze deal'
+    
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: error.message || 'Failed to analyze deal' 
+        error: sanitizedError
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
     )
