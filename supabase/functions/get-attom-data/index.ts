@@ -74,13 +74,11 @@ serve(async (req) => {
       // Test connection
       url = new URL(`${baseUrl}/property/basicprofile`)
       url.searchParams.append('address1', '123 Main St')
-      url.searchParams.append('locality', 'Los Angeles')
-      url.searchParams.append('postalcode', 'CA')
-      url.searchParams.append('apikey', apiKey)
+      url.searchParams.append('address2', 'Los Angeles, CA')
       
       requestHeaders = {
         'Accept': 'application/json',
-        'Content-Type': 'application/json',
+        'apikey': apiKey,
       }
     } else {
       // Regular API request
@@ -93,33 +91,19 @@ serve(async (req) => {
         }
       })
       
-      // Try header-based authentication first
+      // Use header-based authentication
       requestHeaders = {
         'Accept': 'application/json',
         'apikey': apiKey,
       }
     }
 
-    console.log(`[${new Date().toISOString()}] Making AttomData API request for ${clientIP}:`, { action, endpoint })
+    console.log(`[${new Date().toISOString()}] Making AttomData API request for ${clientIP}:`, { action, endpoint, url: url.toString() })
 
-    let response = await fetch(url.toString(), {
+    const response = await fetch(url.toString(), {
       method: 'GET',
       headers: requestHeaders,
     })
-
-    // If header auth fails, try query parameter auth
-    if (!response.ok && action !== 'test') {
-      console.log(`[${new Date().toISOString()}] Header auth failed for ${clientIP}, trying query parameter auth`)
-      url.searchParams.append('apikey', apiKey)
-      
-      response = await fetch(url.toString(), {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-      })
-    }
 
     if (!response.ok) {
       const errorText = await response.text()
