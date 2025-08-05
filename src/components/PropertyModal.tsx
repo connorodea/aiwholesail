@@ -413,30 +413,40 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
 
           {/* AttomData Enhanced Information */}
           {property.attomData && (
-            <div className="space-y-4">
+            <div className="space-y-6">
               <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
                 <TrendingUp className="h-5 w-5 text-primary" />
-                Enhanced Property Data
+                AttomData Intelligence
               </h3>
               
-              {/* Valuations */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Property Valuations Row */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {property.attomData.avm && (
-                  <div className="p-3 bg-accent/10 rounded-lg border border-accent/20">
+                  <div className="p-4 bg-accent/10 rounded-lg border border-accent/20">
                     <div className="text-sm text-muted-foreground">AttomData AVM</div>
-                    <div className="text-lg font-bold text-accent">{formatPrice(property.attomData.avm.amount || 0)}</div>
-                    <div className="text-xs text-muted-foreground">
+                    <div className="text-xl font-bold text-accent">{formatPrice(property.attomData.avm.amount || 0)}</div>
+                    <div className="text-xs text-muted-foreground mt-1">
                       Confidence: {property.attomData.avm.confidence}
+                      {property.attomData.avm.date && (
+                        <div>Date: {new Date(property.attomData.avm.date).toLocaleDateString()}</div>
+                      )}
                     </div>
                   </div>
                 )}
 
+                {property.attomData.marketValue && (
+                  <div className="p-4 bg-primary/10 rounded-lg border border-primary/20">
+                    <div className="text-sm text-muted-foreground">Market Value</div>
+                    <div className="text-xl font-bold text-primary">{formatPrice(property.attomData.marketValue)}</div>
+                  </div>
+                )}
+
                 {property.attomData.taxAssessedValue && (
-                  <div className="p-3 bg-muted/30 rounded-lg">
+                  <div className="p-4 bg-muted/30 rounded-lg">
                     <div className="text-sm text-muted-foreground">Tax Assessment</div>
-                    <div className="text-lg font-bold">{formatPrice(property.attomData.taxAssessedValue)}</div>
+                    <div className="text-xl font-bold">{formatPrice(property.attomData.taxAssessedValue)}</div>
                     {property.attomData.taxInfo?.taxAmount && (
-                      <div className="text-xs text-muted-foreground">
+                      <div className="text-xs text-muted-foreground mt-1">
                         Annual Tax: {formatPrice(property.attomData.taxInfo.taxAmount)}
                       </div>
                     )}
@@ -444,61 +454,265 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                 )}
               </div>
 
-              {/* Owner & Mortgage Info */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Comprehensive Mortgage & Ownership Information */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Detailed Owner Information */}
                 {property.attomData.owner && (
-                  <div className="p-3 bg-muted/30 rounded-lg">
-                    <div className="text-sm text-muted-foreground">Owner Information</div>
-                    {property.attomData.owner.name && (
-                      <div className="font-medium">{property.attomData.owner.name}</div>
-                    )}
-                    <Badge variant={property.attomData.owner.ownerOccupied ? "default" : "secondary"} className="mt-1">
-                      {property.attomData.owner.ownerOccupied ? "Owner Occupied" : "Non-Owner Occupied"}
-                    </Badge>
+                  <div className="p-4 bg-blue-50 dark:bg-blue-950 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <h4 className="font-semibold mb-3 text-blue-800 dark:text-blue-200 flex items-center gap-2">
+                      <Home className="h-4 w-4" />
+                      Owner Details
+                    </h4>
+                    <div className="space-y-3">
+                      {property.attomData.owner.name && (
+                        <div>
+                          <div className="text-sm text-blue-600 dark:text-blue-400">Owner Name</div>
+                          <div className="font-medium text-blue-900 dark:text-blue-100">{property.attomData.owner.name}</div>
+                        </div>
+                      )}
+                      {property.attomData.owner.mailingAddress && (
+                        <div>
+                          <div className="text-sm text-blue-600 dark:text-blue-400">Mailing Address</div>
+                          <div className="text-sm text-blue-800 dark:text-blue-200">{property.attomData.owner.mailingAddress}</div>
+                        </div>
+                      )}
+                      <div className="flex items-center gap-2">
+                        <Badge variant={property.attomData.owner.ownerOccupied ? "default" : "secondary"}>
+                          {property.attomData.owner.ownerOccupied ? "Owner Occupied" : "Non-Owner Occupied"}
+                        </Badge>
+                        {!property.attomData.owner.ownerOccupied && (
+                          <Badge variant="outline" className="text-orange-600 border-orange-300">
+                            Investment Property
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 )}
 
+                {/* Comprehensive Mortgage Information */}
                 {property.attomData.mortgageInfo && (
-                  <div className="p-3 bg-muted/30 rounded-lg">
-                    <div className="text-sm text-muted-foreground">Mortgage Info</div>
-                    {property.attomData.mortgageInfo.loanAmount && (
-                      <div className="font-medium">{formatPrice(property.attomData.mortgageInfo.loanAmount)}</div>
-                    )}
-                    {property.attomData.equityPosition && (
-                      <div className="text-sm text-success">
-                        Equity: {formatPrice(property.attomData.equityPosition)}
+                  <div className="p-4 bg-green-50 dark:bg-green-950 rounded-lg border border-green-200 dark:border-green-800">
+                    <h4 className="font-semibold mb-3 text-green-800 dark:text-green-200 flex items-center gap-2">
+                      <DollarSign className="h-4 w-4" />
+                      Mortgage Information
+                    </h4>
+                    <div className="space-y-3">
+                      {property.attomData.mortgageInfo.loanAmount && (
+                        <div>
+                          <div className="text-sm text-green-600 dark:text-green-400">Loan Amount</div>
+                          <div className="text-lg font-bold text-green-900 dark:text-green-100">
+                            {formatPrice(property.attomData.mortgageInfo.loanAmount)}
+                          </div>
+                        </div>
+                      )}
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {property.attomData.mortgageInfo.lenderName && (
+                          <div>
+                            <div className="text-sm text-green-600 dark:text-green-400">Lender</div>
+                            <div className="font-medium text-green-800 dark:text-green-200">{property.attomData.mortgageInfo.lenderName}</div>
+                          </div>
+                        )}
+                        
+                        {property.attomData.mortgageInfo.loanType && (
+                          <div>
+                            <div className="text-sm text-green-600 dark:text-green-400">Loan Type</div>
+                            <div className="font-medium text-green-800 dark:text-green-200">{property.attomData.mortgageInfo.loanType}</div>
+                          </div>
+                        )}
+                        
+                        {property.attomData.mortgageInfo.interestRate && (
+                          <div>
+                            <div className="text-sm text-green-600 dark:text-green-400">Interest Rate</div>
+                            <div className="font-medium text-green-800 dark:text-green-200">{property.attomData.mortgageInfo.interestRate}%</div>
+                          </div>
+                        )}
+                        
+                        {property.attomData.mortgageInfo.loanDate && (
+                          <div>
+                            <div className="text-sm text-green-600 dark:text-green-400">Loan Date</div>
+                            <div className="font-medium text-green-800 dark:text-green-200">
+                              {new Date(property.attomData.mortgageInfo.loanDate).toLocaleDateString()}
+                            </div>
+                          </div>
+                        )}
                       </div>
-                    )}
+
+                      {property.attomData.equityPosition && (
+                        <div className="pt-2 border-t border-green-200 dark:border-green-800">
+                          <div className="text-sm text-green-600 dark:text-green-400">Estimated Equity</div>
+                          <div className="text-lg font-bold text-success">
+                            {formatPrice(property.attomData.equityPosition)}
+                          </div>
+                          {property.attomData.mortgageInfo.loanAmount && property.attomData.avm?.amount && (
+                            <div className="text-xs text-green-600 dark:text-green-400">
+                              Equity Ratio: {((property.attomData.equityPosition / property.attomData.avm.amount) * 100).toFixed(1)}%
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>
 
-              {/* Wholesale Indicators */}
-              {property.attomData.motivatedSeller && (
-                <div className="p-3 bg-warning/10 rounded-lg border border-warning/20">
-                  <div className="text-sm text-warning font-medium mb-2">🎯 Wholesale Opportunity</div>
-                  {property.attomData.distressIndicators && (
-                    <div className="flex flex-wrap gap-1">
-                      {property.attomData.distressIndicators.map((indicator, index) => (
-                        <Badge key={index} variant="outline" className="text-xs">
-                          {indicator}
-                        </Badge>
-                      ))}
-                    </div>
-                  )}
+              {/* Comprehensive Tax Information */}
+              {property.attomData.taxInfo && (
+                <div className="p-4 bg-yellow-50 dark:bg-yellow-950 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                  <h4 className="font-semibold mb-3 text-yellow-800 dark:text-yellow-200">Tax Details</h4>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {property.attomData.taxInfo.taxAmount && (
+                      <div>
+                        <div className="text-sm text-yellow-600 dark:text-yellow-400">Annual Tax</div>
+                        <div className="font-bold text-yellow-900 dark:text-yellow-100">{formatPrice(property.attomData.taxInfo.taxAmount)}</div>
+                      </div>
+                    )}
+                    {property.attomData.taxInfo.taxYear && (
+                      <div>
+                        <div className="text-sm text-yellow-600 dark:text-yellow-400">Tax Year</div>
+                        <div className="font-medium text-yellow-800 dark:text-yellow-200">{property.attomData.taxInfo.taxYear}</div>
+                      </div>
+                    )}
+                    {property.attomData.taxInfo.millRate && (
+                      <div>
+                        <div className="text-sm text-yellow-600 dark:text-yellow-400">Mill Rate</div>
+                        <div className="font-medium text-yellow-800 dark:text-yellow-200">{property.attomData.taxInfo.millRate}</div>
+                      </div>
+                    )}
+                    {property.attomData.taxInfo.exemptions && property.attomData.taxInfo.exemptions.length > 0 && (
+                      <div>
+                        <div className="text-sm text-yellow-600 dark:text-yellow-400">Exemptions</div>
+                        <div className="text-xs">
+                          {property.attomData.taxInfo.exemptions.map((exemption, index) => (
+                            <Badge key={index} variant="outline" className="mr-1 mb-1 text-xs">
+                              {exemption}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
 
-              {/* Sale History & Comparables */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Demographics & Neighborhood Data */}
+              {property.attomData.demographics && (
+                <div className="p-4 bg-purple-50 dark:bg-purple-950 rounded-lg border border-purple-200 dark:border-purple-800">
+                  <h4 className="font-semibold mb-3 text-purple-800 dark:text-purple-200">Neighborhood Demographics</h4>
+                  <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                    {property.attomData.demographics.medianHouseholdIncome && (
+                      <div>
+                        <div className="text-sm text-purple-600 dark:text-purple-400">Median Income</div>
+                        <div className="font-bold text-purple-900 dark:text-purple-100">
+                          {formatPrice(property.attomData.demographics.medianHouseholdIncome)}
+                        </div>
+                      </div>
+                    )}
+                    {property.attomData.demographics.medianAge && (
+                      <div>
+                        <div className="text-sm text-purple-600 dark:text-purple-400">Median Age</div>
+                        <div className="font-medium text-purple-800 dark:text-purple-200">{property.attomData.demographics.medianAge} years</div>
+                      </div>
+                    )}
+                    {property.attomData.demographics.populationDensity && (
+                      <div>
+                        <div className="text-sm text-purple-600 dark:text-purple-400">Pop. Density</div>
+                        <div className="font-medium text-purple-800 dark:text-purple-200">{property.attomData.demographics.populationDensity}/sq mi</div>
+                      </div>
+                    )}
+                    {property.attomData.demographics.crimeIndex && (
+                      <div>
+                        <div className="text-sm text-purple-600 dark:text-purple-400">Crime Index</div>
+                        <div className={`font-medium ${property.attomData.demographics.crimeIndex > 50 ? 'text-red-600' : 'text-green-600'}`}>
+                          {property.attomData.demographics.crimeIndex}
+                        </div>
+                      </div>
+                    )}
+                    {property.attomData.demographics.schoolRating && (
+                      <div>
+                        <div className="text-sm text-purple-600 dark:text-purple-400">School Rating</div>
+                        <div className="font-medium text-purple-800 dark:text-purple-200">{property.attomData.demographics.schoolRating}/10</div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Foreclosure & Distress Indicators */}
+              {(property.attomData.foreclosureStatus || property.attomData.preForeclosure || property.attomData.motivatedSeller) && (
+                <div className="p-4 bg-red-50 dark:bg-red-950 rounded-lg border border-red-200 dark:border-red-800">
+                  <h4 className="font-semibold mb-3 text-red-800 dark:text-red-200 flex items-center gap-2">
+                    ⚠️ Distress Indicators & Opportunities
+                  </h4>
+                  <div className="space-y-3">
+                    {property.attomData.foreclosureStatus && (
+                      <div>
+                        <Badge variant="destructive" className="mb-2">
+                          Foreclosure Status: {property.attomData.foreclosureStatus}
+                        </Badge>
+                      </div>
+                    )}
+                    
+                    {property.attomData.preForeclosure && (
+                      <Badge variant="destructive">
+                        Pre-Foreclosure
+                      </Badge>
+                    )}
+                    
+                    {property.attomData.motivatedSeller && (
+                      <div>
+                        <Badge className="bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200 mb-2">
+                          🎯 Motivated Seller Detected
+                        </Badge>
+                        {property.attomData.distressIndicators && property.attomData.distressIndicators.length > 0 && (
+                          <div className="mt-2">
+                            <div className="text-sm text-red-600 dark:text-red-400 mb-1">Distress Signals:</div>
+                            <div className="flex flex-wrap gap-1">
+                              {property.attomData.distressIndicators.map((indicator, index) => (
+                                <Badge key={index} variant="outline" className="text-xs text-red-700 border-red-300">
+                                  {indicator}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {property.attomData.priceReductions && property.attomData.priceReductions > 0 && (
+                      <div>
+                        <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+                          📉 {property.attomData.priceReductions} Price Reduction{property.attomData.priceReductions > 1 ? 's' : ''}
+                        </Badge>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Property History & Comparables */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {property.attomData.saleHistory && property.attomData.saleHistory.length > 0 && (
-                  <div className="p-3 bg-muted/30 rounded-lg">
-                    <div className="text-sm text-muted-foreground mb-2">Recent Sales</div>
-                    <div className="space-y-1 max-h-24 overflow-y-auto">
-                      {property.attomData.saleHistory.slice(0, 3).map((sale, index) => (
-                        <div key={index} className="text-xs flex justify-between">
-                          <span>{sale.salePrice ? formatPrice(sale.salePrice) : 'N/A'}</span>
-                          <span>{sale.saleDate ? new Date(sale.saleDate).toLocaleDateString() : 'N/A'}</span>
+                  <div className="p-4 bg-muted/30 rounded-lg">
+                    <h4 className="font-semibold mb-3 text-foreground">Sale History</h4>
+                    <div className="space-y-2 max-h-48 overflow-y-auto">
+                      {property.attomData.saleHistory.map((sale, index) => (
+                        <div key={index} className="p-2 bg-background rounded border">
+                          <div className="flex justify-between items-center">
+                            <span className="font-medium">
+                              {sale.salePrice ? formatPrice(sale.salePrice) : 'Price N/A'}
+                            </span>
+                            <span className="text-sm text-muted-foreground">
+                              {sale.saleDate ? new Date(sale.saleDate).toLocaleDateString() : 'Date N/A'}
+                            </span>
+                          </div>
+                          {(sale.saleType || sale.deed) && (
+                            <div className="text-xs text-muted-foreground mt-1">
+                              {sale.saleType && <span>{sale.saleType}</span>}
+                              {sale.deed && <span> • {sale.deed}</span>}
+                            </div>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -506,13 +720,28 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                 )}
 
                 {property.attomData.comparables && property.attomData.comparables.length > 0 && (
-                  <div className="p-3 bg-muted/30 rounded-lg">
-                    <div className="text-sm text-muted-foreground mb-2">Recent Comps</div>
-                    <div className="space-y-1 max-h-24 overflow-y-auto">
-                      {property.attomData.comparables.slice(0, 3).map((comp, index) => (
-                        <div key={index} className="text-xs flex justify-between">
-                          <span>{comp.salePrice ? formatPrice(comp.salePrice) : 'N/A'}</span>
-                          <span>{comp.distance ? `${comp.distance.toFixed(1)}mi` : 'N/A'}</span>
+                  <div className="p-4 bg-muted/30 rounded-lg">
+                    <h4 className="font-semibold mb-3 text-foreground">Recent Comparables</h4>
+                    <div className="space-y-2 max-h-48 overflow-y-auto">
+                      {property.attomData.comparables.map((comp, index) => (
+                        <div key={index} className="p-2 bg-background rounded border">
+                          <div className="flex justify-between items-center">
+                            <span className="font-medium">
+                              {comp.salePrice ? formatPrice(comp.salePrice) : 'Price N/A'}
+                            </span>
+                            <span className="text-sm text-muted-foreground">
+                              {comp.distance ? `${comp.distance.toFixed(1)}mi` : 'Distance N/A'}
+                            </span>
+                          </div>
+                          <div className="text-xs text-muted-foreground mt-1">
+                            {comp.address && <div>{comp.address}</div>}
+                            {comp.saleDate && (
+                              <span>Sold: {new Date(comp.saleDate).toLocaleDateString()}</span>
+                            )}
+                            {comp.livingAreaSqFt && (
+                              <span> • {formatNumber(comp.livingAreaSqFt)} sq ft</span>
+                            )}
+                          </div>
                         </div>
                       ))}
                     </div>
