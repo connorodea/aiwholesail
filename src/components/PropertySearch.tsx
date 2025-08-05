@@ -32,15 +32,15 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
 
   return (
     <Card className="simple-card">
-      <CardHeader className="pb-6">
-        <CardTitle className="flex items-center gap-3 text-2xl text-foreground">
-          <Search className="h-6 w-6 text-primary" />
+      <CardHeader className="pb-4 sm:pb-6">
+        <CardTitle className="flex items-center gap-2 sm:gap-3 text-xl sm:text-2xl text-foreground">
+          <Search className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
           Property Search
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             {/* Location */}
             <div className="space-y-2">
               <Label htmlFor="location" className="flex items-center gap-2">
@@ -152,7 +152,7 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
             </div>
 
             {/* Keywords */}
-            <div className="space-y-2 md:col-span-2">
+            <div className="space-y-2 sm:col-span-2">
               <Label className="flex items-center gap-2">
                 <MessageSquare className="h-4 w-4 text-primary" />
                 Wholesaling Keywords
@@ -170,7 +170,7 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
           </div>
 
           {/* Filters */}
-          <div className="border-t pt-4 space-y-4">
+          <div className="border-t pt-3 sm:pt-4 space-y-3 sm:space-y-4">
             {/* Wholesale Filter */}
             <div className="flex items-center justify-between space-x-2">
               <div className="flex items-center space-x-2">
@@ -230,18 +230,18 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
             type="submit" 
             variant="default"
             size="lg"
-            className="w-full"
+            className="w-full h-12 sm:h-auto text-base sm:text-sm"
             disabled={isLoading || !searchParams.location.trim()}
           >
             {isLoading ? (
               <>
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary-foreground mr-3" />
-                Searching Properties...
+                <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-primary-foreground mr-2 sm:mr-3" />
+                <span className="text-sm sm:text-base">Searching Properties...</span>
               </>
             ) : (
               <>
-                <Search className="h-5 w-5 mr-3" />
-                Search Properties
+                <Search className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3" />
+                <span className="text-sm sm:text-base">Search Properties</span>
               </>
             )}
           </Button>

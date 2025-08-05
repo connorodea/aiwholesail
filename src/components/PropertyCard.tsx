@@ -55,23 +55,23 @@ export function PropertyCard({ property, onViewDetails, highlightWholesaleDeals 
           High-Value Wholesale Deal - ${formatNumber(property.zestimate - property.price)} Spread
         </div>
       )}
-      <CardHeader className="pb-4">
-        <div className="flex justify-between items-start">
-          <div className="space-y-2">
-            <h3 className="font-semibold text-lg text-foreground group-hover:text-primary transition-colors leading-tight">
+      <CardHeader className="pb-3 sm:pb-4">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
+          <div className="space-y-2 flex-1 min-w-0">
+            <h3 className="font-semibold text-base sm:text-lg text-foreground group-hover:text-primary transition-colors leading-tight break-words">
               {property.address}
             </h3>
             <div className="flex items-center text-muted-foreground text-sm">
-              <MapPin className="h-4 w-4 mr-1.5 text-primary/70" />
-              {property.propertyType || 'Property'}
+              <MapPin className="h-4 w-4 mr-1.5 text-primary/70 flex-shrink-0" />
+              <span className="truncate">{property.propertyType || 'Property'}</span>
             </div>
           </div>
           <div className="flex gap-2 flex-wrap">
-            <Badge className={`${getStatusColor(property.status)} rounded-full px-3 py-1 text-xs font-medium`}>
+            <Badge className={`${getStatusColor(property.status)} rounded-full px-2 sm:px-3 py-1 text-xs font-medium flex-shrink-0`}>
               {property.status}
             </Badge>
             {property.isFSBO && (
-              <Badge className="bg-gradient-to-r from-info/20 to-info/30 text-info border border-info/30 rounded-full px-3 py-1 text-xs font-medium">
+              <Badge className="bg-gradient-to-r from-info/20 to-info/30 text-info border border-info/30 rounded-full px-2 sm:px-3 py-1 text-xs font-medium flex-shrink-0">
                 FSBO
               </Badge>
             )}
@@ -79,25 +79,25 @@ export function PropertyCard({ property, onViewDetails, highlightWholesaleDeals 
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-4 sm:space-y-6">
         {/* Price */}
-        <div className="text-3xl font-bold gradient-text">
+        <div className="text-2xl sm:text-3xl font-bold gradient-text">
           {property.price ? formatPrice(property.price) : 'Price N/A'}
         </div>
 
         {/* Property Details */}
-        <div className="grid grid-cols-3 gap-4">
-          <div className="flex items-center gap-2 p-2 bg-muted/30 rounded-lg">
-            <Bed className="h-4 w-4 text-primary" />
-            <span className="text-sm font-medium">{property.bedrooms || 'N/A'} bed</span>
+        <div className="grid grid-cols-3 gap-2 sm:gap-4">
+          <div className="flex items-center gap-1 sm:gap-2 p-1.5 sm:p-2 bg-muted/30 rounded-lg">
+            <Bed className="h-3 w-3 sm:h-4 sm:w-4 text-primary flex-shrink-0" />
+            <span className="text-xs sm:text-sm font-medium truncate">{property.bedrooms || 'N/A'} <span className="hidden sm:inline">bed</span></span>
           </div>
-          <div className="flex items-center gap-2 p-2 bg-muted/30 rounded-lg">
-            <Bath className="h-4 w-4 text-primary" />
-            <span className="text-sm font-medium">{property.bathrooms || 'N/A'} bath</span>
+          <div className="flex items-center gap-1 sm:gap-2 p-1.5 sm:p-2 bg-muted/30 rounded-lg">
+            <Bath className="h-3 w-3 sm:h-4 sm:w-4 text-primary flex-shrink-0" />
+            <span className="text-xs sm:text-sm font-medium truncate">{property.bathrooms || 'N/A'} <span className="hidden sm:inline">bath</span></span>
           </div>
-          <div className="flex items-center gap-2 p-2 bg-muted/30 rounded-lg">
-            <Square className="h-4 w-4 text-primary" />
-            <span className="text-sm font-medium">{property.sqft ? formatNumber(property.sqft) : 'N/A'} sqft</span>
+          <div className="flex items-center gap-1 sm:gap-2 p-1.5 sm:p-2 bg-muted/30 rounded-lg">
+            <Square className="h-3 w-3 sm:h-4 sm:w-4 text-primary flex-shrink-0" />
+            <span className="text-xs sm:text-sm font-medium truncate">{property.sqft ? formatNumber(property.sqft) : 'N/A'} <span className="hidden sm:inline">sqft</span></span>
           </div>
         </div>
 
@@ -228,28 +228,28 @@ export function PropertyCard({ property, onViewDetails, highlightWholesaleDeals 
         )}
       </CardContent>
 
-      <CardFooter className="pt-6">
-        <div className="flex gap-3 w-full">
+      <CardFooter className="pt-4 sm:pt-6">
+        <div className="flex gap-2 sm:gap-3 w-full">
           <Button 
             onClick={() => onViewDetails(property)}
             variant="default"
-            size="lg"
-            className="flex-1"
+            size="sm"
+            className="flex-1 text-xs sm:text-sm"
           >
-            <Eye className="h-4 w-4 mr-2" />
-            View Details
+            <Eye className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+            <span className="hidden sm:inline">View </span>Details
           </Button>
           <Button 
             variant="outline" 
-            size="lg" 
-            className="px-4"
+            size="sm" 
+            className="px-2 sm:px-4"
             onClick={(e) => {
               e.stopPropagation();
               const zillowUrl = `https://www.zillow.com/homes/${encodeURIComponent(property.address)}_rb/`;
               window.open(zillowUrl, '_blank');
             }}
           >
-            <ExternalLink className="h-5 w-5" />
+            <ExternalLink className="h-4 w-4 sm:h-5 sm:w-5" />
           </Button>
         </div>
       </CardFooter>

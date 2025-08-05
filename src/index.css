@@ -126,6 +126,10 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
+    /* Mobile optimizations */
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    scroll-behavior: smooth;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -164,5 +168,37 @@ All colors MUST be HSL.
 
   .smooth-transition {
     @apply transition-all duration-200 ease-out;
+  }
+
+  /* Mobile-optimized touch targets and spacing */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+
+  .mobile-padding {
+    @apply px-4 sm:px-6 lg:px-8;
+  }
+
+  .mobile-text {
+    @apply text-sm sm:text-base;
+  }
+
+  .mobile-heading {
+    @apply text-lg sm:text-xl lg:text-2xl;
+  }
+
+  /* Better button sizing for mobile */
+  .mobile-button {
+    @apply h-11 sm:h-10 px-4 sm:px-6 text-sm sm:text-base;
+  }
+
+  /* Responsive grid improvements */
+  .property-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 lg:gap-8;
+  }
+
+  /* Mobile-friendly card spacing */
+  .mobile-card {
+    @apply p-4 sm:p-6 space-y-3 sm:space-y-4;
   }
 }

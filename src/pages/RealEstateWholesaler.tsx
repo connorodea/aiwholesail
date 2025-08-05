@@ -185,21 +185,21 @@ export default function RealEstateWholesaler() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background">
-      <div className="container mx-auto px-4 py-12">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
         {/* Header */}
-        <div className="text-center mb-16">
-          <div className="flex items-center justify-center gap-4 mb-6">
-            <div className="p-4 bg-gradient-to-br from-primary/10 to-accent/10 rounded-2xl border border-primary/20">
-              <Home className="h-10 w-10 text-primary" />
+        <div className="text-center mb-8 sm:mb-16">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-4 sm:mb-6">
+            <div className="p-3 sm:p-4 bg-gradient-to-br from-primary/10 to-accent/10 rounded-2xl border border-primary/20">
+              <Home className="h-8 w-8 sm:h-10 sm:w-10 text-primary" />
             </div>
-            <div>
-              <h1 className="text-5xl lg:text-6xl font-bold gradient-text mb-2">
+            <div className="text-center sm:text-left">
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold gradient-text mb-2">
                 AI Real Estate Wholesaler
               </h1>
-              <div className="h-1 w-24 bg-gradient-to-r from-primary to-accent rounded-full mx-auto"></div>
+              <div className="h-1 w-16 sm:w-24 bg-gradient-to-r from-primary to-accent rounded-full mx-auto sm:mx-0"></div>
             </div>
           </div>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+          <p className="text-base sm:text-lg lg:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed px-4 sm:px-0">
             Discover profitable wholesale opportunities with AI-powered market analysis, 
             enhanced property data, and automated deal scoring
           </p>
@@ -209,36 +209,36 @@ export default function RealEstateWholesaler() {
         {/* Top Deals Section - now removed from here, moved to tab */}
 
         {/* Search Section */}
-        <div className="mb-12">
+        <div className="mb-8 sm:mb-12">
           <PropertySearch onSearch={handleSearch} isLoading={isLoading} />
         </div>
 
         {/* Results Section - Always show tabs, even if no properties searched yet */}
-        <Tabs defaultValue="top-deals" className="space-y-8">
-          <div className="flex items-center justify-between">
-            <TabsList className="glass-card p-1.5 h-auto">
-              <TabsTrigger value="top-deals" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-6 py-3 font-medium smooth-hover">
-                <TrendingUp className="h-4 w-4 mr-2" />
-                🔥 Top Deals
+        <Tabs defaultValue="top-deals" className="space-y-6 sm:space-y-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <TabsList className="glass-card p-1 sm:p-1.5 h-auto w-full sm:w-auto overflow-x-auto">
+              <TabsTrigger value="top-deals" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-3 sm:px-6 py-2 sm:py-3 font-medium smooth-hover text-xs sm:text-sm flex-shrink-0">
+                <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">🔥 </span>Top Deals
               </TabsTrigger>
-              <TabsTrigger value="properties" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-6 py-3 font-medium smooth-hover">
-                <Home className="h-4 w-4 mr-2" />
-                Properties ({properties.length})
+              <TabsTrigger value="properties" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-3 sm:px-6 py-2 sm:py-3 font-medium smooth-hover text-xs sm:text-sm flex-shrink-0">
+                <Home className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                Properties <span className="hidden sm:inline">({properties.length})</span>
               </TabsTrigger>
-              <TabsTrigger value="analysis" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-6 py-3 font-medium smooth-hover">
-                <Brain className="h-4 w-4 mr-2" />
-                AI Analysis
+              <TabsTrigger value="analysis" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-3 sm:px-6 py-2 sm:py-3 font-medium smooth-hover text-xs sm:text-sm flex-shrink-0">
+                <Brain className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                AI <span className="hidden sm:inline">Analysis</span>
               </TabsTrigger>
-              <TabsTrigger value="deal-analysis" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-6 py-3 font-medium smooth-hover">
-                <TrendingUp className="h-4 w-4 mr-2" />
-                Deal Analysis
+              <TabsTrigger value="deal-analysis" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-3 sm:px-6 py-2 sm:py-3 font-medium smooth-hover text-xs sm:text-sm flex-shrink-0">
+                <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                Deal <span className="hidden sm:inline">Analysis</span>
               </TabsTrigger>
             </TabsList>
 
             {properties.length > 0 && (
-              <Button onClick={exportResults} variant="outline" size="lg" className="shadow-md">
+              <Button onClick={exportResults} variant="outline" size="sm" className="shadow-md w-full sm:w-auto">
                 <Download className="h-4 w-4 mr-2" />
-                Export CSV
+                <span className="hidden sm:inline">Export </span>CSV
               </Button>
             )}
           </div>
@@ -251,7 +251,7 @@ export default function RealEstateWholesaler() {
               {properties.length > 0 ? (
                 <>
                   {/* Quick Stats */}
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                  <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
                     <Card className="glass-card border-0 shadow-card smooth-hover hover:shadow-elegant">
                       <CardHeader className="pb-3">
                         <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
@@ -311,7 +311,7 @@ export default function RealEstateWholesaler() {
                   </div>
 
                   {/* Property Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
                     {properties.map((property) => (
                       <PropertyCard
                         key={property.id}
