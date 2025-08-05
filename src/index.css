@@ -8,27 +8,27 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Clean modern theme with your specified colors */
-    --background: 0 0% 100%; /* #FFFFFF */
-    --foreground: 210 69% 13%; /* #0B2436 */
+    /* Dark theme as default with your color palette */
+    --background: 210 69% 13%; /* #0B2436 */
+    --foreground: 0 0% 100%; /* #FFFFFF */
 
-    --card: 0 0% 100%; /* #FFFFFF */
-    --card-foreground: 210 69% 13%; /* #0B2436 */
+    --card: 210 69% 15%;
+    --card-foreground: 0 0% 100%;
 
-    --popover: 0 0% 100%; /* #FFFFFF */
-    --popover-foreground: 210 69% 13%; /* #0B2436 */
+    --popover: 210 69% 15%;
+    --popover-foreground: 0 0% 100%;
 
     /* Primary - Teal */
     --primary: 174 72% 42%; /* #1FB6A6 */
     --primary-foreground: 0 0% 100%; /* #FFFFFF */
     --primary-glow: 174 72% 52%;
 
-    /* Secondary - Clean white/gray */
-    --secondary: 210 20% 98%;
-    --secondary-foreground: 210 69% 13%; /* #0B2436 */
+    /* Secondary - Darker variant */
+    --secondary: 210 69% 18%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 210 20% 96%;
-    --muted-foreground: 210 30% 40%;
+    --muted: 210 69% 20%;
+    --muted-foreground: 210 20% 70%;
 
     /* Accent - Same teal for consistency */
     --accent: 174 72% 42%; /* #1FB6A6 */
@@ -37,8 +37,8 @@ All colors MUST be HSL.
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 210 20% 90%;
-    --input: 210 20% 96%;
+    --border: 210 40% 25%;
+    --input: 210 40% 25%;
     --ring: 174 72% 42%; /* #1FB6A6 */
 
     --radius: 0.5rem;
@@ -51,16 +51,16 @@ All colors MUST be HSL.
     --info: 174 72% 42%; /* #1FB6A6 for info */
     --info-foreground: 0 0% 100%;
 
-    /* Clean gradients */
+    /* Dark theme gradients */
     --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
     --gradient-hero: linear-gradient(135deg, hsl(var(--background)), hsl(var(--muted)));
     --gradient-card: linear-gradient(145deg, hsl(var(--card)), hsl(var(--muted) / 0.3));
     
-    /* Subtle shadows */
-    --shadow-glow: 0 0 24px hsl(var(--primary) / 0.15);
-    --shadow-elegant: 0 4px 20px -4px hsl(var(--foreground) / 0.1);
-    --shadow-card: 0 2px 8px -2px hsl(var(--foreground) / 0.08);
-    --shadow-intense: 0 12px 40px -8px hsl(var(--primary) / 0.2);
+    /* Dark theme shadows */
+    --shadow-glow: 0 0 24px hsl(var(--primary) / 0.2);
+    --shadow-elegant: 0 4px 20px -4px hsl(var(--primary) / 0.15);
+    --shadow-card: 0 2px 8px -2px hsl(0 0% 0% / 0.3);
+    --shadow-intense: 0 12px 40px -8px hsl(var(--primary) / 0.25);
 
     --sidebar-background: 0 0% 98%;
 
@@ -80,24 +80,24 @@ All colors MUST be HSL.
   }
 
   .dark {
-    /* Dark mode using your color palette */
-    --background: 210 69% 13%; /* #0B2436 */
-    --foreground: 0 0% 100%; /* #FFFFFF */
+    /* Light mode when dark class is applied */
+    --background: 0 0% 100%; /* #FFFFFF */
+    --foreground: 210 69% 13%; /* #0B2436 */
 
-    --card: 210 69% 15%;
-    --card-foreground: 0 0% 100%;
+    --card: 0 0% 100%;
+    --card-foreground: 210 69% 13%;
 
-    --popover: 210 69% 15%;
-    --popover-foreground: 0 0% 100%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 69% 13%;
 
     --primary: 174 72% 42%; /* #1FB6A6 */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 69% 18%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 210 20% 96%;
+    --secondary-foreground: 210 69% 13%;
 
-    --muted: 210 69% 20%;
-    --muted-foreground: 210 20% 70%;
+    --muted: 210 20% 94%;
+    --muted-foreground: 210 30% 40%;
 
     --accent: 174 72% 42%; /* #1FB6A6 */
     --accent-foreground: 0 0% 100%;
@@ -105,8 +105,8 @@ All colors MUST be HSL.
     --destructive: 0 62.8% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 210 40% 25%;
-    --input: 210 40% 25%;
+    --border: 210 20% 88%;
+    --input: 210 20% 94%;
     --ring: 174 72% 42%;
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
