@@ -106,17 +106,27 @@ export default function RealEstateWholesaler() {
         return;
       }
 
-      // Enhance properties with AttomData (first 20 properties for better coverage)
+      // Enhance properties with AttomData 
+      // If wholesale filter is on, enhance ALL properties to get AVM data for comparison
+      // Otherwise, enhance first 20 for performance
+      const shouldEnhanceAll = params.wholesaleOnly;
+      const propertiesForEnhancement = shouldEnhanceAll ? searchResults : searchResults.slice(0, Math.min(20, searchResults.length));
+      
       toast({
         title: "Enhancing Data",
-        description: "Getting additional property data from AttomData...",
+        description: shouldEnhanceAll 
+          ? "Getting AttomData for all properties to identify wholesale opportunities..." 
+          : "Getting additional property data from AttomData...",
       });
 
-      const propertiesForEnhancement = searchResults.slice(0, Math.min(20, searchResults.length));
-      
       const enhancedResults = await Promise.allSettled(
-        propertiesForEnhancement.map(async (property) => {
+        propertiesForEnhancement.map(async (property, index) => {
           try {
+            // Show progress for large batches
+            if (shouldEnhanceAll && index % 10 === 0) {
+              console.log(`Enhanced ${index + 1} of ${propertiesForEnhancement.length} properties`);
+            }
+            
             // Get enhanced AttomData for each property
             const attomData = await attomAPI.getEnhancedPropertyData(property.address);
             
@@ -141,18 +151,22 @@ export default function RealEstateWholesaler() {
         result.status === 'fulfilled' ? result.value : propertiesForEnhancement[enhancedResults.indexOf(result)]
       );
       
-      const finalResults = [
-        ...enhancedProperties,
-        ...searchResults.slice(Math.min(20, searchResults.length))
-      ];
+      const finalResults = shouldEnhanceAll 
+        ? enhancedProperties  // All properties enhanced
+        : [
+            ...enhancedProperties,
+            ...searchResults.slice(Math.min(20, searchResults.length))
+          ];
 
       // Filter for wholesale opportunities, auctions, and keywords
       let filteredResults = finalResults;
       
-      // Filter by wholesale opportunities (price < zestimate)
+      // Filter by wholesale opportunities (price < zestimate OR price < AVM)
       if (params.wholesaleOnly) {
         filteredResults = filteredResults.filter(property => {
-          return property.price && property.zestimate && property.price < property.zestimate;
+          const priceVsZestimate = property.price && property.zestimate && property.price < property.zestimate;
+          const priceVsAVM = property.price && property.attomData?.avm?.amount && property.price < property.attomData.avm.amount;
+          return priceVsZestimate || priceVsAVM;
         });
       }
 
