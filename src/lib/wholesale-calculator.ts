@@ -117,17 +117,22 @@ export function sortPropertiesByWholesalePotential(properties: Property[]): Prop
       potential: calculateWholesalePotential(property)
     }))
     .sort((a, b) => {
-      // Primary sort: wholesale potential score (descending)
-      if (b.potential.score !== a.potential.score) {
-        return b.potential.score - a.potential.score;
-      }
-      
-      // Secondary sort: spread amount (descending)
+      // Primary sort: spread amount (descending) - highest profit potential first
       if (b.potential.spreadAmount !== a.potential.spreadAmount) {
         return b.potential.spreadAmount - a.potential.spreadAmount;
       }
       
-      // Tertiary sort: days on market (descending - longer is better for negotiation)
+      // Secondary sort: spread percentage (descending)
+      if (b.potential.spreadPercentage !== a.potential.spreadPercentage) {
+        return b.potential.spreadPercentage - a.potential.spreadPercentage;
+      }
+      
+      // Tertiary sort: wholesale potential score (descending)
+      if (b.potential.score !== a.potential.score) {
+        return b.potential.score - a.potential.score;
+      }
+      
+      // Final sort: days on market (descending - longer is better for negotiation)
       const aDays = a.property.daysOnMarket || 0;
       const bDays = b.property.daysOnMarket || 0;
       return bDays - aDays;
