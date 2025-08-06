@@ -1,91 +1,56 @@
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PropertySearch } from '@/components/PropertySearch';
 import { PropertyCard } from '@/components/PropertyCard';
 import { PropertyModal } from '@/components/PropertyModal';
-import { AIAnalysisPanel } from '@/components/AIAnalysisPanel';
-import { TopDealsSection } from '@/components/TopDealsSection';
-import { DealAnalysisPanel } from '@/components/DealAnalysisPanel';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/hooks/use-toast';
-import { Property, PropertySearchParams, AIAnalysis } from '@/types/zillow';
-import { zillowAPI } from '@/lib/zillow-api';
 
-import { aiAnalyzer } from '@/lib/ai-analyzer';
-import { Brain, Home, Download, Zap, TrendingUp, AlertCircle, CheckCircle, DollarSign } from 'lucide-react';
+import { Property, PropertySearchParams } from '@/types/zillow';
+import { zillowAPI } from '@/lib/zillow-api';
+import { Button } from '@/components/ui/button';
+import { Home, User, LogOut, LogIn } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useFavorites } from '@/hooks/useFavorites';
+import { toast } from 'sonner';
 
 export default function RealEstateWholesaler() {
-  console.log('RealEstateWholesaler component is rendering');
+  const { user, signOut } = useAuth();
+  const { favorites } = useFavorites();
   const [properties, setProperties] = useState<Property[]>([]);
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [analysis, setAnalysis] = useState<AIAnalysis | null>(null);
-  const [isConnected, setIsConnected] = useState<boolean | null>(null);
-  
-  const [isWholesaleMode, setIsWholesaleMode] = useState(false);
-  const { toast } = useToast();
-  
-
+  const [error, setError] = useState<string | null>(null);
+  const [showFavorites, setShowFavorites] = useState(false);
 
   const handleSearch = async (params: PropertySearchParams) => {
     try {
       setIsLoading(true);
       setProperties([]);
-      setAnalysis(null);
+      setError(null);
 
-      toast({
-        title: "Searching Properties",
-        description: `Looking for properties in ${params.location} (fetching multiple pages)... This may take a moment.`,
-      });
+      toast.success(`Searching for properties in ${params.location}...`);
 
       // Fetch up to 5 pages for more comprehensive results
-      const maxPages = params.wholesaleOnly ? 5 : 3; // More pages for wholesale searches
+      const maxPages = params.wholesaleOnly ? 5 : 3;
       const searchResults = await zillowAPI.searchProperties(params, maxPages);
       
       if (searchResults.length === 0) {
-        toast({
-          title: "No Properties Found",
-          description: "Try adjusting your search criteria or location",
-          variant: "destructive"
-        });
+        setError("No properties found. Try adjusting your search criteria.");
         return;
       }
 
-      setIsWholesaleMode(params.wholesaleOnly || false); // Track wholesale mode for highlighting
-      
-      // Filter for wholesale opportunities, auctions, and keywords
+      // Filter for wholesale opportunities if requested
       let filteredResults = searchResults;
-      
-      // Filter by wholesale opportunities (price < zestimate only)
       if (params.wholesaleOnly) {
         filteredResults = filteredResults.filter(property => {
-          const priceVsZestimate = property.price && property.zestimate && property.price < property.zestimate;
-          return priceVsZestimate;
+          return property.price && property.zestimate && property.price < property.zestimate;
         });
       }
 
-      // Filter out auction properties
-      if (params.auctionOnly) {
-        filteredResults = filteredResults.filter(property => {
-          const description = (property.description || '').toLowerCase();
-          const listingType = (property.listingSubType?.description || '').toLowerCase();
-          return !description.includes('auction') && 
-                 !description.includes('foreclosure') &&
-                 !description.includes('sheriff') &&
-                 !listingType.includes('auction') &&
-                 !property.listingSubType?.description?.includes('Auction');
-        });
-      }
-
-      // Filter for FSBO properties only
+      // Filter for FSBO properties only if requested
       if (params.fsboOnly) {
         filteredResults = filteredResults.filter(property => property.isFSBO);
       }
 
-      // Filter by keywords in description
+      // Filter by keywords if provided
       if (params.keywords && params.keywords.trim()) {
         const keywords = params.keywords.toLowerCase().split(',').map(k => k.trim());
         filteredResults = filteredResults.filter(property => {
@@ -95,272 +60,170 @@ export default function RealEstateWholesaler() {
       }
 
       if (filteredResults.length === 0) {
-        let message = "No properties found matching your criteria.";
-        if (params.wholesaleOnly && params.auctionOnly && params.keywords) {
-          message = "No properties found with wholesale opportunities, auction properties, and matching keywords.";
-        } else if (params.wholesaleOnly && params.auctionOnly) {
-          message = "No properties found with both wholesale opportunities and auction properties.";
-        } else if (params.wholesaleOnly && params.keywords) {
-          message = "No properties found with wholesale opportunities and matching keywords.";
-        } else if (params.auctionOnly && params.keywords) {
-          message = "No auction properties found with matching keywords.";
-        } else if (params.wholesaleOnly) {
-          message = "No properties found priced below Zestimate.";
-        } else if (params.auctionOnly) {
-          message = "No auction properties found.";
-        } else if (params.keywords) {
-          message = "No properties found with the specified keywords.";
-        }
-        
-        toast({
-          title: "No Results Found",
-          description: message,
-          variant: "destructive"
-        });
+        setError("No properties found matching your criteria.");
         return;
       }
 
       setProperties(filteredResults);
-      
-      // Generate AI analysis
-      const aiAnalysis = aiAnalyzer.analyzeProperties(filteredResults);
-      setAnalysis(aiAnalysis);
-
-        toast({
-          title: "Search Complete",
-          description: params.wholesaleOnly 
-            ? `Found ${filteredResults.length} wholesale opportunities out of ${searchResults.length} total properties`
-            : `Found ${filteredResults.length} properties with AI analysis`,
-        });
+      toast.success(`Found ${filteredResults.length} properties${params.wholesaleOnly ? ' with wholesale potential' : ''}`);
 
     } catch (error) {
       console.error('Search failed:', error);
-      toast({
-        title: "Search Failed",
-        description: error instanceof Error ? error.message : "An error occurred while searching",
-        variant: "destructive"
-      });
+      const errorMessage = error instanceof Error ? error.message : "An error occurred while searching";
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleViewDetails = (property: Property) => {
-    setSelectedProperty(property);
-    setIsModalOpen(true);
-  };
-
-  const exportResults = () => {
-    if (properties.length === 0) return;
-
-    const csvContent = [
-      // CSV headers
-      ['Address', 'Price', 'Bedrooms', 'Bathrooms', 'Sqft', 'Property Type', 'Days on Market', 'Status'].join(','),
-      // CSV data
-      ...properties.map(property => [
-        `"${property.address}"`,
-        property.price || '',
-        property.bedrooms || '',
-        property.bathrooms || '',
-        property.sqft || '',
-        `"${property.propertyType || ''}"`,
-        property.daysOnMarket || '',
-        `"${property.status}"`
-      ].join(','))
-    ].join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `properties_${new Date().toISOString().split('T')[0]}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-
-    toast({
-      title: "Export Complete",
-      description: "Properties exported to CSV file",
-    });
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      toast.success('Signed out successfully');
+      setShowFavorites(false);
+    } catch (error) {
+      toast.error('Failed to sign out');
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12">
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-accent/5">
+      <div className="relative">
         {/* Header */}
-        <div className="text-center mb-8 sm:mb-16">
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-4 sm:mb-6">
-            <div className="p-3 sm:p-4 bg-gradient-to-br from-primary/10 to-accent/10 rounded-2xl border border-primary/20">
-              <Home className="h-8 w-8 sm:h-10 sm:w-10 text-primary" />
-            </div>
-            <div className="text-center sm:text-left">
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold gradient-text mb-2">
-                AI Real Estate Wholesaler
-              </h1>
-              <div className="h-1 w-16 sm:w-24 bg-gradient-to-r from-primary to-accent rounded-full mx-auto sm:mx-0"></div>
+        <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200/20 dark:border-gray-700/20 sticky top-0 z-40">
+          <div className="container mx-auto px-4 py-4">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <Home className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
+                    Real Estate Wholesaler
+                  </h1>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Find profitable wholesale deals
+                  </p>
+                </div>
+              </div>
+              
+              {/* User Actions */}
+              <div className="flex items-center gap-2">
+                {user ? (
+                  <>
+                    <Button
+                      variant={showFavorites ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setShowFavorites(!showFavorites)}
+                      className="flex items-center gap-2"
+                    >
+                      <User className="h-4 w-4" />
+                      Favorites ({favorites.length})
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleSignOut}
+                      className="flex items-center gap-2"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      Sign Out
+                    </Button>
+                  </>
+                ) : (
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={() => window.location.href = '/auth'}
+                    className="flex items-center gap-2"
+                  >
+                    <LogIn className="h-4 w-4" />
+                    Sign In
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
-          <p className="text-base sm:text-lg lg:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed px-4 sm:px-0">
-            Discover profitable wholesale opportunities with AI-powered market analysis, 
-            enhanced property data, and automated deal scoring
-          </p>
-          
         </div>
 
-        {/* Top Deals Section - now removed from here, moved to tab */}
+        {/* Main Content */}
+        <div className="container mx-auto px-4 py-6 space-y-6">
+          {!showFavorites ? (
+            <>
+              {/* Search Section */}
+              <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl border border-gray-200/50 dark:border-gray-700/50 p-6 shadow-lg">
+                <PropertySearch onSearch={handleSearch} isLoading={isLoading} />
+              </div>
 
-        {/* Search Section */}
-        <div className="mb-8 sm:mb-12">
-          <PropertySearch onSearch={handleSearch} isLoading={isLoading} />
-        </div>
 
-        {/* Results Section - Always show tabs, even if no properties searched yet */}
-        <Tabs defaultValue="top-deals" className="space-y-6 sm:space-y-8">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <TabsList className="glass-card p-1 sm:p-1.5 h-auto w-full sm:w-auto overflow-x-auto">
-              <TabsTrigger value="top-deals" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-3 sm:px-6 py-2 sm:py-3 font-medium smooth-hover text-xs sm:text-sm flex-shrink-0">
-                <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                <span className="hidden sm:inline">🔥 </span>Top Deals
-              </TabsTrigger>
-              <TabsTrigger value="properties" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-3 sm:px-6 py-2 sm:py-3 font-medium smooth-hover text-xs sm:text-sm flex-shrink-0">
-                <Home className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                Properties <span className="hidden sm:inline">({properties.length})</span>
-              </TabsTrigger>
-              <TabsTrigger value="analysis" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-3 sm:px-6 py-2 sm:py-3 font-medium smooth-hover text-xs sm:text-sm flex-shrink-0">
-                <Brain className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                AI <span className="hidden sm:inline">Analysis</span>
-              </TabsTrigger>
-              <TabsTrigger value="deal-analysis" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg px-3 sm:px-6 py-2 sm:py-3 font-medium smooth-hover text-xs sm:text-sm flex-shrink-0">
-                <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                Deal <span className="hidden sm:inline">Analysis</span>
-              </TabsTrigger>
-            </TabsList>
-
-            {properties.length > 0 && (
-              <Button onClick={exportResults} variant="outline" size="sm" className="shadow-md w-full sm:w-auto">
-                <Download className="h-4 w-4 mr-2" />
-                <span className="hidden sm:inline">Export </span>CSV
-              </Button>
-            )}
-          </div>
-
-          <TabsContent value="top-deals" className="space-y-6">
-            <TopDealsSection />
-          </TabsContent>
-
-            <TabsContent value="properties" className="space-y-6">
-              {properties.length > 0 ? (
-                <>
-                  {/* Quick Stats */}
-                  <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
-                    <Card className="glass-card border-0 shadow-card smooth-hover hover:shadow-elegant">
-                      <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                          <Home className="h-4 w-4 text-primary" />
-                          Total Properties
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="text-3xl font-bold gradient-text">{properties.length}</div>
-                      </CardContent>
-                    </Card>
-                    
-                    <Card className="glass-card border-0 shadow-card smooth-hover hover:shadow-elegant">
-                      <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                          <DollarSign className="h-4 w-4 text-primary" />
-                          Avg Price
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="text-3xl font-bold gradient-text">
-                          {properties.filter(p => p.price).length > 0 
-                            ? `$${Math.round(properties.filter(p => p.price).reduce((sum, p) => sum + (p.price || 0), 0) / properties.filter(p => p.price).length).toLocaleString()}`
-                            : 'N/A'
-                          }
-                        </div>
-                      </CardContent>
-                    </Card>
-
-                    <Card className="glass-card border-0 shadow-card smooth-hover hover:shadow-elegant">
-                      <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                          <TrendingUp className="h-4 w-4 text-success" />
-                          Below Market
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="text-3xl font-bold text-success">
-                          {properties.filter(p => p.price && p.zestimate && p.price < p.zestimate).length}
-                        </div>
-                      </CardContent>
-                    </Card>
-
-                    <Card className="glass-card border-0 shadow-card smooth-hover hover:shadow-elegant">
-                      <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                          <AlertCircle className="h-4 w-4 text-warning" />
-                          Long on Market
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="text-3xl font-bold text-warning">
-                          {properties.filter(p => p.daysOnMarket && p.daysOnMarket > 60).length}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
-
-                  {/* Property Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+              {/* Properties Grid */}
+              {properties.length > 0 && (
+                <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl border border-gray-200/50 dark:border-gray-700/50 p-6 shadow-lg">
+                  <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">
+                    All Properties ({properties.length})
+                  </h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                     {properties.map((property) => (
                       <PropertyCard
                         key={property.id}
                         property={property}
-                        onViewDetails={handleViewDetails}
-                        highlightWholesaleDeals={isWholesaleMode}
+                        onViewDetails={() => setSelectedProperty(property)}
                       />
                     ))}
                   </div>
-                </>
-              ) : (
-                <Card className="bg-card/50 backdrop-blur-sm border-border/50">
-                  <CardContent className="flex flex-col items-center justify-center py-12">
-                    <Home className="h-16 w-16 text-muted-foreground mb-4" />
-                    <h3 className="text-lg font-semibold text-foreground mb-2">No Properties Found</h3>
-                    <p className="text-muted-foreground text-center">
-                      Start by searching for properties in your target area using the search form above.
-                    </p>
-                  </CardContent>
-                </Card>
+                </div>
               )}
-            </TabsContent>
 
-            <TabsContent value="analysis" className="space-y-6">
-              {analysis ? (
-                <AIAnalysisPanel analysis={analysis} />
-              ) : (
-                <Card className="bg-card/50 backdrop-blur-sm border-border/50">
-                  <CardContent className="flex flex-col items-center justify-center py-12">
-                    <Brain className="h-16 w-16 text-muted-foreground mb-4" />
-                    <h3 className="text-lg font-semibold text-foreground mb-2">No Analysis Available</h3>
-                    <p className="text-muted-foreground text-center">
-                      Search for properties first to generate AI-powered market analysis and insights.
-                    </p>
-                  </CardContent>
-                </Card>
+              {/* Error State */}
+              {error && (
+                <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6 text-center">
+                  <p className="text-red-600 dark:text-red-400">{error}</p>
+                  <Button 
+                    variant="outline" 
+                    className="mt-4"
+                    onClick={() => setError(null)}
+                  >
+                    Dismiss
+                  </Button>
+                </div>
               )}
-            </TabsContent>
+            </>
+          ) : (
+            /* Favorites Section */
+            <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl border border-gray-200/50 dark:border-gray-700/50 p-6 shadow-lg">
+              <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">
+                Your Favorites ({favorites.length})
+              </h2>
+              {favorites.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                  {favorites.map((property) => (
+                    <PropertyCard
+                      key={property.id}
+                      property={property}
+                      onViewDetails={() => setSelectedProperty(property)}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-gray-600 dark:text-gray-400 mb-4">
+                    No favorites yet. Start exploring properties and save the ones you like!
+                  </p>
+                  <Button onClick={() => setShowFavorites(false)}>
+                    Browse Properties
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
 
-            <TabsContent value="deal-analysis" className="space-y-6">
-              <DealAnalysisPanel />
-            </TabsContent>
-          </Tabs>
-
-        {/* Property Details Modal */}
+        {/* Property Modal */}
         <PropertyModal
           property={selectedProperty}
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
+          isOpen={!!selectedProperty}
+          onClose={() => setSelectedProperty(null)}
         />
       </div>
     </div>

@@ -3,7 +3,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { MapPin, Bed, Bath, Square, Calendar, TrendingUp, Home, DollarSign, Download, Star } from 'lucide-react';
+import { MapPin, Bed, Bath, Square, Calendar, TrendingUp, Home, DollarSign, Download, Star, Phone, StarIcon } from 'lucide-react';
+import { useFavorites } from '@/hooks/useFavorites';
+import { useLeads } from '@/hooks/useLeads';
+import { useAuth } from '@/contexts/AuthContext';
+import { useState } from 'react';
 
 interface PropertyModalProps {
   property: Property | null;
@@ -12,6 +16,11 @@ interface PropertyModalProps {
 }
 
 export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps) {
+  const { user } = useAuth();
+  const { addToFavorites, removeFromFavorites, isFavorite } = useFavorites();
+  const { exportLead, loading: exportLoading } = useLeads();
+  const [actionLoading, setActionLoading] = useState(false);
+
   if (!property) return null;
 
   const formatPrice = (price: number) => {
@@ -204,12 +213,30 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                     <div>
                       <div className="text-sm text-muted-foreground">Listing Agent</div>
                       <div className="font-medium">{property.property_propertyDisplayRules_agent_agentName}</div>
+                      {/* Agent Phone Number */}
+                      {(property.property_listing_agentPhone || property.property_contact_phone || property.agent_phone) && (
+                        <div className="flex items-center gap-1 mt-1">
+                          <Phone className="h-3 w-3 text-muted-foreground" />
+                          <span className="text-sm text-muted-foreground">
+                            {property.property_listing_agentPhone || property.property_contact_phone || property.agent_phone}
+                          </span>
+                        </div>
+                      )}
                     </div>
                   )}
                   {property.property_propertyDisplayRules_mls_brokerName && (
                     <div>
                       <div className="text-sm text-muted-foreground">Brokerage</div>
                       <div className="font-medium">{property.property_propertyDisplayRules_mls_brokerName}</div>
+                      {/* Brokerage Phone */}
+                      {property.property_brokerage_phone && (
+                        <div className="flex items-center gap-1 mt-1">
+                          <Phone className="h-3 w-3 text-muted-foreground" />
+                          <span className="text-sm text-muted-foreground">
+                            {property.property_brokerage_phone}
+                          </span>
+                        </div>
+                      )}
                     </div>
                   )}
                   {property.property_propertyDisplayRules_mls_mlsName && (
@@ -833,13 +860,47 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
 
           {/* Action Buttons */}
           <div className="flex gap-2 pt-4 border-t">
-            <Button className="flex-1 bg-primary hover:bg-primary/90">
+            <Button 
+              className="flex-1 bg-primary hover:bg-primary/90"
+              onClick={async () => {
+                setActionLoading(true);
+                await exportLead(property);
+                setActionLoading(false);
+              }}
+              disabled={exportLoading || actionLoading}
+            >
               <Download className="h-4 w-4 mr-2" />
-              Export Lead
+              {exportLoading || actionLoading ? 'Exporting...' : 'Export Lead'}
             </Button>
-            <Button variant="outline" className="flex-1">
-              <Star className="h-4 w-4 mr-2" />
-              Save to Favorites
+            <Button 
+              variant="outline" 
+              className="flex-1"
+              onClick={async () => {
+                if (!user) {
+                  window.location.href = '/auth';
+                  return;
+                }
+                setActionLoading(true);
+                if (isFavorite(property.id)) {
+                  await removeFromFavorites(property.id);
+                } else {
+                  await addToFavorites(property);
+                }
+                setActionLoading(false);
+              }}
+              disabled={actionLoading}
+            >
+              {isFavorite(property.id) ? (
+                <>
+                  <StarIcon className="h-4 w-4 mr-2 fill-current" />
+                  {actionLoading ? 'Removing...' : 'Remove from Favorites'}
+                </>
+              ) : (
+                <>
+                  <Star className="h-4 w-4 mr-2" />
+                  {actionLoading ? 'Adding...' : 'Save to Favorites'}
+                </>
+              )}
             </Button>
           </div>
         </div>
