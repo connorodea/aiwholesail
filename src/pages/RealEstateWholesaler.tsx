@@ -5,6 +5,7 @@ import { PropertyModal } from '@/components/PropertyModal';
 
 import { Property, PropertySearchParams } from '@/types/zillow';
 import { zillowAPI } from '@/lib/zillow-api';
+import { sortPropertiesByWholesalePotential } from '@/lib/wholesale-calculator';
 import { Button } from '@/components/ui/button';
 import { Home, User, LogOut, LogIn } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -50,6 +51,9 @@ export default function RealEstateWholesaler() {
           setError(`Found ${searchResults.length} properties, but none have wholesale potential (price below Zestimate). Try removing the wholesale filter or searching different areas.`);
           return;
         }
+        
+        // Sort by wholesale potential when wholesale filter is enabled
+        filteredResults = sortPropertiesByWholesalePotential(filteredResults);
       }
 
       // Filter for FSBO properties only if requested
@@ -168,7 +172,9 @@ export default function RealEstateWholesaler() {
               {properties.length > 0 && (
                 <div className="bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-xl border border-gray-200/50 dark:border-gray-700/50 p-6 shadow-lg">
                   <h2 className="text-xl font-bold mb-4 text-gray-900 dark:text-white">
-                    All Properties ({properties.length})
+                    {properties.some(p => p.price && p.zestimate && p.price < p.zestimate) 
+                      ? 'Best Wholesale Deals First' 
+                      : 'All Properties'} ({properties.length})
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                     {properties.map((property) => (
