@@ -41,8 +41,15 @@ export default function RealEstateWholesaler() {
       let filteredResults = searchResults;
       if (params.wholesaleOnly) {
         filteredResults = filteredResults.filter(property => {
+          // Must have both price and zestimate, and price must be below zestimate
           return property.price && property.zestimate && property.price < property.zestimate;
         });
+        
+        // If no wholesale deals found but properties exist, inform user
+        if (filteredResults.length === 0 && searchResults.length > 0) {
+          setError(`Found ${searchResults.length} properties, but none have wholesale potential (price below Zestimate). Try removing the wholesale filter or searching different areas.`);
+          return;
+        }
       }
 
       // Filter for FSBO properties only if requested
@@ -169,6 +176,7 @@ export default function RealEstateWholesaler() {
                         key={property.id}
                         property={property}
                         onViewDetails={() => setSelectedProperty(property)}
+                        highlightWholesaleDeals={true}
                       />
                     ))}
                   </div>
@@ -202,6 +210,7 @@ export default function RealEstateWholesaler() {
                       key={property.id}
                       property={property}
                       onViewDetails={() => setSelectedProperty(property)}
+                      highlightWholesaleDeals={true}
                     />
                   ))}
                 </div>
