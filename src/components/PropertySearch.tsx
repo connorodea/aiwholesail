@@ -6,7 +6,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { PropertySearchParams } from '@/types/zillow';
-import { Search, MapPin, Home, Bed, Bath, DollarSign, TrendingDown, MessageSquare, Gavel, Building2 } from 'lucide-react';
+import { Search, Home, Bed, Bath, DollarSign, TrendingDown, MessageSquare, Gavel, Building2 } from 'lucide-react';
+import { LocationAutocomplete } from './LocationAutocomplete';
 
 interface PropertySearchProps {
   onSearch: (params: PropertySearchParams) => void;
@@ -41,23 +42,13 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-            {/* Location */}
-            <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor="location" className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-primary" />
-                Location
-              </Label>
-              <Input
-                id="location"
+            {/* Location with Autocomplete */}
+            <div className="sm:col-span-2">
+              <LocationAutocomplete
                 value={searchParams.location}
-                onChange={(e) => updateParam('location', e.target.value)}
-                placeholder="e.g., New York, NY or Michigan or Los Angeles County or 90210"
-                className="bg-background/50"
-                required
+                onChange={(value) => updateParam('location', value)}
+                required={true}
               />
-              <p className="text-xs text-muted-foreground mt-1">
-                Search by city (New York, NY), state (Michigan), county (Los Angeles County), or zip code (90210)
-              </p>
             </div>
 
             {/* Property Type */}
