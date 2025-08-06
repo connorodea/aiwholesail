@@ -51,11 +51,13 @@ export class ZillowAPI {
 
       console.log(`Total properties fetched across ${totalPages} pages: ${allProperties.length}`);
       
-      // Now fetch photos for each property that has a ZPID
-      console.log('Fetching photos for properties...');
-      const propertiesWithPhotos = await this.fetchPhotosForProperties(allProperties);
+      // Temporarily disable photo fetching to debug ZPID extraction
+      // TODO: Re-enable once ZPID extraction is fixed
+      // console.log('Fetching photos for properties...');
+      // const propertiesWithPhotos = await this.fetchPhotosForProperties(allProperties);
+      // return propertiesWithPhotos;
       
-      return propertiesWithPhotos;
+      return allProperties;
     } catch (error) {
       console.error('Error fetching properties:', error);
       throw error;
@@ -311,20 +313,36 @@ export class ZillowAPI {
   }
 
   private extractZpid(property: Property): string | null {
+    // Log the property structure to debug
+    console.log('Property object keys:', Object.keys(property));
+    console.log('Property ID field:', property.id);
+    console.log('Raw property sample for ZPID extraction:', JSON.stringify(property, null, 2).substring(0, 800));
+    
     // Try to extract ZPID from various property fields
     const zpidSources = [
       property.id,
       (property as any).zpid,
       (property as any).property_zpid,
-      (property as any).listing_zpid
+      (property as any).listing_zpid,
+      (property as any).propertyZpid,
+      (property as any).zillowPropertyId,
+      // Check flattened fields that might contain zpid
+      ...Object.keys(property).filter(key => key.toLowerCase().includes('zpid')).map(key => (property as any)[key])
     ];
     
+    console.log('ZPID candidates:', zpidSources);
+    
     for (const zpid of zpidSources) {
-      if (zpid && typeof zpid === 'string' && zpid.length > 5) {
-        return zpid;
+      if (zpid && (typeof zpid === 'string' || typeof zpid === 'number')) {
+        const zpidStr = zpid.toString();
+        if (zpidStr.length > 5 && zpidStr !== 'Unknown' && !zpidStr.includes('random')) {
+          console.log(`Found valid ZPID: ${zpidStr} for property: ${property.address}`);
+          return zpidStr;
+        }
       }
     }
     
+    console.log(`No valid ZPID found for property: ${property.address}`);
     return null;
   }
 
