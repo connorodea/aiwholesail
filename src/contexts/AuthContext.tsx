@@ -25,6 +25,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
+        
+        // Check subscription status when user logs in
+        if (session?.user) {
+          setTimeout(() => {
+            supabase.functions.invoke('check-subscription').catch(console.error);
+          }, 0);
+        }
       }
     );
 
@@ -33,13 +40,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
+      
+      // Check subscription status for existing session
+      if (session?.user) {
+        setTimeout(() => {
+          supabase.functions.invoke('check-subscription').catch(console.error);
+        }, 0);
+      }
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
   const signUp = async (email: string, password: string, fullName?: string) => {
-    const redirectUrl = `${window.location.origin}/`;
+    const redirectUrl = `${window.location.origin}/app`;
     
     const { error } = await supabase.auth.signUp({
       email,

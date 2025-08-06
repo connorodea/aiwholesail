@@ -21,7 +21,7 @@ export default function Auth() {
   // Redirect authenticated users
   useEffect(() => {
     if (user) {
-      navigate('/');
+      navigate('/app');
     }
   }, [user, navigate]);
 
@@ -52,7 +52,7 @@ export default function Auth() {
           }
         } else {
           toast.success('Signed in successfully!');
-          navigate('/');
+          navigate('/app');
         }
       }
     } catch (error) {
