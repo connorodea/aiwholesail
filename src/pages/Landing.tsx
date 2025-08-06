@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
-  CheckCircle, TrendingUp, Search, DollarSign, MapPin, Star, 
+  CheckCircle, Search, DollarSign, MapPin, Star, 
   Brain, BarChart3, MessageSquare, Eye, Zap, Shield,
   ChevronRight, Play, ArrowRight
 } from "lucide-react";
@@ -11,6 +11,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import aiWholesailLogo from "@/assets/aiwholesail-logo.png";
 
 const Landing = () => {
   const { user } = useAuth();
@@ -50,13 +51,14 @@ const Landing = () => {
       {/* Header */}
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
         <div className="container flex h-16 items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <div className="relative">
-              <TrendingUp className="h-8 w-8 text-primary" />
-              <div className="absolute -top-1 -right-1 h-3 w-3 bg-primary rounded-full animate-pulse"></div>
-            </div>
+          <div className="flex items-center space-x-3">
+            <img 
+              src={aiWholesailLogo} 
+              alt="AIWHOLESAIL" 
+              className="h-10 w-10"
+            />
             <span className="font-bold text-2xl bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-              WholesalePro
+              AIWHOLESAIL
             </span>
           </div>
           <div className="flex items-center space-x-4">
@@ -102,7 +104,7 @@ const Landing = () => {
           
           <p className="text-xl md:text-2xl text-muted-foreground mb-10 max-w-3xl mx-auto leading-relaxed animate-fade-in">
             Discover undervalued properties with <strong>AI-powered analysis</strong>, comprehensive market data, 
-            and automated deal scoring. Turn data into profit with WholesalePro.
+            and automated deal scoring. Turn data into profit with AIWHOLESAIL.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in">
@@ -248,7 +250,7 @@ const Landing = () => {
               <div className="mb-4">
                 <Badge className="bg-primary text-primary-foreground">Most Popular</Badge>
               </div>
-              <CardTitle className="text-3xl font-bold">WholesalePro</CardTitle>
+              <CardTitle className="text-3xl font-bold">AIWHOLESAIL</CardTitle>
               <div className="text-5xl font-bold mb-2">
                 $29.99
                 <span className="text-xl font-normal text-muted-foreground">/month</span>
@@ -306,7 +308,7 @@ const Landing = () => {
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               Join thousands of successful real estate investors who've transformed 
-              their business with WholesalePro.
+              their business with AIWHOLESAIL.
             </p>
           </div>
           
@@ -315,7 +317,7 @@ const Landing = () => {
               {
                 name: "Sarah Johnson",
                 role: "Real Estate Investor",
-                content: "WholesalePro helped me find 3 profitable deals in my first month. The AI analysis is incredibly accurate and saved me countless hours of research.",
+                content: "AIWHOLESAIL helped me find 3 profitable deals in my first month. The AI analysis is incredibly accurate and saved me countless hours of research.",
                 profit: "$85,000"
               },
               {
@@ -375,7 +377,7 @@ const Landing = () => {
           </h2>
           
           <p className="text-xl md:text-2xl text-muted-foreground mb-10 max-w-3xl mx-auto leading-relaxed">
-            Join thousands of successful investors who use WholesalePro to find profitable deals 
+            Join thousands of successful investors who use AIWHOLESAIL to find profitable deals 
             faster than ever before. Start your free trial today.
           </p>
           
@@ -412,12 +414,16 @@ const Landing = () => {
       <footer className="border-t py-12 px-4 bg-background">
         <div className="container mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="flex items-center space-x-2 mb-4 md:mb-0">
-              <TrendingUp className="h-6 w-6 text-primary" />
-              <span className="font-bold text-xl">WholesalePro</span>
+            <div className="flex items-center space-x-3 mb-4 md:mb-0">
+              <img 
+                src={aiWholesailLogo} 
+                alt="AIWHOLESAIL" 
+                className="h-8 w-8"
+              />
+              <span className="font-bold text-xl">AIWHOLESAIL</span>
             </div>
             <p className="text-muted-foreground text-center md:text-right">
-              &copy; 2024 WholesalePro. All rights reserved.
+              &copy; 2024 AIWHOLESAIL. All rights reserved.
               <br />
               <span className="text-sm">Empowering real estate investors worldwide</span>
             </p>
