@@ -366,6 +366,20 @@ export class ZillowAPI {
     }
   }
 
+  async getSkipTrace(address: string, location: string, format: string = 'full'): Promise<any> {
+    try {
+      const { data, error } = await supabase.functions.invoke('get-zillow-data', {
+        body: { action: 'skipTrace', searchParams: { address, location, format } }
+      });
+      
+      if (error) throw error;
+      return data?.data;
+    } catch (error) {
+      console.error('Skip trace fetch failed:', error);
+      throw error;
+    }
+  }
+
   async getDeepComps(zpid: string, count: string = "5"): Promise<any> {
     try {
       const { data, error } = await supabase.functions.invoke('get-zillow-data', {

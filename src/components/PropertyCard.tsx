@@ -2,7 +2,9 @@ import { Property } from '@/types/zillow';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MapPin, Bed, Bath, Square, Calendar, TrendingUp, Eye, AlertTriangle, DollarSign, Users, Star, ExternalLink } from 'lucide-react';
+import { MapPin, Bed, Bath, Square, Calendar, TrendingUp, Eye, AlertTriangle, DollarSign, Users, Star, ExternalLink, Search } from 'lucide-react';
+import { useState } from 'react';
+import { SkipTraceModal } from './SkipTraceModal';
 
 interface PropertyCardProps {
   property: Property;
@@ -11,6 +13,7 @@ interface PropertyCardProps {
 }
 
 export function PropertyCard({ property, onViewDetails, highlightWholesaleDeals = false }: PropertyCardProps) {
+  const [showSkipTrace, setShowSkipTrace] = useState(false);
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -230,7 +233,7 @@ export function PropertyCard({ property, onViewDetails, highlightWholesaleDeals 
       </CardContent>
 
       <CardFooter className="pt-4 sm:pt-6">
-        <div className="flex gap-2 sm:gap-3 w-full">
+        <div className="flex gap-2 w-full">
           <Button 
             onClick={() => onViewDetails(property)}
             variant="default"
@@ -239,6 +242,18 @@ export function PropertyCard({ property, onViewDetails, highlightWholesaleDeals 
           >
             <Eye className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
             <span className="hidden sm:inline">View </span>Details
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="px-2 sm:px-3"
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowSkipTrace(true);
+            }}
+          >
+            <Search className="h-3 w-3 sm:h-4 sm:w-4" />
+            <span className="hidden sm:inline ml-1">Skip Trace</span>
           </Button>
           <Button 
             variant="outline" 
@@ -254,6 +269,12 @@ export function PropertyCard({ property, onViewDetails, highlightWholesaleDeals 
           </Button>
         </div>
       </CardFooter>
+
+      <SkipTraceModal
+        property={property}
+        isOpen={showSkipTrace}
+        onClose={() => setShowSkipTrace(false)}
+      />
     </Card>
   );
 }

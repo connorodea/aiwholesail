@@ -85,13 +85,19 @@ serve(async (req) => {
       deepComps: "https://zillow-working-api.p.rapidapi.com/propertyDeepComps",
       updatedDetails: "https://zillow-working-api.p.rapidapi.com/propertyUpdatedDetails",
       listingStatus: "https://zillow-working-api.p.rapidapi.com/propertyListingStatus",
-      rentalEstimate: "https://zillow-working-api.p.rapidapi.com/propertyRentalEstimate"
+      rentalEstimate: "https://zillow-working-api.p.rapidapi.com/propertyRentalEstimate",
+      skipTrace: "https://zillow-com1.p.rapidapi.com/people/searchByAddress"
     };
 
-    const headers = {
+    let headers: Record<string, string> = {
       "x-rapidapi-key": apiKey,
       "x-rapidapi-host": "zillow-working-api.p.rapidapi.com"
     };
+
+    // Different host for skipTrace endpoint
+    if (action === 'skipTrace') {
+      headers["x-rapidapi-host"] = "zillow-com1.p.rapidapi.com";
+    }
 
     let url: string;
     let requestParams: Record<string, string> = {};
@@ -178,6 +184,22 @@ serve(async (req) => {
         );
       }
       requestParams = { zpid: searchParams.zpid, count: searchParams.count };
+      url = `${baseUrls[action]}?${new URLSearchParams(requestParams)}`;
+    } else if ([
+      'skipTrace'
+    ].includes(action)) {
+      // skipTrace requires address and location
+      if (!searchParams.address || !searchParams.location) {
+        return new Response(
+          JSON.stringify({ success: false, error: 'Missing required parameters: address, location' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+        );
+      }
+      requestParams = { 
+        address: searchParams.address, 
+        location: searchParams.location,
+        format: searchParams.format || 'full'
+      };
       url = `${baseUrls[action]}?${new URLSearchParams(requestParams)}`;
     } else {
       return new Response(
