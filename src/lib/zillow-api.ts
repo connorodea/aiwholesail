@@ -50,7 +50,12 @@ export class ZillowAPI {
       }
 
       console.log(`Total properties fetched across ${totalPages} pages: ${allProperties.length}`);
-      return allProperties;
+      
+      // Now fetch photos for each property that has a ZPID
+      console.log('Fetching photos for properties...');
+      const propertiesWithPhotos = await this.fetchPhotosForProperties(allProperties);
+      
+      return propertiesWithPhotos;
     } catch (error) {
       console.error('Error fetching properties:', error);
       throw error;
@@ -261,6 +266,102 @@ export class ZillowAPI {
     return fsboIndicators.some(indicator => 
       fields.some(field => field.includes(indicator))
     ) || listingType === 'fsbo' || listingSubType.includes('owner');
+  }
+
+  private async fetchPhotosForProperties(properties: Property[]): Promise<Property[]> {
+    // Limit the number of concurrent photo requests to avoid overwhelming the API
+    const batchSize = 5;
+    const updatedProperties = [...properties];
+    
+    for (let i = 0; i < properties.length; i += batchSize) {
+      const batch = properties.slice(i, i + batchSize);
+      const photoPromises = batch.map(async (property, index) => {
+        const zpid = this.extractZpid(property);
+        if (!zpid) {
+          console.log(`No ZPID found for property: ${property.address}`);
+          return;
+        }
+        
+        try {
+          console.log(`Fetching photos for ZPID: ${zpid}`);
+          const photosData = await this.getPropertyPhotos(zpid);
+          const photos = this.extractPhotosFromResponse(photosData);
+          
+          if (photos.length > 0) {
+            updatedProperties[i + index] = {
+              ...updatedProperties[i + index],
+              images: photos
+            };
+            console.log(`Added ${photos.length} photos for property: ${property.address}`);
+          }
+        } catch (error) {
+          console.error(`Failed to fetch photos for ZPID ${zpid}:`, error);
+        }
+      });
+      
+      await Promise.allSettled(photoPromises);
+      
+      // Add a small delay between batches to be respectful to the API
+      if (i + batchSize < properties.length) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+    }
+    
+    return updatedProperties;
+  }
+
+  private extractZpid(property: Property): string | null {
+    // Try to extract ZPID from various property fields
+    const zpidSources = [
+      property.id,
+      (property as any).zpid,
+      (property as any).property_zpid,
+      (property as any).listing_zpid
+    ];
+    
+    for (const zpid of zpidSources) {
+      if (zpid && typeof zpid === 'string' && zpid.length > 5) {
+        return zpid;
+      }
+    }
+    
+    return null;
+  }
+
+  private extractPhotosFromResponse(photosData: any): string[] {
+    if (!photosData) return [];
+    
+    const photos: string[] = [];
+    
+    // Try different response structures for the photos API
+    const photoSources = [
+      photosData.photos,
+      photosData.images,
+      photosData.propertyPhotos,
+      photosData.data?.photos,
+      photosData.data?.images,
+      photosData
+    ];
+    
+    for (const source of photoSources) {
+      if (Array.isArray(source)) {
+        source.forEach((photo: any) => {
+          if (typeof photo === 'string') {
+            photos.push(photo);
+          } else if (photo?.url) {
+            photos.push(photo.url);
+          } else if (photo?.src) {
+            photos.push(photo.src);
+          } else if (photo?.mixedSources?.jpeg?.[0]?.url) {
+            photos.push(photo.mixedSources.jpeg[0].url);
+          }
+        });
+        
+        if (photos.length > 0) break;
+      }
+    }
+    
+    return [...new Set(photos.filter(photo => photo && photo.length > 0))];
   }
 
   async testConnection(): Promise<boolean> {
