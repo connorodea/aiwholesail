@@ -57,9 +57,15 @@ const Landing = () => {
               alt="AIWholesail" 
               className="h-10 w-10"
             />
-            <span className="font-bold text-2xl bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-              AIWholesail
-            </span>
+            <div className="font-brand font-bold text-2xl tracking-tight">
+              <span className="bg-gradient-to-r from-primary via-primary to-primary/70 bg-clip-text text-transparent">
+                AI
+              </span>
+              <span className="text-foreground">Wholesale</span>
+              <span className="bg-gradient-to-r from-primary/70 to-accent bg-clip-text text-transparent">
+                ail
+              </span>
+            </div>
           </div>
           <div className="flex items-center space-x-4">
             {user ? (
@@ -250,7 +256,15 @@ const Landing = () => {
               <div className="mb-4">
                 <Badge className="bg-primary text-primary-foreground">Most Popular</Badge>
               </div>
-              <CardTitle className="text-3xl font-bold">AIWholesail</CardTitle>
+               <div className="font-brand font-bold text-3xl tracking-tight">
+                 <span className="bg-gradient-to-r from-primary via-primary to-primary/70 bg-clip-text text-transparent">
+                   AI
+                 </span>
+                 <span className="text-foreground">Wholesale</span>
+                 <span className="bg-gradient-to-r from-primary/70 to-accent bg-clip-text text-transparent">
+                   ail
+                 </span>
+               </div>
               <div className="text-5xl font-bold mb-2">
                 $29.99
                 <span className="text-xl font-normal text-muted-foreground">/month</span>
@@ -420,7 +434,15 @@ const Landing = () => {
                 alt="AIWholesail" 
                 className="h-8 w-8"
               />
-              <span className="font-bold text-xl">AIWholesail</span>
+              <div className="font-brand font-bold text-xl tracking-tight">
+                <span className="bg-gradient-to-r from-primary via-primary to-primary/70 bg-clip-text text-transparent">
+                  AI
+                </span>
+                <span className="text-foreground">Wholesale</span>
+                <span className="bg-gradient-to-r from-primary/70 to-accent bg-clip-text text-transparent">
+                  ail
+                </span>
+              </div>
             </div>
             <p className="text-muted-foreground text-center md:text-right">
               &copy; 2024 AIWholesail. All rights reserved.
