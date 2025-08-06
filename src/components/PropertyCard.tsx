@@ -2,7 +2,7 @@ import { Property } from '@/types/zillow';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MapPin, Bed, Bath, Square, Calendar, TrendingUp, Eye, AlertTriangle, DollarSign, Users, Star, ExternalLink, ImageIcon } from 'lucide-react';
+import { MapPin, Bed, Bath, Square, Calendar, TrendingUp, Eye, AlertTriangle, DollarSign, Users, Star, ExternalLink } from 'lucide-react';
 
 interface PropertyCardProps {
   property: Property;
@@ -53,42 +53,6 @@ export function PropertyCard({ property, onViewDetails, highlightWholesaleDeals 
         <div className="bg-gradient-to-r from-success to-success/80 text-success-foreground px-3 py-2 text-sm font-medium flex items-center gap-2">
           <Star className="h-4 w-4" />
           High-Value Wholesale Deal - ${formatNumber(property.zestimate - property.price)} Spread
-        </div>
-      )}
-      
-      {/* Property Photos */}
-      {property.images && property.images.length > 0 ? (
-        <div className="relative h-48 sm:h-56 overflow-hidden">
-          <img 
-            src={property.images[0]} 
-            alt={`Property at ${property.address}`}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-            onError={(e) => {
-              e.currentTarget.style.display = 'none';
-              const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
-              if (nextElement) {
-                nextElement.style.display = 'flex';
-              }
-            }}
-          />
-          <div className="hidden absolute inset-0 bg-muted/50 flex items-center justify-center">
-            <div className="text-center text-muted-foreground">
-              <ImageIcon className="h-8 w-8 mx-auto mb-2" />
-              <p className="text-sm">No image available</p>
-            </div>
-          </div>
-          {property.images.length > 1 && (
-            <div className="absolute bottom-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs">
-              +{property.images.length - 1} more
-            </div>
-          )}
-        </div>
-      ) : (
-        <div className="h-48 sm:h-56 bg-muted/50 flex items-center justify-center">
-          <div className="text-center text-muted-foreground">
-            <ImageIcon className="h-8 w-8 mx-auto mb-2" />
-            <p className="text-sm">No photos available</p>
-          </div>
         </div>
       )}
       

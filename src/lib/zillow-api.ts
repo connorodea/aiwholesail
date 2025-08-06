@@ -51,12 +51,6 @@ export class ZillowAPI {
 
       console.log(`Total properties fetched across ${totalPages} pages: ${allProperties.length}`);
       
-      // Temporarily disable photo fetching to debug ZPID extraction
-      // TODO: Re-enable once ZPID extraction is fixed
-      // console.log('Fetching photos for properties...');
-      // const propertiesWithPhotos = await this.fetchPhotosForProperties(allProperties);
-      // return propertiesWithPhotos;
-      
       return allProperties;
     } catch (error) {
       console.error('Error fetching properties:', error);
@@ -174,7 +168,6 @@ export class ZillowAPI {
       daysOnMarket: this.parseNumber(flattened.property_daysOnZillow || flattened.daysOnMarket),
       pricePerSqft: this.parseNumber(flattened.property_price_pricePerSquareFoot || flattened.pricePerSqft),
       zestimate: this.parseNumber(flattened.property_estimates_zestimate || flattened.zestimate),
-      images: this.extractImages(flattened),
       description: flattened.description || flattened.summary || '',
       isFSBO,
       ...flattened // Include all original data
@@ -189,59 +182,6 @@ export class ZillowAPI {
       return isNaN(parsed) ? undefined : parsed;
     }
     return undefined;
-  }
-
-  private extractImages(data: any): string[] {
-    const images: string[] = [];
-    
-    // Look for image arrays in common locations
-    const imageKeys = [
-      'images', 'photos', 'pictures', 'photoUrls',
-      'property_images', 'property_photos', 'property_pictures',
-      'property_hdpView_photos', 'property_hdpView_images',
-      'property_listing_photos', 'property_listing_images',
-      'carousel', 'carouselPhotos', 'property_carousel',
-      'hdpView_photos', 'listing_photos', 'listing_images'
-    ];
-    
-    for (const key of imageKeys) {
-      // Check exact key match
-      if (data[key] && Array.isArray(data[key])) {
-        data[key].forEach((img: any) => {
-          if (typeof img === 'string') {
-            images.push(img);
-          } else if (typeof img === 'object' && img.url) {
-            images.push(img.url);
-          } else if (typeof img === 'object' && img.src) {
-            images.push(img.src);
-          } else if (typeof img === 'object' && img.mixedSources && img.mixedSources.jpeg) {
-            // Zillow specific format
-            images.push(img.mixedSources.jpeg[0]?.url || '');
-          }
-        });
-      }
-      
-      // Also check for nested keys
-      Object.keys(data).forEach(dataKey => {
-        if (dataKey.includes(key.replace('property_', '')) && Array.isArray(data[dataKey])) {
-          data[dataKey].forEach((img: any) => {
-            if (typeof img === 'string') {
-              images.push(img);
-            } else if (typeof img === 'object' && img.url) {
-              images.push(img.url);
-            } else if (typeof img === 'object' && img.src) {
-              images.push(img.src);
-            }
-          });
-        }
-      });
-    }
-
-    // Remove duplicates and invalid URLs
-    const uniqueImages = [...new Set(images.filter(img => img && img.length > 0))];
-    
-    console.log(`Extracted ${uniqueImages.length} images for property`);
-    return uniqueImages;
   }
 
   private detectFSBO(data: any): boolean {
@@ -270,116 +210,22 @@ export class ZillowAPI {
     ) || listingType === 'fsbo' || listingSubType.includes('owner');
   }
 
-  private async fetchPhotosForProperties(properties: Property[]): Promise<Property[]> {
-    // Limit the number of concurrent photo requests to avoid overwhelming the API
-    const batchSize = 5;
-    const updatedProperties = [...properties];
-    
-    for (let i = 0; i < properties.length; i += batchSize) {
-      const batch = properties.slice(i, i + batchSize);
-      const photoPromises = batch.map(async (property, index) => {
-        const zpid = this.extractZpid(property);
-        if (!zpid) {
-          console.log(`No ZPID found for property: ${property.address}`);
-          return;
-        }
-        
-        try {
-          console.log(`Fetching photos for ZPID: ${zpid}`);
-          const photosData = await this.getPropertyPhotos(zpid);
-          const photos = this.extractPhotosFromResponse(photosData);
-          
-          if (photos.length > 0) {
-            updatedProperties[i + index] = {
-              ...updatedProperties[i + index],
-              images: photos
-            };
-            console.log(`Added ${photos.length} photos for property: ${property.address}`);
-          }
-        } catch (error) {
-          console.error(`Failed to fetch photos for ZPID ${zpid}:`, error);
-        }
-      });
-      
-      await Promise.allSettled(photoPromises);
-      
-      // Add a small delay between batches to be respectful to the API
-      if (i + batchSize < properties.length) {
-        await new Promise(resolve => setTimeout(resolve, 500));
-      }
-    }
-    
-    return updatedProperties;
-  }
-
   private extractZpid(property: Property): string | null {
-    // Log the property structure to debug
-    console.log('Property object keys:', Object.keys(property));
-    console.log('Property ID field:', property.id);
-    console.log('Raw property sample for ZPID extraction:', JSON.stringify(property, null, 2).substring(0, 800));
-    
     // Try to extract ZPID from various property fields
     const zpidSources = [
       property.id,
       (property as any).zpid,
       (property as any).property_zpid,
-      (property as any).listing_zpid,
-      (property as any).propertyZpid,
-      (property as any).zillowPropertyId,
-      // Check flattened fields that might contain zpid
-      ...Object.keys(property).filter(key => key.toLowerCase().includes('zpid')).map(key => (property as any)[key])
+      (property as any).listing_zpid
     ];
-    
-    console.log('ZPID candidates:', zpidSources);
     
     for (const zpid of zpidSources) {
-      if (zpid && (typeof zpid === 'string' || typeof zpid === 'number')) {
-        const zpidStr = zpid.toString();
-        if (zpidStr.length > 5 && zpidStr !== 'Unknown' && !zpidStr.includes('random')) {
-          console.log(`Found valid ZPID: ${zpidStr} for property: ${property.address}`);
-          return zpidStr;
-        }
+      if (zpid && typeof zpid === 'string' && zpid.length > 5) {
+        return zpid;
       }
     }
     
-    console.log(`No valid ZPID found for property: ${property.address}`);
     return null;
-  }
-
-  private extractPhotosFromResponse(photosData: any): string[] {
-    if (!photosData) return [];
-    
-    const photos: string[] = [];
-    
-    // Try different response structures for the photos API
-    const photoSources = [
-      photosData.photos,
-      photosData.images,
-      photosData.propertyPhotos,
-      photosData.data?.photos,
-      photosData.data?.images,
-      photosData
-    ];
-    
-    for (const source of photoSources) {
-      if (Array.isArray(source)) {
-        source.forEach((photo: any) => {
-          if (typeof photo === 'string') {
-            photos.push(photo);
-          } else if (photo?.url) {
-            photos.push(photo.url);
-          } else if (photo?.src) {
-            photos.push(photo.src);
-          } else if (photo?.mixedSources?.jpeg?.[0]?.url) {
-            photos.push(photo.mixedSources.jpeg[0].url);
-          }
-        });
-        
-        if (photos.length > 0) break;
-      }
-    }
-    
-    return [...new Set(photos.filter(photo => photo && photo.length > 0))];
   }
 
   async testConnection(): Promise<boolean> {
