@@ -42,7 +42,7 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
         <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             {/* Location */}
-            <div className="space-y-2">
+            <div className="space-y-2 sm:col-span-2">
               <Label htmlFor="location" className="flex items-center gap-2">
                 <MapPin className="h-4 w-4 text-primary" />
                 Location
@@ -51,12 +51,12 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
                 id="location"
                 value={searchParams.location}
                 onChange={(e) => updateParam('location', e.target.value)}
-                placeholder="e.g., New York, NY or Michigan or California"
+                placeholder="e.g., New York, NY or Michigan or Los Angeles County or 90210"
                 className="bg-background/50"
                 required
               />
               <p className="text-xs text-muted-foreground mt-1">
-                Search by city (New York, NY) or entire state (Michigan, California, etc.)
+                Search by city (New York, NY), state (Michigan), county (Los Angeles County), or zip code (90210)
               </p>
             </div>
 
