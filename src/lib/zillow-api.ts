@@ -117,6 +117,10 @@ export class ZillowAPI {
   private flattenProperty(prop: any): Property {
     const flattened: any = {};
     
+    // Log the raw property data to understand structure
+    console.log('Raw property data keys:', Object.keys(prop));
+    console.log('Raw property sample:', JSON.stringify(prop, null, 2).substring(0, 500));
+    
     const flatten = (obj: any, prefix = '') => {
       for (const [key, value] of Object.entries(obj)) {
         const newKey = prefix ? `${prefix}_${key}` : key;
@@ -184,21 +188,53 @@ export class ZillowAPI {
     const images: string[] = [];
     
     // Look for image arrays in common locations
-    const imageKeys = ['images', 'photos', 'pictures', 'photoUrls'];
+    const imageKeys = [
+      'images', 'photos', 'pictures', 'photoUrls',
+      'property_images', 'property_photos', 'property_pictures',
+      'property_hdpView_photos', 'property_hdpView_images',
+      'property_listing_photos', 'property_listing_images',
+      'carousel', 'carouselPhotos', 'property_carousel',
+      'hdpView_photos', 'listing_photos', 'listing_images'
+    ];
     
     for (const key of imageKeys) {
+      // Check exact key match
       if (data[key] && Array.isArray(data[key])) {
         data[key].forEach((img: any) => {
           if (typeof img === 'string') {
             images.push(img);
           } else if (typeof img === 'object' && img.url) {
             images.push(img.url);
+          } else if (typeof img === 'object' && img.src) {
+            images.push(img.src);
+          } else if (typeof img === 'object' && img.mixedSources && img.mixedSources.jpeg) {
+            // Zillow specific format
+            images.push(img.mixedSources.jpeg[0]?.url || '');
           }
         });
       }
+      
+      // Also check for nested keys
+      Object.keys(data).forEach(dataKey => {
+        if (dataKey.includes(key.replace('property_', '')) && Array.isArray(data[dataKey])) {
+          data[dataKey].forEach((img: any) => {
+            if (typeof img === 'string') {
+              images.push(img);
+            } else if (typeof img === 'object' && img.url) {
+              images.push(img.url);
+            } else if (typeof img === 'object' && img.src) {
+              images.push(img.src);
+            }
+          });
+        }
+      });
     }
 
-    return images;
+    // Remove duplicates and invalid URLs
+    const uniqueImages = [...new Set(images.filter(img => img && img.length > 0))];
+    
+    console.log(`Extracted ${uniqueImages.length} images for property`);
+    return uniqueImages;
   }
 
   private detectFSBO(data: any): boolean {
