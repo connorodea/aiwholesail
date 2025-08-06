@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { MapPin, Loader2 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { supabase } from '@/integrations/supabase/client';
 
 interface LocationSuggestion {
   place_name: string;
@@ -27,17 +27,8 @@ export function LocationAutocomplete({
   const [suggestions, setSuggestions] = useState<LocationSuggestion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [apiKey, setApiKey] = useState<string>('');
   const debounceRef = useRef<NodeJS.Timeout>();
   const inputRef = useRef<HTMLInputElement>(null);
-
-  // Check for stored API key on mount
-  useEffect(() => {
-    const storedKey = localStorage.getItem('mapbox_public_token');
-    if (storedKey) {
-      setApiKey(storedKey);
-    }
-  }, []);
 
   const fetchSuggestions = async (query: string) => {
     if (!query.trim() || query.length < 2) {
@@ -45,28 +36,19 @@ export function LocationAutocomplete({
       return;
     }
 
-    if (!apiKey) {
-      console.warn('Mapbox API key not set - location autocomplete disabled');
-      return;
-    }
-
     setIsLoading(true);
     try {
-      const response = await fetch(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?` +
-        `access_token=${apiKey}&` +
-        `country=US&` +
-        `types=country,region,postcode,district,place,locality,neighborhood&` +
-        `limit=5`
-      );
+      const { data, error } = await supabase.functions.invoke('geocoding', {
+        body: { query }
+      });
 
-      if (response.ok) {
-        const data = await response.json();
-        setSuggestions(data.features || []);
-      } else {
-        console.error('Geocoding API error:', response.statusText);
+      if (error) {
+        console.error('Geocoding error:', error);
         setSuggestions([]);
+        return;
       }
+
+      setSuggestions(data?.features || []);
     } catch (error) {
       console.error('Error fetching location suggestions:', error);
       setSuggestions([]);
@@ -96,12 +78,6 @@ export function LocationAutocomplete({
     setShowSuggestions(false);
   };
 
-  const handleApiKeyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const key = e.target.value;
-    setApiKey(key);
-    localStorage.setItem('mapbox_public_token', key);
-  };
-
   // Close suggestions when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -120,32 +96,6 @@ export function LocationAutocomplete({
         <MapPin className="h-4 w-4 text-primary" />
         Location
       </Label>
-      
-      {!apiKey && (
-        <div className="space-y-2 p-3 bg-muted/50 rounded-md border">
-          <Label htmlFor="mapbox-key" className="text-sm font-medium">
-            Mapbox Public Token (for location autocomplete)
-          </Label>
-          <Input
-            id="mapbox-key"
-            type="text"
-            placeholder="Enter your Mapbox public token"
-            onChange={handleApiKeyChange}
-            className="text-sm"
-          />
-          <p className="text-xs text-muted-foreground">
-            Get your free token at{' '}
-            <a 
-              href="https://mapbox.com/" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-primary hover:underline"
-            >
-              mapbox.com
-            </a>
-          </p>
-        </div>
-      )}
 
       <div className="relative" ref={inputRef}>
         <div className="relative">
