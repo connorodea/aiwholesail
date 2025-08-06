@@ -54,11 +54,11 @@ const Landing = () => {
           <div className="flex items-center space-x-3">
             <img 
               src={aiWholesailLogo} 
-              alt="AIWHOLESAIL" 
+              alt="AIWholesail" 
               className="h-10 w-10"
             />
             <span className="font-bold text-2xl bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-              AIWHOLESAIL
+              AIWholesail
             </span>
           </div>
           <div className="flex items-center space-x-4">
@@ -104,7 +104,7 @@ const Landing = () => {
           
           <p className="text-xl md:text-2xl text-muted-foreground mb-10 max-w-3xl mx-auto leading-relaxed animate-fade-in">
             Discover undervalued properties with <strong>AI-powered analysis</strong>, comprehensive market data, 
-            and automated deal scoring. Turn data into profit with AIWHOLESAIL.
+            and automated deal scoring. Turn data into profit with AIWholesail.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in">
@@ -250,7 +250,7 @@ const Landing = () => {
               <div className="mb-4">
                 <Badge className="bg-primary text-primary-foreground">Most Popular</Badge>
               </div>
-              <CardTitle className="text-3xl font-bold">AIWHOLESAIL</CardTitle>
+              <CardTitle className="text-3xl font-bold">AIWholesail</CardTitle>
               <div className="text-5xl font-bold mb-2">
                 $29.99
                 <span className="text-xl font-normal text-muted-foreground">/month</span>
@@ -308,7 +308,7 @@ const Landing = () => {
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               Join thousands of successful real estate investors who've transformed 
-              their business with AIWHOLESAIL.
+              their business with AIWholesail.
             </p>
           </div>
           
@@ -317,7 +317,7 @@ const Landing = () => {
               {
                 name: "Sarah Johnson",
                 role: "Real Estate Investor",
-                content: "AIWHOLESAIL helped me find 3 profitable deals in my first month. The AI analysis is incredibly accurate and saved me countless hours of research.",
+                content: "AIWholesail helped me find 3 profitable deals in my first month. The AI analysis is incredibly accurate and saved me countless hours of research.",
                 profit: "$85,000"
               },
               {
@@ -377,7 +377,7 @@ const Landing = () => {
           </h2>
           
           <p className="text-xl md:text-2xl text-muted-foreground mb-10 max-w-3xl mx-auto leading-relaxed">
-            Join thousands of successful investors who use AIWHOLESAIL to find profitable deals 
+            Join thousands of successful investors who use AIWholesail to find profitable deals 
             faster than ever before. Start your free trial today.
           </p>
           
@@ -417,13 +417,13 @@ const Landing = () => {
             <div className="flex items-center space-x-3 mb-4 md:mb-0">
               <img 
                 src={aiWholesailLogo} 
-                alt="AIWHOLESAIL" 
+                alt="AIWholesail" 
                 className="h-8 w-8"
               />
-              <span className="font-bold text-xl">AIWHOLESAIL</span>
+              <span className="font-bold text-xl">AIWholesail</span>
             </div>
             <p className="text-muted-foreground text-center md:text-right">
-              &copy; 2024 AIWHOLESAIL. All rights reserved.
+              &copy; 2024 AIWholesail. All rights reserved.
               <br />
               <span className="text-sm">Empowering real estate investors worldwide</span>
             </p>
