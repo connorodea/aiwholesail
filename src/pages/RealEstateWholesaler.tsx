@@ -28,8 +28,8 @@ export default function RealEstateWholesaler() {
 
       toast.success(`Searching for properties in ${params.location}...`);
 
-      // Fetch up to 5 pages for more comprehensive results
-      const maxPages = params.wholesaleOnly ? 5 : 3;
+      // Fetch up to 10 pages for comprehensive results (about 200+ properties)
+      const maxPages = params.wholesaleOnly ? 15 : 10;
       const searchResults = await zillowAPI.searchProperties(params, maxPages);
       
       if (searchResults.length === 0) {
