@@ -40,6 +40,43 @@ export function PropertyCard({ property, onViewDetails, highlightWholesaleDeals 
     }
   };
 
+  // Check if property was listed recently (within 24 hours)
+  const isListedRecently = () => {
+    const listingDate = property.datePostedString || property.listDate;
+    if (!listingDate) return false;
+    
+    const posted = new Date(listingDate);
+    const now = new Date();
+    const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    
+    return posted > twentyFourHoursAgo;
+  };
+
+  // Format the listing date for display
+  const formatListingDate = () => {
+    const listingDate = property.datePostedString || property.listDate;
+    if (!listingDate) return '';
+    
+    const posted = new Date(listingDate);
+    const now = new Date();
+    const diffInHours = Math.floor((now.getTime() - posted.getTime()) / (1000 * 60 * 60));
+    const diffInDays = Math.floor(diffInHours / 24);
+    
+    if (diffInHours < 1) return 'less than an hour ago';
+    if (diffInHours < 24) return `${diffInHours} hour${diffInHours > 1 ? 's' : ''} ago`;
+    if (diffInDays === 1) return 'yesterday';
+    if (diffInDays < 7) return `${diffInDays} days ago`;
+    return posted.toLocaleDateString();
+  };
+
+  // Get styling for listing date section
+  const getListingDateStyle = () => {
+    if (isListedRecently()) {
+      return 'bg-gradient-to-r from-primary/20 to-primary/10 border-2 border-primary/40 shadow-md';
+    }
+    return 'bg-muted/50 border-muted';
+  };
+
   // Calculate if this is a high-value wholesale deal (35k+ spread)
   const isHighValueDeal = () => {
     if (!highlightWholesaleDeals || !property.price || !property.zestimate) return false;
@@ -110,6 +147,25 @@ export function PropertyCard({ property, onViewDetails, highlightWholesaleDeals 
             <span className="text-xs sm:text-sm font-medium truncate">{property.sqft ? formatNumber(property.sqft) : 'N/A'} <span className="hidden sm:inline">sqft</span></span>
           </div>
         </div>
+
+        {/* Listing Date - Highlighted Area */}
+        {(property.datePostedString || property.listDate) && (
+          <div className={`p-3 rounded-lg border ${getListingDateStyle()}`}>
+            <div className="flex items-center gap-2">
+              <Calendar className="h-4 w-4" />
+              <div>
+                <div className="text-sm font-medium">
+                  Listed {formatListingDate()}
+                </div>
+                {isListedRecently() && (
+                  <div className="text-xs text-primary font-medium">
+                    🔥 Listed within 24 hours!
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Additional Info */}
         <div className="space-y-2 text-sm text-muted-foreground">

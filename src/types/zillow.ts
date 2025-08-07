@@ -34,6 +34,8 @@ export interface Property {
   pricePerSqft?: number;
   zestimate?: number;
   images?: string[];
+  datePostedString?: string;
+  listDate?: string;
   description?: string;
   isFSBO?: boolean;
   // AttomData enhanced fields
