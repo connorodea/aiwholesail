@@ -9,6 +9,7 @@ import { useLeads } from '@/hooks/useLeads';
 import { useAuth } from '@/contexts/AuthContext';
 import { useState } from 'react';
 import { PropertyAnalysisTabs } from './PropertyAnalysisTabs';
+import { CallAgentButton } from './CallAgentButton';
 
 interface PropertyModalProps {
   property: Property | null;
@@ -224,6 +225,16 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                           <span className="text-sm text-muted-foreground">
                             {property.property_listing_agentPhone || property.property_contact_phone || property.agent_phone}
                           </span>
+                        </div>
+                      )}
+                      {/* Call Agent Button */}
+                      {(property.property_listing_agentPhone || property.property_contact_phone || property.agent_phone) && (
+                        <div className="mt-2">
+                          <CallAgentButton 
+                            agentPhone={property.property_listing_agentPhone || property.property_contact_phone || property.agent_phone}
+                            agentName={property.property_propertyDisplayRules_agent_agentName}
+                            propertyAddress={property.address}
+                          />
                         </div>
                       )}
                     </div>
