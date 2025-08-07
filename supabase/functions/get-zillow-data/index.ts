@@ -111,6 +111,13 @@ serve(async (req) => {
       url = `${baseUrls.search}?${new URLSearchParams(requestParams)}`;
     } else if (action === 'search') {
       // Existing search logic
+      let listingTypeOptions = "Agent listed,New Construction,Fore-closures,Auctions";
+      
+      // If wholesale opportunities only is enabled, exclude foreclosures
+      if (searchParams.wholesaleOnly) {
+        listingTypeOptions = "Agent listed,New Construction,Auctions";
+      }
+      
       requestParams = {
         location: searchParams.location,
         homeType: searchParams.homeType,
@@ -118,7 +125,7 @@ serve(async (req) => {
         listingStatus: "For_Sale",
         maxHOA: "Any",
         listingType: "By_Agent",
-        listingTypeOptions: "Agent listed,New Construction,Fore-closures,Auctions",
+        listingTypeOptions: listingTypeOptions,
         daysOnZillow: "Any",
         soldInLast: "Any",
         v_cmr: "4.5",
