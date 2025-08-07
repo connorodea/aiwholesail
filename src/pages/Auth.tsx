@@ -75,9 +75,9 @@ export default function Auth() {
               <img 
                 src={aiWholesailLogo} 
                 alt="AIWholesail" 
-                className="h-12 w-12"
+                className="h-16 w-16 object-contain"
               />
-              <div className="font-brand font-bold text-2xl tracking-tight">
+              <div className="font-brand font-bold text-3xl tracking-tight">
                 <span className="bg-gradient-to-r from-primary via-primary to-primary/70 bg-clip-text text-transparent">
                   AI
                 </span>

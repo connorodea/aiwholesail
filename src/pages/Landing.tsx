@@ -57,7 +57,7 @@ const Landing = () => {
             <img 
               src={aiWholesailLogo} 
               alt="AIWholesail" 
-              className="h-10 w-10"
+              className="h-12 w-12 object-contain"
             />
             <div className="font-brand font-bold text-2xl tracking-tight">
               <span className="bg-gradient-to-r from-primary via-primary to-primary/70 bg-clip-text text-transparent">
@@ -434,7 +434,7 @@ const Landing = () => {
               <img 
                 src={aiWholesailLogo} 
                 alt="AIWholesail" 
-                className="h-8 w-8"
+                className="h-10 w-10 object-contain"
               />
               <div className="font-brand font-bold text-xl tracking-tight">
                 <span className="bg-gradient-to-r from-primary via-primary to-primary/70 bg-clip-text text-transparent">
