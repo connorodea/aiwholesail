@@ -118,6 +118,11 @@ serve(async (req) => {
         listingTypeOptions = "Agent listed,New Construction,Auctions";
       }
       
+      // If hide foreclosures is enabled, exclude foreclosures
+      if (searchParams.hideForeclosures) {
+        listingTypeOptions = listingTypeOptions.replace(",Fore-closures", "").replace("Fore-closures,", "").replace("Fore-closures", "");
+      }
+      
       requestParams = {
         location: searchParams.location,
         homeType: searchParams.homeType,

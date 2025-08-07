@@ -13,6 +13,7 @@ export interface PropertySearchParams {
   listingStatus?: string;
   wholesaleOnly?: boolean;
   auctionOnly?: boolean;
+  hideForeclosures?: boolean;
   fsboOnly?: boolean;
   keywords?: string;
 }

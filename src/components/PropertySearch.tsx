@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { PropertySearchParams } from '@/types/zillow';
-import { Search, Home, Bed, Bath, DollarSign, TrendingDown, MessageSquare, Gavel, Building2 } from 'lucide-react';
+import { Search, Home, Bed, Bath, DollarSign, TrendingDown, MessageSquare, Gavel, Building2, AlertTriangle } from 'lucide-react';
 import { LocationAutocomplete } from './LocationAutocomplete';
 
 interface PropertySearchProps {
@@ -195,7 +195,25 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
               />
             </div>
             <p className="text-xs text-muted-foreground">
-              Filter out auction and foreclosure properties
+              Filter out auction properties from search results
+            </p>
+
+            {/* Foreclosure Filter */}
+            <div className="flex items-center justify-between space-x-2">
+              <div className="flex items-center space-x-2">
+                <AlertTriangle className="h-4 w-4 text-primary" />
+                <Label htmlFor="foreclosure-toggle" className="text-sm font-medium">
+                  Hide Foreclosure Properties
+                </Label>
+              </div>
+              <Switch
+                id="foreclosure-toggle"
+                checked={searchParams.hideForeclosures || false}
+                onCheckedChange={(checked) => setSearchParams(prev => ({ ...prev, hideForeclosures: checked }))}
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Filter out foreclosure properties from search results
             </p>
 
             {/* FSBO Toggle */}
