@@ -183,23 +183,6 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
               />
             </div>
 
-            {/* Keywords */}
-            <div className="space-y-2 sm:col-span-2">
-              <Label className="flex items-center gap-2">
-                <MessageSquare className="h-4 w-4 text-primary" />
-                Wholesaling Keywords
-              </Label>
-              <Input
-                value={searchParams.keywords || ''}
-                onChange={(e) => updateParam('keywords', e.target.value || undefined)}
-                placeholder="e.g., needs TLC, repairs, fixer upper, motivated seller"
-                maxLength={200}
-                className="bg-background/50"
-              />
-              <p className="text-xs text-muted-foreground">
-                Search for properties with specific keywords in descriptions (TLC, repairs, motivated, etc.)
-              </p>
-            </div>
           </div>
 
           {/* Filters */}
