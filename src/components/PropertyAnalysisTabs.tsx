@@ -39,6 +39,11 @@ export function PropertyAnalysisTabs({ property }: PropertyAnalysisTabsProps) {
   const { toast } = useToast();
   const zillowAPI = new ZillowAPI();
 
+  // Log when component mounts to verify it's being used
+  useEffect(() => {
+    console.log('PropertyAnalysisTabs: Component mounted with property:', property);
+  }, []);
+
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -52,11 +57,19 @@ export function PropertyAnalysisTabs({ property }: PropertyAnalysisTabsProps) {
   };
 
   const fetchPriceHistory = async () => {
-    if (!property.zpid) return;
+    const zpid = property.zpid || property.id;
+    console.log('PropertyAnalysisTabs: Fetching price history for zpid:', zpid, 'property:', property);
+    
+    if (!zpid) {
+      console.warn('PropertyAnalysisTabs: No ZPID found for property');
+      return;
+    }
     
     setLoading(true);
     try {
-      const history = await zillowAPI.getPriceHistory(property.zpid);
+      const history = await zillowAPI.getPriceHistory(zpid);
+      console.log('PropertyAnalysisTabs: Price history response:', history);
+      
       if (history && Array.isArray(history)) {
         const formattedHistory = history.map((item: any) => ({
           date: item.date || item.time,
@@ -66,10 +79,10 @@ export function PropertyAnalysisTabs({ property }: PropertyAnalysisTabsProps) {
         setPriceHistory(formattedHistory);
       }
     } catch (error) {
-      console.error('Error fetching price history:', error);
+      console.error('PropertyAnalysisTabs: Error fetching price history:', error);
       toast({
-        title: "Error",
-        description: "Could not load price history",
+        title: "Price History",
+        description: "Could not load price history - feature may not be available for this property",
         variant: "destructive"
       });
     }
@@ -78,7 +91,7 @@ export function PropertyAnalysisTabs({ property }: PropertyAnalysisTabsProps) {
 
   useEffect(() => {
     fetchPriceHistory();
-  }, [property.zpid]);
+  }, [property.zpid, property.id]);
 
   const calculateInvestmentMetrics = (): InvestmentMetrics => {
     const currentPrice = property.price || 0;

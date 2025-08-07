@@ -53,13 +53,19 @@ export function DeepDueDiligencePanel({ property }: DeepDueDiligencePanelProps) 
   };
 
   const fetchDueDiligenceData = async () => {
-    if (!property.zpid) return;
+    const zpid = property.zpid || property.id;
+    console.log('DeepDueDiligencePanel: Fetching data for zpid:', zpid, 'property:', property);
+    
+    if (!zpid) {
+      console.warn('DeepDueDiligencePanel: No ZPID found for property');
+      return;
+    }
     
     setLoading(true);
     try {
       const [historyData, photosData] = await Promise.allSettled([
-        zillowAPI.getPriceHistory(property.zpid),
-        zillowAPI.getPropertyPhotos(property.zpid)
+        zillowAPI.getPriceHistory(zpid),
+        zillowAPI.getPropertyPhotos(zpid)
       ]);
 
       const history = historyData.status === 'fulfilled' ? historyData.value || [] : [];
@@ -169,7 +175,7 @@ export function DeepDueDiligencePanel({ property }: DeepDueDiligencePanelProps) 
 
   useEffect(() => {
     fetchDueDiligenceData();
-  }, [property.zpid]);
+  }, [property.zpid, property.id]);
 
   return (
     <Card>

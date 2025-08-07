@@ -156,6 +156,7 @@ export class ZillowAPI {
 
     return {
       id: flattened.property_zpid || flattened.id || flattened.zpid || Math.random().toString(36),
+      zpid: flattened.property_zpid || flattened.zpid, // Add zpid field for API calls
       address: fullAddress,
       price: this.parseNumber(flattened.property_price_value || flattened.property_hdpView_price || flattened.price),
       bedrooms: this.parseNumber(flattened.property_bedrooms || flattened.bedrooms),

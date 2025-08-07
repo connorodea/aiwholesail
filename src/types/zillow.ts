@@ -20,6 +20,7 @@ export interface PropertySearchParams {
 
 export interface Property {
   id: string;
+  zpid?: string; // Zillow Property ID for API calls
   address: string;
   price: number;
   bedrooms?: number;
