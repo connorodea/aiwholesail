@@ -19,7 +19,8 @@ interface PropertySearchProps {
 export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
   const [searchParams, setSearchParams] = useState<PropertySearchParams>({
     location: '',
-    homeType: 'Houses, Townhomes, Multi-family, Condos/Co-ops'
+    homeType: 'Houses, Townhomes, Multi-family, Condos/Co-ops',
+    wholesaleOnly: true // Default to wholesale opportunities only
   });
   const { toast } = useToast();
 
@@ -203,22 +204,22 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
 
           {/* Filters */}
           <div className="border-t pt-3 sm:pt-4 space-y-3 sm:space-y-4">
-            {/* Wholesale Filter */}
+            {/* Search All Properties Filter */}
             <div className="flex items-center justify-between space-x-2">
               <div className="flex items-center space-x-2">
                 <TrendingDown className="h-4 w-4 text-primary" />
-                <Label htmlFor="wholesale-toggle" className="text-sm font-medium">
-                  Wholesale Opportunities Only
+                <Label htmlFor="search-all-toggle" className="text-sm font-medium">
+                  Search All Properties
                 </Label>
               </div>
               <Switch
-                id="wholesale-toggle"
-                checked={searchParams.wholesaleOnly || false}
-                onCheckedChange={(checked) => setSearchParams(prev => ({ ...prev, wholesaleOnly: checked }))}
+                id="search-all-toggle"
+                checked={!searchParams.wholesaleOnly}
+                onCheckedChange={(checked) => setSearchParams(prev => ({ ...prev, wholesaleOnly: !checked }))}
               />
             </div>
             <p className="text-xs text-muted-foreground">
-              Only show properties priced below Zestimate (market value)
+              When enabled, shows all properties. When disabled, shows only wholesale opportunities (priced below market value)
             </p>
 
             {/* Auction Filter */}
