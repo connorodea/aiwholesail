@@ -57,7 +57,7 @@ const Landing = () => {
             <img 
               src="/lovable-uploads/23fef6fe-9f2b-40a9-8916-8c24705e4059.png" 
               alt="AIWholesail" 
-              className="h-20 w-auto object-contain"
+              className="h-60 w-auto object-contain"
             />
           </div>
           <div className="flex items-center space-x-4">
