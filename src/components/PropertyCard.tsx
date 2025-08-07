@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { MapPin, Bed, Bath, Square, Calendar, TrendingUp, Eye, AlertTriangle, DollarSign, Users, Star, ExternalLink, Search } from 'lucide-react';
 import { useState } from 'react';
 import { SkipTraceModal } from './SkipTraceModal';
+import { LeadScoreBadge } from './LeadScoreBadge';
 
 interface PropertyCardProps {
   property: Property;
@@ -79,6 +80,11 @@ export function PropertyCard({ property, onViewDetails, highlightWholesaleDeals 
                 FSBO
               </Badge>
             )}
+            <LeadScoreBadge 
+              leadId={property.zpid || property.id} 
+              className="rounded-full px-2 sm:px-3 py-1 text-xs font-medium flex-shrink-0"
+              showIcon={false}
+            />
           </div>
         </div>
       </CardHeader>

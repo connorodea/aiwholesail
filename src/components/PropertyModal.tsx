@@ -10,6 +10,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useState } from 'react';
 import { PropertyAnalysisTabs } from './PropertyAnalysisTabs';
 import { CallAgentButton } from './CallAgentButton';
+import { LeadScoringPanel } from './LeadScoringPanel';
 
 interface PropertyModalProps {
   property: Property | null;
@@ -441,6 +442,12 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
               </div>
             </div>
           )}
+
+          {/* AI Lead Scoring Panel */}
+          <LeadScoringPanel 
+            leadId={property.zpid || property.id} 
+            propertyData={property}
+          />
 
           {/* Property Description */}
           {property.description && (

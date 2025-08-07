@@ -65,6 +65,45 @@ export type Database = {
         }
         Relationships: []
       }
+      campaign_history: {
+        Row: {
+          campaign_id: string | null
+          campaign_type: string
+          created_at: string
+          id: string
+          lead_id: string
+          message_content: string | null
+          response_content: string | null
+          response_date: string | null
+          response_received: boolean | null
+          sent_date: string
+        }
+        Insert: {
+          campaign_id?: string | null
+          campaign_type: string
+          created_at?: string
+          id?: string
+          lead_id: string
+          message_content?: string | null
+          response_content?: string | null
+          response_date?: string | null
+          response_received?: boolean | null
+          sent_date?: string
+        }
+        Update: {
+          campaign_id?: string | null
+          campaign_type?: string
+          created_at?: string
+          id?: string
+          lead_id?: string
+          message_content?: string | null
+          response_content?: string | null
+          response_date?: string | null
+          response_received?: boolean | null
+          sent_date?: string
+        }
+        Relationships: []
+      }
       favorites: {
         Row: {
           created_at: string
@@ -89,6 +128,84 @@ export type Database = {
           property_id?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      lead_contacts: {
+        Row: {
+          contact_type: string
+          contact_value: string
+          created_at: string
+          id: string
+          lead_id: string
+          skip_trace_confidence: number | null
+          skip_trace_date: string | null
+          skip_traced: boolean | null
+          verified: boolean | null
+        }
+        Insert: {
+          contact_type: string
+          contact_value: string
+          created_at?: string
+          id?: string
+          lead_id: string
+          skip_trace_confidence?: number | null
+          skip_trace_date?: string | null
+          skip_traced?: boolean | null
+          verified?: boolean | null
+        }
+        Update: {
+          contact_type?: string
+          contact_value?: string
+          created_at?: string
+          id?: string
+          lead_id?: string
+          skip_trace_confidence?: number | null
+          skip_trace_date?: string | null
+          skip_traced?: boolean | null
+          verified?: boolean | null
+        }
+        Relationships: []
+      }
+      lead_scoring: {
+        Row: {
+          confidence_score: number
+          contactability_score: number
+          created_at: string
+          id: string
+          last_updated: string
+          lead_id: string
+          motivation_score: number
+          overall_score: number
+          profitability_score: number
+          scoring_factors: Json | null
+          urgency_score: number
+        }
+        Insert: {
+          confidence_score?: number
+          contactability_score?: number
+          created_at?: string
+          id?: string
+          last_updated?: string
+          lead_id: string
+          motivation_score?: number
+          overall_score?: number
+          profitability_score?: number
+          scoring_factors?: Json | null
+          urgency_score?: number
+        }
+        Update: {
+          confidence_score?: number
+          contactability_score?: number
+          created_at?: string
+          id?: string
+          last_updated?: string
+          lead_id?: string
+          motivation_score?: number
+          overall_score?: number
+          profitability_score?: number
+          scoring_factors?: Json | null
+          urgency_score?: number
         }
         Relationships: []
       }
@@ -146,6 +263,126 @@ export type Database = {
           full_name?: string | null
           id?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      property_intelligence: {
+        Row: {
+          absentee_owner: boolean | null
+          active_liens: Json | null
+          assessed_value: number | null
+          bankruptcy_risk: boolean | null
+          code_violations: Json | null
+          comparable_sales: Json | null
+          corporate_owned: boolean | null
+          created_at: string
+          delinquent_amount: number | null
+          divorce_related: boolean | null
+          equity_percentage: number | null
+          estimated_arv: number | null
+          estimated_equity: number | null
+          estimated_rehab_cost: number | null
+          financial_distress: boolean | null
+          foreclosure_risk: boolean | null
+          id: string
+          inheritance_property: boolean | null
+          lot_size: number | null
+          market_trends: Json | null
+          market_value: number | null
+          mortgage_info: Json | null
+          occupancy_status: string | null
+          owner_address: Json | null
+          owner_name: string | null
+          probate_property: boolean | null
+          property_condition: string | null
+          property_id: string
+          square_footage: number | null
+          tax_amount: number | null
+          tax_delinquent: boolean | null
+          tax_history: Json | null
+          tax_year: number | null
+          trust_owned: boolean | null
+          updated_at: string
+          year_built: number | null
+          zpid: string | null
+        }
+        Insert: {
+          absentee_owner?: boolean | null
+          active_liens?: Json | null
+          assessed_value?: number | null
+          bankruptcy_risk?: boolean | null
+          code_violations?: Json | null
+          comparable_sales?: Json | null
+          corporate_owned?: boolean | null
+          created_at?: string
+          delinquent_amount?: number | null
+          divorce_related?: boolean | null
+          equity_percentage?: number | null
+          estimated_arv?: number | null
+          estimated_equity?: number | null
+          estimated_rehab_cost?: number | null
+          financial_distress?: boolean | null
+          foreclosure_risk?: boolean | null
+          id?: string
+          inheritance_property?: boolean | null
+          lot_size?: number | null
+          market_trends?: Json | null
+          market_value?: number | null
+          mortgage_info?: Json | null
+          occupancy_status?: string | null
+          owner_address?: Json | null
+          owner_name?: string | null
+          probate_property?: boolean | null
+          property_condition?: string | null
+          property_id: string
+          square_footage?: number | null
+          tax_amount?: number | null
+          tax_delinquent?: boolean | null
+          tax_history?: Json | null
+          tax_year?: number | null
+          trust_owned?: boolean | null
+          updated_at?: string
+          year_built?: number | null
+          zpid?: string | null
+        }
+        Update: {
+          absentee_owner?: boolean | null
+          active_liens?: Json | null
+          assessed_value?: number | null
+          bankruptcy_risk?: boolean | null
+          code_violations?: Json | null
+          comparable_sales?: Json | null
+          corporate_owned?: boolean | null
+          created_at?: string
+          delinquent_amount?: number | null
+          divorce_related?: boolean | null
+          equity_percentage?: number | null
+          estimated_arv?: number | null
+          estimated_equity?: number | null
+          estimated_rehab_cost?: number | null
+          financial_distress?: boolean | null
+          foreclosure_risk?: boolean | null
+          id?: string
+          inheritance_property?: boolean | null
+          lot_size?: number | null
+          market_trends?: Json | null
+          market_value?: number | null
+          mortgage_info?: Json | null
+          occupancy_status?: string | null
+          owner_address?: Json | null
+          owner_name?: string | null
+          probate_property?: boolean | null
+          property_condition?: string | null
+          property_id?: string
+          square_footage?: number | null
+          tax_amount?: number | null
+          tax_delinquent?: boolean | null
+          tax_history?: Json | null
+          tax_year?: number | null
+          trust_owned?: boolean | null
+          updated_at?: string
+          year_built?: number | null
+          zpid?: string | null
         }
         Relationships: []
       }
