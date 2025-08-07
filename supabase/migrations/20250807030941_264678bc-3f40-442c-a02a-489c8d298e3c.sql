@@ -1,0 +1,50 @@
+-- Create admin test accounts in subscribers table
+-- Insert test admin account
+INSERT INTO public.subscribers (user_id, subscribed, subscription_tier, subscription_end, stripe_customer_id)
+VALUES 
+  ('00000000-0000-0000-0000-000000000001', true, 'admin', '2030-12-31T23:59:59Z', 'test_admin'),
+  ('00000000-0000-0000-0000-000000000002', true, 'pro', '2030-12-31T23:59:59Z', 'test_user')
+ON CONFLICT (user_id) DO UPDATE SET
+  subscribed = EXCLUDED.subscribed,
+  subscription_tier = EXCLUDED.subscription_tier,
+  subscription_end = EXCLUDED.subscription_end,
+  stripe_customer_id = EXCLUDED.stripe_customer_id;
+
+-- Update check-subscription function to handle test accounts
+CREATE OR REPLACE FUNCTION public.handle_test_accounts()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  -- Handle test admin account
+  IF NEW.email = 'admin@test.com' AND NEW.id = '00000000-0000-0000-0000-000000000001' THEN
+    INSERT INTO public.subscribers (user_id, subscribed, subscription_tier, subscription_end, stripe_customer_id)
+    VALUES (NEW.id, true, 'admin', '2030-12-31T23:59:59Z', 'test_admin')
+    ON CONFLICT (user_id) DO UPDATE SET
+      subscribed = true,
+      subscription_tier = 'admin',
+      subscription_end = '2030-12-31T23:59:59Z';
+  END IF;
+
+  -- Handle test user account  
+  IF NEW.email = 'user@test.com' AND NEW.id = '00000000-0000-0000-0000-000000000002' THEN
+    INSERT INTO public.subscribers (user_id, subscribed, subscription_tier, subscription_end, stripe_customer_id)
+    VALUES (NEW.id, true, 'pro', '2030-12-31T23:59:59Z', 'test_user')
+    ON CONFLICT (user_id) DO UPDATE SET
+      subscribed = true,
+      subscription_tier = 'pro', 
+      subscription_end = '2030-12-31T23:59:59Z';
+  END IF;
+
+  RETURN NEW;
+END;
+$$;
+
+-- Create trigger for test accounts (only if it doesn't exist)
+DROP TRIGGER IF EXISTS on_test_user_created ON auth.users;
+CREATE TRIGGER on_test_user_created
+  AFTER INSERT OR UPDATE ON auth.users
+  FOR EACH ROW 
+  WHEN (NEW.email IN ('admin@test.com', 'user@test.com'))
+  EXECUTE FUNCTION public.handle_test_accounts();
