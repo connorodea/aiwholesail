@@ -1,5 +1,5 @@
 import { Property } from '@/types/zillow';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -103,6 +103,9 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
               )}
             </div>
           </DialogTitle>
+          <DialogDescription>
+            Detailed property information and wholesale analysis
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">

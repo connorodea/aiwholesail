@@ -57,13 +57,11 @@ export function DeepDueDiligencePanel({ property }: DeepDueDiligencePanelProps) 
     
     setLoading(true);
     try {
-      const [skipTraceData, historyData, photosData] = await Promise.allSettled([
-        zillowAPI.getSkipTrace(property.address || '', property.city || '', property.state || ''),
+      const [historyData, photosData] = await Promise.allSettled([
         zillowAPI.getPriceHistory(property.zpid),
         zillowAPI.getPropertyPhotos(property.zpid)
       ]);
 
-      const skipTrace = skipTraceData.status === 'fulfilled' ? skipTraceData.value : null;
       const history = historyData.status === 'fulfilled' ? historyData.value || [] : [];
       const photos = photosData.status === 'fulfilled' ? photosData.value || [] : [];
       const contact = null; // Contact agent feature not available yet
@@ -87,7 +85,7 @@ export function DeepDueDiligencePanel({ property }: DeepDueDiligencePanelProps) 
       if (property.property_isPreforeclosureAuction) riskScore += 35;
 
       setDueDiligenceData({
-        ownerInfo: skipTrace,
+        ownerInfo: null, // Skip trace service unavailable
         propertyHistory: history,
         photos: photos,
         reviews: [], // Would need separate endpoint
@@ -316,36 +314,32 @@ export function DeepDueDiligencePanel({ property }: DeepDueDiligencePanelProps) 
             </TabsContent>
 
             <TabsContent value="owner" className="space-y-4">
-              <div className="space-y-3">
-                <h4 className="font-semibold flex items-center gap-2">
-                  <User className="h-4 w-4" />
-                  Owner Information
-                </h4>
-                {dueDiligenceData.ownerInfo ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="p-4 bg-muted/30 rounded-lg">
-                      <div className="text-sm text-muted-foreground">Owner Name</div>
-                      <div className="font-medium">{dueDiligenceData.ownerInfo.name || 'N/A'}</div>
-                    </div>
-                    <div className="p-4 bg-muted/30 rounded-lg">
-                      <div className="text-sm text-muted-foreground">Phone Number</div>
-                      <div className="font-medium">{dueDiligenceData.ownerInfo.phone || 'N/A'}</div>
-                    </div>
-                    <div className="p-4 bg-muted/30 rounded-lg">
-                      <div className="text-sm text-muted-foreground">Email</div>
-                      <div className="font-medium">{dueDiligenceData.ownerInfo.email || 'N/A'}</div>
-                    </div>
-                    <div className="p-4 bg-muted/30 rounded-lg">
-                      <div className="text-sm text-muted-foreground">Address</div>
-                      <div className="font-medium">{dueDiligenceData.ownerInfo.address || 'N/A'}</div>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <User className="h-5 w-5" />
+                    Owner Information
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-center py-8 text-muted-foreground">
+                    <User className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                    <p className="text-lg font-medium mb-2">Skip Trace Service Unavailable</p>
+                    <p className="text-sm mb-4">
+                      Owner contact information retrieval is temporarily unavailable due to API limitations.
+                    </p>
+                    <div className="p-4 bg-muted/30 rounded-lg text-left">
+                      <p className="text-sm font-medium mb-2">Alternative Methods:</p>
+                      <ul className="text-sm space-y-1">
+                        <li>• Check public property records at county recorder's office</li>
+                        <li>• Contact the listing agent directly (see Contact tab)</li>
+                        <li>• Use professional skip trace services like BeenVerified</li>
+                        <li>• Search social media platforms</li>
+                      </ul>
                     </div>
                   </div>
-                ) : (
-                  <div className="text-center py-4 text-muted-foreground">
-                    Owner information not available
-                  </div>
-                )}
-              </div>
+                </CardContent>
+              </Card>
             </TabsContent>
 
             <TabsContent value="photos" className="space-y-4">
