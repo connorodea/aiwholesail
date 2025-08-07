@@ -187,23 +187,6 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
 
           {/* Filters */}
           <div className="border-t pt-3 sm:pt-4 space-y-3 sm:space-y-4">
-            {/* Search All Properties Filter */}
-            <div className="flex items-center justify-between space-x-2">
-              <div className="flex items-center space-x-2">
-                <TrendingDown className="h-4 w-4 text-primary" />
-                <Label htmlFor="search-all-toggle" className="text-sm font-medium">
-                  Search All Properties
-                </Label>
-              </div>
-              <Switch
-                id="search-all-toggle"
-                checked={!searchParams.wholesaleOnly}
-                onCheckedChange={(checked) => setSearchParams(prev => ({ ...prev, wholesaleOnly: !checked }))}
-              />
-            </div>
-            <p className="text-xs text-muted-foreground">
-              When enabled, shows all properties. When disabled, shows only wholesale opportunities (priced below market value)
-            </p>
 
             {/* Auction Filter */}
             <div className="flex items-center justify-between space-x-2">
