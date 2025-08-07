@@ -75,7 +75,7 @@ export default function Auth() {
               <img 
                 src="/lovable-uploads/23fef6fe-9f2b-40a9-8916-8c24705e4059.png" 
                 alt="AIWholesail" 
-                className="h-16 w-auto object-contain"
+                className="h-24 w-auto object-contain"
               />
             </div>
             
