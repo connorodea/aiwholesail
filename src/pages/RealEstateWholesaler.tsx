@@ -7,25 +7,29 @@ import { Property, PropertySearchParams } from '@/types/zillow';
 import { zillowAPI } from '@/lib/zillow-api';
 import { sortPropertiesByWholesalePotential } from '@/lib/wholesale-calculator';
 import { Button } from '@/components/ui/button';
-import { Home, User, LogOut, LogIn } from 'lucide-react';
+import { Home, User, LogOut, LogIn, Download } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useFavorites } from '@/hooks/useFavorites';
+import { useLeads } from '@/hooks/useLeads';
 import { toast } from 'sonner';
 
 export default function RealEstateWholesaler() {
   const { user, signOut } = useAuth();
   const { favorites } = useFavorites();
+  const { exportAllLeads, loading: exportLoading } = useLeads();
   const [properties, setProperties] = useState<Property[]>([]);
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showFavorites, setShowFavorites] = useState(false);
+  const [lastSearchLocation, setLastSearchLocation] = useState<string>('');
 
   const handleSearch = async (params: PropertySearchParams) => {
     try {
       setIsLoading(true);
       setProperties([]);
       setError(null);
+      setLastSearchLocation(params.location);
 
       toast.success(`Searching for properties in ${params.location}...`);
 
@@ -193,6 +197,18 @@ export default function RealEstateWholesaler() {
                       {properties.length} {properties.length === 1 ? 'property' : 'properties'} found
                     </p>
                   </div>
+                  
+                  {user && properties.length > 0 && (
+                    <Button
+                      onClick={() => exportAllLeads(properties, lastSearchLocation)}
+                      disabled={exportLoading}
+                      size="sm"
+                      className="gap-2"
+                    >
+                      <Download className="h-4 w-4" />
+                      {exportLoading ? 'Exporting...' : 'Export All as CSV'}
+                    </Button>
+                  )}
                 </div>
                 
                 <div className="property-grid">
