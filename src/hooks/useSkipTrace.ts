@@ -11,6 +11,9 @@ export interface SkipTraceResult {
   emails?: string[];
   currentAddress?: string;
   age?: number;
+  fallbackMessage?: string;
+  searchSuggestions?: string[];
+  manualResearchTips?: string[];
   [key: string]: any;
 }
 
@@ -33,25 +36,85 @@ export function useSkipTrace() {
 
       console.log('Skip tracing:', { streetAddress, cityStateZip });
       
-      const data = await zillowAPI.getSkipTrace(streetAddress, cityStateZip);
-      
-      if (data) {
-        const result: SkipTraceResult = {
+      try {
+        const data = await zillowAPI.getSkipTrace(streetAddress, cityStateZip);
+        
+        if (data && data.success !== false) {
+          const result: SkipTraceResult = {
+            address: streetAddress,
+            location: cityStateZip,
+            ...data
+          };
+          
+          setResults(prev => {
+            const filtered = prev.filter(r => r.address !== streetAddress);
+            return [result, ...filtered];
+          });
+          
+          toast.success('Skip trace completed successfully');
+          return result;
+        } else {
+          // API returned but no data - provide helpful fallback
+          const fallbackResult: SkipTraceResult = {
+            address: streetAddress,
+            location: cityStateZip,
+            names: [],
+            phones: [],
+            emails: [],
+            fallbackMessage: 'Skip trace data not available through automatic lookup. Consider manual research methods.',
+            searchSuggestions: [
+              'Check public property records',
+              'Search social media platforms',
+              'Contact listing agent if available',
+              'Use professional skip trace services',
+              'Check voter registration records'
+            ]
+          };
+          
+          setResults(prev => {
+            const filtered = prev.filter(r => r.address !== streetAddress);
+            return [fallbackResult, ...filtered];
+          });
+          
+          toast.warning('No skip trace data found - showing manual research suggestions');
+          return fallbackResult;
+        }
+      } catch (apiError) {
+        console.warn('Skip trace API failed, providing fallback guidance:', apiError);
+        
+        // Provide helpful fallback information when API fails
+        const fallbackResult: SkipTraceResult = {
           address: streetAddress,
           location: cityStateZip,
-          ...data
+          names: [],
+          phones: [],
+          emails: [],
+          fallbackMessage: 'Skip trace service temporarily unavailable. Here are alternative research methods:',
+          searchSuggestions: [
+            'Visit your county\'s property record website',
+            'Search the property address on social media',
+            'Check voter registration databases',
+            'Use LinkedIn to find property owners',
+            'Contact neighbors for information',
+            'Check with the local post office',
+            'Search property tax records',
+            'Use professional skip trace services like BeenVerified or Spokeo'
+          ],
+          manualResearchTips: [
+            'Look for the owner\'s name in property tax records',
+            'Check if the property is in a trust or LLC',
+            'Search for the owner on professional networks',
+            'Check local business listings if it\'s a commercial property'
+          ]
         };
         
         setResults(prev => {
           const filtered = prev.filter(r => r.address !== streetAddress);
-          return [result, ...filtered];
+          return [fallbackResult, ...filtered];
         });
         
-        toast.success('Skip trace completed successfully');
-        return result;
-      } else {
-        toast.warning('No skip trace data found for this property');
-        return null;
+        toast.warning('Skip trace service unavailable - showing manual research methods');
+        return fallbackResult;
       }
     } catch (error) {
       console.error('Skip trace failed:', error);

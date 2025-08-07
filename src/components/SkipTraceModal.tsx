@@ -179,8 +179,41 @@ function SkipTraceResultCard({ result, onExport }: SkipTraceResultCardProps) {
           )}
         </div>
 
+        {/* Fallback Information */}
+        {result.fallbackMessage && (
+          <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <h4 className="font-medium text-yellow-800 mb-2">{result.fallbackMessage}</h4>
+            {result.searchSuggestions && result.searchSuggestions.length > 0 && (
+              <div className="mb-3">
+                <p className="text-sm font-medium text-yellow-700 mb-2">Research Suggestions:</p>
+                <ul className="text-sm text-yellow-700 space-y-1">
+                  {result.searchSuggestions.map((suggestion, index) => (
+                    <li key={index} className="flex items-start gap-2">
+                      <span className="text-yellow-500">•</span>
+                      <span>{suggestion}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {result.manualResearchTips && result.manualResearchTips.length > 0 && (
+              <div>
+                <p className="text-sm font-medium text-yellow-700 mb-2">Manual Research Tips:</p>
+                <ul className="text-sm text-yellow-700 space-y-1">
+                  {result.manualResearchTips.map((tip, index) => (
+                    <li key={index} className="flex items-start gap-2">
+                      <span className="text-yellow-500">→</span>
+                      <span>{tip}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Raw Data for Debugging */}
-        {Object.keys(result).length > 6 && (
+        {Object.keys(result).length > 6 && !result.fallbackMessage && (
           <details className="mt-4">
             <summary className="cursor-pointer text-sm font-medium text-muted-foreground">
               View Additional Data
