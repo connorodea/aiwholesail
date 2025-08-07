@@ -859,6 +859,11 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
             </div>
           </details>
 
+          {/* Property Analysis Tabs */}
+          <div className="mt-6">
+            <PropertyAnalysisTabs property={property} />
+          </div>
+
           {/* Action Buttons */}
           <div className="flex gap-2 pt-4 border-t">
             <Button 
