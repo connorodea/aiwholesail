@@ -122,6 +122,12 @@ export class ZillowAPI {
     console.log('Raw property data keys:', Object.keys(prop));
     console.log('Raw property sample:', JSON.stringify(prop, null, 2).substring(0, 500));
     
+    // Log date-related fields specifically
+    const dateFields = Object.entries(prop).filter(([key, value]) => 
+      key.toLowerCase().includes('date') || key.toLowerCase().includes('posted') || key.toLowerCase().includes('list')
+    );
+    console.log('Date-related fields found:', dateFields);
+    
     const flatten = (obj: any, prefix = '') => {
       for (const [key, value] of Object.entries(obj)) {
         const newKey = prefix ? `${prefix}_${key}` : key;
@@ -170,6 +176,19 @@ export class ZillowAPI {
       pricePerSqft: this.parseNumber(flattened.property_price_pricePerSquareFoot || flattened.pricePerSqft),
       zestimate: this.parseNumber(flattened.property_estimates_zestimate || flattened.zestimate),
       description: flattened.description || flattened.summary || '',
+      // Extract listing date from various possible fields
+      datePostedString: flattened.property_datePriceChanged || 
+                       flattened.property_listing_listingDate || 
+                       flattened.property_listing_datePosted ||
+                       flattened.property_datePosted ||
+                       flattened.datePriceChanged ||
+                       flattened.listingDate ||
+                       flattened.datePosted,
+      listDate: flattened.property_listing_listDate ||
+                flattened.property_listDate ||
+                flattened.listDate ||
+                flattened.property_onMarketDate ||
+                flattened.onMarketDate,
       isFSBO,
       ...flattened // Include all original data
     };
