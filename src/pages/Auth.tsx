@@ -73,7 +73,7 @@ export default function Auth() {
           <div className="text-center space-y-4">
             <div className="flex items-center justify-center gap-3 mb-6">
               <img 
-                src={aiWholesailLogo} 
+                src="/lovable-uploads/23fef6fe-9f2b-40a9-8916-8c24705e4059.png" 
                 alt="AIWholesail" 
                 className="h-16 w-auto object-contain"
               />

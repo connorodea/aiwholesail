@@ -55,7 +55,7 @@ const Landing = () => {
         <div className="container flex h-16 items-center justify-between">
           <div className="flex items-center space-x-3">
             <img 
-              src={aiWholesailLogo} 
+              src="/lovable-uploads/23fef6fe-9f2b-40a9-8916-8c24705e4059.png" 
               alt="AIWholesail" 
               className="h-12 w-auto object-contain"
             />
