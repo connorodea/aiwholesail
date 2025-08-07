@@ -14,6 +14,57 @@ export type Database = {
   }
   public: {
     Tables: {
+      advanced_property_assessments: {
+        Row: {
+          ai_models_used: string[] | null
+          confidence_score: number | null
+          created_at: string | null
+          detailed_assessment: Json | null
+          id: string
+          investment_recommendation: string | null
+          market_value_impact: number | null
+          opportunity_score: number | null
+          overall_condition: string | null
+          photos_analyzed: number | null
+          risk_score: number | null
+          total_repair_estimate: number
+          updated_at: string | null
+          zpid: string
+        }
+        Insert: {
+          ai_models_used?: string[] | null
+          confidence_score?: number | null
+          created_at?: string | null
+          detailed_assessment?: Json | null
+          id?: string
+          investment_recommendation?: string | null
+          market_value_impact?: number | null
+          opportunity_score?: number | null
+          overall_condition?: string | null
+          photos_analyzed?: number | null
+          risk_score?: number | null
+          total_repair_estimate?: number
+          updated_at?: string | null
+          zpid: string
+        }
+        Update: {
+          ai_models_used?: string[] | null
+          confidence_score?: number | null
+          created_at?: string | null
+          detailed_assessment?: Json | null
+          id?: string
+          investment_recommendation?: string | null
+          market_value_impact?: number | null
+          opportunity_score?: number | null
+          overall_condition?: string | null
+          photos_analyzed?: number | null
+          risk_score?: number | null
+          total_repair_estimate?: number
+          updated_at?: string | null
+          zpid?: string
+        }
+        Relationships: []
+      }
       favorites: {
         Row: {
           created_at: string

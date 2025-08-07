@@ -12,6 +12,7 @@ import { MotivatedSellerDetector } from './MotivatedSellerDetector';
 import { MarketIntelligenceDashboard } from './MarketIntelligenceDashboard';
 import { DeepDueDiligencePanel } from './DeepDueDiligencePanel';
 import AdvancedDamageDetection from './AdvancedDamageDetection';
+import AdvancedAIDealCalculator from './AdvancedAIDealCalculator';
 
 interface PropertyAnalysisTabsProps {
   property: Property;
@@ -208,8 +209,9 @@ export function PropertyAnalysisTabs({ property }: PropertyAnalysisTabsProps) {
 
   return (
     <Tabs defaultValue="calculator" className="w-full">
-      <TabsList className="grid w-full grid-cols-7">
+      <TabsList className="grid w-full grid-cols-8">
         <TabsTrigger value="calculator">Calculator</TabsTrigger>
+        <TabsTrigger value="ai-calculator">AI Calculator</TabsTrigger>
         <TabsTrigger value="motivation">Hot Leads</TabsTrigger>
         <TabsTrigger value="market">Market Intel</TabsTrigger>
         <TabsTrigger value="diligence">Due Diligence</TabsTrigger>
@@ -220,6 +222,14 @@ export function PropertyAnalysisTabs({ property }: PropertyAnalysisTabsProps) {
 
       <TabsContent value="calculator" className="space-y-4">
         <WholesaleCalculator property={property} />
+      </TabsContent>
+
+      <TabsContent value="ai-calculator" className="space-y-4">
+        <AdvancedAIDealCalculator 
+          zpid={property.zpid || property.id}
+          photos={propertyPhotos}
+          initialArv={property.zestimate || property.price}
+        />
       </TabsContent>
 
       <TabsContent value="motivation" className="space-y-4">
