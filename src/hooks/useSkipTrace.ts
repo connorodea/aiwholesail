@@ -40,12 +40,19 @@ export function useSkipTrace() {
         const data = await zillowAPI.getSkipTrace(streetAddress, cityStateZip);
         
         if (data && data.success !== false) {
+          // Handle the new enhanced API response format
           const result: SkipTraceResult = {
             address: streetAddress,
             location: cityStateZip,
-            phones: data.phones || [],
+            // Extract phone numbers - new format includes objects with number and type
+            phones: Array.isArray(data.phones) ? 
+              data.phones.map((phone: any) => typeof phone === 'object' ? phone.number : phone).filter(Boolean) :
+              [],
             names: data.names || [],
-            emails: data.emails || [],
+            // Extract emails - new format includes objects with email and valid flag
+            emails: Array.isArray(data.emails) ? 
+              data.emails.map((email: any) => typeof email === 'object' ? email.email : email).filter(Boolean) :
+              [],
             currentAddress: data.currentAddress,
             age: data.age,
             relatives: data.relatives || [],
@@ -54,7 +61,13 @@ export function useSkipTrace() {
             source: data.source,
             timestamp: data.timestamp,
             costPerQuery: data.costPerQuery || 0,
-            confidence: data.confidence
+            confidence: data.confidence,
+            // Enhanced fallback handling
+            fallbackMessage: data.fallbackReason || data.fallbackMessage,
+            searchSuggestions: data.fallbackGuidance?.searchStrategies?.map((s: any) => s.description) || 
+                             data.searchSuggestions || [],
+            manualResearchTips: data.fallbackGuidance?.investigationTips || 
+                               data.manualResearchTips || []
           };
           
           setResults(prev => {
