@@ -57,7 +57,7 @@ const Landing = () => {
             <img 
               src={aiWholesailLogo} 
               alt="AIWholesail" 
-              className="h-8 w-auto object-contain"
+              className="h-12 w-auto object-contain"
             />
           </div>
           <div className="flex items-center space-x-4">
