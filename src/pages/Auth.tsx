@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,7 +11,8 @@ import { toast } from 'sonner';
 import { LogIn, UserPlus, Home } from 'lucide-react';
 
 export default function Auth() {
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [searchParams] = useSearchParams();
+  const [isSignUp, setIsSignUp] = useState(searchParams.get('mode') === 'signup');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
@@ -79,7 +80,7 @@ export default function Auth() {
             </h2>
             <p className="text-muted-foreground">
               {isSignUp 
-                ? 'Sign up to start finding wholesale deals' 
+                ? 'Start your 7-day free trial and find profitable wholesale deals' 
                 : 'Sign in to access your wholesale dashboard'
               }
             </p>
@@ -103,7 +104,7 @@ export default function Auth() {
               </CardTitle>
               <CardDescription>
                 {isSignUp 
-                  ? 'Enter your details to create a new account'
+                  ? 'Create your account and start your 7-day free trial'
                   : 'Enter your credentials to access your account'
                 }
               </CardDescription>
@@ -161,7 +162,7 @@ export default function Auth() {
                   {loading ? (
                     'Processing...'
                   ) : isSignUp ? (
-                    'Create Account'
+                    'Start 7-Day Free Trial'
                   ) : (
                     'Sign In'
                   )}

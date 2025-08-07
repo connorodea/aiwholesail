@@ -17,16 +17,18 @@ const Landing = () => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
 
-  const handleSubscribe = async () => {
+  const handleStartTrial = () => {
     if (!user) {
-      toast({
-        title: "Authentication Required",
-        description: "Please sign in to subscribe to our service.",
-        variant: "destructive",
-      });
+      // Redirect to signup mode for non-authenticated users
+      window.location.href = '/auth?mode=signup';
       return;
     }
 
+    // If user is already logged in, start subscription
+    handleSubscribe();
+  };
+
+  const handleSubscribe = async () => {
     setLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke('create-checkout');
@@ -116,11 +118,11 @@ const Landing = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in">
             <Button 
               size="lg" 
-              onClick={handleSubscribe}
+              onClick={handleStartTrial}
               disabled={loading}
               className="text-lg px-10 py-4 hover-scale group"
             >
-              {loading ? "Loading..." : "Start Free Trial"}
+              {loading ? "Loading..." : "Start 7-Day Free Trial"}
               <ArrowRight className="h-5 w-5 ml-2 group-hover:translate-x-1 transition-transform" />
             </Button>
             {!user && (
@@ -140,7 +142,7 @@ const Landing = () => {
             </div>
             <div className="flex items-center gap-2">
               <CheckCircle className="h-4 w-4 text-primary" />
-              <span>14-Day Free Trial</span>
+              <span>7-Day Free Trial</span>
             </div>
           </div>
         </div>
@@ -296,10 +298,10 @@ const Landing = () => {
                 <Button 
                   className="w-full" 
                   size="lg"
-                  onClick={handleSubscribe}
+                  onClick={handleStartTrial}
                   disabled={loading}
                 >
-                  {loading ? "Loading..." : "Start 14-Day Free Trial"}
+                  {loading ? "Loading..." : "Start 7-Day Free Trial"}
                 </Button>
                 <p className="text-xs text-muted-foreground">
                   No credit card required • Cancel anytime • Full refund within 30 days
