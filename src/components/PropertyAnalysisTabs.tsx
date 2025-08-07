@@ -7,6 +7,10 @@ import { TrendingDown, TrendingUp, Calculator, Building, AlertTriangle, MapPin, 
 import { useState, useEffect } from 'react';
 import { ZillowAPI } from '@/lib/zillow-api';
 import { useToast } from '@/hooks/use-toast';
+import { WholesaleCalculator } from './WholesaleCalculator';
+import { MotivatedSellerDetector } from './MotivatedSellerDetector';
+import { MarketIntelligenceDashboard } from './MarketIntelligenceDashboard';
+import { DeepDueDiligencePanel } from './DeepDueDiligencePanel';
 
 interface PropertyAnalysisTabsProps {
   property: Property;
@@ -160,79 +164,31 @@ export function PropertyAnalysisTabs({ property }: PropertyAnalysisTabsProps) {
   const motivatedSeller = getMotivatedSellerScore();
 
   return (
-    <Tabs defaultValue="investment" className="w-full">
-      <TabsList className="grid w-full grid-cols-4">
-        <TabsTrigger value="investment">Investment</TabsTrigger>
+    <Tabs defaultValue="calculator" className="w-full">
+      <TabsList className="grid w-full grid-cols-6">
+        <TabsTrigger value="calculator">Calculator</TabsTrigger>
+        <TabsTrigger value="motivation">Hot Leads</TabsTrigger>
+        <TabsTrigger value="market">Market Intel</TabsTrigger>
+        <TabsTrigger value="diligence">Due Diligence</TabsTrigger>
         <TabsTrigger value="history">Price History</TabsTrigger>
-        <TabsTrigger value="motivated">Motivation</TabsTrigger>
         <TabsTrigger value="neighborhood">Area Data</TabsTrigger>
       </TabsList>
 
-      <TabsContent value="investment" className="space-y-4">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Calculator className="h-5 w-5" />
-              Investment Analysis
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="p-3 bg-muted/30 rounded-lg">
-                <div className="text-sm text-muted-foreground">ARV (After Repair Value)</div>
-                <div className="text-lg font-bold">{formatPrice(metrics.arv)}</div>
-              </div>
-              <div className="p-3 bg-muted/30 rounded-lg">
-                <div className="text-sm text-muted-foreground">Est. Repair Costs</div>
-                <div className="text-lg font-bold text-destructive">{formatPrice(metrics.repairCosts)}</div>
-              </div>
-              <div className="p-3 bg-muted/30 rounded-lg">
-                <div className="text-sm text-muted-foreground">Max Wholesale Offer</div>
-                <div className="text-lg font-bold text-primary">{formatPrice(metrics.maxOffer)}</div>
-              </div>
-              <div className="p-3 bg-muted/30 rounded-lg">
-                <div className="text-sm text-muted-foreground">Potential Spread</div>
-                <div className={`text-lg font-bold ${metrics.currentSpread > 0 ? 'text-success' : 'text-destructive'}`}>
-                  {formatPrice(metrics.currentSpread)}
-                </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="p-4 bg-accent/10 rounded-lg border border-accent/20">
-                <div className="text-sm text-muted-foreground">Monthly Cash Flow</div>
-                <div className="text-xl font-bold">{formatPrice(metrics.cashFlow)}</div>
-                <div className="text-xs text-muted-foreground">If held as rental</div>
-              </div>
-              <div className="p-4 bg-accent/10 rounded-lg border border-accent/20">
-                <div className="text-sm text-muted-foreground">Cap Rate</div>
-                <div className="text-xl font-bold">{metrics.capRate.toFixed(1)}%</div>
-                <div className="text-xs text-muted-foreground">Annual return</div>
-              </div>
-              <div className="p-4 bg-accent/10 rounded-lg border border-accent/20">
-                <div className="text-sm text-muted-foreground">ROI Potential</div>
-                <div className={`text-xl font-bold ${metrics.roi > 0 ? 'text-success' : 'text-destructive'}`}>
-                  {metrics.roi.toFixed(1)}%
-                </div>
-                <div className="text-xs text-muted-foreground">On wholesale spread</div>
-              </div>
-            </div>
-
-            {metrics.currentSpread > 0 && (
-              <div className="p-4 bg-success/10 border border-success/20 rounded-lg">
-                <div className="flex items-center gap-2 mb-2">
-                  <TrendingUp className="h-5 w-5 text-success" />
-                  <span className="font-semibold text-success">Great Wholesale Deal!</span>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  This property shows a positive spread of {formatPrice(metrics.currentSpread)} based on the 70% rule.
-                </p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+      <TabsContent value="calculator" className="space-y-4">
+        <WholesaleCalculator property={property} />
       </TabsContent>
 
+      <TabsContent value="motivation" className="space-y-4">
+        <MotivatedSellerDetector property={property} />
+      </TabsContent>
+
+      <TabsContent value="market" className="space-y-4">
+        <MarketIntelligenceDashboard property={property} />
+      </TabsContent>
+
+      <TabsContent value="diligence" className="space-y-4">
+        <DeepDueDiligencePanel property={property} />
+      </TabsContent>
       <TabsContent value="history" className="space-y-4">
         <Card>
           <CardHeader>
@@ -277,45 +233,6 @@ export function PropertyAnalysisTabs({ property }: PropertyAnalysisTabsProps) {
                 {loading ? 'Loading price history...' : 'No price history available'}
               </div>
             )}
-          </CardContent>
-        </Card>
-      </TabsContent>
-
-      <TabsContent value="motivated" className="space-y-4">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5" />
-              Motivated Seller Analysis
-              <Badge variant={motivatedSeller.score > 60 ? 'destructive' : motivatedSeller.score > 30 ? 'default' : 'secondary'}>
-                {motivatedSeller.score}/100
-              </Badge>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-3">
-              {motivatedSeller.indicators.length > 0 ? (
-                motivatedSeller.indicators.map((indicator, index) => (
-                  <div key={index} className="flex items-center gap-2 p-3 bg-muted/30 rounded-lg">
-                    <AlertTriangle className="h-4 w-4 text-warning flex-shrink-0" />
-                    <span className="text-sm">{indicator}</span>
-                  </div>
-                ))
-              ) : (
-                <div className="text-center py-4 text-muted-foreground">
-                  No strong motivation indicators found
-                </div>
-              )}
-            </div>
-
-            <div className="p-4 bg-accent/10 rounded-lg border border-accent/20">
-              <h4 className="font-semibold mb-2">Motivation Score Breakdown:</h4>
-              <ul className="text-sm space-y-1 text-muted-foreground">
-                <li>• 0-30: Low motivation indicators</li>
-                <li>• 31-60: Moderate motivation potential</li>
-                <li>• 61-100: High motivation likelihood</li>
-              </ul>
-            </div>
           </CardContent>
         </Card>
       </TabsContent>
