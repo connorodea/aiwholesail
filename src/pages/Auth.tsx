@@ -65,50 +65,64 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background/50 to-primary/5 flex relative overflow-hidden">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 bg-grid-pattern opacity-[0.02]"></div>
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse"></div>
+      <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-secondary/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+      
       {/* Left Side - Form */}
-      <div className="flex-1 flex items-center justify-center p-8">
-        <div className="w-full max-w-md space-y-8">
+      <div className="flex-1 flex items-center justify-center p-4 lg:p-8 relative z-10">
+        <div className="w-full max-w-md space-y-6 animate-fade-in">
           {/* Header */}
-          <div className="text-center space-y-4">
-            <div className="flex items-center justify-center gap-3 mb-6">
-              <img 
-                src={aiWholesailLogo} 
-                alt="AIWholesail" 
-                className="h-16 w-auto object-contain"
-              />
+          <div className="text-center space-y-6">
+            <div className="flex items-center justify-center mb-8">
+              <div className="relative group">
+                <div className="absolute -inset-2 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-full blur opacity-25 group-hover:opacity-40 transition-opacity"></div>
+                <img 
+                  src={aiWholesailLogo} 
+                  alt="AIWholesail" 
+                  className="h-20 w-auto object-contain relative hover-scale"
+                />
+              </div>
             </div>
             
-            <Badge variant="secondary" className="mb-4 hover-scale">
-              <Shield className="h-4 w-4 mr-2" />
-              Professional Real Estate Tools
-            </Badge>
-            
-            <h1 className="text-3xl md:text-4xl font-bold">
-              <span className="bg-gradient-to-r from-primary via-primary to-primary/60 bg-clip-text text-transparent">
-                {isSignUp ? 'Join' : 'Welcome Back'}
-              </span>
-              <br />
-              <span className="text-foreground text-2xl">
-                {isSignUp ? 'AIWholesail Today' : 'to AIWholesail'}
-              </span>
-            </h1>
-            
-            <p className="text-lg text-muted-foreground max-w-sm mx-auto">
-              {isSignUp 
-                ? 'Start finding profitable wholesale deals with AI-powered analysis' 
-                : 'Continue your journey to profitable real estate investing'
-              }
-            </p>
+            <div className="space-y-4">
+              <Badge 
+                variant="secondary" 
+                className="bg-gradient-to-r from-primary/10 to-secondary/10 border-primary/20 text-primary hover-scale"
+              >
+                <Shield className="h-4 w-4 mr-2" />
+                Professional Real Estate AI Platform
+              </Badge>
+              
+              <h1 className="text-3xl lg:text-4xl font-bold leading-tight">
+                <span className="bg-gradient-to-r from-primary via-primary to-secondary bg-clip-text text-transparent">
+                  {isSignUp ? 'Join the Future' : 'Welcome Back'}
+                </span>
+                <br />
+                <span className="text-foreground text-xl lg:text-2xl font-medium">
+                  {isSignUp ? 'of Real Estate Investing' : 'to AIWholesail'}
+                </span>
+              </h1>
+              
+              <p className="text-base lg:text-lg text-muted-foreground max-w-sm mx-auto leading-relaxed">
+                {isSignUp 
+                  ? 'Transform your real estate business with AI-powered market intelligence and deal analysis' 
+                  : 'Continue building your real estate empire with cutting-edge AI tools'
+                }
+              </p>
+            </div>
           </div>
 
           {/* Form Card */}
-          <Card className="simple-card border-primary/10 hover:border-primary/20 transition-colors">
+          <Card className="backdrop-blur-sm bg-background/80 border border-primary/10 shadow-xl hover:shadow-2xl hover:border-primary/20 transition-all duration-300">
             <CardContent className="p-8">
               <form onSubmit={handleSubmit} className="space-y-6">
                 {isSignUp && (
-                  <div className="space-y-2">
-                    <Label htmlFor="fullName" className="text-sm font-medium text-foreground">
+                  <div className="space-y-3">
+                    <Label htmlFor="fullName" className="text-sm font-semibold text-foreground flex items-center gap-2">
+                      <div className="w-1 h-4 bg-primary rounded-full"></div>
                       Full Name
                     </Label>
                     <Input
@@ -118,16 +132,17 @@ export default function Auth() {
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
                       required={isSignUp}
-                      className="h-12 px-4 border-border focus:border-primary focus:ring-1 focus:ring-primary/20 transition-colors"
+                      className="h-12 px-4 border-border/50 bg-background/50 focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all hover:border-primary/50"
                     />
                   </div>
                 )}
                 
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="text-sm font-medium text-foreground">
+                <div className="space-y-3">
+                  <Label htmlFor="email" className="text-sm font-semibold text-foreground flex items-center gap-2">
+                    <div className="w-1 h-4 bg-primary rounded-full"></div>
                     Email Address
                   </Label>
-                  <div className="relative">
+                  <div className="relative group">
                     <Input
                       id="email"
                       type="email"
@@ -135,52 +150,58 @@ export default function Auth() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
-                      className="h-12 px-4 pr-12 border-border focus:border-primary focus:ring-1 focus:ring-primary/20 transition-colors"
+                      className="h-12 px-4 pr-12 border-border/50 bg-background/50 focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all hover:border-primary/50"
                     />
-                    <Mail className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                    <Mail className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                   </div>
                 </div>
                 
-                <div className="space-y-2">
-                  <Label htmlFor="password" className="text-sm font-medium text-foreground">
+                <div className="space-y-3">
+                  <Label htmlFor="password" className="text-sm font-semibold text-foreground flex items-center gap-2">
+                    <div className="w-1 h-4 bg-primary rounded-full"></div>
                     Password
                   </Label>
-                  <div className="relative">
+                  <div className="relative group">
                     <Input
                       id="password"
                       type={showPassword ? "text" : "password"}
-                      placeholder="••••••••"
+                      placeholder="Create a strong password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
                       minLength={6}
-                      className="h-12 px-4 pr-12 border-border focus:border-primary focus:ring-1 focus:ring-primary/20 transition-colors"
+                      className="h-12 px-4 pr-12 border-border/50 bg-background/50 focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all hover:border-primary/50"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-primary transition-all hover-scale"
                     >
                       {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                     </button>
                   </div>
+                  {isSignUp && (
+                    <p className="text-xs text-muted-foreground">
+                      Password must be at least 6 characters long
+                    </p>
+                  )}
                 </div>
 
                 <Button 
                   type="submit" 
                   disabled={loading}
-                  className="w-full h-12 text-lg font-medium hover-scale"
+                  className="w-full h-12 text-lg font-semibold bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover-scale"
                   size="lg"
                 >
                   {loading ? (
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 border-2 border-current/30 border-t-current rounded-full animate-spin"></div>
-                      Processing...
+                    <div className="flex items-center gap-3">
+                      <div className="w-5 h-5 border-2 border-current/30 border-t-current rounded-full animate-spin"></div>
+                      <span>Processing...</span>
                     </div>
                   ) : (
                     <>
                       {isSignUp ? <UserPlus className="h-5 w-5 mr-2" /> : <LogIn className="h-5 w-5 mr-2" />}
-                      {isSignUp ? 'Create Account' : 'Sign In'}
+                      {isSignUp ? 'Create Your Account' : 'Sign In'}
                     </>
                   )}
                 </Button>
@@ -189,29 +210,29 @@ export default function Auth() {
           </Card>
 
           {/* Trust Indicators */}
-          <div className="flex items-center justify-center gap-8 text-sm text-muted-foreground">
-            <div className="flex items-center gap-2">
+          <div className="flex items-center justify-center gap-6 lg:gap-8 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2 p-2 rounded-lg bg-background/50 backdrop-blur-sm">
               <Shield className="h-4 w-4 text-primary" />
-              <span>Secure & Encrypted</span>
+              <span className="font-medium">Bank-Level Security</span>
             </div>
-            <div className="flex items-center gap-2">
-              <CheckCircle className="h-4 w-4 text-primary" />
-              <span>Trusted by 1000+ Investors</span>
+            <div className="flex items-center gap-2 p-2 rounded-lg bg-background/50 backdrop-blur-sm">
+              <CheckCircle className="h-4 w-4 text-success" />
+              <span className="font-medium">10,000+ Users</span>
             </div>
           </div>
 
           {/* Switch Mode */}
-          <div className="text-center">
-            <span className="text-sm text-muted-foreground">
+          <div className="text-center space-y-2">
+            <p className="text-sm text-muted-foreground">
               {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
-            </span>
-            <button
-              type="button"
-              onClick={() => setIsSignUp(!isSignUp)}
-              className="text-sm text-primary hover:text-primary/80 font-medium transition-colors"
-            >
-              {isSignUp ? 'Sign In' : 'Sign Up'}
-            </button>
+              <button
+                type="button"
+                onClick={() => setIsSignUp(!isSignUp)}
+                className="text-primary hover:text-secondary font-semibold transition-colors hover:underline underline-offset-2"
+              >
+                {isSignUp ? 'Sign In Here' : 'Create Account'}
+              </button>
+            </p>
           </div>
         </div>
       </div>
