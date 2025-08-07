@@ -43,7 +43,18 @@ export function useSkipTrace() {
           const result: SkipTraceResult = {
             address: streetAddress,
             location: cityStateZip,
-            ...data
+            phones: data.phones || [],
+            names: data.names || [],
+            emails: data.emails || [],
+            currentAddress: data.currentAddress,
+            age: data.age,
+            relatives: data.relatives || [],
+            previousAddresses: data.previousAddresses || [],
+            associates: data.associates || [],
+            source: data.source,
+            timestamp: data.timestamp,
+            costPerQuery: data.costPerQuery || 0,
+            confidence: data.confidence
           };
           
           setResults(prev => {
