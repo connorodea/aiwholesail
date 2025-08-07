@@ -63,8 +63,7 @@ export function PropertyCard({ property, onViewDetails, highlightWholesaleDeals 
       const diffInHours = Math.floor((now.getTime() - posted.getTime()) / (1000 * 60 * 60));
       const diffInDays = Math.floor(diffInHours / 24);
       
-      if (diffInHours < 1) return 'less than an hour ago';
-      if (diffInHours < 24) return `${diffInHours} hour${diffInHours > 1 ? 's' : ''} ago`;
+      if (diffInHours < 24) return 'less than 24 hours ago';
       if (diffInDays === 1) return 'yesterday';
       if (diffInDays < 7) return `${diffInDays} days ago`;
       return posted.toLocaleDateString();
