@@ -122,25 +122,28 @@ export class ZillowAPI {
     console.log('Raw property data keys:', Object.keys(prop));
     console.log('Raw property sample:', JSON.stringify(prop, null, 2).substring(0, 500));
     
-    // Log date-related fields specifically
-    const dateFields = Object.entries(prop).reduce((acc, [key, value]) => {
-      if (key.toLowerCase().includes('date') || key.toLowerCase().includes('posted') || key.toLowerCase().includes('list')) {
-        acc[key] = value;
-      }
-      return acc;
-    }, {} as any);
-    console.log('Date-related fields found:', dateFields);
-    
-    // Also check nested property object for date fields
-    if (prop.property) {
-      const nestedDateFields = Object.entries(prop.property).reduce((acc, [key, value]) => {
-        if (key.toLowerCase().includes('date') || key.toLowerCase().includes('posted') || key.toLowerCase().includes('list')) {
-          acc[`property.${key}`] = value;
+    // Log date-related fields specifically - check all levels
+    const logDateFields = (obj: any, prefix = '') => {
+      const dateFields: any = {};
+      for (const [key, value] of Object.entries(obj)) {
+        const fullKey = prefix ? `${prefix}.${key}` : key;
+        if (key.toLowerCase().includes('date') || 
+            key.toLowerCase().includes('posted') || 
+            key.toLowerCase().includes('list') ||
+            key.toLowerCase().includes('time') ||
+            key.toLowerCase().includes('zillow') ||
+            key.toLowerCase().includes('market')) {
+          dateFields[fullKey] = value;
         }
-        return acc;
-      }, {} as any);
-      console.log('Nested property date fields:', nestedDateFields);
-    }
+        if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+          Object.assign(dateFields, logDateFields(value, fullKey));
+        }
+      }
+      return dateFields;
+    };
+    
+    const allDateFields = logDateFields(prop);
+    console.log('All date-related fields found:', allDateFields);
     
     const flatten = (obj: any, prefix = '') => {
       for (const [key, value] of Object.entries(obj)) {
@@ -190,28 +193,33 @@ export class ZillowAPI {
       pricePerSqft: this.parseNumber(flattened.property_price_pricePerSquareFoot || flattened.pricePerSqft),
       zestimate: this.parseNumber(flattened.property_estimates_zestimate || flattened.zestimate),
       description: flattened.description || flattened.summary || '',
-      // Extract listing date from various possible fields - checking flattened structure
+      // Extract listing date from comprehensive field search - no mock data
       datePostedString: flattened.property_datePriceChanged || 
                        flattened.property_listing_listingDate || 
                        flattened.property_listing_datePosted ||
                        flattened.property_datePosted ||
                        flattened.property_listingDate ||
+                       flattened.property_hdpView_listingDatePosted ||
+                       flattened.property_hdpView_datePosted ||
+                       flattened.property_daysOnZillow_datePosted ||
+                       flattened.property_marketData_listingDate ||
+                       flattened.property_marketData_datePosted ||
+                       flattened.property_timeOnZillow_datePosted ||
                        flattened.datePriceChanged ||
                        flattened.listingDate ||
                        flattened.datePosted ||
-                       // Check deeper nested fields
-                       flattened.property_listing_daysOnZillow_datePosted ||
-                       flattened.property_hdpView_daysOnZillow_datePosted ||
-                       // For testing purposes - simulate some properties having recent dates
-                       (flattened.property_zpid && flattened.property_zpid.toString().includes('3') ? 
-                         new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString() : null) ||
-                       (flattened.property_zpid && flattened.property_zpid.toString().includes('7') ? 
-                         new Date(Date.now() - 18 * 60 * 60 * 1000).toISOString() : null),
+                       flattened.listing_listingDate ||
+                       flattened.listing_datePosted ||
+                       flattened.hdpView_datePosted ||
+                       flattened.daysOnZillow_datePosted,
       listDate: flattened.property_listing_listDate ||
                 flattened.property_listDate ||
-                flattened.listDate ||
                 flattened.property_onMarketDate ||
-                flattened.onMarketDate,
+                flattened.property_hdpView_listDate ||
+                flattened.listDate ||
+                flattened.onMarketDate ||
+                flattened.listing_listDate ||
+                flattened.hdpView_listDate,
       isFSBO,
       ...flattened // Include all original data
     };

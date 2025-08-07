@@ -40,19 +40,24 @@ export function PropertyCard({ property, onViewDetails, highlightWholesaleDeals 
     }
   };
 
-  // Check if property was listed recently (within 24 hours)
+  // Check if property was listed recently (within 24 hours) - using real data only
   const isListedRecently = () => {
     const listingDate = property.datePostedString || property.listDate;
     if (!listingDate) return false;
     
-    const posted = new Date(listingDate);
-    const now = new Date();
-    const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-    
-    return posted > twentyFourHoursAgo;
+    try {
+      const posted = new Date(listingDate);
+      const now = new Date();
+      const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+      
+      return posted > twentyFourHoursAgo;
+    } catch (error) {
+      console.error('Error parsing listing date:', listingDate, error);
+      return false;
+    }
   };
 
-  // Format the listing date for display
+  // Format the listing date for display - real data only
   const formatListingDate = () => {
     const listingDate = property.datePostedString || property.listDate;
     if (!listingDate) return 'Date not available';
@@ -68,6 +73,7 @@ export function PropertyCard({ property, onViewDetails, highlightWholesaleDeals 
       if (diffInDays < 7) return `${diffInDays} days ago`;
       return posted.toLocaleDateString();
     } catch (error) {
+      console.error('Error formatting listing date:', listingDate, error);
       return listingDate; // Return raw date if parsing fails
     }
   };
