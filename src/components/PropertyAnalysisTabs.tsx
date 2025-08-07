@@ -216,51 +216,197 @@ export function PropertyAnalysisTabs({ property }: PropertyAnalysisTabsProps) {
   const propertyPhotos = getPropertyPhotos();
 
   return (
-    <Tabs defaultValue="calculator" className="w-full">
-      <TabsList className="grid w-full grid-cols-8">
-        <TabsTrigger value="calculator">Calculator</TabsTrigger>
-        <TabsTrigger value="ai-calculator">AI Calculator</TabsTrigger>
-        <TabsTrigger value="motivation">Hot Leads</TabsTrigger>
-        <TabsTrigger value="market">Market Intel</TabsTrigger>
-        <TabsTrigger value="diligence">Due Diligence</TabsTrigger>
-        <TabsTrigger value="ai-damage">AI Analysis</TabsTrigger>
-        <TabsTrigger value="history">Price History</TabsTrigger>
-        <TabsTrigger value="neighborhood">Area Data</TabsTrigger>
+    <Tabs defaultValue="analysis" className="w-full">
+      <TabsList className="grid w-full grid-cols-4 bg-muted/50">
+        <TabsTrigger value="analysis" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+          <Calculator className="h-4 w-4 mr-2" />
+          Analysis
+        </TabsTrigger>
+        <TabsTrigger value="market" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+          <TrendingUp className="h-4 w-4 mr-2" />
+          Market
+        </TabsTrigger>
+        <TabsTrigger value="diligence" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+          <GraduationCap className="h-4 w-4 mr-2" />
+          Due Diligence
+        </TabsTrigger>
+        <TabsTrigger value="ai-insights" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+          <Brain className="h-4 w-4 mr-2" />
+          AI Insights
+        </TabsTrigger>
       </TabsList>
 
-      <TabsContent value="calculator" className="space-y-4">
-        <WholesaleCalculator property={property} />
+      <TabsContent value="analysis" className="space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Calculator className="h-5 w-5 text-primary" />
+                Wholesale Calculator
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <WholesaleCalculator property={property} />
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Brain className="h-5 w-5 text-primary" />
+                AI Deal Analysis
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <AdvancedAIDealCalculator property={property} />
+            </CardContent>
+          </Card>
+        </div>
       </TabsContent>
 
-      <TabsContent value="ai-calculator" className="space-y-4">
-        <AdvancedAIDealCalculator property={property} />
-      </TabsContent>
+      <TabsContent value="market" className="space-y-6">
+        <div className="space-y-6">
+          <MarketIntelligenceDashboard property={property} />
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Price History */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingDown className="h-5 w-5" />
+                  Price History
+                  <Button 
+                    onClick={fetchPriceHistory} 
+                    variant="outline" 
+                    size="sm" 
+                    disabled={loading}
+                  >
+                    {loading ? 'Loading...' : 'Refresh'}
+                  </Button>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {priceHistory.length > 0 ? (
+                  <div className="space-y-3 max-h-60 overflow-y-auto">
+                    {priceHistory.map((entry, index) => (
+                      <div key={index} className="flex justify-between items-center p-3 bg-muted/30 rounded-lg">
+                        <div>
+                          <div className="font-medium">{entry.event}</div>
+                          <div className="text-sm text-muted-foreground">
+                            {new Date(entry.date).toLocaleDateString()}
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="font-bold">{formatPrice(entry.price)}</div>
+                          {index < priceHistory.length - 1 && (
+                            <div className={`text-sm ${entry.price < priceHistory[index + 1].price ? 'text-destructive' : 'text-success'}`}>
+                              {entry.price < priceHistory[index + 1].price ? '↓' : '↑'} 
+                              {formatPrice(Math.abs(entry.price - priceHistory[index + 1].price))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-6 text-muted-foreground space-y-3">
+                    <Calendar className="h-8 w-8 mx-auto opacity-50" />
+                    {loading ? (
+                      <p>Loading price history...</p>
+                    ) : (
+                      <div>
+                        <p className="font-medium">No price history available</p>
+                        <Button 
+                          onClick={fetchPriceHistory} 
+                          variant="outline" 
+                          size="sm"
+                          className="mt-2"
+                        >
+                          Try Again
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
-      <TabsContent value="motivation" className="space-y-4">
-        <MotivatedSellerDetector property={property} />
-      </TabsContent>
+            {/* Area Data */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <MapPin className="h-5 w-5" />
+                  Area Data
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 gap-4">
+                  {property.property_estimates_rentZestimate && (
+                    <div className="p-3 bg-muted/30 rounded-lg">
+                      <div className="text-sm text-muted-foreground">Rental Market</div>
+                      <div className="text-lg font-bold">{formatPrice(property.property_estimates_rentZestimate)}/mo</div>
+                      <div className="text-xs text-muted-foreground">Estimated rent</div>
+                    </div>
+                  )}
 
-      <TabsContent value="market" className="space-y-4">
-        <MarketIntelligenceDashboard property={property} />
+                  {property.property_taxAssessment_taxAssessedValue && (
+                    <div className="p-3 bg-muted/30 rounded-lg">
+                      <div className="text-sm text-muted-foreground">Tax Assessment</div>
+                      <div className="text-lg font-bold">{formatPrice(property.property_taxAssessment_taxAssessedValue)}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {property.property_taxAssessment_taxAssessmentYear || 'Latest assessment'}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {property.price && property.zestimate && (
+                  <div className="p-4 bg-muted/10 rounded-lg">
+                    <h4 className="font-semibold mb-2 flex items-center gap-2">
+                      <Building className="h-4 w-4" />
+                      Market Position
+                    </h4>
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">vs. Market Estimate:</span>
+                        <span className={property.price < property.zestimate ? 'text-success font-medium' : 'text-destructive font-medium'}>
+                          {property.price < property.zestimate ? 'Below Market' : 'Above Market'}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Price Difference:</span>
+                        <span className="font-medium">
+                          {formatPrice(Math.abs(property.price - property.zestimate))}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </TabsContent>
 
       <TabsContent value="diligence" className="space-y-4">
         <DeepDueDiligencePanel property={property} />
       </TabsContent>
 
-      <TabsContent value="ai-damage" className="space-y-4">
-        {propertyPhotos.length > 0 ? (
-          <div className="space-y-6">
-            {propertyPhotos.map((photo, index) => (
-              <AdvancedDamageDetection
-                key={index}
-                photoUrl={photo.url}
-                roomType={photo.room_type}
-                zpid={property.zpid || property.id}
-              />
-            ))}
-          </div>
-        ) : (
+      <TabsContent value="ai-insights" className="space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Hot Leads */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="h-5 w-5 text-primary" />
+                Hot Leads Detection
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <MotivatedSellerDetector property={property} />
+            </CardContent>
+          </Card>
+
+          {/* AI Damage Analysis */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -269,139 +415,32 @@ export function PropertyAnalysisTabs({ property }: PropertyAnalysisTabsProps) {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-center py-8 text-muted-foreground">
-                <AlertTriangle className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>No property photos available for AI analysis</p>
-                <p className="text-sm">Property photos are required to run advanced damage detection</p>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-      </TabsContent>
-
-      <TabsContent value="history" className="space-y-4">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingDown className="h-5 w-5" />
-              Price History
-              <Button 
-                onClick={fetchPriceHistory} 
-                variant="outline" 
-                size="sm" 
-                disabled={loading}
-              >
-                {loading ? 'Loading...' : 'Refresh'}
-              </Button>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {priceHistory.length > 0 ? (
-              <div className="space-y-3">
-                {priceHistory.map((entry, index) => (
-                  <div key={index} className="flex justify-between items-center p-3 bg-muted/30 rounded-lg">
-                    <div>
-                      <div className="font-medium">{entry.event}</div>
-                      <div className="text-sm text-muted-foreground">
-                        {new Date(entry.date).toLocaleDateString()}
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="font-bold">{formatPrice(entry.price)}</div>
-                      {index < priceHistory.length - 1 && (
-                        <div className={`text-sm ${entry.price < priceHistory[index + 1].price ? 'text-destructive' : 'text-success'}`}>
-                          {entry.price < priceHistory[index + 1].price ? '↓' : '↑'} 
-                          {formatPrice(Math.abs(entry.price - priceHistory[index + 1].price))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8 text-muted-foreground space-y-3">
-                <div className="flex flex-col items-center gap-2">
-                  <Calendar className="h-12 w-12 opacity-50" />
-                  <div>
-                    {loading ? (
-                      <p>Loading price history...</p>
-                    ) : (
-                      <>
-                        <p className="font-medium">No price history available</p>
-                        <p className="text-sm">This feature may not be available for this property</p>
-                      </>
-                    )}
-                  </div>
-                  {!loading && (
-                    <Button 
-                      onClick={fetchPriceHistory} 
-                      variant="outline" 
-                      size="sm"
-                      className="mt-2"
-                    >
-                      Try Again
-                    </Button>
+              {propertyPhotos.length > 0 ? (
+                <div className="space-y-4 max-h-80 overflow-y-auto">
+                  {propertyPhotos.slice(0, 2).map((photo, index) => (
+                    <AdvancedDamageDetection
+                      key={index}
+                      photoUrl={photo.url}
+                      roomType={photo.room_type}
+                      zpid={property.zpid || property.id}
+                    />
+                  ))}
+                  {propertyPhotos.length > 2 && (
+                    <p className="text-sm text-muted-foreground text-center">
+                      +{propertyPhotos.length - 2} more photos available for analysis
+                    </p>
                   )}
                 </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </TabsContent>
-
-      <TabsContent value="neighborhood" className="space-y-4">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <MapPin className="h-5 w-5" />
-              Neighborhood Data
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {property.property_estimates_rentZestimate && (
-                <div className="p-3 bg-muted/30 rounded-lg">
-                  <div className="text-sm text-muted-foreground">Rental Market</div>
-                  <div className="text-lg font-bold">{formatPrice(property.property_estimates_rentZestimate)}/mo</div>
-                  <div className="text-xs text-muted-foreground">Estimated rent</div>
+              ) : (
+                <div className="text-center py-6 text-muted-foreground">
+                  <AlertTriangle className="h-8 w-8 mx-auto mb-4 opacity-50" />
+                  <p>No property photos available</p>
+                  <p className="text-sm">Photos are required for AI damage analysis</p>
                 </div>
               )}
-
-              {property.property_taxAssessment_taxAssessedValue && (
-                <div className="p-3 bg-muted/30 rounded-lg">
-                  <div className="text-sm text-muted-foreground">Tax Assessment</div>
-                  <div className="text-lg font-bold">{formatPrice(property.property_taxAssessment_taxAssessedValue)}</div>
-                  <div className="text-xs text-muted-foreground">
-                    {property.property_taxAssessment_taxAssessmentYear || 'Latest assessment'}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="p-4 bg-muted/10 rounded-lg">
-              <h4 className="font-semibold mb-2 flex items-center gap-2">
-                <Building className="h-4 w-4" />
-                Market Position
-              </h4>
-              {property.price && property.zestimate && (
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">vs. Market Estimate:</span>
-                    <span className={property.price < property.zestimate ? 'text-success font-medium' : 'text-destructive font-medium'}>
-                      {property.price < property.zestimate ? 'Below Market' : 'Above Market'}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Price Difference:</span>
-                    <span className="font-medium">
-                      {formatPrice(Math.abs(property.price - property.zestimate))}
-                    </span>
-                  </div>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       </TabsContent>
     </Tabs>
   );
