@@ -11,7 +11,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import aiWholesailLogo from "@/assets/aiwholesail-logo-new.png";
+import aiWholesailLogo from "@/assets/aiwholesail-logo-main.png";
 
 const Landing = () => {
   const { user } = useAuth();

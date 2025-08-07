@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { LogIn, UserPlus, Eye, EyeOff, Mail, Home, Shield, CheckCircle } from 'lucide-react';
-import aiWholesailLogo from '@/assets/aiwholesail-logo-new.png';
+import aiWholesailLogo from '@/assets/aiwholesail-logo-main.png';
 
 export default function Auth() {
   const [searchParams] = useSearchParams();
