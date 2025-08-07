@@ -12,6 +12,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useLeads } from '@/hooks/useLeads';
 import { toast } from 'sonner';
+import { EnhancedPropertySearch } from '@/components/EnhancedPropertySearch';
 
 export default function RealEstateWholesaler() {
   const { user, signOut } = useAuth();

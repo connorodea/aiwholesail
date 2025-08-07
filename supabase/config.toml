@@ -1,1 +1,75 @@
 project_id = "ztgsevhzbeywytoqlsbf"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "storage", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[graphql]
+enabled = true
+port = 54323
+schemas = ["public", "storage", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[ingest]
+enabled = false
+port = 54324
+
+[db]
+enabled = true
+port = 54322
+shadow_port = 54320
+major_version = 15
+
+[realtime]
+enabled = true
+port = 54323
+ip_version = "ipv6"
+
+[studio]
+enabled = true
+port = 54323
+api_url = "http://127.0.0.1:54321"
+
+[auth]
+enabled = true
+port = 54324
+site_url = "http://127.0.0.1:3000"
+additional_redirect_urls = ["https://127.0.0.1:3000"]
+jwt_expiry = 3600
+enable_signup = true
+email_double_confirm_changes_enabled = false
+
+[storage]
+enabled = true
+port = 54325
+file_size_limit = "50MiB"
+
+[edge-runtime]
+enabled = true
+port = 54326
+inspector_port = 54327
+
+[functions.enhanced-property-data]
+verify_jwt = false
+
+[functions.enhanced-skip-trace]
+verify_jwt = false
+
+[functions.send-plivo-sms]
+verify_jwt = false
+
+[functions.generate-pdf-document]
+verify_jwt = false
+
+[functions.people-data-lookup]
+verify_jwt = false
+
+[functions.batch-skip-trace]
+verify_jwt = false
+
+[functions.rapidapi-cost-analytics]
+verify_jwt = false
