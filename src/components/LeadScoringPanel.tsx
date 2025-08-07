@@ -48,45 +48,75 @@ export function LeadScoringPanel({ leadId, propertyData }: LeadScoringPanelProps
   const [isRefreshing, setIsRefreshing] = useState(false);
   const { toast } = useToast();
 
+  // Validate UUID format
+  const isValidUUID = (value: string) => {
+    return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+  };
+
+  // Generate a safe UUID (browser crypto if available, fallback simple)
+  const generateUUID = () => {
+    // @ts-ignore
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+      // @ts-ignore
+      return crypto.randomUUID();
+    }
+    // Fallback
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+      const r = (Math.random() * 16) | 0;
+      const v = c === 'x' ? r : (r & 0x3) | 0x8;
+      return v.toString(16);
+    });
+  };
+
   const loadScores = async (forceRescore = false) => {
     try {
       setIsLoading(true);
       if (forceRescore) setIsRefreshing(true);
 
-      // First try to get existing scores
-      const { data: existingScores } = await supabase
-        .from('lead_scoring')
-        .select('*')
-        .eq('lead_id', leadId)
-        .single();
+      const uuidValid = isValidUUID(leadId);
+      const effectiveLeadId = uuidValid ? leadId : generateUUID();
 
-      if (existingScores && !forceRescore) {
-        setScores(existingScores);
-        setIsLoading(false);
-        return;
+      // Only try to load existing scores from DB when we have a real lead UUID and not forcing rescore
+      if (uuidValid && !forceRescore) {
+        const { data: existingScores } = await supabase
+          .from('lead_scoring')
+          .select('*')
+          .eq('lead_id', leadId)
+          .maybeSingle();
+
+        if (existingScores) {
+          setScores(existingScores);
+          setIsLoading(false);
+          return;
+        }
       }
 
-      // Get property intelligence data
+      // Get property intelligence data (keyed by property_id which is text)
+      const intelKey = (propertyData?.zpid?.toString?.() ?? leadId)?.toString();
       const { data: propertyIntel } = await supabase
         .from('property_intelligence')
         .select('*')
-        .eq('property_id', propertyData?.zpid || leadId)
-        .single();
+        .eq('property_id', intelKey)
+        .maybeSingle();
 
-      // Get contact information
-      const { data: contacts } = await supabase
-        .from('lead_contacts')
-        .select('*')
-        .eq('lead_id', leadId);
+      // Get contact information only for real lead UUIDs
+      let contacts: any[] = [];
+      if (uuidValid) {
+        const { data: contactsData } = await supabase
+          .from('lead_contacts')
+          .select('*')
+          .eq('lead_id', leadId);
+        contacts = contactsData || [];
+      }
 
-      // Call AI scoring function
+      // Call AI scoring function; for non-UUID contexts we use an ephemeral UUID and just display the response
       const { data, error } = await supabase.functions.invoke('ai-lead-scoring', {
         body: {
-          lead_id: leadId,
+          lead_id: effectiveLeadId,
           property_intelligence: propertyIntel || generateMockIntelligence(),
-          contacts: contacts || [],
-          force_rescore: forceRescore
-        }
+          contacts,
+          force_rescore: forceRescore,
+        },
       });
 
       if (error) throw error;
@@ -95,7 +125,7 @@ export function LeadScoringPanel({ leadId, propertyData }: LeadScoringPanelProps
       
       if (!data.cached) {
         toast({
-          title: "Lead Scored Successfully",
+          title: 'Lead Scored Successfully',
           description: `Overall score: ${data.scores.overall_score}/1000`,
         });
       }
@@ -103,9 +133,9 @@ export function LeadScoringPanel({ leadId, propertyData }: LeadScoringPanelProps
     } catch (error) {
       console.error('Error loading lead scores:', error);
       toast({
-        title: "Scoring Error",
-        description: "Failed to calculate lead scores. Please try again.",
-        variant: "destructive"
+        title: 'Scoring Error',
+        description: 'Failed to calculate lead scores. Please try again.',
+        variant: 'destructive',
       });
     } finally {
       setIsLoading(false);

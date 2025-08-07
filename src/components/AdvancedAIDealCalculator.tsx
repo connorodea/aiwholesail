@@ -110,7 +110,7 @@ const AdvancedAIDealCalculator: React.FC<AdvancedAIDealCalculatorProps> = ({
       const photosResponse = await supabase.functions.invoke('get-zillow-data', {
         body: { 
           action: 'photos', 
-          zpid: zpid 
+          searchParams: { zpid }
         }
       });
       
