@@ -40,42 +40,32 @@ export function PropertyCard({ property, onViewDetails, highlightWholesaleDeals 
     }
   };
 
-  // Check if property was listed recently (within 24 hours) - using real data only
+  // Check if property was listed recently (within 24 hours) - use days on market data
   const isListedRecently = () => {
-    const listingDate = property.datePostedString || property.listDate;
-    if (!listingDate) return false;
-    
-    try {
-      const posted = new Date(listingDate);
-      const now = new Date();
-      const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-      
-      return posted > twentyFourHoursAgo;
-    } catch (error) {
-      console.error('Error parsing listing date:', listingDate, error);
-      return false;
-    }
+    // Use daysOnMarket field - 0 means listed today (within 24 hours)
+    if (property.daysOnMarket === 0) return true;
+    if (property.daysOnMarket === 1) return true; // Listed yesterday, could be within 24 hours
+    return false;
   };
 
-  // Format the listing date for display - real data only
+  // Format the listing date for display - use days on market for accuracy
   const formatListingDate = () => {
-    const listingDate = property.datePostedString || property.listDate;
-    if (!listingDate) return 'Date not available';
+    if (property.daysOnMarket === 0) return 'less than 24 hours ago';
+    if (property.daysOnMarket === 1) return 'yesterday';
+    if (property.daysOnMarket && property.daysOnMarket < 7) return `${property.daysOnMarket} days ago`;
     
-    try {
-      const posted = new Date(listingDate);
-      const now = new Date();
-      const diffInHours = Math.floor((now.getTime() - posted.getTime()) / (1000 * 60 * 60));
-      const diffInDays = Math.floor(diffInHours / 24);
-      
-      if (diffInHours < 24) return 'less than 24 hours ago';
-      if (diffInDays === 1) return 'yesterday';
-      if (diffInDays < 7) return `${diffInDays} days ago`;
-      return posted.toLocaleDateString();
-    } catch (error) {
-      console.error('Error formatting listing date:', listingDate, error);
-      return listingDate; // Return raw date if parsing fails
+    // Fallback to actual date if available
+    const listingDate = property.datePostedString || property.listDate;
+    if (listingDate) {
+      try {
+        const posted = new Date(listingDate);
+        return posted.toLocaleDateString();
+      } catch (error) {
+        console.error('Error formatting listing date:', listingDate, error);
+      }
     }
+    
+    return 'Date not available';
   };
 
   // Get styling for listing date section
