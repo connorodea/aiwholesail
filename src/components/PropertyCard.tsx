@@ -42,19 +42,23 @@ export function PropertyCard({ property, onViewDetails, highlightWholesaleDeals 
 
   // Check if property was listed recently (within 24 hours) - use days on market data
   const isListedRecently = () => {
-    // Use daysOnMarket field - 0 means listed today (within 24 hours)
-    if (property.daysOnMarket === 0) return true;
-    if (property.daysOnMarket === 1) return true; // Listed yesterday, could be within 24 hours
+    // If daysOnMarket is 0 or undefined/null, treat as recently listed
+    if (property.daysOnMarket === 0 || property.daysOnMarket === undefined || property.daysOnMarket === null) return true;
     return false;
   };
 
   // Format the listing date for display - use days on market for accuracy
   const formatListingDate = () => {
-    if (property.daysOnMarket === 0) return 'less than 24 hours ago';
-    if (property.daysOnMarket === 1) return 'yesterday';
-    if (property.daysOnMarket && property.daysOnMarket < 7) return `${property.daysOnMarket} days ago`;
+    // If no daysOnMarket data available, assume it's recently listed
+    if (property.daysOnMarket === undefined || property.daysOnMarket === null) {
+      return 'less than 24 hours old 🔥';
+    }
     
-    // Fallback to actual date if available
+    if (property.daysOnMarket === 0) return 'less than 24 hours old 🔥';
+    if (property.daysOnMarket === 1) return 'yesterday';
+    if (property.daysOnMarket < 7) return `${property.daysOnMarket} days ago`;
+    
+    // Fallback to actual date if available for older listings
     const listingDate = property.datePostedString || property.listDate;
     if (listingDate) {
       try {
@@ -65,7 +69,7 @@ export function PropertyCard({ property, onViewDetails, highlightWholesaleDeals 
       }
     }
     
-    return 'Date not available';
+    return `${property.daysOnMarket} days ago`;
   };
 
   // Get styling for listing date section
@@ -114,7 +118,7 @@ export function PropertyCard({ property, onViewDetails, highlightWholesaleDeals 
               </Badge>
             )}
             {isListedRecently() && (
-              <Badge className="bg-gradient-to-r from-primary/20 to-primary/10 text-primary border border-primary/30 rounded-full px-2 py-1 text-xs font-medium flex-shrink-0">
+              <Badge className="bg-gradient-to-r from-orange-500/90 to-red-500/90 text-white border-2 border-orange-400 rounded-full px-3 py-1 text-xs font-bold flex-shrink-0 shadow-lg">
                 🔥 New
               </Badge>
             )}
@@ -150,11 +154,17 @@ export function PropertyCard({ property, onViewDetails, highlightWholesaleDeals 
         </div>
 
         {/* Listing Date */}
-        <div className={`p-3 rounded-lg border ${getListingDateStyle()}`}>
+        <div className={`p-3 rounded-lg border ${
+          isListedRecently() 
+            ? 'bg-gradient-to-r from-orange-50 to-red-50 border-orange-200 dark:from-orange-950/20 dark:to-red-950/20 dark:border-orange-800/30' 
+            : 'bg-muted/50 border-muted'
+        }`}>
           <div className="flex items-center gap-2">
-            <Calendar className="h-4 w-4" />
+            <Calendar className={`h-4 w-4 ${isListedRecently() ? 'text-orange-600 dark:text-orange-400' : ''}`} />
             <div>
-              <div className="text-sm font-medium">
+              <div className={`text-sm font-medium ${
+                isListedRecently() ? 'text-orange-800 dark:text-orange-200 font-semibold' : ''
+              }`}>
                 Listed {formatListingDate()}
               </div>
             </div>
