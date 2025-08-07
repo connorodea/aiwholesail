@@ -41,7 +41,10 @@ serve(async (req) => {
         {
           price_data: {
             currency: "usd",
-            product_data: { name: "Real Estate Wholesaler Pro" },
+            product_data: { 
+              name: "AI Wholesail Pro",
+              description: "Professional real estate wholesale tools and AI analysis"
+            },
             unit_amount: 2999, // $29.99/month
             recurring: { interval: "month" },
           },
@@ -51,6 +54,14 @@ serve(async (req) => {
       mode: "subscription",
       success_url: `${req.headers.get("origin")}/success`,
       cancel_url: `${req.headers.get("origin")}/`,
+      custom_text: {
+        submit: {
+          message: "By subscribing to AI Wholesail Pro, you'll get access to advanced real estate wholesale tools and AI-powered analysis."
+        }
+      },
+      metadata: {
+        company_name: "AI Wholesail"
+      }
     });
 
     return new Response(JSON.stringify({ url: session.url }), {
