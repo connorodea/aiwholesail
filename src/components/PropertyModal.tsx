@@ -3,11 +3,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { MapPin, Bed, Bath, Square, Calendar, TrendingUp, Home, DollarSign, Download, Star, Phone, StarIcon } from 'lucide-react';
+import { MapPin, Bed, Bath, Square, Calendar, TrendingUp, Home, DollarSign, Download, Star, Phone, StarIcon, ExternalLink } from 'lucide-react';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useLeads } from '@/hooks/useLeads';
 import { useAuth } from '@/contexts/AuthContext';
 import { useState } from 'react';
+import { PropertyAnalysisTabs } from './PropertyAnalysisTabs';
 
 interface PropertyModalProps {
   property: Property | null;
