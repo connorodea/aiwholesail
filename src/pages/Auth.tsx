@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
+import { TestAccountsInfo } from '@/components/TestAccountsInfo';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { LogIn, UserPlus, Home } from 'lucide-react';
@@ -64,128 +65,134 @@ export default function Auth() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5 flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-6">
-        {/* Header */}
-        <div className="text-center space-y-2">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <Home className="h-8 w-8 text-primary" />
-            <h1 className="text-2xl font-bold text-foreground">Real Estate Wholesaler</h1>
-          </div>
-          <h2 className="text-xl font-semibold text-foreground">
-            {isSignUp ? 'Create Account' : 'Welcome Back'}
-          </h2>
-          <p className="text-muted-foreground">
-            {isSignUp 
-              ? 'Sign up to start finding wholesale deals' 
-              : 'Sign in to access your wholesale dashboard'
-            }
-          </p>
-        </div>
-
-        {/* Auth Form */}
-        <Card className="shadow-lg">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              {isSignUp ? (
-                <>
-                  <UserPlus className="h-5 w-5" />
-                  Sign Up
-                </>
-              ) : (
-                <>
-                  <LogIn className="h-5 w-5" />
-                  Sign In
-                </>
-              )}
-            </CardTitle>
-            <CardDescription>
+      <div className="flex flex-col lg:flex-row gap-6 w-full max-w-5xl">
+        {/* Auth Form Section */}
+        <div className="w-full max-w-md space-y-6">
+          {/* Header */}
+          <div className="text-center space-y-2">
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <Home className="h-8 w-8 text-primary" />
+              <h1 className="text-2xl font-bold text-foreground">Real Estate Wholesaler</h1>
+            </div>
+            <h2 className="text-xl font-semibold text-foreground">
+              {isSignUp ? 'Create Account' : 'Welcome Back'}
+            </h2>
+            <p className="text-muted-foreground">
               {isSignUp 
-                ? 'Enter your details to create a new account'
-                : 'Enter your credentials to access your account'
+                ? 'Sign up to start finding wholesale deals' 
+                : 'Sign in to access your wholesale dashboard'
               }
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {isSignUp && (
+            </p>
+          </div>
+
+          {/* Auth Form */}
+          <Card className="shadow-lg">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                {isSignUp ? (
+                  <>
+                    <UserPlus className="h-5 w-5" />
+                    Sign Up
+                  </>
+                ) : (
+                  <>
+                    <LogIn className="h-5 w-5" />
+                    Sign In
+                  </>
+                )}
+              </CardTitle>
+              <CardDescription>
+                {isSignUp 
+                  ? 'Enter your details to create a new account'
+                  : 'Enter your credentials to access your account'
+                }
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                {isSignUp && (
+                  <div className="space-y-2">
+                    <Label htmlFor="fullName">Full Name</Label>
+                    <Input
+                      id="fullName"
+                      type="text"
+                      placeholder="John Doe"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      required={isSignUp}
+                      className="w-full"
+                    />
+                  </div>
+                )}
+                
                 <div className="space-y-2">
-                  <Label htmlFor="fullName">Full Name</Label>
+                  <Label htmlFor="email">Email</Label>
                   <Input
-                    id="fullName"
-                    type="text"
-                    placeholder="John Doe"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    required={isSignUp}
+                    id="email"
+                    type="email"
+                    placeholder="john@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
                     className="w-full"
                   />
                 </div>
-              )}
-              
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="john@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="w-full"
-                />
+
+                <div className="space-y-2">
+                  <Label htmlFor="password">Password</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    minLength={6}
+                    className="w-full"
+                  />
+                  {isSignUp && (
+                    <p className="text-xs text-muted-foreground">
+                      Password must be at least 6 characters long
+                    </p>
+                  )}
+                </div>
+
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? (
+                    'Processing...'
+                  ) : isSignUp ? (
+                    'Create Account'
+                  ) : (
+                    'Sign In'
+                  )}
+                </Button>
+              </form>
+
+              <Separator className="my-4" />
+
+              <div className="text-center">
+                <p className="text-sm text-muted-foreground">
+                  {isSignUp ? 'Already have an account?' : "Don't have an account?"}
+                </p>
+                <Button
+                  variant="ghost"
+                  onClick={() => setIsSignUp(!isSignUp)}
+                  className="mt-2"
+                >
+                  {isSignUp ? 'Sign In' : 'Sign Up'}
+                </Button>
               </div>
+            </CardContent>
+          </Card>
 
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  minLength={6}
-                  className="w-full"
-                />
-                {isSignUp && (
-                  <p className="text-xs text-muted-foreground">
-                    Password must be at least 6 characters long
-                  </p>
-                )}
-              </div>
-
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? (
-                  'Processing...'
-                ) : isSignUp ? (
-                  'Create Account'
-                ) : (
-                  'Sign In'
-                )}
-              </Button>
-            </form>
-
-            <Separator className="my-4" />
-
-            <div className="text-center">
-              <p className="text-sm text-muted-foreground">
-                {isSignUp ? 'Already have an account?' : "Don't have an account?"}
-              </p>
-              <Button
-                variant="ghost"
-                onClick={() => setIsSignUp(!isSignUp)}
-                className="mt-2"
-              >
-                {isSignUp ? 'Sign In' : 'Sign Up'}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Footer */}
-        <div className="text-center text-sm text-muted-foreground">
-          <p>Secure authentication powered by Supabase</p>
+          {/* Footer */}
+          <div className="text-center text-sm text-muted-foreground">
+            <p>Secure authentication powered by Supabase</p>
+          </div>
         </div>
+
+        {/* Test Accounts Section */}
+        <TestAccountsInfo />
       </div>
     </div>
   );
