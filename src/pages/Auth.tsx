@@ -75,7 +75,7 @@ export default function Auth() {
               <img 
                 src={aiWholesailLogo} 
                 alt="AIWholesail" 
-                className="h-72 w-auto object-contain"
+                className="h-16 w-auto object-contain"
               />
             </div>
             
