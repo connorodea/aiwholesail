@@ -119,11 +119,16 @@ class RobustSkipTraceService {
       throw new Error('RAPIDAPI_KEY not configured');
     }
 
+    console.log(`Attempting skip trace for address: ${address}`);
+    console.log(`Using RapidAPI key: ${this.rapidApiKey.substring(0, 8)}...`);
+
     const url = `https://skip-tracing-working-api.p.rapidapi.com/search`;
     const searchParams = new URLSearchParams({
       address: address,
       format: 'detailed'
     });
+
+    console.log(`Making request to: ${url}?${searchParams}`);
 
     const response = await fetch(`${url}?${searchParams}`, {
       method: 'GET',
@@ -134,8 +139,12 @@ class RobustSkipTraceService {
       }
     });
 
+    console.log(`Response status: ${response.status} ${response.statusText}`);
+    
     if (!response.ok) {
-      throw new Error(`Skip Tracing Working API failed: ${response.status} ${response.statusText}`);
+      const errorText = await response.text();
+      console.error(`API Error Response: ${errorText}`);
+      throw new Error(`Skip Tracing Working API failed: ${response.status} ${response.statusText} - ${errorText}`);
     }
 
     const data = await response.json();
