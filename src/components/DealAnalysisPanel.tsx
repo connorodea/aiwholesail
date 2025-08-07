@@ -7,6 +7,7 @@ import { Loader2, TrendingUp } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import ReactMarkdown from 'react-markdown';
+import { sanitizeHtml } from '@/lib/security';
 
 interface DealAnalysisResponse {
   analysis: string;
@@ -154,7 +155,18 @@ export function DealAnalysisPanel() {
           </CardHeader>
           <CardContent>
             <div className="prose prose-sm max-w-none dark:prose-invert">
-              <ReactMarkdown>{analysis}</ReactMarkdown>
+              <ReactMarkdown
+                components={{
+                  // Restrict allowed components for security
+                  img: () => null, // No images
+                  iframe: () => null, // No iframes
+                  script: () => null, // No scripts
+                  object: () => null, // No objects
+                  embed: () => null // No embeds
+                }}
+              >
+                {sanitizeHtml(analysis)}
+              </ReactMarkdown>
             </div>
           </CardContent>
         </Card>

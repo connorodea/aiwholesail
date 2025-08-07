@@ -53,25 +53,61 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signUp = async (email: string, password: string, fullName?: string) => {
+    // Input validation for security
+    if (!email || !password) {
+      return { error: { message: 'Email and password are required' } };
+    }
+    
+    if (password.length < 8) {
+      return { error: { message: 'Password must be at least 8 characters long' } };
+    }
+    
     const redirectUrl = `${window.location.origin}/app`;
     
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: redirectUrl,
-        data: fullName ? { full_name: fullName } : undefined
+    try {
+      const { error } = await supabase.auth.signUp({
+        email: email.trim().toLowerCase(),
+        password,
+        options: {
+          emailRedirectTo: redirectUrl,
+          data: fullName ? { full_name: fullName.trim() } : undefined
+        }
+      });
+      
+      // Log successful signup attempt (without sensitive data)
+      if (!error) {
+        console.log('User signup attempt successful for:', email.trim().toLowerCase());
       }
-    });
-    return { error };
+      
+      return { error };
+    } catch (error) {
+      console.error('Signup error:', error);
+      return { error: { message: 'An unexpected error occurred during signup' } };
+    }
   };
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    });
-    return { error };
+    // Input validation for security
+    if (!email || !password) {
+      return { error: { message: 'Email and password are required' } };
+    }
+    
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: email.trim().toLowerCase(),
+        password
+      });
+      
+      // Log successful signin attempt (without sensitive data)
+      if (!error) {
+        console.log('User signin successful for:', email.trim().toLowerCase());
+      }
+      
+      return { error };
+    } catch (error) {
+      console.error('Signin error:', error);
+      return { error: { message: 'An unexpected error occurred during signin' } };
+    }
   };
 
   const signOut = async () => {

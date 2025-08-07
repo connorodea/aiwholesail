@@ -4,6 +4,11 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
+  'X-XSS-Protection': '1; mode=block',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'Content-Security-Policy': "default-src 'self'; script-src 'none'; object-src 'none';",
 };
 
 // Rate limiting
@@ -51,12 +56,40 @@ serve(async (req) => {
       );
     }
 
-    // Parse request body
-    const { message, searchQuery } = await req.json();
-    
-    if (!message) {
+    // Parse request body with validation
+    let requestData;
+    try {
+      requestData = await req.json();
+    } catch (error) {
+      console.error('Invalid JSON in request body:', error);
       return new Response(
-        JSON.stringify({ error: 'Message is required' }),
+        JSON.stringify({ error: 'Invalid request format' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+      );
+    }
+    
+    const { message, searchQuery } = requestData;
+    
+    // Validate message input
+    if (!message || typeof message !== 'string') {
+      return new Response(
+        JSON.stringify({ error: 'Valid message is required' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+      );
+    }
+    
+    // Sanitize and validate message length
+    if (message.length > 2000) {
+      return new Response(
+        JSON.stringify({ error: 'Message too long. Please limit to 2000 characters.' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+      );
+    }
+    
+    // Validate searchQuery if provided
+    if (searchQuery && (typeof searchQuery !== 'string' || searchQuery.length > 500)) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid search query format' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
       );
     }
@@ -135,10 +168,25 @@ ${contextFromSearch ? `\nCurrent search context:\n${contextFromSearch}` : ''}`;
     });
 
     if (!openaiResponse.ok) {
+      const errorText = await openaiResponse.text();
+      console.error('OpenAI API error:', openaiResponse.status, errorText);
+      
+      if (openaiResponse.status === 429) {
+        return new Response(
+          JSON.stringify({ error: 'AI service is temporarily unavailable due to high demand. Please try again later.' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 429 }
+        );
+      }
+      
       throw new Error(`OpenAI API error: ${openaiResponse.status}`);
     }
 
     const openaiData = await openaiResponse.json();
+    
+    if (!openaiData.choices || !openaiData.choices[0] || !openaiData.choices[0].message) {
+      throw new Error('Invalid response from AI service');
+    }
+    
     const assistantMessage = openaiData.choices[0].message.content;
 
     return new Response(
@@ -152,14 +200,30 @@ ${contextFromSearch ? `\nCurrent search context:\n${contextFromSearch}` : ''}`;
 
   } catch (error) {
     console.error('Error in ai-chat function:', error);
+    
+    // Determine appropriate error response based on error type
+    let errorMessage = 'An unexpected error occurred. Please try again.';
+    let statusCode = 500;
+    
+    if (error instanceof Error) {
+      if (error.message.includes('OpenAI API error: 429')) {
+        errorMessage = 'AI service is temporarily unavailable. Please try again in a few minutes.';
+        statusCode = 429;
+      } else if (error.message.includes('fetch')) {
+        errorMessage = 'Network error occurred. Please check your connection and try again.';
+        statusCode = 503;
+      }
+    }
+    
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: 'Failed to process chat request' 
+        error: errorMessage,
+        timestamp: new Date().toISOString()
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }, 
-        status: 500 
+        status: statusCode
       }
     );
   }

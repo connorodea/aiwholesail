@@ -8,6 +8,8 @@ import { Switch } from '@/components/ui/switch';
 import { PropertySearchParams } from '@/types/zillow';
 import { Search, Home, Bed, Bath, DollarSign, TrendingDown, MessageSquare, Gavel, Building2, AlertTriangle } from 'lucide-react';
 import { LocationAutocomplete } from './LocationAutocomplete';
+import { validatePriceRange, sanitizeSearchKeywords, validateLocationInput } from '@/lib/security';
+import { useToast } from '@/hooks/use-toast';
 
 interface PropertySearchProps {
   onSearch: (params: PropertySearchParams) => void;
@@ -19,12 +21,46 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
     location: '',
     homeType: 'Houses, Townhomes, Multi-family, Condos/Co-ops'
   });
+  const { toast } = useToast();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (searchParams.location.trim()) {
-      onSearch(searchParams);
+    
+    // Validate and sanitize inputs
+    const sanitizedLocation = validateLocationInput(searchParams.location);
+    if (!sanitizedLocation.trim()) {
+      toast({
+        title: "Invalid Location",
+        description: "Please enter a valid location to search.",
+        variant: "destructive"
+      });
+      return;
     }
+    
+    // Validate price range
+    const priceValidation = validatePriceRange(searchParams.price_min, searchParams.price_max);
+    if (priceValidation.error) {
+      toast({
+        title: "Invalid Price Range",
+        description: priceValidation.error,
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // Sanitize keywords
+    const sanitizedKeywords = searchParams.keywords ? sanitizeSearchKeywords(searchParams.keywords) : undefined;
+    
+    // Create sanitized search params
+    const sanitizedParams = {
+      ...searchParams,
+      location: sanitizedLocation,
+      keywords: sanitizedKeywords,
+      price_min: priceValidation.min?.toString(),
+      price_max: priceValidation.max?.toString()
+    };
+    
+    onSearch(sanitizedParams);
   };
 
   const updateParam = (key: keyof PropertySearchParams, value: string | boolean) => {
@@ -124,6 +160,8 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
                 onChange={(e) => updateParam('price_min', e.target.value || undefined)}
                 placeholder="e.g., 100000"
                 type="number"
+                min="0"
+                max="50000000"
                 className="bg-background/50"
               />
             </div>
@@ -138,6 +176,8 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
                 onChange={(e) => updateParam('price_max', e.target.value || undefined)}
                 placeholder="e.g., 500000"
                 type="number"
+                min="0"
+                max="50000000"
                 className="bg-background/50"
               />
             </div>
@@ -152,6 +192,7 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
                 value={searchParams.keywords || ''}
                 onChange={(e) => updateParam('keywords', e.target.value || undefined)}
                 placeholder="e.g., needs TLC, repairs, fixer upper, motivated seller"
+                maxLength={200}
                 className="bg-background/50"
               />
               <p className="text-xs text-muted-foreground">
