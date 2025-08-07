@@ -75,17 +75,8 @@ export default function Auth() {
               <img 
                 src={aiWholesailLogo} 
                 alt="AIWholesail" 
-                className="h-16 w-16 object-contain"
+                className="h-16 w-auto object-contain"
               />
-              <div className="font-brand font-bold text-3xl tracking-tight">
-                <span className="bg-gradient-to-r from-primary via-primary to-primary/70 bg-clip-text text-transparent">
-                  AI
-                </span>
-                <span className="text-foreground">Wholesale</span>
-                <span className="bg-gradient-to-r from-primary/70 to-accent bg-clip-text text-transparent">
-                  ail
-                </span>
-              </div>
             </div>
             
             <Badge variant="secondary" className="mb-4 hover-scale">

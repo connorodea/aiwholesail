@@ -54,22 +54,11 @@ const Landing = () => {
       <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
         <div className="container flex h-16 items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="bg-white p-2 rounded-lg shadow-sm">
-              <img 
-                src={aiWholesailLogo} 
-                alt="AIWholesail" 
-                className="h-8 w-8 object-contain"
-              />
-            </div>
-            <div className="font-brand font-bold text-2xl tracking-tight">
-              <span className="bg-gradient-to-r from-primary via-primary to-primary/70 bg-clip-text text-transparent">
-                AI
-              </span>
-              <span className="text-foreground">Wholesale</span>
-              <span className="bg-gradient-to-r from-primary/70 to-accent bg-clip-text text-transparent">
-                ail
-              </span>
-            </div>
+            <img 
+              src={aiWholesailLogo} 
+              alt="AIWholesail" 
+              className="h-12 w-auto object-contain"
+            />
           </div>
           <div className="flex items-center space-x-4">
             {user ? (
@@ -436,17 +425,8 @@ const Landing = () => {
               <img 
                 src={aiWholesailLogo} 
                 alt="AIWholesail" 
-                className="h-10 w-10 object-contain"
+                className="h-10 w-auto object-contain"
               />
-              <div className="font-brand font-bold text-xl tracking-tight">
-                <span className="bg-gradient-to-r from-primary via-primary to-primary/70 bg-clip-text text-transparent">
-                  AI
-                </span>
-                <span className="text-foreground">Wholesale</span>
-                <span className="bg-gradient-to-r from-primary/70 to-accent bg-clip-text text-transparent">
-                  ail
-                </span>
-              </div>
             </div>
             <p className="text-muted-foreground text-center md:text-right">
               &copy; 2024 AIWholesail. All rights reserved.
