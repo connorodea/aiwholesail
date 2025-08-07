@@ -84,34 +84,65 @@ interface DealMetrics {
 }
 
 interface AdvancedAIDealCalculatorProps {
-  zpid?: string;
-  photos: PropertyPhoto[];
-  initialArv?: number;
+  property: any; // Property object with zpid, photos, etc.
 }
 
 const AdvancedAIDealCalculator: React.FC<AdvancedAIDealCalculatorProps> = ({
-  zpid = 'unknown',
-  photos,
-  initialArv = 250000
+  property
 }) => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [dealMetrics, setDealMetrics] = useState<DealMetrics | null>(null);
   const [progress, setProgress] = useState(0);
-  const [arv, setArv] = useState(initialArv);
+  const [arv, setArv] = useState(property.zestimate || property.price || 250000);
   const [acquisitionCosts, setAcquisitionCosts] = useState(2000);
   const [wholesaleFee, setWholesaleFee] = useState(5000);
+  const [propertyPhotos, setPropertyPhotos] = useState<PropertyPhoto[]>([]);
+  const [loadingPhotos, setLoadingPhotos] = useState(false);
   const { toast } = useToast();
 
-  const runComprehensiveAnalysis = async () => {
-    if (photos.length === 0) {
-      toast({
-        title: "No Photos Available",
-        description: "Property photos are required for comprehensive AI analysis.",
-        variant: "destructive",
-      });
-      return;
-    }
+  // Fetch property photos when component mounts
+  const fetchPropertyPhotos = async () => {
+    const zpid = property.zpid || property.id;
+    if (!zpid) return;
 
+    setLoadingPhotos(true);
+    try {
+      const photosResponse = await supabase.functions.invoke('get-zillow-data', {
+        body: { 
+          action: 'photos', 
+          zpid: zpid 
+        }
+      });
+      
+      if (photosResponse.data?.success && photosResponse.data?.data?.images) {
+        const photos = photosResponse.data.data.images.slice(0, 8).map((img: any, index: number) => ({
+          url: img.url || img.mixedSources?.jpeg?.[0]?.url,
+          room_type: img.caption || `Room ${index + 1}`,
+          description: img.caption
+        })).filter((photo: PropertyPhoto) => photo.url);
+        
+        setPropertyPhotos(photos);
+        toast({
+          title: "Photos Loaded",
+          description: `Found ${photos.length} property photos for AI analysis`,
+        });
+      }
+    } catch (error) {
+      console.warn('Could not fetch property photos:', error);
+      toast({
+        title: "Photos Unavailable",
+        description: "Property photos could not be loaded. Analysis will proceed without visual data.",
+        variant: "destructive"
+      });
+    }
+    setLoadingPhotos(false);
+  };
+
+  React.useEffect(() => {
+    fetchPropertyPhotos();
+  }, [property.zpid, property.id]);
+
+  const runComprehensiveAnalysis = async () => {
     setIsAnalyzing(true);
     setProgress(0);
     
@@ -129,11 +160,28 @@ const AdvancedAIDealCalculator: React.FC<AdvancedAIDealCalculatorProps> = ({
 
       const { data, error } = await supabase.functions.invoke('advanced-property-assessment', {
         body: {
-          zpid,
-          photos,
+          property: {
+            zpid: property.zpid || property.id,
+            address: property.address,
+            price: property.price,
+            zestimate: property.zestimate,
+            bedrooms: property.bedrooms,
+            bathrooms: property.bathrooms,
+            sqft: property.sqft,
+            yearBuilt: property.yearBuilt,
+            propertyType: property.propertyType,
+            lotSize: property.lotSize,
+            photos: propertyPhotos
+          },
           arv,
           acquisition_costs: acquisitionCosts,
-          wholesale_fee: wholesaleFee
+          wholesale_fee: wholesaleFee,
+          analysisOptions: {
+            includePhotos: propertyPhotos.length > 0,
+            includeMarketAnalysis: true,
+            includeInvestmentMetrics: true,
+            includeRiskAssessment: true
+          }
         }
       });
 
@@ -220,6 +268,107 @@ const AdvancedAIDealCalculator: React.FC<AdvancedAIDealCalculatorProps> = ({
   return (
     <div className="space-y-6">
       {/* Input Controls */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Calculator className="h-5 w-5" />
+              Input Parameters
+            </CardTitle>
+            <CardDescription>
+              Adjust these values for accurate analysis
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="arv">After Repair Value (ARV)</Label>
+              <Input
+                id="arv"
+                type="number"
+                value={arv}
+                onChange={(e) => setArv(Number(e.target.value))}
+                placeholder="Estimated ARV"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="acquisition">Acquisition Costs</Label>
+              <Input
+                id="acquisition"
+                type="number"
+                value={acquisitionCosts}
+                onChange={(e) => setAcquisitionCosts(Number(e.target.value))}
+                placeholder="Closing costs, inspections, etc."
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="wholesale">Wholesale Fee</Label>
+              <Input
+                id="wholesale"
+                type="number"
+                value={wholesaleFee}
+                onChange={(e) => setWholesaleFee(Number(e.target.value))}
+                placeholder="Expected wholesale fee"
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Activity className="h-5 w-5" />
+              Property Photos
+            </CardTitle>
+            <CardDescription>
+              {propertyPhotos.length > 0 
+                ? `${propertyPhotos.length} photos loaded for AI analysis` 
+                : 'Loading property photos...'
+              }
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {loadingPhotos ? (
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
+                Loading photos...
+              </div>
+            ) : propertyPhotos.length > 0 ? (
+              <div className="grid grid-cols-3 gap-2">
+                {propertyPhotos.slice(0, 6).map((photo, index) => (
+                  <div key={index} className="relative aspect-square">
+                    <img 
+                      src={photo.url} 
+                      alt={photo.room_type}
+                      className="w-full h-full object-cover rounded-lg"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).style.display = 'none';
+                      }}
+                    />
+                    <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs p-1 rounded-b-lg truncate">
+                      {photo.room_type}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-4 text-muted-foreground">
+                <AlertTriangle className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                <p className="text-sm">No photos available</p>
+                <Button 
+                  onClick={fetchPropertyPhotos} 
+                  variant="outline" 
+                  size="sm"
+                  className="mt-2"
+                >
+                  Try Loading Photos
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Analysis Control */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -231,43 +380,10 @@ const AdvancedAIDealCalculator: React.FC<AdvancedAIDealCalculatorProps> = ({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div>
-              <Label htmlFor="arv">After Repair Value (ARV)</Label>
-              <Input
-                id="arv"
-                type="number"
-                value={arv}
-                onChange={(e) => setArv(Number(e.target.value))}
-                placeholder="250000"
-              />
-            </div>
-            <div>
-              <Label htmlFor="acquisition">Acquisition Costs</Label>
-              <Input
-                id="acquisition"
-                type="number"
-                value={acquisitionCosts}
-                onChange={(e) => setAcquisitionCosts(Number(e.target.value))}
-                placeholder="2000"
-              />
-            </div>
-            <div>
-              <Label htmlFor="wholesale">Wholesale Fee</Label>
-              <Input
-                id="wholesale"
-                type="number"
-                value={wholesaleFee}
-                onChange={(e) => setWholesaleFee(Number(e.target.value))}
-                placeholder="5000"
-              />
-            </div>
-          </div>
-          
           <div className="space-y-4">
             <div className="flex items-center justify-between text-sm">
-              <span>Photos Available: {photos.length}</span>
-              <span>ZPID: {zpid}</span>
+              <span>Photos Available: {propertyPhotos.length}</span>
+              <span>ZPID: {property.zpid || property.id}</span>
             </div>
             
             {isAnalyzing && (
@@ -278,14 +394,14 @@ const AdvancedAIDealCalculator: React.FC<AdvancedAIDealCalculatorProps> = ({
                 </div>
                 <Progress value={progress} className="h-2" />
                 <p className="text-xs text-muted-foreground">
-                  Analyzing with Claude Sonnet 4 & GPT-4o • Processing {photos.length} photos
+                  Analyzing with Claude Sonnet 4 & GPT-4o • Processing {propertyPhotos.length} photos
                 </p>
               </div>
             )}
             
             <Button 
               onClick={runComprehensiveAnalysis}
-              disabled={isAnalyzing || photos.length === 0}
+              disabled={isAnalyzing}
               className="w-full"
               size="lg"
             >
@@ -298,6 +414,9 @@ const AdvancedAIDealCalculator: React.FC<AdvancedAIDealCalculatorProps> = ({
                 <>
                   <Calculator className="mr-2 h-4 w-4" />
                   Run Advanced Deal Analysis
+                  {propertyPhotos.length === 0 && (
+                    <span className="ml-2 text-xs opacity-75">(without photos)</span>
+                  )}
                 </>
               )}
             </Button>

@@ -72,21 +72,29 @@ export function PropertyAnalysisTabs({ property }: PropertyAnalysisTabsProps) {
       const history = await zillowAPI.getPriceHistory(zpid);
       console.log('PropertyAnalysisTabs: Price history response:', history);
       
-      if (history && Array.isArray(history)) {
+      if (history && Array.isArray(history) && history.length > 0) {
         const formattedHistory = history.map((item: any) => ({
           date: item.date || item.time,
           price: item.price || 0,
           event: item.event || 'Price Change'
         })).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
         setPriceHistory(formattedHistory);
+      } else {
+        // Set empty array for graceful fallback
+        setPriceHistory([]);
       }
     } catch (error) {
       console.error('PropertyAnalysisTabs: Error fetching price history:', error);
-      toast({
-        title: "Price History",
-        description: "Could not load price history - feature may not be available for this property",
-        variant: "destructive"
-      });
+      // Set empty array instead of showing error toast for better UX
+      setPriceHistory([]);
+      // Only show toast for unexpected errors, not 404s
+      if (error instanceof Error && !error.message.includes('404')) {
+        toast({
+          title: "Price History",
+          description: "Unable to fetch price history at this time",
+          variant: "destructive"
+        });
+      }
     }
     setLoading(false);
   };
@@ -225,11 +233,7 @@ export function PropertyAnalysisTabs({ property }: PropertyAnalysisTabsProps) {
       </TabsContent>
 
       <TabsContent value="ai-calculator" className="space-y-4">
-        <AdvancedAIDealCalculator 
-          zpid={property.zpid || property.id}
-          photos={propertyPhotos}
-          initialArv={property.zestimate || property.price}
-        />
+        <AdvancedAIDealCalculator property={property} />
       </TabsContent>
 
       <TabsContent value="motivation" className="space-y-4">
@@ -315,8 +319,30 @@ export function PropertyAnalysisTabs({ property }: PropertyAnalysisTabsProps) {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-8 text-muted-foreground">
-                {loading ? 'Loading price history...' : 'No price history available'}
+              <div className="text-center py-8 text-muted-foreground space-y-3">
+                <div className="flex flex-col items-center gap-2">
+                  <Calendar className="h-12 w-12 opacity-50" />
+                  <div>
+                    {loading ? (
+                      <p>Loading price history...</p>
+                    ) : (
+                      <>
+                        <p className="font-medium">No price history available</p>
+                        <p className="text-sm">This feature may not be available for this property</p>
+                      </>
+                    )}
+                  </div>
+                  {!loading && (
+                    <Button 
+                      onClick={fetchPriceHistory} 
+                      variant="outline" 
+                      size="sm"
+                      className="mt-2"
+                    >
+                      Try Again
+                    </Button>
+                  )}
+                </div>
               </div>
             )}
           </CardContent>

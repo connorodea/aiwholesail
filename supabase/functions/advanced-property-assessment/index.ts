@@ -88,6 +88,36 @@ class StateOfTheArtAIAssessment {
     }
   }
 
+  async assessPropertyWithoutPhotos(property: any): Promise<PropertyConditionReport> {
+    console.log(`🏠 Assessing property without photos: ${property.zpid}`);
+    
+    // Generate basic assessment based on property data
+    const estimatedRepairs = this.estimateRepairsFromPropertyData(property);
+    
+    return {
+      zpid: property.zpid,
+      total_repair_estimate: estimatedRepairs,
+      confidence_score: 0.6, // Lower confidence without photos
+      repairs: [],
+      overall_condition: 'average',
+      major_concerns: [],
+      photos_analyzed: 0,
+      assessment_timestamp: new Date().toISOString(),
+      market_value_impact: -5,
+      investment_recommendation: 'hold',
+      risk_factors: ['No visual inspection available'],
+      opportunities: ['Basic market analysis completed']
+    };
+  }
+
+  private estimateRepairsFromPropertyData(property: any): number {
+    const baseRepair = 15000; // Base repair estimate
+    const ageMultiplier = property.yearBuilt ? Math.max(1, 2024 - property.yearBuilt) / 20 : 1.5;
+    const sizeMultiplier = property.sqft ? property.sqft / 2000 : 1;
+    
+    return Math.round(baseRepair * ageMultiplier * sizeMultiplier);
+  }
+
   private async analyzeWithClaudeSonnet4(photo: PropertyPhoto, photoIndex: number): Promise<AdvancedRepairAssessment[]> {
     const advancedPrompt = this.buildClaudePrompt(photo.room_type);
     
