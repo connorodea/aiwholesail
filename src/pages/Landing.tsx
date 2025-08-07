@@ -11,7 +11,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import aiWholesailLogo from "@/assets/aiwholesail-logo-final.png";
+const aiWholesailLogo = "/lovable-uploads/8dcdb5d0-ddfb-406f-a5f0-b3c5112d210a.png";
 
 const Landing = () => {
   const { user } = useAuth();
@@ -55,7 +55,7 @@ const Landing = () => {
         <div className="container flex h-16 items-center justify-between">
           <div className="flex items-center space-x-3">
             <img 
-              src="/lovable-uploads/23fef6fe-9f2b-40a9-8916-8c24705e4059.png" 
+              src={aiWholesailLogo} 
               alt="AIWholesail" 
               className="h-60 w-auto object-contain"
             />

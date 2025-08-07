@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { LogIn, UserPlus, Eye, EyeOff, Mail, Home, Shield, CheckCircle } from 'lucide-react';
-import aiWholesailLogo from '@/assets/aiwholesail-logo-final.png';
+const aiWholesailLogo = '/lovable-uploads/8dcdb5d0-ddfb-406f-a5f0-b3c5112d210a.png';
 
 export default function Auth() {
   const [searchParams] = useSearchParams();
@@ -73,7 +73,7 @@ export default function Auth() {
           <div className="text-center space-y-4">
             <div className="flex items-center justify-center gap-3 mb-6">
               <img 
-                src="/lovable-uploads/23fef6fe-9f2b-40a9-8916-8c24705e4059.png" 
+                src={aiWholesailLogo} 
                 alt="AIWholesail" 
                 className="h-72 w-auto object-contain"
               />
