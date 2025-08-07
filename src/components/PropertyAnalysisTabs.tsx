@@ -3,7 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { TrendingDown, TrendingUp, Calculator, Building, AlertTriangle, MapPin, DollarSign, Calendar, Users, GraduationCap } from 'lucide-react';
+import { TrendingDown, TrendingUp, Calculator, Building, AlertTriangle, MapPin, DollarSign, Calendar, Users, GraduationCap, Brain } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { ZillowAPI } from '@/lib/zillow-api';
 import { useToast } from '@/hooks/use-toast';
@@ -11,6 +11,7 @@ import { WholesaleCalculator } from './WholesaleCalculator';
 import { MotivatedSellerDetector } from './MotivatedSellerDetector';
 import { MarketIntelligenceDashboard } from './MarketIntelligenceDashboard';
 import { DeepDueDiligencePanel } from './DeepDueDiligencePanel';
+import AdvancedDamageDetection from './AdvancedDamageDetection';
 
 interface PropertyAnalysisTabsProps {
   property: Property;
@@ -176,13 +177,43 @@ export function PropertyAnalysisTabs({ property }: PropertyAnalysisTabsProps) {
   const metrics = calculateInvestmentMetrics();
   const motivatedSeller = getMotivatedSellerScore();
 
+  // Get property photos for damage detection
+  const getPropertyPhotos = () => {
+    const photos = [];
+    
+    // Main property photo
+    if (property.imgSrc) {
+      photos.push({
+        url: property.imgSrc,
+        room_type: 'exterior'
+      });
+    }
+    
+    // Additional photos if available
+    if (property.property_photos_mixedSources) {
+      property.property_photos_mixedSources.forEach((photo: any, index: number) => {
+        if (photo.url) {
+          photos.push({
+            url: photo.url,
+            room_type: photo.caption || `room_${index + 1}`
+          });
+        }
+      });
+    }
+    
+    return photos;
+  };
+
+  const propertyPhotos = getPropertyPhotos();
+
   return (
     <Tabs defaultValue="calculator" className="w-full">
-      <TabsList className="grid w-full grid-cols-6">
+      <TabsList className="grid w-full grid-cols-7">
         <TabsTrigger value="calculator">Calculator</TabsTrigger>
         <TabsTrigger value="motivation">Hot Leads</TabsTrigger>
         <TabsTrigger value="market">Market Intel</TabsTrigger>
         <TabsTrigger value="diligence">Due Diligence</TabsTrigger>
+        <TabsTrigger value="ai-damage">AI Analysis</TabsTrigger>
         <TabsTrigger value="history">Price History</TabsTrigger>
         <TabsTrigger value="neighborhood">Area Data</TabsTrigger>
       </TabsList>
@@ -202,6 +233,38 @@ export function PropertyAnalysisTabs({ property }: PropertyAnalysisTabsProps) {
       <TabsContent value="diligence" className="space-y-4">
         <DeepDueDiligencePanel property={property} />
       </TabsContent>
+
+      <TabsContent value="ai-damage" className="space-y-4">
+        {propertyPhotos.length > 0 ? (
+          <div className="space-y-6">
+            {propertyPhotos.map((photo, index) => (
+              <AdvancedDamageDetection
+                key={index}
+                photoUrl={photo.url}
+                roomType={photo.room_type}
+                zpid={property.zpid || property.id}
+              />
+            ))}
+          </div>
+        ) : (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Brain className="h-5 w-5 text-primary" />
+                AI Damage Analysis
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8 text-muted-foreground">
+                <AlertTriangle className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p>No property photos available for AI analysis</p>
+                <p className="text-sm">Property photos are required to run advanced damage detection</p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </TabsContent>
+
       <TabsContent value="history" className="space-y-4">
         <Card>
           <CardHeader>
