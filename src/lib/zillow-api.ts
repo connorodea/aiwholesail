@@ -123,9 +123,12 @@ export class ZillowAPI {
     console.log('Raw property sample:', JSON.stringify(prop, null, 2).substring(0, 500));
     
     // Log date-related fields specifically
-    const dateFields = Object.entries(prop).filter(([key, value]) => 
-      key.toLowerCase().includes('date') || key.toLowerCase().includes('posted') || key.toLowerCase().includes('list')
-    );
+    const dateFields = Object.entries(prop).reduce((acc, [key, value]) => {
+      if (key.toLowerCase().includes('date') || key.toLowerCase().includes('posted') || key.toLowerCase().includes('list')) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {} as any);
     console.log('Date-related fields found:', dateFields);
     
     const flatten = (obj: any, prefix = '') => {
@@ -176,14 +179,18 @@ export class ZillowAPI {
       pricePerSqft: this.parseNumber(flattened.property_price_pricePerSquareFoot || flattened.pricePerSqft),
       zestimate: this.parseNumber(flattened.property_estimates_zestimate || flattened.zestimate),
       description: flattened.description || flattened.summary || '',
-      // Extract listing date from various possible fields
+      // Extract listing date from various possible fields - checking flattened structure
       datePostedString: flattened.property_datePriceChanged || 
                        flattened.property_listing_listingDate || 
                        flattened.property_listing_datePosted ||
                        flattened.property_datePosted ||
+                       flattened.property_listingDate ||
                        flattened.datePriceChanged ||
                        flattened.listingDate ||
-                       flattened.datePosted,
+                       flattened.datePosted ||
+                       // Check deeper nested fields
+                       flattened.property_listing_daysOnZillow_datePosted ||
+                       flattened.property_hdpView_daysOnZillow_datePosted,
       listDate: flattened.property_listing_listDate ||
                 flattened.property_listDate ||
                 flattened.listDate ||

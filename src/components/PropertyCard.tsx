@@ -43,11 +43,7 @@ export function PropertyCard({ property, onViewDetails, highlightWholesaleDeals 
   // Check if property was listed recently (within 24 hours)
   const isListedRecently = () => {
     const listingDate = property.datePostedString || property.listDate;
-    if (!listingDate) {
-      // For testing - if no real date, randomly make some properties appear recent
-      const testId = property.id.toString();
-      return testId.includes('3') || testId.includes('7'); // Arbitrary test condition
-    }
+    if (!listingDate) return false;
     
     const posted = new Date(listingDate);
     const now = new Date();
@@ -59,31 +55,26 @@ export function PropertyCard({ property, onViewDetails, highlightWholesaleDeals 
   // Format the listing date for display
   const formatListingDate = () => {
     const listingDate = property.datePostedString || property.listDate;
-    if (!listingDate) {
-      // For testing - show mock recent times for some properties
-      const testId = property.id.toString();
-      if (testId.includes('3')) return '2 hours ago';
-      if (testId.includes('7')) return '15 hours ago';
-      return 'Recently listed';
+    if (!listingDate) return 'Date not available';
+    
+    try {
+      const posted = new Date(listingDate);
+      const now = new Date();
+      const diffInHours = Math.floor((now.getTime() - posted.getTime()) / (1000 * 60 * 60));
+      const diffInDays = Math.floor(diffInHours / 24);
+      
+      if (diffInHours < 1) return 'less than an hour ago';
+      if (diffInHours < 24) return `${diffInHours} hour${diffInHours > 1 ? 's' : ''} ago`;
+      if (diffInDays === 1) return 'yesterday';
+      if (diffInDays < 7) return `${diffInDays} days ago`;
+      return posted.toLocaleDateString();
+    } catch (error) {
+      return listingDate; // Return raw date if parsing fails
     }
-    
-    const posted = new Date(listingDate);
-    const now = new Date();
-    const diffInHours = Math.floor((now.getTime() - posted.getTime()) / (1000 * 60 * 60));
-    const diffInDays = Math.floor(diffInHours / 24);
-    
-    if (diffInHours < 1) return 'less than an hour ago';
-    if (diffInHours < 24) return `${diffInHours} hour${diffInHours > 1 ? 's' : ''} ago`;
-    if (diffInDays === 1) return 'yesterday';
-    if (diffInDays < 7) return `${diffInDays} days ago`;
-    return posted.toLocaleDateString();
   };
 
   // Get styling for listing date section
   const getListingDateStyle = () => {
-    if (isListedRecently()) {
-      return 'bg-gradient-to-r from-primary/20 to-primary/10 border-2 border-primary/40 shadow-md';
-    }
     return 'bg-muted/50 border-muted';
   };
 
@@ -127,6 +118,11 @@ export function PropertyCard({ property, onViewDetails, highlightWholesaleDeals 
                 FSBO
               </Badge>
             )}
+            {isListedRecently() && (
+              <Badge className="bg-gradient-to-r from-primary/20 to-primary/10 text-primary border border-primary/30 rounded-full px-2 py-1 text-xs font-medium flex-shrink-0">
+                🔥 New
+              </Badge>
+            )}
             <LeadScoreBadge 
               leadId={property.zpid || property.id} 
               className="rounded-full px-2 sm:px-3 py-1 text-xs font-medium flex-shrink-0"
@@ -158,7 +154,7 @@ export function PropertyCard({ property, onViewDetails, highlightWholesaleDeals 
           </div>
         </div>
 
-        {/* Listing Date - Highlighted Area */}
+        {/* Listing Date */}
         <div className={`p-3 rounded-lg border ${getListingDateStyle()}`}>
           <div className="flex items-center gap-2">
             <Calendar className="h-4 w-4" />
@@ -166,11 +162,6 @@ export function PropertyCard({ property, onViewDetails, highlightWholesaleDeals 
               <div className="text-sm font-medium">
                 Listed {formatListingDate()}
               </div>
-              {isListedRecently() && (
-                <div className="text-xs text-primary font-medium">
-                  🔥 Listed within 24 hours!
-                </div>
-              )}
             </div>
           </div>
         </div>
