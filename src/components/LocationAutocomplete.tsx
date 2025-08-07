@@ -73,7 +73,17 @@ export function LocationAutocomplete({
   };
 
   const handleSuggestionClick = (suggestion: LocationSuggestion) => {
-    onChange(suggestion.place_name);
+    // For state-level searches, use just the state name instead of full place_name
+    // to ensure broader search results rather than capital city only
+    let locationValue = suggestion.place_name;
+    
+    if (suggestion.place_type.includes('region')) {
+      // Extract state name from "Maine, United States" format
+      const stateName = suggestion.place_name.split(',')[0].trim();
+      locationValue = stateName;
+    }
+    
+    onChange(locationValue);
     setSuggestions([]);
     setShowSuggestions(false);
   };
