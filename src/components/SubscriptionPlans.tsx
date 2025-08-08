@@ -42,13 +42,14 @@ const plans: SubscriptionPlan[] = [
     name: 'Pro',
     price: 29,
     priceId: 'prod_SpKGilpmcRga6b',
-    description: 'Perfect for individual wholesalers',
+    description: 'Perfect for individual wholesalers - 7-day free trial',
     features: [
       'Up to 5 alert locations',
       'Automated updates every 24 hours',
       'Advanced property matching',
       'Email notifications',
-      'Basic market analytics'
+      'Basic market analytics',
+      '7-day free trial included'
     ],
     maxLocations: 5,
     updateFrequency: 'Every 24 hours',
@@ -58,7 +59,7 @@ const plans: SubscriptionPlan[] = [
     name: 'Elite',
     price: 99,
     priceId: 'prod_SpKH7DdaZIudL9',
-    description: 'For serious real estate professionals',
+    description: 'For serious real estate professionals - 7-day free trial',
     features: [
       'Unlimited alert locations',
       'Real-time updates every 4 hours',
@@ -66,7 +67,8 @@ const plans: SubscriptionPlan[] = [
       'Priority email notifications',
       'Comprehensive market insights',
       'Skip tracing integration',
-      'Lead scoring analytics'
+      'Lead scoring analytics',
+      '7-day free trial included'
     ],
     maxLocations: 999,
     updateFrequency: 'Every 4 hours'
@@ -131,7 +133,7 @@ export const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
       <div className="text-center">
         <h2 className="text-3xl font-bold mb-4">Choose Your Plan</h2>
         <p className="text-muted-foreground max-w-2xl mx-auto">
-          Scale your property alert system with plans designed for every level of real estate investing
+          Scale your property alert system with plans designed for every level of real estate investing. Both plans include a 7-day free trial.
         </p>
       </div>
 
