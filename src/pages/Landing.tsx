@@ -243,7 +243,7 @@ const Landing = () => {
           
           <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             {/* Pro Plan */}
-            <Card className="border-2 border-primary/20 hover:border-primary/40 transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 bg-[#17628e]/[0.82]">
+            <Card className="border-2 border-primary/30 hover:border-primary/50 transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 bg-[#17628e]/[0.82] shadow-[0_0_30px_rgba(23,98,142,0.3)] hover:shadow-[0_0_40px_rgba(23,98,142,0.4)] ring-2 ring-primary/20 hover:ring-primary/30 relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-primary/10 before:to-transparent before:opacity-50">
               <CardHeader className="text-center pb-4">
                 <div className="mb-4">
                   <Badge className="bg-primary text-primary-foreground">Most Popular</Badge>
