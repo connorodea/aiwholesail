@@ -51,36 +51,59 @@ const Landing = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
       {/* Header */}
-      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-        <div className="container flex h-16 items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <img 
-              src={aiWholesailLogo} 
-              alt="AIWholesail" 
-              className="h-12 w-auto object-contain"
-            />
-          </div>
-          <div className="flex items-center space-x-4">
-            {user ? (
-              <Link to="/app">
-                <Button variant="outline" className="hover-scale">
-                  <Eye className="h-4 w-4 mr-2" />
-                  Dashboard
-                </Button>
-              </Link>
-            ) : (
-              <Link to="/auth">
-                <Button variant="outline" className="hover-scale">
-                  Sign In
-                </Button>
-              </Link>
-            )}
+      <header className="fixed top-4 left-4 right-4 z-50 animate-fade-in">
+        <div className="container mx-auto max-w-7xl">
+          <div className="bg-card/80 backdrop-blur-xl border border-border/50 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 px-6 py-4">
+            <div className="flex items-center justify-between">
+              {/* Brand Section */}
+              <div className="flex items-center space-x-3">
+                <div className="relative group">
+                  <img 
+                    src={aiWholesailLogo} 
+                    alt="AIWholesail" 
+                    className="h-10 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+                  />
+                  <div className="absolute -inset-2 bg-gradient-to-r from-primary/20 to-accent/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"></div>
+                </div>
+                <div className="hidden sm:block">
+                  <h1 className="font-semibold text-lg bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+                    AIWholesail
+                  </h1>
+                  <p className="text-xs text-muted-foreground">Real Estate Intelligence</p>
+                </div>
+              </div>
+              
+              {/* Action Buttons */}
+              <div className="flex items-center space-x-3">
+                {user ? (
+                  <Link to="/app">
+                    <Button variant="default" size="sm" className="hover-scale shadow-sm">
+                      <Eye className="h-4 w-4 mr-2" />
+                      Dashboard
+                    </Button>
+                  </Link>
+                ) : (
+                  <div className="flex items-center space-x-2">
+                    <Link to="/auth">
+                      <Button variant="ghost" size="sm" className="hover-scale">
+                        Sign In
+                      </Button>
+                    </Link>
+                    <Link to="/auth?mode=signup">
+                      <Button size="sm" className="hover-scale shadow-sm">
+                        Get Started
+                      </Button>
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="relative py-24 px-4 overflow-hidden">
+      <section className="relative pt-32 pb-24 px-4 overflow-hidden">
         {/* Background decoration */}
         <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
         <div className="absolute top-20 right-20 w-72 h-72 bg-primary/10 rounded-full blur-3xl"></div>
