@@ -25,9 +25,9 @@ interface SubscriptionPlansProps {
 
 const plans: SubscriptionPlan[] = [
   {
-    name: 'Free',
+    name: 'Trial',
     price: 0,
-    priceId: '',
+    priceId: 'prod_SpKGOx8zA1dDIp',
     description: 'Get started with basic property alerts',
     features: [
       '1 alert location',
@@ -39,9 +39,9 @@ const plans: SubscriptionPlan[] = [
     updateFrequency: 'Manual'
   },
   {
-    name: 'Basic',
+    name: 'Pro',
     price: 29,
-    priceId: 'price_1QazVYP3F5SFHhJj7KMjkdh1', // Replace with actual Stripe price ID
+    priceId: 'prod_SpKGilpmcRga6b',
     description: 'Perfect for individual wholesalers',
     features: [
       'Up to 5 alert locations',
@@ -55,9 +55,9 @@ const plans: SubscriptionPlan[] = [
     popular: true
   },
   {
-    name: 'Premium',
+    name: 'Elite',
     price: 99,
-    priceId: 'price_premium_99', // Replace with actual Stripe price ID
+    priceId: 'prod_SpKH7DdaZIudL9',
     description: 'For serious real estate professionals',
     features: [
       'Unlimited alert locations',
