@@ -9,6 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { LogIn, UserPlus, Eye, EyeOff, Mail, Home, Shield, CheckCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { SEOHead } from '@/components/SEOHead';
 const aiWholesailLogo = '/lovable-uploads/8dcdb5d0-ddfb-406f-a5f0-b3c5112d210a.png';
 
 export default function Auth() {
@@ -118,6 +119,11 @@ export default function Auth() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 relative">
+      <SEOHead 
+        title={isSignUp ? "Create Account" : "Sign In"}
+        description={isSignUp ? "Create your AI Wholesail account and start finding profitable real estate deals with our 7-day free trial." : "Sign in to your AI Wholesail account to access your real estate wholesale dashboard."}
+        noIndex={false}
+      />
       {/* Header */}
       <header className="fixed top-4 left-4 right-4 z-50 animate-fade-in">
         <div className="container mx-auto max-w-7xl">

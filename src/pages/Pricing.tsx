@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
+import { SEOHead } from '@/components/SEOHead';
 
 const plans = [
   {
@@ -88,6 +89,11 @@ export default function Pricing() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+      <SEOHead 
+        title="Pricing Plans"
+        description="Choose the perfect AI Wholesail plan for your real estate business. Start with a 7-day free trial. Pro at $29/month or Elite at $99/month."
+        noIndex={false}
+      />
       {/* Header */}
       <header className="fixed top-4 left-4 right-4 z-50">
         <div className="container mx-auto max-w-7xl">

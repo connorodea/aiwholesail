@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import ScrollSailboat from "@/components/ScrollSailboat";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { SEOHead } from "@/components/SEOHead";
 const aiWholesailLogo = "/lovable-uploads/8dcdb5d0-ddfb-406f-a5f0-b3c5112d210a.png";
 const Landing = () => {
   const {
@@ -41,6 +42,7 @@ const Landing = () => {
     window.location.href = '/pricing';
   };
   return <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 relative">
+      <SEOHead />
       {/* Scroll-driven sailboat animation */}
       <ScrollSailboat />
       {/* Header */}
