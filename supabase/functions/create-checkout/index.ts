@@ -57,13 +57,8 @@ serve(async (req) => {
     }
     logStep("Price ID received", { priceId, isGuestCheckout });
 
-    // Convert product IDs to actual price IDs
-    const priceMapping: { [key: string]: string } = {
-      'prod_SpKGilpmcRga6b': 'price_1QjrSuCwWnuOPtC4Bfwu6IEs', // Pro plan
-      'prod_SpKH7DdaZIudL9': 'price_1QjrTKCwWnuOPtC4xIzkUCeY'  // Elite plan
-    };
-
-    const actualPriceId = priceMapping[priceId] || priceId;
+    // Use the price ID directly as it's already correct from the frontend
+    const actualPriceId = priceId;
     logStep("Using price ID", { originalPriceId: priceId, actualPriceId });
 
     const stripe = new Stripe(stripeKey, { 
