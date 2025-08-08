@@ -112,9 +112,6 @@ export default function Auth() {
                 <span className="block mb-2 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
                   {isSignUp ? "Join AIWholesail" : "Welcome Back"}
                 </span>
-                <span className="block">
-                  {isSignUp ? "Start Your Journey" : "Continue Building"}
-                </span>
               </h1>
               
               <p className="text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed font-light">
