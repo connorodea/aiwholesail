@@ -20,6 +20,7 @@ import { processPropertyAlerts } from '@/lib/propertyAlerts';
 import { OffMarketSearch } from '@/components/OffMarketSearch';
 import { OffMarketPropertyCard } from '@/components/OffMarketPropertyCard';
 import { OffMarketAnalyticsDashboard } from '@/components/OffMarketAnalyticsDashboard';
+import { AIWholesaleAnalyzer } from '@/components/AIWholesaleAnalyzer';
 import { offMarketAPI, type OffMarketProperty, type OffMarketSearchParams, type OffMarketSearchResult } from '@/lib/off-market-api';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
@@ -296,7 +297,16 @@ export default function RealEstateWholesaler() {
                   </div>
                   
                   <TabsContent value="on-market" className="mt-0">
-                    <PropertySearch onSearch={handleSearch} isLoading={isLoading} />
+                    <div className="space-y-8">
+                      <PropertySearch onSearch={handleSearch} isLoading={isLoading} />
+                      
+                      {properties.length > 0 && (
+                        <AIWholesaleAnalyzer 
+                          properties={properties}
+                          market={lastSearchLocation}
+                        />
+                      )}
+                    </div>
                   </TabsContent>
                   
                   <TabsContent value="off-market" className="mt-0">
