@@ -129,7 +129,7 @@ const Landing = () => {
             <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground pt-6">
               <div className="flex items-center gap-1.5">
                 <Shield className="h-3.5 w-3.5 text-primary" />
-                <span>No Credit Card Required</span>
+                <span>Credit Card Required</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <CheckCircle className="h-3.5 w-3.5 text-primary" />
@@ -269,7 +269,7 @@ const Landing = () => {
                     {loading ? "Loading..." : "Start 7-Day Free Trial"}
                   </Button>
                   <p className="text-xs text-muted-foreground font-light">
-                    No credit card required • Cancel anytime
+                    Credit card required • Cancel anytime during trial
                   </p>
                 </div>
               </CardContent>
@@ -300,7 +300,7 @@ const Landing = () => {
                     {loading ? "Loading..." : "Start 7-Day Free Trial"}
                   </Button>
                   <p className="text-xs text-muted-foreground font-light">
-                    No credit card required • Cancel anytime
+                    Credit card required • Cancel anytime during trial
                   </p>
                 </div>
               </CardContent>
