@@ -51,7 +51,7 @@ export default function RealEstateWholesaler() {
   const [activeTab, setActiveTab] = useState<'on-market' | 'off-market'>('on-market');
   const [offMarketResults, setOffMarketResults] = useState<OffMarketSearchResult | null>(null);
   const [lastSearchLocation, setLastSearchLocation] = useState<string>('');
-  const [sortBy, setSortBy] = useState<'price-high' | 'price-low' | 'newest' | 'oldest'>('price-low');
+  const [sortBy, setSortBy] = useState<'price-high' | 'price-low' | 'newest' | 'oldest' | 'default'>('default');
 
   const handleSearch = async (params: PropertySearchParams) => {
     try {
@@ -352,6 +352,9 @@ export default function RealEstateWholesaler() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-48">
+                          <DropdownMenuItem onClick={() => setSortBy('default')}>
+                            Best Spreads First
+                          </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => setSortBy('price-low')}>
                             Price: Low to High
                           </DropdownMenuItem>
