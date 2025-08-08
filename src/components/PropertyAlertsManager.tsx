@@ -49,6 +49,8 @@ export const PropertyAlertsManager = () => {
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [showNewAlert, setShowNewAlert] = useState(false);
+  const [subscription, setSubscription] = useState<any>(null);
+  const [subscriptionLoading, setSubscriptionLoading] = useState(true);
   const [newAlert, setNewAlert] = useState<NewAlert>({
     location: '',
     max_price: '',
@@ -65,8 +67,21 @@ export const PropertyAlertsManager = () => {
   useEffect(() => {
     if (user) {
       fetchAlerts();
+      checkSubscription();
     }
   }, [user]);
+
+  const checkSubscription = async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke('check-subscription');
+      if (error) throw error;
+      setSubscription(data);
+    } catch (error) {
+      console.error('Error checking subscription:', error);
+    } finally {
+      setSubscriptionLoading(false);
+    }
+  };
 
   const fetchAlerts = async () => {
     try {
@@ -89,6 +104,13 @@ export const PropertyAlertsManager = () => {
   const handleCreateAlert = async () => {
     if (!newAlert.location.trim()) {
       toast.error('Please enter a location');
+      return;
+    }
+
+    // Check subscription limits
+    const maxAlerts = getMaxAlerts();
+    if (alerts.length >= maxAlerts) {
+      toast.error(`You've reached the maximum of ${maxAlerts} alerts for your plan. Upgrade to add more locations.`);
       return;
     }
 
@@ -189,6 +211,18 @@ export const PropertyAlertsManager = () => {
     return criteria.length > 0 ? criteria.join(', ') : 'No specific criteria';
   };
 
+  const getMaxAlerts = () => {
+    if (!subscription?.subscribed) return 1; // Free tier: 1 alert
+    if (subscription?.subscription_tier === 'Premium') return 999; // $99 plan: unlimited
+    return 5; // $29 plan: 5 alerts
+  };
+
+  const getUpdateFrequency = () => {
+    if (!subscription?.subscribed) return 'Manual only';
+    if (subscription?.subscription_tier === 'Premium') return 'Every 4 hours';
+    return 'Every 24 hours';
+  };
+
   if (loading) {
     return (
       <Card>
@@ -210,9 +244,24 @@ export const PropertyAlertsManager = () => {
           <p className="text-muted-foreground">
             Get notified when new wholesale opportunities match your criteria
           </p>
+          <div className="flex items-center gap-4 mt-2 text-sm">
+            <span className="text-muted-foreground">
+              Plan: {subscription?.subscribed ? 
+                (subscription?.subscription_tier === 'Premium' ? 'Premium ($99/month)' : 'Basic ($29/month)') : 
+                'Free'
+              }
+            </span>
+            <span className="text-muted-foreground">
+              Locations: {alerts.length}/{getMaxAlerts() === 999 ? '∞' : getMaxAlerts()}
+            </span>
+            <span className="text-muted-foreground">
+              Updates: {getUpdateFrequency()}
+            </span>
+          </div>
         </div>
         <Button 
           onClick={() => setShowNewAlert(true)}
+          disabled={alerts.length >= getMaxAlerts()}
           className="flex items-center gap-2"
         >
           <Plus className="h-4 w-4" />

@@ -24,6 +24,13 @@ serve(async (req) => {
     const user = data.user;
     if (!user?.email) throw new Error("User not authenticated or email not available");
 
+    const body = await req.json();
+    const priceId = body.priceId;
+    
+    if (!priceId) {
+      throw new Error("Price ID is required");
+    }
+
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", { 
       apiVersion: "2023-10-16" 
     });
@@ -39,15 +46,7 @@ serve(async (req) => {
       customer_email: customerId ? undefined : user.email,
       line_items: [
         {
-          price_data: {
-            currency: "usd",
-            product_data: { 
-              name: "AI Wholesail Pro",
-              description: "Professional real estate wholesale tools and AI analysis"
-            },
-            unit_amount: 2999, // $29.99/month
-            recurring: { interval: "month" },
-          },
+          price: priceId,
           quantity: 1,
         },
       ],

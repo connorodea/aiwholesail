@@ -37,14 +37,16 @@ const handler = async (req: Request): Promise<Response> => {
   try {
     console.log('🔄 Starting automated property alert search...');
 
-    // Get all active property alerts
+    // Get all active property alerts with subscription info
     const { data: alerts, error: alertsError } = await supabase
       .from('property_alerts')
       .select(`
         *,
-        profiles!inner(email, full_name)
+        profiles!inner(email, full_name),
+        subscribers!inner(subscribed, subscription_tier, subscription_end)
       `)
-      .eq('is_active', true);
+      .eq('is_active', true)
+      .eq('subscribers.subscribed', true);
 
     if (alertsError) {
       throw new Error(`Failed to fetch alerts: ${alertsError.message}`);
@@ -72,6 +74,19 @@ const handler = async (req: Request): Promise<Response> => {
     for (const alert of alerts) {
       try {
         console.log(`🔍 Processing alert for location: ${alert.location}`);
+        
+        // Check if enough time has passed based on subscription tier
+        const subscriptionTier = alert.subscribers.subscription_tier;
+        const updateIntervalHours = subscriptionTier === 'Premium' ? 4 : 24;
+        
+        if (alert.last_alert_sent) {
+          const lastSent = new Date(alert.last_alert_sent);
+          const hoursAgo = (Date.now() - lastSent.getTime()) / (1000 * 60 * 60);
+          if (hoursAgo < updateIntervalHours) {
+            console.log(`⏰ Skipping alert ${alert.id} - last sent ${hoursAgo.toFixed(1)} hours ago, need ${updateIntervalHours} hours`);
+            continue;
+          }
+        }
 
         // Build search parameters from alert criteria
         const searchParams: PropertySearchParams = {
