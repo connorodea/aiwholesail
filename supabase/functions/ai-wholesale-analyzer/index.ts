@@ -53,22 +53,36 @@ serve(async (req) => {
 
     console.log(`[${new Date().toISOString()}] Starting AI wholesale analysis for ${market} with ${csv_data.length} properties`);
 
-    // Filter and preprocess properties
+    // Filter and preprocess properties with more lenient criteria
     const filteredProperties = csv_data
       .filter(prop => {
-        if (!prop.zestimate || !prop.sqft || !prop.list_price) return false;
-        const spread_pct = (prop.zestimate - prop.list_price) / prop.zestimate;
-        return spread_pct >= analysis_params.min_spread_pct;
+        // Basic data validation
+        if (!prop.list_price || prop.list_price <= 0) return false;
+        if (!prop.sqft || prop.sqft <= 0) return false;
+        
+        // If zestimate exists, check for spread, otherwise include property
+        if (prop.zestimate && prop.zestimate > 0) {
+          const spread_abs = prop.zestimate - prop.list_price;
+          const spread_pct = spread_abs / prop.zestimate;
+          
+          // Only filter out if spread is negative (overpriced)
+          // Allow properties with minimal spread for analysis
+          return spread_pct >= -0.05; // Allow up to 5% overpriced properties
+        }
+        
+        // Include properties without zestimate for analysis
+        return true;
       })
       .map(prop => ({
         ...prop,
-        spread_abs: prop.zestimate - prop.list_price,
-        spread_pct: (prop.zestimate - prop.list_price) / prop.zestimate
+        spread_abs: prop.zestimate && prop.zestimate > 0 ? prop.zestimate - prop.list_price : 0,
+        spread_pct: prop.zestimate && prop.zestimate > 0 ? (prop.zestimate - prop.list_price) / prop.zestimate : 0
       }))
       .sort((a, b) => b.spread_abs - a.spread_abs)
       .slice(0, analysis_params.max_candidates);
 
     console.log(`[${new Date().toISOString()}] Filtered to ${filteredProperties.length} candidate properties`);
+    console.log(`[${new Date().toISOString()}] Sample property data:`, filteredProperties[0] || 'No properties');
 
     if (filteredProperties.length === 0) {
       return new Response(JSON.stringify({
@@ -96,8 +110,8 @@ serve(async (req) => {
 CRITICAL: You must return a valid JSON response in the exact schema provided. Do not include any text outside the JSON object.
 
 For each property, you must:
-1. Calculate conservative ARV based on market data and property characteristics
-2. Estimate repair costs based on property age, type, and typical issues
+1. Calculate conservative ARV (if no zestimate, estimate based on comparable sales and market data)
+2. Estimate repair costs based on property age, type, and typical condition issues
 3. Calculate MAO using 70% rule: MAO = 0.70 * ARV - repairs - target_fee - closing_costs
 4. Assess risk factors and market conditions
 5. Provide realistic agent contact information (use realistic names/brokerages for the area)
@@ -110,7 +124,7 @@ Return ONLY the JSON object, no additional text.`;
 ANALYSIS PARAMETERS:
 - Target wholesale fee: $${analysis_params.target_fee}
 - Repair cost range: $${analysis_params.repair_cost_psf_low}-$${analysis_params.repair_cost_psf_high} per sqft
-- Minimum spread: ${(analysis_params.min_spread_pct * 100).toFixed(1)}%
+- Minimum spread: ${(analysis_params.min_spread_pct * 100).toFixed(1)}% (Note: Properties without zestimate are included for analysis)
 - Exit preferences: ${analysis_params.exit_preferences}
 
 PROPERTY DATA:
@@ -118,8 +132,8 @@ ${filteredProperties.map((prop, idx) => `
 ${idx + 1}. ZPID: ${prop.zpid}
    Address: ${prop.address}, ${prop.city}, ${prop.state} ${prop.zip}
    List Price: $${prop.list_price.toLocaleString()}
-   Zestimate: $${prop.zestimate.toLocaleString()}
-   Spread: $${prop.spread_abs.toLocaleString()} (${(prop.spread_pct * 100).toFixed(1)}%)
+   Zestimate: ${prop.zestimate ? `$${prop.zestimate.toLocaleString()}` : 'Not available'}
+   Spread: ${prop.zestimate ? `$${prop.spread_abs.toLocaleString()} (${(prop.spread_pct * 100).toFixed(1)}%)` : 'Calculate based on market analysis'}
    Beds/Baths: ${prop.beds}/${prop.baths}
    Sqft: ${prop.sqft?.toLocaleString() || 'N/A'}
    Lot: ${prop.lot_sqft?.toLocaleString() || 'N/A'} sqft
@@ -241,7 +255,8 @@ Analyze only the top 10 most promising opportunities. Focus on properties with:
           min_spread_pct: analysis_params.min_spread_pct
         },
         ranked_opportunities: filteredProperties.slice(0, 5).map((prop, idx) => {
-          const arv = prop.zestimate * 1.1; // Conservative ARV estimate
+          // Use zestimate if available, otherwise estimate ARV at 110% of list price for initial analysis
+          const arv = prop.zestimate && prop.zestimate > 0 ? prop.zestimate * 1.05 : prop.list_price * 1.15;
           const repairMid = prop.sqft * ((analysis_params.repair_cost_psf_low + analysis_params.repair_cost_psf_high) / 2);
           const closingCosts = arv * 0.02;
           const mao = (arv * 0.70) - repairMid - analysis_params.target_fee - closingCosts;
@@ -251,7 +266,7 @@ Analyze only the top 10 most promising opportunities. Focus on properties with:
             zpid: prop.zpid,
             address: prop.address,
             list_price: prop.list_price,
-            zestimate: prop.zestimate,
+            zestimate: prop.zestimate || 0,
             spread_abs: prop.spread_abs,
             spread_pct: prop.spread_pct,
             arv_final: Math.round(arv),
@@ -259,7 +274,10 @@ Analyze only the top 10 most promising opportunities. Focus on properties with:
               low: Math.round(repairMid * 0.7),
               mid: Math.round(repairMid),
               high: Math.round(repairMid * 1.3),
-              notes: ["Estimated based on property age and type", "Review needed for accurate assessment"]
+              notes: [
+                prop.zestimate ? "Analysis based on Zestimate data" : "Analysis based on market comparable estimate", 
+                "Professional inspection recommended for accurate assessment"
+              ]
             },
             closing_costs_est: Math.round(closingCosts),
             mao: Math.round(mao),
@@ -272,7 +290,10 @@ Analyze only the top 10 most promising opportunities. Focus on properties with:
               cap_rate_pct: 8.0,
               dscr: 1.2
             },
-            risk_flags: prop.days_on_zillow > 60 ? ["Long time on market"] : [],
+            risk_flags: [
+              ...(prop.days_on_zillow > 60 ? ["Long time on market"] : []),
+              ...(prop.zestimate ? [] : ["No Zestimate available - manual ARV analysis required"])
+            ],
             score: 0.75,
             exit: "flip",
             agent: {
