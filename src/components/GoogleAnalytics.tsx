@@ -4,45 +4,44 @@ import { useLocation } from 'react-router-dom';
 declare global {
   interface Window {
     gtag: (command: string, targetId: string, config?: any) => void;
+    dataLayer: any[];
   }
 }
 
-// Google Analytics Measurement ID - replace with your actual GA4 ID
-const GA_MEASUREMENT_ID = 'G-XXXXXXXXXX'; // User needs to replace this
+// Google Tag Manager ID
+const GTM_ID = 'GTM-NCS4QDFP';
 
 export function GoogleAnalytics() {
   const location = useLocation();
 
   useEffect(() => {
-    // Load Google Analytics script
-    const script1 = document.createElement('script');
-    script1.async = true;
-    script1.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
-    document.head.appendChild(script1);
-
-    const script2 = document.createElement('script');
-    script2.innerHTML = `
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', '${GA_MEASUREMENT_ID}', {
-        page_title: document.title,
-        page_location: window.location.href,
-      });
+    // Load Google Tag Manager script
+    const script = document.createElement('script');
+    script.innerHTML = `
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','${GTM_ID}');
     `;
-    document.head.appendChild(script2);
+    document.head.appendChild(script);
 
-    // Clean up function
+    // Add noscript fallback
+    const noscript = document.createElement('noscript');
+    noscript.innerHTML = '<iframe src="https://www.googletagmanager.com/ns.html?id=${GTM_ID}" height="0" width="0" style="display:none;visibility:hidden"></iframe>';
+    document.body.insertBefore(noscript, document.body.firstChild);
+
     return () => {
-      document.head.removeChild(script1);
-      document.head.removeChild(script2);
+      document.head.removeChild(script);
+      if (noscript.parentNode) noscript.parentNode.removeChild(noscript);
     };
   }, []);
 
   // Track page views on route changes
   useEffect(() => {
-    if (typeof window.gtag !== 'undefined') {
-      window.gtag('config', GA_MEASUREMENT_ID, {
+    if (typeof window !== 'undefined' && window.dataLayer) {
+      window.dataLayer.push({
+        event: 'page_view',
         page_title: document.title,
         page_location: window.location.href,
         page_path: location.pathname,
