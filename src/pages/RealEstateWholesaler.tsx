@@ -306,13 +306,6 @@ export default function RealEstateWholesaler() {
                   <TabsContent value="on-market" className="mt-0">
                     <div className="space-y-8">
                       <PropertySearch onSearch={handleSearch} isLoading={isLoading} />
-                      
-                      {properties.length > 0 && (
-                        <AIWholesaleAnalyzer 
-                          properties={properties}
-                          market={lastSearchLocation}
-                        />
-                      )}
                     </div>
                   </TabsContent>
                   
