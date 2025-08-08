@@ -393,7 +393,28 @@ export default function RealEstateWholesaler() {
                       case 'oldest':
                         return (b.daysOnMarket || 0) - (a.daysOnMarket || 0);
                       default:
-                        return 0;
+                        // Default sorting: highest spreads first, prioritizing High-Value Wholesale Deals
+                        const getSpread = (property: any) => {
+                          if (!property.price || !property.zestimate) return -Infinity;
+                          return property.zestimate - property.price;
+                        };
+                        
+                        const getIsHighValue = (property: any) => {
+                          const spread = getSpread(property);
+                          return spread >= 35000;
+                        };
+                        
+                        const aSpread = getSpread(a);
+                        const bSpread = getSpread(b);
+                        const aIsHighValue = getIsHighValue(a);
+                        const bIsHighValue = getIsHighValue(b);
+                        
+                        // First, prioritize High-Value Wholesale Deals
+                        if (aIsHighValue && !bIsHighValue) return -1;
+                        if (!aIsHighValue && bIsHighValue) return 1;
+                        
+                        // Then sort by spread (highest to lowest)
+                        return bSpread - aSpread;
                     }
                   }).map((property, index) => (
                     <div 
