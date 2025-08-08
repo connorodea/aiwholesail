@@ -65,11 +65,6 @@ const Landing = () => {
                   />
                   <div className="absolute -inset-2 bg-gradient-to-r from-primary/20 to-accent/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"></div>
                 </div>
-                <div className="hidden sm:block">
-                  <h1 className="font-semibold text-lg bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
-                    AIWholesail
-                  </h1>
-                </div>
               </div>
               
               {/* Action Buttons */}
