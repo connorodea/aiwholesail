@@ -14,6 +14,7 @@ import { useLeads } from '@/hooks/useLeads';
 import { toast } from 'sonner';
 import { EnhancedPropertySearch } from '@/components/EnhancedPropertySearch';
 import { PropertyAlertsManager } from '@/components/PropertyAlertsManager';
+import { SubscriptionPlans } from '@/components/SubscriptionPlans';
 import { processPropertyAlerts } from '@/lib/propertyAlerts';
 
 export default function RealEstateWholesaler() {
@@ -219,6 +220,11 @@ export default function RealEstateWholesaler() {
                   <PropertySearch onSearch={handleSearch} isLoading={isLoading} />
                 </div>
               </div>
+            </section>
+
+            {/* Subscription Plans Section */}
+            <section className="space-y-6">
+              <SubscriptionPlans />
             </section>
 
             {/* Results Section */}
