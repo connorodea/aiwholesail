@@ -24,7 +24,13 @@ import { AIWholesaleAnalyzer } from '@/components/AIWholesaleAnalyzer';
 import { offMarketAPI, type OffMarketProperty, type OffMarketSearchParams, type OffMarketSearchResult } from '@/lib/off-market-api';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { BarChart3, Target } from 'lucide-react';
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { BarChart3, Target, ArrowUpDown } from 'lucide-react';
 
 export default function RealEstateWholesaler() {
   const { user, signOut } = useAuth();
@@ -45,6 +51,7 @@ export default function RealEstateWholesaler() {
   const [activeTab, setActiveTab] = useState<'on-market' | 'off-market'>('on-market');
   const [offMarketResults, setOffMarketResults] = useState<OffMarketSearchResult | null>(null);
   const [lastSearchLocation, setLastSearchLocation] = useState<string>('');
+  const [sortBy, setSortBy] = useState<'price-high' | 'price-low' | 'newest' | 'oldest'>('price-low');
 
   const handleSearch = async (params: PropertySearchParams) => {
     try {
@@ -332,21 +339,63 @@ export default function RealEstateWholesaler() {
                   </div>
                   
                   {user && properties.length > 0 && (
-                    <Button
-                      onClick={() => exportAllLeads(properties, lastSearchLocation)}
-                      disabled={exportLoading}
-                      variant="outline"
-                      size="sm"
-                      className="gap-2 h-9 px-4 text-sm font-medium smooth-transition"
-                    >
-                      <Download className="h-4 w-4" />
-                      {exportLoading ? 'Exporting...' : 'Export CSV'}
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="gap-2 h-9 px-4 text-sm font-medium smooth-transition"
+                          >
+                            <ArrowUpDown className="h-4 w-4" />
+                            Sort by
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-48">
+                          <DropdownMenuItem onClick={() => setSortBy('price-low')}>
+                            Price: Low to High
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => setSortBy('price-high')}>
+                            Price: High to Low
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => setSortBy('newest')}>
+                            Newest on Market
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => setSortBy('oldest')}>
+                            Oldest on Market
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                      
+                      <Button
+                        onClick={() => exportAllLeads(properties, lastSearchLocation)}
+                        disabled={exportLoading}
+                        variant="outline"
+                        size="sm"
+                        className="gap-2 h-9 px-4 text-sm font-medium smooth-transition"
+                      >
+                        <Download className="h-4 w-4" />
+                        {exportLoading ? 'Exporting...' : 'Export CSV'}
+                      </Button>
+                    </div>
                   )}
                 </div>
                 
                 <div className="property-grid">
-                  {properties.map((property, index) => (
+                  {[...properties].sort((a, b) => {
+                    switch (sortBy) {
+                      case 'price-high':
+                        return (b.price || 0) - (a.price || 0);
+                      case 'price-low':
+                        return (a.price || 0) - (b.price || 0);
+                      case 'newest':
+                        return (b.daysOnZillow || 0) - (a.daysOnZillow || 0);
+                      case 'oldest':
+                        return (a.daysOnZillow || 0) - (b.daysOnZillow || 0);
+                      default:
+                        return 0;
+                    }
+                  }).map((property, index) => (
                     <div 
                       key={property.id}
                       className="animate-fade-in hover-scale"
