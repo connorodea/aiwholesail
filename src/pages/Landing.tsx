@@ -69,11 +69,9 @@ const Landing = () => {
                         Sign In
                       </Button>
                     </Link>
-                    <Link to="/auth?mode=signup">
-                      <Button size="sm" className="hover-scale shadow-sm">
-                        Get Started
-                      </Button>
-                    </Link>
+                    <Button size="sm" className="hover-scale shadow-sm" onClick={handleStartTrial}>
+                      Get Started
+                    </Button>
                   </div>}
               </div>
             </div>
@@ -106,11 +104,9 @@ const Landing = () => {
               <Button size="lg" onClick={handleStartTrial} disabled={loading} className="text-base font-medium px-8 py-3 rounded-full">
                 {loading ? "Loading..." : "Start 7-Day Free Trial"}
               </Button>
-              {!user && <Link to="/auth">
-                  <Button variant="outline" size="lg" className="text-base font-medium px-8 py-3 rounded-full">
+                {!user && <Button variant="outline" size="lg" onClick={handleStartTrial} className="text-base font-medium px-8 py-3 rounded-full">
                     Watch Demo
-                  </Button>
-                </Link>}
+                  </Button>}
             </div>
             
             <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground pt-6">
