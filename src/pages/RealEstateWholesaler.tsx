@@ -26,9 +26,11 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ArrowUpDown } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export default function RealEstateWholesaler() {
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
   const { subscription, isTrialActive, trialDaysRemaining } = useSubscription();
   const { favorites } = useFavorites();
   const { exportAllLeads, loading: exportLoading } = useLeads();
@@ -129,6 +131,8 @@ export default function RealEstateWholesaler() {
       toast.success('Signed out successfully');
       setShowFavorites(false);
       setShowAlerts(false);
+      // Redirect to home page after successful sign out
+      navigate('/');
     } catch (error) {
       toast.error('Failed to sign out');
     }
