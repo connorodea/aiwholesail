@@ -301,9 +301,9 @@ export function PropertyAnalysisChat({ property, isOpen }: PropertyAnalysisChatP
       </div>
       
       {/* Chat Area */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-h-0">
         <ScrollArea className="flex-1 p-6" ref={scrollAreaRef}>
-          <div className="max-w-none space-y-6">
+          <div className="max-w-none space-y-6 pb-4">
             {/* Initial state with start button */}
             {showStartButton && messages.length === 0 && (
               <div className="text-center py-12">
