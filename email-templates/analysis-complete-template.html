@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis Complete - AI Wholesail</title>
+    <style>
+        /* Reset styles */
+        body, table, td, p, a { margin: 0; padding: 0; border: 0; font-size: 100%; font: inherit; vertical-align: baseline; }
+        body { line-height: 1; }
+        table { border-collapse: collapse; border-spacing: 0; }
+        img { border: 0; outline: none; text-decoration: none; display: block; }
+        
+        /* Email client compatibility */
+        .ExternalClass { width: 100%; }
+        .ExternalClass, .ExternalClass p, .ExternalClass span, .ExternalClass font, .ExternalClass td, .ExternalClass div { line-height: 100%; }
+        
+        /* Responsive styles */
+        @media only screen and (max-width: 600px) {
+            .container { width: 100% !important; }
+            .content { padding: 20px !important; }
+            .cta-button { width: 100% !important; padding: 15px !important; font-size: 16px !important; }
+            .metric-row { display: block !important; width: 100% !important; }
+            .metric-item { display: block !important; width: 100% !important; margin-bottom: 15px !important; }
+        }
+    </style>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">
+    <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 40px 0;">
+        <tr>
+            <td align="center">
+                <table class="container" cellpadding="0" cellspacing="0" border="0" width="600" style="max-width: 600px; background-color: #ffffff; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden;">
+                    
+                    <!-- Header -->
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 30px; text-align: center;">
+                            <div style="background-color: rgba(255,255,255,0.2); width: 80px; height: 80px; border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;">
+                                <span style="font-size: 40px;">✅</span>
+                            </div>
+                            <h1 style="color: #ffffff; font-size: 28px; font-weight: 700; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">Analysis Complete!</h1>
+                            <p style="color: #d1fae5; font-size: 16px; margin: 10px 0 0 0;">Your property analysis is ready for review</p>
+                        </td>
+                    </tr>
+                    
+                    <!-- Content -->
+                    <tr>
+                        <td class="content" style="padding: 40px;">
+                            <p style="color: #374151; font-size: 16px; line-height: 1.6; margin: 0 0 25px 0;">
+                                Hi <strong>{{user_name}}</strong>,
+                            </p>
+                            
+                            <p style="color: #374151; font-size: 16px; line-height: 1.6; margin: 0 0 30px 0;">
+                                Great news! We've completed the comprehensive analysis for the property at <strong>{{property_address}}</strong>. Our AI-powered system has evaluated all the key metrics to help you make an informed investment decision.
+                            </p>
+                            
+                            <!-- Property Summary -->
+                            <div style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); padding: 25px; border-radius: 10px; margin-bottom: 30px; border-left: 4px solid #0ea5e9;">
+                                <h3 style="color: #0c4a6e; font-size: 20px; font-weight: 700; margin: 0 0 15px 0;">📊 Analysis Summary</h3>
+                                
+                                <!-- Key Metrics -->
+                                <table class="metric-row" cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom: 20px;">
+                                    <tr>
+                                        <td class="metric-item" style="width: 50%; padding: 15px; background-color: #ffffff; border-radius: 8px; margin-right: 10px; text-align: center;">
+                                            <div style="font-size: 24px; font-weight: 700; color: #059669; margin-bottom: 5px;">${{estimated_profit}}</div>
+                                            <div style="font-size: 14px; color: #64748b; font-weight: 600;">Estimated Profit</div>
+                                        </td>
+                                        <td style="width: 10px;"></td>
+                                        <td class="metric-item" style="width: 50%; padding: 15px; background-color: #ffffff; border-radius: 8px; text-align: center;">
+                                            <div style="font-size: 24px; font-weight: 700; color: #dc2626; margin-bottom: 5px;">{{roi_percentage}}%</div>
+                                            <div style="font-size: 14px; color: #64748b; font-weight: 600;">Expected ROI</div>
+                                        </td>
+                                    </tr>
+                                </table>
+                                
+                                <table class="metric-row" cellpadding="0" cellspacing="0" border="0" width="100%">
+                                    <tr>
+                                        <td class="metric-item" style="width: 50%; padding: 15px; background-color: #ffffff; border-radius: 8px; margin-right: 10px; text-align: center;">
+                                            <div style="font-size: 24px; font-weight: 700; color: #7c3aed; margin-bottom: 5px;">${{arv_estimate}}</div>
+                                            <div style="font-size: 14px; color: #64748b; font-weight: 600;">ARV Estimate</div>
+                                        </td>
+                                        <td style="width: 10px;"></td>
+                                        <td class="metric-item" style="width: 50%; padding: 15px; background-color: #ffffff; border-radius: 8px; text-align: center;">
+                                            <div style="font-size: 24px; font-weight: 700; color: #f59e0b; margin-bottom: 5px;">{{confidence_score}}%</div>
+                                            <div style="font-size: 14px; color: #64748b; font-weight: 600;">Confidence Score</div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            
+                            <!-- AI Insights -->
+                            <div style="background-color: #fefce8; padding: 20px; border-radius: 10px; margin-bottom: 30px; border-left: 4px solid #eab308;">
+                                <h3 style="color: #a16207; font-size: 18px; font-weight: 700; margin: 0 0 15px 0;">🤖 AI Insights</h3>
+                                <ul style="color: #713f12; margin: 0; padding-left: 20px; line-height: 1.6;">
+                                    <li style="margin-bottom: 8px;">{{insight_1}}</li>
+                                    <li style="margin-bottom: 8px;">{{insight_2}}</li>
+                                    <li style="margin-bottom: 8px;">{{insight_3}}</li>
+                                </ul>
+                            </div>
+                            
+                            <!-- Action Items -->
+                            <div style="background-color: #fdf2f8; padding: 20px; border-radius: 10px; margin-bottom: 30px; border-left: 4px solid #ec4899;">
+                                <h3 style="color: #be185d; font-size: 18px; font-weight: 700; margin: 0 0 15px 0;">🎯 Recommended Next Steps</h3>
+                                <ol style="color: #831843; margin: 0; padding-left: 20px; line-height: 1.6;">
+                                    <li style="margin-bottom: 8px;">{{action_item_1}}</li>
+                                    <li style="margin-bottom: 8px;">{{action_item_2}}</li>
+                                    <li style="margin-bottom: 8px;">{{action_item_3}}</li>
+                                </ol>
+                            </div>
+                            
+                            <!-- CTA Button -->
+                            <div style="text-align: center; margin: 30px 0;">
+                                <a href="{{view_full_analysis_url}}" class="cta-button" style="display: inline-block; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: #ffffff; text-decoration: none; padding: 18px 40px; border-radius: 8px; font-weight: 700; font-size: 18px; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); transition: all 0.3s ease;">
+                                    View Full Analysis Report
+                                </a>
+                            </div>
+                            
+                            <!-- Additional Actions -->
+                            <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-top: 25px;">
+                                <tr>
+                                    <td style="width: 50%; padding-right: 10px;">
+                                        <a href="{{schedule_walkthrough_url}}" style="display: block; background-color: #ffffff; color: #4f46e5; text-decoration: none; padding: 12px 20px; border-radius: 6px; font-weight: 600; text-align: center; border: 2px solid #4f46e5; font-size: 14px;">
+                                            📅 Schedule Walkthrough
+                                        </a>
+                                    </td>
+                                    <td style="width: 50%; padding-left: 10px;">
+                                        <a href="{{contact_owner_url}}" style="display: block; background-color: #ffffff; color: #059669; text-decoration: none; padding: 12px 20px; border-radius: 6px; font-weight: 600; text-align: center; border: 2px solid #059669; font-size: 14px;">
+                                            📞 Contact Owner
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background-color: #f8fafc; padding: 30px; text-align: center; border-top: 1px solid #e2e8f0;">
+                            <p style="color: #64748b; font-size: 14px; margin: 0 0 15px 0;">
+                                Analysis completed in <strong>{{processing_time}}</strong> using our advanced AI algorithms
+                            </p>
+                            <p style="color: #64748b; font-size: 12px; margin: 0 0 15px 0;">
+                                <a href="{{dashboard_url}}" style="color: #4f46e5; text-decoration: none;">View Dashboard</a> | 
+                                <a href="{{support_url}}" style="color: #64748b; text-decoration: none;">Get Support</a>
+                            </p>
+                            <div style="margin-top: 20px;">
+                                <img src="https://your-domain.com/logo-small.png" alt="AI Wholesail" width="40" style="margin-bottom: 10px;">
+                                <p style="color: #94a3b8; font-size: 12px; margin: 0;">
+                                    © 2024 AI Wholesail. All rights reserved.<br>
+                                    Empowering smart real estate investments with AI.
+                                </p>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
