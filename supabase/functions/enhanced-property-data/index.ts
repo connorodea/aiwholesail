@@ -5,6 +5,35 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Rate limiting store
+const rateLimitStore = new Map<string, number[]>();
+
+function checkRateLimit(userId: string, maxRequests: number = 10, windowMs: number = 60000): boolean {
+  const now = Date.now();
+  
+  if (!rateLimitStore.has(userId)) {
+    rateLimitStore.set(userId, []);
+  }
+  
+  const requests = rateLimitStore.get(userId)!;
+  const recentRequests = requests.filter(time => now - time < windowMs);
+  
+  if (recentRequests.length >= maxRequests) {
+    return false;
+  }
+  
+  recentRequests.push(now);
+  rateLimitStore.set(userId, recentRequests);
+  return true;
+}
+
+function sanitizeInput(input: any): any {
+  if (typeof input === 'string') {
+    return input.replace(/[<>'"&]/g, '').trim().substring(0, 200);
+  }
+  return input;
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -12,7 +41,19 @@ serve(async (req) => {
   }
 
   try {
-    const { address, city, state } = await req.json();
+    // Authentication check
+    const authorization = req.headers.get('Authorization');
+    if (!authorization) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Authorization required' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
+      );
+    }
+
+    const requestData = await req.json();
+    const address = sanitizeInput(requestData.address);
+    const city = sanitizeInput(requestData.city);
+    const state = sanitizeInput(requestData.state);
 
     const rapidApiKey = Deno.env.get('RAPIDAPI_KEY');
     if (!rapidApiKey) {

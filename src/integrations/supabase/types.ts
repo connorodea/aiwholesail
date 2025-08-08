@@ -29,6 +29,7 @@ export type Database = {
           risk_score: number | null
           total_repair_estimate: number
           updated_at: string | null
+          user_id: string | null
           zpid: string
         }
         Insert: {
@@ -45,6 +46,7 @@ export type Database = {
           risk_score?: number | null
           total_repair_estimate?: number
           updated_at?: string | null
+          user_id?: string | null
           zpid: string
         }
         Update: {
@@ -61,6 +63,7 @@ export type Database = {
           risk_score?: number | null
           total_repair_estimate?: number
           updated_at?: string | null
+          user_id?: string | null
           zpid?: string
         }
         Relationships: []
@@ -404,6 +407,7 @@ export type Database = {
           tax_year: number | null
           trust_owned: boolean | null
           updated_at: string
+          user_id: string | null
           year_built: number | null
           zpid: string | null
         }
@@ -443,6 +447,7 @@ export type Database = {
           tax_year?: number | null
           trust_owned?: boolean | null
           updated_at?: string
+          user_id?: string | null
           year_built?: number | null
           zpid?: string | null
         }
@@ -482,6 +487,7 @@ export type Database = {
           tax_year?: number | null
           trust_owned?: boolean | null
           updated_at?: string
+          user_id?: string | null
           year_built?: number | null
           zpid?: string | null
         }

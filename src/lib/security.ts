@@ -101,3 +101,91 @@ export function checkRateLimit(key: string, maxRequests: number = 10, windowMs: 
   rateLimitStore.set(key, recentRequests);
   return true;
 }
+
+/**
+ * Enhanced password validation with security requirements
+ */
+export function validatePassword(password: string): { isValid: boolean; errors: string[] } {
+  const errors: string[] = [];
+  
+  if (!password) {
+    errors.push('Password is required');
+    return { isValid: false, errors };
+  }
+  
+  if (password.length < 8) {
+    errors.push('Password must be at least 8 characters long');
+  }
+  
+  if (!/[A-Z]/.test(password)) {
+    errors.push('Password must contain at least one uppercase letter');
+  }
+  
+  if (!/[a-z]/.test(password)) {
+    errors.push('Password must contain at least one lowercase letter');
+  }
+  
+  if (!/\d/.test(password)) {
+    errors.push('Password must contain at least one number');
+  }
+  
+  if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+    errors.push('Password must contain at least one special character');
+  }
+  
+  // Check for common weak passwords
+  const commonPasswords = ['password', '123456', 'qwerty', 'abc123', 'password123'];
+  if (commonPasswords.includes(password.toLowerCase())) {
+    errors.push('This password is too common and easily guessed');
+  }
+  
+  return { isValid: errors.length === 0, errors };
+}
+
+/**
+ * Email validation with security considerations
+ */
+export function validateEmail(email: string): { isValid: boolean; error?: string } {
+  if (!email) {
+    return { isValid: false, error: 'Email is required' };
+  }
+  
+  // Basic email regex that prevents most injection attempts
+  const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+  
+  if (!emailRegex.test(email)) {
+    return { isValid: false, error: 'Please enter a valid email address' };
+  }
+  
+  if (email.length > 254) {
+    return { isValid: false, error: 'Email address is too long' };
+  }
+  
+  return { isValid: true };
+}
+
+/**
+ * Session timeout management
+ */
+export function isSessionExpired(lastActivity: number, timeoutMinutes: number = 30): boolean {
+  const now = Date.now();
+  const timeoutMs = timeoutMinutes * 60 * 1000;
+  return (now - lastActivity) > timeoutMs;
+}
+
+/**
+ * Log security events (sanitized)
+ */
+export function logSecurityEvent(event: string, details: Record<string, any> = {}): void {
+  const sanitizedDetails = Object.fromEntries(
+    Object.entries(details).map(([key, value]) => [
+      key,
+      typeof value === 'string' && key.toLowerCase().includes('password') ? '[REDACTED]' : value
+    ])
+  );
+  
+  console.log(`Security Event: ${event}`, {
+    timestamp: new Date().toISOString(),
+    ...sanitizedDetails
+  });
+}

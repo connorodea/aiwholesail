@@ -79,7 +79,7 @@ class StateOfTheArtAIAssessment {
       const marketAnalysis = await this.analyzeMarketImpact(consolidatedRepairs, zpid);
       const report = await this.generateComprehensiveReport(consolidatedRepairs, marketAnalysis, photos.length);
       
-      await this.saveAdvancedAssessment(zpid, report);
+      // Note: saveAdvancedAssessment will be called with actual user_id from the main serve function
       
       return report;
     } catch (error) {
@@ -648,12 +648,13 @@ Provide JSON analysis:
     return 'excellent';
   }
 
-  private async saveAdvancedAssessment(zpid: string, report: PropertyConditionReport): Promise<void> {
+  private async saveAdvancedAssessment(zpid: string, report: PropertyConditionReport, userId: string): Promise<void> {
     try {
       const { error } = await this.supabase
         .from('advanced_property_assessments')
         .upsert({
           zpid,
+          user_id: userId,
           overall_condition: report.overall_condition,
           total_repair_estimate: report.total_repair_estimate,
           confidence_score: report.confidence_score,
@@ -673,22 +674,90 @@ Provide JSON analysis:
   }
 }
 
+// Rate limiting store
+const rateLimitStore = new Map<string, number[]>();
+
+function checkRateLimit(userId: string, maxRequests: number = 5, windowMs: number = 60000): boolean {
+  const now = Date.now();
+  
+  if (!rateLimitStore.has(userId)) {
+    rateLimitStore.set(userId, []);
+  }
+  
+  const requests = rateLimitStore.get(userId)!;
+  const recentRequests = requests.filter(time => now - time < windowMs);
+  
+  if (recentRequests.length >= maxRequests) {
+    return false;
+  }
+  
+  recentRequests.push(now);
+  rateLimitStore.set(userId, recentRequests);
+  return true;
+}
+
+function sanitizeInput(input: any): any {
+  if (typeof input === 'string') {
+    return input.replace(/[<>'"&]/g, '').trim();
+  }
+  return input;
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { zpid, photos, arv, acquisition_costs, wholesale_fee } = await req.json();
+    // Get user from auth header
+    const authorization = req.headers.get('Authorization');
+    if (!authorization) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Authorization required' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
+      );
+    }
+
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    const token = authorization.replace('Bearer ', '');
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    
+    if (authError || !user) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Invalid authentication' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
+      );
+    }
+
+    // Rate limiting check
+    if (!checkRateLimit(user.id)) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Rate limit exceeded. Please try again later.' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 429 }
+      );
+    }
+
+    const requestData = await req.json();
+    const zpid = sanitizeInput(requestData.zpid);
+    const photos = requestData.photos || [];
+    const arv = sanitizeInput(requestData.arv);
+    const acquisition_costs = sanitizeInput(requestData.acquisition_costs);
+    const wholesale_fee = sanitizeInput(requestData.wholesale_fee);
     
     if (!zpid || !photos || !Array.isArray(photos)) {
       throw new Error('ZPID and photos array are required');
     }
 
-    console.log(`🚀 Starting comprehensive AI assessment for property ${zpid}`);
+    console.log(`🚀 Starting comprehensive AI assessment for property ${zpid} (User: ${user.id})`);
     
     const aiAssessment = new StateOfTheArtAIAssessment();
     const assessment = await aiAssessment.assessProperty(zpid, photos);
+    
+    // Save assessment with user_id after generation
+    await aiAssessment.saveAdvancedAssessment(zpid, assessment, user.id);
     
     // Calculate advanced deal metrics
     const repairCosts = assessment.total_repair_estimate;
@@ -698,8 +767,8 @@ serve(async (req) => {
     const maxOffer = (adjustedARV * 0.70) - repairCosts - (acquisition_costs || 2000);
     const maxPurchasePrice = maxOffer - (wholesale_fee || 5000);
     
-    const riskScore = this.calculateRiskScore(assessment);
-    const opportunityScore = this.calculateOpportunityScore(assessment, adjustedARV);
+    const riskScore = calculateRiskScore(assessment);
+    const opportunityScore = calculateOpportunityScore(assessment, adjustedARV);
     
     const dealMetrics = {
       arv: adjustedARV,
@@ -710,7 +779,7 @@ serve(async (req) => {
       wholesale_fee: wholesale_fee || 5000,
       max_purchase_price: maxPurchasePrice,
       profit_margin: wholesale_fee || 5000,
-      deal_grade: this.gradeDeal(maxPurchasePrice, adjustedARV, assessment.confidence_score, riskScore),
+      deal_grade: gradeDeal(maxPurchasePrice, adjustedARV, assessment.confidence_score, riskScore),
       risk_score: riskScore,
       opportunity_score: opportunityScore,
       roi_potential: maxPurchasePrice > 0 ? ((wholesale_fee || 5000) / maxPurchasePrice) * 100 : 0,

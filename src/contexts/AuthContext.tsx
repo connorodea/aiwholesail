@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { validatePassword, validateEmail, logSecurityEvent } from '@/lib/security';
 
 interface AuthContextType {
   user: User | null;
@@ -53,13 +54,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signUp = async (email: string, password: string, fullName?: string) => {
-    // Input validation for security
-    if (!email || !password) {
-      return { error: { message: 'Email and password are required' } };
+    // Enhanced input validation for security
+    const emailValidation = validateEmail(email);
+    if (!emailValidation.isValid) {
+      logSecurityEvent('signup_failed', { reason: 'invalid_email', email: email.substring(0, 3) + '***' });
+      return { error: { message: emailValidation.error } };
     }
     
-    if (password.length < 8) {
-      return { error: { message: 'Password must be at least 8 characters long' } };
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation.isValid) {
+      logSecurityEvent('signup_failed', { reason: 'weak_password', email: email.substring(0, 3) + '***' });
+      return { error: { message: passwordValidation.errors[0] } };
     }
     
     const redirectUrl = `${window.location.origin}/app`;
@@ -74,22 +79,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       });
       
-      // Log successful signup attempt (without sensitive data)
       if (!error) {
-        console.log('User signup attempt successful for:', email.trim().toLowerCase());
+        logSecurityEvent('signup_success', { email: email.substring(0, 3) + '***' });
+      } else {
+        logSecurityEvent('signup_failed', { reason: error.message, email: email.substring(0, 3) + '***' });
       }
       
       return { error };
     } catch (error) {
-      console.error('Signup error:', error);
+      logSecurityEvent('signup_error', { error: error.message });
       return { error: { message: 'An unexpected error occurred during signup' } };
     }
   };
 
   const signIn = async (email: string, password: string) => {
-    // Input validation for security
-    if (!email || !password) {
-      return { error: { message: 'Email and password are required' } };
+    // Enhanced input validation for security
+    const emailValidation = validateEmail(email);
+    if (!emailValidation.isValid) {
+      logSecurityEvent('signin_failed', { reason: 'invalid_email', email: email.substring(0, 3) + '***' });
+      return { error: { message: emailValidation.error } };
+    }
+    
+    if (!password) {
+      logSecurityEvent('signin_failed', { reason: 'no_password', email: email.substring(0, 3) + '***' });
+      return { error: { message: 'Password is required' } };
     }
     
     try {
@@ -98,14 +111,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         password
       });
       
-      // Log successful signin attempt (without sensitive data)
       if (!error) {
-        console.log('User signin successful for:', email.trim().toLowerCase());
+        logSecurityEvent('signin_success', { email: email.substring(0, 3) + '***' });
+      } else {
+        logSecurityEvent('signin_failed', { reason: error.message, email: email.substring(0, 3) + '***' });
       }
       
       return { error };
     } catch (error) {
-      console.error('Signin error:', error);
+      logSecurityEvent('signin_error', { error: error.message });
       return { error: { message: 'An unexpected error occurred during signin' } };
     }
   };
