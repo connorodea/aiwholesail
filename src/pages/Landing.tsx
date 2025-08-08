@@ -241,65 +241,106 @@ const Landing = () => {
             Transparent <span className="text-primary">Pricing</span>
           </h2>
           <p className="text-xl text-muted-foreground mb-12 max-w-2xl mx-auto">
-            One simple plan with everything you need. No hidden fees, no complicated tiers.
+            Choose the plan that fits your business. Both plans include a 7-day free trial.
           </p>
           
-          <Card className="max-w-lg mx-auto border-2 border-primary/20 hover:border-primary/40 transition-all duration-300 hover:shadow-2xl hover:-translate-y-2">
-            <CardHeader className="text-center pb-4">
-              <div className="mb-4">
-                <Badge className="bg-primary text-primary-foreground">Most Popular</Badge>
-              </div>
-               <div className="font-brand font-bold text-3xl tracking-tight">
-                 <span className="bg-gradient-to-r from-primary via-primary to-primary/70 bg-clip-text text-transparent">
-                   AI
-                 </span>
-                 <span className="text-foreground">Wholesale</span>
-                 <span className="bg-gradient-to-r from-primary/70 to-accent bg-clip-text text-transparent">
-                   ail
-                 </span>
-               </div>
-              <div className="text-5xl font-bold mb-2">
-                $29.99
-                <span className="text-xl font-normal text-muted-foreground">/month</span>
-              </div>
-              <CardDescription className="text-lg">
-                Everything you need to find and analyze profitable wholesale deals
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-4 text-left mb-8">
-                {[
-                  "Unlimited property searches across all markets",
-                  "AI-powered deal analysis and scoring",
-                  "Real-time market data and comps",
-                  "ROI and profit calculations",
-                  "AI chat assistant with web search",
-                  "Lead management and CRM",
-                  "Export and reporting tools",
-                  "Priority email support"
-                ].map((feature) => (
-                  <li key={feature} className="flex items-start gap-3">
-                    <CheckCircle className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                    <span className="text-sm">{feature}</span>
-                  </li>
-                ))}
-              </ul>
-              
-              <div className="space-y-4">
-                <Button 
-                  className="w-full" 
-                  size="lg"
-                  onClick={handleStartTrial}
-                  disabled={loading}
-                >
-                  {loading ? "Loading..." : "Start 7-Day Free Trial"}
-                </Button>
-                <p className="text-xs text-muted-foreground">
-                  No credit card required • Cancel anytime • Full refund within 30 days
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {/* Pro Plan */}
+            <Card className="border-2 border-primary/20 hover:border-primary/40 transition-all duration-300 hover:shadow-2xl hover:-translate-y-2">
+              <CardHeader className="text-center pb-4">
+                <div className="mb-4">
+                  <Badge className="bg-primary text-primary-foreground">Most Popular</Badge>
+                </div>
+                <CardTitle className="text-2xl font-bold text-primary mb-2">Pro</CardTitle>
+                <div className="text-5xl font-bold mb-2">
+                  $29
+                  <span className="text-xl font-normal text-muted-foreground">/month</span>
+                </div>
+                <CardDescription className="text-lg">
+                  Perfect for individual wholesalers
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-4 text-left mb-8">
+                  {[
+                    "Up to 5 alert locations",
+                    "Automated updates every 24 hours",
+                    "Advanced property matching",
+                    "Email notifications",
+                    "Basic market analytics",
+                    "7-day free trial included"
+                  ].map((feature) => (
+                    <li key={feature} className="flex items-start gap-3">
+                      <CheckCircle className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                      <span className="text-sm">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+                
+                <div className="space-y-4">
+                  <Button 
+                    className="w-full" 
+                    size="lg"
+                    onClick={handleStartTrial}
+                    disabled={loading}
+                  >
+                    {loading ? "Loading..." : "Start 7-Day Free Trial"}
+                  </Button>
+                  <p className="text-xs text-muted-foreground">
+                    No credit card required • Cancel anytime • Full refund within 30 days
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Elite Plan */}
+            <Card className="border-2 border-border hover:border-primary/30 transition-all duration-300 hover:shadow-xl hover:-translate-y-2">
+              <CardHeader className="text-center pb-4">
+                <CardTitle className="text-2xl font-bold mb-2">Elite</CardTitle>
+                <div className="text-5xl font-bold mb-2">
+                  $99
+                  <span className="text-xl font-normal text-muted-foreground">/month</span>
+                </div>
+                <CardDescription className="text-lg">
+                  For serious real estate professionals
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-4 text-left mb-8">
+                  {[
+                    "Unlimited alert locations",
+                    "Real-time updates every 4 hours",
+                    "Advanced AI property analysis",
+                    "Priority email notifications",
+                    "Comprehensive market insights",
+                    "Skip tracing integration",
+                    "Lead scoring analytics",
+                    "7-day free trial included"
+                  ].map((feature) => (
+                    <li key={feature} className="flex items-start gap-3">
+                      <CheckCircle className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                      <span className="text-sm">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+                
+                <div className="space-y-4">
+                  <Button 
+                    className="w-full" 
+                    size="lg"
+                    variant="outline"
+                    onClick={handleStartTrial}
+                    disabled={loading}
+                  >
+                    {loading ? "Loading..." : "Start 7-Day Free Trial"}
+                  </Button>
+                  <p className="text-xs text-muted-foreground">
+                    No credit card required • Cancel anytime • Full refund within 30 days
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </section>
 
