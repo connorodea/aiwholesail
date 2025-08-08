@@ -208,10 +208,6 @@ export default function RealEstateWholesaler() {
               </div>
             </section>
 
-            {/* Subscription Section */}
-            <section>
-              <SubscriptionPlans />
-            </section>
 
             {/* Results Section */}
             {properties.length > 0 && (
