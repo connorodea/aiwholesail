@@ -192,9 +192,14 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
             <div className="flex items-center justify-between space-x-2">
               <div className="flex items-center space-x-2">
                 <Gavel className="h-4 w-4 text-primary" />
-                <Label htmlFor="auction-toggle" className="text-sm font-medium">
-                  Hide Auction Properties
-                </Label>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
+                  <Label htmlFor="auction-toggle" className="text-sm font-medium">
+                    Hide Auction Properties
+                  </Label>
+                  <span className="text-xs text-muted-foreground">
+                    Filter out auction properties from search results
+                  </span>
+                </div>
               </div>
               <Switch
                 id="auction-toggle"
@@ -202,17 +207,19 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
                 onCheckedChange={(checked) => setSearchParams(prev => ({ ...prev, auctionOnly: checked }))}
               />
             </div>
-            <p className="text-xs text-muted-foreground">
-              Filter out auction properties from search results
-            </p>
 
             {/* Foreclosure Filter */}
             <div className="flex items-center justify-between space-x-2">
               <div className="flex items-center space-x-2">
                 <AlertTriangle className="h-4 w-4 text-primary" />
-                <Label htmlFor="foreclosure-toggle" className="text-sm font-medium">
-                  Hide Foreclosure Properties
-                </Label>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
+                  <Label htmlFor="foreclosure-toggle" className="text-sm font-medium">
+                    Hide Foreclosure Properties
+                  </Label>
+                  <span className="text-xs text-muted-foreground">
+                    Filter out foreclosure properties from search results
+                  </span>
+                </div>
               </div>
               <Switch
                 id="foreclosure-toggle"
@@ -220,17 +227,19 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
                 onCheckedChange={(checked) => setSearchParams(prev => ({ ...prev, hideForeclosures: checked }))}
               />
             </div>
-            <p className="text-xs text-muted-foreground">
-              Filter out foreclosure properties from search results
-            </p>
 
             {/* FSBO Toggle */}
             <div className="flex items-center justify-between space-x-2">
               <div className="flex items-center space-x-2">
                 <Building2 className="h-4 w-4 text-primary" />
-                <Label htmlFor="fsbo-toggle" className="text-sm font-medium">
-                  FSBO Properties Only
-                </Label>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
+                  <Label htmlFor="fsbo-toggle" className="text-sm font-medium">
+                    FSBO Properties Only
+                  </Label>
+                  <span className="text-xs text-muted-foreground">
+                    Show only For Sale By Owner properties
+                  </span>
+                </div>
               </div>
               <Switch
                 id="fsbo-toggle"
@@ -238,9 +247,6 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
                 onCheckedChange={(checked) => updateParam('fsboOnly', checked)}
               />
             </div>
-            <p className="text-xs text-muted-foreground">
-              Show only For Sale By Owner properties
-            </p>
           </div>
 
           <Button
