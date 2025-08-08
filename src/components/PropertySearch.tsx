@@ -69,25 +69,19 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
   };
 
   return (
-    <Card className="feature-card backdrop-blur-sm bg-gradient-to-br from-card to-card/80 border-border/60">
-      <CardHeader className="pb-6 space-y-2">
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-primary/10 border border-primary/20">
-            <Search className="h-5 w-5 text-primary" />
-          </div>
-          <div>
-            <CardTitle className="text-2xl font-semibold tracking-tight text-card-foreground">
-              Property Search
-            </CardTitle>
-            <p className="text-sm text-muted-foreground mt-1">
-              Find the perfect wholesale opportunities
-            </p>
-          </div>
-        </div>
+    <Card className="bg-card border border-border/20 shadow-sm">
+      <CardHeader className="pb-6">
+        <CardTitle className="flex items-center gap-3 text-xl font-semibold text-card-foreground">
+          <Search className="h-5 w-5 text-primary" />
+          Property Search
+        </CardTitle>
+        <p className="text-sm text-muted-foreground">
+          Find the perfect wholesale opportunities
+        </p>
       </CardHeader>
-      <CardContent className="space-y-8">
+      <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Location with Autocomplete */}
             <div className="sm:col-span-2">
               <LocationAutocomplete
@@ -98,15 +92,13 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
             </div>
 
             {/* Property Type */}
-            <div className="space-y-3">
-              <Label className="flex items-center gap-2 text-sm font-medium text-card-foreground">
-                <div className="p-1.5 rounded bg-primary/10">
-                  <Home className="h-3.5 w-3.5 text-primary" />
-                </div>
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2 text-sm font-medium">
+                <Home className="h-4 w-4 text-muted-foreground" />
                 Property Type
               </Label>
               <Select value={searchParams.homeType} onValueChange={(value) => updateParam('homeType', value)}>
-                <SelectTrigger className="minimal-input h-11 bg-background/50 border-border/60 hover:border-primary/40 transition-colors">
+                <SelectTrigger className="h-10 border-border/60 focus:border-primary">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -120,15 +112,13 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
             </div>
 
             {/* Bedrooms Min */}
-            <div className="space-y-3">
-              <Label className="flex items-center gap-2 text-sm font-medium text-card-foreground">
-                <div className="p-1.5 rounded bg-primary/10">
-                  <Bed className="h-3.5 w-3.5 text-primary" />
-                </div>
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2 text-sm font-medium">
+                <Bed className="h-4 w-4 text-muted-foreground" />
                 Min Bedrooms
               </Label>
               <Select value={searchParams.bed_min || 'any'} onValueChange={(value) => updateParam('bed_min', value === 'any' ? undefined : value)}>
-                <SelectTrigger className="minimal-input h-11 bg-background/50 border-border/60 hover:border-primary/40 transition-colors">
+                <SelectTrigger className="h-10 border-border/60 focus:border-primary">
                   <SelectValue placeholder="Any" />
                 </SelectTrigger>
                 <SelectContent>
@@ -143,15 +133,13 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
             </div>
 
             {/* Bathrooms */}
-            <div className="space-y-3">
-              <Label className="flex items-center gap-2 text-sm font-medium text-card-foreground">
-                <div className="p-1.5 rounded bg-primary/10">
-                  <Bath className="h-3.5 w-3.5 text-primary" />
-                </div>
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2 text-sm font-medium">
+                <Bath className="h-4 w-4 text-muted-foreground" />
                 Min Bathrooms
               </Label>
               <Select value={searchParams.bathrooms || 'any'} onValueChange={(value) => updateParam('bathrooms', value === 'any' ? undefined : value)}>
-                <SelectTrigger className="minimal-input h-11 bg-background/50 border-border/60 hover:border-primary/40 transition-colors">
+                <SelectTrigger className="h-10 border-border/60 focus:border-primary">
                   <SelectValue placeholder="Any" />
                 </SelectTrigger>
                 <SelectContent>
@@ -166,11 +154,9 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
             </div>
 
             {/* Price Range */}
-            <div className="space-y-3">
-              <Label className="flex items-center gap-2 text-sm font-medium text-card-foreground">
-                <div className="p-1.5 rounded bg-primary/10">
-                  <DollarSign className="h-3.5 w-3.5 text-primary" />
-                </div>
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2 text-sm font-medium">
+                <DollarSign className="h-4 w-4 text-muted-foreground" />
                 Min Price
               </Label>
               <Input
@@ -180,15 +166,13 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
                 type="number"
                 min="0"
                 max="50000000"
-                className="minimal-input h-11 bg-background/50 border-border/60 hover:border-primary/40 transition-colors"
+                className="h-10 border-border/60 focus:border-primary"
               />
             </div>
 
-            <div className="space-y-3">
-              <Label className="flex items-center gap-2 text-sm font-medium text-card-foreground">
-                <div className="p-1.5 rounded bg-primary/10">
-                  <DollarSign className="h-3.5 w-3.5 text-primary" />
-                </div>
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2 text-sm font-medium">
+                <DollarSign className="h-4 w-4 text-muted-foreground" />
                 Max Price
               </Label>
               <Input
@@ -198,85 +182,72 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
                 type="number"
                 min="0"
                 max="50000000"
-                className="minimal-input h-11 bg-background/50 border-border/60 hover:border-primary/40 transition-colors"
+                className="h-10 border-border/60 focus:border-primary"
               />
             </div>
           </div>
 
-          {/* Advanced Filters */}
-          <div className="border-t border-border/30 pt-6 space-y-5">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="h-px bg-gradient-to-r from-primary/60 to-transparent flex-1" />
-              <span className="text-sm font-medium text-muted-foreground px-3">Advanced Filters</span>
-              <div className="h-px bg-gradient-to-l from-primary/60 to-transparent flex-1" />
-            </div>
+          {/* Filters */}
+          <div className="border-t border-border/20 pt-6 space-y-4">
+            <h3 className="text-sm font-medium text-card-foreground mb-4">Filters</h3>
 
             {/* Auction Filter */}
-            <div className="flex items-center justify-between p-4 rounded-lg bg-background/30 border border-border/40">
+            <div className="flex items-center justify-between py-2">
               <div className="flex items-center space-x-3">
-                <div className="p-2 rounded-lg bg-primary/10">
-                  <Gavel className="h-4 w-4 text-primary" />
-                </div>
-                <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
-                  <Label htmlFor="auction-toggle" className="text-sm font-medium text-card-foreground">
+                <Gavel className="h-4 w-4 text-muted-foreground" />
+                <div>
+                  <Label htmlFor="auction-toggle" className="text-sm font-medium cursor-pointer">
                     Hide Auction Properties
                   </Label>
-                  <span className="text-xs text-muted-foreground">
+                  <p className="text-xs text-muted-foreground">
                     Filter out auction properties from search results
-                  </span>
+                  </p>
                 </div>
               </div>
               <Switch
                 id="auction-toggle"
                 checked={searchParams.auctionOnly || false}
                 onCheckedChange={(checked) => setSearchParams(prev => ({ ...prev, auctionOnly: checked }))}
-                className="data-[state=checked]:bg-primary"
               />
             </div>
 
             {/* Foreclosure Filter */}
-            <div className="flex items-center justify-between p-4 rounded-lg bg-background/30 border border-border/40">
+            <div className="flex items-center justify-between py-2">
               <div className="flex items-center space-x-3">
-                <div className="p-2 rounded-lg bg-warning/10">
-                  <AlertTriangle className="h-4 w-4 text-warning" />
-                </div>
-                <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
-                  <Label htmlFor="foreclosure-toggle" className="text-sm font-medium text-card-foreground">
+                <AlertTriangle className="h-4 w-4 text-muted-foreground" />
+                <div>
+                  <Label htmlFor="foreclosure-toggle" className="text-sm font-medium cursor-pointer">
                     Hide Foreclosure Properties
                   </Label>
-                  <span className="text-xs text-muted-foreground">
+                  <p className="text-xs text-muted-foreground">
                     Filter out foreclosure properties from search results
-                  </span>
+                  </p>
                 </div>
               </div>
               <Switch
                 id="foreclosure-toggle"
                 checked={searchParams.hideForeclosures || false}
                 onCheckedChange={(checked) => setSearchParams(prev => ({ ...prev, hideForeclosures: checked }))}
-                className="data-[state=checked]:bg-primary"
               />
             </div>
 
             {/* FSBO Toggle */}
-            <div className="flex items-center justify-between p-4 rounded-lg bg-background/30 border border-border/40">
+            <div className="flex items-center justify-between py-2">
               <div className="flex items-center space-x-3">
-                <div className="p-2 rounded-lg bg-success/10">
-                  <Building2 className="h-4 w-4 text-success" />
-                </div>
-                <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
-                  <Label htmlFor="fsbo-toggle" className="text-sm font-medium text-card-foreground">
+                <Building2 className="h-4 w-4 text-muted-foreground" />
+                <div>
+                  <Label htmlFor="fsbo-toggle" className="text-sm font-medium cursor-pointer">
                     FSBO Properties Only
                   </Label>
-                  <span className="text-xs text-muted-foreground">
+                  <p className="text-xs text-muted-foreground">
                     Show only For Sale By Owner properties
-                  </span>
+                  </p>
                 </div>
               </div>
               <Switch
                 id="fsbo-toggle"
                 checked={searchParams.fsboOnly || false}
                 onCheckedChange={(checked) => updateParam('fsboOnly', checked)}
-                className="data-[state=checked]:bg-primary"
               />
             </div>
           </div>
@@ -285,19 +256,19 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
             type="submit" 
             variant="default"
             size="lg"
-            className="w-full h-12 bg-gradient-to-r from-primary to-primary-glow hover:shadow-glow transition-all duration-300 font-medium text-base"
+            className="w-full h-11 font-medium"
             disabled={isLoading || !searchParams.location.trim()}
           >
             {isLoading ? (
-              <div className="flex items-center justify-center gap-3">
-                <div className="animate-spin rounded-full h-5 w-5 border-2 border-primary-foreground/30 border-t-primary-foreground" />
-                <span>Searching Properties...</span>
-              </div>
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-2 border-primary-foreground/30 border-t-primary-foreground mr-2" />
+                Searching Properties...
+              </>
             ) : (
-              <div className="flex items-center justify-center gap-3">
-                <Search className="h-5 w-5" />
-                <span>Search Properties</span>
-              </div>
+              <>
+                <Search className="h-4 w-4 mr-2" />
+                Search Properties
+              </>
             )}
           </Button>
         </form>
