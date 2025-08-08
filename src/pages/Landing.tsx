@@ -94,7 +94,7 @@ const Landing = () => {
 
       {/* Hero Section */}
       {/* Hero Section - OpenAI inspired clean design */}
-      <section ref={heroRef.ref} className="relative pt-24 pb-16 px-4 overflow-hidden">
+      <section ref={heroRef.ref} className="relative pt-32 pb-16 px-4 overflow-hidden">
         {/* Subtle background elements */}
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/2 to-transparent"></div>
         
