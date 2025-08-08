@@ -11,20 +11,31 @@ import ScrollSailboat from "@/components/ScrollSailboat";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 const aiWholesailLogo = "/lovable-uploads/8dcdb5d0-ddfb-406f-a5f0-b3c5112d210a.png";
 const Landing = () => {
-  const { user } = useAuth();
+  const {
+    user
+  } = useAuth();
   const [loading, setLoading] = useState(false);
-  
+
   // Animation refs for different sections
-  const heroRef = useScrollAnimation({ threshold: 0.2 });
-  const featuresRef = useScrollAnimation({ threshold: 0.1 });
-  const pricingRef = useScrollAnimation({ threshold: 0.1 });
-  const testimonialsRef = useScrollAnimation({ threshold: 0.1 });
-  const ctaRef = useScrollAnimation({ threshold: 0.1 });
+  const heroRef = useScrollAnimation({
+    threshold: 0.2
+  });
+  const featuresRef = useScrollAnimation({
+    threshold: 0.1
+  });
+  const pricingRef = useScrollAnimation({
+    threshold: 0.1
+  });
+  const testimonialsRef = useScrollAnimation({
+    threshold: 0.1
+  });
+  const ctaRef = useScrollAnimation({
+    threshold: 0.1
+  });
   const handleStartTrial = () => {
     // Always redirect to pricing page for plan selection
     window.location.href = '/pricing';
   };
-
   const handleSubscribe = () => {
     // Redirect to pricing page for plan selection
     window.location.href = '/pricing';
@@ -76,9 +87,7 @@ const Landing = () => {
         {/* Subtle background elements */}
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/2 to-transparent"></div>
         
-        <div className={`container mx-auto text-center relative z-10 max-w-4xl transition-all duration-1000 ${
-          heroRef.isVisible ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-        }`}>
+        <div className={`container mx-auto text-center relative z-10 max-w-4xl transition-all duration-1000 ${heroRef.isVisible ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           <div className="space-y-8">
             
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-medium leading-tight tracking-tight">
@@ -121,9 +130,7 @@ const Landing = () => {
       {/* Features Section - Clean and Minimal */}
       <section ref={featuresRef.ref} className="py-24 px-4">
         <div className="container mx-auto max-w-6xl">
-          <div className={`text-center mb-16 space-y-4 transition-all duration-1000 delay-200 ${
-            featuresRef.isVisible ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-          }`}>
+          <div className={`text-center mb-16 space-y-4 transition-all duration-1000 delay-200 ${featuresRef.isVisible ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
             <h2 className="text-3xl md:text-4xl font-medium tracking-tight">
               Everything you need to <span className="text-primary">succeed</span>
             </h2>
@@ -133,9 +140,7 @@ const Landing = () => {
             </p>
           </div>
           
-          <div className={`grid lg:grid-cols-3 gap-8 mb-12 transition-all duration-1000 delay-400 ${
-            featuresRef.isVisible ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-          }`}>
+          <div className={`grid lg:grid-cols-3 gap-8 mb-12 transition-all duration-1000 delay-400 ${featuresRef.isVisible ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
             <div className="group text-center space-y-4 p-6 rounded-2xl hover:bg-card/50 transition-all duration-500">
               <div className="mx-auto mb-4 p-3 bg-primary/10 rounded-2xl w-fit group-hover:bg-primary/15 transition-colors">
                 <Brain className="h-8 w-8 text-primary" />
@@ -170,9 +175,7 @@ const Landing = () => {
             </div>
           </div>
 
-          <div className={`grid md:grid-cols-2 gap-8 max-w-4xl mx-auto transition-all duration-1000 delay-600 ${
-            featuresRef.isVisible ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-          }`}>
+          <div className={`grid md:grid-cols-2 gap-8 max-w-4xl mx-auto transition-all duration-1000 delay-600 ${featuresRef.isVisible ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
             <div className="group space-y-4 p-6 rounded-2xl hover:bg-card/50 transition-all duration-500">
               <div className="flex items-center gap-3 mb-3">
                 <div className="p-2 bg-primary/10 rounded-xl group-hover:bg-primary/15 transition-colors">
@@ -205,9 +208,7 @@ const Landing = () => {
       {/* Pricing Section - Clean & Minimal */}
       <section ref={pricingRef.ref} className="py-24 px-4">
         <div className="container mx-auto text-center max-w-5xl">
-          <div className={`space-y-4 mb-16 transition-all duration-1000 ${
-            pricingRef.isVisible ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-          }`}>
+          <div className={`space-y-4 mb-16 transition-all duration-1000 ${pricingRef.isVisible ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
             <h2 className="text-3xl md:text-4xl font-medium tracking-tight">
               Simple, transparent <span className="text-primary">pricing</span>
             </h2>
@@ -216,9 +217,7 @@ const Landing = () => {
             </p>
           </div>
           
-          <div className={`grid md:grid-cols-2 gap-6 max-w-3xl mx-auto transition-all duration-1000 delay-300 ${
-            pricingRef.isVisible ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-          }`}>
+          <div className={`grid md:grid-cols-2 gap-6 max-w-3xl mx-auto transition-all duration-1000 delay-300 ${pricingRef.isVisible ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
             {/* Pro Plan */}
             <Card className="border-2 border-primary/30 hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 bg-gradient-to-br from-primary/5 via-primary/2 to-transparent shadow-[0_0_20px_hsl(var(--primary)_/_0.1)] hover:shadow-[0_0_30px_hsl(var(--primary)_/_0.15)] ring-1 ring-primary/20 hover:ring-primary/30 relative overflow-hidden">
               <CardHeader className="text-center pb-4">
@@ -290,9 +289,7 @@ const Landing = () => {
       {/* Testimonials - Clean Design */}
       <section ref={testimonialsRef.ref} className="py-24 px-4">
         <div className="container mx-auto max-w-6xl">
-          <div className={`text-center mb-16 space-y-4 transition-all duration-1000 ${
-            testimonialsRef.isVisible ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-          }`}>
+          <div className={`text-center mb-16 space-y-4 transition-all duration-1000 ${testimonialsRef.isVisible ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
             <h2 className="text-3xl md:text-4xl font-medium tracking-tight">
               What our <span className="text-primary">users say</span>
             </h2>
@@ -302,9 +299,7 @@ const Landing = () => {
             </p>
           </div>
           
-          <div className={`grid md:grid-cols-2 gap-8 transition-all duration-1000 delay-300 ${
-            testimonialsRef.isVisible ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-          }`}>
+          <div className={`grid md:grid-cols-2 gap-8 transition-all duration-1000 delay-300 ${testimonialsRef.isVisible ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
             {[{
             name: "Sarah Johnson",
             role: "Real Estate Investor",
@@ -392,9 +387,7 @@ const Landing = () => {
             <div className="flex items-center gap-3">
               <img src={aiWholesailLogo} alt="AIWholesail" className="h-8 w-auto object-contain" />
             </div>
-            <p className="text-sm text-muted-foreground font-light text-center md:text-right">
-              &copy; 2024 AIWholesail. All rights reserved.
-            </p>
+            <p className="text-sm text-muted-foreground font-light text-center md:text-right">© 2025 AIWholesail. All rights reserved.</p>
           </div>
         </div>
       </footer>
