@@ -49,21 +49,50 @@ serve(async (req) => {
     }
 
     const body = await req.json();
-    const priceId = body.priceId;
+    const planType = body.priceId; // This is now the plan type (Pro/Elite)
     const isGuestCheckout = body.guestCheckout || false;
     
-    if (!priceId) {
-      throw new Error("Price ID is required");
+    if (!planType) {
+      throw new Error("Plan type is required");
     }
-    logStep("Price ID received", { priceId, isGuestCheckout });
-
-    // Use the price ID directly as it's already correct from the frontend
-    const actualPriceId = priceId;
-    logStep("Using price ID", { originalPriceId: priceId, actualPriceId });
+    logStep("Plan type received", { planType, isGuestCheckout });
 
     const stripe = new Stripe(stripeKey, { 
       apiVersion: "2023-10-16" 
     });
+
+    // Fetch all prices from Stripe to find the correct ones
+    const prices = await stripe.prices.list({ 
+      active: true,
+      type: 'recurring',
+      expand: ['data.product']
+    });
+    
+    logStep("Fetched prices from Stripe", { count: prices.data.length });
+
+    // Find the correct price based on plan type
+    let actualPriceId;
+    if (planType === 'Pro') {
+      // Look for $29/month plan
+      const proPrice = prices.data.find(price => 
+        price.unit_amount === 2900 && 
+        price.recurring?.interval === 'month'
+      );
+      actualPriceId = proPrice?.id;
+    } else if (planType === 'Elite') {
+      // Look for $99/month plan  
+      const elitePrice = prices.data.find(price => 
+        price.unit_amount === 9900 && 
+        price.recurring?.interval === 'month'
+      );
+      actualPriceId = elitePrice?.id;
+    }
+
+    if (!actualPriceId) {
+      throw new Error(`No price found for ${planType} plan. Please ensure you have created the products in Stripe.`);
+    }
+    
+    logStep("Found price ID", { planType, actualPriceId });
     
     let customerId;
     let customerEmail = user?.email;
