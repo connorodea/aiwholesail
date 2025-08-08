@@ -29,24 +29,33 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_ANON_KEY") ?? ""
     );
 
+    // Try to get user info, but don't require it for guest checkout
+    let user = null;
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) throw new Error("No authorization header provided");
-    logStep("Authorization header found");
-
-    const token = authHeader.replace("Bearer ", "");
-    const { data, error } = await supabaseClient.auth.getUser(token);
-    if (error) throw new Error(`Authentication error: ${error.message}`);
-    const user = data.user;
-    if (!user?.email) throw new Error("User not authenticated or email not available");
-    logStep("User authenticated", { userId: user.id, email: user.email });
+    
+    if (authHeader) {
+      try {
+        const token = authHeader.replace("Bearer ", "");
+        const { data } = await supabaseClient.auth.getUser(token);
+        user = data.user;
+        if (user?.email) {
+          logStep("User authenticated", { userId: user.id, email: user.email });
+        }
+      } catch (error) {
+        logStep("Authentication failed, proceeding as guest", { error: error.message });
+      }
+    } else {
+      logStep("No authorization header, proceeding as guest checkout");
+    }
 
     const body = await req.json();
     const priceId = body.priceId;
+    const isGuestCheckout = body.guestCheckout || false;
     
     if (!priceId) {
       throw new Error("Price ID is required");
     }
-    logStep("Price ID received", { priceId });
+    logStep("Price ID received", { priceId, isGuestCheckout });
 
     // Convert product IDs to actual price IDs
     const priceMapping: { [key: string]: string } = {
@@ -61,18 +70,27 @@ serve(async (req) => {
       apiVersion: "2023-10-16" 
     });
     
-    const customers = await stripe.customers.list({ email: user.email, limit: 1 });
     let customerId;
-    if (customers.data.length > 0) {
-      customerId = customers.data[0].id;
-      logStep("Found existing customer", { customerId });
-    } else {
-      logStep("No existing customer found, will create new one");
+    let customerEmail = user?.email;
+    
+    if (isGuestCheckout) {
+      // For guest checkout, don't look for existing customer
+      logStep("Guest checkout - no customer lookup");
+      customerEmail = undefined; // Let Stripe collect email
+    } else if (user?.email) {
+      // For logged-in users, check for existing customer
+      const customers = await stripe.customers.list({ email: user.email, limit: 1 });
+      if (customers.data.length > 0) {
+        customerId = customers.data[0].id;
+        logStep("Found existing customer", { customerId });
+      } else {
+        logStep("No existing customer found, will create new one");
+      }
     }
 
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
-      customer_email: customerId ? undefined : user.email,
+      customer_email: customerEmail,
       line_items: [
         {
           price: actualPriceId,
@@ -88,15 +106,16 @@ serve(async (req) => {
           }
         }
       },
-      success_url: `${req.headers.get("origin")}/success`,
-      cancel_url: `${req.headers.get("origin")}/`,
+      success_url: `${req.headers.get("origin")}/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${req.headers.get("origin")}/pricing`,
       custom_text: {
         submit: {
           message: "Start your 7-day free trial of AI Wholesail Pro! You'll get access to advanced real estate wholesale tools and AI-powered analysis. No charge until trial ends."
         }
       },
       metadata: {
-        company_name: "AI Wholesail"
+        company_name: "AI Wholesail",
+        guest_checkout: isGuestCheckout.toString()
       }
     });
 

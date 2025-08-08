@@ -50,19 +50,19 @@ export default function Pricing() {
     setLoading(plan.priceId);
     
     try {
-      // If user is not logged in, redirect to signup with plan info
-      if (!user) {
-        // Store selected plan in localStorage for after signup
-        localStorage.setItem('selectedPlan', JSON.stringify(plan));
-        window.location.href = `/auth?mode=signup&plan=${plan.name.toLowerCase()}`;
-        return;
-      }
-
-      // If user is logged in, proceed directly to checkout
+      // Always go to Stripe checkout first, regardless of login status
+      // Store the plan info for post-payment account creation
+      localStorage.setItem('selectedPlan', JSON.stringify(plan));
+      localStorage.setItem('pendingCheckout', 'true');
+      
       console.log('Starting checkout for plan:', plan.name, 'with priceId:', plan.priceId);
       
+      // Create a guest checkout session (user will create account after payment)
       const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { priceId: plan.priceId }
+        body: { 
+          priceId: plan.priceId,
+          guestCheckout: !user // Flag to indicate if this is a guest checkout
+        }
       });
 
       if (error) {
@@ -73,8 +73,8 @@ export default function Pricing() {
       console.log('Checkout response:', data);
 
       if (data?.url) {
-        window.open(data.url, '_blank');
-        toast.success('Redirecting to checkout...');
+        // Redirect to Stripe checkout in the same window
+        window.location.href = data.url;
       } else {
         throw new Error('No checkout URL received');
       }
