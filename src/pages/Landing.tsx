@@ -2,21 +2,17 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { 
-  CheckCircle, Search, DollarSign, MapPin, Star, 
-  Brain, BarChart3, MessageSquare, Eye, Zap, Shield,
-  ChevronRight, Play, ArrowRight
-} from "lucide-react";
+import { CheckCircle, Search, DollarSign, MapPin, Star, Brain, BarChart3, MessageSquare, Eye, Zap, Shield, ChevronRight, Play, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 const aiWholesailLogo = "/lovable-uploads/8dcdb5d0-ddfb-406f-a5f0-b3c5112d210a.png";
-
 const Landing = () => {
-  const { user } = useAuth();
+  const {
+    user
+  } = useAuth();
   const [loading, setLoading] = useState(false);
-
   const handleStartTrial = () => {
     if (!user) {
       // Redirect to signup mode for non-authenticated users
@@ -27,29 +23,28 @@ const Landing = () => {
     // If user is already logged in, start subscription
     handleSubscribe();
   };
-
   const handleSubscribe = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('create-checkout');
-      
+      const {
+        data,
+        error
+      } = await supabase.functions.invoke('create-checkout');
       if (error) throw error;
-      
+
       // Open Stripe checkout in a new tab
       window.open(data.url, '_blank');
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to create checkout session. Please try again.",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
     }
   };
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+  return <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
       {/* Header */}
       <header className="fixed top-4 left-4 right-4 z-50 animate-fade-in">
         <div className="container mx-auto max-w-7xl">
@@ -58,26 +53,19 @@ const Landing = () => {
               {/* Brand Section */}
               <div className="flex items-center space-x-3">
                 <div className="relative group">
-                  <img 
-                    src={aiWholesailLogo} 
-                    alt="AIWholesail" 
-                    className="h-10 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
-                  />
+                  <img src={aiWholesailLogo} alt="AIWholesail" className="h-10 w-auto object-contain transition-transform duration-300 group-hover:scale-105" />
                   <div className="absolute -inset-2 bg-gradient-to-r from-primary/20 to-accent/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"></div>
                 </div>
               </div>
               
               {/* Action Buttons */}
               <div className="flex items-center space-x-3">
-                {user ? (
-                  <Link to="/app">
+                {user ? <Link to="/app">
                     <Button variant="default" size="sm" className="hover-scale shadow-sm">
                       <Eye className="h-4 w-4 mr-2" />
                       Dashboard
                     </Button>
-                  </Link>
-                ) : (
-                  <div className="flex items-center space-x-2">
+                  </Link> : <div className="flex items-center space-x-2">
                     <Link to="/auth">
                       <Button variant="ghost" size="sm" className="hover-scale">
                         Sign In
@@ -88,8 +76,7 @@ const Landing = () => {
                         Get Started
                       </Button>
                     </Link>
-                  </div>
-                )}
+                  </div>}
               </div>
             </div>
           </div>
@@ -124,23 +111,16 @@ const Landing = () => {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in">
-            <Button 
-              size="lg" 
-              onClick={handleStartTrial}
-              disabled={loading}
-              className="text-lg px-10 py-4 hover-scale group"
-            >
+            <Button size="lg" onClick={handleStartTrial} disabled={loading} className="text-lg px-10 py-4 hover-scale group">
               {loading ? "Loading..." : "Start 7-Day Free Trial"}
               <ArrowRight className="h-5 w-5 ml-2 group-hover:translate-x-1 transition-transform" />
             </Button>
-            {!user && (
-              <Link to="/auth">
+            {!user && <Link to="/auth">
                 <Button variant="outline" size="lg" className="text-lg px-10 py-4 hover-scale">
                   <Play className="h-5 w-5 mr-2" />
                   Watch Demo
                 </Button>
-              </Link>
-            )}
+              </Link>}
           </div>
           
           <div className="mt-12 flex items-center justify-center gap-8 text-sm text-muted-foreground animate-fade-in">
@@ -263,7 +243,7 @@ const Landing = () => {
           
           <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             {/* Pro Plan */}
-            <Card className="border-2 border-primary/20 hover:border-primary/40 transition-all duration-300 hover:shadow-2xl hover:-translate-y-2">
+            <Card className="border-2 border-primary/20 hover:border-primary/40 transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 bg-[#17628e]/[0.82]">
               <CardHeader className="text-center pb-4">
                 <div className="mb-4">
                   <Badge className="bg-primary text-primary-foreground">Most Popular</Badge>
@@ -279,28 +259,14 @@ const Landing = () => {
               </CardHeader>
               <CardContent>
                 <ul className="space-y-4 text-left mb-8">
-                  {[
-                    "Up to 5 alert locations",
-                    "Automated updates every 24 hours",
-                    "Advanced property matching",
-                    "Email notifications",
-                    "Basic market analytics",
-                    "7-day free trial included"
-                  ].map((feature) => (
-                    <li key={feature} className="flex items-start gap-3">
+                  {["Up to 5 alert locations", "Automated updates every 24 hours", "Advanced property matching", "Email notifications", "Basic market analytics", "7-day free trial included"].map(feature => <li key={feature} className="flex items-start gap-3">
                       <CheckCircle className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
                       <span className="text-sm">{feature}</span>
-                    </li>
-                  ))}
+                    </li>)}
                 </ul>
                 
                 <div className="space-y-4">
-                  <Button 
-                    className="w-full" 
-                    size="lg"
-                    onClick={handleStartTrial}
-                    disabled={loading}
-                  >
+                  <Button className="w-full" size="lg" onClick={handleStartTrial} disabled={loading}>
                     {loading ? "Loading..." : "Start 7-Day Free Trial"}
                   </Button>
                   <p className="text-xs text-muted-foreground">
@@ -324,31 +290,14 @@ const Landing = () => {
               </CardHeader>
               <CardContent>
                 <ul className="space-y-4 text-left mb-8">
-                  {[
-                    "Unlimited alert locations",
-                    "Real-time updates every 4 hours",
-                    "Advanced AI property analysis",
-                    "Priority email notifications",
-                    "Comprehensive market insights",
-                    "Skip tracing integration",
-                    "Lead scoring analytics",
-                    "7-day free trial included"
-                  ].map((feature) => (
-                    <li key={feature} className="flex items-start gap-3">
+                  {["Unlimited alert locations", "Real-time updates every 4 hours", "Advanced AI property analysis", "Priority email notifications", "Comprehensive market insights", "Skip tracing integration", "Lead scoring analytics", "7-day free trial included"].map(feature => <li key={feature} className="flex items-start gap-3">
                       <CheckCircle className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
                       <span className="text-sm">{feature}</span>
-                    </li>
-                  ))}
+                    </li>)}
                 </ul>
                 
                 <div className="space-y-4">
-                  <Button 
-                    className="w-full" 
-                    size="lg"
-                    variant="outline"
-                    onClick={handleStartTrial}
-                    disabled={loading}
-                  >
+                  <Button className="w-full" size="lg" variant="outline" onClick={handleStartTrial} disabled={loading}>
                     {loading ? "Loading..." : "Start 7-Day Free Trial"}
                   </Button>
                   <p className="text-xs text-muted-foreground">
@@ -378,32 +327,25 @@ const Landing = () => {
           </div>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              {
-                name: "Sarah Johnson",
-                role: "Real Estate Investor",
-                content: "AIWholesail helped me find 3 profitable deals in my first month. The AI analysis is incredibly accurate and saved me countless hours of research.",
-                profit: "$85,000"
-              },
-              {
-                name: "Mike Chen",
-                role: "Wholesale Specialist",
-                content: "The time I save on research and analysis has doubled my deal flow. This platform is a game-changer for serious wholesalers.",
-                profit: "$120,000"
-              },
-              {
-                name: "Jennifer Davis",
-                role: "Property Flipper",
-                content: "Finally, a tool that understands real estate investing. The ROI calculations are spot-on every time, and the AI chat helps me understand market trends.",
-                profit: "$95,000"
-              }
-            ].map((testimonial, index) => (
-              <Card key={index} className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border-primary/10 hover:border-primary/30">
+            {[{
+            name: "Sarah Johnson",
+            role: "Real Estate Investor",
+            content: "AIWholesail helped me find 3 profitable deals in my first month. The AI analysis is incredibly accurate and saved me countless hours of research.",
+            profit: "$85,000"
+          }, {
+            name: "Mike Chen",
+            role: "Wholesale Specialist",
+            content: "The time I save on research and analysis has doubled my deal flow. This platform is a game-changer for serious wholesalers.",
+            profit: "$120,000"
+          }, {
+            name: "Jennifer Davis",
+            role: "Property Flipper",
+            content: "Finally, a tool that understands real estate investing. The ROI calculations are spot-on every time, and the AI chat helps me understand market trends.",
+            profit: "$95,000"
+          }].map((testimonial, index) => <Card key={index} className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border-primary/10 hover:border-primary/30">
                 <CardContent className="pt-6">
                   <div className="flex mb-4">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="h-5 w-5 fill-primary text-primary" />
-                    ))}
+                    {[...Array(5)].map((_, i) => <Star key={i} className="h-5 w-5 fill-primary text-primary" />)}
                   </div>
                   
                   <p className="text-muted-foreground mb-6 leading-relaxed">
@@ -423,8 +365,7 @@ const Landing = () => {
                     </div>
                   </div>
                 </CardContent>
-              </Card>
-            ))}
+              </Card>)}
           </div>
         </div>
       </section>
@@ -447,12 +388,7 @@ const Landing = () => {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-            <Button 
-              size="lg" 
-              onClick={handleSubscribe}
-              disabled={loading}
-              className="text-lg px-10 py-4 hover-scale group"
-            >
+            <Button size="lg" onClick={handleSubscribe} disabled={loading} className="text-lg px-10 py-4 hover-scale group">
               {loading ? "Loading..." : "Start Your Free Trial"}
               <ChevronRight className="h-5 w-5 ml-2 group-hover:translate-x-1 transition-transform" />
             </Button>
@@ -480,11 +416,7 @@ const Landing = () => {
         <div className="container mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center space-x-3 mb-4 md:mb-0">
-              <img 
-                src={aiWholesailLogo} 
-                alt="AIWholesail" 
-                className="h-10 w-auto object-contain"
-              />
+              <img src={aiWholesailLogo} alt="AIWholesail" className="h-10 w-auto object-contain" />
             </div>
             <p className="text-muted-foreground text-center md:text-right">
               &copy; 2024 AIWholesail. All rights reserved.
@@ -494,8 +426,6 @@ const Landing = () => {
           </div>
         </div>
       </footer>
-    </div>
-  );
+    </div>;
 };
-
 export default Landing;
