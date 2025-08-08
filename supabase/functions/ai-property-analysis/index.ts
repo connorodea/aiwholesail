@@ -89,11 +89,8 @@ const handler = async (req: Request): Promise<Response> => {
       }
     ];
 
-    // Build conversation context
-    const messages = [
-      {
-        role: "system",
-        content: `You are an expert real estate wholesale analyst with deep knowledge of property investment, market analysis, and deal evaluation. Your role is to analyze properties for wholesale opportunities and provide detailed, actionable insights.
+    // Build conversation context - Use system parameter instead of system role in messages
+    const systemPrompt = `You are an expert real estate wholesale analyst with deep knowledge of property investment, market analysis, and deal evaluation. Your role is to analyze properties for wholesale opportunities and provide detailed, actionable insights.
 
 ANALYSIS FRAMEWORK:
 1. Market Value Assessment - Compare list price vs market value using comps and Zestimate
@@ -112,9 +109,9 @@ WHOLESALE CRITERIA:
 
 Use the provided tools to gather comprehensive data before making your analysis. Be specific with numbers, percentages, and actionable recommendations.
 
-Current property overview: ${JSON.stringify(property, null, 2)}`
-      }
-    ];
+Current property overview: ${JSON.stringify(property, null, 2)}`;
+
+    const messages = [];
 
     // Add conversation history
     conversationHistory.forEach(msg => {
@@ -142,6 +139,7 @@ Current property overview: ${JSON.stringify(property, null, 2)}`
       body: JSON.stringify({
         model: 'claude-3-5-sonnet-20241022',
         max_tokens: 4000,
+        system: systemPrompt,
         tools: tools,
         messages: messages
       })
@@ -184,6 +182,7 @@ Current property overview: ${JSON.stringify(property, null, 2)}`
         body: JSON.stringify({
           model: 'claude-3-5-sonnet-20241022',
           max_tokens: 4000,
+          system: systemPrompt,
           messages: messages
         })
       });
