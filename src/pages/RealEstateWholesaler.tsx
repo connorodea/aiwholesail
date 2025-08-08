@@ -389,9 +389,9 @@ export default function RealEstateWholesaler() {
                       case 'price-low':
                         return (a.price || 0) - (b.price || 0);
                       case 'newest':
-                        return (a.daysOnZillow || 0) - (b.daysOnZillow || 0);
+                        return (a.daysOnMarket || 0) - (b.daysOnMarket || 0);
                       case 'oldest':
-                        return (b.daysOnZillow || 0) - (a.daysOnZillow || 0);
+                        return (b.daysOnMarket || 0) - (a.daysOnMarket || 0);
                       default:
                         return 0;
                     }
