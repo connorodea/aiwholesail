@@ -78,13 +78,13 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl max-h-[95vh] overflow-hidden p-0">
+      <DialogContent className="max-w-7xl max-h-[95vh] overflow-hidden p-0 bg-background">
         {/* Header */}
-        <DialogHeader className="p-6 pb-4 border-b">
+        <DialogHeader className="p-6 pb-4 border-b bg-gradient-to-r from-background to-muted/10">
           <div className="flex items-start justify-between">
-            <div className="flex-1 pr-4">
-              <div className="flex items-center gap-2 mb-3">
-                <Badge variant="outline" className="text-xs">
+            <div className="flex-1 pr-6">
+              <div className="flex items-center gap-2 mb-4">
+                <Badge variant="outline" className="text-xs font-medium border-border">
                   {property.status}
                 </Badge>
                 {property.isFSBO && (
@@ -97,30 +97,30 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                   {wholesalePotential.tier} potential
                 </Badge>
               </div>
-              <DialogTitle className="text-2xl font-bold mb-2">
+              <DialogTitle className="text-3xl font-bold mb-3 leading-tight">
                 {property.address}
               </DialogTitle>
               <div className="flex items-center gap-2 text-muted-foreground">
                 <MapPin className="h-4 w-4" />
-                <span className="text-sm">{property.propertyType || 'Property'}</span>
+                <span className="text-sm font-medium">{property.propertyType || 'Property'}</span>
               </div>
             </div>
             
             <div className="text-right">
-              <div className="text-2xl font-bold mb-1">
+              <div className="text-3xl font-bold mb-2 text-foreground">
                 {property.price ? formatPrice(property.price) : 'Price N/A'}
               </div>
               {property.pricePerSqft && (
-                <div className="text-sm text-muted-foreground">
+                <div className="text-sm text-muted-foreground font-medium mb-4">
                   ${Math.round(property.pricePerSqft)}/sqft
                 </div>
               )}
-              <div className="flex gap-2 mt-3">
+              <div className="flex gap-3">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={handleToggleFavorite}
-                  className="gap-1"
+                  className="gap-2 hover:bg-muted"
                 >
                   <Heart className={`h-4 w-4 ${isPropertyFavorite ? 'fill-current text-red-500' : ''}`} />
                   {isPropertyFavorite ? 'Saved' : 'Save'}
@@ -129,7 +129,7 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                   variant="outline"
                   size="sm"
                   onClick={handleConvertToLead}
-                  className="gap-1"
+                  className="gap-2 hover:bg-muted"
                 >
                   <Phone className="h-4 w-4" />
                   Convert to Lead
@@ -140,123 +140,148 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
         </DialogHeader>
 
         {/* Content */}
-        <div className="p-6">
-          <Tabs defaultValue="overview" className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="details">Details</TabsTrigger>
-              <TabsTrigger value="photos">Photos</TabsTrigger>
-              <TabsTrigger value="ai-analysis" className="flex items-center gap-1">
-                <Brain className="h-3 w-3" />
-                AI Analysis
-              </TabsTrigger>
-            </TabsList>
+        <div className="flex-1 overflow-hidden">
+          <Tabs defaultValue="overview" className="w-full h-full flex flex-col">
+            <div className="px-6 pt-4 pb-2 border-b bg-muted/5">
+              <TabsList className="grid w-full grid-cols-4 bg-muted/50">
+                <TabsTrigger value="overview" className="data-[state=active]:bg-background">
+                  Overview
+                </TabsTrigger>
+                <TabsTrigger value="details" className="data-[state=active]:bg-background">
+                  Details
+                </TabsTrigger>
+                <TabsTrigger value="photos" className="data-[state=active]:bg-background">
+                  Photos
+                </TabsTrigger>
+                <TabsTrigger value="ai-analysis" className="flex items-center gap-2 data-[state=active]:bg-background">
+                  <Brain className="h-3 w-3" />
+                  AI Analysis
+                </TabsTrigger>
+              </TabsList>
+            </div>
 
-            <TabsContent value="overview" className="mt-6">
-              {/* Key Stats */}
-              <div className="grid grid-cols-4 gap-6 mb-8">
-                <Card>
-                  <CardContent className="p-4 text-center">
-                    <div className="flex items-center justify-center gap-2 mb-2">
-                      <Bed className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm text-muted-foreground">Bedrooms</span>
+            <TabsContent value="overview" className="flex-1 overflow-auto">
+              <div className="p-6 space-y-8">
+                {/* Key Stats */}
+                <div className="grid grid-cols-4 gap-6">
+                  <Card className="border-border hover:shadow-md transition-shadow">
+                    <CardContent className="p-6 text-center">
+                      <div className="flex items-center justify-center gap-2 mb-3">
+                        <div className="p-2 rounded-lg bg-primary/10">
+                          <Bed className="h-4 w-4 text-primary" />
+                        </div>
+                        <span className="text-sm font-medium text-muted-foreground">Bedrooms</span>
+                      </div>
+                      <div className="text-3xl font-bold text-foreground">{property.bedrooms || '—'}</div>
+                    </CardContent>
+                  </Card>
+                  <Card className="border-border hover:shadow-md transition-shadow">
+                    <CardContent className="p-6 text-center">
+                      <div className="flex items-center justify-center gap-2 mb-3">
+                        <div className="p-2 rounded-lg bg-primary/10">
+                          <Bath className="h-4 w-4 text-primary" />
+                        </div>
+                        <span className="text-sm font-medium text-muted-foreground">Bathrooms</span>
+                      </div>
+                      <div className="text-3xl font-bold text-foreground">{property.bathrooms || '—'}</div>
+                    </CardContent>
+                  </Card>
+                  <Card className="border-border hover:shadow-md transition-shadow">
+                    <CardContent className="p-6 text-center">
+                      <div className="flex items-center justify-center gap-2 mb-3">
+                        <div className="p-2 rounded-lg bg-primary/10">
+                          <Square className="h-4 w-4 text-primary" />
+                        </div>
+                        <span className="text-sm font-medium text-muted-foreground">Square Feet</span>
+                      </div>
+                      <div className="text-3xl font-bold text-foreground">{property.sqft ? formatNumber(property.sqft) : '—'}</div>
+                    </CardContent>
+                  </Card>
+                  <Card className="border-border hover:shadow-md transition-shadow">
+                    <CardContent className="p-6 text-center">
+                      <div className="flex items-center justify-center gap-2 mb-3">
+                        <div className="p-2 rounded-lg bg-primary/10">
+                          <Calendar className="h-4 w-4 text-primary" />
+                        </div>
+                        <span className="text-sm font-medium text-muted-foreground">Days on Market</span>
+                      </div>
+                      <div className="text-3xl font-bold text-foreground">{property.daysOnMarket || '—'}</div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Wholesale Analysis */}
+                <Card className="border-border shadow-sm">
+                  <CardHeader className="pb-4">
+                    <CardTitle className="flex items-center gap-3">
+                      <div className="p-2 rounded-lg bg-primary/10">
+                        <DollarSign className="h-5 w-5 text-primary" />
+                      </div>
+                      <div className="flex-1">
+                        <span className="text-xl">Wholesale Analysis</span>
+                        <Badge 
+                          variant={wholesalePotential.tier === 'excellent' || wholesalePotential.tier === 'great' ? 'default' : 'secondary'}
+                          className="ml-3"
+                        >
+                          {wholesalePotential.tier} deal
+                        </Badge>
+                      </div>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-2 gap-10">
+                      <div className="space-y-6">
+                        <div className="flex justify-between items-center py-3 border-b border-border">
+                          <span className="text-sm font-medium text-muted-foreground">Wholesale Score</span>
+                          <span className="text-2xl font-bold text-foreground">{wholesalePotential.score}/100</span>
+                        </div>
+                        <div className="flex justify-between items-center py-3 border-b border-border">
+                          <span className="text-sm font-medium text-muted-foreground">Spread Amount</span>
+                          <span className="text-2xl font-bold text-emerald-600">
+                            ${formatNumber(wholesalePotential.spreadAmount)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center py-3">
+                          <span className="text-sm font-medium text-muted-foreground">Spread Percentage</span>
+                          <span className="text-2xl font-bold text-foreground">
+                            {wholesalePotential.spreadPercentage.toFixed(1)}%
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="space-y-6">
+                        <div className="flex justify-between items-center py-3 border-b border-border">
+                          <span className="text-sm font-medium text-muted-foreground">Current Price</span>
+                          <span className="text-lg font-semibold">{formatPrice(property.price || 0)}</span>
+                        </div>
+                        <div className="flex justify-between items-center py-3 border-b border-border">
+                          <span className="text-sm font-medium text-muted-foreground">Zestimate</span>
+                          <span className="text-lg font-semibold">{formatPrice(property.zestimate || 0)}</span>
+                        </div>
+                        {wholesalePotential.tier === 'excellent' || wholesalePotential.tier === 'great' ? (
+                          <div className="p-4 bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-950/50 dark:to-green-950/50 rounded-xl border border-emerald-200 dark:border-emerald-800">
+                            <div className="flex items-center gap-3">
+                              <Star className="h-5 w-5 text-emerald-600" />
+                              <span className="font-semibold text-emerald-700 dark:text-emerald-300">
+                                Excellent wholesale opportunity!
+                              </span>
+                            </div>
+                          </div>
+                        ) : wholesalePotential.tier === 'good' ? (
+                          <div className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/50 dark:to-cyan-950/50 rounded-xl border border-blue-200 dark:border-blue-800">
+                            <div className="flex items-center gap-3">
+                              <Star className="h-5 w-5 text-blue-600" />
+                              <span className="font-semibold text-blue-700 dark:text-blue-300">
+                                Good wholesale potential
+                              </span>
+                            </div>
+                          </div>
+                        ) : null}
+                      </div>
                     </div>
-                    <div className="text-2xl font-bold">{property.bedrooms || '—'}</div>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="p-4 text-center">
-                    <div className="flex items-center justify-center gap-2 mb-2">
-                      <Bath className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm text-muted-foreground">Bathrooms</span>
-                    </div>
-                    <div className="text-2xl font-bold">{property.bathrooms || '—'}</div>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="p-4 text-center">
-                    <div className="flex items-center justify-center gap-2 mb-2">
-                      <Square className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm text-muted-foreground">Square Feet</span>
-                    </div>
-                    <div className="text-2xl font-bold">{property.sqft ? formatNumber(property.sqft) : '—'}</div>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="p-4 text-center">
-                    <div className="flex items-center justify-center gap-2 mb-2">
-                      <Calendar className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm text-muted-foreground">Days on Market</span>
-                    </div>
-                    <div className="text-2xl font-bold">{property.daysOnMarket || '—'}</div>
                   </CardContent>
                 </Card>
               </div>
-
-              {/* Wholesale Analysis */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <DollarSign className="h-5 w-5" />
-                    Wholesale Analysis
-                    <Badge variant={wholesalePotential.tier === 'excellent' || wholesalePotential.tier === 'great' ? 'default' : 'secondary'}>
-                      {wholesalePotential.tier} deal
-                    </Badge>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 gap-8">
-                    <div className="space-y-4">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-muted-foreground">Wholesale Score</span>
-                        <span className="text-lg font-bold">{wholesalePotential.score}/100</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-muted-foreground">Spread Amount</span>
-                        <span className="text-lg font-semibold text-green-600">
-                          ${formatNumber(wholesalePotential.spreadAmount)}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-muted-foreground">Spread Percentage</span>
-                        <span className="text-lg font-semibold">
-                          {wholesalePotential.spreadPercentage.toFixed(1)}%
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="space-y-4">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-muted-foreground">Current Price</span>
-                        <span className="font-medium">{formatPrice(property.price || 0)}</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-muted-foreground">Zestimate</span>
-                        <span className="font-medium">{formatPrice(property.zestimate || 0)}</span>
-                      </div>
-                      {wholesalePotential.tier === 'excellent' || wholesalePotential.tier === 'great' ? (
-                        <div className="p-3 bg-green-50 dark:bg-green-950 rounded-lg border border-green-200 dark:border-green-800">
-                          <div className="flex items-center gap-2">
-                            <Star className="h-4 w-4 text-green-600" />
-                            <span className="text-sm font-medium text-green-700 dark:text-green-300">
-                              Excellent wholesale opportunity!
-                            </span>
-                          </div>
-                        </div>
-                      ) : wholesalePotential.tier === 'good' ? (
-                        <div className="p-3 bg-blue-50 dark:bg-blue-950 rounded-lg border border-blue-200 dark:border-blue-800">
-                          <div className="flex items-center gap-2">
-                            <Star className="h-4 w-4 text-blue-600" />
-                            <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
-                              Good wholesale potential
-                            </span>
-                          </div>
-                        </div>
-                      ) : null}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
             </TabsContent>
 
             <TabsContent value="details" className="mt-6">
@@ -361,7 +386,7 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
               )}
             </TabsContent>
 
-            <TabsContent value="ai-analysis" className="mt-6">
+            <TabsContent value="ai-analysis" className="flex-1 overflow-hidden">
               <PropertyAnalysisChat property={property} isOpen={isOpen} />
             </TabsContent>
           </Tabs>

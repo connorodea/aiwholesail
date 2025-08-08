@@ -39,6 +39,7 @@ export function PropertyAnalysisChat({ property, isOpen }: PropertyAnalysisChatP
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [hasInitialAnalysis, setHasInitialAnalysis] = useState(false);
+  const [showStartButton, setShowStartButton] = useState(true);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -59,16 +60,17 @@ export function PropertyAnalysisChat({ property, isOpen }: PropertyAnalysisChatP
     }
   }, [isOpen]);
 
-  // Initial analysis when component mounts
+  // Reset when modal opens
   useEffect(() => {
-    if (isOpen && property && !hasInitialAnalysis) {
-      runInitialAnalysis();
+    if (isOpen && property) {
+      setShowStartButton(!hasInitialAnalysis);
     }
   }, [isOpen, property, hasInitialAnalysis]);
 
   const runInitialAnalysis = async () => {
     if (!property) return;
 
+    setShowStartButton(false);
     const analysisMessage: Message = {
       id: Date.now().toString(),
       role: 'assistant',
@@ -186,29 +188,83 @@ export function PropertyAnalysisChat({ property, isOpen }: PropertyAnalysisChatP
   };
 
   const formatContent = (content: string) => {
-    // Simple formatting for key metrics
     const sections = content.split('\n\n');
     return sections.map((section, index) => {
-      if (section.includes('$') || section.includes('%')) {
+      // Format headings
+      if (section.match(/^[A-Z\s:]+$/m) || section.includes('##') || section.includes('**')) {
         return (
-          <div key={index} className="mb-3">
-            {section.split('\n').map((line, lineIndex) => {
+          <div key={index} className="mb-6">
+            <h3 className="text-lg font-semibold mb-3 text-foreground flex items-center gap-2">
+              {section.includes('MARKET') && <BarChart3 className="h-4 w-4" />}
+              {section.includes('FINANCIAL') && <Calculator className="h-4 w-4" />}
+              {section.includes('RISK') && <AlertTriangle className="h-4 w-4" />}
+              {section.includes('RECOMMENDATION') && <CheckCircle className="h-4 w-4" />}
+              {section.replace(/[#*]/g, '').trim()}
+            </h3>
+          </div>
+        );
+      }
+      
+      // Format financial metrics in cards
+      if (section.includes('$') || section.includes('%')) {
+        const lines = section.split('\n');
+        return (
+          <div key={index} className="mb-4 p-4 bg-muted/50 rounded-lg border">
+            {lines.map((line, lineIndex) => {
               if (line.includes('$') || line.includes('%')) {
-                const hasPositive = line.includes('profit') || line.includes('spread') || line.includes('opportunity');
-                const hasNegative = line.includes('risk') || line.includes('concern') || line.includes('issue');
+                const hasPositive = line.toLowerCase().includes('profit') || 
+                                  line.toLowerCase().includes('spread') || 
+                                  line.toLowerCase().includes('opportunity') ||
+                                  line.toLowerCase().includes('margin');
+                const hasNegative = line.toLowerCase().includes('risk') || 
+                                  line.toLowerCase().includes('concern') || 
+                                  line.toLowerCase().includes('issue') ||
+                                  line.toLowerCase().includes('loss');
                 
                 return (
-                  <div key={lineIndex} className={`font-medium ${hasPositive ? 'text-green-600' : hasNegative ? 'text-red-600' : 'text-blue-600'}`}>
+                  <div key={lineIndex} className={`font-semibold text-sm ${
+                    hasPositive ? 'text-emerald-600 dark:text-emerald-400' : 
+                    hasNegative ? 'text-red-600 dark:text-red-400' : 
+                    'text-blue-600 dark:text-blue-400'
+                  }`}>
                     {line}
                   </div>
                 );
               }
-              return <div key={lineIndex}>{line}</div>;
+              return (
+                <div key={lineIndex} className="text-sm text-muted-foreground leading-relaxed">
+                  {line}
+                </div>
+              );
             })}
           </div>
         );
       }
-      return <div key={index} className="mb-3">{section}</div>;
+      
+      // Format bullet points
+      if (section.includes('•') || section.includes('-')) {
+        const lines = section.split('\n');
+        return (
+          <div key={index} className="mb-4">
+            {lines.map((line, lineIndex) => (
+              <div key={lineIndex} className="flex items-start gap-2 mb-2 text-sm">
+                {(line.includes('•') || line.includes('-')) && (
+                  <div className="w-1 h-1 bg-primary rounded-full mt-2 flex-shrink-0" />
+                )}
+                <span className="text-muted-foreground leading-relaxed">
+                  {line.replace(/^[•-]\s*/, '')}
+                </span>
+              </div>
+            ))}
+          </div>
+        );
+      }
+      
+      return (
+        <div key={index} className="mb-4 text-sm text-muted-foreground leading-relaxed">
+          {section}
+        </div>
+      );
     });
   };
 
@@ -223,61 +279,104 @@ export function PropertyAnalysisChat({ property, isOpen }: PropertyAnalysisChatP
   if (!isOpen) return null;
 
   return (
-    <Card className="w-full h-[600px] flex flex-col">
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2">
-          <Brain className="h-5 w-5 text-primary" />
-          AI Wholesale Analysis
-          <Badge variant="outline" className="ml-auto">
-            {property?.address || 'Property Analysis'}
+    <div className="w-full h-[700px] flex flex-col bg-background">
+      {/* Header */}
+      <div className="p-6 border-b bg-gradient-to-r from-background to-muted/20">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-primary/10">
+              <Brain className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <h2 className="text-xl font-semibold">AI Wholesale Analysis</h2>
+              <p className="text-sm text-muted-foreground">
+                Expert analysis powered by Claude Sonnet 4
+              </p>
+            </div>
+          </div>
+          <Badge variant="outline" className="font-mono text-xs">
+            {property?.address?.split(',')[0] || 'Property Analysis'}
           </Badge>
-        </CardTitle>
-      </CardHeader>
+        </div>
+      </div>
       
-      <CardContent className="flex-1 flex flex-col p-0">
-        <ScrollArea className="flex-1 px-4" ref={scrollAreaRef}>
-          <div className="space-y-4 pb-4">
-            {messages.length === 0 && (
-              <div className="text-center py-8 text-muted-foreground">
-                <Brain className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <h3 className="text-lg font-medium mb-2">AI Property Analysis</h3>
-                <p>Get expert wholesale analysis using advanced AI and real estate data</p>
+      {/* Chat Area */}
+      <div className="flex-1 flex flex-col">
+        <ScrollArea className="flex-1 p-6" ref={scrollAreaRef}>
+          <div className="max-w-none space-y-6">
+            {/* Initial state with start button */}
+            {showStartButton && messages.length === 0 && (
+              <div className="text-center py-12">
+                <div className="p-4 rounded-full bg-gradient-to-br from-primary/10 to-blue-500/10 w-16 h-16 mx-auto mb-6 flex items-center justify-center">
+                  <Brain className="h-8 w-8 text-primary" />
+                </div>
+                <h3 className="text-xl font-semibold mb-3">Ready to Analyze</h3>
+                <p className="text-muted-foreground mb-8 max-w-md mx-auto">
+                  Get comprehensive wholesale analysis using advanced AI, market data, and property insights
+                </p>
+                <Button 
+                  onClick={runInitialAnalysis}
+                  disabled={isLoading}
+                  size="lg"
+                  className="gap-2 px-8"
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Analyzing Property...
+                    </>
+                  ) : (
+                    <>
+                      <Brain className="h-4 w-4" />
+                      Start AI Analysis
+                    </>
+                  )}
+                </Button>
               </div>
             )}
             
+            {/* Messages */}
             {messages.map((message) => (
               <div
                 key={message.id}
-                className={`flex gap-3 ${
+                className={`flex gap-4 ${
                   message.role === 'user' ? 'justify-end' : 'justify-start'
                 }`}
               >
                 {message.role === 'assistant' && (
-                  <div className={`p-2 rounded-full ${message.isAnalyzing ? 'bg-blue-100' : 'bg-primary/10'}`}>
+                  <div className={`p-2 rounded-xl ${
+                    message.isAnalyzing 
+                      ? 'bg-gradient-to-br from-blue-500/10 to-primary/10' 
+                      : 'bg-gradient-to-br from-primary/10 to-muted'
+                  } flex-shrink-0`}>
                     {getMessageIcon(message.role, message.isAnalyzing)}
                   </div>
                 )}
                 
                 <div
-                  className={`max-w-[80%] rounded-lg p-3 ${
+                  className={`max-w-[85%] rounded-2xl p-4 ${
                     message.role === 'user'
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted'
+                      ? 'bg-primary text-primary-foreground ml-12'
+                      : 'bg-card border shadow-sm'
                   }`}
                 >
-                  <div className="text-sm">
+                  <div className={message.role === 'assistant' ? 'prose prose-sm max-w-none' : ''}>
                     {message.role === 'assistant' && !message.isAnalyzing ? 
-                      formatContent(message.content) : 
-                      message.content
+                      <div className="space-y-3">{formatContent(message.content)}</div> : 
+                      <div className="text-sm">{message.content}</div>
                     }
                   </div>
-                  <div className="text-xs opacity-70 mt-1">
+                  <div className={`text-xs mt-3 ${
+                    message.role === 'user' 
+                      ? 'text-primary-foreground/70' 
+                      : 'text-muted-foreground'
+                  }`}>
                     {message.timestamp.toLocaleTimeString()}
                   </div>
                 </div>
                 
                 {message.role === 'user' && (
-                  <div className="p-2 rounded-full bg-primary/10">
+                  <div className="p-2 rounded-xl bg-primary/10 flex-shrink-0">
                     {getMessageIcon(message.role)}
                   </div>
                 )}
@@ -286,44 +385,43 @@ export function PropertyAnalysisChat({ property, isOpen }: PropertyAnalysisChatP
           </div>
         </ScrollArea>
 
+        {/* Quick Questions */}
         {messages.length > 0 && !isLoading && (
-          <>
-            <Separator />
-            <div className="p-3">
-              <div className="text-xs text-muted-foreground mb-2">Quick questions:</div>
-              <div className="flex flex-wrap gap-1">
-                {quickQuestions.map((question, index) => (
-                  <Button
-                    key={index}
-                    variant="outline"
-                    size="sm"
-                    className="text-xs h-7"
-                    onClick={() => setInput(question)}
-                  >
-                    {question}
-                  </Button>
-                ))}
-              </div>
+          <div className="p-4 border-t bg-muted/20">
+            <div className="text-xs font-medium text-muted-foreground mb-3">Suggested questions:</div>
+            <div className="flex flex-wrap gap-2">
+              {quickQuestions.map((question, index) => (
+                <Button
+                  key={index}
+                  variant="ghost"
+                  size="sm"
+                  className="text-xs h-8 bg-background hover:bg-muted border"
+                  onClick={() => setInput(question)}
+                >
+                  {question}
+                </Button>
+              ))}
             </div>
-          </>
+          </div>
         )}
 
-        <Separator />
-        <div className="p-4">
-          <div className="flex gap-2">
+        {/* Input Area */}
+        <div className="p-6 border-t bg-background">
+          <div className="flex gap-3">
             <Input
               ref={inputRef}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Ask about wholesale potential, repairs, comps, or investment metrics..."
-              disabled={isLoading}
-              className="flex-1"
+              placeholder="Ask about wholesale potential, ARV, repair estimates, or market analysis..."
+              disabled={isLoading || showStartButton}
+              className="flex-1 h-11 bg-background border-border focus:ring-2 focus:ring-primary/20"
             />
             <Button 
               onClick={sendMessage} 
-              disabled={!input.trim() || isLoading}
-              size="sm"
+              disabled={!input.trim() || isLoading || showStartButton}
+              size="lg"
+              className="h-11 px-6"
             >
               {isLoading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -332,8 +430,11 @@ export function PropertyAnalysisChat({ property, isOpen }: PropertyAnalysisChatP
               )}
             </Button>
           </div>
+          <div className="text-xs text-muted-foreground mt-2">
+            Powered by Claude Sonnet 4 • Enhanced with real-time market data
+          </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
