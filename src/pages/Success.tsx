@@ -61,7 +61,7 @@ const Success = () => {
               : `You now have access to all premium features including unlimited property searches, AI-powered deal analysis, and advanced market insights.`
             }
           </p>
-          <Link to="/">
+          <Link to="/app">
             <Button className="w-full" size="lg">
               Start Finding Deals
             </Button>

@@ -67,7 +67,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return { error: { message: passwordValidation.errors[0] } };
     }
     
-    const redirectUrl = `${window.location.origin}/app`;
+    // Use the deployment URL for email verification redirect
+    // For development, use localhost. For production, use the actual domain
+    const isProduction = window.location.hostname !== 'localhost';
+    const redirectUrl = isProduction 
+      ? `${window.location.origin}/auth?verified=true`
+      : 'https://5517ce0d-fb4d-4d20-b50b-87cd9b6b6e36.lovableproject.com/auth?verified=true';
     
     try {
       const { error } = await supabase.auth.signUp({

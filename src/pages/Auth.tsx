@@ -20,12 +20,22 @@ export default function Auth() {
   const [showPassword, setShowPassword] = useState(false);
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
+  
+  // Check if user was just verified
+  const isVerified = searchParams.get('verified') === 'true';
 
   useEffect(() => {
     if (user) {
       navigate('/app');
     }
-  }, [user, navigate]);
+    
+    // Show verification success message if user just verified
+    if (isVerified && !user) {
+      toast.success('Email verified successfully! You can now sign in.');
+      // Remove the verified parameter from URL
+      navigate('/auth', { replace: true });
+    }
+  }, [user, navigate, isVerified]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
