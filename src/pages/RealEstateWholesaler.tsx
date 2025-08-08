@@ -128,11 +128,14 @@ export default function RealEstateWholesaler() {
   const handleSignOut = async () => {
     try {
       await signOut();
-      toast.success('Signed out successfully');
       setShowFavorites(false);
       setShowAlerts(false);
-      // Redirect to home page after successful sign out
-      navigate('/');
+      
+      // Wait a brief moment for the auth state to clear, then redirect
+      setTimeout(() => {
+        navigate('/');
+        toast.success('Signed out successfully');
+      }, 100);
     } catch (error) {
       toast.error('Failed to sign out');
     }
