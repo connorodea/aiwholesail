@@ -51,11 +51,19 @@ serve(async (req) => {
         },
       ],
       mode: "subscription",
+      subscription_data: {
+        trial_period_days: 7, // 7-day free trial
+        trial_settings: {
+          end_behavior: {
+            missing_payment_method: 'cancel'
+          }
+        }
+      },
       success_url: `${req.headers.get("origin")}/success`,
       cancel_url: `${req.headers.get("origin")}/`,
       custom_text: {
         submit: {
-          message: "By subscribing to AI Wholesail Pro, you'll get access to advanced real estate wholesale tools and AI-powered analysis."
+          message: "Start your 7-day free trial of AI Wholesail Pro! You'll get access to advanced real estate wholesale tools and AI-powered analysis. No charge until trial ends."
         }
       },
       metadata: {

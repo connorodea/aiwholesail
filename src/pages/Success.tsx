@@ -5,10 +5,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { CheckCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSubscription } from "@/contexts/SubscriptionContext";
 import { toast } from "@/hooks/use-toast";
 
 const Success = () => {
   const { user } = useAuth();
+  const { refreshSubscription, isTrialActive, trialDaysRemaining } = useSubscription();
 
   useEffect(() => {
     // Check subscription status after successful payment
@@ -16,10 +18,16 @@ const Success = () => {
       if (!user) return;
       
       try {
-        await supabase.functions.invoke('check-subscription');
+        await refreshSubscription();
+        
+        // Show appropriate success message based on trial status
+        const message = isTrialActive 
+          ? `Your 7-day free trial has started! You have ${trialDaysRemaining} days to explore all premium features.`
+          : "Your subscription is now active. Start finding profitable deals!";
+          
         toast({
-          title: "Welcome to WholesalePro!",
-          description: "Your subscription is now active. Start finding profitable deals!",
+          title: "Welcome to AI Wholesail Pro!",
+          description: message,
         });
       } catch (error) {
         console.error('Error checking subscription:', error);
@@ -27,7 +35,7 @@ const Success = () => {
     };
 
     checkSubscription();
-  }, [user]);
+  }, [user, refreshSubscription]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20 flex items-center justify-center px-4">
@@ -36,15 +44,22 @@ const Success = () => {
           <div className="mx-auto mb-4">
             <CheckCircle className="h-16 w-16 text-green-500" />
           </div>
-          <CardTitle className="text-2xl">Payment Successful!</CardTitle>
+          <CardTitle className="text-2xl">
+            {isTrialActive ? 'Free Trial Started!' : 'Payment Successful!'}
+          </CardTitle>
           <CardDescription>
-            Welcome to WholesalePro. Your subscription is now active.
+            {isTrialActive 
+              ? `Welcome to AI Wholesail Pro! Your 7-day free trial is now active.`
+              : `Welcome to AI Wholesail Pro. Your subscription is now active.`
+            }
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-muted-foreground">
-            You now have access to all premium features including unlimited property searches, 
-            AI-powered deal analysis, and advanced market insights.
+            {isTrialActive 
+              ? `You have ${trialDaysRemaining} days to explore all premium features including unlimited property searches, AI-powered deal analysis, and advanced market insights. No charge until your trial ends.`
+              : `You now have access to all premium features including unlimited property searches, AI-powered deal analysis, and advanced market insights.`
+            }
           </p>
           <Link to="/">
             <Button className="w-full" size="lg">

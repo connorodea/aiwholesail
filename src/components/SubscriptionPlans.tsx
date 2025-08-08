@@ -2,9 +2,10 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Check, Star, Bell, MapPin, Clock, Zap } from 'lucide-react';
+import { Check, Star, Bell, MapPin, Clock, Zap, Timer } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useSubscription } from '@/contexts/SubscriptionContext';
 
 interface SubscriptionPlan {
   name: string;
@@ -80,6 +81,7 @@ export const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
   onSubscriptionChange 
 }) => {
   const [loading, setLoading] = React.useState<string | null>(null);
+  const { subscription, isTrialActive, trialDaysRemaining, refreshSubscription } = useSubscription();
 
   const handleUpgrade = async (plan: SubscriptionPlan) => {
     if (plan.price === 0) return;
@@ -130,6 +132,26 @@ export const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
 
   return (
     <div className="space-y-6">
+      {/* Trial Status Banner */}
+      {isTrialActive && trialDaysRemaining !== null && (
+        <Card className="bg-orange-50/50 border-orange-200">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <Timer className="h-5 w-5 text-orange-600" />
+              <div>
+                <h3 className="font-semibold text-orange-900">Free Trial Active</h3>
+                <p className="text-sm text-orange-700">
+                  {trialDaysRemaining > 0 
+                    ? `${trialDaysRemaining} day${trialDaysRemaining === 1 ? '' : 's'} remaining in your free trial`
+                    : 'Your trial expires today! Subscribe now to continue using premium features.'
+                  }
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <div className="text-center">
         <h2 className="text-3xl font-bold mb-4">Choose Your Plan</h2>
         <p className="text-muted-foreground max-w-2xl mx-auto">
@@ -239,7 +261,7 @@ export const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
         })}
       </div>
 
-      {currentSubscription?.subscribed && (
+      {(subscription?.subscribed || isTrialActive) && (
         <Card className="bg-blue-50/50 border-blue-200">
           <CardContent className="p-6">
             <div className="flex items-center gap-3 mb-3">
@@ -249,21 +271,41 @@ export const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
             <div className="grid md:grid-cols-3 gap-4 text-sm">
               <div>
                 <span className="text-blue-700">Plan:</span>
-                <span className="ml-2 font-medium">{currentSubscription.subscription_tier || 'Basic'}</span>
+                <span className="ml-2 font-medium">
+                  {subscription?.subscription_tier || 'Basic'}
+                  {isTrialActive && ' (Trial)'}
+                </span>
               </div>
               <div>
                 <span className="text-blue-700">Status:</span>
-                <span className="ml-2 font-medium text-green-600">Active</span>
+                <span className="ml-2 font-medium text-green-600">
+                  {isTrialActive ? 'Free Trial' : 'Active'}
+                </span>
               </div>
-              {currentSubscription.subscription_end && (
+              {isTrialActive && subscription?.trial_end ? (
+                <div>
+                  <span className="text-blue-700">Trial ends:</span>
+                  <span className="ml-2 font-medium">
+                    {new Date(subscription.trial_end).toLocaleDateString()}
+                  </span>
+                </div>
+              ) : subscription?.subscription_end ? (
                 <div>
                   <span className="text-blue-700">Next billing:</span>
                   <span className="ml-2 font-medium">
-                    {new Date(currentSubscription.subscription_end).toLocaleDateString()}
+                    {new Date(subscription.subscription_end).toLocaleDateString()}
                   </span>
                 </div>
-              )}
+              ) : null}
             </div>
+            {isTrialActive && trialDaysRemaining !== null && trialDaysRemaining <= 3 && (
+              <div className="mt-4 p-3 bg-orange-100 border border-orange-200 rounded-lg">
+                <p className="text-sm text-orange-800">
+                  ⚠️ Your trial expires in {trialDaysRemaining} day{trialDaysRemaining === 1 ? '' : 's'}. 
+                  Subscribe now to continue accessing premium features without interruption.
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
       )}

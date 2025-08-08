@@ -68,38 +68,60 @@ serve(async (req) => {
 
     const subscriptions = await stripe.subscriptions.list({
       customer: customerId,
-      status: "active",
-      limit: 1,
+      status: "all", // Include trialing and active subscriptions
+      limit: 10,
     });
-    const hasActiveSub = subscriptions.data.length > 0;
+    
+    let hasActiveSub = false;
     let subscriptionTier = null;
     let subscriptionEnd = null;
+    let isOnTrial = false;
+    let trialEnd = null;
+    let trialStart = null;
 
-    if (hasActiveSub) {
-      const subscription = subscriptions.data[0];
-      subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
-      
-      // Determine subscription tier from price
-      const priceId = subscription.items.data[0].price.id;
-      const price = await stripe.prices.retrieve(priceId);
-      const amount = price.unit_amount || 0;
-      
-      if (amount >= 9900) { // $99+ = Premium
-        subscriptionTier = "Premium";
-      } else if (amount >= 2900) { // $29+ = Basic
-        subscriptionTier = "Basic";
-      } else {
-        subscriptionTier = "Basic"; // Default to Basic for any paid plan
+    // Check for active or trialing subscriptions
+    for (const subscription of subscriptions.data) {
+      if (subscription.status === "active" || subscription.status === "trialing") {
+        hasActiveSub = true;
+        subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
+        
+        // Check if subscription is in trial period
+        if (subscription.status === "trialing" && subscription.trial_end) {
+          isOnTrial = true;
+          trialEnd = new Date(subscription.trial_end * 1000).toISOString();
+          if (subscription.trial_start) {
+            trialStart = new Date(subscription.trial_start * 1000).toISOString();
+          }
+        }
+        
+        // Determine subscription tier from price
+        const priceId = subscription.items.data[0].price.id;
+        const price = await stripe.prices.retrieve(priceId);
+        const amount = price.unit_amount || 0;
+        
+        if (amount >= 9900) { // $99+ = Premium
+          subscriptionTier = "Premium";
+        } else if (amount >= 2900) { // $29+ = Basic
+          subscriptionTier = "Basic";
+        } else {
+          subscriptionTier = "Basic"; // Default to Basic for any paid plan
+        }
+        
+        logStep("Active subscription found", { 
+          subscriptionId: subscription.id, 
+          status: subscription.status,
+          endDate: subscriptionEnd,
+          priceId,
+          amount,
+          subscriptionTier,
+          isOnTrial,
+          trialEnd
+        });
+        break; // Use the first active/trialing subscription found
       }
-      
-      logStep("Active subscription found", { 
-        subscriptionId: subscription.id, 
-        endDate: subscriptionEnd,
-        priceId,
-        amount,
-        subscriptionTier
-      });
-    } else {
+    }
+
+    if (!hasActiveSub) {
       logStep("No active subscription found");
     }
 
@@ -110,14 +132,26 @@ serve(async (req) => {
       subscribed: hasActiveSub,
       subscription_tier: hasActiveSub ? subscriptionTier : null,
       subscription_end: subscriptionEnd,
+      is_trial: isOnTrial,
+      trial_start: trialStart,
+      trial_end: trialEnd,
       updated_at: new Date().toISOString(),
     }, { onConflict: 'email' });
 
-    logStep("Updated database with subscription info", { subscribed: hasActiveSub, subscriptionTier });
+    logStep("Updated database with subscription info", { 
+      subscribed: hasActiveSub, 
+      subscriptionTier, 
+      isOnTrial,
+      trialEnd 
+    });
+    
     return new Response(JSON.stringify({
       subscribed: hasActiveSub,
       subscription_tier: subscriptionTier,
-      subscription_end: subscriptionEnd
+      subscription_end: subscriptionEnd,
+      is_trial: isOnTrial,
+      trial_start: trialStart,
+      trial_end: trialEnd
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,

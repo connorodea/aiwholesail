@@ -7,8 +7,9 @@ import { Property, PropertySearchParams } from '@/types/zillow';
 import { zillowAPI } from '@/lib/zillow-api';
 import { sortPropertiesByWholesalePotential } from '@/lib/wholesale-calculator';
 import { Button } from '@/components/ui/button';
-import { Home, User, LogOut, LogIn, Download, Bell } from 'lucide-react';
+import { Home, User, LogOut, LogIn, Download, Bell, Timer } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSubscription } from '@/contexts/SubscriptionContext';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useLeads } from '@/hooks/useLeads';
 import { toast } from 'sonner';
@@ -19,6 +20,7 @@ import { processPropertyAlerts } from '@/lib/propertyAlerts';
 
 export default function RealEstateWholesaler() {
   const { user, signOut } = useAuth();
+  const { subscription, isTrialActive, trialDaysRemaining } = useSubscription();
   const { favorites } = useFavorites();
   const { exportAllLeads, loading: exportLoading } = useLeads();
   const [properties, setProperties] = useState<Property[]>([]);
@@ -137,6 +139,14 @@ export default function RealEstateWholesaler() {
             
             {/* Minimal Action Buttons */}
             <div className="flex items-center gap-1.5">
+              {/* Trial Status Indicator */}
+              {isTrialActive && trialDaysRemaining !== null && (
+                <div className="bg-orange-100 text-orange-800 px-2 py-1 rounded-md text-xs font-medium flex items-center gap-1">
+                  <Timer className="h-3 w-3" />
+                  {trialDaysRemaining}d trial
+                </div>
+              )}
+              
               {user ? (
                 <>
                   <Button
