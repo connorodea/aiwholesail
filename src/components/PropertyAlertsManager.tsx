@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Trash2, Plus, Bell, MapPin, DollarSign, Home, Calendar, Send } from 'lucide-react';
 import { toast } from 'sonner';
+import { LocationAutocomplete } from './LocationAutocomplete';
 
 interface PropertyAlert {
   id: string;
@@ -299,11 +300,10 @@ export const PropertyAlertsManager = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
                 <Label htmlFor="location">Location *</Label>
-                <Input
-                  id="location"
-                  placeholder="e.g., Atlanta, GA or 30309"
+                <LocationAutocomplete
                   value={newAlert.location}
-                  onChange={(e) => setNewAlert({ ...newAlert, location: e.target.value })}
+                  onChange={(value) => setNewAlert({ ...newAlert, location: value })}
+                  placeholder="Enter city, state, or ZIP code"
                 />
               </div>
 
