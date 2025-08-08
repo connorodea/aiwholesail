@@ -122,21 +122,21 @@ export default function RealEstateWholesaler() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background font-sans">
       {/* Minimal Navigation Header - OpenAI Style */}
       <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/30">
-        <div className="container mx-auto px-6 py-3">
+        <div className="container mx-auto mobile-padding py-4">
           <div className="flex items-center justify-between">
-            {/* Simple Brand */}
+            {/* Clean Brand Identity */}
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-glow">
                 <Home className="h-4 w-4 text-primary-foreground" />
               </div>
-              <h1 className="text-lg font-medium">AIWholesail</h1>
+              <h1 className="text-lg font-medium tracking-tight">AIWholesail</h1>
             </div>
             
-            {/* Clean Action Buttons */}
-            <div className="flex items-center gap-2">
+            {/* Minimal Action Buttons */}
+            <div className="flex items-center gap-1.5">
               {user ? (
                 <>
                   <Button
@@ -146,9 +146,9 @@ export default function RealEstateWholesaler() {
                       setShowFavorites(!showFavorites);
                       setShowAlerts(false);
                     }}
-                    className="h-8 px-3 text-sm font-medium"
+                    className="h-9 px-3 text-sm font-medium smooth-transition"
                   >
-                    Favorites {favorites.length > 0 && `(${favorites.length})`}
+                    Favorites {favorites.length > 0 && <span className="ml-1 text-xs opacity-75">({favorites.length})</span>}
                   </Button>
                   <Button
                     variant={showAlerts ? "default" : "ghost"}
@@ -157,16 +157,18 @@ export default function RealEstateWholesaler() {
                       setShowAlerts(!showAlerts);
                       setShowFavorites(false);
                     }}
-                    className="h-8 px-3 text-sm font-medium"
+                    className="h-9 px-3 text-sm font-medium smooth-transition"
                   >
+                    <Bell className="h-3.5 w-3.5 mr-1.5" />
                     Alerts
                   </Button>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={handleSignOut}
-                    className="h-8 px-3 text-sm font-medium"
+                    className="h-9 px-3 text-sm font-medium smooth-transition"
                   >
+                    <LogOut className="h-3.5 w-3.5 mr-1.5" />
                     Sign Out
                   </Button>
                 </>
@@ -174,8 +176,9 @@ export default function RealEstateWholesaler() {
                 <Button
                   size="sm"
                   onClick={() => window.location.href = '/auth'}
-                  className="h-8 px-4 text-sm font-medium"
+                  className="h-9 px-4 text-sm font-medium smooth-transition"
                 >
+                  <LogIn className="h-3.5 w-3.5 mr-1.5" />
                   Sign In
                 </Button>
               )}
@@ -184,42 +187,41 @@ export default function RealEstateWholesaler() {
         </div>
       </nav>
 
-      {/* Main Content - Spacious and Clean */}
-      <main className="container mx-auto px-6 py-12 space-y-16">
+      {/* Main Content - OpenAI Clean Layout */}
+      <main className="container mx-auto mobile-padding py-16 space-y-20">
         {showAlerts ? (
-          <section>
+          <section className="animate-fade-in">
             <PropertyAlertsManager />
           </section>
         ) : !showFavorites ? (
           <>
-            {/* Hero Search Section */}
-            <section className="text-center space-y-8 max-w-4xl mx-auto">
-              <div className="space-y-4">
-                <h1 className="text-3xl md:text-4xl font-medium tracking-tight">
+            {/* Hero Search Section - Refined */}
+            <section className="text-center space-y-10 max-w-4xl mx-auto animate-fade-in">
+              <div className="space-y-6">
+                <h1 className="text-4xl md:text-5xl font-medium tracking-tight leading-tight">
                   Find profitable wholesale deals
                 </h1>
-                <p className="text-lg text-muted-foreground font-light max-w-2xl mx-auto">
+                <p className="text-xl text-muted-foreground font-light max-w-2xl mx-auto leading-relaxed">
                   Discover undervalued properties with AI-powered analysis and comprehensive market data
                 </p>
               </div>
               
-              <div className="bg-card border border-border/50 rounded-2xl p-8">
+              <div className="feature-card p-10 backdrop-blur-sm">
                 <PropertySearch onSearch={handleSearch} isLoading={isLoading} />
               </div>
             </section>
 
-
-            {/* Results Section */}
+            {/* Results Section - Enhanced */}
             {properties.length > 0 && (
-              <section className="space-y-8">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <h2 className="text-xl font-medium">
+              <section className="space-y-10 animate-fade-in">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div className="space-y-2">
+                    <h2 className="text-2xl font-medium tracking-tight">
                       {properties.some(p => p.price && p.zestimate && p.price < p.zestimate) 
                         ? 'Best wholesale deals' 
                         : 'Search results'}
                     </h2>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-muted-foreground font-light">
                       {properties.length} {properties.length === 1 ? 'property' : 'properties'} found
                     </p>
                   </div>
@@ -230,79 +232,93 @@ export default function RealEstateWholesaler() {
                       disabled={exportLoading}
                       variant="outline"
                       size="sm"
-                      className="gap-2 h-8 text-sm font-medium"
+                      className="gap-2 h-9 px-4 text-sm font-medium smooth-transition"
                     >
-                      <Download className="h-3.5 w-3.5" />
+                      <Download className="h-4 w-4" />
                       {exportLoading ? 'Exporting...' : 'Export CSV'}
                     </Button>
                   )}
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {properties.map((property) => (
-                    <PropertyCard
+                <div className="property-grid">
+                  {properties.map((property, index) => (
+                    <div 
                       key={property.id}
-                      property={property}
-                      onViewDetails={() => setSelectedProperty(property)}
-                      highlightWholesaleDeals={true}
-                    />
+                      className="animate-fade-in hover-scale"
+                      style={{ animationDelay: `${index * 50}ms` }}
+                    >
+                      <PropertyCard
+                        property={property}
+                        onViewDetails={() => setSelectedProperty(property)}
+                        highlightWholesaleDeals={true}
+                      />
+                    </div>
                   ))}
                 </div>
               </section>
             )}
 
-            {/* Clean Error State */}
+            {/* Enhanced Error State */}
             {error && (
-              <section className="max-w-lg mx-auto">
-                <div className="bg-destructive/5 border border-destructive/20 rounded-xl p-6 text-center">
-                  <p className="text-sm text-destructive mb-4">{error}</p>
+              <section className="max-w-lg mx-auto animate-scale-in">
+                <div className="bg-destructive/5 border border-destructive/20 rounded-2xl p-8 text-center feature-card">
+                  <div className="w-12 h-12 bg-destructive/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-destructive text-lg">⚠</span>
+                  </div>
+                  <h3 className="font-medium mb-2">Search Error</h3>
+                  <p className="text-sm text-destructive mb-6 leading-relaxed">{error}</p>
                   <Button 
                     variant="outline" 
                     size="sm"
                     onClick={() => setError(null)}
-                    className="h-8 text-sm font-medium"
+                    className="h-9 px-4 text-sm font-medium smooth-transition"
                   >
-                    Dismiss
+                    Try Again
                   </Button>
                 </div>
               </section>
             )}
           </>
         ) : (
-          /* Clean Favorites Section */
-          <section className="space-y-8">
-            <div className="text-center space-y-2 max-w-2xl mx-auto">
-              <h1 className="text-2xl md:text-3xl font-medium">Your favorites</h1>
-              <p className="text-muted-foreground font-light">
+          /* Enhanced Favorites Section */
+          <section className="space-y-10 animate-fade-in">
+            <div className="text-center space-y-4 max-w-2xl mx-auto">
+              <h1 className="text-3xl md:text-4xl font-medium tracking-tight">Your favorites</h1>
+              <p className="text-lg text-muted-foreground font-light leading-relaxed">
                 Properties you've saved for later review
               </p>
             </div>
 
             {favorites.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {favorites.map((property) => (
-                  <PropertyCard
+              <div className="property-grid">
+                {favorites.map((property, index) => (
+                  <div 
                     key={property.id}
-                    property={property}
-                    onViewDetails={() => setSelectedProperty(property)}
-                    highlightWholesaleDeals={true}
-                  />
+                    className="animate-fade-in hover-scale"
+                    style={{ animationDelay: `${index * 50}ms` }}
+                  >
+                    <PropertyCard
+                      property={property}
+                      onViewDetails={() => setSelectedProperty(property)}
+                      highlightWholesaleDeals={true}
+                    />
+                  </div>
                 ))}
               </div>
             ) : (
-              <div className="max-w-md mx-auto">
-                <div className="bg-card border border-border/50 rounded-xl p-8 text-center">
-                  <div className="w-12 h-12 bg-muted rounded-xl flex items-center justify-center mx-auto mb-4">
-                    <User className="h-6 w-6 text-muted-foreground" />
+              <div className="max-w-md mx-auto animate-scale-in">
+                <div className="feature-card p-10 text-center">
+                  <div className="w-16 h-16 bg-muted rounded-2xl flex items-center justify-center mx-auto mb-6">
+                    <User className="h-8 w-8 text-muted-foreground" />
                   </div>
-                  <h3 className="font-medium mb-2">No favorites yet</h3>
-                  <p className="text-sm text-muted-foreground mb-6 font-light">
-                    Start exploring properties and save the ones you like
+                  <h3 className="text-lg font-medium mb-3 tracking-tight">No favorites yet</h3>
+                  <p className="text-muted-foreground mb-8 font-light leading-relaxed">
+                    Start exploring properties and save the ones you like for later review
                   </p>
                   <Button 
                     onClick={() => setShowFavorites(false)} 
                     size="sm"
-                    className="h-8 text-sm font-medium"
+                    className="h-10 px-6 text-sm font-medium smooth-transition"
                   >
                     Browse Properties
                   </Button>
