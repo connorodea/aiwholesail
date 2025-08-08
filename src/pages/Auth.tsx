@@ -103,7 +103,7 @@ export default function Auth() {
           <div className="space-y-8">
             {/* Header */}
             <div className="text-center space-y-6">
-              <Badge variant="secondary" className="mb-1 text-xs font-medium">
+              <Badge variant="secondary" className="text-xs font-medium">
                 <Shield className="h-3 w-3 mr-1.5" />
                 Secure Authentication
               </Badge>
