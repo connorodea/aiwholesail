@@ -123,8 +123,26 @@ export function AIWholesaleAnalyzer({ properties, market }: AIWholesaleAnalyzerP
     setIsAnalyzing(true);
     
     try {
-      // Convert properties to CSV format for analysis
-      const csvData = properties.map(property => ({
+      // Filter properties to only include those with high spreads (positive difference between zestimate and list price)
+      const highSpreadProperties = properties.filter(property => {
+        if (!property.zestimate || !property.price) return false;
+        const spread = property.zestimate - property.price;
+        const spreadPct = spread / property.zestimate;
+        // Only include properties with at least 10% positive spread
+        return spreadPct >= 0.10 && spread > 5000;
+      });
+
+      if (highSpreadProperties.length === 0) {
+        toast({
+          title: "No High Spread Properties",
+          description: "No properties found with significant positive spread between Zestimate and list price.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Convert high spread properties to CSV format for analysis
+      const csvData = highSpreadProperties.map(property => ({
         zpid: property.zpid,
         address: property.address,
         city: property.city,

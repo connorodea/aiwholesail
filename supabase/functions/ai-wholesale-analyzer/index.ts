@@ -53,24 +53,15 @@ serve(async (req) => {
 
     console.log(`[${new Date().toISOString()}] Starting AI wholesale analysis for ${market} with ${csv_data.length} properties`);
 
-    // Filter and preprocess properties with more lenient criteria
+    // Since properties are pre-filtered for high spreads on frontend, just validate basic data
     const filteredProperties = csv_data
       .filter(prop => {
-        // Basic data validation
+        // Basic data validation only
         if (!prop.list_price || prop.list_price <= 0) return false;
         if (!prop.sqft || prop.sqft <= 0) return false;
+        if (!prop.zestimate || prop.zestimate <= 0) return false;
         
-        // If zestimate exists, check for spread, otherwise include property
-        if (prop.zestimate && prop.zestimate > 0) {
-          const spread_abs = prop.zestimate - prop.list_price;
-          const spread_pct = spread_abs / prop.zestimate;
-          
-          // Only filter out if spread is negative (overpriced)
-          // Allow properties with minimal spread for analysis
-          return spread_pct >= -0.05; // Allow up to 5% overpriced properties
-        }
-        
-        // Include properties without zestimate for analysis
+        // Properties should already have good spreads from frontend filtering
         return true;
       })
       .map(prop => ({
