@@ -101,10 +101,15 @@ const handler = async (req: Request): Promise<Response> => {
         if (alert.min_sqft) searchParams.sqft_min = alert.min_sqft.toString();
         if (alert.max_sqft) searchParams.sqft_max = alert.max_sqft.toString();
 
-        // Search for properties using the Zillow API
+        // Search for properties using the Zillow API with wholesale criteria
         const { data: searchResult, error: searchError } = await supabase.functions.invoke('get-zillow-data', {
           body: { 
-            searchParams,
+            searchParams: {
+              ...searchParams,
+              wholesaleOnly: true, // Only find wholesale opportunities
+              fsboOnly: false,
+              keywords: ''
+            },
             action: 'search'
           }
         });

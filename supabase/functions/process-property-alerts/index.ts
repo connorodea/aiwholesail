@@ -241,8 +241,8 @@ async function sendPropertyAlert(alert: any, property: any): Promise<boolean> {
       </div>
     `;
 
-    // Call the SMTP email function
-    const response = await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/send-smtp-email`, {
+    // Call the SendGrid email function
+    const response = await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/send-sendgrid-email`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

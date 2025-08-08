@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Trash2, Plus, Bell, MapPin, DollarSign, Home, Calendar } from 'lucide-react';
+import { Trash2, Plus, Bell, MapPin, DollarSign, Home, Calendar, Send } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface PropertyAlert {
@@ -194,6 +194,24 @@ export const PropertyAlertsManager = () => {
     } catch (error: any) {
       console.error('Error deleting alert:', error);
       toast.error('Failed to delete alert');
+    }
+  };
+
+  const sendTestAlert = async (alert: PropertyAlert) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('test-property-alert', {
+        body: {
+          userEmail: user?.email,
+          location: alert.location
+        }
+      });
+
+      if (error) throw error;
+
+      toast.success(`Test alert sent to ${user?.email} for ${alert.location}!`);
+    } catch (error: any) {
+      console.error('Error sending test alert:', error);
+      toast.error('Failed to send test alert');
     }
   };
 
@@ -437,6 +455,15 @@ export const PropertyAlertsManager = () => {
                       checked={alert.is_active}
                       onCheckedChange={(checked) => toggleAlert(alert.id, checked)}
                     />
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => sendTestAlert(alert)}
+                      className="text-primary hover:text-primary"
+                      title="Send test alert"
+                    >
+                      <Send className="h-4 w-4" />
+                    </Button>
                     <Button
                       variant="ghost"
                       size="sm"
