@@ -9,6 +9,7 @@ import NotFound from "./pages/NotFound";
 import RealEstateWholesaler from "./pages/RealEstateWholesaler";
 import Auth from "./pages/Auth";
 import Landing from "./pages/Landing";
+import Pricing from "./pages/Pricing";
 import Success from "./pages/Success";
 
 const queryClient = new QueryClient();
@@ -21,6 +22,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Landing />} />
+          <Route path="/pricing" element={<Pricing />} />
           <Route path="/app" element={
             <ProtectedRoute>
               <RealEstateWholesaler />

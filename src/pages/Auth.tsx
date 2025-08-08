@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { LogIn, UserPlus, Eye, EyeOff, Mail, Home, Shield, CheckCircle } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 const aiWholesailLogo = '/lovable-uploads/8dcdb5d0-ddfb-406f-a5f0-b3c5112d210a.png';
 
 export default function Auth() {
@@ -26,6 +27,14 @@ export default function Auth() {
 
   useEffect(() => {
     if (user) {
+      // Check if there's a stored plan selection for post-signup checkout
+      const storedPlan = localStorage.getItem('selectedPlan');
+      if (storedPlan) {
+        const plan = JSON.parse(storedPlan);
+        localStorage.removeItem('selectedPlan');
+        handleCheckout(plan);
+        return;
+      }
       navigate('/app');
     }
     
@@ -36,6 +45,33 @@ export default function Auth() {
       navigate('/auth', { replace: true });
     }
   }, [user, navigate, isVerified]);
+
+  const handleCheckout = async (plan: any) => {
+    try {
+      console.log('Starting checkout for plan:', plan.name, 'with priceId:', plan.priceId);
+      
+      const { data, error } = await supabase.functions.invoke('create-checkout', {
+        body: { priceId: plan.priceId }
+      });
+
+      if (error) {
+        console.error('Supabase function error:', error);
+        throw error;
+      }
+
+      if (data?.url) {
+        window.open(data.url, '_blank');
+        toast.success('Redirecting to checkout...');
+      } else {
+        throw new Error('No checkout URL received');
+      }
+    } catch (error: any) {
+      console.error('Error creating checkout:', error);
+      toast.error(error.message || 'Failed to start checkout process');
+      // Redirect to pricing page if checkout fails
+      navigate('/pricing');
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,6 +89,7 @@ export default function Auth() {
           }
         } else {
           toast.success('Account created successfully! Please check your email to verify your account.');
+          // Don't clear stored plan - it will be used after email verification
         }
       } else {
         const { error } = await signIn(email, password);

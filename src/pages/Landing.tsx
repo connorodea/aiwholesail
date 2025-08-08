@@ -21,35 +21,13 @@ const Landing = () => {
   const testimonialsRef = useScrollAnimation({ threshold: 0.1 });
   const ctaRef = useScrollAnimation({ threshold: 0.1 });
   const handleStartTrial = () => {
-    if (!user) {
-      // Redirect to signup mode for non-authenticated users
-      window.location.href = '/auth?mode=signup';
-      return;
-    }
-
-    // If user is already logged in, start subscription
-    handleSubscribe();
+    // Always redirect to pricing page for plan selection
+    window.location.href = '/pricing';
   };
-  const handleSubscribe = async () => {
-    setLoading(true);
-    try {
-      const {
-        data,
-        error
-      } = await supabase.functions.invoke('create-checkout');
-      if (error) throw error;
 
-      // Open Stripe checkout in a new tab
-      window.open(data.url, '_blank');
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to create checkout session. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
-    }
+  const handleSubscribe = () => {
+    // Redirect to pricing page for plan selection
+    window.location.href = '/pricing';
   };
   return <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 relative">
       {/* Scroll-driven sailboat animation */}
@@ -400,7 +378,7 @@ const Landing = () => {
               </div>
               <div className="flex items-center gap-1.5">
                 <Shield className="h-3.5 w-3.5 text-primary" />
-                <span className="font-light">No Credit Card Required</span>
+                <span className="font-light">Credit Card Required</span>
               </div>
             </div>
           </div>
