@@ -328,7 +328,7 @@ const Landing = () => {
             </p>
           </div>
           
-          <div className={`grid md:grid-cols-2 lg:grid-cols-3 gap-8 transition-all duration-1000 delay-300 ${
+          <div className={`grid md:grid-cols-2 gap-8 transition-all duration-1000 delay-300 ${
             testimonialsRef.isVisible ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
           }`}>
             {[{
@@ -346,6 +346,11 @@ const Landing = () => {
             role: "Property Flipper",
             content: "Finally, a tool that understands real estate investing. The ROI calculations are spot-on every time, and the AI chat helps me understand market trends.",
             profit: "$95,000"
+          }, {
+            name: "Robert Martinez",
+            role: "Investment Advisor",
+            content: "The automated alerts have transformed how I source deals for my clients. We're closing 40% more transactions since implementing AIWholesail.",
+            profit: "$150,000"
           }].map((testimonial, index) => <div key={index} className="group bg-card border border-border/50 rounded-2xl p-6 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
                 <div className="flex mb-4">
                   {[...Array(5)].map((_, i) => <Star key={i} className="h-4 w-4 fill-primary text-primary" />)}
