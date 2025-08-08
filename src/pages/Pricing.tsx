@@ -60,7 +60,7 @@ export default function Pricing() {
       // Create a guest checkout session (user will create account after payment)
       const { data, error } = await supabase.functions.invoke('create-checkout', {
         body: { 
-          priceId: plan.priceId,
+          priceId: plan.name, // Send plan name instead of hardcoded price ID
           guestCheckout: !user // Flag to indicate if this is a guest checkout
         }
       });
