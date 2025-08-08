@@ -419,12 +419,14 @@ export class ZillowAPI {
 
   async getSkipTrace(address: string, location: string, format: string = 'full'): Promise<any> {
     try {
-      const fullAddress = `${address}, ${location}`;
-      
-      const { data, error } = await supabase.functions.invoke('robust-skip-trace', {
+      const { data, error } = await supabase.functions.invoke('get-zillow-data', {
         body: { 
-          address: fullAddress,
-          name: null 
+          action: 'skipTrace',
+          searchParams: {
+            street: address,
+            citystatezip: location,
+            page: '1'
+          }
         }
       });
       

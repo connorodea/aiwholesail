@@ -86,7 +86,7 @@ serve(async (req) => {
       updatedDetails: "https://zillow-working-api.p.rapidapi.com/propertyUpdatedDetails",
       listingStatus: "https://zillow-working-api.p.rapidapi.com/propertyListingStatus",
       rentalEstimate: "https://zillow-working-api.p.rapidapi.com/propertyRentalEstimate",
-      skipTrace: "https://zillow-com1.p.rapidapi.com/people/searchByAddress"
+      skipTrace: "https://zillow-working-api.p.rapidapi.com/skip/byaddress"
     };
 
     let headers: Record<string, string> = {
@@ -94,10 +94,8 @@ serve(async (req) => {
       "x-rapidapi-host": "zillow-working-api.p.rapidapi.com"
     };
 
-    // Different host for skipTrace endpoint
-    if (action === 'skipTrace') {
-      headers["x-rapidapi-host"] = "zillow-com1.p.rapidapi.com";
-    }
+    // All endpoints use the same host now
+    headers["x-rapidapi-host"] = "zillow-working-api.p.rapidapi.com";
 
     let url: string;
     let requestParams: Record<string, string> = {};
@@ -200,17 +198,17 @@ serve(async (req) => {
     } else if ([
       'skipTrace'
     ].includes(action)) {
-      // skipTrace requires address and location
-      if (!searchParams.address || !searchParams.location) {
+      // skipTrace requires street and citystatezip
+      if (!searchParams.street || !searchParams.citystatezip) {
         return new Response(
-          JSON.stringify({ success: false, error: 'Missing required parameters: address, location' }),
+          JSON.stringify({ success: false, error: 'Missing required parameters: street, citystatezip' }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
         );
       }
       requestParams = { 
-        address: searchParams.address, 
-        location: searchParams.location,
-        format: searchParams.format || 'full'
+        street: searchParams.street, 
+        citystatezip: searchParams.citystatezip,
+        page: searchParams.page || '1'
       };
       url = `${baseUrls[action]}?${new URLSearchParams(requestParams)}`;
     } else {
