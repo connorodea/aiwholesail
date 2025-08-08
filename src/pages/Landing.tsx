@@ -378,14 +378,127 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Footer - Minimal */}
-      <footer className="border-t border-border/30 py-8 px-4">
-        <div className="container mx-auto max-w-6xl">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="flex items-center gap-3">
-              <img src={aiWholesailLogo} alt="AIWholesail" className="h-8 w-auto object-contain" />
+      {/* Footer */}
+      <footer className="border-t border-border/10 bg-gradient-to-b from-background to-background/50 px-4 py-16">
+        <div className="container mx-auto max-w-7xl">
+          <div className="bg-card/40 backdrop-blur-xl border border-border/30 rounded-3xl shadow-lg p-12">
+            <div className="grid lg:grid-cols-12 gap-12 items-start">
+              
+              {/* Brand Section */}
+              <div className="lg:col-span-4 space-y-6">
+                <div className="flex items-center space-x-3">
+                  <div className="relative group">
+                    <img 
+                      src={aiWholesailLogo} 
+                      alt="AIWholesail" 
+                      className="h-12 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+                    />
+                    <div className="absolute -inset-2 bg-gradient-to-r from-primary/20 to-accent/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"></div>
+                  </div>
+                </div>
+                <p className="text-muted-foreground font-light leading-relaxed max-w-sm">
+                  Discover undervalued properties with AI-powered analysis and comprehensive market data. 
+                  Turn data into profit with intelligent wholesale investing.
+                </p>
+                <div className="flex items-center space-x-4 pt-2">
+                  <Button size="sm" className="rounded-full px-6" onClick={handleStartTrial}>
+                    Get Started
+                  </Button>
+                  <Link to="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                    Contact Us
+                  </Link>
+                </div>
+              </div>
+              
+              {/* Navigation Links */}
+              <div className="lg:col-span-8">
+                <div className="grid md:grid-cols-3 gap-8">
+                  
+                  {/* Product */}
+                  <div className="space-y-4">
+                    <h3 className="font-medium text-foreground">Product</h3>
+                    <ul className="space-y-3">
+                      {[
+                        { label: "Property Search", to: "/app" },
+                        { label: "AI Analysis", to: "/app" },
+                        { label: "Market Intelligence", to: "/app" },
+                        { label: "Deal Calculator", to: "/app" }
+                      ].map((link, index) => (
+                        <li key={index}>
+                          <Link 
+                            to={link.to} 
+                            className="text-sm text-muted-foreground hover:text-foreground transition-colors font-light"
+                          >
+                            {link.label}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  
+                  {/* Company */}
+                  <div className="space-y-4">
+                    <h3 className="font-medium text-foreground">Company</h3>
+                    <ul className="space-y-3">
+                      {[
+                        { label: "About", to: "/contact" },
+                        { label: "Contact", to: "/contact" },
+                        { label: "FAQ", to: "/faq" },
+                        { label: "Pricing", to: "/pricing" }
+                      ].map((link, index) => (
+                        <li key={index}>
+                          <Link 
+                            to={link.to} 
+                            className="text-sm text-muted-foreground hover:text-foreground transition-colors font-light"
+                          >
+                            {link.label}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  
+                  {/* Legal */}
+                  <div className="space-y-4">
+                    <h3 className="font-medium text-foreground">Legal</h3>
+                    <ul className="space-y-3">
+                      {[
+                        { label: "Privacy Policy", to: "/privacy" },
+                        { label: "Terms of Service", to: "/terms" },
+                        { label: "Refund Policy", to: "/refund" }
+                      ].map((link, index) => (
+                        <li key={index}>
+                          <Link 
+                            to={link.to} 
+                            className="text-sm text-muted-foreground hover:text-foreground transition-colors font-light"
+                          >
+                            {link.label}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  
+                </div>
+              </div>
             </div>
-            <p className="text-sm text-muted-foreground font-light text-center md:text-right">© 2025 AIWholesail. All rights reserved.</p>
+            
+            {/* Bottom Section */}
+            <div className="border-t border-border/20 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+              <p className="text-sm text-muted-foreground font-light">
+                © 2025 AIWholesail. All rights reserved.
+              </p>
+              <div className="flex items-center space-x-6">
+                <Badge variant="secondary" className="text-xs font-light">
+                  <Zap className="h-3 w-3 mr-1" />
+                  AI-Powered
+                </Badge>
+                <div className="flex items-center space-x-1">
+                  <div className="h-2 w-2 bg-primary rounded-full animate-pulse"></div>
+                  <span className="text-xs text-muted-foreground font-light">Live Updates</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </footer>
