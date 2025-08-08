@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { LocationAutocomplete } from '@/components/LocationAutocomplete';
 import { validateLocationInput, validatePriceRange, sanitizeSearchKeywords } from '@/lib/security';
-import { Search, AlertCircle, Zap, DollarSign, Target } from 'lucide-react';
+import { Search, AlertTriangle, DollarSign, Target, Home, Building, Users, Calendar, Filter } from 'lucide-react';
 import type { OffMarketSearchParams } from '@/lib/off-market-api';
 
 interface OffMarketSearchProps {
@@ -86,40 +86,32 @@ export function OffMarketSearch({ onSearch, isLoading }: OffMarketSearchProps) {
   const activeFiltersCount = Object.values(searchParams.filters).filter(Boolean).length;
 
   return (
-    <Card className="w-full max-w-4xl mx-auto">
-      <CardHeader className="text-center pb-4">
-        <div className="flex items-center justify-center gap-3 mb-2">
-          <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-500 rounded-lg flex items-center justify-center">
-            <Target className="h-5 w-5 text-white" />
-          </div>
-          <CardTitle className="text-2xl font-bold">
-            Off-Market Discovery
-          </CardTitle>
-          <Badge variant="secondary" className="bg-green-100 text-green-800 font-medium">
-            <Zap className="h-3 w-3 mr-1" />
-            Ultra-Lean
-          </Badge>
-        </div>
-        <CardDescription className="text-base max-w-2xl mx-auto">
-          <DollarSign className="inline h-4 w-4 mr-1" />
-          Cost-Effective Strategy: Free public records + algorithmic filtering + minimal AI analysis. 
-          Target: 5,000+ properties processed for under $100/month with 50+ quality leads.
-        </CardDescription>
+    <Card className="simple-card">
+      <CardHeader className="pb-4 sm:pb-6">
+        <CardTitle className="flex items-center gap-2 sm:gap-3 text-xl sm:text-2xl text-foreground">
+          <Target className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+          Off-Market Property Discovery
+        </CardTitle>
+        <p className="text-sm text-muted-foreground">
+          Ultra-lean approach: Process 5,000+ properties for under $100/month
+        </p>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             {/* Location */}
-            <div className="space-y-2">
+            <div className="sm:col-span-2">
               <LocationAutocomplete
                 value={searchParams.location}
                 onChange={(value) => updateParam('location', value)}
+                required={true}
               />
             </div>
 
             {/* Property Type */}
             <div className="space-y-2">
-              <Label htmlFor="propertyType" className="text-sm font-medium">
+              <Label className="flex items-center gap-2">
+                <Home className="h-4 w-4 text-primary" />
                 Property Type
               </Label>
               <Select value={searchParams.propertyType} onValueChange={(value) => updateParam('propertyType', value)}>
@@ -138,7 +130,8 @@ export function OffMarketSearch({ onSearch, isLoading }: OffMarketSearchProps) {
 
             {/* Price Range */}
             <div className="space-y-2">
-              <Label className="text-sm font-medium">
+              <Label className="flex items-center gap-2">
+                <DollarSign className="h-4 w-4 text-primary" />
                 Price Range
               </Label>
               <div className="flex gap-2">
@@ -164,27 +157,31 @@ export function OffMarketSearch({ onSearch, isLoading }: OffMarketSearchProps) {
             </div>
           </div>
 
-          {/* Distress Indicators - Free Data Sources */}
-          <div className="space-y-4">
+          {/* Distress Indicators */}
+          <div className="border-t pt-3 sm:pt-4 space-y-3 sm:space-y-4">
             <div className="flex items-center justify-between">
-              <Label className="text-sm font-medium">
-                Distress Indicators (Free Public Data)
-              </Label>
+              <div className="flex items-center gap-2">
+                <Filter className="h-4 w-4 text-primary" />
+                <Label className="text-base font-medium">Distress Indicators</Label>
+              </div>
               <Badge variant="outline" className="text-xs">
                 {activeFiltersCount} active
               </Badge>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Tax Delinquency */}
-              <div className="flex items-center justify-between p-3 border rounded-lg bg-background/30">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              {/* Tax Delinquent */}
+              <div className="flex items-center justify-between space-x-2">
+                <div className="flex items-center space-x-2">
+                  <AlertTriangle className="h-4 w-4 text-warning" />
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
                     <Label htmlFor="taxDelinquent" className="text-sm font-medium cursor-pointer">
-                      Tax Delinquent Properties
+                      Tax Delinquent
                     </Label>
+                    <span className="text-xs text-muted-foreground">
+                      County tax records
+                    </span>
                   </div>
-                  <p className="text-xs text-muted-foreground">County tax assessor records</p>
                 </div>
                 <Switch
                   id="taxDelinquent"
@@ -194,14 +191,17 @@ export function OffMarketSearch({ onSearch, isLoading }: OffMarketSearchProps) {
               </div>
 
               {/* Foreclosure Notices */}
-              <div className="flex items-center justify-between p-3 border rounded-lg bg-background/30">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
+              <div className="flex items-center justify-between space-x-2">
+                <div className="flex items-center space-x-2">
+                  <AlertTriangle className="h-4 w-4 text-destructive" />
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
                     <Label htmlFor="foreclosureNotices" className="text-sm font-medium cursor-pointer">
                       Foreclosure Notices
                     </Label>
+                    <span className="text-xs text-muted-foreground">
+                      Public filings
+                    </span>
                   </div>
-                  <p className="text-xs text-muted-foreground">Public foreclosure filings</p>
                 </div>
                 <Switch
                   id="foreclosureNotices"
@@ -211,14 +211,17 @@ export function OffMarketSearch({ onSearch, isLoading }: OffMarketSearchProps) {
               </div>
 
               {/* Code Violations */}
-              <div className="flex items-center justify-between p-3 border rounded-lg bg-background/30">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
+              <div className="flex items-center justify-between space-x-2">
+                <div className="flex items-center space-x-2">
+                  <Building className="h-4 w-4 text-warning" />
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
                     <Label htmlFor="codeViolations" className="text-sm font-medium cursor-pointer">
                       Code Violations
                     </Label>
+                    <span className="text-xs text-muted-foreground">
+                      Municipal violations
+                    </span>
                   </div>
-                  <p className="text-xs text-muted-foreground">Municipal code enforcement</p>
                 </div>
                 <Switch
                   id="codeViolations"
@@ -228,14 +231,17 @@ export function OffMarketSearch({ onSearch, isLoading }: OffMarketSearchProps) {
               </div>
 
               {/* Building Permits */}
-              <div className="flex items-center justify-between p-3 border rounded-lg bg-background/30">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
+              <div className="flex items-center justify-between space-x-2">
+                <div className="flex items-center space-x-2">
+                  <Building className="h-4 w-4 text-info" />
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
                     <Label htmlFor="buildingPermits" className="text-sm font-medium cursor-pointer">
-                      Recent Building Permits
+                      Recent Permits
                     </Label>
+                    <span className="text-xs text-muted-foreground">
+                      Condition indicators
+                    </span>
                   </div>
-                  <p className="text-xs text-muted-foreground">Condition indicators</p>
                 </div>
                 <Switch
                   id="buildingPermits"
@@ -245,14 +251,17 @@ export function OffMarketSearch({ onSearch, isLoading }: OffMarketSearchProps) {
               </div>
 
               {/* Non-Owner Occupied */}
-              <div className="flex items-center justify-between p-3 border rounded-lg bg-background/30">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
+              <div className="flex items-center justify-between space-x-2">
+                <div className="flex items-center space-x-2">
+                  <Users className="h-4 w-4 text-info" />
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
                     <Label htmlFor="ownerOccupied" className="text-sm font-medium cursor-pointer">
                       Non-Owner Occupied
                     </Label>
+                    <span className="text-xs text-muted-foreground">
+                      Investment properties
+                    </span>
                   </div>
-                  <p className="text-xs text-muted-foreground">Investment properties</p>
                 </div>
                 <Switch
                   id="ownerOccupied"
@@ -262,14 +271,17 @@ export function OffMarketSearch({ onSearch, isLoading }: OffMarketSearchProps) {
               </div>
 
               {/* High Equity */}
-              <div className="flex items-center justify-between p-3 border rounded-lg bg-background/30">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
+              <div className="flex items-center justify-between space-x-2">
+                <div className="flex items-center space-x-2">
+                  <DollarSign className="h-4 w-4 text-success" />
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
                     <Label htmlFor="highEquity" className="text-sm font-medium cursor-pointer">
-                      High Equity Properties
+                      High Equity (70%+)
                     </Label>
+                    <span className="text-xs text-muted-foreground">
+                      Strong equity position
+                    </span>
                   </div>
-                  <p className="text-xs text-muted-foreground">Low loan-to-value ratio</p>
                 </div>
                 <Switch
                   id="highEquity"
@@ -295,24 +307,24 @@ export function OffMarketSearch({ onSearch, isLoading }: OffMarketSearchProps) {
           <Button
             type="submit"
             disabled={isLoading || activeFiltersCount === 0}
-            className="w-full h-12 text-base font-medium"
+            className="w-full h-12 sm:h-auto text-base sm:text-sm"
           >
             {isLoading ? (
               <>
-                <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
-                Processing Free Data...
+                <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-primary-foreground mr-2 sm:mr-3" />
+                <span className="text-sm sm:text-base">Processing Free Data...</span>
               </>
             ) : (
               <>
-                <Search className="h-4 w-4 mr-2" />
-                Find Off-Market Deals
+                <Search className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3" />
+                <span className="text-sm sm:text-base">Find Off-Market Deals</span>
               </>
             )}
           </Button>
 
           {activeFiltersCount === 0 && (
-            <div className="flex items-center gap-2 text-sm text-orange-600 bg-orange-50 p-3 rounded-lg">
-              <AlertCircle className="h-4 w-4 flex-shrink-0" />
+            <div className="flex items-center gap-2 text-sm text-warning bg-warning/10 p-3 rounded-lg border border-warning/20">
+              <AlertTriangle className="h-4 w-4 flex-shrink-0" />
               <p>
                 Please enable at least one distress indicator to search for off-market opportunities.
               </p>
