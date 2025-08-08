@@ -266,6 +266,107 @@ export type Database = {
         }
         Relationships: []
       }
+      property_alert_matches: {
+        Row: {
+          alert_id: string
+          created_at: string
+          email_sent: boolean | null
+          email_sent_at: string | null
+          id: string
+          matched_at: string
+          property_data: Json
+          property_id: string
+          zpid: string | null
+        }
+        Insert: {
+          alert_id: string
+          created_at?: string
+          email_sent?: boolean | null
+          email_sent_at?: string | null
+          id?: string
+          matched_at?: string
+          property_data: Json
+          property_id: string
+          zpid?: string | null
+        }
+        Update: {
+          alert_id?: string
+          created_at?: string
+          email_sent?: boolean | null
+          email_sent_at?: string | null
+          id?: string
+          matched_at?: string
+          property_data?: Json
+          property_id?: string
+          zpid?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "property_alert_matches_alert_id_fkey"
+            columns: ["alert_id"]
+            isOneToOne: false
+            referencedRelation: "property_alerts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      property_alerts: {
+        Row: {
+          alert_frequency: string | null
+          created_at: string
+          id: string
+          is_active: boolean | null
+          last_alert_sent: string | null
+          location: string
+          max_bathrooms: number | null
+          max_bedrooms: number | null
+          max_price: number | null
+          max_sqft: number | null
+          min_bathrooms: number | null
+          min_bedrooms: number | null
+          min_sqft: number | null
+          property_types: string[] | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          alert_frequency?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          last_alert_sent?: string | null
+          location: string
+          max_bathrooms?: number | null
+          max_bedrooms?: number | null
+          max_price?: number | null
+          max_sqft?: number | null
+          min_bathrooms?: number | null
+          min_bedrooms?: number | null
+          min_sqft?: number | null
+          property_types?: string[] | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          alert_frequency?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          last_alert_sent?: string | null
+          location?: string
+          max_bathrooms?: number | null
+          max_bedrooms?: number | null
+          max_price?: number | null
+          max_sqft?: number | null
+          min_bathrooms?: number | null
+          min_bedrooms?: number | null
+          min_sqft?: number | null
+          property_types?: string[] | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       property_intelligence: {
         Row: {
           absentee_owner: boolean | null

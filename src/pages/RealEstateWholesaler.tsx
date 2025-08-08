@@ -7,12 +7,14 @@ import { Property, PropertySearchParams } from '@/types/zillow';
 import { zillowAPI } from '@/lib/zillow-api';
 import { sortPropertiesByWholesalePotential } from '@/lib/wholesale-calculator';
 import { Button } from '@/components/ui/button';
-import { Home, User, LogOut, LogIn, Download } from 'lucide-react';
+import { Home, User, LogOut, LogIn, Download, Bell } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useLeads } from '@/hooks/useLeads';
 import { toast } from 'sonner';
 import { EnhancedPropertySearch } from '@/components/EnhancedPropertySearch';
+import { PropertyAlertsManager } from '@/components/PropertyAlertsManager';
+import { processPropertyAlerts } from '@/lib/propertyAlerts';
 
 export default function RealEstateWholesaler() {
   const { user, signOut } = useAuth();
@@ -23,6 +25,7 @@ export default function RealEstateWholesaler() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showFavorites, setShowFavorites] = useState(false);
+  const [showAlerts, setShowAlerts] = useState(false);
   const [lastSearchLocation, setLastSearchLocation] = useState<string>('');
 
   const handleSearch = async (params: PropertySearchParams) => {
@@ -83,6 +86,19 @@ export default function RealEstateWholesaler() {
       setProperties(filteredResults);
       toast.success(`Found ${filteredResults.length} properties${params.wholesaleOnly ? ' with wholesale potential' : ''}`);
 
+      // Process property alerts if user is authenticated
+      if (user && filteredResults.length > 0) {
+        try {
+          const alertResult = await processPropertyAlerts(params.location, filteredResults);
+          if (alertResult.success && alertResult.emailsSent > 0) {
+            toast.success(`Found ${alertResult.matches} new opportunities! ${alertResult.emailsSent} email alerts sent.`);
+          }
+        } catch (alertError) {
+          console.error('Error processing property alerts:', alertError);
+          // Don't show error to user as this is a background process
+        }
+      }
+
     } catch (error) {
       console.error('Search failed:', error);
       const errorMessage = error instanceof Error ? error.message : "An error occurred while searching";
@@ -98,6 +114,7 @@ export default function RealEstateWholesaler() {
       await signOut();
       toast.success('Signed out successfully');
       setShowFavorites(false);
+      setShowAlerts(false);
     } catch (error) {
       toast.error('Failed to sign out');
     }
@@ -130,7 +147,10 @@ export default function RealEstateWholesaler() {
                   <Button
                     variant={showFavorites ? "default" : "ghost"}
                     size="sm"
-                    onClick={() => setShowFavorites(!showFavorites)}
+                    onClick={() => {
+                      setShowFavorites(!showFavorites);
+                      setShowAlerts(false);
+                    }}
                     className="h-9 px-3 rounded-lg transition-all duration-200"
                   >
                     <User className="h-4 w-4 mr-2" />
@@ -138,6 +158,18 @@ export default function RealEstateWholesaler() {
                     <span className="ml-1 text-xs bg-muted px-1.5 py-0.5 rounded-md">
                       {favorites.length}
                     </span>
+                  </Button>
+                  <Button
+                    variant={showAlerts ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => {
+                      setShowAlerts(!showAlerts);
+                      setShowFavorites(false);
+                    }}
+                    className="h-9 px-3 rounded-lg transition-all duration-200"
+                  >
+                    <Bell className="h-4 w-4 mr-2" />
+                    <span className="hidden sm:inline">Alerts</span>
                   </Button>
                   <Button
                     variant="ghost"
@@ -166,7 +198,12 @@ export default function RealEstateWholesaler() {
 
       {/* Main Content Area */}
       <main className="container mx-auto px-6 py-8 space-y-8">
-        {!showFavorites ? (
+        {showAlerts ? (
+          /* Property Alerts Section */
+          <section className="space-y-6">
+            <PropertyAlertsManager />
+          </section>
+        ) : !showFavorites ? (
           <>
             {/* Search Section */}
             <section className="space-y-6">
