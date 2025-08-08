@@ -53,7 +53,10 @@ export default function Auth() {
       console.log('Starting checkout for plan:', plan.name, 'with priceId:', plan.priceId);
       
       const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { priceId: plan.priceId }
+        body: { 
+          priceId: plan.name, // Send plan name instead of hardcoded price ID
+          guestCheckout: false // User is authenticated
+        }
       });
 
       if (error) {
