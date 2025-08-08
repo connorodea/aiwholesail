@@ -69,7 +69,6 @@ const Landing = () => {
                   <h1 className="font-semibold text-lg bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
                     AIWholesail
                   </h1>
-                  <p className="text-xs text-muted-foreground">Real Estate Intelligence</p>
                 </div>
               </div>
               
