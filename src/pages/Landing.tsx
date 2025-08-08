@@ -84,13 +84,13 @@ const Landing = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="relative pt-32 pb-24 px-4 overflow-hidden">
+      <section className="relative pt-32 pb-0 px-4 overflow-hidden bg-gradient-to-b from-background via-background to-secondary/5">
         {/* Background decoration */}
         <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
         <div className="absolute top-20 right-20 w-72 h-72 bg-primary/10 rounded-full blur-3xl"></div>
         <div className="absolute bottom-20 left-20 w-96 h-96 bg-secondary/20 rounded-full blur-3xl"></div>
         
-        <div className="container mx-auto text-center relative z-10">
+        <div className="container mx-auto text-center relative z-10 pb-24">
           <Badge variant="secondary" className="mb-6 animate-fade-in hover-scale">
             <Zap className="h-4 w-4 mr-2" />
             AI-Powered Real Estate Analysis
@@ -134,6 +134,9 @@ const Landing = () => {
             </div>
           </div>
         </div>
+        
+        {/* Seamless transition gradient */}
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-b from-transparent via-secondary/3 to-primary/5 pointer-events-none"></div>
       </section>
 
       {/* Features Section */}
