@@ -90,7 +90,7 @@ const Landing = () => {
         <div className="absolute top-20 right-20 w-72 h-72 bg-primary/10 rounded-full blur-3xl"></div>
         <div className="absolute bottom-20 left-20 w-96 h-96 bg-secondary/20 rounded-full blur-3xl"></div>
         
-        <div className="container mx-auto text-center relative z-10">
+        <div className="container mx-auto text-center relative z-10 px-4 py-8 rounded-3xl bg-gradient-to-b from-background/80 via-background/40 to-transparent backdrop-blur-sm border border-primary/10 shadow-[0_0_60px_hsl(var(--primary)_/_0.15)] hover:shadow-[0_0_80px_hsl(var(--primary)_/_0.2)] transition-all duration-700 before:absolute before:inset-0 before:rounded-3xl before:bg-gradient-to-r before:from-primary/5 before:via-transparent before:to-primary/5 before:opacity-50 before:-z-10">
           <Badge variant="secondary" className="mb-6 animate-fade-in hover-scale">
             <Zap className="h-4 w-4 mr-2" />
             AI-Powered Real Estate Analysis
