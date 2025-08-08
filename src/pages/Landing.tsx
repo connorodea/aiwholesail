@@ -84,59 +84,53 @@ const Landing = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="relative pt-32 pb-0 px-4 overflow-hidden bg-gradient-to-b from-background via-background to-secondary/5">
-        {/* Background decoration */}
-        <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
-        <div className="absolute top-20 right-20 w-72 h-72 bg-primary/10 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 left-20 w-96 h-96 bg-secondary/20 rounded-full blur-3xl"></div>
+      {/* Hero Section - OpenAI inspired clean design */}
+      <section className="relative pt-24 pb-16 px-4 overflow-hidden">
+        {/* Subtle background elements */}
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/2 to-transparent"></div>
         
-        <div className="container mx-auto text-center relative z-10 pb-24">
-          <Badge variant="secondary" className="mb-6 animate-fade-in hover-scale">
-            <Zap className="h-4 w-4 mr-2" />
-            AI-Powered Real Estate Analysis
-          </Badge>
-          
-          <h1 className="text-5xl md:text-7xl font-bold mb-8 animate-fade-in">
-            <span className="bg-gradient-to-r from-primary via-primary to-primary/60 bg-clip-text text-transparent">
-              Find Profitable
-            </span>
-            <br />
-            <span className="text-foreground">Wholesale Deals</span>
-            <span className="text-primary">.</span>
-          </h1>
-          
-          <p className="text-xl md:text-2xl text-muted-foreground mb-10 max-w-3xl mx-auto leading-relaxed animate-fade-in">
-            Discover undervalued properties with <strong>AI-powered analysis</strong>, comprehensive market data, 
-            and automated deal scoring. Turn data into profit with AIWholesail.
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in">
-            <Button size="lg" onClick={handleStartTrial} disabled={loading} className="text-lg px-10 py-4 hover-scale group">
-              {loading ? "Loading..." : "Start 7-Day Free Trial"}
-              <ArrowRight className="h-5 w-5 ml-2 group-hover:translate-x-1 transition-transform" />
-            </Button>
-            {!user && <Link to="/auth">
-                <Button variant="outline" size="lg" className="text-lg px-10 py-4 hover-scale">
-                  <Play className="h-5 w-5 mr-2" />
-                  Watch Demo
-                </Button>
-              </Link>}
-          </div>
-          
-          <div className="mt-12 flex items-center justify-center gap-8 text-sm text-muted-foreground animate-fade-in">
-            <div className="flex items-center gap-2">
-              <Shield className="h-4 w-4 text-primary" />
-              <span>No Credit Card Required</span>
+        <div className="container mx-auto text-center relative z-10 max-w-4xl">
+          <div className="space-y-8">
+            <Badge variant="secondary" className="mb-2 text-xs font-medium">
+              <Zap className="h-3 w-3 mr-1.5" />
+              AI-Powered Real Estate Analysis
+            </Badge>
+            
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-medium leading-tight tracking-tight">
+              <span className="block mb-2">Find Profitable</span>
+              <span className="block bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                Wholesale Deals
+              </span>
+            </h1>
+            
+            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed font-light">
+              Discover undervalued properties with AI-powered analysis, comprehensive market data, 
+              and automated deal scoring. Turn data into profit.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4">
+              <Button size="lg" onClick={handleStartTrial} disabled={loading} className="text-base font-medium px-8 py-3 rounded-full">
+                {loading ? "Loading..." : "Start 7-Day Free Trial"}
+              </Button>
+              {!user && <Link to="/auth">
+                  <Button variant="outline" size="lg" className="text-base font-medium px-8 py-3 rounded-full">
+                    Watch Demo
+                  </Button>
+                </Link>}
             </div>
-            <div className="flex items-center gap-2">
-              <CheckCircle className="h-4 w-4 text-primary" />
-              <span>7-Day Free Trial</span>
+            
+            <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground pt-6">
+              <div className="flex items-center gap-1.5">
+                <Shield className="h-3.5 w-3.5 text-primary" />
+                <span>No Credit Card Required</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <CheckCircle className="h-3.5 w-3.5 text-primary" />
+                <span>7-Day Free Trial</span>
+              </div>
             </div>
           </div>
         </div>
-        
-        {/* Seamless transition gradient */}
-        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-b from-transparent via-secondary/3 to-primary/5 pointer-events-none"></div>
       </section>
 
       {/* Features Section */}
