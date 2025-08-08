@@ -28,7 +28,7 @@ const plans: SubscriptionPlan[] = [
   {
     name: 'Trial',
     price: 0,
-    priceId: 'prod_SpKGOx8zA1dDIp',
+    priceId: 'trial',
     description: 'Get started with basic property alerts',
     features: [
       '1 alert location',
@@ -42,7 +42,7 @@ const plans: SubscriptionPlan[] = [
   {
     name: 'Pro',
     price: 29,
-    priceId: 'prod_SpKGilpmcRga6b',
+    priceId: 'price_1QjrSuCwWnuOPtC4Bfwu6IEs',
     description: 'Perfect for individual wholesalers - 7-day free trial',
     features: [
       'Up to 5 alert locations',
@@ -59,7 +59,7 @@ const plans: SubscriptionPlan[] = [
   {
     name: 'Elite',
     price: 99,
-    priceId: 'prod_SpKH7DdaZIudL9',
+    priceId: 'price_1QjrTKCwWnuOPtC4xIzkUCeY',
     description: 'For serious real estate professionals - 7-day free trial',
     features: [
       'Unlimited alert locations',
@@ -84,22 +84,32 @@ export const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
   const { subscription, isTrialActive, trialDaysRemaining, refreshSubscription } = useSubscription();
 
   const handleUpgrade = async (plan: SubscriptionPlan) => {
-    if (plan.price === 0) return;
+    if (plan.price === 0 || plan.priceId === 'trial') return;
     
     setLoading(plan.priceId);
     try {
+      console.log('Starting checkout for plan:', plan.name, 'with priceId:', plan.priceId);
+      
       const { data, error } = await supabase.functions.invoke('create-checkout', {
         body: { priceId: plan.priceId }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase function error:', error);
+        throw error;
+      }
+
+      console.log('Checkout response:', data);
 
       if (data?.url) {
         window.open(data.url, '_blank');
+        toast.success('Redirecting to checkout...');
+      } else {
+        throw new Error('No checkout URL received');
       }
     } catch (error: any) {
       console.error('Error creating checkout:', error);
-      toast.error('Failed to start checkout process');
+      toast.error(error.message || 'Failed to start checkout process');
     } finally {
       setLoading(null);
     }
@@ -251,7 +261,7 @@ export const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
                     >
                       {loading === plan.priceId ? 'Loading...' : 
                        plan.price === 0 ? 'Free Forever' : 
-                       plan.price > (currentSubscription?.subscribed ? (currentSubscription?.subscription_tier === 'Premium' ? 99 : 29) : 0) ? 'Upgrade' : 'Choose Plan'}
+                       `Start 7-Day Free Trial - $${plan.price}/month`}
                     </Button>
                   )}
                 </div>
