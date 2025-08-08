@@ -102,10 +102,6 @@ const Landing = () => {
           heroRef.isVisible ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
         }`}>
           <div className="space-y-8">
-            <Badge variant="secondary" className="mb-2 text-xs font-medium">
-              <Zap className="h-3 w-3 mr-1.5" />
-              AI-Powered Real Estate Analysis
-            </Badge>
             
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-medium leading-tight tracking-tight">
               <span className="block mb-2">Find Profitable</span>
