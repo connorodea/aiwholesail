@@ -17,6 +17,13 @@ import { EnhancedPropertySearch } from '@/components/EnhancedPropertySearch';
 import { PropertyAlertsManager } from '@/components/PropertyAlertsManager';
 import { SubscriptionPlans } from '@/components/SubscriptionPlans';
 import { processPropertyAlerts } from '@/lib/propertyAlerts';
+import { OffMarketSearch } from '@/components/OffMarketSearch';
+import { OffMarketPropertyCard } from '@/components/OffMarketPropertyCard';
+import { OffMarketAnalyticsDashboard } from '@/components/OffMarketAnalyticsDashboard';
+import { offMarketAPI, type OffMarketProperty, type OffMarketSearchParams, type OffMarketSearchResult } from '@/lib/off-market-api';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { BarChart3, Target } from 'lucide-react';
 
 export default function RealEstateWholesaler() {
   const { user, signOut } = useAuth();
