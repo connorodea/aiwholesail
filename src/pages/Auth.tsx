@@ -103,16 +103,16 @@ export default function Auth() {
           <div className="space-y-8">
             {/* Header */}
             <div className="text-center space-y-6">
-              <Badge variant="secondary" className="mb-2 text-xs font-medium">
-                <Shield className="h-3 w-3 mr-1.5" />
-                Secure Authentication
-              </Badge>
-              
               <h1 className="text-4xl md:text-5xl font-medium leading-tight tracking-tight">
                 <span className="block mb-2 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
                   {isSignUp ? "Join AIWholesail" : "Welcome Back"}
                 </span>
               </h1>
+              
+              <Badge variant="secondary" className="text-xs font-medium">
+                <Shield className="h-3 w-3 mr-1.5" />
+                Secure Authentication
+              </Badge>
               
               <p className="text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed font-light">
                 {isSignUp 
