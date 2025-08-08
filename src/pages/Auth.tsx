@@ -26,23 +26,25 @@ export default function Auth() {
   const isVerified = searchParams.get('verified') === 'true';
 
   useEffect(() => {
+    // Show verification success message if user just verified
+    if (isVerified && !user) {
+      toast.success('Email verified successfully! Please wait while we redirect you...');
+    }
+    
     if (user) {
       // Check if there's a stored plan selection for post-signup checkout
       const storedPlan = localStorage.getItem('selectedPlan');
       if (storedPlan) {
         const plan = JSON.parse(storedPlan);
         localStorage.removeItem('selectedPlan');
+        // Show success message for verified users
+        if (isVerified) {
+          toast.success('Email verified! Redirecting to checkout...');
+        }
         handleCheckout(plan);
         return;
       }
       navigate('/app');
-    }
-    
-    // Show verification success message if user just verified
-    if (isVerified && !user) {
-      toast.success('Email verified successfully! You can now sign in.');
-      // Remove the verified parameter from URL
-      navigate('/auth', { replace: true });
     }
   }, [user, navigate, isVerified]);
 
