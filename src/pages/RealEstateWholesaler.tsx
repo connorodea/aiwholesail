@@ -123,26 +123,20 @@ export default function RealEstateWholesaler() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Modern Navigation Header */}
-      <nav className="sticky top-0 z-50 bg-card/95 backdrop-blur-lg border-b border-border supports-[backdrop-filter]:bg-card/60">
-        <div className="container mx-auto px-6 py-4">
+      {/* Minimal Navigation Header - OpenAI Style */}
+      <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/30">
+        <div className="container mx-auto px-6 py-3">
           <div className="flex items-center justify-between">
-            {/* Brand Section */}
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center shadow-sm">
-                  <Home className="h-5 w-5 text-primary-foreground" />
-                </div>
-                <div className="absolute -top-1 -right-1 w-3 h-3 bg-accent rounded-full animate-pulse"></div>
+            {/* Simple Brand */}
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                <Home className="h-4 w-4 text-primary-foreground" />
               </div>
-              <div>
-                <h1 className="text-lg font-semibold text-foreground">Wholesaler</h1>
-                <p className="text-xs text-muted-foreground">Find profitable deals</p>
-              </div>
+              <h1 className="text-lg font-medium">AIWholesail</h1>
             </div>
             
-            {/* Action Buttons */}
-            <div className="flex items-center gap-3">
+            {/* Clean Action Buttons */}
+            <div className="flex items-center gap-2">
               {user ? (
                 <>
                   <Button
@@ -152,13 +146,9 @@ export default function RealEstateWholesaler() {
                       setShowFavorites(!showFavorites);
                       setShowAlerts(false);
                     }}
-                    className="h-9 px-3 rounded-lg transition-all duration-200"
+                    className="h-8 px-3 text-sm font-medium"
                   >
-                    <User className="h-4 w-4 mr-2" />
-                    <span className="hidden sm:inline">Favorites</span>
-                    <span className="ml-1 text-xs bg-muted px-1.5 py-0.5 rounded-md">
-                      {favorites.length}
-                    </span>
+                    Favorites {favorites.length > 0 && `(${favorites.length})`}
                   </Button>
                   <Button
                     variant={showAlerts ? "default" : "ghost"}
@@ -167,28 +157,25 @@ export default function RealEstateWholesaler() {
                       setShowAlerts(!showAlerts);
                       setShowFavorites(false);
                     }}
-                    className="h-9 px-3 rounded-lg transition-all duration-200"
+                    className="h-8 px-3 text-sm font-medium"
                   >
-                    <Bell className="h-4 w-4 mr-2" />
-                    <span className="hidden sm:inline">Alerts</span>
+                    Alerts
                   </Button>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={handleSignOut}
-                    className="h-9 px-3 rounded-lg"
+                    className="h-8 px-3 text-sm font-medium"
                   >
-                    <LogOut className="h-4 w-4" />
-                    <span className="hidden sm:inline ml-2">Sign Out</span>
+                    Sign Out
                   </Button>
                 </>
               ) : (
                 <Button
                   size="sm"
                   onClick={() => window.location.href = '/auth'}
-                  className="h-9 px-4 rounded-lg"
+                  className="h-8 px-4 text-sm font-medium"
                 >
-                  <LogIn className="h-4 w-4 mr-2" />
                   Sign In
                 </Button>
               )}
@@ -197,47 +184,46 @@ export default function RealEstateWholesaler() {
         </div>
       </nav>
 
-      {/* Main Content Area */}
-      <main className="container mx-auto px-6 py-8 space-y-8">
+      {/* Main Content - Spacious and Clean */}
+      <main className="container mx-auto px-6 py-12 space-y-16">
         {showAlerts ? (
-          /* Property Alerts Section */
-          <section className="space-y-6">
+          <section>
             <PropertyAlertsManager />
           </section>
         ) : !showFavorites ? (
           <>
-            {/* Search Section */}
-            <section className="space-y-6">
-              <div className="text-center space-y-2">
-                <h2 className="text-2xl font-bold text-foreground">Find Your Next Deal</h2>
-                <p className="text-muted-foreground max-w-2xl mx-auto">
-                  Discover profitable wholesale opportunities with advanced search filters and AI-powered analysis
+            {/* Hero Search Section */}
+            <section className="text-center space-y-8 max-w-4xl mx-auto">
+              <div className="space-y-4">
+                <h1 className="text-3xl md:text-4xl font-medium tracking-tight">
+                  Find profitable wholesale deals
+                </h1>
+                <p className="text-lg text-muted-foreground font-light max-w-2xl mx-auto">
+                  Discover undervalued properties with AI-powered analysis and comprehensive market data
                 </p>
               </div>
               
-              <div className="max-w-4xl mx-auto">
-                <div className="simple-card p-6">
-                  <PropertySearch onSearch={handleSearch} isLoading={isLoading} />
-                </div>
+              <div className="bg-card border border-border/50 rounded-2xl p-8">
+                <PropertySearch onSearch={handleSearch} isLoading={isLoading} />
               </div>
             </section>
 
-            {/* Subscription Plans Section */}
-            <section className="space-y-6">
+            {/* Subscription Section */}
+            <section>
               <SubscriptionPlans />
             </section>
 
             {/* Results Section */}
             {properties.length > 0 && (
-              <section className="space-y-6">
+              <section className="space-y-8">
                 <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-xl font-semibold text-foreground">
+                  <div className="space-y-1">
+                    <h2 className="text-xl font-medium">
                       {properties.some(p => p.price && p.zestimate && p.price < p.zestimate) 
-                        ? 'Best Wholesale Deals' 
-                        : 'Search Results'}
-                    </h3>
-                    <p className="text-sm text-muted-foreground mt-1">
+                        ? 'Best wholesale deals' 
+                        : 'Search results'}
+                    </h2>
+                    <p className="text-sm text-muted-foreground">
                       {properties.length} {properties.length === 1 ? 'property' : 'properties'} found
                     </p>
                   </div>
@@ -246,16 +232,17 @@ export default function RealEstateWholesaler() {
                     <Button
                       onClick={() => exportAllLeads(properties, lastSearchLocation)}
                       disabled={exportLoading}
+                      variant="outline"
                       size="sm"
-                      className="gap-2"
+                      className="gap-2 h-8 text-sm font-medium"
                     >
-                      <Download className="h-4 w-4" />
-                      {exportLoading ? 'Exporting...' : 'Export All as CSV'}
+                      <Download className="h-3.5 w-3.5" />
+                      {exportLoading ? 'Exporting...' : 'Export CSV'}
                     </Button>
                   )}
                 </div>
                 
-                <div className="property-grid">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {properties.map((property) => (
                     <PropertyCard
                       key={property.id}
@@ -268,37 +255,35 @@ export default function RealEstateWholesaler() {
               </section>
             )}
 
-            {/* Error State */}
+            {/* Clean Error State */}
             {error && (
-              <section className="max-w-2xl mx-auto">
-                <div className="simple-card p-6 text-center border-destructive/20 bg-destructive/5">
-                  <div className="space-y-3">
-                    <p className="text-destructive text-sm">{error}</p>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => setError(null)}
-                      className="h-8"
-                    >
-                      Dismiss
-                    </Button>
-                  </div>
+              <section className="max-w-lg mx-auto">
+                <div className="bg-destructive/5 border border-destructive/20 rounded-xl p-6 text-center">
+                  <p className="text-sm text-destructive mb-4">{error}</p>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setError(null)}
+                    className="h-8 text-sm font-medium"
+                  >
+                    Dismiss
+                  </Button>
                 </div>
               </section>
             )}
           </>
         ) : (
-          /* Favorites Section */
-          <section className="space-y-6">
-            <div className="text-center space-y-2">
-              <h2 className="text-2xl font-bold text-foreground">Your Favorites</h2>
-              <p className="text-muted-foreground">
+          /* Clean Favorites Section */
+          <section className="space-y-8">
+            <div className="text-center space-y-2 max-w-2xl mx-auto">
+              <h1 className="text-2xl md:text-3xl font-medium">Your favorites</h1>
+              <p className="text-muted-foreground font-light">
                 Properties you've saved for later review
               </p>
             </div>
 
             {favorites.length > 0 ? (
-              <div className="property-grid">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {favorites.map((property) => (
                   <PropertyCard
                     key={property.id}
@@ -310,15 +295,19 @@ export default function RealEstateWholesaler() {
               </div>
             ) : (
               <div className="max-w-md mx-auto">
-                <div className="simple-card p-8 text-center">
-                  <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-                    <User className="h-8 w-8 text-muted-foreground" />
+                <div className="bg-card border border-border/50 rounded-xl p-8 text-center">
+                  <div className="w-12 h-12 bg-muted rounded-xl flex items-center justify-center mx-auto mb-4">
+                    <User className="h-6 w-6 text-muted-foreground" />
                   </div>
-                  <h3 className="font-medium text-foreground mb-2">No favorites yet</h3>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Start exploring properties and save the ones you like!
+                  <h3 className="font-medium mb-2">No favorites yet</h3>
+                  <p className="text-sm text-muted-foreground mb-6 font-light">
+                    Start exploring properties and save the ones you like
                   </p>
-                  <Button onClick={() => setShowFavorites(false)} size="sm">
+                  <Button 
+                    onClick={() => setShowFavorites(false)} 
+                    size="sm"
+                    className="h-8 text-sm font-medium"
+                  >
                     Browse Properties
                   </Button>
                 </div>
