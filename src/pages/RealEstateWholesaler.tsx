@@ -31,11 +31,18 @@ export default function RealEstateWholesaler() {
   const { favorites } = useFavorites();
   const { exportAllLeads, loading: exportLoading } = useLeads();
   const [properties, setProperties] = useState<Property[]>([]);
+  const [offMarketProperties, setOffMarketProperties] = useState<OffMarketProperty[]>([]);
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
+  const [selectedOffMarketProperty, setSelectedOffMarketProperty] = useState<OffMarketProperty | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isOffMarketLoading, setIsOffMarketLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [offMarketError, setOffMarketError] = useState<string | null>(null);
   const [showFavorites, setShowFavorites] = useState(false);
   const [showAlerts, setShowAlerts] = useState(false);
+  const [showAnalytics, setShowAnalytics] = useState(false);
+  const [activeTab, setActiveTab] = useState<'on-market' | 'off-market'>('on-market');
+  const [offMarketResults, setOffMarketResults] = useState<OffMarketSearchResult | null>(null);
   const [lastSearchLocation, setLastSearchLocation] = useState<string>('');
 
   const handleSearch = async (params: PropertySearchParams) => {
@@ -116,6 +123,42 @@ export default function RealEstateWholesaler() {
       toast.error(errorMessage);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleOffMarketSearch = async (params: OffMarketSearchParams) => {
+    try {
+      setIsOffMarketLoading(true);
+      setOffMarketProperties([]);
+      setOffMarketError(null);
+      setOffMarketResults(null);
+      setLastSearchLocation(params.location);
+
+      toast.success(`Searching for off-market opportunities in ${params.location}...`);
+
+      const searchResults = await offMarketAPI.searchOffMarketProperties(params);
+      
+      if (searchResults.properties.length === 0) {
+        setOffMarketError("No off-market properties found. Try adjusting your search criteria or enabling more distress indicators.");
+        return;
+      }
+
+      setOffMarketProperties(searchResults.properties);
+      setOffMarketResults(searchResults);
+      
+      toast.success(
+        `Found ${searchResults.properties.length} off-market opportunities! ` +
+        `Processed ${searchResults.totalProcessed} properties for $${searchResults.totalCost.toFixed(2)} ` +
+        `(${searchResults.savings.savingsPercentage}% savings)`
+      );
+
+    } catch (error) {
+      console.error('Off-market search failed:', error);
+      const errorMessage = error instanceof Error ? error.message : "An error occurred while searching off-market properties";
+      setOffMarketError(errorMessage);
+      toast.error(errorMessage);
+    } finally {
+      setIsOffMarketLoading(false);
     }
   };
 
@@ -212,8 +255,8 @@ export default function RealEstateWholesaler() {
           </section>
         ) : !showFavorites ? (
           <>
-            {/* Hero Search Section - Refined */}
-            <section className="text-center space-y-10 max-w-4xl mx-auto animate-fade-in">
+            {/* Hero Search Section with Tabs */}
+            <section className="text-center space-y-10 max-w-6xl mx-auto animate-fade-in">
               <div className="space-y-6">
                 <h1 className="text-4xl md:text-5xl font-medium tracking-tight leading-tight">
                   Find profitable wholesale deals
@@ -223,20 +266,55 @@ export default function RealEstateWholesaler() {
                 </p>
               </div>
               
-              <div className="feature-card p-10 backdrop-blur-sm">
-                <PropertySearch onSearch={handleSearch} isLoading={isLoading} />
+              <div className="feature-card p-8 backdrop-blur-sm">
+                <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'on-market' | 'off-market')} className="w-full">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+                    <TabsList className="grid w-full max-w-md grid-cols-2 mx-auto sm:mx-0">
+                      <TabsTrigger value="on-market" className="text-sm font-medium">
+                        <Target className="h-4 w-4 mr-2" />
+                        On-Market
+                      </TabsTrigger>
+                      <TabsTrigger value="off-market" className="text-sm font-medium">
+                        <BarChart3 className="h-4 w-4 mr-2" />
+                        Off-Market
+                        <Badge variant="secondary" className="ml-2 bg-green-100 text-green-800">95% Savings</Badge>
+                      </TabsTrigger>
+                    </TabsList>
+                    
+                    {/* Analytics Button for Off-Market */}
+                    {activeTab === 'off-market' && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowAnalytics(true)}
+                        className="gap-2 h-9 px-4 text-sm font-medium"
+                      >
+                        <BarChart3 className="h-4 w-4" />
+                        Analytics
+                      </Button>
+                    )}
+                  </div>
+                  
+                  <TabsContent value="on-market" className="mt-0">
+                    <PropertySearch onSearch={handleSearch} isLoading={isLoading} />
+                  </TabsContent>
+                  
+                  <TabsContent value="off-market" className="mt-0">
+                    <OffMarketSearch onSearch={handleOffMarketSearch} isLoading={isOffMarketLoading} />
+                  </TabsContent>
+                </Tabs>
               </div>
             </section>
 
-            {/* Results Section - Enhanced */}
-            {properties.length > 0 && (
+            {/* On-Market Results Section */}
+            {activeTab === 'on-market' && properties.length > 0 && (
               <section className="space-y-10 animate-fade-in">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div className="space-y-2">
                     <h2 className="text-2xl font-medium tracking-tight">
                       {properties.some(p => p.price && p.zestimate && p.price < p.zestimate) 
                         ? 'Best wholesale deals' 
-                        : 'Search results'}
+                        : 'On-market results'}
                     </h2>
                     <p className="text-muted-foreground font-light">
                       {properties.length} {properties.length === 1 ? 'property' : 'properties'} found
@@ -275,19 +353,126 @@ export default function RealEstateWholesaler() {
               </section>
             )}
 
-            {/* Enhanced Error State */}
-            {error && (
+            {/* Off-Market Results Section */}
+            {activeTab === 'off-market' && offMarketProperties.length > 0 && (
+              <section className="space-y-10 animate-fade-in">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div className="space-y-2">
+                    <h2 className="text-2xl font-medium tracking-tight flex items-center gap-2">
+                      <Target className="h-6 w-6 text-primary" />
+                      Off-Market Opportunities
+                    </h2>
+                    <p className="text-muted-foreground font-light">
+                      {offMarketProperties.length} {offMarketProperties.length === 1 ? 'property' : 'properties'} found
+                    </p>
+                    {offMarketResults && (
+                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                        <span>Processed: {offMarketResults.totalProcessed.toLocaleString()}</span>
+                        <span>•</span>
+                        <span>Cost: ${offMarketResults.totalCost.toFixed(2)}</span>
+                        <span>•</span>
+                        <Badge variant="secondary" className="bg-green-100 text-green-800 text-xs">
+                          <BarChart3 className="h-3 w-3 mr-1" />
+                          {offMarketResults.savings.savingsPercentage}% cost savings vs traditional
+                        </Badge>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="flex gap-2">
+                    {user && offMarketProperties.length > 0 && (
+                      <Button
+                        onClick={() => {
+                          // Convert off-market properties to Property format for export
+                          const exportProperties = offMarketProperties.map(prop => ({
+                            ...prop,
+                            id: prop.id,
+                            address: prop.address,
+                            city: prop.city,
+                            state: prop.state,
+                            price: prop.estimatedValue,
+                            status: 'OFF_MARKET',
+                            // Add other required Property fields with sensible defaults
+                            zpid: prop.id,
+                            listingType: 'OFF_MARKET',
+                            homeType: prop.propertyType,
+                            daysOnZillow: 0,
+                            isZillowOwned: false,
+                            isFSBO: false,
+                            hasImage: false,
+                            cardsInfo: {},
+                            isShowcaseListing: false,
+                            shouldHighlight: false,
+                            currency: 'USD',
+                            country: 'USA',
+                            taxHistory: [],
+                            priceHistory: [],
+                            hdpData: {}
+                          }));
+                          exportAllLeads(exportProperties as Property[], lastSearchLocation);
+                        }}
+                        disabled={exportLoading}
+                        variant="outline"
+                        size="sm"
+                        className="gap-2 h-9 px-4 text-sm font-medium smooth-transition"
+                      >
+                        <Download className="h-4 w-4" />
+                        {exportLoading ? 'Exporting...' : 'Export CSV'}
+                      </Button>
+                    )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowAnalytics(true)}
+                      className="gap-2 h-9 px-4 text-sm font-medium"
+                    >
+                      <BarChart3 className="h-4 w-4" />
+                      View Analytics
+                    </Button>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {offMarketProperties.map((property, index) => (
+                    <div 
+                      key={property.id}
+                      className="animate-fade-in hover-scale"
+                      style={{ animationDelay: `${index * 50}ms` }}
+                    >
+                      <OffMarketPropertyCard
+                        property={property}
+                        onViewDetails={() => setSelectedOffMarketProperty(property)}
+                        onContact={() => toast.success(`Contact info: ${property.phones?.[0] || property.emails?.[0] || 'No contact found'}`)}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* Enhanced Error States */}
+            {((activeTab === 'on-market' && error) || (activeTab === 'off-market' && offMarketError)) && (
               <section className="max-w-lg mx-auto animate-scale-in">
                 <div className="bg-destructive/5 border border-destructive/20 rounded-2xl p-8 text-center feature-card">
                   <div className="w-12 h-12 bg-destructive/10 rounded-full flex items-center justify-center mx-auto mb-4">
                     <span className="text-destructive text-lg">⚠</span>
                   </div>
-                  <h3 className="font-medium mb-2">Search Error</h3>
-                  <p className="text-sm text-destructive mb-6 leading-relaxed">{error}</p>
+                  <h3 className="font-medium mb-2">
+                    {activeTab === 'on-market' ? 'On-Market Search Error' : 'Off-Market Search Error'}
+                  </h3>
+                  <p className="text-sm text-destructive mb-6 leading-relaxed">
+                    {activeTab === 'on-market' ? error : offMarketError}
+                  </p>
                   <Button 
                     variant="outline" 
                     size="sm"
-                    onClick={() => setError(null)}
+                    onClick={() => {
+                      if (activeTab === 'on-market') {
+                        setError(null);
+                      } else {
+                        setOffMarketError(null);
+                      }
+                    }}
                     className="h-9 px-4 text-sm font-medium smooth-transition"
                   >
                     Try Again
@@ -346,11 +531,26 @@ export default function RealEstateWholesaler() {
         )}
       </main>
 
-      {/* Property Modal */}
+      {/* Property Modals */}
       <PropertyModal
         property={selectedProperty}
         isOpen={!!selectedProperty}
         onClose={() => setSelectedProperty(null)}
+      />
+      
+      {/* Off-Market Property Modal */}
+      {selectedOffMarketProperty && (
+        <PropertyModal
+          property={selectedOffMarketProperty as any}
+          isOpen={!!selectedOffMarketProperty}
+          onClose={() => setSelectedOffMarketProperty(null)}
+        />
+      )}
+
+      {/* Off-Market Analytics Dashboard */}
+      <OffMarketAnalyticsDashboard
+        isOpen={showAnalytics}
+        onClose={() => setShowAnalytics(false)}
       />
     </div>
   );
