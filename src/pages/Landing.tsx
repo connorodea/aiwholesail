@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import ScrollSailboat from "@/components/ScrollSailboat";
 const aiWholesailLogo = "/lovable-uploads/8dcdb5d0-ddfb-406f-a5f0-b3c5112d210a.png";
 const Landing = () => {
   const {
@@ -44,7 +45,9 @@ const Landing = () => {
       setLoading(false);
     }
   };
-  return <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+  return <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 relative">
+      {/* Scroll-driven sailboat animation */}
+      <ScrollSailboat />
       {/* Header */}
       <header className="fixed top-4 left-4 right-4 z-50 animate-fade-in">
         <div className="container mx-auto max-w-7xl">
