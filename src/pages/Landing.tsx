@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, Search, DollarSign, MapPin, Star, Brain, BarChart3, MessageSquare, Eye, Zap, Shield, ChevronRight, Play, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -16,6 +17,7 @@ const Landing = () => {
     user
   } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [isVideoOpen, setIsVideoOpen] = useState(false);
 
   // Animation refs for different sections
   const heroRef = useScrollAnimation({
@@ -106,9 +108,27 @@ const Landing = () => {
               <Button size="lg" onClick={handleStartTrial} disabled={loading} className="text-base font-medium px-8 py-3 rounded-full">
                 {loading ? "Loading..." : "Start 7-Day Free Trial"}
               </Button>
-                {!user && <Button variant="outline" size="lg" onClick={handleStartTrial} className="text-base font-medium px-8 py-3 rounded-full">
-                    Watch Demo
-                  </Button>}
+              {!user && (
+                <Dialog open={isVideoOpen} onOpenChange={setIsVideoOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="lg" className="text-base font-medium px-8 py-3 rounded-full">
+                      <Play className="h-4 w-4 mr-2" />
+                      Watch Demo
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-4xl w-full h-[600px] p-0">
+                    <div className="w-full h-full">
+                      <iframe
+                        src="https://www.loom.com/embed/02baa8ef2cdb48bd9c5e21e800be6edd?sid=36c78250-97c8-4d90-b1c6-395783b7e86f"
+                        frameBorder="0"
+                        allowFullScreen
+                        className="w-full h-full rounded-lg"
+                        title="AIWholesail Demo Video"
+                      />
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              )}
             </div>
             
             <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground pt-6">
