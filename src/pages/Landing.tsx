@@ -118,13 +118,16 @@ const Landing = () => {
                   </DialogTrigger>
                   <DialogContent className="max-w-4xl w-full h-[600px] p-0">
                     <div className="w-full h-full">
-                      <iframe
-                        src="https://www.loom.com/embed/02baa8ef2cdb48bd9c5e21e800be6edd"
-                        frameBorder="0"
-                        allowFullScreen
-                        className="w-full h-full rounded-lg"
-                        title="AIWholesail Demo Video"
-                      />
+                      <div style={{position: "relative", paddingBottom: "56.25%", height: 0}}>
+                        <iframe 
+                          src="https://www.loom.com/embed/02baa8ef2cdb48bd9c5e21e800be6edd?sid=14e522f8-c95f-4bbf-9da2-23e585ae8b28" 
+                          frameBorder="0" 
+                          allowFullScreen 
+                          style={{position: "absolute", top: 0, left: 0, width: "100%", height: "100%"}}
+                          className="rounded-lg"
+                          title="AIWholesail Demo Video"
+                        />
+                      </div>
                     </div>
                   </DialogContent>
                 </Dialog>
