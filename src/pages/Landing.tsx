@@ -119,7 +119,7 @@ const Landing = () => {
                   <DialogContent className="max-w-4xl w-full h-[600px] p-0">
                     <div className="w-full h-full">
                       <iframe
-                        src="https://www.loom.com/embed/02baa8ef2cdb48bd9c5e21e800be6edd?sid=36c78250-97c8-4d90-b1c6-395783b7e86f"
+                        src="https://www.loom.com/embed/02baa8ef2cdb48bd9c5e21e800be6edd"
                         frameBorder="0"
                         allowFullScreen
                         className="w-full h-full rounded-lg"
