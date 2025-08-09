@@ -1,10 +1,14 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { 
+  corsHeaders, 
+  authenticateRequest, 
+  checkRateLimit, 
+  sanitizeInput, 
+  logSecurityEvent,
+  handleCORS,
+  createSecureResponse
+} from "../secure-edge-utils/index.ts";
 
 interface AnalysisRequest {
   property: any;
@@ -14,23 +18,39 @@ interface AnalysisRequest {
 
 const handler = async (req: Request): Promise<Response> => {
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return handleCORS();
   }
 
   try {
-    const { property, userMessage, conversationHistory = [] }: AnalysisRequest = await req.json();
+    // Enhanced authentication and security
+    const security = await authenticateRequest(req);
+    
+    // Rate limiting with user-specific key
+    const rateLimitResult = checkRateLimit(security.rateLimitKey, 20, 60000); // 20 requests per minute
+    if (!rateLimitResult.allowed) {
+      logSecurityEvent('rate_limit_exceeded', { 
+        userId: security.user.id, 
+        remaining: rateLimitResult.remaining,
+        suspicious: rateLimitResult.suspicious
+      });
+      return createSecureResponse({ error: "Rate limit exceeded" }, 429);
+    }
+
+    // Sanitize and validate input
+    const requestData = await req.json();
+    const sanitizedData = sanitizeInput(requestData);
+    const { property, userMessage, conversationHistory = [] } = sanitizedData;
     
     if (!property) {
-      return new Response(
-        JSON.stringify({ error: "Property data is required" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      logSecurityEvent('invalid_request', { reason: 'missing_property', userId: security.user.id });
+      return createSecureResponse({ error: "Property data is required" }, 400);
     }
 
     const RAPIDAPI_KEY = Deno.env.get('RAPIDAPI_KEY');
     const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY');
     
     if (!RAPIDAPI_KEY || !ANTHROPIC_API_KEY) {
+      logSecurityEvent('missing_api_keys', { userId: security.user.id });
       throw new Error('Required API keys not configured');
     }
 
@@ -188,29 +208,32 @@ Current property overview: ${JSON.stringify(property, null, 2)}`;
       });
 
       const finalAiResponse = await finalResponse.json();
-      return new Response(
-        JSON.stringify({ 
-          response: finalAiResponse.content[0]?.text || 'Analysis complete',
-          usage: finalAiResponse.usage 
-        }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      logSecurityEvent('ai_analysis_complete', { 
+        userId: security.user.id,
+        tokensUsed: finalAiResponse.usage?.total_tokens || 0
+      });
+      return createSecureResponse({ 
+        response: finalAiResponse.content[0]?.text || 'Analysis complete',
+        usage: finalAiResponse.usage 
+      });
     }
 
-    return new Response(
-      JSON.stringify({ 
-        response: aiResponse.content[0]?.text || 'Analysis complete',
-        usage: aiResponse.usage 
-      }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    logSecurityEvent('ai_analysis_complete', { 
+      userId: security.user.id,
+      tokensUsed: aiResponse.usage?.total_tokens || 0
+    });
+    return createSecureResponse({ 
+      response: aiResponse.content[0]?.text || 'Analysis complete',
+      usage: aiResponse.usage 
+    });
 
   } catch (error: any) {
+    logSecurityEvent('ai_analysis_error', { 
+      error: error.message,
+      userId: (req as any).securityContext?.user?.id || 'unknown'
+    });
     console.error('AI Analysis Error:', error);
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return createSecureResponse({ error: error.message }, 500);
   }
 };
 

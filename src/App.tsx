@@ -4,8 +4,11 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from 'react-helmet-async';
+import { AuthProvider } from "@/contexts/AuthContext";
+import { SecurityProvider } from "@/components/SecurityProvider";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
+import { SEOHead } from "@/components/SEOHead";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import RealEstateWholesaler from "./pages/RealEstateWholesaler";
@@ -24,11 +27,14 @@ const queryClient = new QueryClient();
 const App = () => (
   <HelmetProvider>
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <GoogleAnalytics />
+      <AuthProvider>
+        <SecurityProvider>
+          <TooltipProvider>
+            <SEOHead />
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <GoogleAnalytics />
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/pricing" element={<Pricing />} />
@@ -50,8 +56,10 @@ const App = () => (
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
-    </QueryClientProvider>
-  </HelmetProvider>
+    </SecurityProvider>
+  </AuthProvider>
+</QueryClientProvider>
+</HelmetProvider>
 );
 
 export default App;

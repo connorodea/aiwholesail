@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { logSecurityEventEnhanced, checkSessionTimeout } from '@/lib/security-enhanced';
 import { useAuth } from '@/contexts/AuthContext';
+import { SessionTimeoutWarning, SecurityStatus } from '@/components/SecurityMonitor';
 
 interface SecurityContextType {
   sessionActive: boolean;
@@ -85,6 +86,8 @@ export function SecurityProvider({ children }: { children: React.ReactNode }) {
   return (
     <SecurityContext.Provider value={value}>
       {children}
+      <SessionTimeoutWarning />
+      <SecurityStatus />
     </SecurityContext.Provider>
   );
 }

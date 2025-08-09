@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { validatePassword, validateEmail, logSecurityEvent } from '@/lib/security';
+import { logSecurityEventEnhanced } from '@/lib/security-enhanced';
 
 interface AuthContextType {
   user: User | null;
@@ -81,7 +82,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
       
       if (!error) {
-        logSecurityEvent('signup_success', { email: email.substring(0, 3) + '***' });
+        logSecurityEventEnhanced('signup_success', { email: email.substring(0, 3) + '***' }, user?.id);
       } else {
         logSecurityEvent('signup_failed', { reason: error.message, email: email.substring(0, 3) + '***' });
       }
@@ -113,7 +114,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
       
       if (!error) {
-        logSecurityEvent('signin_success', { email: email.substring(0, 3) + '***' });
+        logSecurityEventEnhanced('signin_success', { email: email.substring(0, 3) + '***' }, user?.id);
       } else {
         logSecurityEvent('signin_failed', { reason: error.message, email: email.substring(0, 3) + '***' });
       }
