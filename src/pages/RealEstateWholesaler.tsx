@@ -7,9 +7,10 @@ import { Property, PropertySearchParams } from '@/types/zillow';
 import { zillowAPI } from '@/lib/zillow-api';
 import { sortPropertiesByWholesalePotential } from '@/lib/wholesale-calculator';
 import { Button } from '@/components/ui/button';
-import { Home, User, LogOut, LogIn, Download, Bell, Timer } from 'lucide-react';
+import { Home, User, LogOut, LogIn, Download, Bell, Timer, CreditCard } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/contexts/SubscriptionContext';
+import { supabase } from '@/integrations/supabase/client';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useLeads } from '@/hooks/useLeads';
 import { toast } from 'sonner';
@@ -189,6 +190,24 @@ export default function RealEstateWholesaler() {
                   >
                     <Bell className="h-3.5 w-3.5 mr-1.5" />
                     Alerts
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={async () => {
+                      try {
+                        const { data, error } = await supabase.functions.invoke('customer-portal');
+                        if (error) throw error;
+                        window.open(data.url, '_blank');
+                      } catch (error) {
+                        console.error('Error opening customer portal:', error);
+                        toast.error('Failed to open subscription portal');
+                      }
+                    }}
+                    className="h-9 px-3 text-sm font-medium smooth-transition"
+                  >
+                    <CreditCard className="h-3.5 w-3.5 mr-1.5" />
+                    Manage
                   </Button>
                   <Button
                     variant="ghost"
