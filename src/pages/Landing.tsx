@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Search, DollarSign, MapPin, Star, Brain, BarChart3, MessageSquare, Eye, Zap, Shield, ChevronRight, Play, ArrowRight } from "lucide-react";
+import { CheckCircle, Search, DollarSign, MapPin, Star, Brain, BarChart3, MessageSquare, Eye, Zap, Shield, ChevronRight, Play, ArrowRight, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,13 +10,13 @@ import { toast } from "@/hooks/use-toast";
 import ScrollSailboat from "@/components/ScrollSailboat";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { SEOHead } from "@/components/SEOHead";
+
 const aiWholesailLogo = "/lovable-uploads/8dcdb5d0-ddfb-406f-a5f0-b3c5112d210a.png";
+
 const Landing = () => {
-  const {
-    user
-  } = useAuth();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [isVideoOpen, setIsVideoOpen] = useState(false);
+  const [showDemoModal, setShowDemoModal] = useState(false);
 
   // Animation refs for different sections
   const heroRef = useScrollAnimation({
@@ -35,18 +34,73 @@ const Landing = () => {
   const ctaRef = useScrollAnimation({
     threshold: 0.1
   });
+
   const handleStartTrial = () => {
     // Always redirect to pricing page for plan selection
     window.location.href = '/pricing';
   };
+
   const handleSubscribe = () => {
     // Redirect to pricing page for plan selection
     window.location.href = '/pricing';
   };
-  return <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 relative">
+
+  const handleWatchDemo = () => {
+    setShowDemoModal(true);
+  };
+
+  const closeDemoModal = () => {
+    setShowDemoModal(false);
+  };
+
+  // Close modal on escape key
+  const handleKeyDown = (e) => {
+    if (e.key === 'Escape') {
+      closeDemoModal();
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 relative">
       <SEOHead />
       {/* Scroll-driven sailboat animation */}
       <ScrollSailboat />
+      
+      {/* Demo Modal */}
+      {showDemoModal && (
+        <div 
+          className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
+          onClick={closeDemoModal}
+          onKeyDown={handleKeyDown}
+          tabIndex={-1}
+        >
+          <div 
+            className="relative w-full max-w-4xl bg-background rounded-2xl shadow-2xl overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close button */}
+            <button
+              onClick={closeDemoModal}
+              className="absolute top-4 right-4 z-10 p-2 bg-background/80 hover:bg-background rounded-full transition-colors"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            
+            {/* Video container */}
+            <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+              <iframe 
+                src="https://www.loom.com/embed/02baa8ef2cdb48bd9c5e21e800be6edd?sid=8f338d4e-71f1-4d64-b9a2-31f7ecdcc40b" 
+                frameBorder="0" 
+                webkitallowfullscreen 
+                mozallowfullscreen 
+                allowFullScreen
+                className="absolute inset-0 w-full h-full rounded-2xl"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <header className="fixed top-4 left-4 right-4 z-50 animate-fade-in">
         <div className="container mx-auto max-w-7xl">
@@ -62,12 +116,15 @@ const Landing = () => {
               
               {/* Action Buttons */}
               <div className="flex items-center space-x-3">
-                {user ? <Link to="/app">
+                {user ? (
+                  <Link to="/app">
                     <Button variant="default" size="sm" className="hover-scale shadow-sm">
                       <Eye className="h-4 w-4 mr-2" />
                       Dashboard
                     </Button>
-                  </Link> : <div className="flex items-center space-x-2">
+                  </Link>
+                ) : (
+                  <div className="flex items-center space-x-2">
                     <Link to="/auth">
                       <Button variant="ghost" size="sm" className="hover-scale">
                         Sign In
@@ -76,7 +133,8 @@ const Landing = () => {
                     <Button size="sm" className="hover-scale shadow-sm" onClick={handleStartTrial}>
                       Get Started
                     </Button>
-                  </div>}
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -84,7 +142,6 @@ const Landing = () => {
       </header>
 
       {/* Hero Section */}
-      {/* Hero Section - OpenAI inspired clean design */}
       <section ref={heroRef.ref} className="relative pt-32 pb-16 px-4 overflow-hidden">
         {/* Subtle background elements */}
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/2 to-transparent"></div>
@@ -109,28 +166,15 @@ const Landing = () => {
                 {loading ? "Loading..." : "Start 7-Day Free Trial"}
               </Button>
               {!user && (
-                <Dialog open={isVideoOpen} onOpenChange={setIsVideoOpen}>
-                  <DialogTrigger asChild>
-                    <Button variant="outline" size="lg" className="text-base font-medium px-8 py-3 rounded-full">
-                      <Play className="h-4 w-4 mr-2" />
-                      Watch Demo
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-4xl w-full h-[600px] p-0">
-                    <div className="w-full h-full">
-                      <div style={{position: "relative", paddingBottom: "56.25%", height: 0}}>
-                        <iframe 
-                          src="https://www.loom.com/embed/02baa8ef2cdb48bd9c5e21e800be6edd?sid=14e522f8-c95f-4bbf-9da2-23e585ae8b28" 
-                          frameBorder="0" 
-                          allowFullScreen 
-                          style={{position: "absolute", top: 0, left: 0, width: "100%", height: "100%"}}
-                          className="rounded-lg"
-                          title="AIWholesail Demo Video"
-                        />
-                      </div>
-                    </div>
-                  </DialogContent>
-                </Dialog>
+                <Button 
+                  variant="outline" 
+                  size="lg" 
+                  onClick={handleWatchDemo} 
+                  className="text-base font-medium px-8 py-3 rounded-full"
+                >
+                  <Play className="h-4 w-4 mr-2" />
+                  Watch Demo
+                </Button>
               )}
             </div>
             
@@ -256,10 +300,12 @@ const Landing = () => {
               </CardHeader>
               <CardContent>
                 <ul className="space-y-3 text-left mb-8">
-                  {["Up to 5 alert locations", "Automated updates every 24 hours", "Advanced property matching", "Email notifications", "Basic market analytics", "7-day free trial included"].map(feature => <li key={feature} className="flex items-start gap-3">
+                  {["Up to 5 alert locations", "Automated updates every 24 hours", "Advanced property matching", "Email notifications", "Basic market analytics", "7-day free trial included"].map(feature => (
+                    <li key={feature} className="flex items-start gap-3">
                       <CheckCircle className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
                       <span className="text-sm font-light">{feature}</span>
-                    </li>)}
+                    </li>
+                  ))}
                 </ul>
                 
                 <div className="space-y-3">
@@ -287,10 +333,12 @@ const Landing = () => {
               </CardHeader>
               <CardContent>
                 <ul className="space-y-3 text-left mb-8">
-                  {["Unlimited alert locations", "Real-time updates every 4 hours", "Advanced AI property analysis", "Priority email notifications", "Comprehensive market insights", "Skip tracing integration", "Lead scoring analytics", "7-day free trial included"].map(feature => <li key={feature} className="flex items-start gap-3">
+                  {["Unlimited alert locations", "Real-time updates every 4 hours", "Advanced AI property analysis", "Priority email notifications", "Comprehensive market insights", "Skip tracing integration", "Lead scoring analytics", "7-day free trial included"].map(feature => (
+                    <li key={feature} className="flex items-start gap-3">
                       <CheckCircle className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
                       <span className="text-sm font-light">{feature}</span>
-                    </li>)}
+                    </li>
+                  ))}
                 </ul>
                 
                 <div className="space-y-3">
@@ -321,29 +369,37 @@ const Landing = () => {
           </div>
           
           <div className={`grid md:grid-cols-2 gap-8 transition-all duration-1000 delay-300 ${testimonialsRef.isVisible ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-            {[{
-            name: "Sarah Johnson",
-            role: "Real Estate Investor",
-            content: "AIWholesail helped me find 3 profitable deals in my first month. The AI analysis is incredibly accurate and saved me countless hours of research.",
-            profit: "$85,000"
-          }, {
-            name: "Mike Chen",
-            role: "Wholesale Specialist",
-            content: "The time I save on research and analysis has doubled my deal flow. This platform is a game-changer for serious wholesalers.",
-            profit: "$120,000"
-          }, {
-            name: "Jennifer Davis",
-            role: "Property Flipper",
-            content: "Finally, a tool that understands real estate investing. The ROI calculations are spot-on every time, and the AI chat helps me understand market trends.",
-            profit: "$95,000"
-          }, {
-            name: "Robert Martinez",
-            role: "Investment Advisor",
-            content: "The automated alerts have transformed how I source deals for my clients. We're closing 40% more transactions since implementing AIWholesail.",
-            profit: "$150,000"
-          }].map((testimonial, index) => <div key={index} className="group bg-card border border-border/50 rounded-2xl p-6 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+            {[
+              {
+                name: "Sarah Johnson",
+                role: "Real Estate Investor",
+                content: "AIWholesail helped me find 3 profitable deals in my first month. The AI analysis is incredibly accurate and saved me countless hours of research.",
+                profit: "$85,000"
+              },
+              {
+                name: "Mike Chen",
+                role: "Wholesale Specialist",
+                content: "The time I save on research and analysis has doubled my deal flow. This platform is a game-changer for serious wholesalers.",
+                profit: "$120,000"
+              },
+              {
+                name: "Jennifer Davis",
+                role: "Property Flipper",
+                content: "Finally, a tool that understands real estate investing. The ROI calculations are spot-on every time, and the AI chat helps me understand market trends.",
+                profit: "$95,000"
+              },
+              {
+                name: "Robert Martinez",
+                role: "Investment Advisor",
+                content: "The automated alerts have transformed how I source deals for my clients. We're closing 40% more transactions since implementing AIWholesail.",
+                profit: "$150,000"
+              }
+            ].map((testimonial, index) => (
+              <div key={index} className="group bg-card border border-border/50 rounded-2xl p-6 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
                 <div className="flex mb-4">
-                  {[...Array(5)].map((_, i) => <Star key={i} className="h-4 w-4 fill-primary text-primary" />)}
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="h-4 w-4 fill-primary text-primary" />
+                  ))}
                 </div>
                 
                 <p className="text-muted-foreground mb-6 leading-relaxed font-light">
@@ -362,7 +418,8 @@ const Landing = () => {
                     </div>
                   </div>
                 </div>
-              </div>)}
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -525,6 +582,8 @@ const Landing = () => {
           </div>
         </div>
       </footer>
-    </div>;
+    </div>
+  );
 };
+
 export default Landing;
