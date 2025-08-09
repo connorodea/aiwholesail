@@ -204,7 +204,7 @@ export default function RealEstateWholesaler() {
                         toast.error('Failed to open subscription portal');
                       }
                     }}
-                    className="h-9 px-3 text-sm font-medium smooth-transition"
+                    className="h-9 px-3 text-sm font-medium transition-colors"
                   >
                     <CreditCard className="h-3.5 w-3.5 mr-1.5" />
                     Manage
