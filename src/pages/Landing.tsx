@@ -91,8 +91,6 @@ const Landing = () => {
               <iframe 
                 src="https://www.loom.com/embed/02baa8ef2cdb48bd9c5e21e800be6edd?sid=8f338d4e-71f1-4d64-b9a2-31f7ecdcc40b" 
                 frameBorder="0" 
-                webkitallowfullscreen 
-                mozallowfullscreen 
                 allowFullScreen
                 className="absolute inset-0 w-full h-full rounded-2xl"
               />
