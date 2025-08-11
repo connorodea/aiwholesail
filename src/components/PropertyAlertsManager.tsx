@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Trash2, Plus, Bell, MapPin, DollarSign, Home, Calendar, Send } from 'lucide-react';
+import { Trash2, Plus, Bell, MapPin, DollarSign, Home, Calendar, Send, Search } from 'lucide-react';
 import { toast } from 'sonner';
 import { LocationAutocomplete } from './LocationAutocomplete';
 
@@ -216,6 +216,28 @@ export const PropertyAlertsManager = () => {
     }
   };
 
+  const runManualScan = async () => {
+    try {
+      toast.loading('Running manual property scan...', { id: 'manual-scan' });
+      
+      const { data, error } = await supabase.functions.invoke('automated-property-alerts', {
+        body: { manual: true }
+      });
+
+      if (error) throw error;
+
+      toast.success(
+        `Manual scan complete! Found ${data.totalMatches || 0} matches, sent ${data.emailsSent || 0} emails.`,
+        { id: 'manual-scan' }
+      );
+      
+      fetchAlerts(); // Refresh alerts to show updated timestamps
+    } catch (error: any) {
+      console.error('Error running manual scan:', error);
+      toast.error('Failed to run manual scan', { id: 'manual-scan' });
+    }
+  };
+
   const formatCriteria = (alert: PropertyAlert) => {
     const criteria = [];
     
@@ -278,14 +300,24 @@ export const PropertyAlertsManager = () => {
             </span>
           </div>
         </div>
-        <Button 
-          onClick={() => setShowNewAlert(true)}
-          disabled={alerts.length >= getMaxAlerts()}
-          className="flex items-center gap-2"
-        >
-          <Plus className="h-4 w-4" />
-          New Alert
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            onClick={runManualScan}
+            variant="outline"
+            className="flex items-center gap-2"
+          >
+            <Search className="h-4 w-4" />
+            Scan Now
+          </Button>
+          <Button 
+            onClick={() => setShowNewAlert(true)}
+            disabled={alerts.length >= getMaxAlerts()}
+            className="flex items-center gap-2"
+          >
+            <Plus className="h-4 w-4" />
+            New Alert
+          </Button>
+        </div>
       </div>
 
       {showNewAlert && (

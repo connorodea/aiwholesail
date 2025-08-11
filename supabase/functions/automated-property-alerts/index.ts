@@ -107,8 +107,11 @@ const handler = async (req: Request): Promise<Response> => {
             searchParams: {
               ...searchParams,
               wholesaleOnly: true, // Only find wholesale opportunities
-              fsboOnly: false,
-              keywords: ''
+              fsboOnly: true, // Focus on FSBO properties for better wholesale deals
+              keywords: 'motivated seller, must sell, price reduced, below market',
+              sortSelection: 'PriceHighToLow', // Check higher priced properties first for better margins
+              includePreForeclosure: true,
+              includeShortSale: true
             },
             action: 'search'
           }

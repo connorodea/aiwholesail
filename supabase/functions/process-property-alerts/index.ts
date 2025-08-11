@@ -190,6 +190,38 @@ function checkPropertyMatch(property: any, alert: any): boolean {
     }
   }
 
+  // Enhanced wholesale profit potential checks
+  if (property.price) {
+    // Check for potential wholesale indicators
+    const wholesaleIndicators = [
+      property.motivated_seller,
+      property.fsbo,
+      property.price_reduced,
+      property.days_on_market > 90,
+      property.is_foreclosure,
+      property.is_short_sale,
+      property.needs_repair || property.property_condition === 'Poor',
+      property.price < (property.zestimate * 0.85) // Priced significantly below Zestimate
+    ];
+
+    // Property must have at least 2 wholesale indicators
+    const validIndicators = wholesaleIndicators.filter(Boolean).length;
+    if (validIndicators < 2) {
+      return false;
+    }
+
+    // Calculate potential profit margin (basic estimation)
+    const estimatedARV = property.zestimate || property.price * 1.15;
+    const estimatedRepairCost = property.needs_repair ? property.price * 0.15 : property.price * 0.05;
+    const wholesaleFee = 10000; // Standard wholesale fee
+    const potentialProfit = estimatedARV - property.price - estimatedRepairCost - wholesaleFee;
+    
+    // Must have potential profit of at least $15,000
+    if (potentialProfit < 15000) {
+      return false;
+    }
+  }
+
   return true;
 }
 
@@ -218,10 +250,13 @@ async function sendPropertyAlert(alert: any, property: any): Promise<boolean> {
           </div>
           
           <div style="background: #ecfdf5; padding: 20px; border-radius: 8px; border-left: 4px solid #10b981; margin-bottom: 25px;">
-            <h3 style="margin-top: 0; color: #065f46; font-size: 16px;">📊 Why This Property Matches:</h3>
-            <p style="margin: 0; color: #065f46;">
-              This property meets your alert criteria for <strong>${alert.location}</strong> and shows potential for wholesale opportunities based on your preferences.
-            </p>
+            <h3 style="margin-top: 0; color: #065f46; font-size: 16px;">📊 Wholesale Profit Analysis:</h3>
+            <div style="margin: 0; color: #065f46;">
+              <p style="margin: 5px 0;"><strong>Estimated ARV:</strong> $${((property.zestimate || property.price * 1.15)).toLocaleString()}</p>
+              <p style="margin: 5px 0;"><strong>Purchase Price:</strong> $${property.price?.toLocaleString()}</p>
+              <p style="margin: 5px 0;"><strong>Estimated Profit:</strong> $${Math.max(0, ((property.zestimate || property.price * 1.15) - property.price - (property.needs_repair ? property.price * 0.15 : property.price * 0.05) - 10000)).toLocaleString()}</p>
+              <p style="margin: 5px 0; font-weight: bold;">This property meets your wholesale criteria for <strong>${alert.location}</strong></p>
+            </div>
           </div>
           
           <div style="text-align: center; margin: 30px 0;">
