@@ -37,16 +37,14 @@ const handler = async (req: Request): Promise<Response> => {
   try {
     console.log('🔄 Starting automated property alert search...');
 
-    // Get all active property alerts with subscription info
+    // Get all active property alerts with user info
     const { data: alerts, error: alertsError } = await supabase
       .from('property_alerts')
       .select(`
         *,
-        profiles!inner(email, full_name),
-        subscribers!inner(subscribed, subscription_tier, subscription_end)
+        profiles!property_alerts_user_id_fkey(email, full_name)
       `)
-      .eq('is_active', true)
-      .eq('subscribers.subscribed', true);
+      .eq('is_active', true);
 
     if (alertsError) {
       throw new Error(`Failed to fetch alerts: ${alertsError.message}`);
@@ -75,9 +73,8 @@ const handler = async (req: Request): Promise<Response> => {
       try {
         console.log(`🔍 Processing alert for location: ${alert.location}`);
         
-        // Check if enough time has passed based on subscription tier
-        const subscriptionTier = alert.subscribers.subscription_tier;
-        const updateIntervalHours = subscriptionTier === 'Premium' ? 4 : 24;
+        // Check if enough time has passed (default 4 hours for all users)
+        const updateIntervalHours = 4;
         
         if (alert.last_alert_sent) {
           const lastSent = new Date(alert.last_alert_sent);
