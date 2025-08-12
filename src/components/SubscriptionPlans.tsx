@@ -118,15 +118,36 @@ export const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
   const handleManageSubscription = async () => {
     setLoading('manage');
     try {
-      const { data, error } = await supabase.functions.invoke('customer-portal');
-      if (error) throw error;
+      console.log('Opening customer portal...');
+      
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error('Please sign in to manage your subscription');
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke('customer-portal', {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
+      
+      if (error) {
+        console.error('Customer portal error:', error);
+        throw error;
+      }
+
+      console.log('Customer portal response:', data);
 
       if (data?.url) {
         window.open(data.url, '_blank');
+        toast.success('Opening subscription management...');
+      } else {
+        throw new Error('No portal URL received');
       }
     } catch (error: any) {
       console.error('Error opening customer portal:', error);
-      toast.error('Failed to open subscription management');
+      toast.error(error.message || 'Failed to open subscription management');
     } finally {
       setLoading(null);
     }
