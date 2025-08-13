@@ -86,7 +86,8 @@ serve(async (req) => {
       updatedDetails: "https://zillow-working-api.p.rapidapi.com/propertyUpdatedDetails",
       listingStatus: "https://zillow-working-api.p.rapidapi.com/propertyListingStatus",
       rentalEstimate: "https://zillow-working-api.p.rapidapi.com/propertyRentalEstimate",
-      skipTrace: "https://zillow-working-api.p.rapidapi.com/skip/byaddress"
+      skipTrace: "https://zillow-working-api.p.rapidapi.com/skip/byaddress",
+      comparableHomes: "https://zillow-working-api.p.rapidapi.com/comparable_homes"
     };
 
     let headers: Record<string, string> = {
@@ -211,6 +212,24 @@ serve(async (req) => {
         page: searchParams.page || '1'
       };
       url = `${baseUrls[action]}?${new URLSearchParams(requestParams)}`;
+    } else if ([
+      'comparableHomes'
+    ].includes(action)) {
+      // comparableHomes can take various property identifiers
+      if (!searchParams.byzpid && !searchParams.byurl && !searchParams.byaddress && !searchParams.bylotid) {
+        return new Response(
+          JSON.stringify({ success: false, error: 'At least one property identifier required: byzpid, byurl, byaddress, or bylotid' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+        );
+      }
+      
+      requestParams = {};
+      if (searchParams.byzpid) requestParams.byzpid = searchParams.byzpid;
+      if (searchParams.byurl) requestParams.byurl = searchParams.byurl;
+      if (searchParams.byaddress) requestParams.byaddress = searchParams.byaddress;
+      if (searchParams.bylotid) requestParams.bylotid = searchParams.bylotid;
+      
+      url = `${baseUrls.comparableHomes}?${new URLSearchParams(requestParams)}`;
     } else {
       return new Response(
         JSON.stringify({ success: false, error: 'Invalid action specified' }),
