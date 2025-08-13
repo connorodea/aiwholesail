@@ -111,19 +111,19 @@ export function AIPropertyAnalyzer({ property }: AIPropertyAnalyzerProps) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {!analysis && !isLoading && (
-        <Card className="border-dashed border-2 border-muted-foreground/25">
-          <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-            <div className="p-4 rounded-full bg-primary/10 mb-4">
-              <Brain className="h-8 w-8 text-primary" />
+        <Card className="border-2 border-dashed border-border/30 bg-gradient-to-br from-muted/5 via-background to-muted/10 rounded-2xl shadow-lg">
+          <CardContent className="flex flex-col items-center justify-center py-16 text-center">
+            <div className="p-6 rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 mb-6 shadow-inner">
+              <Brain className="h-10 w-10 text-primary" />
             </div>
-            <h3 className="text-xl font-semibold mb-2">AI Property Analysis</h3>
-            <p className="text-muted-foreground mb-6 max-w-md">
+            <h3 className="text-2xl font-semibold mb-3 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">AI Property Analysis</h3>
+            <p className="text-muted-foreground mb-8 max-w-lg leading-relaxed">
               Get detailed insights about this property's wholesale potential, market positioning, and investment opportunities using advanced AI analysis.
             </p>
-            <Button onClick={analyzeProperty} size="lg" className="gap-2">
-              <Zap className="h-4 w-4" />
+            <Button onClick={analyzeProperty} size="lg" className="gap-3 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl px-8 py-3">
+              <Zap className="h-5 w-5" />
               Analyze Property
             </Button>
           </CardContent>
@@ -131,58 +131,62 @@ export function AIPropertyAnalyzer({ property }: AIPropertyAnalyzerProps) {
       )}
 
       {isLoading && (
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <Brain className="h-5 w-5 animate-pulse text-primary" />
-              <CardTitle>Analyzing Property...</CardTitle>
+        <Card className="rounded-2xl shadow-lg border-border/50 bg-gradient-to-br from-background to-muted/5">
+          <CardHeader className="pb-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-xl bg-primary/10">
+                <Brain className="h-6 w-6 animate-pulse text-primary" />
+              </div>
+              <CardTitle className="text-xl">Analyzing Property...</CardTitle>
             </div>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-3/4" />
-            <Skeleton className="h-4 w-1/2" />
-            <div className="grid grid-cols-2 gap-4 mt-6">
-              <Skeleton className="h-20" />
-              <Skeleton className="h-20" />
+          <CardContent className="space-y-6">
+            <Skeleton className="h-4 w-full rounded-lg" />
+            <Skeleton className="h-4 w-3/4 rounded-lg" />
+            <Skeleton className="h-4 w-1/2 rounded-lg" />
+            <div className="grid grid-cols-2 gap-6 mt-8">
+              <Skeleton className="h-24 rounded-xl" />
+              <Skeleton className="h-24 rounded-xl" />
             </div>
           </CardContent>
         </Card>
       )}
 
       {analysis && (
-        <div className="space-y-6">
+        <div className="space-y-8">
           {/* Analysis Overview */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Brain className="h-5 w-5 text-primary" />
+          <Card className="rounded-2xl shadow-xl border-border/50 bg-gradient-to-br from-background via-background to-primary/5">
+            <CardHeader className="pb-6">
+              <CardTitle className="flex items-center gap-3 text-xl">
+                <div className="p-2 rounded-xl bg-primary/10">
+                  <Brain className="h-6 w-6 text-primary" />
+                </div>
                 AI Analysis Results
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="text-center p-4 bg-muted/30 rounded-lg">
-                  <div className="text-sm text-muted-foreground mb-1">Investment Grade</div>
-                  <Badge className={`text-lg font-bold ${getGradeColor(analysis.investmentGrade)}`}>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div className="text-center p-6 bg-gradient-to-br from-muted/20 to-muted/10 rounded-2xl border border-border/30 shadow-inner">
+                  <div className="text-sm text-muted-foreground mb-2 font-medium">Investment Grade</div>
+                  <Badge className={`text-lg font-bold px-4 py-2 rounded-xl ${getGradeColor(analysis.investmentGrade)}`}>
                     {analysis.investmentGrade}
                   </Badge>
                 </div>
-                <div className="text-center p-4 bg-muted/30 rounded-lg">
-                  <div className="text-sm text-muted-foreground mb-1">Wholesale Score</div>
-                  <div className={`text-2xl font-bold ${getScoreColor(analysis.wholesaleScore)}`}>
+                <div className="text-center p-6 bg-gradient-to-br from-muted/20 to-muted/10 rounded-2xl border border-border/30 shadow-inner">
+                  <div className="text-sm text-muted-foreground mb-2 font-medium">Wholesale Score</div>
+                  <div className={`text-3xl font-bold ${getScoreColor(analysis.wholesaleScore)}`}>
                     {analysis.wholesaleScore}/100
                   </div>
                 </div>
-                <div className="text-center p-4 bg-muted/30 rounded-lg">
-                  <div className="text-sm text-muted-foreground mb-1">Opportunity Score</div>
-                  <div className={`text-2xl font-bold ${getScoreColor(analysis.opportunityScore)}`}>
+                <div className="text-center p-6 bg-gradient-to-br from-muted/20 to-muted/10 rounded-2xl border border-border/30 shadow-inner">
+                  <div className="text-sm text-muted-foreground mb-2 font-medium">Opportunity Score</div>
+                  <div className={`text-3xl font-bold ${getScoreColor(analysis.opportunityScore)}`}>
                     {analysis.opportunityScore}/100
                   </div>
                 </div>
-                <div className="text-center p-4 bg-muted/30 rounded-lg">
-                  <div className="text-sm text-muted-foreground mb-1">Potential ARV</div>
-                  <div className="text-lg font-bold text-success">
+                <div className="text-center p-6 bg-gradient-to-br from-success/10 to-success/5 rounded-2xl border border-success/20 shadow-inner">
+                  <div className="text-sm text-muted-foreground mb-2 font-medium">Potential ARV</div>
+                  <div className="text-2xl font-bold text-success">
                     {formatPrice(analysis.potentialARV)}
                   </div>
                 </div>
@@ -191,19 +195,23 @@ export function AIPropertyAnalyzer({ property }: AIPropertyAnalyzerProps) {
           </Card>
 
           {/* Key Insights */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <CheckCircle className="h-5 w-5 text-success" />
+          <Card className="rounded-2xl shadow-lg border-border/50 bg-gradient-to-br from-background to-success/5">
+            <CardHeader className="pb-6">
+              <CardTitle className="flex items-center gap-3 text-xl">
+                <div className="p-2 rounded-xl bg-success/10">
+                  <CheckCircle className="h-6 w-6 text-success" />
+                </div>
                 Key Insights
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {analysis.keyInsights.map((insight, index) => (
-                  <div key={index} className="flex items-start gap-3 p-3 bg-muted/30 rounded-lg">
-                    <TrendingUp className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                    <span className="text-sm">{insight}</span>
+                  <div key={index} className="flex items-start gap-4 p-4 bg-gradient-to-r from-muted/30 to-muted/10 rounded-xl border border-border/30 shadow-sm">
+                    <div className="p-1.5 rounded-lg bg-primary/10 mt-0.5">
+                      <TrendingUp className="h-4 w-4 text-primary flex-shrink-0" />
+                    </div>
+                    <span className="text-sm leading-relaxed">{insight}</span>
                   </div>
                 ))}
               </div>
@@ -211,15 +219,17 @@ export function AIPropertyAnalyzer({ property }: AIPropertyAnalyzerProps) {
           </Card>
 
           {/* Financial Analysis */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <DollarSign className="h-5 w-5 text-success" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <Card className="rounded-2xl shadow-lg border-border/50 bg-gradient-to-br from-background to-success/5">
+              <CardHeader className="pb-6">
+                <CardTitle className="flex items-center gap-3 text-xl">
+                  <div className="p-2 rounded-xl bg-success/10">
+                    <DollarSign className="h-6 w-6 text-success" />
+                  </div>
                   Financial Estimates
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-6">
                 <div className="flex justify-between items-center py-2 border-b border-border">
                   <span className="text-muted-foreground">Current Price</span>
                   <span className="font-semibold">{formatPrice(property.price || 0)}</span>
@@ -241,19 +251,23 @@ export function AIPropertyAnalyzer({ property }: AIPropertyAnalyzerProps) {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <AlertTriangle className="h-5 w-5 text-warning" />
+            <Card className="rounded-2xl shadow-lg border-border/50 bg-gradient-to-br from-background to-warning/5">
+              <CardHeader className="pb-6">
+                <CardTitle className="flex items-center gap-3 text-xl">
+                  <div className="p-2 rounded-xl bg-warning/10">
+                    <AlertTriangle className="h-6 w-6 text-warning" />
+                  </div>
                   Risk Factors
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {analysis.riskFactors.map((risk, index) => (
-                    <div key={index} className="flex items-start gap-3 p-3 bg-warning/10 rounded-lg border border-warning/20">
-                      <AlertTriangle className="h-4 w-4 text-warning mt-0.5 flex-shrink-0" />
-                      <span className="text-sm">{risk}</span>
+                    <div key={index} className="flex items-start gap-4 p-4 bg-gradient-to-r from-warning/15 to-warning/5 rounded-xl border border-warning/30 shadow-sm">
+                      <div className="p-1.5 rounded-lg bg-warning/20 mt-0.5">
+                        <AlertTriangle className="h-4 w-4 text-warning flex-shrink-0" />
+                      </div>
+                      <span className="text-sm leading-relaxed">{risk}</span>
                     </div>
                   ))}
                 </div>
@@ -314,12 +328,12 @@ export function AIPropertyAnalyzer({ property }: AIPropertyAnalyzerProps) {
           )}
 
           {/* Regenerate Button */}
-          <div className="flex justify-center">
+          <div className="flex justify-center pt-4">
             <Button 
               variant="outline" 
               onClick={analyzeProperty}
               disabled={isLoading}
-              className="gap-2"
+              className="gap-3 rounded-xl border-border/50 hover:shadow-md transition-all duration-300 px-6 py-3"
             >
               <Brain className="h-4 w-4" />
               Regenerate Analysis

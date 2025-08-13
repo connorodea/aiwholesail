@@ -79,26 +79,26 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-7xl max-h-[95vh] overflow-hidden p-0 bg-background">
+      <DialogContent className="max-w-7xl max-h-[95vh] overflow-hidden p-0 bg-gradient-to-br from-background via-background to-muted/5 border-2 border-border/50 shadow-2xl rounded-2xl">
         {/* Header */}
-        <DialogHeader className="p-6 pb-4 border-b bg-gradient-to-r from-background to-muted/10">
+        <DialogHeader className="p-8 pb-6 border-b border-border/30 bg-gradient-to-r from-background via-muted/5 to-background backdrop-blur-sm">
           <div className="flex items-start justify-between">
             <div className="flex-1 pr-6">
-              <div className="flex items-center gap-2 mb-4">
-                <Badge variant="outline" className="text-xs font-medium border-border">
+              <div className="flex items-center gap-3 mb-6">
+                <Badge variant="outline" className="text-xs font-medium border-border/50 bg-muted/30 rounded-full px-3 py-1.5">
                   {property.status}
                 </Badge>
                 {property.isFSBO && (
-                  <Badge variant="secondary" className="text-xs">FSBO</Badge>
+                  <Badge variant="secondary" className="text-xs rounded-full px-3 py-1.5 bg-info/10 text-info border-info/20">FSBO</Badge>
                 )}
                 <Badge 
                   variant={wholesalePotential.tier === 'excellent' || wholesalePotential.tier === 'great' ? 'default' : 'secondary'}
-                  className="text-xs"
+                  className="text-xs rounded-full px-3 py-1.5"
                 >
                   {wholesalePotential.tier} potential
                 </Badge>
               </div>
-              <DialogTitle className="text-3xl font-bold mb-3 leading-tight">
+              <DialogTitle className="text-4xl font-bold mb-4 leading-tight bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text">
                 {property.address}
               </DialogTitle>
               <div className="flex items-center gap-2 text-muted-foreground">
@@ -121,7 +121,7 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                   variant="outline"
                   size="sm"
                   onClick={handleToggleFavorite}
-                  className="gap-2 hover:bg-muted"
+                  className="gap-2 hover:bg-muted rounded-xl border-border/50 transition-all duration-300 hover:shadow-md"
                 >
                   <Heart className={`h-4 w-4 ${isPropertyFavorite ? 'fill-current text-red-500' : ''}`} />
                   {isPropertyFavorite ? 'Saved' : 'Save'}
@@ -130,7 +130,7 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                   variant="outline"
                   size="sm"
                   onClick={handleConvertToLead}
-                  className="gap-2 hover:bg-muted"
+                  className="gap-2 hover:bg-muted rounded-xl border-border/50 transition-all duration-300 hover:shadow-md"
                 >
                   <Phone className="h-4 w-4" />
                   Convert to Lead
@@ -143,18 +143,18 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
         {/* Content */}
         <div className="flex-1 overflow-hidden">
           <Tabs defaultValue="overview" className="w-full h-full flex flex-col">
-            <div className="px-6 pt-4 pb-2 border-b bg-muted/5">
-              <TabsList className="grid w-full grid-cols-4 bg-muted/50">
-                <TabsTrigger value="overview" className="data-[state=active]:bg-background">
+            <div className="px-8 pt-6 pb-4 border-b border-border/30 bg-gradient-to-r from-muted/5 to-transparent">
+              <TabsList className="grid w-full grid-cols-4 bg-muted/30 rounded-xl p-1 backdrop-blur-sm">
+                <TabsTrigger value="overview" className="data-[state=active]:bg-background data-[state=active]:shadow-md rounded-lg transition-all duration-300">
                   Overview
                 </TabsTrigger>
-                <TabsTrigger value="details" className="data-[state=active]:bg-background">
+                <TabsTrigger value="details" className="data-[state=active]:bg-background data-[state=active]:shadow-md rounded-lg transition-all duration-300">
                   Details
                 </TabsTrigger>
-                <TabsTrigger value="photos" className="data-[state=active]:bg-background">
+                <TabsTrigger value="photos" className="data-[state=active]:bg-background data-[state=active]:shadow-md rounded-lg transition-all duration-300">
                   Photos
                 </TabsTrigger>
-                <TabsTrigger value="ai-analysis" className="flex items-center gap-2 data-[state=active]:bg-background">
+                <TabsTrigger value="ai-analysis" className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-md rounded-lg transition-all duration-300">
                   <Brain className="h-3 w-3" />
                   AI Analysis
                 </TabsTrigger>
