@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { calculateWholesalePotential } from '@/lib/wholesale-calculator';
 import { PropertyAnalysisChat } from './PropertyAnalysisChat';
+import { AIPropertyAnalyzer } from './AIPropertyAnalyzer';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useLeads } from '@/hooks/useLeads';
 import { toast } from 'sonner';
@@ -386,8 +387,8 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
               )}
             </TabsContent>
 
-            <TabsContent value="ai-analysis" className="flex-1 overflow-hidden">
-              <PropertyAnalysisChat property={property} isOpen={isOpen} />
+            <TabsContent value="ai-analysis" className="flex-1 overflow-auto p-6">
+              <AIPropertyAnalyzer property={property} />
             </TabsContent>
           </Tabs>
         </div>
