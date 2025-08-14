@@ -603,6 +603,48 @@ export type Database = {
         }
         Relationships: []
       }
+      wholesale_deals: {
+        Row: {
+          ai_analysis: string | null
+          ai_decision: string | null
+          ai_score: number | null
+          arv: number | null
+          created_at: string | null
+          id: number
+          mao_scenarios: Json | null
+          ppsf: number | null
+          property_address: string | null
+          repair_estimate: number | null
+          zillow_url: string | null
+        }
+        Insert: {
+          ai_analysis?: string | null
+          ai_decision?: string | null
+          ai_score?: number | null
+          arv?: number | null
+          created_at?: string | null
+          id?: never
+          mao_scenarios?: Json | null
+          ppsf?: number | null
+          property_address?: string | null
+          repair_estimate?: number | null
+          zillow_url?: string | null
+        }
+        Update: {
+          ai_analysis?: string | null
+          ai_decision?: string | null
+          ai_score?: number | null
+          arv?: number | null
+          created_at?: string | null
+          id?: never
+          mao_scenarios?: Json | null
+          ppsf?: number | null
+          property_address?: string | null
+          repair_estimate?: number | null
+          zillow_url?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

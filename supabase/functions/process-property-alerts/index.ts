@@ -154,75 +154,118 @@ const handler = async (req: Request): Promise<Response> => {
 };
 
 function checkPropertyMatch(property: any, alert: any): boolean {
-  // Price check
+  console.log(`🔍 Checking property match for ${property.address}`);
+  
+  // Price filter
   if (alert.max_price && property.price > alert.max_price) {
+    console.log(`❌ Price too high: ${property.price} > ${alert.max_price}`);
     return false;
   }
 
-  // Bedrooms check
+  // Bedroom filter
   if (alert.min_bedrooms && property.bedrooms < alert.min_bedrooms) {
+    console.log(`❌ Not enough bedrooms: ${property.bedrooms} < ${alert.min_bedrooms}`);
     return false;
   }
+  
   if (alert.max_bedrooms && property.bedrooms > alert.max_bedrooms) {
+    console.log(`❌ Too many bedrooms: ${property.bedrooms} > ${alert.max_bedrooms}`);
     return false;
   }
 
-  // Bathrooms check
+  // Bathroom filter
   if (alert.min_bathrooms && property.bathrooms < alert.min_bathrooms) {
+    console.log(`❌ Not enough bathrooms: ${property.bathrooms} < ${alert.min_bathrooms}`);
     return false;
   }
+  
   if (alert.max_bathrooms && property.bathrooms > alert.max_bathrooms) {
+    console.log(`❌ Too many bathrooms: ${property.bathrooms} > ${alert.max_bathrooms}`);
     return false;
   }
 
-  // Square footage check
+  // Square footage filter
   if (alert.min_sqft && property.livingArea < alert.min_sqft) {
+    console.log(`❌ Too small: ${property.livingArea} < ${alert.min_sqft}`);
     return false;
   }
+  
   if (alert.max_sqft && property.livingArea > alert.max_sqft) {
+    console.log(`❌ Too large: ${property.livingArea} > ${alert.max_sqft}`);
     return false;
   }
 
-  // Property type check
+  // Property type filter
   if (alert.property_types && alert.property_types.length > 0) {
-    if (!alert.property_types.includes(property.propertyType)) {
+    const propertyType = property.propertyType || '';
+    const matchesType = alert.property_types.some((type: string) => 
+      propertyType.toLowerCase().includes(type.toLowerCase())
+    );
+    if (!matchesType) {
+      console.log(`❌ Property type doesn't match: ${propertyType} not in ${alert.property_types}`);
       return false;
     }
   }
 
-  // Enhanced wholesale profit potential checks
-  if (property.price) {
-    // Check for potential wholesale indicators
-    const wholesaleIndicators = [
-      property.motivated_seller,
-      property.fsbo,
-      property.price_reduced,
-      property.days_on_market > 90,
-      property.is_foreclosure,
-      property.is_short_sale,
-      property.needs_repair || property.property_condition === 'Poor',
-      property.price < (property.zestimate * 0.85) // Priced significantly below Zestimate
-    ];
-
-    // Property must have at least 2 wholesale indicators
-    const validIndicators = wholesaleIndicators.filter(Boolean).length;
-    if (validIndicators < 2) {
-      return false;
-    }
-
-    // Calculate potential profit margin (basic estimation)
-    const estimatedARV = property.zestimate || property.price * 1.15;
-    const estimatedRepairCost = property.needs_repair ? property.price * 0.15 : property.price * 0.05;
-    const wholesaleFee = 10000; // Standard wholesale fee
-    const potentialProfit = estimatedARV - property.price - estimatedRepairCost - wholesaleFee;
-    
-    // Must have potential profit of at least $15,000
-    if (potentialProfit < 15000) {
-      return false;
-    }
+  // High-value wholesale deal detection
+  const wholesaleScore = calculateWholesaleScore(property);
+  if (wholesaleScore < 70) { // Only send alerts for high-quality deals
+    console.log(`❌ Wholesale score too low: ${wholesaleScore} < 70`);
+    return false;
   }
 
+  console.log(`✅ Property matches alert criteria with wholesale score: ${wholesaleScore}`);
   return true;
+}
+
+// Calculate wholesale opportunity score
+function calculateWholesaleScore(property: any): number {
+  let score = 0;
+  
+  // Check for wholesale indicators in description/listing details
+  const description = (property.description || '').toLowerCase();
+  const wholesaleKeywords = [
+    'motivated seller', 'must sell', 'price reduced', 'below market',
+    'distressed', 'cash only', 'as is', 'investor special',
+    'fixer upper', 'handyman special', 'estate sale', 'inherited',
+    'divorce', 'foreclosure', 'pre-foreclosure', 'short sale',
+    'fsbo', 'for sale by owner', 'owner financing', 'quick close'
+  ];
+  
+  const keywordMatches = wholesaleKeywords.filter(keyword => 
+    description.includes(keyword)
+  ).length;
+  score += keywordMatches * 15; // 15 points per keyword match
+  
+  // Days on market (longer = more motivated)
+  const daysOnMarket = property.daysOnZillow || property.daysOnMarket || 0;
+  if (daysOnMarket > 90) score += 25;
+  else if (daysOnMarket > 60) score += 15;
+  else if (daysOnMarket > 30) score += 10;
+  
+  // Price reductions
+  if (property.priceChange && property.priceChange < 0) {
+    const reductionPercent = Math.abs(property.priceChange / property.price) * 100;
+    if (reductionPercent > 10) score += 30;
+    else if (reductionPercent > 5) score += 20;
+    else score += 10;
+  }
+  
+  // FSBO properties get bonus points
+  if (property.listingType && property.listingType.toLowerCase().includes('fsbo')) {
+    score += 25;
+  }
+  
+  // Low price per sqft compared to area average
+  if (property.price && property.livingArea && property.livingArea > 0) {
+    const pricePerSqft = property.price / property.livingArea;
+    // Bonus for properties under $100/sqft (typically indicates distress)
+    if (pricePerSqft < 50) score += 30;
+    else if (pricePerSqft < 75) score += 20;
+    else if (pricePerSqft < 100) score += 10;
+  }
+  
+  return Math.min(score, 100); // Cap at 100
 }
 
 async function sendPropertyAlert(alert: any, property: any): Promise<boolean> {

@@ -73,8 +73,9 @@ const handler = async (req: Request): Promise<Response> => {
       try {
         console.log(`🔍 Processing alert for location: ${alert.location}`);
         
-        // Check if enough time has passed (default 4 hours for all users)
-        const updateIntervalHours = 4;
+        // Check if enough time has passed (default 1 hour for immediate alerts)
+        const updateIntervalHours = alert.alert_frequency === 'immediate' ? 1 : 
+                                   alert.alert_frequency === 'daily' ? 24 : 168; // weekly = 168 hours
         
         if (alert.last_alert_sent) {
           const lastSent = new Date(alert.last_alert_sent);

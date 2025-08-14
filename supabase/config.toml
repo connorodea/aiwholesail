@@ -76,3 +76,9 @@ verify_jwt = false
 
 [functions.secure-property-intelligence]
 verify_jwt = false
+
+[functions.automated-property-alerts]
+verify_jwt = false
+
+[functions.process-property-alerts]
+verify_jwt = false
