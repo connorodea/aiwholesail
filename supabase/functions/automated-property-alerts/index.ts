@@ -42,11 +42,12 @@ const handler = async (req: Request): Promise<Response> => {
       .from('property_alerts')
       .select(`
         *,
-        profiles!property_alerts_user_id_fkey(email, full_name)
+        profiles(email, full_name)
       `)
       .eq('is_active', true);
 
     if (alertsError) {
+      console.error('Failed to fetch alerts:', alertsError);
       throw new Error(`Failed to fetch alerts: ${alertsError.message}`);
     }
 

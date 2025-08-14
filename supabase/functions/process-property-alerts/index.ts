@@ -47,7 +47,7 @@ const handler = async (req: Request): Promise<Response> => {
       .from('property_alerts')
       .select(`
         *,
-        profiles!inner(email, full_name)
+        profiles(email, full_name)
       `)
       .eq('location', location)
       .eq('is_active', true);
@@ -327,17 +327,17 @@ async function sendPropertyAlert(alert: any, property: any): Promise<boolean> {
         'Authorization': `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
       },
       body: JSON.stringify({
-        to: alert.profiles.email,
+        to: alert.profiles?.email || alert.email,
         subject: `🏠 New Wholesale Opportunity in ${alert.location}`,
         html: emailHtml,
       }),
     });
 
     if (response.ok) {
-      console.log(`✅ Email sent to ${alert.profiles.email} for property ${property.address}`);
+      console.log(`✅ Email sent to ${alert.profiles?.email || alert.email} for property ${property.address}`);
       return true;
     } else {
-      console.error(`❌ Failed to send email to ${alert.profiles.email}:`, await response.text());
+      console.error(`❌ Failed to send email to ${alert.profiles?.email || alert.email}:`, await response.text());
       return false;
     }
 
