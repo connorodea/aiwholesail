@@ -195,6 +195,15 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log(`🎉 Automated search complete. Total matches: ${totalMatches}, Emails sent: ${totalEmailsSent}`);
 
+    // Log the execution for monitoring
+    await supabase
+      .from('alert_scan_logs')
+      .insert({
+        alerts_processed: alerts.length,
+        emails_sent: totalEmailsSent,
+        success: true
+      });
+
     return new Response(JSON.stringify({
       success: true,
       alertsProcessed: alerts.length,
@@ -208,6 +217,21 @@ const handler = async (req: Request): Promise<Response> => {
 
   } catch (error: any) {
     console.error('❌ Automated property alerts error:', error);
+    
+    // Log the error for monitoring
+    try {
+      await supabase
+        .from('alert_scan_logs')
+        .insert({
+          alerts_processed: 0,
+          emails_sent: 0,
+          success: false,
+          error_message: error.message
+        });
+    } catch (logError) {
+      console.error('Failed to log error:', logError);
+    }
+    
     return new Response(JSON.stringify({
       success: false,
       error: error.message
