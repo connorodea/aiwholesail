@@ -8,6 +8,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { SecurityProvider } from "@/components/SecurityProvider";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
+import { FacebookPixel } from "@/components/FacebookPixel";
 import { SEOHead } from "@/components/SEOHead";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
@@ -35,6 +36,7 @@ const App = () => (
             <Sonner />
             <BrowserRouter>
               <GoogleAnalytics />
+              <FacebookPixel />
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/pricing" element={<Pricing />} />
