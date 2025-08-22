@@ -195,28 +195,61 @@ function checkPropertyMatch(property: any, alert: any): boolean {
     return false;
   }
 
-  // Property type filter
+  // Property type filter - Map API types to alert types
   if (alert.property_types && alert.property_types.length > 0) {
     const propertyType = property.propertyType || '';
-    const matchesType = alert.property_types.some((type: string) => 
-      propertyType.toLowerCase().includes(type.toLowerCase())
-    );
+    console.log(`🏠 Property type from API: ${propertyType}`);
+    
+    // Map Zillow API property types to alert property types
+    const typeMapping: Record<string, string[]> = {
+      'Houses': ['singleFamily', 'townhouse', 'house'],
+      'Townhomes': ['townhouse', 'townhome'],
+      'Multi-family': ['multiFamily', 'duplex', 'triplex', 'quadruplex'],
+      'Condos/Co-ops': ['condo', 'condoOrTownhouse', 'cooperative']
+    };
+    
+    let matchesType = false;
+    for (const alertType of alert.property_types) {
+      const apiTypes = typeMapping[alertType] || [alertType.toLowerCase()];
+      if (apiTypes.some(apiType => propertyType.toLowerCase().includes(apiType.toLowerCase()))) {
+        matchesType = true;
+        break;
+      }
+    }
+    
     if (!matchesType) {
-      console.log(`❌ Property type doesn't match: ${propertyType} not in ${alert.property_types}`);
+      console.log(`❌ Property type doesn't match: ${propertyType} not in ${alert.property_types.join(', ')}`);
       return false;
     }
+    console.log(`✅ Property type matches: ${propertyType}`);
+  }
+
+  // Must have wholesale potential (price vs zestimate)
+  if (!property.price || !property.zestimate || property.price >= property.zestimate) {
+    console.log(`❌ No wholesale potential: price=${property.price}, zestimate=${property.zestimate}`);
+    return false;
+  }
+
+  // Calculate wholesale potential using same logic as main search
+  const spreadAmount = property.zestimate - property.price;
+  const spreadPercentage = (spreadAmount / property.zestimate) * 100;
+  
+  // Must have at least 15% spread for wholesale potential
+  if (spreadPercentage < 15) {
+    console.log(`❌ Spread too low: ${spreadPercentage.toFixed(1)}% < 15%`);
+    return false;
   }
 
   // High-value wholesale deal detection
   const wholesaleScore = calculateWholesaleScore(property);
-  console.log(`🎯 Property ${property.address} wholesale score: ${wholesaleScore}`);
+  console.log(`🎯 Property ${property.address} wholesale score: ${wholesaleScore}, spread: ${spreadPercentage.toFixed(1)}%`);
   
-  if (wholesaleScore < 40) { // Lowered from 70 to 40 for more matches
+  if (wholesaleScore < 40) {
     console.log(`❌ Wholesale score too low: ${wholesaleScore} < 40`);
     return false;
   }
 
-  console.log(`✅ Property matches alert criteria with wholesale score: ${wholesaleScore}`);
+  console.log(`✅ Property matches alert criteria with ${spreadPercentage.toFixed(1)}% spread and wholesale score: ${wholesaleScore}`);
   return true;
 }
 

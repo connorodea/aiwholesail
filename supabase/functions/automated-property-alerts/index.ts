@@ -91,11 +91,12 @@ const handler = async (req: Request): Promise<Response> => {
         const searchParams: PropertySearchParams = {
           location: alert.location,
           status_type: 'ForSale',
-          home_type: alert.property_types?.join(',') || 'Houses,Townhomes,Multi-family,Condos',
+          homeType: 'Houses, Townhomes, Multi-family, Condos/Co-ops', // Use standard format that maps to all property types
         };
 
-        if (alert.max_price) searchParams.maxPrice = alert.max_price.toString();
-        if (alert.min_bedrooms) searchParams.bedrooms = alert.min_bedrooms.toString();
+        if (alert.max_price) searchParams.price_max = alert.max_price.toString();
+        if (alert.min_bedrooms) searchParams.bed_min = alert.min_bedrooms.toString();
+        if (alert.max_bedrooms) searchParams.bed_max = alert.max_bedrooms.toString();
         if (alert.min_bathrooms) searchParams.bathrooms = alert.min_bathrooms.toString();
         if (alert.min_sqft) searchParams.sqft_min = alert.min_sqft.toString();
         if (alert.max_sqft) searchParams.sqft_max = alert.max_sqft.toString();
@@ -106,11 +107,10 @@ const handler = async (req: Request): Promise<Response> => {
             searchParams: {
               ...searchParams,
               wholesaleOnly: true, // Only find wholesale opportunities
-              fsboOnly: true, // Focus on FSBO properties for better wholesale deals
-              keywords: 'motivated seller, must sell, price reduced, below market',
-              sortSelection: 'PriceHighToLow', // Check higher priced properties first for better margins
-              includePreForeclosure: true,
-              includeShortSale: true
+              fsboOnly: false, // Don't limit to FSBO only - include all listings
+              keywords: 'motivated seller, must sell, price reduced, below market, distressed, cash only, as is, investment opportunity',
+              sortOrder: 'Days_On_Zillow', // Sort by days on market for motivated sellers
+              page: searchParams.page || 1
             },
             action: 'search'
           }
@@ -160,12 +160,17 @@ const handler = async (req: Request): Promise<Response> => {
             location: alert.location,
             properties: recentProperties.map(p => ({
               zpid: p.id || p.zpid || '',
-              address: p.address || 'Unknown Address',
+              address: p.address || p.streetAddress || 'Unknown Address',
               price: p.price || 0,
-              bedrooms: p.bedrooms,
-              bathrooms: p.bathrooms,
-              livingArea: p.sqft || p.livingArea,
-              propertyType: p.propertyType || 'Unknown'
+              zestimate: p.zestimate || p.price * 1.15, // Use zestimate or estimate 15% above price
+              bedrooms: p.bedrooms || p.beds,
+              bathrooms: p.bathrooms || p.baths,
+              livingArea: p.sqft || p.livingArea || p.area,
+              propertyType: p.propertyType || p.homeType || 'singleFamily',
+              daysOnMarket: p.daysOnZillow || p.daysOnMarket || 0,
+              description: p.description || p.detailUrl || '',
+              priceChange: p.priceChange || 0,
+              listingType: p.listingType || ''
             }))
           }
         });
