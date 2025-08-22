@@ -28,38 +28,36 @@ const queryClient = new QueryClient();
 const App = () => (
   <HelmetProvider>
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <SecurityProvider>
-          <TooltipProvider>
-            <SEOHead />
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <GoogleAnalytics />
-              <FacebookPixel />
-          <Routes>
-            <Route path="/" element={<Landing />} />
-            <Route path="/pricing" element={<Pricing />} />
-            <Route path="/app" element={
-              <ProtectedRoute>
-                <RealEstateWholesaler />
-              </ProtectedRoute>
-            } />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/success" element={<Success />} />
-            <Route path="/terms" element={<Terms />} />
-            <Route path="/privacy" element={<Privacy />} />
-            <Route path="/refund" element={<Refund />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/faq" element={<FAQ />} />
-            <Route path="/index" element={<Index />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </SecurityProvider>
-  </AuthProvider>
+      <SecurityProvider>
+        <TooltipProvider>
+          <SEOHead />
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <GoogleAnalytics />
+            <FacebookPixel />
+        <Routes>
+          <Route path="/" element={<Landing />} />
+          <Route path="/pricing" element={<Pricing />} />
+          <Route path="/app" element={
+            <ProtectedRoute>
+              <RealEstateWholesaler />
+            </ProtectedRoute>
+          } />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/success" element={<Success />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/refund" element={<Refund />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/index" element={<Index />} />
+          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </BrowserRouter>
+    </TooltipProvider>
+  </SecurityProvider>
 </QueryClientProvider>
 </HelmetProvider>
 );
