@@ -5,9 +5,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import { SubscriptionProvider } from './contexts/SubscriptionContext';
 
 createRoot(document.getElementById("root")!).render(
-  <AuthProvider>
-    <SubscriptionProvider>
-      <App />
-    </SubscriptionProvider>
-  </AuthProvider>
+  <SubscriptionProvider>
+    <App />
+  </SubscriptionProvider>
 );
