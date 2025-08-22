@@ -12,26 +12,40 @@ export function SessionTimeoutWarning() {
   const [timeLeft, setTimeLeft] = useState(0);
 
   useEffect(() => {
+    // Don't start timeout checking immediately after login
+    // Wait for user to be actually active first
+    if (!sessionActive || lastActivity === 0) {
+      return;
+    }
+
     const checkSessionTimeout = () => {
       const now = Date.now();
       const timeSinceActivity = now - lastActivity;
       const warningThreshold = 25 * 60 * 1000; // 25 minutes (5 min before timeout)
       const timeoutThreshold = 30 * 60 * 1000; // 30 minutes
 
+      // Only check timeout if session has been active for at least 1 minute
+      // This prevents immediate logout after login
+      if (timeSinceActivity < 60 * 1000) {
+        setShowWarning(false);
+        return;
+      }
+
       if (timeSinceActivity >= warningThreshold && timeSinceActivity < timeoutThreshold) {
         setShowWarning(true);
         setTimeLeft(Math.ceil((timeoutThreshold - timeSinceActivity) / 1000));
       } else if (timeSinceActivity >= timeoutThreshold) {
         setShowWarning(false);
+        console.log('[SESSION] Auto-logout due to inactivity:', { timeSinceActivity, lastActivity });
         signOut();
       } else {
         setShowWarning(false);
       }
     };
 
-    const interval = setInterval(checkSessionTimeout, 1000);
+    const interval = setInterval(checkSessionTimeout, 5000); // Check every 5 seconds instead of every second
     return () => clearInterval(interval);
-  }, [lastActivity, signOut]);
+  }, [lastActivity, signOut, sessionActive]);
 
   const handleExtendSession = () => {
     // Activity will be tracked automatically by SecurityProvider
