@@ -74,8 +74,8 @@ const handler = async (req: Request): Promise<Response> => {
       try {
         console.log(`🔍 Processing alert for location: ${alert.location}`);
         
-        // Check if enough time has passed (default 1 hour for immediate alerts)
-        const updateIntervalHours = alert.alert_frequency === 'immediate' ? 1 : 
+        // Check if enough time has passed (reduce to 15 minutes for immediate alerts for testing)
+        const updateIntervalHours = alert.alert_frequency === 'immediate' ? 0.25 : 
                                    alert.alert_frequency === 'daily' ? 24 : 168; // weekly = 168 hours
         
         if (alert.last_alert_sent) {
@@ -87,31 +87,42 @@ const handler = async (req: Request): Promise<Response> => {
           }
         }
 
-        // Build search parameters from alert criteria
-        const searchParams: PropertySearchParams = {
+        // Build search parameters using same format as main search
+        const searchParams = {
           location: alert.location,
-          status_type: 'ForSale',
-          homeType: 'Houses, Townhomes, Multi-family, Condos/Co-ops', // Use standard format that maps to all property types
+          homeType: 'Houses,Townhomes,Multi-family,Condos/Co-ops',
+          listingStatus: 'For_Sale',
+          sortOrder: 'Homes_for_you', // Best wholesale opportunities first
+          maxHOA: 'Any',
+          listingType: 'By_Agent',
+          listingTypeOptions: 'Agent listed,New Construction,Auctions',
+          daysOnZillow: 'Any',
+          soldInLast: 'Any',
+          // Wholesale calculator parameters
+          v_cmr: 4.5,
+          v_dpr: 0.2,
+          v_ptr: 0.012,
+          v_ir: 0.015,
+          v_mr: 0.1,
+          v_pmr: 0.1,
+          v_vr: 0.05,
+          v_rc: 25000,
+          v_ltm: 360,
+          v_aa: 0.03,
+          page: 1
         };
 
-        if (alert.max_price) searchParams.price_max = alert.max_price.toString();
+        if (alert.max_price) searchParams.maxPrice = alert.max_price.toString();
         if (alert.min_bedrooms) searchParams.bed_min = alert.min_bedrooms.toString();
         if (alert.max_bedrooms) searchParams.bed_max = alert.max_bedrooms.toString();
-        if (alert.min_bathrooms) searchParams.bathrooms = alert.min_bathrooms.toString();
+        if (alert.min_bathrooms) searchParams.bath_min = alert.min_bathrooms.toString();
         if (alert.min_sqft) searchParams.sqft_min = alert.min_sqft.toString();
         if (alert.max_sqft) searchParams.sqft_max = alert.max_sqft.toString();
 
-        // Search for properties using the Zillow API with wholesale criteria
+        // Search for properties using the same API call as regular search
         const { data: searchResult, error: searchError } = await supabase.functions.invoke('get-zillow-data', {
           body: { 
-            searchParams: {
-              ...searchParams,
-              wholesaleOnly: true, // Only find wholesale opportunities
-              fsboOnly: false, // Don't limit to FSBO only - include all listings
-              keywords: 'motivated seller, must sell, price reduced, below market, distressed, cash only, as is, investment opportunity',
-              sortOrder: 'Days_On_Zillow', // Sort by days on market for motivated sellers
-              page: searchParams.page || 1
-            },
+            searchParams,
             action: 'search'
           }
         });
@@ -159,29 +170,41 @@ const handler = async (req: Request): Promise<Response> => {
           body: {
             location: alert.location,
             properties: recentProperties.map(p => {
-              // Extract price from various fields
-              const price = p.price || p.priceForHDP || p.unformattedPrice || p.listPrice || 0;
-              // Extract zestimate or estimate it based on price
-              const zestimate = p.zestimate || p.zestimateValue || p.estimatedValue || 
-                              (price > 0 ? price * 1.25 : 200000); // Default to $200k if no price
+              // More comprehensive price extraction
+              const price = p.price || 
+                           p.priceForHDP || 
+                           p.unformattedPrice || 
+                           p.listPrice || 
+                           p.formattedPrice ||
+                           (p.priceLabel ? parseInt(p.priceLabel.replace(/[^0-9]/g, '')) : 0) ||
+                           0;
+              
+              // More comprehensive zestimate extraction
+              const zestimate = p.zestimate || 
+                              p.zestimateValue || 
+                              p.estimatedValue || 
+                              p.rental_zestimate ||
+                              p.listing_zestimate ||
+                              (price > 0 ? Math.round(price * 1.15) : 0); // 15% above list price if no zestimate
+              
+              console.log(`🏠 Processing property: ${p.address || 'Unknown'}, price: ${price}, zestimate: ${zestimate}`);
               
               return {
-                zpid: p.id || p.zpid || p.property_zpid || '',
+                zpid: p.zpid || p.id || p.property_zpid || '',
                 address: p.address || p.streetAddress || p.formattedChip || 'Unknown Address',
-                price: price,
-                zestimate: zestimate,
-                bedrooms: p.bedrooms || p.beds || p.bedroomCount || 0,
-                bathrooms: p.bathrooms || p.baths || p.bathroomCount || 0,
-                livingArea: p.sqft || p.livingArea || p.area || p.floorSizeValue || 0,
+                price: Number(price) || 0,
+                zestimate: Number(zestimate) || 0,
+                bedrooms: Number(p.bedrooms || p.beds || p.bedroomCount || 0),
+                bathrooms: Number(p.bathrooms || p.baths || p.bathroomCount || 0),
+                livingArea: Number(p.sqft || p.livingArea || p.area || p.floorSizeValue || 0),
                 propertyType: p.propertyType || p.homeType || p.propertyTypeDimension || 'singleFamily',
-                daysOnMarket: p.daysOnZillow || p.daysOnMarket || p.timeOnZillow || 0,
+                daysOnMarket: Number(p.daysOnZillow || p.daysOnMarket || p.timeOnZillow || 0),
                 description: p.description || p.detailUrl || '',
-                priceChange: p.priceChange || p.priceReduction || 0,
-                listingType: p.listingType || p.mlsid ? 'MLS' : 'FSBO',
-                // Add more wholesale indicators
+                priceChange: Number(p.priceChange || p.priceReduction || 0),
+                listingType: p.listingType || (p.mlsid ? 'MLS' : 'FSBO'),
+                isFSBO: p.isFSBO || p.listingType === 'FSBO' || false,
                 isPreForeclosure: p.isPreForeclosure || false,
                 isForeclosure: p.isForeclosure || false,
-                isFSBO: p.isFSBO || false,
                 homeStatus: p.homeStatus || 'FOR_SALE'
               };
             })

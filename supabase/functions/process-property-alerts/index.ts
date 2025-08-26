@@ -239,9 +239,16 @@ function checkPropertyMatch(property: any, alert: any): boolean {
   const price = property.price || 0;
   const zestimate = property.zestimate || 0;
   
-  // Must have wholesale potential (price < zestimate)
+  // Must have wholesale potential - but allow smaller spreads for high-value deals
   if (!price || !zestimate || price >= zestimate) {
     console.log(`❌ No wholesale potential: price=${price}, zestimate=${zestimate}`);
+    return false;
+  }
+  
+  // Must have at least 3% spread to be considered
+  const minSpreadPercentage = (zestimate - price) / zestimate * 100;
+  if (minSpreadPercentage < 3) {
+    console.log(`❌ Spread too small: ${minSpreadPercentage.toFixed(1)}% < 3%`);
     return false;
   }
 
