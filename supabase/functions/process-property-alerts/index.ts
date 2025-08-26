@@ -224,19 +224,24 @@ function checkPropertyMatch(property: any, alert: any): boolean {
     console.log(`✅ Property type matches: ${propertyType}`);
   }
 
-  // Must have wholesale potential (price vs zestimate)
-  if (!property.price || !property.zestimate || property.price >= property.zestimate) {
-    console.log(`❌ No wholesale potential: price=${property.price}, zestimate=${property.zestimate}`);
+  // Must have some price and zestimate data
+  if (!property.price || property.price <= 0) {
+    console.log(`❌ No valid price: ${property.price}`);
     return false;
   }
 
-  // Calculate wholesale potential using same logic as main search
+  if (!property.zestimate || property.zestimate <= 0) {
+    console.log(`❌ No valid zestimate: ${property.zestimate}`);
+    return false;
+  }
+
+  // Calculate wholesale potential - property must be priced below estimated value
   const spreadAmount = property.zestimate - property.price;
   const spreadPercentage = (spreadAmount / property.zestimate) * 100;
   
-  // Must have at least 15% spread for wholesale potential
-  if (spreadPercentage < 15) {
-    console.log(`❌ Spread too low: ${spreadPercentage.toFixed(1)}% < 15%`);
+  // Must have at least 5% spread for wholesale potential (reduced from 15% to get more matches)
+  if (spreadPercentage < 5) {
+    console.log(`❌ Spread too low: ${spreadPercentage.toFixed(1)}% < 5%`);
     return false;
   }
 
@@ -244,8 +249,9 @@ function checkPropertyMatch(property: any, alert: any): boolean {
   const wholesaleScore = calculateWholesaleScore(property);
   console.log(`🎯 Property ${property.address} wholesale score: ${wholesaleScore}, spread: ${spreadPercentage.toFixed(1)}%`);
   
-  if (wholesaleScore < 40) {
-    console.log(`❌ Wholesale score too low: ${wholesaleScore} < 40`);
+  // Reduced threshold from 40 to 25 to get more matches
+  if (wholesaleScore < 25) {
+    console.log(`❌ Wholesale score too low: ${wholesaleScore} < 25`);
     return false;
   }
 

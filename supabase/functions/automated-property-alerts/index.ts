@@ -158,20 +158,33 @@ const handler = async (req: Request): Promise<Response> => {
         const { data: processResult, error: processError } = await supabase.functions.invoke('process-property-alerts', {
           body: {
             location: alert.location,
-            properties: recentProperties.map(p => ({
-              zpid: p.id || p.zpid || '',
-              address: p.address || p.streetAddress || 'Unknown Address',
-              price: p.price || 0,
-              zestimate: p.zestimate || p.price * 1.15, // Use zestimate or estimate 15% above price
-              bedrooms: p.bedrooms || p.beds,
-              bathrooms: p.bathrooms || p.baths,
-              livingArea: p.sqft || p.livingArea || p.area,
-              propertyType: p.propertyType || p.homeType || 'singleFamily',
-              daysOnMarket: p.daysOnZillow || p.daysOnMarket || 0,
-              description: p.description || p.detailUrl || '',
-              priceChange: p.priceChange || 0,
-              listingType: p.listingType || ''
-            }))
+            properties: recentProperties.map(p => {
+              // Extract price from various fields
+              const price = p.price || p.priceForHDP || p.unformattedPrice || p.listPrice || 0;
+              // Extract zestimate or estimate it based on price
+              const zestimate = p.zestimate || p.zestimateValue || p.estimatedValue || 
+                              (price > 0 ? price * 1.25 : 200000); // Default to $200k if no price
+              
+              return {
+                zpid: p.id || p.zpid || p.property_zpid || '',
+                address: p.address || p.streetAddress || p.formattedChip || 'Unknown Address',
+                price: price,
+                zestimate: zestimate,
+                bedrooms: p.bedrooms || p.beds || p.bedroomCount || 0,
+                bathrooms: p.bathrooms || p.baths || p.bathroomCount || 0,
+                livingArea: p.sqft || p.livingArea || p.area || p.floorSizeValue || 0,
+                propertyType: p.propertyType || p.homeType || p.propertyTypeDimension || 'singleFamily',
+                daysOnMarket: p.daysOnZillow || p.daysOnMarket || p.timeOnZillow || 0,
+                description: p.description || p.detailUrl || '',
+                priceChange: p.priceChange || p.priceReduction || 0,
+                listingType: p.listingType || p.mlsid ? 'MLS' : 'FSBO',
+                // Add more wholesale indicators
+                isPreForeclosure: p.isPreForeclosure || false,
+                isForeclosure: p.isForeclosure || false,
+                isFSBO: p.isFSBO || false,
+                homeStatus: p.homeStatus || 'FOR_SALE'
+              };
+            })
           }
         });
 
