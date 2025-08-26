@@ -235,90 +235,91 @@ function checkPropertyMatch(property: any, alert: any): boolean {
     return false;
   }
 
-  // Calculate wholesale potential - property must be priced below estimated value
-  const spreadAmount = property.zestimate - property.price;
-  const spreadPercentage = (spreadAmount / property.zestimate) * 100;
+  // Calculate wholesale potential using the same criteria as main search
+  const price = property.price || 0;
+  const zestimate = property.zestimate || 0;
   
-  // Must have at least 5% spread for wholesale potential (reduced from 15% to get more matches)
-  if (spreadPercentage < 5) {
-    console.log(`❌ Spread too low: ${spreadPercentage.toFixed(1)}% < 5%`);
+  // Must have wholesale potential (price < zestimate)
+  if (!price || !zestimate || price >= zestimate) {
+    console.log(`❌ No wholesale potential: price=${price}, zestimate=${zestimate}`);
     return false;
   }
 
-  // High-value wholesale deal detection
-  const wholesaleScore = calculateWholesaleScore(property);
-  console.log(`🎯 Property ${property.address} wholesale score: ${wholesaleScore}, spread: ${spreadPercentage.toFixed(1)}%`);
+  const spreadAmount = zestimate - price;
+  const spreadPercentage = (spreadAmount / zestimate) * 100;
   
-  // Reduced threshold from 40 to 25 to get more matches
-  if (wholesaleScore < 25) {
-    console.log(`❌ Wholesale score too low: ${wholesaleScore} < 25`);
-    return false;
-  }
-
-  console.log(`✅ Property matches alert criteria with ${spreadPercentage.toFixed(1)}% spread and wholesale score: ${wholesaleScore}`);
-  return true;
-}
-
-// Calculate wholesale opportunity score
-function calculateWholesaleScore(property: any): number {
+  // Calculate score using the same logic as wholesale calculator
   let score = 0;
-  console.log(`📊 Calculating score for ${property.address || 'Unknown address'}`);
   
-  // Check for wholesale indicators in description/listing details
+  // Primary factor: Spread percentage (0-70 points)
+  if (spreadPercentage >= 25) {
+    score += 70; // Excellent spread
+  } else if (spreadPercentage >= 20) {
+    score += 60; // Great spread  
+  } else if (spreadPercentage >= 15) {
+    score += 50; // Good spread
+  } else if (spreadPercentage >= 10) {
+    score += 40; // Fair spread
+  } else if (spreadPercentage >= 5) {
+    score += 30; // Minimal spread
+  } else {
+    score += 10; // Very low spread
+  }
+  
+  // Bonus factors from wholesale calculator
+  const daysOnMarket = property.daysOnMarket || 0;
+  if (daysOnMarket >= 90) {
+    score += 10;
+  } else if (daysOnMarket >= 60) {
+    score += 7;
+  } else if (daysOnMarket >= 30) {
+    score += 5;
+  } else if (daysOnMarket >= 14) {
+    score += 3;
+  }
+  
+  // FSBO bonus
+  if (property.isFSBO || property.listingType?.toLowerCase().includes('fsbo')) {
+    score += 5;
+  }
+  
+  // Distress indicators from description
   const description = (property.description || '').toLowerCase();
-  const wholesaleKeywords = [
-    'motivated seller', 'must sell', 'price reduced', 'below market',
-    'distressed', 'cash only', 'as is', 'investor special',
-    'fixer upper', 'handyman special', 'estate sale', 'inherited',
-    'divorce', 'foreclosure', 'pre-foreclosure', 'short sale',
-    'fsbo', 'for sale by owner', 'owner financing', 'quick close'
+  const distressIndicators = [
+    'needs tlc', 'repairs needed', 'fixer upper', 'handyman special',
+    'as is', 'motivated seller', 'must sell', 'quick sale',
+    'below market', 'investment opportunity', 'cash only'
   ];
   
-  const keywordMatches = wholesaleKeywords.filter(keyword => 
-    description.includes(keyword)
+  const foundIndicators = distressIndicators.filter(indicator => 
+    description.includes(indicator)
   ).length;
-  score += keywordMatches * 10; // Reduced from 15 to 10 points per keyword
-  console.log(`🔤 Keyword matches: ${keywordMatches}, score: +${keywordMatches * 10}`);
   
-  // Days on market (longer = more motivated)
-  const daysOnMarket = property.daysOnZillow || property.daysOnMarket || 0;
-  if (daysOnMarket > 90) score += 20; // Reduced from 25
-  else if (daysOnMarket > 60) score += 15;
-  else if (daysOnMarket > 30) score += 10;
-  console.log(`📅 Days on market: ${daysOnMarket}, score boost: +${daysOnMarket > 90 ? 20 : daysOnMarket > 60 ? 15 : daysOnMarket > 30 ? 10 : 0}`);
-  
-  // Price reductions
-  if (property.priceChange && property.priceChange < 0) {
-    const reductionPercent = Math.abs(property.priceChange / property.price) * 100;
-    if (reductionPercent > 10) score += 25; // Reduced from 30
-    else if (reductionPercent > 5) score += 15; // Reduced from 20
-    else score += 8; // Reduced from 10
-    console.log(`💰 Price reduction: ${reductionPercent.toFixed(1)}%, score boost: +${reductionPercent > 10 ? 25 : reductionPercent > 5 ? 15 : 8}`);
+  if (foundIndicators >= 3) {
+    score += 10;
+  } else if (foundIndicators >= 2) {
+    score += 7;
+  } else if (foundIndicators >= 1) {
+    score += 5;
   }
   
-  // FSBO properties get bonus points
-  if (property.listingType && property.listingType.toLowerCase().includes('fsbo')) {
-    score += 20; // Reduced from 25
-    console.log(`🏠 FSBO property, score boost: +20`);
+  // Price range bonus
+  if (price >= 100000 && price <= 500000) {
+    score += 5;
+  } else if (price >= 50000 && price <= 750000) {
+    score += 3;
   }
   
-  // Low price per sqft compared to area average
-  if (property.price && property.livingArea && property.livingArea > 0) {
-    const pricePerSqft = property.price / property.livingArea;
-    // Bonus for properties under $150/sqft (increased threshold for more matches)
-    if (pricePerSqft < 75) score += 25; // Reduced from 30
-    else if (pricePerSqft < 100) score += 15; // Reduced from 20
-    else if (pricePerSqft < 150) score += 10; // Increased threshold, reduced points
-    console.log(`📐 Price per sqft: $${pricePerSqft.toFixed(0)}, score boost: +${pricePerSqft < 75 ? 25 : pricePerSqft < 100 ? 15 : pricePerSqft < 150 ? 10 : 0}`);
+  console.log(`🎯 Property ${property.address} wholesale score: ${score}, spread: ${spreadPercentage.toFixed(1)}%`);
+  
+  // Must meet minimum threshold for "fair" tier (same as regular search)
+  if (score < 40) {
+    console.log(`❌ Wholesale score too low: ${score} < 40`);
+    return false;
   }
-  
-  // Base score for any property (ensures some matches)
-  score += 15;
-  console.log(`⭐ Base score: +15`);
-  
-  const finalScore = Math.min(score, 100);
-  console.log(`🎯 Final wholesale score: ${finalScore}/100`);
-  return finalScore;
+
+  console.log(`✅ Property matches alert criteria with ${spreadPercentage.toFixed(1)}% spread and wholesale score: ${score}`);
+  return true;
 }
 
 async function sendPropertyAlert(alert: any, property: any): Promise<boolean> {
