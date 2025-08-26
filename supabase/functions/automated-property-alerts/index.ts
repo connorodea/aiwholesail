@@ -99,23 +99,23 @@ const handler = async (req: Request): Promise<Response> => {
           daysOnZillow: 'Any',
           soldInLast: 'Any',
           // Wholesale calculator parameters
-          v_cmr: 4.5,
-          v_dpr: 0.2,
-          v_ptr: 0.012,
-          v_ir: 0.015,
-          v_mr: 0.1,
-          v_pmr: 0.1,
-          v_vr: 0.05,
-          v_rc: 25000,
-          v_ltm: 360,
-          v_aa: 0.03,
-          page: 1
+          v_cmr: '4.5',
+          v_dpr: '0.2',
+          v_ptr: '0.012',
+          v_ir: '0.015',
+          v_mr: '0.1',
+          v_pmr: '0.1',
+          v_vr: '0.05',
+          v_rc: '25000',
+          v_ltm: '360',
+          v_aa: '0.03',
+          page: '1'
         };
 
-        if (alert.max_price) searchParams.maxPrice = alert.max_price.toString();
+        if (alert.max_price) searchParams.price_max = alert.max_price.toString();
         if (alert.min_bedrooms) searchParams.bed_min = alert.min_bedrooms.toString();
         if (alert.max_bedrooms) searchParams.bed_max = alert.max_bedrooms.toString();
-        if (alert.min_bathrooms) searchParams.bath_min = alert.min_bathrooms.toString();
+        if (alert.min_bathrooms) searchParams.bathrooms = alert.min_bathrooms.toString();
         if (alert.min_sqft) searchParams.sqft_min = alert.min_sqft.toString();
         if (alert.max_sqft) searchParams.sqft_max = alert.max_sqft.toString();
 

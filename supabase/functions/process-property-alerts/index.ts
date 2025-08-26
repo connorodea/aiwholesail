@@ -319,9 +319,9 @@ function checkPropertyMatch(property: any, alert: any): boolean {
   
   console.log(`🎯 Property ${property.address} wholesale score: ${score}, spread: ${spreadPercentage.toFixed(1)}%`);
   
-  // Must meet minimum threshold for "fair" tier (same as regular search)
-  if (score < 40) {
-    console.log(`❌ Wholesale score too low: ${score} < 40`);
+  // Must meet minimum threshold for "fair" tier - lowered to 30 to catch more opportunities
+  if (score < 30) {
+    console.log(`❌ Wholesale score too low: ${score} < 30`);
     return false;
   }
 
