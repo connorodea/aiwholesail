@@ -6,6 +6,7 @@ export class ZillowAPI {
   async searchProperties(params: PropertySearchParams, maxPages: number = 3): Promise<Property[]> {
     try {
       console.log('Searching with params:', params, `Max pages: ${maxPages}`);
+      console.log('FSBO toggle status:', params.fsboOnly);
       
       let allProperties: Property[] = [];
       let currentPage = 1;

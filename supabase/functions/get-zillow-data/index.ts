@@ -244,7 +244,7 @@ serve(async (req) => {
       );
     }
 
-    console.log(`[${new Date().toISOString()}] Making Zillow API request for ${clientIP}:`, { action, url })
+    console.log(`[${new Date().toISOString()}] Making Zillow API request for ${clientIP}:`, { action, url, fsboOnly: searchParams.fsboOnly, listingType: requestParams.listingType })
 
     const response = await fetch(url, {
       method: 'GET',
@@ -253,6 +253,8 @@ serve(async (req) => {
 
     if (!response.ok) {
       console.warn(`[${new Date().toISOString()}] Zillow API request failed for ${clientIP}: ${response.status}`)
+      const responseText = await response.text()
+      console.warn(`[${new Date().toISOString()}] Error response body: ${responseText}`)
       throw new Error(`Zillow API request failed: ${response.status} ${response.statusText}`)
     }
 
