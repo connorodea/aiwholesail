@@ -12,9 +12,10 @@ interface PropertyCardProps {
   property: Property;
   onViewDetails: (property: Property) => void;
   highlightWholesaleDeals?: boolean;
+  showFSBOBadge?: boolean;
 }
 
-export function PropertyCard({ property, onViewDetails, highlightWholesaleDeals = false }: PropertyCardProps) {
+export function PropertyCard({ property, onViewDetails, highlightWholesaleDeals = false, showFSBOBadge = false }: PropertyCardProps) {
   const [showSkipTrace, setShowSkipTrace] = useState(false);
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -113,10 +114,12 @@ export function PropertyCard({ property, onViewDetails, highlightWholesaleDeals 
             <Badge className={`${getStatusColor(property.status)} rounded-full px-2 sm:px-3 py-1 text-xs font-medium flex-shrink-0`}>
               {property.status}
             </Badge>
-            <FSBOBadge 
-              fsboDetection={(property as any).fsboDetection}
-              isFSBO={property.isFSBO}
-            />
+            {showFSBOBadge && (
+              <FSBOBadge 
+                fsboDetection={(property as any).fsboDetection}
+                isFSBO={property.isFSBO}
+              />
+            )}
             {isListedRecently() && (
               <Badge className="bg-gradient-to-r from-orange-500/90 to-red-500/90 text-white border-2 border-orange-400 rounded-full px-3 py-1 text-xs font-bold flex-shrink-0 shadow-lg">
                 🔥 New

@@ -43,6 +43,7 @@ export default function RealEstateWholesaler() {
   const [showAlerts, setShowAlerts] = useState(false);
   const [lastSearchLocation, setLastSearchLocation] = useState<string>('');
   const [sortBy, setSortBy] = useState<'price-high' | 'price-low' | 'newest' | 'oldest' | 'default'>('default');
+  const [isSearchingFSBO, setIsSearchingFSBO] = useState<boolean>(false);
 
   const handleSearch = async (params: PropertySearchParams) => {
     try {
@@ -50,6 +51,7 @@ export default function RealEstateWholesaler() {
       setProperties([]);
       setError(null);
       setLastSearchLocation(params.location);
+      setIsSearchingFSBO(params.fsboOnly || false);
 
       toast.success(`Searching for properties in ${params.location}...`);
 
@@ -83,6 +85,12 @@ export default function RealEstateWholesaler() {
       // Filter for FSBO properties only if requested
       if (params.fsboOnly) {
         filteredResults = filteredResults.filter(property => property.isFSBO);
+        
+        // If no FSBO properties found, inform user
+        if (filteredResults.length === 0 && searchResults.length > 0) {
+          setError(`Found ${searchResults.length} properties, but none are FSBO (For Sale By Owner). Try removing the FSBO filter or searching different areas.`);
+          return;
+        }
       }
 
       // Filter by keywords if provided
@@ -364,6 +372,7 @@ export default function RealEstateWholesaler() {
                         property={property}
                         onViewDetails={() => setSelectedProperty(property)}
                         highlightWholesaleDeals={true}
+                        showFSBOBadge={isSearchingFSBO}
                       />
                     </div>
                   ))}
