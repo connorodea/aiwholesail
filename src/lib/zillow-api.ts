@@ -110,7 +110,9 @@ export class ZillowAPI {
 
     console.log(`Total properties found: ${properties.length}`);
     const processedProperties = properties.map(prop => this.flattenProperty(prop)).filter(prop => prop.address);
+    
     console.log(`Properties after processing and filtering: ${processedProperties.length}`);
+    console.log(`FSBO properties found: ${processedProperties.filter(p => p.isFSBO).length}`);
     
     return processedProperties;
   }
@@ -242,6 +244,8 @@ export class ZillowAPI {
     const listingAgency = (data.property_listing_listingAgency || data.listingAgency || '').toLowerCase();
     const description = (data.description || data.summary || '').toLowerCase();
     const listingSubType = (data.property_listingSubType_description || data.listingSubType || '').toLowerCase();
+    const brokerName = (data.property_listing_brokerName || data.brokerName || '').toLowerCase();
+    const listingProvider = (data.property_listing_listingProvider || data.listingProvider || '').toLowerCase();
     
     // FSBO indicators
     const fsboIndicators = [
@@ -250,15 +254,29 @@ export class ZillowAPI {
       'owner listing',
       'no agent',
       'direct from owner',
-      'private sale'
+      'private sale',
+      'by owner',
+      'owner seller',
+      'self listed',
+      'no broker',
+      'owner direct'
     ];
     
     // Check if any field contains FSBO indicators
-    const fields = [listingType, agentName, listingAgency, description, listingSubType];
+    const fields = [listingType, agentName, listingAgency, description, listingSubType, brokerName, listingProvider];
     
-    return fsboIndicators.some(indicator => 
+    const hasFSBOIndicator = fsboIndicators.some(indicator => 
       fields.some(field => field.includes(indicator))
-    ) || listingType === 'fsbo' || listingSubType.includes('owner');
+    );
+    
+    // Also check specific listing type patterns
+    const isFSBOType = listingType === 'fsbo' || 
+                      listingType === 'by_owner' ||
+                      listingSubType.includes('owner') ||
+                      agentName.includes('owner') ||
+                      brokerName.includes('owner');
+    
+    return hasFSBOIndicator || isFSBOType;
   }
 
   private extractZpid(property: Property): string | null {

@@ -111,15 +111,22 @@ serve(async (req) => {
     } else if (action === 'search') {
       // Existing search logic
       let listingTypeOptions = "Agent listed,New Construction,Fore-closures,Auctions";
+      let listingType = "By_Agent";
       
-      // If wholesale opportunities only is enabled, exclude foreclosures
-      if (searchParams.wholesaleOnly) {
-        listingTypeOptions = "Agent listed,New Construction,Auctions";
-      }
-      
-      // If hide foreclosures is enabled, exclude foreclosures
-      if (searchParams.hideForeclosures) {
-        listingTypeOptions = listingTypeOptions.replace(",Fore-closures", "").replace("Fore-closures,", "").replace("Fore-closures", "");
+      // If FSBO only is enabled, change listing type to show only FSBO properties
+      if (searchParams.fsboOnly) {
+        listingType = "FSBO";
+        listingTypeOptions = "FSBO";
+      } else {
+        // If wholesale opportunities only is enabled, exclude foreclosures
+        if (searchParams.wholesaleOnly) {
+          listingTypeOptions = "Agent listed,New Construction,Auctions";
+        }
+        
+        // If hide foreclosures is enabled, exclude foreclosures
+        if (searchParams.hideForeclosures) {
+          listingTypeOptions = listingTypeOptions.replace(",Fore-closures", "").replace("Fore-closures,", "").replace("Fore-closures", "");
+        }
       }
       
       requestParams = {
@@ -128,7 +135,7 @@ serve(async (req) => {
         sortOrder: "Homes_for_you",
         listingStatus: "For_Sale",
         maxHOA: "Any",
-        listingType: "By_Agent",
+        listingType: listingType,
         listingTypeOptions: listingTypeOptions,
         daysOnZillow: "Any",
         soldInLast: "Any",
