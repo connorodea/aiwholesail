@@ -6,6 +6,7 @@ import { MapPin, Bed, Bath, Square, Calendar, TrendingUp, Eye, AlertTriangle, Do
 import { useState } from 'react';
 import { SkipTraceModal } from './SkipTraceModal';
 import { LeadScoreBadge } from './LeadScoreBadge';
+import { FSBOBadge } from './FSBOBadge';
 
 interface PropertyCardProps {
   property: Property;
@@ -112,11 +113,10 @@ export function PropertyCard({ property, onViewDetails, highlightWholesaleDeals 
             <Badge className={`${getStatusColor(property.status)} rounded-full px-2 sm:px-3 py-1 text-xs font-medium flex-shrink-0`}>
               {property.status}
             </Badge>
-            {property.isFSBO && (
-              <Badge className="bg-gradient-to-r from-info/20 to-info/30 text-info border border-info/30 rounded-full px-2 sm:px-3 py-1 text-xs font-medium flex-shrink-0">
-                FSBO
-              </Badge>
-            )}
+            <FSBOBadge 
+              fsboDetection={(property as any).fsboDetection}
+              isFSBO={property.isFSBO}
+            />
             {isListedRecently() && (
               <Badge className="bg-gradient-to-r from-orange-500/90 to-red-500/90 text-white border-2 border-orange-400 rounded-full px-3 py-1 text-xs font-bold flex-shrink-0 shadow-lg">
                 🔥 New

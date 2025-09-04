@@ -8,55 +8,127 @@ export class ZillowAPI {
       console.log('Searching with params:', params, `Max pages: ${maxPages}`);
       console.log('FSBO toggle status:', params.fsboOnly);
       
-      let allProperties: Property[] = [];
-      let currentPage = 1;
-      let totalPages = 1;
-
-      // Fetch first page to get pagination info
-      const firstPageData = await this.fetchPage(params, currentPage);
-      if (!firstPageData.success) {
-        throw new Error(firstPageData.error || 'Failed to fetch Zillow data');
-      }
-
-      console.log('First page response:', firstPageData.data);
-      
-      // Get pagination info from first response
-      const pagesInfo = firstPageData.data.pagesInfo;
-      if (pagesInfo) {
-        totalPages = Math.min(pagesInfo.totalPages || 1, maxPages);
-        console.log(`Found ${pagesInfo.totalMatchingCount} total properties across ${pagesInfo.totalPages} pages. Fetching ${totalPages} pages.`);
-      }
-
-      // Process first page
-      const firstPageProperties = this.processPropertyData(firstPageData.data);
-      allProperties.push(...firstPageProperties);
-
-      // Fetch remaining pages in parallel for better performance
-      if (totalPages > 1) {
-        const remainingPagePromises = [];
-        for (let page = 2; page <= totalPages; page++) {
-          remainingPagePromises.push(this.fetchPage(params, page));
-        }
-
-        const remainingPagesData = await Promise.allSettled(remainingPagePromises);
+      // Two-pass filtering strategy for FSBO
+      if (params.fsboOnly) {
+        console.log('Starting two-pass FSBO filtering strategy');
         
-        for (const result of remainingPagesData) {
-          if (result.status === 'fulfilled' && result.value.success) {
-            const pageProperties = this.processPropertyData(result.value.data);
-            allProperties.push(...pageProperties);
-          } else {
-            console.warn('Failed to fetch page:', result.status === 'rejected' ? result.reason : result.value.error);
-          }
+        // Pass 1: Try API-level FSBO filtering
+        console.log('Pass 1: Attempting API-level FSBO filtering');
+        const fsboResults = await this.performSearch({ ...params, fsboOnly: true }, maxPages);
+        console.log(`Pass 1 results: ${fsboResults.length} properties found`);
+        
+        // Pass 2: Fallback to regular search with client-side FSBO detection
+        let fallbackResults: Property[] = [];
+        if (fsboResults.length === 0) {
+          console.log('Pass 2: API filtering returned no results, trying regular search with enhanced detection');
+          fallbackResults = await this.performSearch({ ...params, fsboOnly: false }, maxPages);
+          console.log(`Pass 2 raw results: ${fallbackResults.length} properties found`);
+          
+          // Apply client-side FSBO filtering
+          fallbackResults = fallbackResults.filter(property => property.isFSBO);
+          console.log(`Pass 2 FSBO filtered results: ${fallbackResults.length} properties found`);
         }
+        
+        // Combine and deduplicate results
+        const combinedResults = this.combineAndDeduplicateResults(fsboResults, fallbackResults);
+        console.log(`Final combined FSBO results: ${combinedResults.length} properties`);
+        
+        // Sort by FSBO confidence if available
+        return this.sortByFSBOConfidence(combinedResults);
+      } else {
+        // Regular search for non-FSBO requests
+        return await this.performSearch(params, maxPages);
       }
-
-      console.log(`Total properties fetched across ${totalPages} pages: ${allProperties.length}`);
-      
-      return allProperties;
     } catch (error) {
       console.error('Error fetching properties:', error);
       throw error;
     }
+  }
+
+  private async performSearch(params: PropertySearchParams, maxPages: number): Promise<Property[]> {
+    let allProperties: Property[] = [];
+    let currentPage = 1;
+    let totalPages = 1;
+
+    // Fetch first page to get pagination info
+    const firstPageData = await this.fetchPage(params, currentPage);
+    if (!firstPageData.success) {
+      throw new Error(firstPageData.error || 'Failed to fetch Zillow data');
+    }
+
+    console.log('First page response:', firstPageData.data);
+    
+    // Get pagination info from first response
+    const pagesInfo = firstPageData.data.pagesInfo;
+    if (pagesInfo) {
+      totalPages = Math.min(pagesInfo.totalPages || 1, maxPages);
+      console.log(`Found ${pagesInfo.totalMatchingCount} total properties across ${pagesInfo.totalPages} pages. Fetching ${totalPages} pages.`);
+    }
+
+    // Process first page
+    const firstPageProperties = this.processPropertyData(firstPageData.data);
+    allProperties.push(...firstPageProperties);
+
+    // Fetch remaining pages in parallel for better performance
+    if (totalPages > 1) {
+      const remainingPagePromises = [];
+      for (let page = 2; page <= totalPages; page++) {
+        remainingPagePromises.push(this.fetchPage(params, page));
+      }
+
+      const remainingPagesData = await Promise.allSettled(remainingPagePromises);
+      
+      for (const result of remainingPagesData) {
+        if (result.status === 'fulfilled' && result.value.success) {
+          const pageProperties = this.processPropertyData(result.value.data);
+          allProperties.push(...pageProperties);
+        } else {
+          console.warn('Failed to fetch page:', result.status === 'rejected' ? result.reason : result.value.error);
+        }
+      }
+    }
+
+    console.log(`Total properties fetched across ${totalPages} pages: ${allProperties.length}`);
+    return allProperties;
+  }
+
+  private combineAndDeduplicateResults(results1: Property[], results2: Property[]): Property[] {
+    const seenIds = new Set<string>();
+    const combined: Property[] = [];
+    
+    // Add results from first set
+    for (const property of results1) {
+      if (!seenIds.has(property.id)) {
+        seenIds.add(property.id);
+        combined.push(property);
+      }
+    }
+    
+    // Add unique results from second set
+    for (const property of results2) {
+      if (!seenIds.has(property.id)) {
+        seenIds.add(property.id);
+        combined.push(property);
+      }
+    }
+    
+    return combined;
+  }
+
+  private sortByFSBOConfidence(properties: Property[]): Property[] {
+    return properties.sort((a, b) => {
+      const aConfidence = (a as any).fsboDetection?.confidence || 0;
+      const bConfidence = (b as any).fsboDetection?.confidence || 0;
+      
+      // Sort by confidence descending, then by price ascending
+      if (aConfidence !== bConfidence) {
+        return bConfidence - aConfidence;
+      }
+      
+      const aPrice = a.price || 0;
+      const bPrice = b.price || 0;
+      return aPrice - bPrice;
+    });
   }
 
   private async fetchPage(params: PropertySearchParams, page: number) {
@@ -239,7 +311,15 @@ export class ZillowAPI {
   }
 
   private detectFSBO(data: any): boolean {
-    // Check various fields that might indicate FSBO status
+    if (!data) return false;
+    
+    console.log('Starting enhanced FSBO detection for property:', data.id || data.zpid);
+    
+    // Initialize confidence scoring
+    let fsboScore = 0;
+    const detectionResults: any = {};
+    
+    // Extract various data fields
     const listingType = (data.property_listing_listingType || data.listingType || '').toLowerCase();
     const agentName = (data.property_listing_agentName || data.agentName || '').toLowerCase();
     const listingAgency = (data.property_listing_listingAgency || data.listingAgency || '').toLowerCase();
@@ -248,36 +328,170 @@ export class ZillowAPI {
     const brokerName = (data.property_listing_brokerName || data.brokerName || '').toLowerCase();
     const listingProvider = (data.property_listing_listingProvider || data.listingProvider || '').toLowerCase();
     
-    // FSBO indicators
-    const fsboIndicators = [
-      'for sale by owner',
-      'fsbo',
-      'owner listing',
-      'no agent',
-      'direct from owner',
-      'private sale',
-      'by owner',
-      'owner seller',
-      'self listed',
-      'no broker',
-      'owner direct'
+    // Method 1: Enhanced Keyword Analysis
+    const allText = `${description} ${listingType} ${listingSubType} ${agentName} ${brokerName} ${listingProvider}`;
+    
+    const fsboKeywords = [
+      'for sale by owner', 'fsbo', 'by owner', 'owner selling',
+      'no agent', 'no realtor', 'direct from owner', 'owner financed',
+      'owner will carry', 'private seller', 'selling myself',
+      'no commission', 'save commission', 'direct sale',
+      'owner listing', 'self listed', 'no broker', 'owner direct'
     ];
     
-    // Check if any field contains FSBO indicators
-    const fields = [listingType, agentName, listingAgency, description, listingSubType, brokerName, listingProvider];
+    const motivatedSellerKeywords = [
+      'motivated seller', 'owner motivated', 'must sell',
+      'owner says sell', 'bring offers', 'make offer',
+      'priced to sell', 'quick sale', 'owner relocating'
+    ];
     
-    const hasFSBOIndicator = fsboIndicators.some(indicator => 
-      fields.some(field => field.includes(indicator))
-    );
+    let keywordMatches = 0;
+    fsboKeywords.forEach(keyword => {
+      if (allText.includes(keyword)) {
+        keywordMatches++;
+        fsboScore += 30; // High weight for direct FSBO keywords
+      }
+    });
     
-    // Also check specific listing type patterns
-    const isFSBOType = listingType === 'fsbo' || 
-                      listingType === 'by_owner' ||
-                      listingSubType.includes('owner') ||
-                      agentName.includes('owner') ||
-                      brokerName.includes('owner');
+    let motivatedMatches = 0;
+    motivatedSellerKeywords.forEach(keyword => {
+      if (allText.includes(keyword)) {
+        motivatedMatches++;
+        fsboScore += 10; // Medium weight for motivated seller keywords
+      }
+    });
     
-    return hasFSBOIndicator || isFSBOType;
+    detectionResults.keywordAnalysis = {
+      fsboKeywords: keywordMatches,
+      motivatedKeywords: motivatedMatches,
+      score: keywordMatches * 30 + motivatedMatches * 10
+    };
+    
+    // Method 2: Agent/Broker Analysis
+    const fsboAgentIndicators = [
+      'owner', 'private', 'fsbo', 'by owner', 'self listed',
+      'no agent', 'direct', 'individual', 'seller'
+    ];
+    
+    // Missing or generic agent information
+    const hasNoAgent = !agentName || agentName === 'n/a' || agentName === '' || agentName === 'unknown';
+    const hasGenericBroker = brokerName.includes('zillow') || brokerName.includes('generic') || brokerName.includes('listing service');
+    
+    let agentScore = 0;
+    if (hasNoAgent) agentScore += 25;
+    if (hasGenericBroker) agentScore += 15;
+    
+    fsboAgentIndicators.forEach(indicator => {
+      if (agentName.includes(indicator) || brokerName.includes(indicator) || listingAgency.includes(indicator)) {
+        agentScore += 20;
+      }
+    });
+    
+    fsboScore += agentScore;
+    detectionResults.agentAnalysis = {
+      hasNoAgent,
+      hasGenericBroker,
+      agentIndicators: fsboAgentIndicators.filter(ind => 
+        agentName.includes(ind) || brokerName.includes(ind) || listingAgency.includes(ind)
+      ),
+      score: agentScore
+    };
+    
+    // Method 3: Listing Type Analysis
+    const fsboListingTypes = ['fsbo', 'owner', 'private', 'by_owner', 'for_sale_by_owner'];
+    
+    let listingScore = 0;
+    fsboListingTypes.forEach(type => {
+      if (listingType.includes(type) || listingSubType.includes(type)) {
+        listingScore += 25;
+      }
+    });
+    
+    // Check for explicit FSBO flags
+    if (data.isFSBO === true || data.fsbo === true || data.forSaleByOwner === true || 
+        data.property_listing_listingSubType_isFSBA === true) {
+      listingScore += 50; // Very high weight for explicit flags
+    }
+    
+    fsboScore += listingScore;
+    detectionResults.listingAnalysis = {
+      listingType,
+      listingSubType,
+      hasFSBOFlag: data.isFSBO === true || data.fsbo === true || data.forSaleByOwner === true ||
+                   data.property_listing_listingSubType_isFSBA === true,
+      score: listingScore
+    };
+    
+    // Method 4: Pricing Pattern Analysis
+    const price = this.parseNumber(data.price || data.property_price_value);
+    const zestimate = this.parseNumber(data.zestimate || data.property_estimates_zestimate);
+    
+    let pricingScore = 0;
+    if (price && zestimate && price > 0 && zestimate > 0) {
+      const ratio = price / zestimate;
+      // FSBO properties often have unusual pricing patterns
+      if (ratio < 0.80 || ratio > 1.20) { // Significantly under or overpriced
+        pricingScore += 10;
+      }
+      if (ratio < 0.90 || ratio > 1.10) { // Moderately unusual pricing
+        pricingScore += 5;
+      }
+    }
+    
+    fsboScore += pricingScore;
+    detectionResults.pricingAnalysis = {
+      price,
+      zestimate,
+      ratio: zestimate && zestimate > 0 ? price! / zestimate : null,
+      score: pricingScore
+    };
+    
+    // Method 5: Source Analysis
+    const fsboSources = ['zillow', 'fsbo', 'owner', 'private', 'direct'];
+    
+    let sourceScore = 0;
+    fsboSources.forEach(source => {
+      if (listingProvider.includes(source)) {
+        sourceScore += 15;
+      }
+    });
+    
+    fsboScore += sourceScore;
+    detectionResults.sourceAnalysis = {
+      sources: fsboSources.filter(source => listingProvider.includes(source)),
+      score: sourceScore
+    };
+    
+    // Calculate final confidence level
+    const maxPossibleScore = 200; // Theoretical maximum based on all methods
+    const confidencePercentage = Math.min(100, (fsboScore / maxPossibleScore) * 100);
+    
+    // Determine confidence tier
+    let confidenceTier: 'high' | 'medium' | 'low' | 'none';
+    if (confidencePercentage >= 70) confidenceTier = 'high';
+    else if (confidencePercentage >= 45) confidenceTier = 'medium';
+    else if (confidencePercentage >= 25) confidenceTier = 'low';
+    else confidenceTier = 'none';
+    
+    const isFSBO = confidencePercentage >= 30; // Threshold for FSBO classification
+    
+    console.log(`FSBO Detection Results for property ${data.id || data.zpid}:`, {
+      totalScore: fsboScore,
+      confidencePercentage: Math.round(confidencePercentage),
+      confidenceTier,
+      isFSBO,
+      detectionMethods: detectionResults
+    });
+    
+    // Store detection results in the data object for potential UI display
+    (data as any).fsboDetection = {
+      score: fsboScore,
+      confidence: Math.round(confidencePercentage),
+      tier: confidenceTier,
+      methods: detectionResults
+    };
+    
+    return isFSBO;
   }
 
   private extractZpid(property: Property): string | null {

@@ -109,14 +109,23 @@ serve(async (req) => {
       };
       url = `${baseUrls.search}?${new URLSearchParams(requestParams)}`;
     } else if (action === 'search') {
-      // Existing search logic
+      // Enhanced FSBO handling with multiple parameter combinations
       let listingTypeOptions = "Agent listed,New Construction,Fore-closures,Auctions";
       let listingType = "By_Agent";
       
-      // If FSBO only is enabled, change listing type to show only FSBO properties
+      // If FSBO only is enabled, try multiple parameter combinations
       if (searchParams.fsboOnly) {
+        console.log(`[${new Date().toISOString()}] FSBO filtering requested for ${clientIP}`);
+        
+        // Primary FSBO parameters
         listingType = "FSBO";
         listingTypeOptions = "FSBO";
+        
+        console.log(`[${new Date().toISOString()}] Applied FSBO parameters:`, {
+          listingType: listingType,
+          listingTypeOptions: listingTypeOptions,
+          fsboOnly: searchParams.fsboOnly
+        });
       } else {
         // If wholesale opportunities only is enabled, exclude foreclosures
         if (searchParams.wholesaleOnly) {
@@ -255,6 +264,23 @@ serve(async (req) => {
       console.warn(`[${new Date().toISOString()}] Zillow API request failed for ${clientIP}: ${response.status}`)
       const responseText = await response.text()
       console.warn(`[${new Date().toISOString()}] Error response body: ${responseText}`)
+      
+      // Special handling for FSBO requests that fail
+      if (searchParams.fsboOnly) {
+        console.warn(`[${new Date().toISOString()}] FSBO search failed, this might indicate API doesn't support the parameters used`)
+        
+        // Return a structured error for FSBO failures to help with debugging
+        return new Response(
+          JSON.stringify({ 
+            success: false, 
+            error: `FSBO search failed: ${response.status} ${response.statusText}`,
+            fsboError: true,
+            suggestion: "Consider using regular search with client-side FSBO filtering"
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: response.status }
+        )
+      }
+      
       throw new Error(`Zillow API request failed: ${response.status} ${response.statusText}`)
     }
 
