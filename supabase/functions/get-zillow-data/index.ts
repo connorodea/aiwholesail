@@ -148,8 +148,8 @@ serve(async (req) => {
           listingTypeOptions: listingTypeOptions,
           daysOnZillow: "Any",
           soldInLast: "Any",
-          // Increase result limits for FSBO searches
-          resultsPerPage: searchParams.fsboOnly ? "50" : "40",
+          // Maximize results per page for comprehensive FSBO coverage
+          resultsPerPage: searchParams.fsboOnly ? "100" : "40",
           v_cmr: "4.5",
           v_dpr: "0.2",
           v_ptr: "0.012",
