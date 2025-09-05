@@ -117,9 +117,9 @@ serve(async (req) => {
       if (searchParams.fsboOnly) {
         console.log(`[${new Date().toISOString()}] FSBO filtering requested for ${clientIP}`);
         
-        // Primary FSBO parameters
-        listingType = "FSBO";
-        listingTypeOptions = "FSBO";
+        // Use correct FSBO parameters from API documentation
+        listingType = "By_Owner_and_Other";
+        listingTypeOptions = "Owner Posted";
         
         console.log(`[${new Date().toISOString()}] Applied FSBO parameters:`, {
           listingType: listingType,
