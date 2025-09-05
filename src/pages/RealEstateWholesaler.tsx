@@ -83,10 +83,12 @@ export default function RealEstateWholesaler() {
       }
 
       // For FSBO searches, API already filters so we don't need additional filtering
-      // but we still want to highlight FSBO properties and their wholesale potential
+      // Show all properties returned by the FSBO API search
       if (params.fsboOnly) {
-        // Sort FSBO results by wholesale potential (price below zestimate)
+        // Sort FSBO results by wholesale potential 
         filteredResults = sortPropertiesByWholesalePotential(filteredResults);
+        
+        console.log(`FSBO Search Results: ${filteredResults.length} properties to display`);
         
         // If no FSBO properties found by API, inform user
         if (filteredResults.length === 0) {

@@ -149,7 +149,7 @@ serve(async (req) => {
           daysOnZillow: "Any",
           soldInLast: "Any",
           // Maximize results per page for comprehensive coverage
-          resultsPerPage: (searchParams.fsboOnly || searchParams.wholesaleOnly) ? "100" : "40",
+          resultsPerPage: (searchParams.fsboOnly || searchParams.wholesaleOnly) ? "200" : "40",
           v_cmr: "4.5",
           v_dpr: "0.2",
           v_ptr: "0.012",

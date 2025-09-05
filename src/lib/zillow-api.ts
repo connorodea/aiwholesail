@@ -174,7 +174,7 @@ export class ZillowAPI {
     const processedProperties = properties.map(prop => this.flattenProperty(prop)).filter(prop => prop.address);
     
     console.log(`Properties after processing and filtering: ${processedProperties.length}`);
-    console.log(`FSBO properties found: ${processedProperties.filter(p => p.isFSBO).length}`);
+    console.log(`All properties returned for FSBO search: ${processedProperties.length}`);
     
     return processedProperties;
   }
