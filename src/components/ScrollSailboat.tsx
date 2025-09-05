@@ -36,16 +36,29 @@ const ScrollSailboat = () => {
 
   // Calculate current position based on scroll
   const getCurrentPosition = () => {
-    if (scrollProgress === 0) return { x: 50, y: 5 };
+    if (scrollProgress === 0 || !pathPoints || pathPoints.length === 0) {
+      return { x: 50, y: 5 };
+    }
     
     const totalPoints = pathPoints.length;
     const currentIndex = Math.floor(scrollProgress * (totalPoints - 1));
     const nextIndex = Math.min(currentIndex + 1, totalPoints - 1);
     
+    // Ensure indices are valid
+    if (currentIndex < 0 || currentIndex >= totalPoints || nextIndex < 0 || nextIndex >= totalPoints) {
+      return { x: 50, y: 5 };
+    }
+    
     const localProgress = (scrollProgress * (totalPoints - 1)) - currentIndex;
     
     const current = pathPoints[currentIndex];
     const next = pathPoints[nextIndex];
+    
+    // Safety check for undefined points
+    if (!current || !next || typeof current.x === 'undefined' || typeof current.y === 'undefined' || 
+        typeof next.x === 'undefined' || typeof next.y === 'undefined') {
+      return { x: 50, y: 5 };
+    }
     
     // Interpolate between current and next point
     const x = current.x + (next.x - current.x) * localProgress;
@@ -61,16 +74,28 @@ const ScrollSailboat = () => {
 
   // Calculate rotation based on movement direction
   const getRotation = () => {
-    if (scrollProgress === 0) return 0;
+    if (scrollProgress === 0 || !pathPoints || pathPoints.length === 0) {
+      return 0;
+    }
     
     const totalPoints = pathPoints.length;
     const currentIndex = Math.floor(scrollProgress * (totalPoints - 1));
     const nextIndex = Math.min(currentIndex + 1, totalPoints - 1);
     
+    // Ensure indices are valid
+    if (currentIndex < 0 || currentIndex >= totalPoints || nextIndex < 0 || nextIndex >= totalPoints) {
+      return 0;
+    }
+    
     if (currentIndex === nextIndex) return 0;
     
     const current = pathPoints[currentIndex];
     const next = pathPoints[nextIndex];
+    
+    // Safety check for undefined points
+    if (!current || !next || typeof current.x === 'undefined' || typeof next.x === 'undefined') {
+      return 0;
+    }
     
     const deltaX = next.x - current.x;
     return deltaX * 45; // More pronounced tilt
