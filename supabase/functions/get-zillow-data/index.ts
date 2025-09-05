@@ -292,6 +292,19 @@ serve(async (req) => {
     const data = await response.json()
     const duration = Date.now() - startTime
     console.log(`[${new Date().toISOString()}] Zillow API response received for ${clientIP} in ${duration}ms`)
+    
+    // Enhanced logging for FSBO searches to debug low result count
+    if (searchParams.fsboOnly) {
+      console.log(`[${new Date().toISOString()}] FSBO API Response Debug:`, {
+        resultsCount: data.resultsCount || data.searchResultsCount || 'not found',
+        totalMatchingCount: data?.resultsCount?.totalMatchingCount || data?.searchResultsCount?.totalMatchingCount || 'not found',
+        searchResultsLength: data.searchResults?.length || 'no searchResults array',
+        pagesInfo: data.pagesInfo || 'no pagesInfo',
+        responseKeys: Object.keys(data),
+        firstResult: data.searchResults?.[0] ? 'has results' : 'no results',
+        location: searchParams.location
+      })
+    }
 
     return new Response(
       JSON.stringify({ success: true, data }),

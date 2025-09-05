@@ -34,7 +34,18 @@ export class ZillowAPI {
       throw new Error(firstPageData.error || 'Failed to fetch Zillow data');
     }
 
-    console.log('First page response:', firstPageData.data);
+    console.log('First page response keys:', Object.keys(firstPageData.data));
+    console.log('First page searchResults length:', firstPageData.data.searchResults?.length || 'no searchResults');
+    
+    if (params.fsboOnly) {
+      console.log('FSBO Search Debug - First page data:', {
+        resultsCount: firstPageData.data.resultsCount,
+        searchResultsCount: firstPageData.data.searchResultsCount,
+        pagesInfo: firstPageData.data.pagesInfo,
+        totalProperties: firstPageData.data.searchResults?.length || 0,
+        location: params.location
+      });
+    }
     
     // Get pagination info from first response
     const pagesInfo = firstPageData.data.pagesInfo;
