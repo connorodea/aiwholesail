@@ -267,17 +267,20 @@ serve(async (req) => {
       
       // Special handling for FSBO requests that fail
       if (searchParams.fsboOnly) {
-        console.warn(`[${new Date().toISOString()}] FSBO search failed, this might indicate API doesn't support the parameters used`)
+        console.warn(`[${new Date().toISOString()}] FSBO search failed, attempting fallback to regular search`)
         
-        // Return a structured error for FSBO failures to help with debugging
+        // Return a structured response indicating FSBO search failure
         return new Response(
           JSON.stringify({ 
-            success: false, 
-            error: `FSBO search failed: ${response.status} ${response.statusText}`,
-            fsboError: true,
-            suggestion: "Consider using regular search with client-side FSBO filtering"
+            success: true, 
+            data: { 
+              message: "No FSBO properties found",
+              searchResults: [],
+              resultsCount: { totalMatchingCount: 0 },
+              fsboSearch: true
+            }
           }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: response.status }
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
       }
       

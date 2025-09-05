@@ -8,33 +8,11 @@ export class ZillowAPI {
       console.log('Searching with params:', params, `Max pages: ${maxPages}`);
       console.log('FSBO toggle status:', params.fsboOnly);
       
-      // Two-pass filtering strategy for FSBO
       if (params.fsboOnly) {
-        console.log('Starting two-pass FSBO filtering strategy');
-        
-        // Pass 1: Try API-level FSBO filtering
-        console.log('Pass 1: Attempting API-level FSBO filtering');
-        const fsboResults = await this.performSearch({ ...params, fsboOnly: true }, maxPages);
-        console.log(`Pass 1 results: ${fsboResults.length} properties found`);
-        
-        // Pass 2: Fallback to regular search with client-side FSBO detection
-        let fallbackResults: Property[] = [];
-        if (fsboResults.length === 0) {
-          console.log('Pass 2: API filtering returned no results, trying regular search with enhanced detection');
-          fallbackResults = await this.performSearch({ ...params, fsboOnly: false }, maxPages);
-          console.log(`Pass 2 raw results: ${fallbackResults.length} properties found`);
-          
-          // Apply client-side FSBO filtering
-          fallbackResults = fallbackResults.filter(property => property.isFSBO);
-          console.log(`Pass 2 FSBO filtered results: ${fallbackResults.length} properties found`);
-        }
-        
-        // Combine and deduplicate results
-        const combinedResults = this.combineAndDeduplicateResults(fsboResults, fallbackResults);
-        console.log(`Final combined FSBO results: ${combinedResults.length} properties`);
-        
-        // Sort by FSBO confidence if available
-        return this.sortByFSBOConfidence(combinedResults);
+        console.log('FSBO search requested - using API filtering');
+        const results = await this.performSearch(params, maxPages);
+        console.log(`FSBO API results: ${results.length} properties found`);
+        return results;
       } else {
         // Regular search for non-FSBO requests
         return await this.performSearch(params, maxPages);
@@ -466,14 +444,14 @@ export class ZillowAPI {
     const maxPossibleScore = 200; // Theoretical maximum based on all methods
     const confidencePercentage = Math.min(100, (fsboScore / maxPossibleScore) * 100);
     
-    // Determine confidence tier
+    // Determine confidence tier  
     let confidenceTier: 'high' | 'medium' | 'low' | 'none';
-    if (confidencePercentage >= 70) confidenceTier = 'high';
-    else if (confidencePercentage >= 45) confidenceTier = 'medium';
-    else if (confidencePercentage >= 25) confidenceTier = 'low';
+    if (confidencePercentage >= 80) confidenceTier = 'high';
+    else if (confidencePercentage >= 65) confidenceTier = 'medium'; 
+    else if (confidencePercentage >= 50) confidenceTier = 'low';
     else confidenceTier = 'none';
     
-    const isFSBO = confidencePercentage >= 30; // Threshold for FSBO classification
+    const isFSBO = confidencePercentage >= 75; // Much higher threshold for FSBO classification
     
     console.log(`FSBO Detection Results for property ${data.id || data.zpid}:`, {
       totalScore: fsboScore,
