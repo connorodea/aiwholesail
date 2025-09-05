@@ -138,27 +138,29 @@ serve(async (req) => {
         }
       }
       
-      requestParams = {
-        location: searchParams.location,
-        homeType: searchParams.homeType,
-        sortOrder: "Homes_for_you",
-        listingStatus: "For_Sale",
-        maxHOA: "Any",
-        listingType: listingType,
-        listingTypeOptions: listingTypeOptions,
-        daysOnZillow: "Any",
-        soldInLast: "Any",
-        v_cmr: "4.5",
-        v_dpr: "0.2",
-        v_ptr: "0.012",
-        v_ir: "0.015",
-        v_mr: "0.1",
-        v_pmr: "0.1",
-        v_vr: "0.05",
-        v_rc: "25000",
-        v_ltm: "360",
-        v_aa: "0.03"
-      };
+        requestParams = {
+          location: searchParams.location,
+          homeType: searchParams.homeType,
+          sortOrder: "Homes_for_you",
+          listingStatus: "For_Sale",
+          maxHOA: "Any",
+          listingType: listingType,
+          listingTypeOptions: listingTypeOptions,
+          daysOnZillow: "Any",
+          soldInLast: "Any",
+          // Increase result limits for FSBO searches
+          resultsPerPage: searchParams.fsboOnly ? "50" : "40",
+          v_cmr: "4.5",
+          v_dpr: "0.2",
+          v_ptr: "0.012",
+          v_ir: "0.015",
+          v_mr: "0.1",
+          v_pmr: "0.1",
+          v_vr: "0.05",
+          v_rc: "25000",
+          v_ltm: "360",
+          v_aa: "0.03"
+        };
       if (searchParams.bed_min) requestParams.bed_min = searchParams.bed_min;
       if (searchParams.bed_max) requestParams.bed_max = searchParams.bed_max;
       if (searchParams.bathrooms) requestParams.bathrooms = searchParams.bathrooms;

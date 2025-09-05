@@ -444,14 +444,15 @@ export class ZillowAPI {
     const maxPossibleScore = 200; // Theoretical maximum based on all methods
     const confidencePercentage = Math.min(100, (fsboScore / maxPossibleScore) * 100);
     
-    // Determine confidence tier  
+    // Determine confidence tier with more inclusive thresholds for FSBO detection
     let confidenceTier: 'high' | 'medium' | 'low' | 'none';
-    if (confidencePercentage >= 80) confidenceTier = 'high';
-    else if (confidencePercentage >= 65) confidenceTier = 'medium'; 
-    else if (confidencePercentage >= 50) confidenceTier = 'low';
+    if (confidencePercentage >= 70) confidenceTier = 'high';
+    else if (confidencePercentage >= 50) confidenceTier = 'medium'; 
+    else if (confidencePercentage >= 30) confidenceTier = 'low';
     else confidenceTier = 'none';
     
-    const isFSBO = confidencePercentage >= 75; // Much higher threshold for FSBO classification
+    // More inclusive FSBO classification threshold
+    const isFSBO = confidencePercentage >= 25; // Lower threshold to catch more potential FSBO properties
     
     console.log(`FSBO Detection Results for property ${data.id || data.zpid}:`, {
       totalScore: fsboScore,
