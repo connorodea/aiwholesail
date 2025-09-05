@@ -82,13 +82,15 @@ export default function RealEstateWholesaler() {
         filteredResults = sortPropertiesByWholesalePotential(filteredResults);
       }
 
-      // Filter for FSBO properties only if requested
+      // For FSBO searches, API already filters so we don't need additional filtering
+      // but we still want to highlight FSBO properties and their wholesale potential
       if (params.fsboOnly) {
-        filteredResults = filteredResults.filter(property => property.isFSBO);
+        // Sort FSBO results by wholesale potential (price below zestimate)
+        filteredResults = sortPropertiesByWholesalePotential(filteredResults);
         
-        // If no FSBO properties found, inform user
-        if (filteredResults.length === 0 && searchResults.length > 0) {
-          setError(`Found ${searchResults.length} properties, but none are FSBO (For Sale By Owner). Try removing the FSBO filter or searching different areas.`);
+        // If no FSBO properties found by API, inform user
+        if (filteredResults.length === 0) {
+          setError("No FSBO (For Sale By Owner) properties found in this area. Try searching a different location or removing the FSBO filter.");
           return;
         }
       }
@@ -108,7 +110,17 @@ export default function RealEstateWholesaler() {
       }
 
       setProperties(filteredResults);
-      toast.success(`Found ${filteredResults.length} properties${params.wholesaleOnly ? ' with wholesale potential' : ''}`);
+      
+      // Enhanced success message for different search types
+      let successMessage = `Found ${filteredResults.length} properties`;
+      if (params.fsboOnly) {
+        successMessage += ' (FSBO - For Sale By Owner)';
+      }
+      if (params.wholesaleOnly) {
+        successMessage += ' with wholesale potential';
+      }
+      
+      toast.success(successMessage);
 
       // Process property alerts if user is authenticated
       if (user && filteredResults.length > 0) {

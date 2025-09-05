@@ -79,10 +79,19 @@ export function PropertyCard({ property, onViewDetails, highlightWholesaleDeals 
     return 'bg-muted/50 border-muted';
   };
 
-  // Calculate if this is a high-value wholesale deal (35k+ spread)
+  // Enhanced wholesale deal detection with special FSBO considerations
   const isHighValueDeal = () => {
     if (!highlightWholesaleDeals || !property.price || !property.zestimate) return false;
+    
     const spread = property.zestimate - property.price;
+    
+    // FSBO properties get enhanced highlighting due to no agent commissions (6% savings)
+    if (property.isFSBO) {
+      // For FSBO, lower threshold (20k+ spread) due to commission savings
+      return spread >= 20000;
+    }
+    
+    // Regular properties need higher spread to account for commissions
     return spread >= 35000;
   };
 
@@ -95,7 +104,8 @@ export function PropertyCard({ property, onViewDetails, highlightWholesaleDeals 
       {isHighValueDeal() && (
         <div className="bg-gradient-to-r from-success to-success/80 text-success-foreground px-3 py-2 text-sm font-medium flex items-center gap-2">
           <Star className="h-4 w-4" />
-          High-Value Wholesale Deal - ${formatNumber(property.zestimate - property.price)} Spread
+          {property.isFSBO ? 'FSBO Wholesale Deal' : 'High-Value Wholesale Deal'} - ${formatNumber(property.zestimate - property.price)} Spread
+          {property.isFSBO && <span className="text-xs opacity-90">(+6% commission savings)</span>}
         </div>
       )}
       
