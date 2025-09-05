@@ -64,9 +64,22 @@ export default function RealEstateWholesaler() {
         return;
       }
 
-      // Filter for wholesale opportunities if requested
       let filteredResults = searchResults;
-      if (params.wholesaleOnly) {
+      
+      // Handle FSBO searches first (API already filters for FSBO)
+      if (params.fsboOnly) {
+        // For FSBO searches, just sort by wholesale potential but don't filter
+        filteredResults = sortPropertiesByWholesalePotential(filteredResults);
+        
+        console.log(`FSBO Search Results: ${filteredResults.length} properties to display`);
+        
+        // If no FSBO properties found by API, inform user
+        if (filteredResults.length === 0) {
+          setError("No FSBO (For Sale By Owner) properties found in this area. Try searching a different location or removing the FSBO filter.");
+          return;
+        }
+      } else if (params.wholesaleOnly) {
+        // Only apply wholesale filtering for non-FSBO searches
         filteredResults = filteredResults.filter(property => {
           // Must have both price and zestimate, and price must be below zestimate
           return property.price && property.zestimate && property.price < property.zestimate;
@@ -80,21 +93,6 @@ export default function RealEstateWholesaler() {
         
         // Sort by wholesale potential when wholesale filter is enabled
         filteredResults = sortPropertiesByWholesalePotential(filteredResults);
-      }
-
-      // For FSBO searches, API already filters so we don't need additional filtering
-      // Show all properties returned by the FSBO API search
-      if (params.fsboOnly) {
-        // Sort FSBO results by wholesale potential 
-        filteredResults = sortPropertiesByWholesalePotential(filteredResults);
-        
-        console.log(`FSBO Search Results: ${filteredResults.length} properties to display`);
-        
-        // If no FSBO properties found by API, inform user
-        if (filteredResults.length === 0) {
-          setError("No FSBO (For Sale By Owner) properties found in this area. Try searching a different location or removing the FSBO filter.");
-          return;
-        }
       }
 
       // Filter by keywords if provided
