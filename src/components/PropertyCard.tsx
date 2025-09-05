@@ -104,8 +104,7 @@ export function PropertyCard({ property, onViewDetails, highlightWholesaleDeals 
       {isHighValueDeal() && (
         <div className="bg-gradient-to-r from-success to-success/80 text-success-foreground px-3 py-2 text-sm font-medium flex items-center gap-2">
           <Star className="h-4 w-4" />
-          {property.isFSBO ? 'FSBO Wholesale Deal' : 'High-Value Wholesale Deal'} - ${formatNumber(property.zestimate - property.price)} Spread
-          {property.isFSBO && <span className="text-xs opacity-90">(+6% commission savings)</span>}
+          Wholesale Deal - ${formatNumber(property.zestimate - property.price)} Spread
         </div>
       )}
       
