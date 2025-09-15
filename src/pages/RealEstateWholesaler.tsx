@@ -122,19 +122,6 @@ export default function RealEstateWholesaler() {
       
       toast.success(successMessage);
 
-      // Process property alerts if user is authenticated
-      if (user && filteredResults.length > 0) {
-        try {
-          const alertResult = await processPropertyAlerts(params.location, filteredResults);
-          if (alertResult.success && alertResult.emailsSent > 0) {
-            toast.success(`Found ${alertResult.matches} new opportunities! ${alertResult.emailsSent} email alerts sent.`);
-          }
-        } catch (alertError) {
-          console.error('Error processing property alerts:', alertError);
-          // Don't show error to user as this is a background process
-        }
-      }
-
     } catch (error) {
       console.error('Search failed:', error);
       const errorMessage = error instanceof Error ? error.message : "An error occurred while searching";
