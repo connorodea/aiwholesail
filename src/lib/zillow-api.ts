@@ -25,13 +25,42 @@ export class ZillowAPI {
     }
   }
 
+  private normalizeLocation(location: string): string {
+    const stateMap: Record<string, string> = {
+      'alabama': 'AL', 'alaska': 'AK', 'arizona': 'AZ', 'arkansas': 'AR',
+      'california': 'CA', 'colorado': 'CO', 'connecticut': 'CT', 'delaware': 'DE',
+      'florida': 'FL', 'georgia': 'GA', 'hawaii': 'HI', 'idaho': 'ID',
+      'illinois': 'IL', 'indiana': 'IN', 'iowa': 'IA', 'kansas': 'KS',
+      'kentucky': 'KY', 'louisiana': 'LA', 'maine': 'ME', 'maryland': 'MD',
+      'massachusetts': 'MA', 'michigan': 'MI', 'minnesota': 'MN', 'mississippi': 'MS',
+      'missouri': 'MO', 'montana': 'MT', 'nebraska': 'NE', 'nevada': 'NV',
+      'new hampshire': 'NH', 'new jersey': 'NJ', 'new mexico': 'NM', 'new york': 'NY',
+      'north carolina': 'NC', 'north dakota': 'ND', 'ohio': 'OH', 'oklahoma': 'OK',
+      'oregon': 'OR', 'pennsylvania': 'PA', 'rhode island': 'RI', 'south carolina': 'SC',
+      'south dakota': 'SD', 'tennessee': 'TN', 'texas': 'TX', 'utah': 'UT',
+      'vermont': 'VT', 'virginia': 'VA', 'washington': 'WA', 'west virginia': 'WV',
+      'wisconsin': 'WI', 'wyoming': 'WY'
+    };
+    const trimmed = location.trim();
+    const abbr = stateMap[trimmed.toLowerCase()];
+    // Only convert if input is a standalone state name (no comma, no zip)
+    if (abbr && !trimmed.includes(',') && !/\d/.test(trimmed)) {
+      console.log(`Converted state name "${trimmed}" to abbreviation "${abbr}"`);
+      return abbr;
+    }
+    return trimmed;
+  }
+
   private async performSearch(params: PropertySearchParams, maxPages: number): Promise<Property[]> {
     let allProperties: Property[] = [];
     let currentPage = 1;
     let totalPages = 1;
 
+    // Normalize location (convert full state names to abbreviations)
+    const normalizedParams = { ...params, location: this.normalizeLocation(params.location) };
+
     // Fetch first page to get pagination info
-    const firstPageData = await this.fetchPage(params, currentPage);
+    const firstPageData = await this.fetchPage(normalizedParams, currentPage);
     if (!firstPageData.success) {
       throw new Error(firstPageData.error || 'Failed to fetch Zillow data');
     }
@@ -69,7 +98,7 @@ export class ZillowAPI {
     if (totalPages > 1) {
       const remainingPagePromises = [];
       for (let page = 2; page <= totalPages; page++) {
-        remainingPagePromises.push(this.fetchPage(params, page));
+        remainingPagePromises.push(this.fetchPage(normalizedParams, page));
       }
 
       const remainingPagesData = await Promise.allSettled(remainingPagePromises);
