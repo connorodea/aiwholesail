@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Phone } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
-import { supabase } from '@/integrations/supabase/client';
+import { communications } from '@/lib/api-client';
 
 interface CallAgentButtonProps {
   agentPhone: string;
@@ -32,17 +32,11 @@ export function CallAgentButton({ agentPhone, agentName, propertyAddress, disabl
     setIsLoading(true);
     
     try {
-      const { data, error } = await supabase.functions.invoke('make-call', {
-        body: {
-          userPhone: userPhone.trim(),
-          agentPhone: agentPhone,
-          propertyAddress: propertyAddress
-        }
-      });
+      const response = await communications.makeCall(agentPhone);
 
-      if (error) throw error;
+      if (response.error) throw new Error(response.error);
 
-      if (data.success) {
+      if (response.data?.success) {
         toast({
           title: "Call initiated",
           description: `Connecting you to ${agentName || 'the listing agent'}. You should receive a call shortly.`,
@@ -50,7 +44,7 @@ export function CallAgentButton({ agentPhone, agentName, propertyAddress, disabl
         setIsOpen(false);
         setUserPhone('');
       } else {
-        throw new Error(data.error || 'Failed to initiate call');
+        throw new Error(response.data?.error || 'Failed to initiate call');
       }
     } catch (error) {
       console.error('Error making call:', error);

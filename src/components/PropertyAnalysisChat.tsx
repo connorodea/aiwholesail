@@ -18,7 +18,7 @@ import {
   Loader2,
   BarChart3
 } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { ai } from '@/lib/api-client';
 import { toast } from 'sonner';
 
 interface Message {
@@ -83,20 +83,14 @@ export function PropertyAnalysisChat({ property, isOpen }: PropertyAnalysisChatP
     setIsLoading(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke('ai-property-analysis', {
-        body: {
-          property,
-          userMessage: null, // Initial analysis
-          conversationHistory: []
-        }
-      });
+      const response = await ai.propertyAnalysis(property, undefined, []);
 
-      if (error) throw error;
+      if (response.error) throw new Error(response.error);
 
       setMessages([{
         id: Date.now().toString(),
         role: 'assistant',
-        content: data.response || 'Analysis complete. Ask me any questions about this property!',
+        content: response.data?.response || 'Analysis complete. Ask me any questions about this property!',
         timestamp: new Date()
       }]);
 
@@ -144,20 +138,14 @@ export function PropertyAnalysisChat({ property, isOpen }: PropertyAnalysisChatP
         content: msg.content
       }));
 
-      const { data, error } = await supabase.functions.invoke('ai-property-analysis', {
-        body: {
-          property,
-          userMessage: userMessage.content,
-          conversationHistory
-        }
-      });
+      const response = await ai.propertyAnalysis(property, userMessage.content, conversationHistory);
 
-      if (error) throw error;
+      if (response.error) throw new Error(response.error);
 
       setMessages(prev => prev.slice(0, -1).concat([{
         id: Date.now().toString(),
         role: 'assistant',
-        content: data.response || 'I was unable to process your request. Please try again.',
+        content: response.data?.response || 'I was unable to process your request. Please try again.',
         timestamp: new Date()
       }]));
 

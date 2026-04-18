@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { MapPin, Loader2 } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { utility } from '@/lib/api-client';
 
 interface LocationSuggestion {
   place_name: string;
@@ -38,17 +38,15 @@ export function LocationAutocomplete({
 
     setIsLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('geocoding', {
-        body: { query }
-      });
+      const response = await utility.geocode(query);
 
-      if (error) {
-        console.error('Geocoding error:', error);
+      if (response.error) {
+        console.error('Geocoding error:', response.error);
         setSuggestions([]);
         return;
       }
 
-      setSuggestions(data?.features || []);
+      setSuggestions(response.data?.features || []);
     } catch (error) {
       console.error('Error fetching location suggestions:', error);
       setSuggestions([]);

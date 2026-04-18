@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { leads as leadsApi } from '@/lib/api-client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Property } from '@/types/zillow';
 import { toast } from 'sonner';
@@ -16,21 +16,13 @@ export function useLeads() {
 
     setLoading(true);
     try {
-      const { error } = await supabase
-        .from('leads')
-        .insert({
-          user_id: user.id,
-          property_id: property.id,
-          property_data: property,
-          notes: notes || '',
-          status: 'new'
-        });
+      const response = await leadsApi.create(property.id, property, notes);
 
-      if (error) throw error;
+      if (response.error) throw new Error(response.error);
 
       // Generate CSV content
       const csvContent = generateLeadCSV(property, notes);
-      
+
       // Download CSV file
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement('a');
@@ -75,12 +67,12 @@ export function useLeads() {
       'Export Date'
     ];
 
-    const agentName = property.property_propertyDisplayRules_agent_agentName || 
+    const agentName = property.property_propertyDisplayRules_agent_agentName ||
                     property.property_listing_agentName || 'N/A';
-    const agentPhone = property.property_listing_agentPhone || 
-                     property.property_contact_phone || 
+    const agentPhone = property.property_listing_agentPhone ||
+                     property.property_contact_phone ||
                      property.agent_phone || 'N/A';
-    const brokerage = property.property_propertyDisplayRules_mls_brokerName || 
+    const brokerage = property.property_propertyDisplayRules_mls_brokerName ||
                      property.property_listing_brokerage || 'N/A';
     const mlsId = property.property_listing_palsId || 'N/A';
 
@@ -121,24 +113,14 @@ export function useLeads() {
 
     setLoading(true);
     try {
-      // Save all leads to database
-      const leadsData = properties.map(property => ({
-        user_id: user.id,
-        property_id: property.id,
-        property_data: property,
-        notes: '',
-        status: 'new'
-      }));
-
-      const { error } = await supabase
-        .from('leads')
-        .insert(leadsData);
-
-      if (error) throw error;
+      // Save all leads to database via API
+      for (const property of properties) {
+        await leadsApi.create(property.id, property);
+      }
 
       // Generate CSV content for all properties
       const csvContent = generateAllLeadsCSV(properties);
-      
+
       // Download CSV file
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement('a');
@@ -184,12 +166,12 @@ export function useLeads() {
     ];
 
     const rows = properties.map(property => {
-      const agentName = property.property_propertyDisplayRules_agent_agentName || 
+      const agentName = property.property_propertyDisplayRules_agent_agentName ||
                       property.property_listing_agentName || 'N/A';
-      const agentPhone = property.property_listing_agentPhone || 
-                       property.property_contact_phone || 
+      const agentPhone = property.property_listing_agentPhone ||
+                       property.property_contact_phone ||
                        property.agent_phone || 'N/A';
-      const brokerage = property.property_propertyDisplayRules_mls_brokerName || 
+      const brokerage = property.property_propertyDisplayRules_mls_brokerName ||
                        property.property_listing_brokerage || 'N/A';
       const mlsId = property.property_listing_palsId || 'N/A';
 

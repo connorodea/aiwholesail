@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/components/ui/use-toast';
-import { supabase } from '@/integrations/supabase/client';
+import { ai } from '@/lib/api-client';
 
 interface Message {
   id: string;
@@ -81,22 +81,17 @@ export const ChatAssistant = () => {
 
     try {
       const autoSearchQuery = searchQuery || extractSearchQuery(inputMessage);
-      
-      const { data, error } = await supabase.functions.invoke('ai-chat', {
-        body: {
-          message: inputMessage,
-          searchQuery: autoSearchQuery
-        }
-      });
 
-      if (error) throw error;
+      const response = await ai.chat(inputMessage, { searchQuery: autoSearchQuery });
+
+      if (response.error) throw new Error(response.error);
 
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: data.message,
+        content: response.data?.response || 'I apologize, but I could not generate a response.',
         timestamp: new Date(),
-        searchPerformed: data.searchPerformed
+        searchPerformed: false
       };
 
       setMessages(prev => [...prev, assistantMessage]);

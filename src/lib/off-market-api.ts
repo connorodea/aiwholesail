@@ -1,4 +1,4 @@
-import { supabase } from "@/integrations/supabase/client";
+import { property } from "@/lib/api-client";
 
 export interface OffMarketSearchParams {
   location: string;
@@ -116,12 +116,10 @@ class OffMarketAPI {
     try {
       console.log('[OFF-MARKET API] Initiating ultra-lean discovery...', params);
       
-      const response = await supabase.functions.invoke('off-market-discovery', {
-        body: { searchParams: params }
-      });
+      const response = await property.offMarket(params.location, undefined, params);
 
       if (response.error) {
-        throw new Error(response.error.message || 'Failed to search off-market properties');
+        throw new Error(response.error || 'Failed to search off-market properties');
       }
 
       // Convert date strings back to Date objects
@@ -150,16 +148,21 @@ class OffMarketAPI {
     try {
       console.log('[OFF-MARKET API] Fetching cost analytics...', { startDate, endDate });
       
-      const response = await supabase.functions.invoke('off-market-cost-analytics', {
-        body: { startDate, endDate }
+      // Cost analytics endpoint - using a custom API fetch
+      const API_URL = import.meta.env.VITE_API_URL || 'https://api.aiwholesail.com';
+      const res = await fetch(`${API_URL}/api/property/off-market/analytics`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ startDate, endDate })
       });
 
-      if (response.error) {
-        throw new Error(response.error.message || 'Failed to fetch cost analytics');
+      if (!res.ok) {
+        throw new Error('Failed to fetch cost analytics');
       }
 
+      const data = await res.json();
       console.log('[OFF-MARKET API] Cost analytics fetched successfully');
-      return response.data;
+      return data;
     } catch (error) {
       console.error('[OFF-MARKET API] Cost analytics failed:', error);
       throw new Error(error instanceof Error ? error.message : 'Analytics fetch failed');

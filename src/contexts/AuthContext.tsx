@@ -1,12 +1,11 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '@/integrations/supabase/client';
+import apiClient, { auth, onAuthStateChange, User, stripe } from '@/lib/api-client';
 import { validatePassword, validateEmail, logSecurityEvent } from '@/lib/security';
 import { logSecurityEventEnhanced } from '@/lib/security-enhanced';
 
 interface AuthContextType {
   user: User | null;
-  session: Session | null;
+  session: { access_token: string } | null;
   loading: boolean;
   signUp: (email: string, password: string, fullName?: string) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
@@ -17,41 +16,25 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
+  const [session, setSession] = useState<{ access_token: string } | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        setLoading(false);
-        
-        // Check subscription status when user logs in
-        if (session?.user) {
-          setTimeout(() => {
-            supabase.functions.invoke('check-subscription').catch(console.error);
-          }, 0);
-        }
-      }
-    );
-
-    // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
+    // Set up auth state listener
+    const unsubscribe = onAuthStateChange((currentUser) => {
+      setUser(currentUser);
+      setSession(currentUser ? auth.getSession() : null);
       setLoading(false);
-      
-      // Check subscription status for existing session
-      if (session?.user) {
+
+      // Check subscription status when user logs in
+      if (currentUser) {
         setTimeout(() => {
-          supabase.functions.invoke('check-subscription').catch(console.error);
+          stripe.getSubscription().catch(console.error);
         }, 0);
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => unsubscribe();
   }, []);
 
   const signUp = async (email: string, password: string, fullName?: string) => {
@@ -61,34 +44,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       logSecurityEvent('signup_failed', { reason: 'invalid_email', email: email.substring(0, 3) + '***' });
       return { error: { message: emailValidation.error } };
     }
-    
+
     const passwordValidation = validatePassword(password);
     if (!passwordValidation.isValid) {
       logSecurityEvent('signup_failed', { reason: 'weak_password', email: email.substring(0, 3) + '***' });
       return { error: { message: passwordValidation.errors[0] } };
     }
-    
-    // Use dynamic origin detection for email verification redirect
-    const redirectUrl = `${window.location.origin}/auth?verified=true`;
-    
+
     try {
-      const { error } = await supabase.auth.signUp({
-        email: email.trim().toLowerCase(),
-        password,
-        options: {
-          emailRedirectTo: redirectUrl,
-          data: fullName ? { full_name: fullName.trim() } : undefined
-        }
-      });
-      
-      if (!error) {
-        logSecurityEventEnhanced('signup_success', { email: email.substring(0, 3) + '***' }, user?.id);
-      } else {
-        logSecurityEvent('signup_failed', { reason: error.message, email: email.substring(0, 3) + '***' });
+      const response = await auth.signUp(email.trim().toLowerCase(), password, fullName?.trim());
+
+      if (response.error) {
+        logSecurityEvent('signup_failed', { reason: response.error, email: email.substring(0, 3) + '***' });
+        return { error: { message: response.error } };
       }
-      
-      return { error };
-    } catch (error) {
+
+      if (response.data) {
+        logSecurityEventEnhanced('signup_success', { email: email.substring(0, 3) + '***' }, response.data.user.id);
+      }
+
+      return { error: null };
+    } catch (error: any) {
       logSecurityEvent('signup_error', { error: error.message });
       return { error: { message: 'An unexpected error occurred during signup' } };
     }
@@ -101,26 +77,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       logSecurityEvent('signin_failed', { reason: 'invalid_email', email: email.substring(0, 3) + '***' });
       return { error: { message: emailValidation.error } };
     }
-    
+
     if (!password) {
       logSecurityEvent('signin_failed', { reason: 'no_password', email: email.substring(0, 3) + '***' });
       return { error: { message: 'Password is required' } };
     }
-    
+
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: email.trim().toLowerCase(),
-        password
-      });
-      
-      if (!error) {
-        logSecurityEventEnhanced('signin_success', { email: email.substring(0, 3) + '***' }, user?.id);
-      } else {
-        logSecurityEvent('signin_failed', { reason: error.message, email: email.substring(0, 3) + '***' });
+      const response = await auth.signIn(email.trim().toLowerCase(), password);
+
+      if (response.error) {
+        logSecurityEvent('signin_failed', { reason: response.error, email: email.substring(0, 3) + '***' });
+        return { error: { message: response.error } };
       }
-      
-      return { error };
-    } catch (error) {
+
+      if (response.data) {
+        logSecurityEventEnhanced('signin_success', { email: email.substring(0, 3) + '***' }, response.data.user.id);
+      }
+
+      return { error: null };
+    } catch (error: any) {
       logSecurityEvent('signin_error', { error: error.message });
       return { error: { message: 'An unexpected error occurred during signin' } };
     }
@@ -128,7 +104,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     try {
-      await supabase.auth.signOut();
+      await auth.signOut();
       // Explicitly clear local state
       setUser(null);
       setSession(null);

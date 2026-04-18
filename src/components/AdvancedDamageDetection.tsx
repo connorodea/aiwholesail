@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { supabase } from '@/integrations/supabase/client';
+import { ai } from '@/lib/api-client';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Brain, 
@@ -71,32 +71,30 @@ const AdvancedDamageDetection: React.FC<AdvancedDamageDetectionProps> = ({
         });
       }, 500);
 
-      const { data, error } = await supabase.functions.invoke('advanced-damage-detection', {
-        body: {
-          photo_url: photoUrl,
-          room_type: roomType,
-          zpid
-        }
+      const response = await ai.damageDetection({
+        photo_url: photoUrl,
+        room_type: roomType,
+        zpid
       });
 
       clearInterval(progressInterval);
       setProgress(100);
 
-      if (error) throw error;
+      if (response.error) throw new Error(response.error);
 
-      if (data.success) {
-        setAnalysis(data.analysis);
+      if (response.data?.success) {
+        setAnalysis(response.data.analysis);
         setAnalysisMetadata({
-          models_used: data.models_used,
-          analysis_timestamp: data.analysis_timestamp
+          models_used: response.data.models_used,
+          analysis_timestamp: response.data.analysis_timestamp
         });
-        
+
         toast({
           title: "🔬 Advanced Analysis Complete",
-          description: `Detected ${data.analysis.length} potential issues using state-of-the-art AI models`,
+          description: `Detected ${response.data.analysis.length} potential issues using state-of-the-art AI models`,
         });
       } else {
-        throw new Error(data.error);
+        throw new Error(response.data?.error || 'Analysis failed');
       }
     } catch (error) {
       console.error('Advanced damage detection error:', error);

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Brain, Target, AlertTriangle, CheckCircle } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { leads } from '@/lib/api-client';
 
 interface LeadScoreBadgeProps {
   leadId: string;
@@ -16,14 +16,10 @@ export function LeadScoreBadge({ leadId, className = "", showIcon = true }: Lead
   useEffect(() => {
     const loadScore = async () => {
       try {
-        const { data } = await supabase
-          .from('lead_scoring')
-          .select('overall_score')
-          .eq('lead_id', leadId)
-          .single();
+        const response = await leads.get(leadId);
 
-        if (data) {
-          setScore(data.overall_score);
+        if (response.data?.overall_score) {
+          setScore(response.data.overall_score);
         }
       } catch (error) {
         console.error('Error loading lead score:', error);

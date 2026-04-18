@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Check, Star, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
+import { stripe } from '@/lib/api-client';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { SEOHead } from '@/components/SEOHead';
@@ -57,25 +57,20 @@ export default function Pricing() {
       localStorage.setItem('pendingCheckout', 'true');
       
       console.log('Starting checkout for plan:', plan.name, 'with priceId:', plan.priceId);
-      
-      // Create a guest checkout session (user will create account after payment)
-      const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { 
-          priceId: plan.name, // Send plan name instead of hardcoded price ID
-          guestCheckout: !user // Flag to indicate if this is a guest checkout
-        }
-      });
 
-      if (error) {
-        console.error('Supabase function error:', error);
-        throw error;
+      // Create a checkout session (guest or authenticated)
+      const response = await stripe.createCheckout(plan.name, !user);
+
+      if (response.error) {
+        console.error('Checkout error:', response.error);
+        throw new Error(response.error);
       }
 
-      console.log('Checkout response:', data);
+      console.log('Checkout response:', response.data);
 
-      if (data?.url) {
+      if (response.data?.url) {
         // Redirect to Stripe checkout in the same window
-        window.location.href = data.url;
+        window.location.href = response.data.url;
       } else {
         throw new Error('No checkout URL received');
       }

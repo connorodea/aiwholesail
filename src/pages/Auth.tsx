@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { LogIn, UserPlus, Eye, EyeOff, Mail, Home, Shield, CheckCircle } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { stripe } from '@/lib/api-client';
 import { SEOHead } from '@/components/SEOHead';
 const aiWholesailLogo = '/lovable-uploads/8dcdb5d0-ddfb-406f-a5f0-b3c5112d210a.png';
 
@@ -52,21 +52,16 @@ export default function Auth() {
   const handleCheckout = async (plan: any) => {
     try {
       console.log('Starting checkout for plan:', plan.name, 'with priceId:', plan.priceId);
-      
-      const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { 
-          priceId: plan.name, // Send plan name instead of hardcoded price ID
-          guestCheckout: false // User is authenticated
-        }
-      });
 
-      if (error) {
-        console.error('Supabase function error:', error);
-        throw error;
+      const response = await stripe.createCheckout(plan.name, false);
+
+      if (response.error) {
+        console.error('Checkout error:', response.error);
+        throw new Error(response.error);
       }
 
-      if (data?.url) {
-        window.open(data.url, '_blank');
+      if (response.data?.url) {
+        window.open(response.data.url, '_blank');
         toast.success('Redirecting to checkout...');
       } else {
         throw new Error('No checkout URL received');
@@ -87,7 +82,7 @@ export default function Auth() {
       if (isSignUp) {
         const { error } = await signUp(email, password, fullName);
         if (error) {
-          if (error.message.includes('already been registered')) {
+          if (error.message.includes('already') || error.message.includes('registered') || error.message.includes('Email already')) {
             toast.error('An account with this email already exists. Please sign in instead.');
             setIsSignUp(false);
           } else {
@@ -100,7 +95,7 @@ export default function Auth() {
       } else {
         const { error } = await signIn(email, password);
         if (error) {
-          if (error.message.includes('Invalid login credentials')) {
+          if (error.message.includes('Invalid') || error.message.includes('credentials')) {
             toast.error('Invalid email or password. Please try again.');
           } else {
             toast.error(error.message);
@@ -231,7 +226,7 @@ export default function Auth() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
-                        minLength={6}
+                        minLength={8}
                         className="h-11 pl-4 pr-12 border-border/50 bg-background/50 focus:border-primary transition-colors"
                       />
                       <button
@@ -244,7 +239,7 @@ export default function Auth() {
                     </div>
                     {isSignUp && (
                       <p className="text-xs text-muted-foreground">
-                        Password must be at least 6 characters long
+                        Min 8 characters with uppercase, lowercase, number, and special character
                       </p>
                     )}
                   </div>

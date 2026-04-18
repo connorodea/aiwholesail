@@ -10,9 +10,9 @@ import { Button } from '@/components/ui/button';
 import { Home, User, LogOut, LogIn, Download, Bell, Timer, CreditCard } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/contexts/SubscriptionContext';
-import { supabase } from '@/integrations/supabase/client';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useLeads } from '@/hooks/useLeads';
+import { stripe } from '@/lib/api-client';
 import { toast } from 'sonner';
 import { EnhancedPropertySearch } from '@/components/EnhancedPropertySearch';
 import { PropertyAlertsManager } from '@/components/PropertyAlertsManager';
@@ -203,9 +203,9 @@ export default function RealEstateWholesaler() {
                     size="sm"
                     onClick={async () => {
                       try {
-                        const { data, error } = await supabase.functions.invoke('customer-portal');
-                        if (error) throw error;
-                        window.open(data.url, '_blank');
+                        const response = await stripe.createPortal();
+                        if (response.error) throw new Error(response.error);
+                        window.open(response.data?.url, '_blank');
                       } catch (error) {
                         console.error('Error opening customer portal:', error);
                         toast.error('Failed to open subscription portal');

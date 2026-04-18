@@ -1,5 +1,7 @@
 import { PropertySearchParams, Property, ZillowAPIResponse } from '@/types/zillow';
-import { supabase } from '@/integrations/supabase/client';
+
+// Use Hetzner API endpoint instead of Supabase Edge Functions
+const ZILLOW_API_URL = import.meta.env.VITE_ZILLOW_API_URL || 'https://api.aiwholesail.com/zillow';
 
 export class ZillowAPI {
 
@@ -34,28 +36,33 @@ export class ZillowAPI {
       throw new Error(firstPageData.error || 'Failed to fetch Zillow data');
     }
 
-    console.log('First page response keys:', Object.keys(firstPageData.data));
-    console.log('First page searchResults length:', firstPageData.data.searchResults?.length || 'no searchResults');
-    
+    // Handle nested data structure from our API wrapper
+    const responseData = firstPageData.data?.data || firstPageData.data;
+    console.log('First page response keys:', Object.keys(responseData));
+
     if (params.fsboOnly) {
       console.log('FSBO Search Debug - First page data:', {
-        resultsCount: firstPageData.data.resultsCount,
-        searchResultsCount: firstPageData.data.searchResultsCount,
-        pagesInfo: firstPageData.data.pagesInfo,
-        totalProperties: firstPageData.data.searchResults?.length || 0,
+        total_results: responseData.total_results,
+        total_pages: responseData.total_pages,
+        listings: responseData.listings?.length || 0,
         location: params.location
       });
     }
-    
-    // Get pagination info from first response
-    const pagesInfo = firstPageData.data.pagesInfo;
+
+    // Get pagination info - handle both old and new API formats
+    const pagesInfo = responseData.pagesInfo;
     if (pagesInfo) {
+      // Old API format
       totalPages = Math.min(pagesInfo.totalPages || 1, maxPages);
       console.log(`Found ${pagesInfo.totalMatchingCount} total properties across ${pagesInfo.totalPages} pages. Fetching ${totalPages} pages.`);
+    } else if (responseData.total_pages) {
+      // New API format
+      totalPages = Math.min(responseData.total_pages || 1, maxPages);
+      console.log(`Found ${responseData.total_results} total properties across ${responseData.total_pages} pages. Fetching ${totalPages} pages.`);
     }
 
     // Process first page
-    const firstPageProperties = this.processPropertyData(firstPageData.data);
+    const firstPageProperties = this.processPropertyData(responseData);
     allProperties.push(...firstPageProperties);
 
     // Fetch remaining pages in parallel for better performance
@@ -66,10 +73,11 @@ export class ZillowAPI {
       }
 
       const remainingPagesData = await Promise.allSettled(remainingPagePromises);
-      
+
       for (const result of remainingPagesData) {
         if (result.status === 'fulfilled' && result.value.success) {
-          const pageProperties = this.processPropertyData(result.value.data);
+          const pageData = result.value.data?.data || result.value.data;
+          const pageProperties = this.processPropertyData(pageData);
           allProperties.push(...pageProperties);
         } else {
           console.warn('Failed to fetch page:', result.status === 'rejected' ? result.reason : result.value.error);
@@ -121,17 +129,22 @@ export class ZillowAPI {
   }
 
   private async fetchPage(params: PropertySearchParams, page: number) {
-    const { data, error } = await supabase.functions.invoke('get-zillow-data', {
-      body: { 
+    const response = await fetch(ZILLOW_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
         searchParams: { ...params, page },
         action: 'search'
-      }
+      })
     });
 
-    if (error) {
-      throw new Error(`Zillow API request failed: ${error.message}`);
+    if (!response.ok) {
+      throw new Error(`Zillow API request failed: ${response.status} ${response.statusText}`);
     }
 
+    const data = await response.json();
     return data;
   }
 
@@ -230,60 +243,52 @@ export class ZillowAPI {
     flatten(prop);
 
     // Map common fields to standardized property structure
-    const address = flattened.property_address_streetAddress || 
+    // Handle both old API format and new Zillow Scraper API format
+    const address = flattened.property_address_streetAddress ||
                    flattened.rental_metrics_streetAddress ||
-                   flattened.address || 
+                   flattened.address ||
                    'Unknown Address';
-    
-    const city = flattened.property_address_city || '';
-    const state = flattened.property_address_state || '';
-    const fullAddress = city && state ? `${address}, ${city}, ${state}` : address;
+
+    const city = flattened.property_address_city || flattened.city || '';
+    const state = flattened.property_address_state || flattened.state || '';
+    const zipcode = flattened.zipcode || '';
+    const fullAddress = city && state ? `${address}, ${city}, ${state}${zipcode ? ' ' + zipcode : ''}` : address;
 
     const isFSBO = this.detectFSBO(flattened);
 
     return {
       id: flattened.property_zpid || flattened.id || flattened.zpid || Math.random().toString(36),
-      zpid: flattened.property_zpid || flattened.zpid, // Add zpid field for API calls
+      zpid: flattened.property_zpid || flattened.zpid,
       address: fullAddress,
       price: this.parseNumber(flattened.property_price_value || flattened.property_hdpView_price || flattened.price),
       bedrooms: this.parseNumber(flattened.property_bedrooms || flattened.bedrooms),
       bathrooms: this.parseNumber(flattened.property_bathrooms || flattened.bathrooms),
-      sqft: this.parseNumber(flattened.property_livingArea || flattened.sqft),
-      propertyType: flattened.property_propertyType || flattened.propertyType || 'Unknown',
+      sqft: this.parseNumber(flattened.property_livingArea || flattened.living_area_sqft || flattened.sqft),
+      propertyType: flattened.property_propertyType || flattened.home_type || flattened.propertyType || 'Unknown',
       yearBuilt: this.parseNumber(flattened.property_yearBuilt || flattened.yearBuilt),
-      lotSize: this.parseNumber(flattened.property_lotSizeWithUnit_lotSize || flattened.lotSize),
-      status: flattened.property_listing_listingStatus || flattened.property_hdpView_listingStatus || flattened.status || 'For Sale',
-      daysOnMarket: this.parseNumber(flattened.property_daysOnZillow || flattened.daysOnMarket),
+      lotSize: this.parseNumber(flattened.property_lotSizeWithUnit_lotSize || flattened.lot_size_sqft || flattened.lotSize),
+      status: flattened.property_listing_listingStatus || flattened.listing_status || flattened.property_hdpView_listingStatus || flattened.status || 'For Sale',
+      daysOnMarket: this.parseNumber(flattened.property_daysOnZillow || flattened.days_on_zillow || flattened.daysOnMarket),
       pricePerSqft: this.parseNumber(flattened.property_price_pricePerSquareFoot || flattened.pricePerSqft),
       zestimate: this.parseNumber(flattened.property_estimates_zestimate || flattened.zestimate),
       description: flattened.description || flattened.summary || '',
-      // Extract listing date from comprehensive field search - no mock data
-      datePostedString: flattened.property_datePriceChanged || 
-                       flattened.property_listing_listingDate || 
+      imageUrl: flattened.image_url || flattened.imgSrc || flattened.property_imgSrc,
+      detailUrl: flattened.detail_url || flattened.detailUrl,
+      latitude: flattened.latitude || flattened.property_latitude,
+      longitude: flattened.longitude || flattened.property_longitude,
+      datePostedString: flattened.property_datePriceChanged ||
+                       flattened.property_listing_listingDate ||
                        flattened.property_listing_datePosted ||
                        flattened.property_datePosted ||
                        flattened.property_listingDate ||
-                       flattened.property_hdpView_listingDatePosted ||
-                       flattened.property_hdpView_datePosted ||
-                       flattened.property_daysOnZillow_datePosted ||
-                       flattened.property_marketData_listingDate ||
-                       flattened.property_marketData_datePosted ||
-                       flattened.property_timeOnZillow_datePosted ||
                        flattened.datePriceChanged ||
                        flattened.listingDate ||
-                       flattened.datePosted ||
-                       flattened.listing_listingDate ||
-                       flattened.listing_datePosted ||
-                       flattened.hdpView_datePosted ||
-                       flattened.daysOnZillow_datePosted,
+                       flattened.datePosted,
       listDate: flattened.property_listing_listDate ||
                 flattened.property_listDate ||
                 flattened.property_onMarketDate ||
-                flattened.property_hdpView_listDate ||
                 flattened.listDate ||
-                flattened.onMarketDate ||
-                flattened.listing_listDate ||
-                flattened.hdpView_listDate,
+                flattened.onMarketDate,
       isFSBO,
       ...flattened // Include all original data
     };
@@ -502,13 +507,30 @@ export class ZillowAPI {
     return null;
   }
 
+  private async callApi(action: string, searchParams?: any): Promise<any> {
+    const response = await fetch(ZILLOW_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ action, searchParams })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Zillow API request failed: ${response.status} ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    if (!data.success) {
+      throw new Error(data.error || 'API request failed');
+    }
+    return data;
+  }
+
   async testConnection(): Promise<boolean> {
     try {
-      const { data, error } = await supabase.functions.invoke('get-zillow-data', {
-        body: { action: 'test' }
-      });
-
-      return !error && data?.success;
+      const data = await this.callApi('test');
+      return data?.success;
     } catch {
       return false;
     }
@@ -516,11 +538,7 @@ export class ZillowAPI {
 
   async getPropertyDetails(zpid: string): Promise<any> {
     try {
-      const { data, error } = await supabase.functions.invoke('get-zillow-data', {
-        body: { action: 'propertyDetails', searchParams: { zpid } }
-      });
-      
-      if (error) throw error;
+      const data = await this.callApi('propertyDetails', { zpid });
       return data?.data;
     } catch (error) {
       console.error('Property details fetch failed:', error);
@@ -530,11 +548,7 @@ export class ZillowAPI {
 
   async getPriceHistory(zpid: string): Promise<any> {
     try {
-      const { data, error } = await supabase.functions.invoke('get-zillow-data', {
-        body: { action: 'priceHistory', searchParams: { zpid } }
-      });
-      
-      if (error) throw error;
+      const data = await this.callApi('priceHistory', { zpid });
       return data?.data;
     } catch (error) {
       console.error('Price history fetch failed:', error);
@@ -544,11 +558,7 @@ export class ZillowAPI {
 
   async getPropertyPhotos(zpid: string): Promise<any> {
     try {
-      const { data, error } = await supabase.functions.invoke('get-zillow-data', {
-        body: { action: 'photos', searchParams: { zpid } }
-      });
-      
-      if (error) throw error;
+      const data = await this.callApi('photos', { zpid });
       return data?.data;
     } catch (error) {
       console.error('Property photos fetch failed:', error);
@@ -558,11 +568,7 @@ export class ZillowAPI {
 
   async getPropertyComps(zpid: string): Promise<any> {
     try {
-      const { data, error } = await supabase.functions.invoke('get-zillow-data', {
-        body: { action: 'comps', searchParams: { zpid } }
-      });
-      
-      if (error) throw error;
+      const data = await this.callApi('comps', { zpid });
       return data?.data;
     } catch (error) {
       console.error('Property comps fetch failed:', error);
@@ -572,11 +578,7 @@ export class ZillowAPI {
 
   async getZestimate(zpid: string): Promise<any> {
     try {
-      const { data, error } = await supabase.functions.invoke('get-zillow-data', {
-        body: { action: 'zestimate', searchParams: { zpid } }
-      });
-      
-      if (error) throw error;
+      const data = await this.callApi('zestimate', { zpid });
       return data?.data;
     } catch (error) {
       console.error('Zestimate fetch failed:', error);
@@ -586,11 +588,7 @@ export class ZillowAPI {
 
   async getPropertySchools(zpid: string): Promise<any> {
     try {
-      const { data, error } = await supabase.functions.invoke('get-zillow-data', {
-        body: { action: 'schools', searchParams: { zpid } }
-      });
-      
-      if (error) throw error;
+      const data = await this.callApi('schools', { zpid });
       return data?.data;
     } catch (error) {
       console.error('Property schools fetch failed:', error);
@@ -599,26 +597,14 @@ export class ZillowAPI {
   }
 
   async getWalkScore(zpid: string): Promise<any> {
-    try {
-      const { data, error } = await supabase.functions.invoke('get-zillow-data', {
-        body: { action: 'walkScore', searchParams: { zpid } }
-      });
-      
-      if (error) throw error;
-      return data?.data;
-    } catch (error) {
-      console.error('Walk score fetch failed:', error);
-      throw error;
-    }
+    // Note: walkScore is not supported by the new API
+    console.warn('Walk score is not supported by the current API');
+    throw new Error('Walk score is not supported by the current API');
   }
 
   async getPropertyTaxes(zpid: string): Promise<any> {
     try {
-      const { data, error } = await supabase.functions.invoke('get-zillow-data', {
-        body: { action: 'taxes', searchParams: { zpid } }
-      });
-      
-      if (error) throw error;
+      const data = await this.callApi('taxes', { zpid });
       return data?.data;
     } catch (error) {
       console.error('Property taxes fetch failed:', error);
@@ -628,11 +614,7 @@ export class ZillowAPI {
 
   async getRentalEstimate(zpid: string): Promise<any> {
     try {
-      const { data, error } = await supabase.functions.invoke('get-zillow-data', {
-        body: { action: 'rentalEstimate', searchParams: { zpid } }
-      });
-      
-      if (error) throw error;
+      const data = await this.callApi('rentalEstimate', { zpid });
       return data?.data;
     } catch (error) {
       console.error('Rental estimate fetch failed:', error);
@@ -641,53 +623,22 @@ export class ZillowAPI {
   }
 
   async getSkipTrace(address: string, location: string, format: string = 'full'): Promise<any> {
-    try {
-      const { data, error } = await supabase.functions.invoke('get-zillow-data', {
-        body: { 
-          action: 'skipTrace',
-          searchParams: {
-            street: address,
-            citystatezip: location,
-            page: '1'
-          }
-        }
-      });
-      
-      if (error) throw error;
-      return data?.data;
-    } catch (error) {
-      console.error('Skip trace fetch failed:', error);
-      throw error;
-    }
+    // Note: skipTrace is not supported by the new API
+    console.warn('Skip trace is not supported by the current API');
+    throw new Error('Skip trace is not supported by the current API');
   }
 
   async getDeepComps(zpid: string, count: string = "5"): Promise<any> {
-    try {
-      const { data, error } = await supabase.functions.invoke('get-zillow-data', {
-        body: { action: 'deepComps', searchParams: { zpid, count } }
-      });
-      
-      if (error) throw error;
-      return data?.data;
-    } catch (error) {
-      console.error('Deep comps fetch failed:', error);
-      throw error;
-    }
+    // Note: deepComps is not supported - use comps instead
+    console.warn('Deep comps is not supported - using regular comps instead');
+    return this.getPropertyComps(zpid);
   }
 
   async deepSearch(address: string, citystatezip: string): Promise<any> {
-    try {
-      const { data, error } = await supabase.functions.invoke('get-zillow-data', {
-        body: { action: 'deepSearch', searchParams: { address, citystatezip } }
-      });
-      
-      if (error) throw error;
-      return data?.data;
-    } catch (error) {
-      console.error('Deep search failed:', error);
-      throw error;
-    }
+    // Note: deepSearch is not supported by the new API
+    console.warn('Deep search is not supported by the current API');
+    throw new Error('Deep search is not supported by the current API');
   }
 }
 
-export const zillowAPI = new ZillowAPI();
+export const zillowAPI = new ZillowAPI();// Build: 1776461021

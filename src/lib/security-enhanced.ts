@@ -203,7 +203,7 @@ export function generateCSPHeader(): string {
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com",
     "img-src 'self' data: https: blob:",
-    "connect-src 'self' https://*.supabase.co https://api.anthropic.com https://api.openai.com https://*.rapidapi.com https://api.stripe.com https://js.stripe.com https://www.google-analytics.com",
+    "connect-src 'self' https://api.aiwholesail.com https://api.anthropic.com https://api.openai.com https://*.rapidapi.com https://api.stripe.com https://js.stripe.com https://www.google-analytics.com",
     "frame-src 'self' https://js.stripe.com https://hooks.stripe.com",
     "object-src 'none'",
     "base-uri 'self'",
