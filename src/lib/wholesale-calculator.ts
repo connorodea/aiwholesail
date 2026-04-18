@@ -112,30 +112,36 @@ export function calculateWholesalePotential(property: Property): WholesalePotent
 
 export function sortPropertiesByWholesalePotential(properties: Property[]): Property[] {
   return properties
-    .map(property => ({
-      property,
-      potential: calculateWholesalePotential(property)
-    }))
+    .map(property => {
+      const price = property.price || 0;
+      const zestimate = property.zestimate || 0;
+      const hasZestimate = !!(property.zestimate && property.price);
+      const rawSpread = hasZestimate ? zestimate - price : -Infinity;
+      return { property, potential: calculateWholesalePotential(property), hasZestimate, rawSpread };
+    })
     .sort((a, b) => {
-      // Primary sort: spread amount (descending) - highest profit potential first
-      if (b.potential.spreadAmount !== a.potential.spreadAmount) {
-        return b.potential.spreadAmount - a.potential.spreadAmount;
+      // Properties with positive spreads (deals) always first
+      const aPositive = a.rawSpread > 0;
+      const bPositive = b.rawSpread > 0;
+      if (aPositive && !bPositive) return -1;
+      if (!aPositive && bPositive) return 1;
+
+      // Among deals, sort by spread descending
+      if (aPositive && bPositive) {
+        return b.rawSpread - a.rawSpread;
       }
-      
-      // Secondary sort: spread percentage (descending)
-      if (b.potential.spreadPercentage !== a.potential.spreadPercentage) {
-        return b.potential.spreadPercentage - a.potential.spreadPercentage;
+
+      // Properties with zestimates next (even if negative spread)
+      if (a.hasZestimate && !b.hasZestimate) return -1;
+      if (!a.hasZestimate && b.hasZestimate) return 1;
+
+      // Among properties with zestimates, sort by spread descending (least overpriced first)
+      if (a.hasZestimate && b.hasZestimate) {
+        return b.rawSpread - a.rawSpread;
       }
-      
-      // Tertiary sort: wholesale potential score (descending)
-      if (b.potential.score !== a.potential.score) {
-        return b.potential.score - a.potential.score;
-      }
-      
-      // Final sort: days on market (descending - longer is better for negotiation)
-      const aDays = a.property.daysOnMarket || 0;
-      const bDays = b.property.daysOnMarket || 0;
-      return bDays - aDays;
+
+      // Properties without zestimates: sort by price ascending (cheaper = more likely deal)
+      return (a.property.price || 0) - (b.property.price || 0);
     })
     .map(item => item.property);
 }
