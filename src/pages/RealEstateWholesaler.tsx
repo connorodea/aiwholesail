@@ -55,43 +55,53 @@ export default function RealEstateWholesaler() {
 
       toast.success(`Searching for properties in ${params.location}...`);
 
-      // Fetch significantly more pages for comprehensive results across all search types
-      const maxPages = params.fsboOnly ? 50 : (params.wholesaleOnly ? 40 : 10);
+      // Fetch pages for results
+      const maxPages = params.fsboOnly ? 50 : (params.wholesaleOnly ? 10 : 10);
       const searchResults = await zillowAPI.searchProperties(params, maxPages);
-      
+
       if (searchResults.length === 0) {
         setError("No properties found. Try adjusting your search criteria.");
         return;
       }
 
-      let filteredResults = searchResults;
-      
+      // Enrich results with zestimates for wholesale scoring
+      toast.info(`Analyzing ${Math.min(searchResults.length, 40)} properties for wholesale potential...`);
+      const enrichedResults = await zillowAPI.enrichWithZestimates(
+        searchResults,
+        (completed, total) => {
+          if (completed % 8 === 0 || completed === total) {
+            console.log(`Zestimate enrichment: ${completed}/${total}`);
+          }
+        }
+      );
+
+      let filteredResults = enrichedResults;
+
       // Handle FSBO searches first (API already filters for FSBO)
       if (params.fsboOnly) {
-        // For FSBO searches, just sort by wholesale potential but don't filter
         filteredResults = sortPropertiesByWholesalePotential(filteredResults);
-        
+
         console.log(`FSBO Search Results: ${filteredResults.length} properties to display`);
-        
-        // If no FSBO properties found by API, inform user
+
         if (filteredResults.length === 0) {
           setError("No FSBO (For Sale By Owner) properties found in this area. Try searching a different location or removing the FSBO filter.");
           return;
         }
       } else if (params.wholesaleOnly) {
-        // Only apply wholesale filtering for non-FSBO searches
+        // Filter to only show properties with price below zestimate
         filteredResults = filteredResults.filter(property => {
-          // Must have both price and zestimate, and price must be below zestimate
           return property.price && property.zestimate && property.price < property.zestimate;
         });
-        
-        // If no wholesale deals found but properties exist, inform user
-        if (filteredResults.length === 0 && searchResults.length > 0) {
-          setError(`Found ${searchResults.length} properties, but none have wholesale potential (price below Zestimate). Try removing the wholesale filter or searching different areas.`);
+
+        if (filteredResults.length === 0 && enrichedResults.length > 0) {
+          const withZest = enrichedResults.filter(p => p.zestimate).length;
+          setError(`Found ${enrichedResults.length} properties (${withZest} with Zestimates), but none are priced below their Zestimate. Try removing the wholesale filter or searching different areas.`);
           return;
         }
-        
-        // Sort by wholesale potential when wholesale filter is enabled
+
+        filteredResults = sortPropertiesByWholesalePotential(filteredResults);
+      } else {
+        // Default sort: by wholesale potential (spread) descending
         filteredResults = sortPropertiesByWholesalePotential(filteredResults);
       }
 

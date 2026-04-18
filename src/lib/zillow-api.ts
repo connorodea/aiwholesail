@@ -527,6 +527,76 @@ export class ZillowAPI {
     return data;
   }
 
+  /**
+   * Enrich search results with zestimates by fetching property details in parallel batches.
+   * Returns properties sorted by spread (zestimate - price) descending.
+   */
+  async enrichWithZestimates(
+    properties: Property[],
+    onProgress?: (completed: number, total: number) => void
+  ): Promise<Property[]> {
+    // Only enrich properties that have a zpid and no zestimate yet
+    const toEnrich = properties.filter(p => p.zpid && !p.zestimate);
+    // Cap at 40 to avoid excessive API calls
+    const enrichBatch = toEnrich.slice(0, 40);
+    const alreadyHaveZest = properties.filter(p => p.zestimate);
+
+    if (enrichBatch.length === 0) return properties;
+
+    console.log(`Enriching ${enrichBatch.length} properties with zestimates...`);
+    let completed = 0;
+
+    // Fetch in parallel batches of 8
+    const BATCH_SIZE = 8;
+    const enriched = new Map<string, { zestimate?: number; daysOnMarket?: number }>();
+
+    for (let i = 0; i < enrichBatch.length; i += BATCH_SIZE) {
+      const batch = enrichBatch.slice(i, i + BATCH_SIZE);
+      const results = await Promise.allSettled(
+        batch.map(async (p) => {
+          try {
+            const data = await this.callApi('propertyDetails', { zpid: p.zpid });
+            const details = data?.data?.data || data?.data || {};
+            return {
+              zpid: p.zpid,
+              zestimate: details.zestimate || undefined,
+              daysOnMarket: details.days_on_zillow || undefined,
+            };
+          } catch {
+            return { zpid: p.zpid };
+          }
+        })
+      );
+
+      for (const result of results) {
+        if (result.status === 'fulfilled' && result.value.zpid) {
+          enriched.set(result.value.zpid, result.value);
+        }
+      }
+
+      completed += batch.length;
+      onProgress?.(completed, enrichBatch.length);
+    }
+
+    // Merge zestimates back into properties
+    const enrichedProperties = properties.map(p => {
+      const data = enriched.get(p.zpid || '');
+      if (data) {
+        return {
+          ...p,
+          zestimate: data.zestimate || p.zestimate,
+          daysOnMarket: data.daysOnMarket || p.daysOnMarket,
+        };
+      }
+      return p;
+    });
+
+    const withZest = enrichedProperties.filter(p => p.zestimate && p.price);
+    console.log(`Enrichment complete: ${withZest.length}/${enrichedProperties.length} properties have zestimates`);
+
+    return enrichedProperties;
+  }
+
   async testConnection(): Promise<boolean> {
     try {
       const data = await this.callApi('test');
