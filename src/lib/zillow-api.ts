@@ -564,21 +564,17 @@ export class ZillowAPI {
     properties: Property[],
     onProgress?: (completed: number, total: number) => void
   ): Promise<Property[]> {
-    // Only enrich properties that have a zpid and no zestimate yet
-    // Sort by price ascending first — cheapest properties are most likely wholesale deals
-    const toEnrich = properties
-      .filter(p => p.zpid && !p.zestimate)
-      .sort((a, b) => (a.price || Infinity) - (b.price || Infinity));
-    // Cap at 50 — covers the most likely deals without taking forever
-    const enrichBatch = toEnrich.slice(0, 50);
+    // Enrich all properties — we need every zestimate to find the best spreads
+    const toEnrich = properties.filter(p => p.zpid && !p.zestimate);
+    const enrichBatch = toEnrich;
 
     if (enrichBatch.length === 0) return properties;
 
     console.log(`Enriching ${enrichBatch.length} properties with zestimates...`);
     let completed = 0;
 
-    // Fetch in parallel batches of 10 for speed
-    const BATCH_SIZE = 10;
+    // Fetch in large parallel batches for speed
+    const BATCH_SIZE = 20;
     const enriched = new Map<string, { zestimate?: number; daysOnMarket?: number }>();
 
     for (let i = 0; i < enrichBatch.length; i += BATCH_SIZE) {
@@ -608,9 +604,9 @@ export class ZillowAPI {
       completed += batch.length;
       onProgress?.(completed, enrichBatch.length);
 
-      // Brief delay between batches
+      // Minimal delay between batches
       if (i + BATCH_SIZE < enrichBatch.length) {
-        await new Promise(r => setTimeout(r, 200));
+        await new Promise(r => setTimeout(r, 100));
       }
     }
 
