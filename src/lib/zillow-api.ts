@@ -1,7 +1,7 @@
 import { PropertySearchParams, Property, ZillowAPIResponse } from '@/types/zillow';
 
 // Use Hetzner API endpoint instead of Supabase Edge Functions
-const ZILLOW_API_URL = import.meta.env.VITE_ZILLOW_API_URL || 'https://api.aiwholesail.com/zillow';
+const ZILLOW_API_URL = import.meta.env.VITE_ZILLOW_API_URL || 'https://api.aiwholesail.com/zillow/zillow';
 
 export class ZillowAPI {
 
