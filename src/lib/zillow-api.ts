@@ -566,8 +566,8 @@ export class ZillowAPI {
   ): Promise<Property[]> {
     // Only enrich properties that have a zpid and no zestimate yet
     const toEnrich = properties.filter(p => p.zpid && !p.zestimate);
-    // Enrich up to 40 properties for better deal coverage
-    const enrichBatch = toEnrich.slice(0, 40);
+    // Enrich all properties — no cap
+    const enrichBatch = toEnrich;
 
     if (enrichBatch.length === 0) return properties;
 

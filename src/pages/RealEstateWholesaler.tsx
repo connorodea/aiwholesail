@@ -68,8 +68,8 @@ export default function RealEstateWholesaler() {
         return;
       }
 
-      setLoadingStatus(`Found ${searchResults.length} properties. Analyzing wholesale potential...`);
-      setLoadingProgress(50);
+      setLoadingStatus(`Found ${searchResults.length} properties. Fetching Zestimates to find deals...`);
+      setLoadingProgress(40);
 
       // Try to enrich results with zestimates — gracefully degrade if it fails
       let enrichedResults = searchResults;
@@ -77,9 +77,9 @@ export default function RealEstateWholesaler() {
         enrichedResults = await zillowAPI.enrichWithZestimates(
           searchResults,
           (completed, total) => {
-            const enrichProgress = 50 + Math.round((completed / total) * 40);
+            const enrichProgress = 40 + Math.round((completed / total) * 55);
             setLoadingProgress(enrichProgress);
-            setLoadingStatus(`Analyzing property ${completed}/${total} for wholesale potential...`);
+            setLoadingStatus(`Fetching Zestimate ${completed}/${total} — finding deals below market value...`);
           }
         );
       } catch (enrichError) {
