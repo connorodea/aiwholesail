@@ -64,16 +64,22 @@ export default function RealEstateWholesaler() {
         return;
       }
 
-      // Enrich results with zestimates for wholesale scoring
-      toast.info(`Analyzing ${Math.min(searchResults.length, 40)} properties for wholesale potential...`);
-      const enrichedResults = await zillowAPI.enrichWithZestimates(
-        searchResults,
-        (completed, total) => {
-          if (completed % 8 === 0 || completed === total) {
-            console.log(`Zestimate enrichment: ${completed}/${total}`);
+      // Try to enrich results with zestimates — gracefully degrade if it fails
+      let enrichedResults = searchResults;
+      try {
+        toast.info(`Analyzing ${Math.min(searchResults.length, 40)} properties for wholesale potential...`);
+        enrichedResults = await zillowAPI.enrichWithZestimates(
+          searchResults,
+          (completed, total) => {
+            if (completed % 8 === 0 || completed === total) {
+              console.log(`Zestimate enrichment: ${completed}/${total}`);
+            }
           }
-        }
-      );
+        );
+      } catch (enrichError) {
+        console.warn('Zestimate enrichment failed, showing results without enrichment:', enrichError);
+        toast.info('Showing results without Zestimate data (API rate limit reached).');
+      }
 
       let filteredResults = enrichedResults;
 

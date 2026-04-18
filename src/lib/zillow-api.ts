@@ -566,17 +566,16 @@ export class ZillowAPI {
   ): Promise<Property[]> {
     // Only enrich properties that have a zpid and no zestimate yet
     const toEnrich = properties.filter(p => p.zpid && !p.zestimate);
-    // Cap at 40 to avoid excessive API calls
-    const enrichBatch = toEnrich.slice(0, 40);
-    const alreadyHaveZest = properties.filter(p => p.zestimate);
+    // Cap at 20 to stay within rate limits
+    const enrichBatch = toEnrich.slice(0, 20);
 
     if (enrichBatch.length === 0) return properties;
 
     console.log(`Enriching ${enrichBatch.length} properties with zestimates...`);
     let completed = 0;
 
-    // Fetch in parallel batches of 8
-    const BATCH_SIZE = 8;
+    // Fetch in parallel batches of 5 with delay between batches
+    const BATCH_SIZE = 5;
     const enriched = new Map<string, { zestimate?: number; daysOnMarket?: number }>();
 
     for (let i = 0; i < enrichBatch.length; i += BATCH_SIZE) {
@@ -605,6 +604,11 @@ export class ZillowAPI {
 
       completed += batch.length;
       onProgress?.(completed, enrichBatch.length);
+
+      // Small delay between batches to avoid rate limits
+      if (i + BATCH_SIZE < enrichBatch.length) {
+        await new Promise(r => setTimeout(r, 500));
+      }
     }
 
     // Merge zestimates back into properties
