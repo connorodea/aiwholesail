@@ -38,6 +38,8 @@ export default function RealEstateWholesaler() {
   const [properties, setProperties] = useState<Property[]>([]);
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingStatus, setLoadingStatus] = useState<string>('');
+  const [loadingProgress, setLoadingProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [showFavorites, setShowFavorites] = useState(false);
   const [showAlerts, setShowAlerts] = useState(false);
@@ -48,15 +50,17 @@ export default function RealEstateWholesaler() {
   const handleSearch = async (params: PropertySearchParams) => {
     try {
       setIsLoading(true);
+      setLoadingStatus('Searching properties...');
+      setLoadingProgress(10);
       setProperties([]);
       setError(null);
       setLastSearchLocation(params.location);
       setIsSearchingFSBO(params.fsboOnly || false);
 
-      toast.success(`Searching for properties in ${params.location}...`);
-
       // Fetch pages for results
-      const maxPages = params.fsboOnly ? 50 : (params.wholesaleOnly ? 10 : 10);
+      setLoadingStatus(`Searching for properties in ${params.location}...`);
+      setLoadingProgress(20);
+      const maxPages = params.fsboOnly ? 50 : 10;
       const searchResults = await zillowAPI.searchProperties(params, maxPages);
 
       if (searchResults.length === 0) {
@@ -64,51 +68,44 @@ export default function RealEstateWholesaler() {
         return;
       }
 
+      setLoadingStatus(`Found ${searchResults.length} properties. Analyzing wholesale potential...`);
+      setLoadingProgress(50);
+
       // Try to enrich results with zestimates — gracefully degrade if it fails
       let enrichedResults = searchResults;
       try {
-        toast.info(`Analyzing ${Math.min(searchResults.length, 40)} properties for wholesale potential...`);
         enrichedResults = await zillowAPI.enrichWithZestimates(
           searchResults,
           (completed, total) => {
-            if (completed % 8 === 0 || completed === total) {
-              console.log(`Zestimate enrichment: ${completed}/${total}`);
-            }
+            const enrichProgress = 50 + Math.round((completed / total) * 40);
+            setLoadingProgress(enrichProgress);
+            setLoadingStatus(`Analyzing property ${completed}/${total} for wholesale potential...`);
           }
         );
       } catch (enrichError) {
         console.warn('Zestimate enrichment failed, showing results without enrichment:', enrichError);
-        toast.info('Showing results without Zestimate data (API rate limit reached).');
       }
 
-      let filteredResults = enrichedResults;
+      setLoadingStatus('Sorting by best deals...');
+      setLoadingProgress(95);
 
-      // Handle FSBO searches first (API already filters for FSBO)
+      // Always sort by wholesale potential — best deals first
+      let filteredResults = sortPropertiesByWholesalePotential(enrichedResults);
+
+      // Apply filters if set
       if (params.fsboOnly) {
-        filteredResults = sortPropertiesByWholesalePotential(filteredResults);
-
         console.log(`FSBO Search Results: ${filteredResults.length} properties to display`);
-
         if (filteredResults.length === 0) {
-          setError("No FSBO (For Sale By Owner) properties found in this area. Try searching a different location or removing the FSBO filter.");
+          setError("No FSBO (For Sale By Owner) properties found in this area. Try a different location.");
           return;
         }
       } else if (params.wholesaleOnly) {
-        // Filter to only show properties with price below zestimate
-        filteredResults = filteredResults.filter(property => {
-          return property.price && property.zestimate && property.price < property.zestimate;
-        });
-
-        if (filteredResults.length === 0 && enrichedResults.length > 0) {
-          const withZest = enrichedResults.filter(p => p.zestimate).length;
-          setError(`Found ${enrichedResults.length} properties (${withZest} with Zestimates), but none are priced below their Zestimate. Try removing the wholesale filter or searching different areas.`);
-          return;
+        // Only filter when explicitly toggled — show deals with price below zestimate
+        const wholesaleDeals = filteredResults.filter(p => p.price && p.zestimate && p.price < p.zestimate);
+        if (wholesaleDeals.length > 0) {
+          filteredResults = wholesaleDeals;
         }
-
-        filteredResults = sortPropertiesByWholesalePotential(filteredResults);
-      } else {
-        // Default sort: by wholesale potential (spread) descending
-        filteredResults = sortPropertiesByWholesalePotential(filteredResults);
+        // If no deals found, still show all results sorted by potential
       }
 
       // Filter by keywords if provided
@@ -145,6 +142,8 @@ export default function RealEstateWholesaler() {
       toast.error(errorMessage);
     } finally {
       setIsLoading(false);
+      setLoadingProgress(0);
+      setLoadingStatus('');
     }
   };
 
@@ -281,8 +280,33 @@ export default function RealEstateWholesaler() {
               </div>
             </section>
 
+            {/* Loading Progress Bar */}
+            {isLoading && (
+              <section className="max-w-2xl mx-auto animate-fade-in">
+                <div className="feature-card p-8 backdrop-blur-sm rounded-2xl">
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+                      <p className="text-sm font-medium text-foreground">{loadingStatus}</p>
+                    </div>
+                    <div className="w-full bg-muted/50 rounded-full h-2.5 overflow-hidden">
+                      <div
+                        className="bg-gradient-to-r from-primary to-primary/70 h-full rounded-full transition-all duration-500 ease-out"
+                        style={{ width: `${loadingProgress}%` }}
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground text-center">
+                      {loadingProgress < 50 ? 'Fetching listings from Zillow...' :
+                       loadingProgress < 90 ? 'Fetching Zestimates to calculate wholesale spreads...' :
+                       'Almost done...'}
+                    </p>
+                  </div>
+                </div>
+              </section>
+            )}
+
             {/* Results Section */}
-            {properties.length > 0 && (
+            {!isLoading && properties.length > 0 && (
               <section className="space-y-10 animate-fade-in">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div className="space-y-2">
