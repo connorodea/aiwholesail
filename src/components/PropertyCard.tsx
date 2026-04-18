@@ -79,32 +79,54 @@ export function PropertyCard({ property, onViewDetails, highlightWholesaleDeals 
     return 'bg-muted/50 border-muted';
   };
 
-  // Enhanced wholesale deal detection with special FSBO considerations
-  const isHighValueDeal = () => {
-    if (!highlightWholesaleDeals || !property.price || !property.zestimate) return false;
-    
-    const spread = property.zestimate - property.price;
-    
-    // FSBO properties get enhanced highlighting due to no agent commissions (6% savings)
-    if (property.isFSBO) {
-      // For FSBO, lower threshold (20k+ spread) due to commission savings
-      return spread >= 20000;
-    }
-    
-    // Regular properties need higher spread to account for commissions
-    return spread >= 35000;
+  // Wholesale deal detection — highlight properties with $30k+ spread
+  const getSpread = () => {
+    if (!property.price || !property.zestimate) return 0;
+    return property.zestimate - property.price;
   };
 
-  const cardClassName = isHighValueDeal() 
-    ? "group simple-card smooth-transition hover:shadow-elegant bg-gradient-to-br from-success/10 to-success/5 border-2 border-success/30 shadow-lg"
+  const spread = getSpread();
+
+  const isHighValueDeal = () => {
+    if (!property.price || !property.zestimate) return false;
+    return spread >= 30000;
+  };
+
+  const getSpreadTier = (): 'exceptional' | 'great' | 'good' | 'none' => {
+    if (spread >= 100000) return 'exceptional';
+    if (spread >= 50000) return 'great';
+    if (spread >= 30000) return 'good';
+    return 'none';
+  };
+
+  const spreadTier = getSpreadTier();
+
+  const cardClassName = spreadTier === 'exceptional'
+    ? "group simple-card smooth-transition hover:shadow-elegant bg-gradient-to-br from-yellow-500/15 to-amber-500/10 border-2 border-yellow-500/40 shadow-lg"
+    : spreadTier === 'great'
+    ? "group simple-card smooth-transition hover:shadow-elegant bg-gradient-to-br from-success/15 to-emerald-500/10 border-2 border-success/40 shadow-lg"
+    : spreadTier === 'good'
+    ? "group simple-card smooth-transition hover:shadow-elegant bg-gradient-to-br from-success/10 to-success/5 border-2 border-success/30 shadow-md"
     : "group simple-card smooth-transition hover:shadow-elegant";
 
   return (
     <Card className={cardClassName}>
-      {isHighValueDeal() && (
+      {spreadTier === 'exceptional' && (
+        <div className="bg-gradient-to-r from-yellow-500 to-amber-500 text-white px-3 py-2 text-sm font-bold flex items-center gap-2">
+          <Star className="h-4 w-4" />
+          TOP DEAL - ${formatNumber(spread)} Spread ($100k+)
+        </div>
+      )}
+      {spreadTier === 'great' && (
+        <div className="bg-gradient-to-r from-emerald-500 to-green-500 text-white px-3 py-2 text-sm font-bold flex items-center gap-2">
+          <Star className="h-4 w-4" />
+          Great Deal - ${formatNumber(spread)} Spread
+        </div>
+      )}
+      {spreadTier === 'good' && (
         <div className="bg-gradient-to-r from-success to-success/80 text-success-foreground px-3 py-2 text-sm font-medium flex items-center gap-2">
           <Star className="h-4 w-4" />
-          Wholesale Deal - ${formatNumber(property.zestimate - property.price)} Spread
+          Wholesale Deal - ${formatNumber(spread)} Spread
         </div>
       )}
       
