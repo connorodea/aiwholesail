@@ -228,6 +228,26 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
               />
             </div>
 
+            {/* Wholesale Deals Only Toggle */}
+            <div className="flex items-center justify-between space-x-2">
+              <div className="flex items-center space-x-2">
+                <TrendingDown className="h-4 w-4 text-success" />
+                <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
+                  <Label htmlFor="wholesale-toggle" className="text-sm font-medium">
+                    Most Profitable Only
+                  </Label>
+                  <span className="text-xs text-muted-foreground">
+                    Only show properties priced below their Zestimate
+                  </span>
+                </div>
+              </div>
+              <Switch
+                id="wholesale-toggle"
+                checked={searchParams.wholesaleOnly || false}
+                onCheckedChange={(checked) => updateParam('wholesaleOnly', checked)}
+              />
+            </div>
+
             {/* FSBO Toggle */}
             <div className="flex items-center justify-between space-x-2">
               <div className="flex items-center space-x-2">
