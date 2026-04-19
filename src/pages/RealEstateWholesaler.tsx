@@ -68,44 +68,43 @@ export default function RealEstateWholesaler() {
         return;
       }
 
-      setLoadingStatus(`Found ${searchResults.length} properties. Fetching Zestimates to find deals...`);
-      setLoadingProgress(40);
+      // Show results immediately — don't wait for enrichment
+      let filteredResults = sortPropertiesByWholesalePotential(searchResults);
+      if (params.fsboOnly && filteredResults.length === 0) {
+        setError("No FSBO properties found in this area. Try a different location.");
+        return;
+      }
+      setProperties(filteredResults);
+      setIsLoading(false);
+      setLoadingProgress(0);
+      setLoadingStatus('');
 
-      // Try to enrich results with zestimates — gracefully degrade if it fails
-      let enrichedResults = searchResults;
+      const withZest = filteredResults.filter(p => p.zestimate).length;
+      toast.success(`Found ${filteredResults.length} properties. Enriching with Zestimates...`);
+
+      // Enrich in background — update results as zestimates come in
       try {
-        enrichedResults = await zillowAPI.enrichWithZestimates(
+        const enrichedResults = await zillowAPI.enrichWithZestimates(
           searchResults,
           (completed, total) => {
-            const enrichProgress = 40 + Math.round((completed / total) * 55);
-            setLoadingProgress(enrichProgress);
-            setLoadingStatus(`Fetching Zestimate ${completed}/${total} — finding deals below market value...`);
+            if (completed % 100 === 0 || completed === total) {
+              toast.info(`Zestimates: ${completed}/${total} checked...`);
+            }
           }
         );
+
+        // Re-sort with zestimates and update display
+        let sorted = sortPropertiesByWholesalePotential(enrichedResults);
+        if (params.wholesaleOnly) {
+          const deals = sorted.filter(p => p.price && p.zestimate && p.price < p.zestimate);
+          if (deals.length > 0) sorted = deals;
+        }
+        setProperties(sorted);
+
+        const deals = sorted.filter(p => p.price && p.zestimate && p.zestimate > p.price);
+        toast.success(`Done! ${deals.length} deals found below market value.`);
       } catch (enrichError) {
-        console.warn('Zestimate enrichment failed, showing results without enrichment:', enrichError);
-      }
-
-      setLoadingStatus('Sorting by best deals...');
-      setLoadingProgress(95);
-
-      // Always sort by wholesale potential — best deals first
-      let filteredResults = sortPropertiesByWholesalePotential(enrichedResults);
-
-      // Apply filters if set
-      if (params.fsboOnly) {
-        console.log(`FSBO Search Results: ${filteredResults.length} properties to display`);
-        if (filteredResults.length === 0) {
-          setError("No FSBO (For Sale By Owner) properties found in this area. Try a different location.");
-          return;
-        }
-      } else if (params.wholesaleOnly) {
-        // Only filter when explicitly toggled — show deals with price below zestimate
-        const wholesaleDeals = filteredResults.filter(p => p.price && p.zestimate && p.price < p.zestimate);
-        if (wholesaleDeals.length > 0) {
-          filteredResults = wholesaleDeals;
-        }
-        // If no deals found, still show all results sorted by potential
+        console.warn('Enrichment failed:', enrichError);
       }
 
       // Filter by keywords if provided
