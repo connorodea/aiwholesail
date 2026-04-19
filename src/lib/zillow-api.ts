@@ -557,76 +557,52 @@ export class ZillowAPI {
   }
 
   /**
-   * Enrich search results with zestimates by fetching property details in parallel batches.
-   * Returns properties sorted by spread (zestimate - price) descending.
+   * Enrich search results with zestimates using server-side batch endpoint.
+   * Server fetches all zestimates in parallel — much faster than browser-side.
    */
   async enrichWithZestimates(
     properties: Property[],
     onProgress?: (completed: number, total: number) => void
   ): Promise<Property[]> {
-    // Enrich all properties — we need every zestimate to find the best spreads
     const toEnrich = properties.filter(p => p.zpid && !p.zestimate);
-    const enrichBatch = toEnrich;
+    if (toEnrich.length === 0) return properties;
 
-    if (enrichBatch.length === 0) return properties;
+    const zpids = toEnrich.map(p => String(p.zpid));
+    console.log(`Enriching ${zpids.length} properties via batch endpoint...`);
+    onProgress?.(0, zpids.length);
 
-    console.log(`Enriching ${enrichBatch.length} properties with zestimates...`);
-    let completed = 0;
+    try {
+      const ZILLOW_BASE = ZILLOW_API_URL.replace(/\/zillow$/, '');
+      const response = await fetch(`${ZILLOW_BASE}/batch-zestimates`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ zpids }),
+      });
 
-    // Fetch in large parallel batches for speed
-    const BATCH_SIZE = 20;
-    const enriched = new Map<string, { zestimate?: number; daysOnMarket?: number }>();
+      if (!response.ok) throw new Error(`Batch endpoint failed: ${response.status}`);
+      const result = await response.json();
 
-    for (let i = 0; i < enrichBatch.length; i += BATCH_SIZE) {
-      const batch = enrichBatch.slice(i, i + BATCH_SIZE);
-      const results = await Promise.allSettled(
-        batch.map(async (p) => {
-          try {
-            const data = await this.callApi('propertyDetails', { zpid: p.zpid });
-            const details = data?.data?.data || data?.data || {};
-            return {
-              zpid: p.zpid,
-              zestimate: details.zestimate || undefined,
-              daysOnMarket: details.days_on_zillow || undefined,
-            };
-          } catch {
-            return { zpid: p.zpid };
-          }
-        })
-      );
+      if (!result.success) throw new Error(result.error || 'Batch failed');
 
-      for (const result of results) {
-        if (result.status === 'fulfilled' && result.value.zpid) {
-          enriched.set(result.value.zpid, result.value);
+      const zestimates: Record<string, number | null> = result.data || {};
+      console.log(`Batch complete: ${result.stats?.withZestimate}/${result.stats?.total} have zestimates (${result.stats?.durationMs}ms server-side)`);
+
+      onProgress?.(zpids.length, zpids.length);
+
+      // Merge zestimates back into properties
+      return properties.map(p => {
+        const zpid = String(p.zpid || '');
+        const zest = zestimates[zpid];
+        if (zest) {
+          return { ...p, zestimate: zest };
         }
-      }
-
-      completed += batch.length;
-      onProgress?.(completed, enrichBatch.length);
-
-      // Minimal delay between batches
-      if (i + BATCH_SIZE < enrichBatch.length) {
-        await new Promise(r => setTimeout(r, 100));
-      }
+        return p;
+      });
+    } catch (error) {
+      console.warn('Batch enrichment failed, returning results without zestimates:', error);
+      onProgress?.(zpids.length, zpids.length);
+      return properties;
     }
-
-    // Merge zestimates back into properties
-    const enrichedProperties = properties.map(p => {
-      const data = enriched.get(p.zpid || '');
-      if (data) {
-        return {
-          ...p,
-          zestimate: data.zestimate || p.zestimate,
-          daysOnMarket: data.daysOnMarket || p.daysOnMarket,
-        };
-      }
-      return p;
-    });
-
-    const withZest = enrichedProperties.filter(p => p.zestimate && p.price);
-    console.log(`Enrichment complete: ${withZest.length}/${enrichedProperties.length} properties have zestimates`);
-
-    return enrichedProperties;
   }
 
   async testConnection(): Promise<boolean> {
