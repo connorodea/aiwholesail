@@ -60,7 +60,7 @@ export default function RealEstateWholesaler() {
       // Fetch pages for results
       setLoadingStatus(`Searching for properties in ${params.location}...`);
       setLoadingProgress(20);
-      const maxPages = params.fsboOnly ? 20 : 10;
+      const maxPages = 20; // Fetch all available pages from API
       const searchResults = await zillowAPI.searchProperties(params, maxPages);
 
       if (searchResults.length === 0) {
