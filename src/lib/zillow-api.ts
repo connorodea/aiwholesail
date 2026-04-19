@@ -558,7 +558,7 @@ export class ZillowAPI {
 
   /**
    * Enrich search results with zestimates using server-side batch endpoint.
-   * Server fetches all zestimates in parallel — much faster than browser-side.
+   * Splits into chunks of 100 so progress bar updates visibly.
    */
   async enrichWithZestimates(
     properties: Property[],
@@ -567,42 +567,52 @@ export class ZillowAPI {
     const toEnrich = properties.filter(p => p.zpid && !p.zestimate);
     if (toEnrich.length === 0) return properties;
 
-    const zpids = toEnrich.map(p => String(p.zpid));
-    console.log(`Enriching ${zpids.length} properties via batch endpoint...`);
-    onProgress?.(0, zpids.length);
+    const allZpids = toEnrich.map(p => String(p.zpid));
+    console.log(`Enriching ${allZpids.length} properties via batch endpoint...`);
+    onProgress?.(0, allZpids.length);
+
+    const ZILLOW_BASE = ZILLOW_API_URL.replace(/\/zillow$/, '');
+    const allZestimates: Record<string, number | null> = {};
+    const CHUNK_SIZE = 100;
 
     try {
-      const ZILLOW_BASE = ZILLOW_API_URL.replace(/\/zillow$/, '');
-      const response = await fetch(`${ZILLOW_BASE}/batch-zestimates`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ zpids }),
-      });
+      for (let i = 0; i < allZpids.length; i += CHUNK_SIZE) {
+        const chunk = allZpids.slice(i, i + CHUNK_SIZE);
 
-      if (!response.ok) throw new Error(`Batch endpoint failed: ${response.status}`);
-      const result = await response.json();
+        const response = await fetch(`${ZILLOW_BASE}/batch-zestimates`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ zpids: chunk }),
+        });
 
-      if (!result.success) throw new Error(result.error || 'Batch failed');
-
-      const zestimates: Record<string, number | null> = result.data || {};
-      console.log(`Batch complete: ${result.stats?.withZestimate}/${result.stats?.total} have zestimates (${result.stats?.durationMs}ms server-side)`);
-
-      onProgress?.(zpids.length, zpids.length);
-
-      // Merge zestimates back into properties
-      return properties.map(p => {
-        const zpid = String(p.zpid || '');
-        const zest = zestimates[zpid];
-        if (zest) {
-          return { ...p, zestimate: zest };
+        if (response.ok) {
+          const result = await response.json();
+          if (result.success && result.data) {
+            Object.assign(allZestimates, result.data);
+          }
+          console.log(`Chunk ${Math.floor(i / CHUNK_SIZE) + 1}: ${result.stats?.withZestimate || 0} zestimates (${result.stats?.cached || 0} cached)`);
         }
-        return p;
-      });
+
+        onProgress?.(Math.min(i + chunk.length, allZpids.length), allZpids.length);
+      }
     } catch (error) {
-      console.warn('Batch enrichment failed, returning results without zestimates:', error);
-      onProgress?.(zpids.length, zpids.length);
-      return properties;
+      console.warn('Batch enrichment failed:', error);
     }
+
+    onProgress?.(allZpids.length, allZpids.length);
+
+    const withZest = Object.values(allZestimates).filter(v => v !== null).length;
+    console.log(`Enrichment complete: ${withZest}/${allZpids.length} have zestimates`);
+
+    // Merge zestimates back into properties
+    return properties.map(p => {
+      const zpid = String(p.zpid || '');
+      const zest = allZestimates[zpid];
+      if (zest) {
+        return { ...p, zestimate: zest };
+      }
+      return p;
+    });
   }
 
   async testConnection(): Promise<boolean> {
