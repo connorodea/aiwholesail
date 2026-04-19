@@ -226,36 +226,41 @@ export function PropertyCard({ property, onViewDetails, highlightWholesaleDeals 
           )}
         </div>
 
-        {/* Zestimate & AttomData AVM */}
+        {/* Zestimate & Spread */}
         <div className="space-y-2">
-          {property.zestimate && (
+          {property.zestimate ? (
             <div className={`p-3 rounded-lg ${
-              isHighValueDeal() 
-                ? 'bg-gradient-to-r from-success/20 to-success/10 border-2 border-success/40 shadow-md' 
+              spread >= 30000
+                ? 'bg-gradient-to-r from-success/20 to-success/10 border-2 border-success/40 shadow-md'
+                : spread > 0
+                ? 'bg-success/5 border border-success/20'
                 : 'bg-muted/50'
             }`}>
               <div className="text-xs text-muted-foreground flex items-center gap-1">
-                {isHighValueDeal() && <Star className="h-3 w-3 text-success" />}
+                {spread >= 30000 && <Star className="h-3 w-3 text-success" />}
                 Zestimate
-                {isHighValueDeal() && (
-                  <span className="text-success font-medium">
-                    (+${formatNumber(property.zestimate - property.price)} spread)
+              </div>
+              <div className={`font-semibold ${spread >= 30000 ? 'text-success' : spread > 0 ? 'text-success' : 'text-accent'}`}>
+                {formatPrice(property.zestimate)}
+              </div>
+              <div className="text-xs font-medium mt-1">
+                {spread > 0 ? (
+                  <span className="text-success">
+                    +${formatNumber(spread)} below market ({((spread / property.zestimate) * 100).toFixed(1)}% spread)
+                  </span>
+                ) : spread === 0 ? (
+                  <span className="text-muted-foreground">At market value</span>
+                ) : (
+                  <span className="text-orange-400">
+                    ${formatNumber(Math.abs(spread))} above market
                   </span>
                 )}
               </div>
-              <div className={`font-semibold ${isHighValueDeal() ? 'text-success' : 'text-accent'}`}>
-                {formatPrice(property.zestimate)}
-              </div>
-              {property.price && (
-                <div className="text-xs">
-                  {property.price > property.zestimate ? 
-                    <span className="text-warning">Above estimate</span> :
-                    <span className={isHighValueDeal() ? 'text-success font-medium' : 'text-success'}>
-                      Below estimate
-                    </span>
-                  }
-                </div>
-              )}
+            </div>
+          ) : (
+            <div className="p-3 rounded-lg bg-muted/30 border border-dashed border-muted-foreground/20">
+              <div className="text-xs text-muted-foreground">Zestimate</div>
+              <div className="text-sm text-muted-foreground/60 italic">Loading...</div>
             </div>
           )}
           

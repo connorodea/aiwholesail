@@ -46,93 +46,91 @@ export default function RealEstateWholesaler() {
   const [lastSearchLocation, setLastSearchLocation] = useState<string>('');
   const [sortBy, setSortBy] = useState<'price-high' | 'price-low' | 'newest' | 'oldest' | 'default'>('default');
   const [isSearchingFSBO, setIsSearchingFSBO] = useState<boolean>(false);
+  const [searchId, setSearchId] = useState(0);
 
   const handleSearch = async (params: PropertySearchParams) => {
+    // Increment search ID to prevent stale enrichment overwrites
+    const currentSearchId = searchId + 1;
+    setSearchId(currentSearchId);
+
     try {
       setIsLoading(true);
-      setLoadingStatus('Searching properties...');
-      setLoadingProgress(10);
+      setLoadingStatus(`Searching for properties in ${params.location}...`);
+      setLoadingProgress(20);
       setProperties([]);
       setError(null);
       setLastSearchLocation(params.location);
       setIsSearchingFSBO(params.fsboOnly || false);
 
-      // Fetch pages for results
-      setLoadingStatus(`Searching for properties in ${params.location}...`);
-      setLoadingProgress(20);
-      const maxPages = 20; // Fetch all available pages from API
-      const searchResults = await zillowAPI.searchProperties(params, maxPages);
+      // Step 1: Fetch all pages
+      const searchResults = await zillowAPI.searchProperties(params, 20);
 
       if (searchResults.length === 0) {
         setError("No properties found. Try adjusting your search criteria.");
         return;
       }
 
-      // Show results immediately — don't wait for enrichment
-      let filteredResults = sortPropertiesByWholesalePotential(searchResults);
-      if (params.fsboOnly && filteredResults.length === 0) {
-        setError("No FSBO properties found in this area. Try a different location.");
+      // Step 2: Show results immediately
+      let results = searchResults;
+
+      // Apply keyword filter if provided
+      if (params.keywords?.trim()) {
+        const keywords = params.keywords.toLowerCase().split(',').map(k => k.trim());
+        results = results.filter(p => {
+          const desc = (p.description || '').toLowerCase();
+          return keywords.some(kw => desc.includes(kw));
+        });
+      }
+
+      // Apply FSBO filter
+      if (params.fsboOnly && results.length === 0) {
+        setError("No FSBO properties found. Try a different location.");
         return;
       }
-      setProperties(filteredResults);
+
+      const sorted = sortPropertiesByWholesalePotential(results);
+      setProperties(sorted);
       setIsLoading(false);
       setLoadingProgress(0);
       setLoadingStatus('');
+      toast.success(`Found ${sorted.length} properties. Fetching Zestimates...`);
 
-      const withZest = filteredResults.filter(p => p.zestimate).length;
-      toast.success(`Found ${filteredResults.length} properties. Enriching with Zestimates...`);
-
-      // Enrich in background — update results as zestimates come in
+      // Step 3: Enrich with zestimates in background
       try {
-        const enrichedResults = await zillowAPI.enrichWithZestimates(
-          searchResults,
+        const enriched = await zillowAPI.enrichWithZestimates(
+          results,
           (completed, total) => {
             if (completed % 100 === 0 || completed === total) {
-              toast.info(`Zestimates: ${completed}/${total} checked...`);
+              toast.info(`Zestimates: ${completed}/${total} checked`);
             }
           }
         );
 
-        // Re-sort with zestimates and update display
-        let sorted = sortPropertiesByWholesalePotential(enrichedResults);
-        if (params.wholesaleOnly) {
-          const deals = sorted.filter(p => p.price && p.zestimate && p.price < p.zestimate);
-          if (deals.length > 0) sorted = deals;
+        // Only update if this is still the current search
+        if (currentSearchId !== searchId + 1 - 1) {
+          // Search ID changed — user started a new search, discard
+          console.log('Discarding stale enrichment results');
+          return;
         }
-        setProperties(sorted);
 
-        const deals = sorted.filter(p => p.price && p.zestimate && p.zestimate > p.price);
-        toast.success(`Done! ${deals.length} deals found below market value.`);
+        // Re-sort with zestimates — best deals first
+        let enrichedSorted = sortPropertiesByWholesalePotential(enriched);
+
+        // Apply wholesale filter if toggled
+        if (params.wholesaleOnly) {
+          const deals = enrichedSorted.filter(p => p.price && p.zestimate && p.price < p.zestimate);
+          if (deals.length > 0) enrichedSorted = deals;
+        }
+
+        setProperties(enrichedSorted);
+
+        const dealCount = enrichedSorted.filter(p => p.price && p.zestimate && p.zestimate > p.price).length;
+        const withZest = enrichedSorted.filter(p => p.zestimate).length;
+        toast.success(`Done! ${dealCount} deals below market value (${withZest} Zestimates found)`);
       } catch (enrichError) {
         console.warn('Enrichment failed:', enrichError);
+        toast.error('Zestimate enrichment failed. Showing results without spread data.');
       }
-
-      // Filter by keywords if provided
-      if (params.keywords && params.keywords.trim()) {
-        const keywords = params.keywords.toLowerCase().split(',').map(k => k.trim());
-        filteredResults = filteredResults.filter(property => {
-          const description = (property.description || '').toLowerCase();
-          return keywords.some(keyword => description.includes(keyword));
-        });
-      }
-
-      if (filteredResults.length === 0) {
-        setError("No properties found matching your criteria.");
-        return;
-      }
-
-      setProperties(filteredResults);
-      
-      // Enhanced success message for different search types
-      let successMessage = `Found ${filteredResults.length} properties`;
-      if (params.fsboOnly) {
-        successMessage += ' (FSBO - For Sale By Owner)';
-      }
-      if (params.wholesaleOnly) {
-        successMessage += ' with wholesale potential';
-      }
-      
-      toast.success(successMessage);
 
     } catch (error) {
       console.error('Search failed:', error);
