@@ -81,7 +81,8 @@ router.post('/signup', [
     user: {
       id: userId,
       email: normalizedEmail,
-      fullName: fullName || null
+      fullName: fullName || null,
+      emailVerified: false
     },
     accessToken,
     refreshToken,

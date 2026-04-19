@@ -26,7 +26,9 @@ const PORT = process.env.PORT || 3202;
 // Security middleware
 app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" },
-  crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" }
+  crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" },
+  frameguard: false, // Handled by Nginx global config
+  xContentTypeOptions: false // Handled by Nginx global config
 }));
 
 // CORS configuration
@@ -42,7 +44,10 @@ app.use(cors({
     if (corsOrigins.includes(origin) || process.env.NODE_ENV !== 'production') {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      // Return 403 instead of 500 for CORS violations
+      const err = new Error('Not allowed by CORS');
+      err.status = 403;
+      callback(err);
     }
   },
   credentials: true,
