@@ -175,9 +175,15 @@ export default function Pricing() {
           </div>
 
           <div className="mt-12 text-center">
-            <p className="text-sm text-muted-foreground">
-              Already have an account? <Link to="/auth" className="text-primary hover:underline">Sign in here</Link>
-            </p>
+            {user ? (
+              <p className="text-sm text-muted-foreground">
+                <Link to="/app" className="text-primary hover:underline">Go to Dashboard</Link>
+              </p>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                Already have an account? <Link to="/auth" className="text-primary hover:underline">Sign in here</Link>
+              </p>
+            )}
           </div>
         </div>
       </section>

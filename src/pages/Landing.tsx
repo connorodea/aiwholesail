@@ -518,8 +518,7 @@ const Landing = () => {
                     <h3 className="font-medium text-foreground">Company</h3>
                     <ul className="space-y-3">
                       {[
-                        { label: "About", to: "/contact" },
-                        { label: "Contact", to: "/contact" },
+                        { label: "Contact Us", to: "/contact" },
                         { label: "FAQ", to: "/faq" },
                         { label: "Pricing", to: "/pricing" }
                       ].map((link, index) => (

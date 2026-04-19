@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { LogIn, UserPlus, Eye, EyeOff, Mail, Home, Shield, CheckCircle } from 'lucide-react';
-import { stripe } from '@/lib/api-client';
+import { stripe, auth } from '@/lib/api-client';
 import { SEOHead } from '@/components/SEOHead';
 const aiWholesailLogo = '/lovable-uploads/8dcdb5d0-ddfb-406f-a5f0-b3c5112d210a.png';
 
@@ -241,6 +241,32 @@ export default function Auth() {
                       <p className="text-xs text-muted-foreground">
                         Min 8 characters with uppercase, lowercase, number, and special character
                       </p>
+                    )}
+                    {!isSignUp && (
+                      <div className="text-right">
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            if (!email) {
+                              toast.error('Please enter your email address first.');
+                              return;
+                            }
+                            try {
+                              const response = await auth.forgotPassword(email);
+                              if (response.error) {
+                                toast.error(response.error);
+                              } else {
+                                toast.success('Password reset link sent! Check your email.');
+                              }
+                            } catch (error) {
+                              toast.error('Failed to send reset link. Please try again.');
+                            }
+                          }}
+                          className="text-xs text-primary hover:text-primary/80 font-medium transition-colors"
+                        >
+                          Forgot password?
+                        </button>
+                      </div>
                     )}
                   </div>
 
