@@ -2,6 +2,7 @@ import { PropertySearchParams, Property, ZillowAPIResponse } from '@/types/zillo
 
 // Use Hetzner API endpoint instead of Supabase Edge Functions
 const ZILLOW_API_URL = import.meta.env.VITE_ZILLOW_API_URL || 'https://api.aiwholesail.com/zillow/zillow';
+const ZILLOW_API_KEY = import.meta.env.VITE_ZILLOW_API_KEY || '';
 
 export class ZillowAPI {
 
@@ -158,11 +159,14 @@ export class ZillowAPI {
   }
 
   private async fetchPage(params: PropertySearchParams, page: number) {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    if (ZILLOW_API_KEY) headers['x-api-key'] = ZILLOW_API_KEY;
+
     const response = await fetch(ZILLOW_API_URL, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
       body: JSON.stringify({
         searchParams: { ...params, page },
         action: 'search'
@@ -537,11 +541,14 @@ export class ZillowAPI {
   }
 
   private async callApi(action: string, searchParams?: any): Promise<any> {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    if (ZILLOW_API_KEY) headers['x-api-key'] = ZILLOW_API_KEY;
+
     const response = await fetch(ZILLOW_API_URL, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
       body: JSON.stringify({ action, searchParams })
     });
 
@@ -579,9 +586,12 @@ export class ZillowAPI {
       for (let i = 0; i < allZpids.length; i += CHUNK_SIZE) {
         const chunk = allZpids.slice(i, i + CHUNK_SIZE);
 
+        const batchHeaders: Record<string, string> = { 'Content-Type': 'application/json' };
+        if (ZILLOW_API_KEY) batchHeaders['x-api-key'] = ZILLOW_API_KEY;
+
         const response = await fetch(`${ZILLOW_BASE}/batch-zestimates`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: batchHeaders,
           body: JSON.stringify({ zpids: chunk }),
         });
 

@@ -132,7 +132,7 @@ router.get('/:id/matches', authenticate, [
  */
 router.post('/', authenticate, [
   body('location').notEmpty().withMessage('Location required'),
-  body('alertFrequency').optional().isIn(['instant', 'daily', 'weekly'])
+  body('alertFrequency').optional().isIn(['instant', 'immediate', 'daily', 'weekly'])
 ], asyncHandler(async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {

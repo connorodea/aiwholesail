@@ -119,16 +119,27 @@ const handler = async (req: Request): Promise<Response> => {
         if (alert.min_sqft) searchParams.sqft_min = alert.min_sqft.toString();
         if (alert.max_sqft) searchParams.sqft_max = alert.max_sqft.toString();
 
-        // Search for properties using the same API call as regular search
-        const { data: searchResult, error: searchError } = await supabase.functions.invoke('get-zillow-data', {
-          body: { 
-            searchParams,
-            action: 'search'
-          }
-        });
+        // Search for properties using the Hetzner API directly
+        const ZILLOW_API_URL = Deno.env.get('ZILLOW_API_URL') || 'https://api.aiwholesail.com/zillow';
 
-        if (searchError) {
-          console.error(`❌ Error searching properties for alert ${alert.id}:`, searchError);
+        let searchResult;
+        try {
+          const apiResponse = await fetch(ZILLOW_API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              searchParams,
+              action: 'search'
+            })
+          });
+
+          if (!apiResponse.ok) {
+            throw new Error(`API request failed: ${apiResponse.status}`);
+          }
+
+          searchResult = await apiResponse.json();
+        } catch (error) {
+          console.error(`❌ Error searching properties for alert ${alert.id}:`, error);
           continue;
         }
 
