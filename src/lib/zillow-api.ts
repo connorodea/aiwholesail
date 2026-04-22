@@ -635,44 +635,55 @@ export class ZillowAPI {
 
   /**
    * Enrich search results with zestimates using server-side batch endpoint.
-   * Splits into chunks of 100 so progress bar updates visibly.
+   * Caps at MAX_ENRICH properties and uses small chunks with progressive UI updates.
+   *
+   * The batch-zestimates endpoint takes ~1.6s per zpid. Enriching 800+ properties
+   * from a 20-page search would take ~22 minutes. Instead we:
+   * 1. Cap at 50 properties (first page + some of second)
+   * 2. Use 25-zpid chunks for ~40s per chunk
+   * 3. Call onChunkComplete after each chunk so the UI updates progressively
    */
   async enrichWithZestimates(
     properties: Property[],
-    onProgress?: (completed: number, total: number) => void
+    onProgress?: (completed: number, total: number) => void,
+    onChunkComplete?: (partiallyEnriched: Property[]) => void
   ): Promise<Property[]> {
-    // Find properties that need enrichment (have zpid but no zestimate)
+    const MAX_ENRICH = 50; // Cap: ~80s total instead of ~22 min
+    const CHUNK_SIZE = 25;
+
     const propertiesWithZpid = properties.map(p => ({
       property: p,
       zpid: this.getPropertyZpid(p)
     }));
 
-    const toEnrich = propertiesWithZpid.filter(({ zpid, property }) => zpid && !property.zestimate);
+    const toEnrich = propertiesWithZpid
+      .filter(({ zpid, property }) => zpid && !property.zestimate)
+      .slice(0, MAX_ENRICH);
 
-    console.log(`[Zestimate Enrichment] Total: ${properties.length}, With ZPID: ${propertiesWithZpid.filter(p => p.zpid).length}, Need enrichment: ${toEnrich.length}, Already have zestimate: ${properties.filter(p => p.zestimate).length}`);
+    const totalWithZpid = propertiesWithZpid.filter(p => p.zpid).length;
+    const alreadyHaveZest = properties.filter(p => p.zestimate).length;
+
+    console.log(`[Zestimate Enrichment] Total: ${properties.length}, With ZPID: ${totalWithZpid}, Enriching: ${toEnrich.length} (capped from ${totalWithZpid}), Already have: ${alreadyHaveZest}`);
 
     if (toEnrich.length === 0) {
-      console.log('[Zestimate Enrichment] No properties need enrichment');
       return properties;
     }
 
     const allZpids = toEnrich.map(({ zpid }) => zpid!);
-    console.log(`[Zestimate Enrichment] Fetching zestimates for ${allZpids.length} properties...`);
-    console.log('[Zestimate Enrichment] Sample zpids:', allZpids.slice(0, 5));
     onProgress?.(0, allZpids.length);
 
     const ZILLOW_BASE = ZILLOW_API_URL.replace(/\/zillow$/, '');
     const allZestimates: Record<string, number | null> = {};
-    const CHUNK_SIZE = 100;
 
     try {
       for (let i = 0; i < allZpids.length; i += CHUNK_SIZE) {
         const chunk = allZpids.slice(i, i + CHUNK_SIZE);
+        const chunkNum = Math.floor(i / CHUNK_SIZE) + 1;
 
         const batchHeaders: Record<string, string> = { 'Content-Type': 'application/json' };
         if (ZILLOW_API_KEY) batchHeaders['x-api-key'] = ZILLOW_API_KEY;
 
-        console.log(`[Zestimate Enrichment] Fetching chunk ${Math.floor(i / CHUNK_SIZE) + 1} (${chunk.length} zpids)`);
+        console.log(`[Zestimate Enrichment] Chunk ${chunkNum} (${chunk.length} zpids)`);
 
         const response = await fetch(`${ZILLOW_BASE}/batch-zestimates`, {
           method: 'POST',
@@ -680,24 +691,24 @@ export class ZillowAPI {
           body: JSON.stringify({ zpids: chunk }),
         });
 
-        console.log(`[Zestimate Enrichment] Response status: ${response.status}`);
-
         if (response.ok) {
           const result = await response.json();
-          console.log('[Zestimate Enrichment] Response:', JSON.stringify(result).substring(0, 300));
-
           if (result.success && result.data) {
             Object.assign(allZestimates, result.data);
-            console.log(`[Zestimate Enrichment] Chunk ${Math.floor(i / CHUNK_SIZE) + 1}: ${result.stats?.withZestimate || 0} zestimates (${result.stats?.cached || 0} cached)`);
-          } else {
-            console.warn('[Zestimate Enrichment] Unexpected response format:', result);
+            const chunkHits = Object.values(result.data).filter((v: any) => v !== null && v > 0).length;
+            console.log(`[Zestimate Enrichment] Chunk ${chunkNum}: ${chunkHits}/${chunk.length} zestimates (${result.stats?.cached || 0} cached, ${result.stats?.durationMs || 0}ms)`);
           }
         } else {
-          const errorText = await response.text();
-          console.error(`[Zestimate Enrichment] Error ${response.status}:`, errorText);
+          console.error(`[Zestimate Enrichment] Chunk ${chunkNum} failed: ${response.status}`);
         }
 
         onProgress?.(Math.min(i + chunk.length, allZpids.length), allZpids.length);
+
+        // Progressive UI update: merge what we have so far and notify caller
+        if (onChunkComplete) {
+          const partialMerge = this.mergeZestimates(properties, allZestimates);
+          onChunkComplete(partialMerge);
+        }
       }
     } catch (error) {
       console.error('[Zestimate Enrichment] Failed:', error);
@@ -707,24 +718,20 @@ export class ZillowAPI {
 
     const withZest = Object.values(allZestimates).filter(v => v !== null && v > 0).length;
     console.log(`[Zestimate Enrichment] Complete: ${withZest}/${allZpids.length} have zestimates`);
-    console.log('[Zestimate Enrichment] Sample results:', Object.entries(allZestimates).slice(0, 5));
 
-    // Merge zestimates back into properties
+    return this.mergeZestimates(properties, allZestimates);
+  }
+
+  private mergeZestimates(properties: Property[], zestimates: Record<string, number | null>): Property[] {
     return properties.map(p => {
       const zpid = this.getPropertyZpid(p);
       if (!zpid) return p;
-
-      // Check if we have data for this zpid
-      if (allZestimates.hasOwnProperty(zpid)) {
-        const zest = allZestimates[zpid];
+      if (zestimates.hasOwnProperty(zpid)) {
+        const zest = zestimates[zpid];
         if (zest !== null && zest > 0) {
-          console.log(`[Zestimate Enrichment] Setting zestimate for ${zpid}: ${zest}`);
           return { ...p, zestimate: zest };
-        } else {
-          // API confirmed no zestimate available
-          console.log(`[Zestimate Enrichment] No zestimate available for ${zpid}`);
-          return { ...p, zestimateUnavailable: true };
         }
+        return { ...p, zestimateUnavailable: true };
       }
       return p;
     });
