@@ -3,7 +3,7 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { MapPin, Bed, Bath, Square, Calendar, Eye, ExternalLink, Search, TrendingUp, TrendingDown, Clock, Flame, User, Phone, Building2 } from 'lucide-react';
+import { MapPin, Bed, Bath, Square, Eye, ExternalLink, Search, TrendingUp, TrendingDown, Clock, Flame, User, Phone, Building2, Heart, Star } from 'lucide-react';
 import { useState } from 'react';
 import { SkipTraceModal } from './SkipTraceModal';
 
@@ -16,6 +16,7 @@ interface PropertyCardProps {
 
 export function PropertyCard({ property, onViewDetails }: PropertyCardProps) {
   const [showSkipTrace, setShowSkipTrace] = useState(false);
+  const [isFavorited, setIsFavorited] = useState(false);
 
   const formatPrice = (price: number) => {
     if (price >= 1000000) {
@@ -78,61 +79,97 @@ export function PropertyCard({ property, onViewDetails }: PropertyCardProps) {
         </div>
       )}
 
-      <CardContent className="p-4 space-y-4">
-        {/* Header: Price + Status */}
-        <div className="flex items-start justify-between gap-2">
-          <div>
-            <div className="text-2xl font-bold tracking-tight">
-              {property.price ? formatFullPrice(property.price) : 'Price TBD'}
-            </div>
-            <div className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
-              <MapPin className="h-3 w-3" />
-              <span className="truncate max-w-[200px]">{property.address}</span>
-            </div>
+      {/* Property Image */}
+      <div className="relative aspect-[16/10] bg-muted overflow-hidden">
+        {(property as any).imageUrl || (property as any).image_url || (property as any).imgSrc ? (
+          <img
+            src={(property as any).imageUrl || (property as any).image_url || (property as any).imgSrc}
+            alt={property.address}
+            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            loading="lazy"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+            <MapPin className="h-8 w-8" />
           </div>
-          <div className="flex flex-col items-end gap-1">
-            <Badge variant={property.status?.toLowerCase().includes('sale') ? 'default' : 'secondary'} className="text-xs">
-              {property.status || 'For Sale'}
-            </Badge>
-            {isNew && (
-              <Badge variant="destructive" className="text-xs flex items-center gap-1">
-                <Flame className="h-3 w-3" /> NEW
-              </Badge>
-            )}
+        )}
+
+        {/* Badge Overlay */}
+        <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
+          <Badge className={property.status?.toLowerCase().includes('sale') ? 'bg-green-500 text-white border-0' : 'bg-muted text-muted-foreground'}>
+            {property.status || 'For Sale'}
+          </Badge>
+          {property.isFSBO && (
+            <Badge className="bg-primary text-primary-foreground border-0">FSBO</Badge>
+          )}
+          {isNew && (
+            <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-white border-0">New</Badge>
+          )}
+        </div>
+
+        {/* Favorite Button */}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="absolute top-3 right-3 bg-background/80 backdrop-blur-sm hover:bg-background h-8 w-8"
+          onClick={(e) => { e.stopPropagation(); setIsFavorited(!isFavorited); }}
+        >
+          <Heart className={`h-4 w-4 ${isFavorited ? 'fill-destructive text-destructive' : ''}`} />
+        </Button>
+      </div>
+
+      <CardContent className="p-4 space-y-4">
+        {/* Header: Price + Address */}
+        <div>
+          <div className="text-2xl font-bold tracking-tight">
+            {property.price ? formatFullPrice(property.price) : 'Price TBD'}
+          </div>
+          <div className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
+            <MapPin className="h-3 w-3" />
+            <span className="truncate">{property.address}</span>
           </div>
         </div>
 
         {/* Property Details */}
-        <div className="flex items-center gap-4 text-sm">
-          {property.bedrooms && (
-            <div className="flex items-center gap-1">
-              <Bed className="h-4 w-4 text-muted-foreground" />
-              <span className="font-medium">{property.bedrooms}</span>
+        <div className="grid grid-cols-3 gap-2">
+          {property.bedrooms != null && (
+            <div className="flex items-center gap-1.5 p-2 bg-muted/50 rounded-lg text-sm">
+              <Bed className="h-4 w-4 text-primary" />
+              <span>{property.bedrooms} bed</span>
             </div>
           )}
-          {property.bathrooms && (
-            <div className="flex items-center gap-1">
-              <Bath className="h-4 w-4 text-muted-foreground" />
-              <span className="font-medium">{property.bathrooms}</span>
+          {property.bathrooms != null && (
+            <div className="flex items-center gap-1.5 p-2 bg-muted/50 rounded-lg text-sm">
+              <Bath className="h-4 w-4 text-primary" />
+              <span>{property.bathrooms} bath</span>
             </div>
           )}
-          {property.sqft && (
-            <div className="flex items-center gap-1">
-              <Square className="h-4 w-4 text-muted-foreground" />
-              <span className="font-medium">{property.sqft.toLocaleString()}</span>
-            </div>
-          )}
-          {daysOnMarket !== null && (
-            <div className="flex items-center gap-1">
-              <Clock className="h-4 w-4 text-muted-foreground" />
-              <span className={`font-medium ${isFresh ? 'text-orange-500' : ''}`}>
-                {daysOnMarket === 0 ? 'Today' : `${daysOnMarket}d`}
-              </span>
+          {property.sqft != null && (
+            <div className="flex items-center gap-1.5 p-2 bg-muted/50 rounded-lg text-sm">
+              <Square className="h-4 w-4 text-primary" />
+              <span>{property.sqft.toLocaleString()}</span>
             </div>
           )}
         </div>
 
-        <Separator />
+        {/* Days on market + price/sqft */}
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          {daysOnMarket !== null && (
+            <>
+              <Clock className="h-4 w-4" />
+              <span className={isFresh ? 'text-orange-500 font-medium' : ''}>
+                {daysOnMarket === 0 ? 'Listed today' : `${daysOnMarket} days on market`}
+              </span>
+            </>
+          )}
+          {property.pricePerSqft != null && (
+            <>
+              {daysOnMarket !== null && <span className="text-border">|</span>}
+              <TrendingUp className="h-4 w-4" />
+              <span>${Math.round(property.pricePerSqft)}/sqft</span>
+            </>
+          )}
+        </div>
 
         {/* SPREAD Section - The Main Focus */}
         <div className={`p-4 rounded-xl text-center ${
