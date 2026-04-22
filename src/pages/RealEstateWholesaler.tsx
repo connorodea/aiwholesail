@@ -7,22 +7,18 @@ import { Property, PropertySearchParams } from '@/types/zillow';
 import { zillowAPI } from '@/lib/zillow-api';
 import { sortPropertiesByWholesalePotential } from '@/lib/wholesale-calculator';
 import { Button } from '@/components/ui/button';
-import { Home, User, LogOut, LogIn, Download, Bell, Timer, CreditCard } from 'lucide-react';
+import { User, Download } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useSubscription } from '@/contexts/SubscriptionContext';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useLeads } from '@/hooks/useLeads';
-import { stripe } from '@/lib/api-client';
 import { toast } from 'sonner';
-import { EnhancedPropertySearch } from '@/components/EnhancedPropertySearch';
 import { PropertyAlertsManager } from '@/components/PropertyAlertsManager';
-import { SubscriptionPlans } from '@/components/SubscriptionPlans';
-import { processPropertyAlerts } from '@/lib/propertyAlerts';
 import { AIWholesaleAnalyzer } from '@/components/AIWholesaleAnalyzer';
 import { PropDataMarketPanel } from '@/components/PropDataMarketPanel';
 import { PropDataPropertySearch } from '@/components/PropDataPropertySearch';
+import { DashboardNav } from '@/components/DashboardNav';
 import { Badge } from '@/components/ui/badge';
-import { 
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -32,9 +28,8 @@ import { ArrowUpDown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export default function RealEstateWholesaler() {
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
-  const { subscription, isTrialActive, trialDaysRemaining } = useSubscription();
   const { favorites } = useFavorites();
   const { exportAllLeads, loading: exportLoading } = useLeads();
   const [properties, setProperties] = useState<Property[]>([]);
@@ -215,117 +210,12 @@ export default function RealEstateWholesaler() {
     }
   };
 
-
-  const handleSignOut = async () => {
-    try {
-      await signOut();
-      setShowFavorites(false);
-      setShowAlerts(false);
-      
-      // Wait a brief moment for the auth state to clear, then redirect
-      setTimeout(() => {
-        navigate('/');
-        toast.success('Signed out successfully');
-      }, 100);
-    } catch (error) {
-      toast.error('Failed to sign out');
-    }
-  };
-
   return (
     <div className="min-h-screen bg-background font-sans">
-      {/* Minimal Navigation Header - OpenAI Style */}
-      <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/30">
-        <div className="container mx-auto mobile-padding py-4">
-          <div className="flex items-center justify-between">
-            {/* Clean Brand Identity */}
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-glow">
-                <Home className="h-4 w-4 text-primary-foreground" />
-              </div>
-              <h1 className="text-lg font-medium tracking-tight">AIWholesail</h1>
-            </div>
-            
-            {/* Minimal Action Buttons */}
-            <div className="flex items-center gap-1.5">
-              {/* Trial Status Indicator */}
-              {isTrialActive && trialDaysRemaining !== null && (
-                <div className="bg-orange-100 text-orange-800 px-2 py-1 rounded-md text-xs font-medium flex items-center gap-1">
-                  <Timer className="h-3 w-3" />
-                  {trialDaysRemaining}d trial
-                </div>
-              )}
-              
-              {user ? (
-                <>
-                  <Button
-                    variant={showFavorites ? "default" : "ghost"}
-                    size="sm"
-                    onClick={() => {
-                      setShowFavorites(!showFavorites);
-                      setShowAlerts(false);
-                    }}
-                    className="h-9 px-3 text-sm font-medium smooth-transition"
-                  >
-                    Favorites {favorites.length > 0 && <span className="ml-1 text-xs opacity-75">({favorites.length})</span>}
-                  </Button>
-                  <Button
-                    variant={showAlerts ? "default" : "ghost"}
-                    size="sm"
-                    onClick={() => {
-                      setShowAlerts(!showAlerts);
-                      setShowFavorites(false);
-                    }}
-                    className="h-9 px-3 text-sm font-medium smooth-transition"
-                  >
-                    <Bell className="h-3.5 w-3.5 mr-1.5" />
-                    Alerts
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={async () => {
-                      try {
-                        const response = await stripe.createPortal();
-                        if (response.error) throw new Error(response.error);
-                        window.open(response.data?.url, '_blank');
-                      } catch (error) {
-                        console.error('Error opening customer portal:', error);
-                        toast.error('Failed to open subscription portal');
-                      }
-                    }}
-                    className="h-9 px-3 text-sm font-medium transition-colors"
-                  >
-                    <CreditCard className="h-3.5 w-3.5 mr-1.5" />
-                    Manage
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleSignOut}
-                    className="h-9 px-3 text-sm font-medium smooth-transition"
-                  >
-                    <LogOut className="h-3.5 w-3.5 mr-1.5" />
-                    Sign Out
-                  </Button>
-                </>
-              ) : (
-                <Button
-                  size="sm"
-                  onClick={() => window.location.href = '/auth'}
-                  className="h-9 px-4 text-sm font-medium smooth-transition"
-                >
-                  <LogIn className="h-3.5 w-3.5 mr-1.5" />
-                  Sign In
-                </Button>
-              )}
-            </div>
-          </div>
-        </div>
-      </nav>
+      <DashboardNav />
 
-      {/* Main Content - OpenAI Clean Layout */}
-      <main className="container mx-auto mobile-padding py-16 space-y-20">
+      {/* Main Content */}
+      <main className="container mx-auto mobile-padding pt-24 pb-16 space-y-20">
         {showAlerts ? (
           <section className="animate-fade-in">
             <PropertyAlertsManager />
