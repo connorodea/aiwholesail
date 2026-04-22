@@ -19,6 +19,8 @@ import { PropertyAlertsManager } from '@/components/PropertyAlertsManager';
 import { SubscriptionPlans } from '@/components/SubscriptionPlans';
 import { processPropertyAlerts } from '@/lib/propertyAlerts';
 import { AIWholesaleAnalyzer } from '@/components/AIWholesaleAnalyzer';
+import { PropDataMarketPanel } from '@/components/PropDataMarketPanel';
+import { PropDataPropertySearch } from '@/components/PropDataPropertySearch';
 import { Badge } from '@/components/ui/badge';
 import { 
   DropdownMenu,
@@ -46,6 +48,7 @@ export default function RealEstateWholesaler() {
   const [lastSearchLocation, setLastSearchLocation] = useState<string>('');
   const [sortBy, setSortBy] = useState<'price-high' | 'price-low' | 'newest' | 'oldest' | 'default'>('default');
   const [isSearchingFSBO, setIsSearchingFSBO] = useState<boolean>(false);
+  const [searchMode, setSearchMode] = useState<'on-market' | 'off-market'>('on-market');
   const searchIdRef = useRef(0);
 
   // US States lookup
@@ -339,10 +342,41 @@ export default function RealEstateWholesaler() {
                   Discover undervalued properties with AI-powered analysis and comprehensive market data
                 </p>
               </div>
-              
-              <div className="feature-card p-8 backdrop-blur-sm">
-                <PropertySearch onSearch={handleSearch} isLoading={isLoading} />
+
+              {/* On-Market / Off-Market Toggle */}
+              <div className="flex items-center justify-center gap-1 p-1 bg-muted/50 rounded-lg max-w-md mx-auto">
+                <button
+                  onClick={() => setSearchMode('on-market')}
+                  className={`flex-1 px-4 py-2.5 rounded-md text-sm font-medium transition-all ${
+                    searchMode === 'on-market'
+                      ? 'bg-background shadow-sm text-foreground'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  On-Market (Zillow)
+                </button>
+                <button
+                  onClick={() => setSearchMode('off-market')}
+                  className={`flex-1 px-4 py-2.5 rounded-md text-sm font-medium transition-all ${
+                    searchMode === 'off-market'
+                      ? 'bg-background shadow-sm text-foreground'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  Off-Market (PropData)
+                </button>
               </div>
+
+              {searchMode === 'on-market' ? (
+                <div className="feature-card p-8 backdrop-blur-sm">
+                  <PropertySearch onSearch={handleSearch} isLoading={isLoading} />
+                </div>
+              ) : (
+                <div className="space-y-8 text-left">
+                  <PropDataPropertySearch />
+                  <PropDataMarketPanel />
+                </div>
+              )}
             </section>
 
             {/* Loading Progress Bar */}
