@@ -1,0 +1,132 @@
+name: CI / Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+# Prevent concurrent deployments for the same branch.
+# A run already in progress will be cancelled when a newer push arrives.
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Job 1: CI — typecheck + production build
+  # ---------------------------------------------------------------------------
+  ci:
+    name: CI (typecheck + build)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # tsc --noEmit exercises the compiler without writing files.
+      # tsconfig.app.json covers the React source tree (src/).
+      - name: Typecheck
+        run: npx tsc --noEmit -p tsconfig.app.json
+
+      - name: Build
+        run: npm run build
+
+      # Upload dist/ so the deploy job can consume it without rebuilding.
+      - name: Upload dist artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          if-no-files-found: error
+          retention-days: 1
+
+  # ---------------------------------------------------------------------------
+  # Job 2: Deploy — rsync dist/ to Hetzner VPS, reload nginx
+  # ---------------------------------------------------------------------------
+  deploy:
+    name: Deploy to Hetzner (connorodea)
+    runs-on: ubuntu-latest
+    needs: ci
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Download the build artifact produced by the CI job.
+      - name: Download dist artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      # Fail immediately if any required secret is absent.
+      - name: Validate required secrets
+        run: |
+          missing=()
+          [[ -z "${{ secrets.HETZNER_CO_HOST }}" ]]     && missing+=("HETZNER_CO_HOST")
+          [[ -z "${{ secrets.HETZNER_CO_USER }}" ]]     && missing+=("HETZNER_CO_USER")
+          [[ -z "${{ secrets.HETZNER_CO_SSH_KEY }}" ]]  && missing+=("HETZNER_CO_SSH_KEY")
+          if [[ ${#missing[@]} -gt 0 ]]; then
+            echo "ERROR: The following required secrets are not set: ${missing[*]}"
+            exit 1
+          fi
+          echo "All required secrets are present."
+
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          # Write the private key — using printf to avoid trailing-newline issues.
+          printf '%s\n' "${{ secrets.HETZNER_CO_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          # Resolve SSH port (default 22 if secret is empty).
+          SSH_PORT="${{ secrets.HETZNER_CO_PORT }}"
+          SSH_PORT="${SSH_PORT:-22}"
+          cat >> ~/.ssh/config <<EOF
+          Host hetzner_co
+            HostName ${{ secrets.HETZNER_CO_HOST }}
+            User ${{ secrets.HETZNER_CO_USER }}
+            Port ${SSH_PORT}
+            IdentityFile ~/.ssh/deploy_key
+            StrictHostKeyChecking no
+            LogLevel ERROR
+          EOF
+          chmod 600 ~/.ssh/config
+
+      # Verify the VPS target directory exists before transferring files.
+      - name: Verify target directory on VPS
+        run: |
+          ssh hetzner_co 'test -d /var/www/aiwholesail || { echo "ERROR: /var/www/aiwholesail does not exist on VPS. Run bootstrap steps."; exit 1; }'
+
+      # Sync the built static assets.  The trailing slash on dist/ means rsync
+      # copies the *contents* of dist/ into /var/www/aiwholesail/dist/ — not a
+      # nested dist/dist/.  --delete removes stale files from previous deploys.
+      - name: Rsync dist/ to VPS
+        run: |
+          rsync -az --delete \
+            -e "ssh -i ~/.ssh/deploy_key -p ${{ secrets.HETZNER_CO_PORT || '22' }} -o StrictHostKeyChecking=no" \
+            dist/ \
+            ${{ secrets.HETZNER_CO_USER }}@${{ secrets.HETZNER_CO_HOST }}:/var/www/aiwholesail/dist/
+
+      # Copy the remote deploy script so the VPS always has the latest version.
+      - name: Upload deploy script
+        run: |
+          scp deploy/deploy.sh hetzner_co:/var/www/aiwholesail/deploy.sh
+          ssh hetzner_co 'chmod +x /var/www/aiwholesail/deploy.sh'
+
+      # Execute the remote deploy script (nginx reload, permission fix, etc.).
+      - name: Run remote deploy script
+        run: |
+          ssh hetzner_co 'bash /var/www/aiwholesail/deploy.sh'
+
+      - name: Deployment complete
+        run: echo "Deployment finished successfully."
