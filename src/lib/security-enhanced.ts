@@ -204,7 +204,7 @@ export function generateCSPHeader(): string {
     "font-src 'self' https://fonts.gstatic.com",
     "img-src 'self' data: https: blob:",
     "connect-src 'self' https://api.aiwholesail.com https://api.anthropic.com https://api.openai.com https://*.rapidapi.com https://api.stripe.com https://js.stripe.com https://www.google-analytics.com",
-    "frame-src 'self' https://js.stripe.com https://hooks.stripe.com",
+    "frame-src 'self' https://js.stripe.com https://hooks.stripe.com https://www.loom.com https://www.youtube.com https://player.vimeo.com",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",
