@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Search, DollarSign, MapPin, Star, Brain, BarChart3, MessageSquare, Eye, Zap, Shield, ChevronRight, Play, ArrowRight, X } from "lucide-react";
+import { CheckCircle, Search, DollarSign, MapPin, Star, Brain, BarChart3, MessageSquare, Eye, Zap, Shield, ChevronRight, Play, ArrowRight, X, Bell, Users, Target } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
@@ -189,80 +189,87 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Features Section - Clean and Minimal */}
+      {/* Features Section — 9-Feature Grid */}
       <section ref={featuresRef.ref} className="py-24 px-4">
-        <div className="container mx-auto max-w-6xl">
+        <div className="container mx-auto max-w-7xl">
           <div className={`text-center mb-16 space-y-4 transition-all duration-1000 delay-200 ${featuresRef.isVisible ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
             <h2 className="text-3xl md:text-4xl font-medium tracking-tight">
               Everything you need to <span className="text-primary">succeed</span>
             </h2>
             <p className="text-lg text-muted-foreground font-light max-w-2xl mx-auto">
-              Our comprehensive platform combines cutting-edge AI with real estate expertise 
+              Our comprehensive platform combines cutting-edge AI with real estate expertise
               to give you the competitive edge you need.
             </p>
           </div>
-          
-          <div className={`grid lg:grid-cols-3 gap-8 mb-12 transition-all duration-1000 delay-400 ${featuresRef.isVisible ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-            <div className="group text-center space-y-4 p-6 rounded-2xl hover:bg-card/50 transition-all duration-500">
-              <div className="mx-auto mb-4 p-3 bg-primary/10 rounded-2xl w-fit group-hover:bg-primary/15 transition-colors">
-                <Brain className="h-8 w-8 text-primary" />
-              </div>
-              <h3 className="text-lg font-medium">AI-Powered Analysis</h3>
-              <p className="text-muted-foreground font-light">
-                Advanced machine learning algorithms analyze property data, market trends, 
-                and investment potential to identify the most profitable opportunities.
-              </p>
-            </div>
-            
-            <div className="group text-center space-y-4 p-6 rounded-2xl hover:bg-card/50 transition-all duration-500">
-              <div className="mx-auto mb-4 p-3 bg-primary/10 rounded-2xl w-fit group-hover:bg-primary/15 transition-colors">
-                <Search className="h-8 w-8 text-primary" />
-              </div>
-              <h3 className="text-lg font-medium">Smart Property Search</h3>
-              <p className="text-muted-foreground font-light">
-                Natural language search with advanced filtering across multiple MLS sources. 
-                Find distressed properties, foreclosures, and wholesale opportunities instantly.
-              </p>
-            </div>
-            
-            <div className="group text-center space-y-4 p-6 rounded-2xl hover:bg-card/50 transition-all duration-500">
-              <div className="mx-auto mb-4 p-3 bg-primary/10 rounded-2xl w-fit group-hover:bg-primary/15 transition-colors">
-                <MessageSquare className="h-8 w-8 text-primary" />
-              </div>
-              <h3 className="text-lg font-medium">AI Chat Assistant</h3>
-              <p className="text-muted-foreground font-light">
-                Get instant answers about market data, property analysis, and investment strategies 
-                from our AI assistant with web search capabilities.
-              </p>
-            </div>
+
+          <div className={`grid sm:grid-cols-2 lg:grid-cols-3 gap-6 transition-all duration-1000 delay-400 ${featuresRef.isVisible ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+            {[
+              { icon: Brain, title: "AI-Powered Analysis", desc: "Advanced machine learning algorithms analyze property data, market trends, and investment potential to identify the most profitable opportunities." },
+              { icon: Search, title: "Smart Property Search", desc: "Natural language search with advanced filtering across multiple MLS sources. Find distressed properties, foreclosures, and wholesale opportunities instantly." },
+              { icon: MessageSquare, title: "AI Chat Assistant", desc: "Get instant answers about market data, property analysis, and investment strategies from our AI assistant with real-time web search capabilities." },
+              { icon: DollarSign, title: "Deal Analysis & ROI", desc: "Instant profit calculations, repair estimates, ARV analysis, and wholesale margin projections. Know your numbers before making an offer." },
+              { icon: BarChart3, title: "Market Intelligence", desc: "Real-time market data from 14 sources, comparable sales analysis, neighborhood insights, and predictive market trends." },
+              { icon: Bell, title: "Property Alerts", desc: "Set up automated alerts for your criteria. Get notified instantly when new deals matching your investment strategy hit the market." },
+              { icon: Users, title: "Skip Tracing", desc: "Find property owner contact information with integrated skip tracing. Connect directly with motivated sellers to close deals faster." },
+              { icon: Target, title: "Lead Scoring", desc: "AI-powered lead scoring identifies the most motivated sellers. Focus your efforts on the highest probability deals." },
+              { icon: Zap, title: "FSBO Detection", desc: "Automatically identify For Sale By Owner properties with higher potential margins due to no agent commissions." },
+            ].map((feature, index) => (
+              <Card key={feature.title} className="group bg-card/50 border-border/50 hover:border-primary/30 hover:bg-card transition-all duration-300 hover:shadow-lg hover:shadow-primary/5" style={{ animationDelay: `${index * 50}ms` }}>
+                <CardHeader>
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                    <feature.icon className="h-6 w-6 text-primary" />
+                  </div>
+                  <CardTitle className="text-lg font-medium">{feature.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription className="text-muted-foreground leading-relaxed font-light">{feature.desc}</CardDescription>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works Section */}
+      <section className="py-24 px-4 bg-secondary/30">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center space-y-4 mb-16">
+            <h2 className="text-3xl md:text-4xl font-medium tracking-tight">
+              How it <span className="text-primary">works</span>
+            </h2>
+            <p className="text-lg text-muted-foreground font-light max-w-2xl mx-auto">
+              From search to close in four simple steps. Our platform streamlines your wholesale workflow.
+            </p>
           </div>
 
-          <div className={`grid md:grid-cols-2 gap-8 max-w-4xl mx-auto transition-all duration-1000 delay-600 ${featuresRef.isVisible ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-            <div className="group space-y-4 p-6 rounded-2xl hover:bg-card/50 transition-all duration-500">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 bg-primary/10 rounded-xl group-hover:bg-primary/15 transition-colors">
-                  <DollarSign className="h-6 w-6 text-primary" />
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {[
+              { step: "01", icon: Search, title: "Search Properties", desc: "Enter any location, zip code, or address. Filter by price, property type, and wholesale potential." },
+              { step: "02", icon: Brain, title: "AI Analysis", desc: "Our AI instantly analyzes each property, calculating ARV, repair estimates, and wholesale margins." },
+              { step: "03", icon: DollarSign, title: "Find Spreads", desc: "Identify properties with significant spreads between listing price and estimated value." },
+              { step: "04", icon: CheckCircle, title: "Close Deals", desc: "Use skip tracing to contact owners directly and close profitable wholesale deals." },
+            ].map((item, index) => (
+              <div key={item.step} className="relative">
+                {index < 3 && (
+                  <div className="hidden lg:block absolute top-12 left-1/2 w-full h-px bg-gradient-to-r from-primary/50 to-primary/0" />
+                )}
+                <div className="relative z-10 text-center space-y-4">
+                  <div className="inline-flex items-center justify-center w-24 h-24 rounded-2xl bg-card border border-border shadow-lg">
+                    <div className="text-center">
+                      <div className="text-xs font-medium text-muted-foreground mb-1">STEP</div>
+                      <div className="text-2xl font-bold text-primary">{item.step}</div>
+                    </div>
+                  </div>
+                  <div className="w-12 h-12 mx-auto rounded-xl bg-primary/10 flex items-center justify-center">
+                    <item.icon className="h-6 w-6 text-primary" />
+                  </div>
+                  <div className="space-y-2">
+                    <h3 className="text-lg font-medium">{item.title}</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed font-light">{item.desc}</p>
+                  </div>
                 </div>
-                <h3 className="text-lg font-medium">Deal Analysis & ROI</h3>
               </div>
-              <p className="text-muted-foreground font-light">
-                Instant profit calculations, repair estimates, ARV analysis, and wholesale margin projections. 
-                Know your numbers before making an offer.
-              </p>
-            </div>
-            
-            <div className="group space-y-4 p-6 rounded-2xl hover:bg-card/50 transition-all duration-500">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 bg-primary/10 rounded-xl group-hover:bg-primary/15 transition-colors">
-                  <BarChart3 className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="text-lg font-medium">Market Intelligence</h3>
-              </div>
-              <p className="text-muted-foreground font-light">
-                Real-time market data, comparable sales analysis, neighborhood insights, 
-                and predictive market trends to stay ahead of the competition.
-              </p>
-            </div>
+            ))}
           </div>
         </div>
       </section>
@@ -562,7 +569,7 @@ const Landing = () => {
             {/* Bottom Section */}
             <div className="border-t border-border/20 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
               <p className="text-sm text-muted-foreground font-light">
-                © 2025 AIWholesail. All rights reserved.
+                © 2026 AIWholesail. All rights reserved.
               </p>
               <div className="flex items-center space-x-6">
                 <Badge variant="secondary" className="text-xs font-light">
