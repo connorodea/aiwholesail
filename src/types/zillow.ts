@@ -38,6 +38,19 @@ export interface Property {
   listDate?: string;
   description?: string;
   isFSBO?: boolean;
+  // Agent/Listing information
+  agentName?: string;
+  agentPhone?: string;
+  agentEmail?: string;
+  agentLicenseNumber?: string;
+  agentPhotoUrl?: string;
+  brokerName?: string;
+  brokerPhone?: string;
+  brokerageName?: string;
+  mlsId?: string;
+  mlsName?: string;
+  listingSource?: string;
+  listingUrl?: string;
   // AttomData enhanced fields
   attomData?: {
     propertyType?: string;

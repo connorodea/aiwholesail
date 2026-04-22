@@ -323,6 +323,53 @@ export class ZillowAPI {
                 flattened.listDate ||
                 flattened.onMarketDate,
       isFSBO,
+      // Agent/Listing information
+      agentName: flattened.property_listing_agentName ||
+                 flattened.property_attributionInfo_agentName ||
+                 flattened.agentName ||
+                 flattened.agent_name,
+      agentPhone: flattened.property_listing_agentPhoneNumber ||
+                  flattened.property_attributionInfo_agentPhoneNumber ||
+                  flattened.agentPhone ||
+                  flattened.agent_phone,
+      agentEmail: flattened.property_listing_agentEmail ||
+                  flattened.property_attributionInfo_agentEmail ||
+                  flattened.agentEmail ||
+                  flattened.agent_email,
+      agentLicenseNumber: flattened.property_listing_agentLicenseNumber ||
+                          flattened.property_attributionInfo_agentLicenseNumber ||
+                          flattened.agentLicenseNumber,
+      agentPhotoUrl: flattened.property_listing_agentPhotoUrl ||
+                     flattened.property_attributionInfo_agentPhotoUrl ||
+                     flattened.agentPhotoUrl,
+      brokerName: flattened.property_listing_brokerName ||
+                  flattened.property_attributionInfo_brokerName ||
+                  flattened.brokerName ||
+                  flattened.broker_name,
+      brokerPhone: flattened.property_listing_brokerPhoneNumber ||
+                   flattened.property_attributionInfo_brokerPhoneNumber ||
+                   flattened.brokerPhone ||
+                   flattened.broker_phone,
+      brokerageName: flattened.property_listing_listingAgency ||
+                     flattened.property_attributionInfo_brokerageName ||
+                     flattened.listingAgency ||
+                     flattened.brokerage_name ||
+                     flattened.brokerageName,
+      mlsId: flattened.property_listing_mlsId ||
+             flattened.property_attributionInfo_mlsId ||
+             flattened.mlsId ||
+             flattened.mls_id,
+      mlsName: flattened.property_listing_mlsName ||
+               flattened.property_attributionInfo_mlsName ||
+               flattened.mlsName ||
+               flattened.mls_name,
+      listingSource: flattened.property_listing_listingProvider ||
+                     flattened.listingProvider ||
+                     flattened.listing_source,
+      listingUrl: flattened.property_hdpView_url ||
+                  flattened.detail_url ||
+                  flattened.detailUrl ||
+                  flattened.url,
       ...flattened // Include all original data
     };
   }
@@ -564,6 +611,29 @@ export class ZillowAPI {
   }
 
   /**
+   * Extract zpid from property using various fallbacks
+   */
+  private getPropertyZpid(p: Property): string | null {
+    // Try zpid field first, then id, then any nested zpid fields
+    const candidates = [
+      p.zpid,
+      (p as any).property_zpid,
+      p.id,
+      (p as any).listing_zpid
+    ];
+
+    for (const candidate of candidates) {
+      if (!candidate) continue;
+      const str = String(candidate);
+      // Valid zpid is numeric and at least 5 digits
+      if (/^\d{5,}$/.test(str)) {
+        return str;
+      }
+    }
+    return null;
+  }
+
+  /**
    * Enrich search results with zestimates using server-side batch endpoint.
    * Splits into chunks of 100 so progress bar updates visibly.
    */
@@ -571,11 +641,24 @@ export class ZillowAPI {
     properties: Property[],
     onProgress?: (completed: number, total: number) => void
   ): Promise<Property[]> {
-    const toEnrich = properties.filter(p => p.zpid && !p.zestimate);
-    if (toEnrich.length === 0) return properties;
+    // Find properties that need enrichment (have zpid but no zestimate)
+    const propertiesWithZpid = properties.map(p => ({
+      property: p,
+      zpid: this.getPropertyZpid(p)
+    }));
 
-    const allZpids = toEnrich.map(p => String(p.zpid));
-    console.log(`Enriching ${allZpids.length} properties via batch endpoint...`);
+    const toEnrich = propertiesWithZpid.filter(({ zpid, property }) => zpid && !property.zestimate);
+
+    console.log(`[Zestimate Enrichment] Total: ${properties.length}, With ZPID: ${propertiesWithZpid.filter(p => p.zpid).length}, Need enrichment: ${toEnrich.length}, Already have zestimate: ${properties.filter(p => p.zestimate).length}`);
+
+    if (toEnrich.length === 0) {
+      console.log('[Zestimate Enrichment] No properties need enrichment');
+      return properties;
+    }
+
+    const allZpids = toEnrich.map(({ zpid }) => zpid!);
+    console.log(`[Zestimate Enrichment] Fetching zestimates for ${allZpids.length} properties...`);
+    console.log('[Zestimate Enrichment] Sample zpids:', allZpids.slice(0, 5));
     onProgress?.(0, allZpids.length);
 
     const ZILLOW_BASE = ZILLOW_API_URL.replace(/\/zillow$/, '');
@@ -589,37 +672,59 @@ export class ZillowAPI {
         const batchHeaders: Record<string, string> = { 'Content-Type': 'application/json' };
         if (ZILLOW_API_KEY) batchHeaders['x-api-key'] = ZILLOW_API_KEY;
 
+        console.log(`[Zestimate Enrichment] Fetching chunk ${Math.floor(i / CHUNK_SIZE) + 1} (${chunk.length} zpids)`);
+
         const response = await fetch(`${ZILLOW_BASE}/batch-zestimates`, {
           method: 'POST',
           headers: batchHeaders,
           body: JSON.stringify({ zpids: chunk }),
         });
 
+        console.log(`[Zestimate Enrichment] Response status: ${response.status}`);
+
         if (response.ok) {
           const result = await response.json();
+          console.log('[Zestimate Enrichment] Response:', JSON.stringify(result).substring(0, 300));
+
           if (result.success && result.data) {
             Object.assign(allZestimates, result.data);
+            console.log(`[Zestimate Enrichment] Chunk ${Math.floor(i / CHUNK_SIZE) + 1}: ${result.stats?.withZestimate || 0} zestimates (${result.stats?.cached || 0} cached)`);
+          } else {
+            console.warn('[Zestimate Enrichment] Unexpected response format:', result);
           }
-          console.log(`Chunk ${Math.floor(i / CHUNK_SIZE) + 1}: ${result.stats?.withZestimate || 0} zestimates (${result.stats?.cached || 0} cached)`);
+        } else {
+          const errorText = await response.text();
+          console.error(`[Zestimate Enrichment] Error ${response.status}:`, errorText);
         }
 
         onProgress?.(Math.min(i + chunk.length, allZpids.length), allZpids.length);
       }
     } catch (error) {
-      console.warn('Batch enrichment failed:', error);
+      console.error('[Zestimate Enrichment] Failed:', error);
     }
 
     onProgress?.(allZpids.length, allZpids.length);
 
-    const withZest = Object.values(allZestimates).filter(v => v !== null).length;
-    console.log(`Enrichment complete: ${withZest}/${allZpids.length} have zestimates`);
+    const withZest = Object.values(allZestimates).filter(v => v !== null && v > 0).length;
+    console.log(`[Zestimate Enrichment] Complete: ${withZest}/${allZpids.length} have zestimates`);
+    console.log('[Zestimate Enrichment] Sample results:', Object.entries(allZestimates).slice(0, 5));
 
     // Merge zestimates back into properties
     return properties.map(p => {
-      const zpid = String(p.zpid || '');
-      const zest = allZestimates[zpid];
-      if (zest) {
-        return { ...p, zestimate: zest };
+      const zpid = this.getPropertyZpid(p);
+      if (!zpid) return p;
+
+      // Check if we have data for this zpid
+      if (allZestimates.hasOwnProperty(zpid)) {
+        const zest = allZestimates[zpid];
+        if (zest !== null && zest > 0) {
+          console.log(`[Zestimate Enrichment] Setting zestimate for ${zpid}: ${zest}`);
+          return { ...p, zestimate: zest };
+        } else {
+          // API confirmed no zestimate available
+          console.log(`[Zestimate Enrichment] No zestimate available for ${zpid}`);
+          return { ...p, zestimateUnavailable: true };
+        }
       }
       return p;
     });

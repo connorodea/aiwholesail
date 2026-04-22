@@ -110,6 +110,9 @@ export function calculateWholesalePotential(property: Property): WholesalePotent
   };
 }
 
+// Minimum spread to qualify as a wholesale deal
+export const MIN_DEAL_SPREAD = 30000;
+
 export function sortPropertiesByWholesalePotential(properties: Property[]): Property[] {
   return properties
     .map(property => {
@@ -117,31 +120,50 @@ export function sortPropertiesByWholesalePotential(properties: Property[]): Prop
       const zestimate = property.zestimate || 0;
       const hasZestimate = !!(property.zestimate && property.price);
       const rawSpread = hasZestimate ? zestimate - price : -Infinity;
-      return { property, potential: calculateWholesalePotential(property), hasZestimate, rawSpread };
+      const daysOnMarket = property.daysOnMarket ?? 9999; // Default to high if unknown
+      const isQualifiedDeal = rawSpread >= MIN_DEAL_SPREAD;
+      return { property, potential: calculateWholesalePotential(property), hasZestimate, rawSpread, daysOnMarket, isQualifiedDeal };
     })
     .sort((a, b) => {
-      // Properties with positive spreads (deals) always first
+      // 1. Qualified deals ($30k+ spread) always first
+      if (a.isQualifiedDeal && !b.isQualifiedDeal) return -1;
+      if (!a.isQualifiedDeal && b.isQualifiedDeal) return 1;
+
+      // 2. Among qualified deals: sort by days on market ASC (newest first), then by spread DESC
+      if (a.isQualifiedDeal && b.isQualifiedDeal) {
+        // Primary: shortest time on market first (newest listings)
+        if (a.daysOnMarket !== b.daysOnMarket) {
+          return a.daysOnMarket - b.daysOnMarket;
+        }
+        // Secondary: highest spread first
+        return b.rawSpread - a.rawSpread;
+      }
+
+      // 3. Properties with positive spread (but < $30k) next
       const aPositive = a.rawSpread > 0;
       const bPositive = b.rawSpread > 0;
       if (aPositive && !bPositive) return -1;
       if (!aPositive && bPositive) return 1;
 
-      // Among deals, sort by spread descending
       if (aPositive && bPositive) {
+        // Newest first, then highest spread
+        if (a.daysOnMarket !== b.daysOnMarket) {
+          return a.daysOnMarket - b.daysOnMarket;
+        }
         return b.rawSpread - a.rawSpread;
       }
 
-      // Properties with zestimates next (even if negative spread)
+      // 4. Properties with zestimates next (even if negative spread)
       if (a.hasZestimate && !b.hasZestimate) return -1;
       if (!a.hasZestimate && b.hasZestimate) return 1;
 
-      // Among properties with zestimates, sort by spread descending (least overpriced first)
+      // 5. Among properties with zestimates, sort by spread descending
       if (a.hasZestimate && b.hasZestimate) {
         return b.rawSpread - a.rawSpread;
       }
 
-      // Properties without zestimates: sort by price ascending (cheaper = more likely deal)
-      return (a.property.price || 0) - (b.property.price || 0);
+      // 6. Properties without zestimates: sort by newest first
+      return a.daysOnMarket - b.daysOnMarket;
     })
     .map(item => item.property);
 }

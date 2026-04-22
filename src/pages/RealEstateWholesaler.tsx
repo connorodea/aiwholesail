@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { PropertySearch } from '@/components/PropertySearch';
 import { PropertyCard } from '@/components/PropertyCard';
 import { PropertyModal } from '@/components/PropertyModal';
@@ -46,12 +46,78 @@ export default function RealEstateWholesaler() {
   const [lastSearchLocation, setLastSearchLocation] = useState<string>('');
   const [sortBy, setSortBy] = useState<'price-high' | 'price-low' | 'newest' | 'oldest' | 'default'>('default');
   const [isSearchingFSBO, setIsSearchingFSBO] = useState<boolean>(false);
-  const [searchId, setSearchId] = useState(0);
+  const searchIdRef = useRef(0);
+
+  // US States lookup
+  const US_STATES: Record<string, string> = {
+    'alabama': 'AL', 'alaska': 'AK', 'arizona': 'AZ', 'arkansas': 'AR',
+    'california': 'CA', 'colorado': 'CO', 'connecticut': 'CT', 'delaware': 'DE',
+    'florida': 'FL', 'georgia': 'GA', 'hawaii': 'HI', 'idaho': 'ID',
+    'illinois': 'IL', 'indiana': 'IN', 'iowa': 'IA', 'kansas': 'KS',
+    'kentucky': 'KY', 'louisiana': 'LA', 'maine': 'ME', 'maryland': 'MD',
+    'massachusetts': 'MA', 'michigan': 'MI', 'minnesota': 'MN', 'mississippi': 'MS',
+    'missouri': 'MO', 'montana': 'MT', 'nebraska': 'NE', 'nevada': 'NV',
+    'new hampshire': 'NH', 'new jersey': 'NJ', 'new mexico': 'NM', 'new york': 'NY',
+    'north carolina': 'NC', 'north dakota': 'ND', 'ohio': 'OH', 'oklahoma': 'OK',
+    'oregon': 'OR', 'pennsylvania': 'PA', 'rhode island': 'RI', 'south carolina': 'SC',
+    'south dakota': 'SD', 'tennessee': 'TN', 'texas': 'TX', 'utah': 'UT',
+    'vermont': 'VT', 'virginia': 'VA', 'washington': 'WA', 'west virginia': 'WV',
+    'wisconsin': 'WI', 'wyoming': 'WY'
+  };
+  const STATE_ABBREVIATIONS = Object.values(US_STATES);
+
+  // Check if location is just a state name or abbreviation
+  const isStateOnlyLocation = (location: string): boolean => {
+    const trimmed = location.trim().toLowerCase();
+    // Check full state name
+    if (US_STATES[trimmed]) return true;
+    // Check abbreviation (2 letters only)
+    if (trimmed.length === 2 && STATE_ABBREVIATIONS.includes(trimmed.toUpperCase())) return true;
+    // Check "State, United States" format
+    const parts = trimmed.split(',').map(p => p.trim());
+    if (parts.length === 2 && (parts[1] === 'united states' || parts[1] === 'usa' || parts[1] === 'us')) {
+      if (US_STATES[parts[0]]) return true;
+    }
+    return false;
+  };
+
+  // Check if it's a county search without a state
+  const isCountyWithoutState = (location: string): boolean => {
+    const trimmed = location.trim().toLowerCase();
+    if (!trimmed.includes('county')) return false;
+
+    const parts = trimmed.split(',').map(p => p.trim());
+    if (parts.length >= 2) {
+      // Check if any part after the county name is a valid state
+      for (let i = 1; i < parts.length; i++) {
+        const part = parts[i].toLowerCase();
+        if (part === 'united states' || part === 'usa' || part === 'us') continue;
+        if (US_STATES[part] || STATE_ABBREVIATIONS.includes(parts[i].toUpperCase())) {
+          return false; // Has a valid state
+        }
+      }
+    }
+    return true; // County without state
+  };
 
   const handleSearch = async (params: PropertySearchParams) => {
+    // Validate location - block state-only searches
+    if (isStateOnlyLocation(params.location)) {
+      setError("State-wide searches are not supported. Please enter a specific city (e.g., 'Detroit, MI'), ZIP code, or county name with state.");
+      toast.error("Please enter a city, ZIP code, or county with state - state-wide searches are not supported.");
+      return;
+    }
+
+    // Validate county searches have a state
+    if (isCountyWithoutState(params.location)) {
+      setError("Please include a state with county searches. Example: 'Oakland County, MI' or 'Oakland County, Michigan'");
+      toast.error("Please add a state to your county search (e.g., 'Oakland County, MI')");
+      return;
+    }
+
     // Increment search ID to prevent stale enrichment overwrites
-    const currentSearchId = searchId + 1;
-    setSearchId(currentSearchId);
+    searchIdRef.current += 1;
+    const currentSearchId = searchIdRef.current;
 
     try {
       setIsLoading(true);
@@ -97,6 +163,8 @@ export default function RealEstateWholesaler() {
 
       // Step 3: Enrich with zestimates in background
       try {
+        console.log('[AIWholesail v2.1] Starting zestimate enrichment for', results.length, 'properties');
+
         const enriched = await zillowAPI.enrichWithZestimates(
           results,
           (completed, total) => {
@@ -106,10 +174,12 @@ export default function RealEstateWholesaler() {
           }
         );
 
+        console.log('[AIWholesail v2.1] Enrichment complete. Sample:', enriched.slice(0, 2).map(p => ({ zpid: p.zpid, price: p.price, zestimate: p.zestimate })));
+
         // Only update if this is still the current search
-        if (currentSearchId !== searchId + 1 - 1) {
+        if (currentSearchId !== searchIdRef.current) {
           // Search ID changed — user started a new search, discard
-          console.log('Discarding stale enrichment results');
+          console.log('[AIWholesail v2.1] Discarding stale enrichment results');
           return;
         }
 
@@ -122,6 +192,7 @@ export default function RealEstateWholesaler() {
           if (deals.length > 0) enrichedSorted = deals;
         }
 
+        console.log('[AIWholesail v2.1] Setting enriched properties:', enrichedSorted.length, 'with zestimates:', enrichedSorted.filter(p => p.zestimate).length);
         setProperties(enrichedSorted);
 
         const dealCount = enrichedSorted.filter(p => p.price && p.zestimate && p.zestimate > p.price).length;
