@@ -1,10 +1,11 @@
-import { supabase } from "@/integrations/supabase/client";
+const ZILLOW_API_URL = import.meta.env.VITE_ZILLOW_API_URL || 'https://api.aiwholesail.com/zillow';
 
 export interface PropertyParams {
   byzpid?: string;
   byurl?: string;
   byaddress?: string;
   bylotid?: string;
+  zpid?: string;
 }
 
 export interface ARVScenario {
@@ -34,19 +35,35 @@ function estimateRepairs(sqft: number, condition: "light" | "medium" | "heavy"):
 }
 
 /**
- * Get comparable homes via Supabase edge function
+ * Get comparable homes via Hetzner API
  */
 export async function getComparableHomes(params: PropertyParams) {
-  const { data, error } = await supabase.functions.invoke('get-zillow-data', {
-    body: {
-      action: 'comparableHomes',
-      searchParams: params
-    }
+  // Use zpid if available, otherwise try byzpid
+  const zpid = params.zpid || params.byzpid;
+
+  if (!zpid) {
+    throw new Error('ZPID is required for comparable homes lookup');
+  }
+
+  const response = await fetch(ZILLOW_API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      action: 'comps',
+      searchParams: { zpid }
+    })
   });
 
-  if (error) {
-    console.error('❌ Error fetching comparable homes:', error);
-    throw error;
+  if (!response.ok) {
+    console.error('❌ Error fetching comparable homes:', response.statusText);
+    throw new Error(`Failed to fetch comparable homes: ${response.statusText}`);
+  }
+
+  const data = await response.json();
+  if (!data.success) {
+    throw new Error(data.error || 'Failed to fetch comparable homes');
   }
 
   return data?.data;

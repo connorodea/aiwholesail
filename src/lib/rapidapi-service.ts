@@ -1,4 +1,4 @@
-import { supabase } from '@/integrations/supabase/client';
+import { property, communications, utility } from '@/lib/api-client';
 
 export interface RapidAPIConfig {
   key: string;
@@ -115,17 +115,15 @@ export class RapidAPIService {
   // Enhanced Property Data via US Real Estate API
   async getEnhancedPropertyData(address: string, city: string, state: string): Promise<PropertyDataResponse> {
     try {
-      const { data, error } = await supabase.functions.invoke('enhanced-property-data', {
-        body: { address, city, state }
-      });
+      const response = await property.getIntelligence(undefined, undefined, `${address}, ${city}, ${state}`);
 
-      if (error) throw error;
-      return { success: true, data: data.data };
+      if (response.error) throw new Error(response.error);
+      return { success: true, data: response.data };
     } catch (error) {
       console.error('Enhanced property data failed:', error);
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Failed to fetch enhanced property data' 
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to fetch enhanced property data'
       };
     }
   }
@@ -133,17 +131,15 @@ export class RapidAPIService {
   // Enhanced Skip Tracing via Skip Tracing Working API
   async getEnhancedSkipTrace(address: string, name?: string): Promise<SkipTraceResponse> {
     try {
-      const { data, error } = await supabase.functions.invoke('enhanced-skip-trace', {
-        body: { address, name }
-      });
+      const response = await property.skipTrace({ address, lastName: name });
 
-      if (error) throw error;
-      return { success: true, data: data.data };
+      if (response.error) throw new Error(response.error);
+      return { success: true, data: response.data };
     } catch (error) {
       console.error('Enhanced skip trace failed:', error);
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Failed to perform enhanced skip trace' 
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to perform enhanced skip trace'
       };
     }
   }
@@ -151,17 +147,15 @@ export class RapidAPIService {
   // People Data Lookup for additional contact info
   async lookupPersonData(query: { phone?: string; email?: string; name?: string; address?: string }): Promise<any> {
     try {
-      const { data, error } = await supabase.functions.invoke('people-data-lookup', {
-        body: query
-      });
+      const response = await property.skipTrace(query);
 
-      if (error) throw error;
-      return { success: true, data: data.data };
+      if (response.error) throw new Error(response.error);
+      return { success: true, data: response.data };
     } catch (error) {
       console.error('People data lookup failed:', error);
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Failed to lookup person data' 
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to lookup person data'
       };
     }
   }
@@ -169,17 +163,15 @@ export class RapidAPIService {
   // Document generation via DocRaptor
   async generatePDF(htmlContent: string, options?: any): Promise<DocumentResponse> {
     try {
-      const { data, error } = await supabase.functions.invoke('generate-pdf-document', {
-        body: { htmlContent, options }
-      });
+      const response = await utility.generatePdf('property-report', { htmlContent, ...options });
 
-      if (error) throw error;
-      return { success: true, pdfUrl: data.pdfUrl, data: data.data };
+      if (response.error) throw new Error(response.error);
+      return { success: true, pdfUrl: response.data?.pdfUrl, data: response.data };
     } catch (error) {
       console.error('PDF generation failed:', error);
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Failed to generate PDF document' 
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to generate PDF document'
       };
     }
   }
@@ -187,17 +179,15 @@ export class RapidAPIService {
   // SMS via Plivo (cost-effective alternative to Twilio)
   async sendSMS(to: string, message: string, from?: string): Promise<SMSResponse> {
     try {
-      const { data, error } = await supabase.functions.invoke('send-plivo-sms', {
-        body: { to, message, from }
-      });
+      const response = await communications.sendSms(to, message);
 
-      if (error) throw error;
-      return { success: true, messageId: data.messageId };
+      if (response.error) throw new Error(response.error);
+      return { success: true, messageId: response.data?.messageId };
     } catch (error) {
       console.error('Plivo SMS failed:', error);
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Failed to send SMS via Plivo' 
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to send SMS via Plivo'
       };
     }
   }
@@ -205,17 +195,22 @@ export class RapidAPIService {
   // Batch operations for cost efficiency
   async batchSkipTrace(addresses: string[]): Promise<SkipTraceResponse[]> {
     try {
-      const { data, error } = await supabase.functions.invoke('batch-skip-trace', {
-        body: { addresses }
-      });
-
-      if (error) throw error;
-      return data.results;
+      // Process addresses sequentially through the skip trace API
+      const results = await Promise.all(
+        addresses.map(async (address) => {
+          const response = await property.skipTrace({ address });
+          if (response.error) {
+            return { success: false, error: response.error };
+          }
+          return { success: true, data: response.data };
+        })
+      );
+      return results;
     } catch (error) {
       console.error('Batch skip trace failed:', error);
-      return addresses.map(() => ({ 
-        success: false, 
-        error: 'Batch operation failed' 
+      return addresses.map(() => ({
+        success: false,
+        error: 'Batch operation failed'
       }));
     }
   }
@@ -223,12 +218,18 @@ export class RapidAPIService {
   // Cost tracking and analytics
   async getCostAnalytics(startDate: string, endDate: string): Promise<any> {
     try {
-      const { data, error } = await supabase.functions.invoke('rapidapi-cost-analytics', {
-        body: { startDate, endDate }
+      const API_URL = import.meta.env.VITE_API_URL || 'https://api.aiwholesail.com';
+      const response = await fetch(`${API_URL}/api/analytics/cost`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ startDate, endDate })
       });
 
-      if (error) throw error;
-      return data;
+      if (!response.ok) {
+        throw new Error('Failed to fetch cost analytics');
+      }
+
+      return await response.json();
     } catch (error) {
       console.error('Cost analytics failed:', error);
       return { success: false, error: 'Failed to fetch cost analytics' };

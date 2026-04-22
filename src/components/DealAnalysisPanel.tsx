@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Loader2, TrendingUp } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
-import { supabase } from '@/integrations/supabase/client';
+import { ai } from '@/lib/api-client';
 import ReactMarkdown from 'react-markdown';
 import { sanitizeHtml } from '@/lib/security';
 
@@ -78,22 +78,20 @@ export function DealAnalysisPanel() {
 
     setIsLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('analyze-deal', {
-        body: { property_url: propertyUrl }
-      });
+      const response = await ai.dealAnalysis(propertyUrl);
 
-      if (error) {
-        throw new Error(error.message);
+      if (response.error) {
+        throw new Error(response.error);
       }
-      
-      if (data.success) {
-        setAnalysis(data.analysis);
+
+      if (response.data?.success) {
+        setAnalysis(response.data.analysis);
         toast({
           title: "Analysis Complete",
           description: "Property analysis has been generated successfully.",
         });
       } else {
-        throw new Error(data.error || 'Analysis failed');
+        throw new Error(response.data?.error || 'Analysis failed');
       }
     } catch (error) {
       console.error('Error analyzing deal:', error);

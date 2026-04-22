@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
+import { ai } from '@/lib/api-client';
 import { Property } from '@/types/zillow';
 import { 
   Brain, 
@@ -159,25 +159,23 @@ export function AIWholesaleAnalyzer({ properties, market }: AIWholesaleAnalyzerP
         url: property.detailUrl
       }));
 
-      const { data, error } = await supabase.functions.invoke('ai-wholesale-analyzer', {
-        body: {
-          market,
-          csv_data: csvData,
-          analysis_params: analysisParams
-        }
+      const response = await ai.wholesaleAnalyzer({
+        market,
+        csv_data: csvData,
+        analysis_params: analysisParams
       });
 
-      if (error) {
-        console.error('Analysis error:', error);
+      if (response.error) {
+        console.error('Analysis error:', response.error);
         toast({
           title: "Analysis Failed",
-          description: error.message || "Failed to analyze wholesale opportunities.",
+          description: response.error || "Failed to analyze wholesale opportunities.",
           variant: "destructive"
         });
         return;
       }
 
-      setAnalysisResult(data);
+      setAnalysisResult(response.data);
       toast({
         title: "Analysis Complete",
         description: `Found ${data.ranked_opportunities.length} actionable wholesale opportunities.`,

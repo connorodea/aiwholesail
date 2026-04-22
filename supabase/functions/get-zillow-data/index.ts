@@ -65,38 +65,23 @@ serve(async (req) => {
       )
     }
 
+    // New Zillow Scraper API endpoints
     const baseUrls: Record<string, string> = {
-      search: "https://zillow-working-api.p.rapidapi.com/custom_ae/searchbyaddress",
-      propertyDetails: "https://zillow-working-api.p.rapidapi.com/property",
-      priceHistory: "https://zillow-working-api.p.rapidapi.com/propertyPriceHistory",
-      photos: "https://zillow-working-api.p.rapidapi.com/propertyImages",
-      comps: "https://zillow-working-api.p.rapidapi.com/propertyComps",
-      zestimate: "https://zillow-working-api.p.rapidapi.com/propertyZestimate",
-      extendedSearch: "https://zillow-working-api.p.rapidapi.com/propertyExtendedSearch",
-      reviews: "https://zillow-working-api.p.rapidapi.com/propertyReviews",
-      taxes: "https://zillow-working-api.p.rapidapi.com/propertyTaxes",
-      walkScore: "https://zillow-working-api.p.rapidapi.com/propertyWalkScore",
-      schools: "https://zillow-working-api.p.rapidapi.com/propertySchools",
-      neighborhood: "https://zillow-working-api.p.rapidapi.com/propertyNeighborhood",
-      mapBoundaries: "https://zillow-working-api.p.rapidapi.com/propertyMapBoundaries",
-      rentalManager: "https://zillow-working-api.p.rapidapi.com/propertyRentalManager",
-      contactAgent: "https://zillow-working-api.p.rapidapi.com/propertyContactAgent",
-      deepSearch: "https://zillow-working-api.p.rapidapi.com/propertyDeepSearch",
-      deepComps: "https://zillow-working-api.p.rapidapi.com/propertyDeepComps",
-      updatedDetails: "https://zillow-working-api.p.rapidapi.com/propertyUpdatedDetails",
-      listingStatus: "https://zillow-working-api.p.rapidapi.com/propertyListingStatus",
-      rentalEstimate: "https://zillow-working-api.p.rapidapi.com/propertyRentalEstimate",
-      skipTrace: "https://zillow-working-api.p.rapidapi.com/skip/byaddress",
-      comparableHomes: "https://zillow-working-api.p.rapidapi.com/comparable_homes"
+      search: "https://zillow-scraper-api.p.rapidapi.com/zillow/search",
+      propertyDetails: "https://zillow-scraper-api.p.rapidapi.com/zillow/property",
+      priceHistory: "https://zillow-scraper-api.p.rapidapi.com/zillow/property",
+      photos: "https://zillow-scraper-api.p.rapidapi.com/zillow/property",
+      comps: "https://zillow-scraper-api.p.rapidapi.com/zillow/property",
+      zestimate: "https://zillow-scraper-api.p.rapidapi.com/zillow/valuation",
+      taxes: "https://zillow-scraper-api.p.rapidapi.com/zillow/property",
+      schools: "https://zillow-scraper-api.p.rapidapi.com/zillow/property",
+      rentalEstimate: "https://zillow-scraper-api.p.rapidapi.com/zillow/valuation",
     };
 
     let headers: Record<string, string> = {
       "x-rapidapi-key": apiKey,
-      "x-rapidapi-host": "zillow-working-api.p.rapidapi.com"
+      "x-rapidapi-host": "zillow-scraper-api.p.rapidapi.com"
     };
-
-    // All endpoints use the same host now
-    headers["x-rapidapi-host"] = "zillow-working-api.p.rapidapi.com";
 
     let url: string;
     let requestParams: Record<string, string> = {};
@@ -104,150 +89,120 @@ serve(async (req) => {
     if (action === 'test') {
       requestParams = {
         location: "New York, NY",
-        homeType: "Houses",
+        home_type: "house",
+        sort: "newest",
+        listing_type: "for_sale",
         page: "1"
       };
       url = `${baseUrls.search}?${new URLSearchParams(requestParams)}`;
     } else if (action === 'search') {
-      // Enhanced FSBO handling with multiple parameter combinations
-      let listingTypeOptions = "Agent listed,New Construction,Fore-closures,Auctions";
-      let listingType = "By_Agent";
-      
-      // If FSBO only is enabled, try multiple parameter combinations
+      // New Zillow Scraper API search parameters
+      requestParams = {
+        location: searchParams.location,
+        home_type: searchParams.homeType?.toLowerCase() || 'house',
+        sort: 'newest',  // Critical for catching deals early
+        listing_type: 'for_sale',
+        page: searchParams.page || '1'
+      };
+
+      // Map old parameter names to new ones
+      if (searchParams.bed_min) requestParams.beds_min = searchParams.bed_min;
+      if (searchParams.bed_max) requestParams.beds_max = searchParams.bed_max;
+      if (searchParams.bathrooms) requestParams.baths_min = searchParams.bathrooms;
+      if (searchParams.price_min) requestParams.min_price = searchParams.price_min;
+      if (searchParams.price_max) requestParams.max_price = searchParams.price_max;
+
+      // Log FSBO requests (note: new API may not support FSBO filtering the same way)
       if (searchParams.fsboOnly) {
-        console.log(`[${new Date().toISOString()}] FSBO filtering requested for ${clientIP}`);
-        
-        // Use correct FSBO parameters from API documentation
-        listingType = "By_Owner_and_Other";
-        listingTypeOptions = "Owner Posted";
-        
-        console.log(`[${new Date().toISOString()}] Applied FSBO parameters:`, {
-          listingType: listingType,
-          listingTypeOptions: listingTypeOptions,
-          fsboOnly: searchParams.fsboOnly
-        });
-      } else {
-        // If wholesale opportunities only is enabled, exclude foreclosures
-        if (searchParams.wholesaleOnly) {
-          listingTypeOptions = "Agent listed,New Construction,Auctions";
-        }
-        
-        // If hide foreclosures is enabled, exclude foreclosures
-        if (searchParams.hideForeclosures) {
-          listingTypeOptions = listingTypeOptions.replace(",Fore-closures", "").replace("Fore-closures,", "").replace("Fore-closures", "");
-        }
+        console.log(`[${new Date().toISOString()}] FSBO filtering requested for ${clientIP} - note: new API may have limited FSBO support`);
       }
-      
-        requestParams = {
-          location: searchParams.location,
-          homeType: searchParams.homeType,
-          sortOrder: "Homes_for_you",
-          listingStatus: "For_Sale",
-          maxHOA: "Any",
-          listingType: listingType,
-          listingTypeOptions: listingTypeOptions,
-          daysOnZillow: "Any",
-          soldInLast: "Any",
-          // Maximize results per page for comprehensive coverage
-          resultsPerPage: (searchParams.fsboOnly || searchParams.wholesaleOnly) ? "200" : "40",
-          v_cmr: "4.5",
-          v_dpr: "0.2",
-          v_ptr: "0.012",
-          v_ir: "0.015",
-          v_mr: "0.1",
-          v_pmr: "0.1",
-          v_vr: "0.05",
-          v_rc: "25000",
-          v_ltm: "360",
-          v_aa: "0.03"
-        };
-      if (searchParams.bed_min) requestParams.bed_min = searchParams.bed_min;
-      if (searchParams.bed_max) requestParams.bed_max = searchParams.bed_max;
-      if (searchParams.bathrooms) requestParams.bathrooms = searchParams.bathrooms;
-      if (searchParams.price_min) requestParams.price_min = searchParams.price_min;
-      if (searchParams.price_max) requestParams.price_max = searchParams.price_max;
-      if (searchParams.mustHaveBasement) requestParams.mustHaveBasement = searchParams.mustHaveBasement;
-      if (searchParams.parkingSpots) requestParams.parkingSpots = searchParams.parkingSpots;
-      if (searchParams.page) requestParams.page = searchParams.page;
+
       url = `${baseUrls.search}?${new URLSearchParams(requestParams)}`;
-    } else if ([
-      'propertyDetails', 'priceHistory', 'photos', 'comps', 'zestimate',
-      'reviews', 'taxes', 'walkScore', 'schools', 'neighborhood', 'mapBoundaries',
-      'rentalManager', 'contactAgent', 'listingStatus', 'rentalEstimate', 'updatedDetails'
-    ].includes(action)) {
-      // These actions require a zpid
+    } else if (action === 'propertyDetails') {
+      // Property details: /zillow/property/{zpid}
       if (!searchParams.zpid) {
         return new Response(
           JSON.stringify({ success: false, error: 'Missing required parameter: zpid' }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
         );
       }
-      requestParams = { zpid: searchParams.zpid };
-      url = `${baseUrls[action]}?${new URLSearchParams(requestParams)}`;
-    } else if ([
-      'deepSearch'
-    ].includes(action)) {
-      // deepSearch requires address, citystatezip
-      if (!searchParams.address || !searchParams.citystatezip) {
+      url = `${baseUrls.propertyDetails}/${searchParams.zpid}`;
+    } else if (action === 'priceHistory') {
+      // Price history: /zillow/property/{zpid}/price-history
+      if (!searchParams.zpid) {
         return new Response(
-          JSON.stringify({ success: false, error: 'Missing required parameters: address, citystatezip' }),
+          JSON.stringify({ success: false, error: 'Missing required parameter: zpid' }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
         );
       }
-      requestParams = { address: searchParams.address, citystatezip: searchParams.citystatezip };
-      url = `${baseUrls[action]}?${new URLSearchParams(requestParams)}`;
-    } else if ([
-      'extendedSearch'
-    ].includes(action)) {
-      // extendedSearch can take a variety of parameters
-      requestParams = { ...searchParams };
-      url = `${baseUrls[action]}?${new URLSearchParams(requestParams)}`;
-    } else if ([
-      'deepComps'
-    ].includes(action)) {
-      // deepComps requires zpid and count
-      if (!searchParams.zpid || !searchParams.count) {
+      url = `${baseUrls.priceHistory}/${searchParams.zpid}/price-history`;
+    } else if (action === 'photos') {
+      // Photos: /zillow/property/{zpid}/photos
+      if (!searchParams.zpid) {
         return new Response(
-          JSON.stringify({ success: false, error: 'Missing required parameters: zpid, count' }),
+          JSON.stringify({ success: false, error: 'Missing required parameter: zpid' }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
         );
       }
-      requestParams = { zpid: searchParams.zpid, count: searchParams.count };
-      url = `${baseUrls[action]}?${new URLSearchParams(requestParams)}`;
-    } else if ([
-      'skipTrace'
-    ].includes(action)) {
-      // skipTrace requires street and citystatezip
-      if (!searchParams.street || !searchParams.citystatezip) {
+      url = `${baseUrls.photos}/${searchParams.zpid}/photos`;
+    } else if (action === 'comps') {
+      // Similar properties (comps): /zillow/property/{zpid}/similar
+      if (!searchParams.zpid) {
         return new Response(
-          JSON.stringify({ success: false, error: 'Missing required parameters: street, citystatezip' }),
+          JSON.stringify({ success: false, error: 'Missing required parameter: zpid' }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
         );
       }
-      requestParams = { 
-        street: searchParams.street, 
-        citystatezip: searchParams.citystatezip,
-        page: searchParams.page || '1'
-      };
-      url = `${baseUrls[action]}?${new URLSearchParams(requestParams)}`;
-    } else if ([
-      'comparableHomes'
-    ].includes(action)) {
-      // comparableHomes can take various property identifiers
-      if (!searchParams.byzpid && !searchParams.byurl && !searchParams.byaddress && !searchParams.bylotid) {
+      url = `${baseUrls.comps}/${searchParams.zpid}/similar`;
+    } else if (action === 'zestimate') {
+      // Zestimate/Valuation: /zillow/valuation/{zpid}
+      if (!searchParams.zpid) {
         return new Response(
-          JSON.stringify({ success: false, error: 'At least one property identifier required: byzpid, byurl, byaddress, or bylotid' }),
+          JSON.stringify({ success: false, error: 'Missing required parameter: zpid' }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
         );
       }
-      
-      requestParams = {};
-      if (searchParams.byzpid) requestParams.byzpid = searchParams.byzpid;
-      if (searchParams.byurl) requestParams.byurl = searchParams.byurl;
-      if (searchParams.byaddress) requestParams.byaddress = searchParams.byaddress;
-      if (searchParams.bylotid) requestParams.bylotid = searchParams.bylotid;
-      
-      url = `${baseUrls.comparableHomes}?${new URLSearchParams(requestParams)}`;
+      url = `${baseUrls.zestimate}/${searchParams.zpid}`;
+    } else if (action === 'taxes') {
+      // Tax history: /zillow/property/{zpid}/tax-history
+      if (!searchParams.zpid) {
+        return new Response(
+          JSON.stringify({ success: false, error: 'Missing required parameter: zpid' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+        );
+      }
+      url = `${baseUrls.taxes}/${searchParams.zpid}/tax-history`;
+    } else if (action === 'schools') {
+      // Schools: /zillow/property/{zpid}/schools
+      if (!searchParams.zpid) {
+        return new Response(
+          JSON.stringify({ success: false, error: 'Missing required parameter: zpid' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+        );
+      }
+      url = `${baseUrls.schools}/${searchParams.zpid}/schools`;
+    } else if (action === 'rentalEstimate') {
+      // Rental estimate: /zillow/valuation/{zpid}/rent-estimate
+      if (!searchParams.zpid) {
+        return new Response(
+          JSON.stringify({ success: false, error: 'Missing required parameter: zpid' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+        );
+      }
+      url = `${baseUrls.rentalEstimate}/${searchParams.zpid}/rent-estimate`;
+    } else if ([
+      'skipTrace', 'walkScore', 'deepSearch', 'deepComps', 'extendedSearch',
+      'comparableHomes', 'neighborhood', 'mapBoundaries', 'rentalManager',
+      'contactAgent', 'listingStatus', 'updatedDetails', 'reviews'
+    ].includes(action)) {
+      // These endpoints are NOT available in the new API
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: `Action '${action}' is not supported by the current API. Consider using alternative endpoints.`
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+      );
     } else {
       return new Response(
         JSON.stringify({ success: false, error: 'Invalid action specified' }),

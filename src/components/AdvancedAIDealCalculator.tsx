@@ -7,8 +7,10 @@ import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { supabase } from '@/integrations/supabase/client';
+import { ai } from '@/lib/api-client';
 import { useToast } from '@/hooks/use-toast';
+
+const ZILLOW_API_URL = import.meta.env.VITE_ZILLOW_API_URL || 'https://api.aiwholesail.com/zillow';
 import { 
   Calculator, 
   Brain, 
@@ -107,20 +109,24 @@ const AdvancedAIDealCalculator: React.FC<AdvancedAIDealCalculatorProps> = ({
 
     setLoadingPhotos(true);
     try {
-      const photosResponse = await supabase.functions.invoke('get-zillow-data', {
-        body: { 
-          action: 'photos', 
+      const response = await fetch(ZILLOW_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'photos',
           searchParams: { zpid }
-        }
+        })
       });
-      
-      if (photosResponse.data?.success && photosResponse.data?.data?.images) {
-        const photos = photosResponse.data.data.images.slice(0, 8).map((img: any, index: number) => ({
+
+      const photosResponse = await response.json();
+
+      if (photosResponse?.success && photosResponse?.data?.images) {
+        const photos = photosResponse.data.images.slice(0, 8).map((img: any, index: number) => ({
           url: img.url || img.mixedSources?.jpeg?.[0]?.url,
           room_type: img.caption || `Room ${index + 1}`,
           description: img.caption
         })).filter((photo: PropertyPhoto) => photo.url);
-        
+
         setPropertyPhotos(photos);
         toast({
           title: "Photos Loaded",
@@ -158,47 +164,45 @@ const AdvancedAIDealCalculator: React.FC<AdvancedAIDealCalculatorProps> = ({
         });
       }, 800);
 
-      const { data, error } = await supabase.functions.invoke('advanced-property-assessment', {
-        body: {
-          property: {
-            zpid: property.zpid || property.id,
-            address: property.address,
-            price: property.price,
-            zestimate: property.zestimate,
-            bedrooms: property.bedrooms,
-            bathrooms: property.bathrooms,
-            sqft: property.sqft,
-            yearBuilt: property.yearBuilt,
-            propertyType: property.propertyType,
-            lotSize: property.lotSize,
-            photos: propertyPhotos
-          },
-          arv,
-          acquisition_costs: acquisitionCosts,
-          wholesale_fee: wholesaleFee,
-          analysisOptions: {
-            includePhotos: propertyPhotos.length > 0,
-            includeMarketAnalysis: true,
-            includeInvestmentMetrics: true,
-            includeRiskAssessment: true
-          }
+      const response = await ai.advancedPropertyAssessment({
+        property: {
+          zpid: property.zpid || property.id,
+          address: property.address,
+          price: property.price,
+          zestimate: property.zestimate,
+          bedrooms: property.bedrooms,
+          bathrooms: property.bathrooms,
+          sqft: property.sqft,
+          yearBuilt: property.yearBuilt,
+          propertyType: property.propertyType,
+          lotSize: property.lotSize,
+          photos: propertyPhotos
+        },
+        arv,
+        acquisition_costs: acquisitionCosts,
+        wholesale_fee: wholesaleFee,
+        analysisOptions: {
+          includePhotos: propertyPhotos.length > 0,
+          includeMarketAnalysis: true,
+          includeInvestmentMetrics: true,
+          includeRiskAssessment: true
         }
       });
 
       clearInterval(progressInterval);
       setProgress(100);
 
-      if (error) throw error;
+      if (response.error) throw new Error(response.error);
 
-      if (data.success) {
-        setDealMetrics(data.deal_metrics);
-        
+      if (response.data?.success) {
+        setDealMetrics(response.data.deal_metrics);
+
         toast({
           title: "🎯 Advanced Analysis Complete",
-          description: `Deal Grade: ${data.deal_metrics.deal_grade} | Investment: ${data.deal_metrics.investment_recommendation}`,
+          description: `Deal Grade: ${response.data.deal_metrics.deal_grade} | Investment: ${response.data.deal_metrics.investment_recommendation}`,
         });
       } else {
-        throw new Error(data.error);
+        throw new Error(response.data?.error || 'Analysis failed');
       }
     } catch (error) {
       console.error('Advanced deal analysis error:', error);

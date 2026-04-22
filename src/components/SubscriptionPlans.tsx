@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Check, Star, Bell, MapPin, Clock, Zap, Timer } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { stripe } from '@/lib/api-client';
 import { toast } from 'sonner';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 
@@ -88,21 +88,19 @@ export const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
     
     setLoading(plan.priceId);
     try {
-      console.log('Starting checkout for plan:', plan.name, 'with priceId:', plan.priceId);
-      
-      const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { priceId: plan.priceId }
-      });
+      console.log('Starting checkout for plan:', plan.name);
 
-      if (error) {
-        console.error('Supabase function error:', error);
-        throw error;
+      const response = await stripe.createCheckout(plan.name);
+
+      if (response.error) {
+        console.error('Checkout error:', response.error);
+        throw new Error(response.error);
       }
 
-      console.log('Checkout response:', data);
+      console.log('Checkout response:', response.data);
 
-      if (data?.url) {
-        window.open(data.url, '_blank');
+      if (response.data?.url) {
+        window.open(response.data.url, '_blank');
         toast.success('Redirecting to checkout...');
       } else {
         throw new Error('No checkout URL received');
@@ -119,28 +117,18 @@ export const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
     setLoading('manage');
     try {
       console.log('Opening customer portal...');
-      
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        toast.error('Please sign in to manage your subscription');
-        return;
+
+      const response = await stripe.createPortal();
+
+      if (response.error) {
+        console.error('Customer portal error:', response.error);
+        throw new Error(response.error);
       }
 
-      const { data, error } = await supabase.functions.invoke('customer-portal', {
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-        },
-      });
-      
-      if (error) {
-        console.error('Customer portal error:', error);
-        throw error;
-      }
+      console.log('Customer portal response:', response.data);
 
-      console.log('Customer portal response:', data);
-
-      if (data?.url) {
-        window.open(data.url, '_blank');
+      if (response.data?.url) {
+        window.open(response.data.url, '_blank');
         toast.success('Opening subscription management...');
       } else {
         throw new Error('No portal URL received');

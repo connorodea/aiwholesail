@@ -1,5 +1,5 @@
 
-import { supabase } from "@/integrations/supabase/client";
+import { communications } from "@/lib/api-client";
 
 interface SendEmailOptions {
   to: string;
@@ -19,23 +19,21 @@ export async function sendEmail(options: SendEmailOptions): Promise<{
   error?: string;
 }> {
   try {
-    const { data, error } = await supabase.functions.invoke('send-sendgrid-email', {
-      body: options
-    });
+    const response = await communications.sendEmail(options.to, options.subject, options.html);
 
-    if (error) {
-      console.error(`❌ SendGrid email error: ${error.message}`);
-      return { success: false, error: error.message };
+    if (response.error) {
+      console.error(`❌ Email error: ${response.error}`);
+      return { success: false, error: response.error };
     }
 
-    if (data?.success) {
-      console.log(`✅ Email sent via SendGrid: ${data.messageId}`);
-      return { success: true, messageId: data.messageId };
+    if (response.data?.success) {
+      console.log(`✅ Email sent: ${response.data.messageId}`);
+      return { success: true, messageId: response.data.messageId };
     }
 
-    return { success: false, error: data?.error || 'Unknown error' };
+    return { success: false, error: response.data?.error || 'Unknown error' };
   } catch (err: any) {
-    console.error(`❌ SendGrid email error: ${err.message}`);
+    console.error(`❌ Email error: ${err.message}`);
     return { success: false, error: err.message };
   }
 }

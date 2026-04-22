@@ -1,4 +1,4 @@
-import { supabase } from "@/integrations/supabase/client";
+import { alerts } from "@/lib/api-client";
 import { sendPropertyAlert } from "./emailService";
 
 export interface PropertyAlertCriteria {
@@ -37,21 +37,27 @@ export async function processPropertyAlerts(location: string, properties: Proper
   error?: string;
 }> {
   try {
-    const { data, error } = await supabase.functions.invoke('process-property-alerts', {
-        body: {
-          location,
-          properties: properties.map(p => ({
-            ...p,
-            zpid: p.zpid || p.id || ''
-          }))
-        }
+    // Process alerts through the API
+    const API_URL = import.meta.env.VITE_API_URL || 'https://api.aiwholesail.com';
+    const response = await fetch(`${API_URL}/api/alerts/process`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        location,
+        properties: properties.map(p => ({
+          ...p,
+          zpid: p.zpid || p.id || ''
+        }))
+      })
     });
 
-    if (error) {
-      console.error('Error processing property alerts:', error);
-      return { success: false, matches: 0, emailsSent: 0, error: error.message };
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Error processing property alerts:', errorData);
+      return { success: false, matches: 0, emailsSent: 0, error: errorData.error || 'Failed to process alerts' };
     }
 
+    const data = await response.json();
     return {
       success: true,
       matches: data?.matches || 0,
@@ -72,26 +78,18 @@ export async function createPropertyAlert(criteria: PropertyAlertCriteria & {
   user_id: string;
 }): Promise<{ success: boolean; error?: string }> {
   try {
-    const { error } = await supabase
-      .from('property_alerts')
-      .insert({
-        user_id: criteria.user_id,
-        location: criteria.location,
-        max_price: criteria.max_price,
-        min_bedrooms: criteria.min_bedrooms,
-        max_bedrooms: criteria.max_bedrooms,
-        min_bathrooms: criteria.min_bathrooms,
-        max_bathrooms: criteria.max_bathrooms,
-        min_sqft: criteria.min_sqft,
-        max_sqft: criteria.max_sqft,
-        property_types: criteria.property_types || ['Houses', 'Townhomes', 'Multi-family', 'Condos/Co-ops'],
-        alert_frequency: criteria.alert_frequency || 'immediate',
-        is_active: true
-      });
+    const response = await alerts.create({
+      location: criteria.location,
+      maxPrice: criteria.max_price,
+      minBedrooms: criteria.min_bedrooms,
+      maxBedrooms: criteria.max_bedrooms,
+      propertyTypes: criteria.property_types || ['Houses', 'Townhomes', 'Multi-family', 'Condos/Co-ops'],
+      alertFrequency: criteria.alert_frequency || 'immediate'
+    });
 
-    if (error) {
-      console.error('Error creating property alert:', error);
-      return { success: false, error: error.message };
+    if (response.error) {
+      console.error('Error creating property alert:', response.error);
+      return { success: false, error: response.error };
     }
 
     return { success: true };
@@ -125,18 +123,14 @@ export async function sendTestPropertyAlert(userEmail: string, property: Propert
  */
 export async function getUserPropertyAlerts(userId: string) {
   try {
-    const { data, error } = await supabase
-      .from('property_alerts')
-      .select('*')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false });
+    const response = await alerts.list();
 
-    if (error) {
-      console.error('Error fetching user alerts:', error);
-      return { success: false, alerts: [], error: error.message };
+    if (response.error) {
+      console.error('Error fetching user alerts:', response.error);
+      return { success: false, alerts: [], error: response.error };
     }
 
-    return { success: true, alerts: data || [] };
+    return { success: true, alerts: response.data || [] };
   } catch (error: any) {
     console.error('Error fetching user alerts:', error);
     return { success: false, alerts: [], error: error.message };
@@ -150,25 +144,14 @@ export async function getUserPropertyAlerts(userId: string) {
  */
 export async function getUserAlertMatches(userId: string, limit = 50) {
   try {
-    const { data, error } = await supabase
-      .from('property_alert_matches')
-      .select(`
-        *,
-        property_alerts!inner(
-          location,
-          user_id
-        )
-      `)
-      .eq('property_alerts.user_id', userId)
-      .order('matched_at', { ascending: false })
-      .limit(limit);
+    const response = await alerts.getAllMatches();
 
-    if (error) {
-      console.error('Error fetching alert matches:', error);
-      return { success: false, matches: [], error: error.message };
+    if (response.error) {
+      console.error('Error fetching alert matches:', response.error);
+      return { success: false, matches: [], error: response.error };
     }
 
-    return { success: true, matches: data || [] };
+    return { success: true, matches: response.data || [] };
   } catch (error: any) {
     console.error('Error fetching alert matches:', error);
     return { success: false, matches: [], error: error.message };

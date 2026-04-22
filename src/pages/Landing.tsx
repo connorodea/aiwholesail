@@ -5,7 +5,6 @@ import { Badge } from "@/components/ui/badge";
 import { CheckCircle, Search, DollarSign, MapPin, Star, Brain, BarChart3, MessageSquare, Eye, Zap, Shield, ChevronRight, Play, ArrowRight, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import ScrollSailboat from "@/components/ScrollSailboat";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
@@ -519,8 +518,7 @@ const Landing = () => {
                     <h3 className="font-medium text-foreground">Company</h3>
                     <ul className="space-y-3">
                       {[
-                        { label: "About", to: "/contact" },
-                        { label: "Contact", to: "/contact" },
+                        { label: "Contact Us", to: "/contact" },
                         { label: "FAQ", to: "/faq" },
                         { label: "Pricing", to: "/pricing" }
                       ].map((link, index) => (

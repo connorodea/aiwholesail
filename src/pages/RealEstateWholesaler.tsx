@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { PropertySearch } from '@/components/PropertySearch';
 import { PropertyCard } from '@/components/PropertyCard';
 import { PropertyModal } from '@/components/PropertyModal';
@@ -10,9 +10,9 @@ import { Button } from '@/components/ui/button';
 import { Home, User, LogOut, LogIn, Download, Bell, Timer, CreditCard } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/contexts/SubscriptionContext';
-import { supabase } from '@/integrations/supabase/client';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useLeads } from '@/hooks/useLeads';
+import { stripe } from '@/lib/api-client';
 import { toast } from 'sonner';
 import { EnhancedPropertySearch } from '@/components/EnhancedPropertySearch';
 import { PropertyAlertsManager } from '@/components/PropertyAlertsManager';
@@ -38,89 +38,170 @@ export default function RealEstateWholesaler() {
   const [properties, setProperties] = useState<Property[]>([]);
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingStatus, setLoadingStatus] = useState<string>('');
+  const [loadingProgress, setLoadingProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [showFavorites, setShowFavorites] = useState(false);
   const [showAlerts, setShowAlerts] = useState(false);
   const [lastSearchLocation, setLastSearchLocation] = useState<string>('');
   const [sortBy, setSortBy] = useState<'price-high' | 'price-low' | 'newest' | 'oldest' | 'default'>('default');
   const [isSearchingFSBO, setIsSearchingFSBO] = useState<boolean>(false);
+  const searchIdRef = useRef(0);
+
+  // US States lookup
+  const US_STATES: Record<string, string> = {
+    'alabama': 'AL', 'alaska': 'AK', 'arizona': 'AZ', 'arkansas': 'AR',
+    'california': 'CA', 'colorado': 'CO', 'connecticut': 'CT', 'delaware': 'DE',
+    'florida': 'FL', 'georgia': 'GA', 'hawaii': 'HI', 'idaho': 'ID',
+    'illinois': 'IL', 'indiana': 'IN', 'iowa': 'IA', 'kansas': 'KS',
+    'kentucky': 'KY', 'louisiana': 'LA', 'maine': 'ME', 'maryland': 'MD',
+    'massachusetts': 'MA', 'michigan': 'MI', 'minnesota': 'MN', 'mississippi': 'MS',
+    'missouri': 'MO', 'montana': 'MT', 'nebraska': 'NE', 'nevada': 'NV',
+    'new hampshire': 'NH', 'new jersey': 'NJ', 'new mexico': 'NM', 'new york': 'NY',
+    'north carolina': 'NC', 'north dakota': 'ND', 'ohio': 'OH', 'oklahoma': 'OK',
+    'oregon': 'OR', 'pennsylvania': 'PA', 'rhode island': 'RI', 'south carolina': 'SC',
+    'south dakota': 'SD', 'tennessee': 'TN', 'texas': 'TX', 'utah': 'UT',
+    'vermont': 'VT', 'virginia': 'VA', 'washington': 'WA', 'west virginia': 'WV',
+    'wisconsin': 'WI', 'wyoming': 'WY'
+  };
+  const STATE_ABBREVIATIONS = Object.values(US_STATES);
+
+  // Check if location is just a state name or abbreviation
+  const isStateOnlyLocation = (location: string): boolean => {
+    const trimmed = location.trim().toLowerCase();
+    // Check full state name
+    if (US_STATES[trimmed]) return true;
+    // Check abbreviation (2 letters only)
+    if (trimmed.length === 2 && STATE_ABBREVIATIONS.includes(trimmed.toUpperCase())) return true;
+    // Check "State, United States" format
+    const parts = trimmed.split(',').map(p => p.trim());
+    if (parts.length === 2 && (parts[1] === 'united states' || parts[1] === 'usa' || parts[1] === 'us')) {
+      if (US_STATES[parts[0]]) return true;
+    }
+    return false;
+  };
+
+  // Check if it's a county search without a state
+  const isCountyWithoutState = (location: string): boolean => {
+    const trimmed = location.trim().toLowerCase();
+    if (!trimmed.includes('county')) return false;
+
+    const parts = trimmed.split(',').map(p => p.trim());
+    if (parts.length >= 2) {
+      // Check if any part after the county name is a valid state
+      for (let i = 1; i < parts.length; i++) {
+        const part = parts[i].toLowerCase();
+        if (part === 'united states' || part === 'usa' || part === 'us') continue;
+        if (US_STATES[part] || STATE_ABBREVIATIONS.includes(parts[i].toUpperCase())) {
+          return false; // Has a valid state
+        }
+      }
+    }
+    return true; // County without state
+  };
 
   const handleSearch = async (params: PropertySearchParams) => {
+    // Validate location - block state-only searches
+    if (isStateOnlyLocation(params.location)) {
+      setError("State-wide searches are not supported. Please enter a specific city (e.g., 'Detroit, MI'), ZIP code, or county name with state.");
+      toast.error("Please enter a city, ZIP code, or county with state - state-wide searches are not supported.");
+      return;
+    }
+
+    // Validate county searches have a state
+    if (isCountyWithoutState(params.location)) {
+      setError("Please include a state with county searches. Example: 'Oakland County, MI' or 'Oakland County, Michigan'");
+      toast.error("Please add a state to your county search (e.g., 'Oakland County, MI')");
+      return;
+    }
+
+    // Increment search ID to prevent stale enrichment overwrites
+    searchIdRef.current += 1;
+    const currentSearchId = searchIdRef.current;
+
     try {
       setIsLoading(true);
+      setLoadingStatus(`Searching for properties in ${params.location}...`);
+      setLoadingProgress(20);
       setProperties([]);
       setError(null);
       setLastSearchLocation(params.location);
       setIsSearchingFSBO(params.fsboOnly || false);
 
-      toast.success(`Searching for properties in ${params.location}...`);
+      // Step 1: Fetch all pages
+      const searchResults = await zillowAPI.searchProperties(params, 20);
 
-      // Fetch significantly more pages for comprehensive results across all search types
-      const maxPages = params.fsboOnly ? 50 : (params.wholesaleOnly ? 40 : 10);
-      const searchResults = await zillowAPI.searchProperties(params, maxPages);
-      
       if (searchResults.length === 0) {
         setError("No properties found. Try adjusting your search criteria.");
         return;
       }
 
-      let filteredResults = searchResults;
-      
-      // Handle FSBO searches first (API already filters for FSBO)
-      if (params.fsboOnly) {
-        // For FSBO searches, just sort by wholesale potential but don't filter
-        filteredResults = sortPropertiesByWholesalePotential(filteredResults);
-        
-        console.log(`FSBO Search Results: ${filteredResults.length} properties to display`);
-        
-        // If no FSBO properties found by API, inform user
-        if (filteredResults.length === 0) {
-          setError("No FSBO (For Sale By Owner) properties found in this area. Try searching a different location or removing the FSBO filter.");
-          return;
-        }
-      } else if (params.wholesaleOnly) {
-        // Only apply wholesale filtering for non-FSBO searches
-        filteredResults = filteredResults.filter(property => {
-          // Must have both price and zestimate, and price must be below zestimate
-          return property.price && property.zestimate && property.price < property.zestimate;
-        });
-        
-        // If no wholesale deals found but properties exist, inform user
-        if (filteredResults.length === 0 && searchResults.length > 0) {
-          setError(`Found ${searchResults.length} properties, but none have wholesale potential (price below Zestimate). Try removing the wholesale filter or searching different areas.`);
-          return;
-        }
-        
-        // Sort by wholesale potential when wholesale filter is enabled
-        filteredResults = sortPropertiesByWholesalePotential(filteredResults);
-      }
+      // Step 2: Show results immediately
+      let results = searchResults;
 
-      // Filter by keywords if provided
-      if (params.keywords && params.keywords.trim()) {
+      // Apply keyword filter if provided
+      if (params.keywords?.trim()) {
         const keywords = params.keywords.toLowerCase().split(',').map(k => k.trim());
-        filteredResults = filteredResults.filter(property => {
-          const description = (property.description || '').toLowerCase();
-          return keywords.some(keyword => description.includes(keyword));
+        results = results.filter(p => {
+          const desc = (p.description || '').toLowerCase();
+          return keywords.some(kw => desc.includes(kw));
         });
       }
 
-      if (filteredResults.length === 0) {
-        setError("No properties found matching your criteria.");
+      // Apply FSBO filter
+      if (params.fsboOnly && results.length === 0) {
+        setError("No FSBO properties found. Try a different location.");
         return;
       }
 
-      setProperties(filteredResults);
-      
-      // Enhanced success message for different search types
-      let successMessage = `Found ${filteredResults.length} properties`;
-      if (params.fsboOnly) {
-        successMessage += ' (FSBO - For Sale By Owner)';
+      const sorted = sortPropertiesByWholesalePotential(results);
+      setProperties(sorted);
+      setIsLoading(false);
+      setLoadingProgress(0);
+      setLoadingStatus('');
+      toast.success(`Found ${sorted.length} properties. Fetching Zestimates...`);
+
+      // Step 3: Enrich with zestimates in background
+      try {
+        console.log('[AIWholesail v2.1] Starting zestimate enrichment for', results.length, 'properties');
+
+        const enriched = await zillowAPI.enrichWithZestimates(
+          results,
+          (completed, total) => {
+            if (completed % 100 === 0 || completed === total) {
+              toast.info(`Zestimates: ${completed}/${total} checked`);
+            }
+          }
+        );
+
+        console.log('[AIWholesail v2.1] Enrichment complete. Sample:', enriched.slice(0, 2).map(p => ({ zpid: p.zpid, price: p.price, zestimate: p.zestimate })));
+
+        // Only update if this is still the current search
+        if (currentSearchId !== searchIdRef.current) {
+          // Search ID changed — user started a new search, discard
+          console.log('[AIWholesail v2.1] Discarding stale enrichment results');
+          return;
+        }
+
+        // Re-sort with zestimates — best deals first
+        let enrichedSorted = sortPropertiesByWholesalePotential(enriched);
+
+        // Apply wholesale filter if toggled
+        if (params.wholesaleOnly) {
+          const deals = enrichedSorted.filter(p => p.price && p.zestimate && p.price < p.zestimate);
+          if (deals.length > 0) enrichedSorted = deals;
+        }
+
+        console.log('[AIWholesail v2.1] Setting enriched properties:', enrichedSorted.length, 'with zestimates:', enrichedSorted.filter(p => p.zestimate).length);
+        setProperties(enrichedSorted);
+
+        const dealCount = enrichedSorted.filter(p => p.price && p.zestimate && p.zestimate > p.price).length;
+        const withZest = enrichedSorted.filter(p => p.zestimate).length;
+        toast.success(`Done! ${dealCount} deals below market value (${withZest} Zestimates found)`);
+      } catch (enrichError) {
+        console.warn('Enrichment failed:', enrichError);
+        toast.error('Zestimate enrichment failed. Showing results without spread data.');
       }
-      if (params.wholesaleOnly) {
-        successMessage += ' with wholesale potential';
-      }
-      
-      toast.success(successMessage);
 
     } catch (error) {
       console.error('Search failed:', error);
@@ -129,6 +210,8 @@ export default function RealEstateWholesaler() {
       toast.error(errorMessage);
     } finally {
       setIsLoading(false);
+      setLoadingProgress(0);
+      setLoadingStatus('');
     }
   };
 
@@ -203,9 +286,9 @@ export default function RealEstateWholesaler() {
                     size="sm"
                     onClick={async () => {
                       try {
-                        const { data, error } = await supabase.functions.invoke('customer-portal');
-                        if (error) throw error;
-                        window.open(data.url, '_blank');
+                        const response = await stripe.createPortal();
+                        if (response.error) throw new Error(response.error);
+                        window.open(response.data?.url, '_blank');
                       } catch (error) {
                         console.error('Error opening customer portal:', error);
                         toast.error('Failed to open subscription portal');
@@ -265,8 +348,33 @@ export default function RealEstateWholesaler() {
               </div>
             </section>
 
+            {/* Loading Progress Bar */}
+            {isLoading && (
+              <section className="max-w-2xl mx-auto animate-fade-in">
+                <div className="feature-card p-8 backdrop-blur-sm rounded-2xl">
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+                      <p className="text-sm font-medium text-foreground">{loadingStatus}</p>
+                    </div>
+                    <div className="w-full bg-muted/50 rounded-full h-2.5 overflow-hidden">
+                      <div
+                        className="bg-gradient-to-r from-primary to-primary/70 h-full rounded-full transition-all duration-500 ease-out"
+                        style={{ width: `${loadingProgress}%` }}
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground text-center">
+                      {loadingProgress < 50 ? 'Fetching listings from Zillow...' :
+                       loadingProgress < 90 ? 'Fetching Zestimates to calculate wholesale spreads...' :
+                       'Almost done...'}
+                    </p>
+                  </div>
+                </div>
+              </section>
+            )}
+
             {/* Results Section */}
-            {properties.length > 0 && (
+            {!isLoading && properties.length > 0 && (
               <section className="space-y-10 animate-fade-in">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div className="space-y-2">

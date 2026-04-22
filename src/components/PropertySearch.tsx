@@ -20,7 +20,7 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
   const [searchParams, setSearchParams] = useState<PropertySearchParams>({
     location: '',
     homeType: 'Houses, Townhomes, Multi-family, Condos/Co-ops',
-    wholesaleOnly: true // Default to wholesale opportunities only
+    wholesaleOnly: false // Show all properties, sorted by best deals first
   });
   const { toast } = useToast();
 
@@ -225,6 +225,26 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
                 id="foreclosure-toggle"
                 checked={searchParams.hideForeclosures || false}
                 onCheckedChange={(checked) => setSearchParams(prev => ({ ...prev, hideForeclosures: checked }))}
+              />
+            </div>
+
+            {/* Wholesale Deals Only Toggle */}
+            <div className="flex items-center justify-between space-x-2">
+              <div className="flex items-center space-x-2">
+                <TrendingDown className="h-4 w-4 text-success" />
+                <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
+                  <Label htmlFor="wholesale-toggle" className="text-sm font-medium">
+                    Most Profitable Only
+                  </Label>
+                  <span className="text-xs text-muted-foreground">
+                    Only show properties priced below their Zestimate
+                  </span>
+                </div>
+              </div>
+              <Switch
+                id="wholesale-toggle"
+                checked={searchParams.wholesaleOnly || false}
+                onCheckedChange={(checked) => updateParam('wholesaleOnly', checked)}
               />
             </div>
 

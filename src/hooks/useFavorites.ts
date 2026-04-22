@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { favorites as favoritesApi } from '@/lib/api-client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Property } from '@/types/zillow';
 import { toast } from 'sonner';
@@ -11,25 +11,21 @@ export function useFavorites() {
 
   const fetchFavorites = async () => {
     if (!user) return;
-    
+
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('favorites')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
+      const response = await favoritesApi.list();
 
-      if (error) throw error;
+      if (response.error) throw new Error(response.error);
 
-      const favoriteProperties = data?.map(fav => {
+      const favoriteProperties = response.data?.favorites?.map((fav: any) => {
         const propertyData = fav.property_data as Property;
         return {
           ...propertyData,
           favoriteId: fav.id
         };
       }) || [];
-      
+
       setFavorites(favoriteProperties);
     } catch (error) {
       console.error('Error fetching favorites:', error);
@@ -46,23 +42,17 @@ export function useFavorites() {
     }
 
     try {
-      const { error } = await supabase
-        .from('favorites')
-        .insert({
-          user_id: user.id,
-          property_id: property.id,
-          property_data: property
-        });
+      const response = await favoritesApi.add(property.id, property);
 
-      if (error) {
-        if (error.code === '23505') { // Unique constraint violation
+      if (response.error) {
+        if (response.error.includes('already')) {
           toast.error('Property is already in your favorites');
           return false;
         }
-        throw error;
+        throw new Error(response.error);
       }
 
-      setFavorites(prev => [{ ...property, favoriteId: property.id }, ...prev]);
+      setFavorites(prev => [{ ...property, favoriteId: response.data?.id }, ...prev]);
       toast.success('Added to favorites');
       return true;
     } catch (error) {
@@ -76,13 +66,9 @@ export function useFavorites() {
     if (!user) return false;
 
     try {
-      const { error } = await supabase
-        .from('favorites')
-        .delete()
-        .eq('user_id', user.id)
-        .eq('property_id', propertyId);
+      const response = await favoritesApi.removeByPropertyId(propertyId);
 
-      if (error) throw error;
+      if (response.error) throw new Error(response.error);
 
       setFavorites(prev => prev.filter(fav => fav.id !== propertyId));
       toast.success('Removed from favorites');

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { stripe } from '@/lib/api-client';
 import { useAuth } from './AuthContext';
 
 interface SubscriptionData {
@@ -35,14 +35,16 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
 
     try {
       setLoading(true);
-      const { data, error } = await supabase.functions.invoke('check-subscription');
-      
-      if (error) {
-        console.error('Error checking subscription:', error);
+      const response = await stripe.getSubscription();
+
+      if (response.error) {
+        console.error('Error checking subscription:', response.error);
         return;
       }
 
-      setSubscription(data);
+      if (response.data) {
+        setSubscription(response.data);
+      }
     } catch (error) {
       console.error('Error refreshing subscription:', error);
     } finally {
@@ -55,11 +57,12 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
   }, [user]);
 
   // Calculate if trial is active and days remaining
-  const isTrialActive = subscription?.is_trial && subscription?.trial_end ? 
-    new Date(subscription.trial_end) > new Date() : false;
+  const isTrialActive = subscription?.is_trial && subscription?.trial_end
+    ? new Date(subscription.trial_end) > new Date()
+    : false;
 
-  const trialDaysRemaining = subscription?.trial_end ? 
-    Math.max(0, Math.ceil((new Date(subscription.trial_end).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))) 
+  const trialDaysRemaining = subscription?.trial_end
+    ? Math.max(0, Math.ceil((new Date(subscription.trial_end).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)))
     : null;
 
   const value = {

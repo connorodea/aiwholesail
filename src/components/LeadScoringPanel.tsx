@@ -15,7 +15,7 @@ import {
   CheckCircle,
   Target
 } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { ai, leads } from '@/lib/api-client';
 import { useToast } from '@/hooks/use-toast';
 
 interface ScoringFactor {
@@ -78,55 +78,56 @@ export function LeadScoringPanel({ leadId, propertyData }: LeadScoringPanelProps
 
       // Only try to load existing scores from DB when we have a real lead UUID and not forcing rescore
       if (uuidValid && !forceRescore) {
-        const { data: existingScores } = await supabase
-          .from('lead_scoring')
-          .select('*')
-          .eq('lead_id', leadId)
-          .maybeSingle();
-
-        if (existingScores) {
-          setScores(existingScores);
+        const response = await leads.get(leadId);
+        if (response.data?.overall_score) {
+          setScores({
+            id: leadId,
+            motivation_score: response.data.motivation_score || 0,
+            urgency_score: response.data.urgency_score || 0,
+            profitability_score: response.data.profitability_score || 0,
+            contactability_score: response.data.contactability_score || 0,
+            overall_score: response.data.overall_score || 0,
+            confidence_score: response.data.confidence_score || 0,
+            scoring_factors: response.data.scoring_factors || [],
+            last_updated: response.data.last_updated || new Date().toISOString()
+          });
           setIsLoading(false);
           return;
         }
       }
 
-      // Get property intelligence data (keyed by property_id which is text)
-      const intelKey = (propertyData?.zpid?.toString?.() ?? leadId)?.toString();
-      const { data: propertyIntel } = await supabase
-        .from('property_intelligence')
-        .select('*')
-        .eq('property_id', intelKey)
-        .maybeSingle();
+      // Call AI scoring function
+      const response = await ai.leadScoring(propertyData || generateMockIntelligence(), uuidValid ? effectiveLeadId : undefined);
 
-      // Get contact information only for real lead UUIDs
-      let contacts: any[] = [];
-      if (uuidValid) {
-        const { data: contactsData } = await supabase
-          .from('lead_contacts')
-          .select('*')
-          .eq('lead_id', leadId);
-        contacts = contactsData || [];
-      }
+      if (response.error) throw new Error(response.error);
 
-      // Call AI scoring function; for non-UUID contexts we use an ephemeral UUID and just display the response
-      const { data, error } = await supabase.functions.invoke('ai-lead-scoring', {
-        body: {
-          lead_id: effectiveLeadId,
-          property_intelligence: propertyIntel || generateMockIntelligence(),
-          contacts,
-          force_rescore: forceRescore,
-        },
+      const scoringData = response.data?.scoring || {
+        overallScore: 500,
+        motivationScore: 50,
+        urgencyScore: 50,
+        profitabilityScore: 50,
+        contactabilityScore: 50,
+        confidenceScore: 70,
+        scoringFactors: []
+      };
+
+      const calculatedScore = scoringData.overallScore * 10 || 0;
+      setScores({
+        id: effectiveLeadId,
+        motivation_score: scoringData.motivationScore * 10 || 0,
+        urgency_score: scoringData.urgencyScore || 0,
+        profitability_score: scoringData.profitabilityScore || 0,
+        contactability_score: scoringData.contactabilityScore || 0,
+        overall_score: calculatedScore,
+        confidence_score: scoringData.confidenceScore || 0,
+        scoring_factors: scoringData.scoringFactors || [],
+        last_updated: new Date().toISOString()
       });
 
-      if (error) throw error;
-
-      setScores(data.scores);
-      
-      if (!data.cached) {
+      if (!response.data?.cached) {
         toast({
           title: 'Lead Scored Successfully',
-          description: `Overall score: ${data.scores.overall_score}/1000`,
+          description: `Overall score: ${calculatedScore}/1000`,
         });
       }
 

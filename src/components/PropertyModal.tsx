@@ -5,23 +5,42 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  MapPin, 
-  DollarSign, 
-  Star, 
-  X, 
-  Bed, 
-  Bath, 
-  Square, 
+import {
+  MapPin,
+  DollarSign,
+  Star,
+  X,
+  Bed,
+  Bath,
+  Square,
   Calendar,
   Brain,
   Heart,
   Phone,
-  ExternalLink
+  ExternalLink,
+  User,
+  Building2,
+  Mail,
+  BadgeCheck,
+  FileText,
+  Link2,
+  Copy,
+  CheckCircle2,
+  Calculator,
+  TrendingUp,
+  Image,
+  History,
+  Home,
+  Receipt
 } from 'lucide-react';
 import { calculateWholesalePotential } from '@/lib/wholesale-calculator';
 import { PropertyAnalysisChat } from './PropertyAnalysisChat';
 import { AIPropertyAnalyzer } from './AIPropertyAnalyzer';
+import { InvestmentCalculator } from './InvestmentCalculator';
+import { PriceHistoryChart } from './PriceHistoryChart';
+import { ComparableSalesTable } from './ComparableSalesTable';
+import { PhotosGallery } from './PhotosGallery';
+import { TaxCarryingCosts } from './TaxCarryingCosts';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useLeads } from '@/hooks/useLeads';
 import { toast } from 'sonner';
@@ -35,8 +54,20 @@ interface PropertyModalProps {
 export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps) {
   const { addToFavorites, removeFromFavorites, isFavorite } = useFavorites();
   const { exportLead } = useLeads();
-  
+  const [copiedField, setCopiedField] = React.useState<string | null>(null);
+
   if (!property) return null;
+
+  const copyToClipboard = async (text: string, fieldName: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedField(fieldName);
+      toast.success(`${fieldName} copied to clipboard`);
+      setTimeout(() => setCopiedField(null), 2000);
+    } catch (error) {
+      toast.error('Failed to copy');
+    }
+  };
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -143,20 +174,37 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
         {/* Content */}
         <div className="flex-1 overflow-hidden">
           <Tabs defaultValue="overview" className="w-full h-full flex flex-col">
-            <div className="px-8 pt-6 pb-4 border-b border-border/30 bg-gradient-to-r from-muted/5 to-transparent">
-              <TabsList className="grid w-full grid-cols-4 bg-muted/30 rounded-xl p-1 backdrop-blur-sm">
-                <TabsTrigger value="overview" className="data-[state=active]:bg-background data-[state=active]:shadow-md rounded-lg transition-all duration-300">
+            <div className="px-8 pt-6 pb-4 border-b border-border/30 bg-gradient-to-r from-muted/5 to-transparent overflow-x-auto">
+              <TabsList className="inline-flex w-auto min-w-full bg-muted/30 rounded-xl p-1 backdrop-blur-sm gap-1">
+                <TabsTrigger value="overview" className="data-[state=active]:bg-background data-[state=active]:shadow-md rounded-lg transition-all duration-300 text-xs px-3">
                   Overview
                 </TabsTrigger>
-                <TabsTrigger value="details" className="data-[state=active]:bg-background data-[state=active]:shadow-md rounded-lg transition-all duration-300">
-                  Details
+                <TabsTrigger value="investment" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-md rounded-lg transition-all duration-300 text-xs px-3">
+                  <Calculator className="h-3 w-3" />
+                  Investment
                 </TabsTrigger>
-                <TabsTrigger value="photos" className="data-[state=active]:bg-background data-[state=active]:shadow-md rounded-lg transition-all duration-300">
+                <TabsTrigger value="comps" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-md rounded-lg transition-all duration-300 text-xs px-3">
+                  <Home className="h-3 w-3" />
+                  Comps
+                </TabsTrigger>
+                <TabsTrigger value="price-history" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-md rounded-lg transition-all duration-300 text-xs px-3">
+                  <History className="h-3 w-3" />
+                  History
+                </TabsTrigger>
+                <TabsTrigger value="taxes" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-md rounded-lg transition-all duration-300 text-xs px-3">
+                  <Receipt className="h-3 w-3" />
+                  Taxes
+                </TabsTrigger>
+                <TabsTrigger value="photos" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-md rounded-lg transition-all duration-300 text-xs px-3">
+                  <Image className="h-3 w-3" />
                   Photos
                 </TabsTrigger>
-                <TabsTrigger value="ai-analysis" className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-md rounded-lg transition-all duration-300">
+                <TabsTrigger value="details" className="data-[state=active]:bg-background data-[state=active]:shadow-md rounded-lg transition-all duration-300 text-xs px-3">
+                  Details
+                </TabsTrigger>
+                <TabsTrigger value="ai-analysis" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-md rounded-lg transition-all duration-300 text-xs px-3">
                   <Brain className="h-3 w-3" />
-                  AI Analysis
+                  AI
                 </TabsTrigger>
               </TabsList>
             </div>
@@ -285,74 +333,320 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
               </div>
             </TabsContent>
 
-            <TabsContent value="details" className="mt-6">
+            <TabsContent value="investment" className="flex-1 overflow-auto p-6">
+              <InvestmentCalculator property={property} />
+            </TabsContent>
+
+            <TabsContent value="comps" className="flex-1 overflow-auto p-6">
+              <ComparableSalesTable property={property} />
+            </TabsContent>
+
+            <TabsContent value="price-history" className="flex-1 overflow-auto p-6">
+              <PriceHistoryChart property={property} />
+            </TabsContent>
+
+            <TabsContent value="taxes" className="flex-1 overflow-auto p-6">
+              <TaxCarryingCosts property={property} />
+            </TabsContent>
+
+            <TabsContent value="details" className="mt-6 overflow-auto p-6">
               <div className="grid grid-cols-2 gap-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Property Details</CardTitle>
+                <Card className="border-border hover:shadow-md transition-shadow">
+                  <CardHeader className="pb-4">
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                      <div className="p-2 rounded-lg bg-primary/10">
+                        <Square className="h-4 w-4 text-primary" />
+                      </div>
+                      Property Details
+                    </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    <div className="flex justify-between">
+                    <div className="flex justify-between py-2 border-b border-border/50">
                       <span className="text-muted-foreground">Property Type</span>
-                      <span>{property.propertyType || 'N/A'}</span>
+                      <span className="font-medium">{property.propertyType || 'N/A'}</span>
                     </div>
-                    <div className="flex justify-between">
+                    <div className="flex justify-between py-2 border-b border-border/50">
                       <span className="text-muted-foreground">Year Built</span>
-                      <span>{property.yearBuilt || 'N/A'}</span>
+                      <span className="font-medium">{property.yearBuilt || 'N/A'}</span>
                     </div>
-                    <div className="flex justify-between">
+                    <div className="flex justify-between py-2 border-b border-border/50">
                       <span className="text-muted-foreground">Lot Size</span>
-                      <span>{property.lotSize || 'N/A'}</span>
+                      <span className="font-medium">{property.lotSize || 'N/A'}</span>
                     </div>
-                    <div className="flex justify-between">
+                    <div className="flex justify-between py-2 border-b border-border/50">
                       <span className="text-muted-foreground">Stories</span>
-                      <span>{property.stories || 'N/A'}</span>
+                      <span className="font-medium">{property.stories || 'N/A'}</span>
                     </div>
-                    <div className="flex justify-between">
+                    <div className="flex justify-between py-2">
                       <span className="text-muted-foreground">Parking</span>
-                      <span>{property.parking || 'N/A'}</span>
+                      <span className="font-medium">{property.parking || 'N/A'}</span>
                     </div>
                   </CardContent>
                 </Card>
 
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Market Information</CardTitle>
+                <Card className="border-border hover:shadow-md transition-shadow">
+                  <CardHeader className="pb-4">
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                      <div className="p-2 rounded-lg bg-primary/10">
+                        <DollarSign className="h-4 w-4 text-primary" />
+                      </div>
+                      Market Information
+                    </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    <div className="flex justify-between">
+                    <div className="flex justify-between py-2 border-b border-border/50">
                       <span className="text-muted-foreground">Status</span>
-                      <span>{property.status}</span>
+                      <Badge variant="outline" className="font-medium">{property.status}</Badge>
                     </div>
-                    <div className="flex justify-between">
+                    <div className="flex justify-between py-2 border-b border-border/50">
                       <span className="text-muted-foreground">Days on Market</span>
-                      <span>{property.daysOnMarket || 'N/A'}</span>
+                      <span className="font-medium">{property.daysOnMarket || 'N/A'}</span>
                     </div>
-                    <div className="flex justify-between">
+                    <div className="flex justify-between py-2 border-b border-border/50">
                       <span className="text-muted-foreground">Price per Sq Ft</span>
-                      <span>{property.pricePerSqft ? `$${Math.round(property.pricePerSqft)}` : 'N/A'}</span>
+                      <span className="font-medium">{property.pricePerSqft ? `$${Math.round(property.pricePerSqft)}` : 'N/A'}</span>
                     </div>
-                    <div className="flex justify-between">
+                    <div className="flex justify-between py-2 border-b border-border/50">
                       <span className="text-muted-foreground">Property Tax</span>
-                      <span>{property.propertyTaxRate ? `${property.propertyTaxRate}%` : 'N/A'}</span>
+                      <span className="font-medium">{property.propertyTaxRate ? `${property.propertyTaxRate}%` : 'N/A'}</span>
                     </div>
-                    {property.listingAgent && (
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Listing Agent</span>
-                        <span>{property.listingAgent}</span>
-                      </div>
-                    )}
+                    <div className="flex justify-between py-2">
+                      <span className="text-muted-foreground">MLS ID</span>
+                      <span className="font-medium font-mono text-sm">{property.mlsId || 'N/A'}</span>
+                    </div>
                   </CardContent>
                 </Card>
               </div>
 
+              {/* Agent & Listing Information */}
+              <Card className="mt-6 border-border hover:shadow-md transition-shadow">
+                <CardHeader className="pb-4">
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <div className="p-2 rounded-lg bg-blue-500/10">
+                      <User className="h-4 w-4 text-blue-500" />
+                    </div>
+                    Agent & Listing Information
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 gap-8">
+                    {/* Agent Info */}
+                    <div className="space-y-4">
+                      <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide flex items-center gap-2">
+                        <User className="h-4 w-4" />
+                        Listing Agent
+                      </h4>
+                      <div className="space-y-3 pl-2 border-l-2 border-primary/20">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <User className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-sm text-muted-foreground">Name</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium">{property.agentName || 'Not available'}</span>
+                            {property.agentName && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6"
+                                onClick={() => copyToClipboard(property.agentName!, 'Agent name')}
+                              >
+                                {copiedField === 'Agent name' ? (
+                                  <CheckCircle2 className="h-3 w-3 text-green-500" />
+                                ) : (
+                                  <Copy className="h-3 w-3 text-muted-foreground" />
+                                )}
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <Phone className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-sm text-muted-foreground">Phone</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {property.agentPhone ? (
+                              <>
+                                <a
+                                  href={`tel:${property.agentPhone}`}
+                                  className="font-medium text-primary hover:underline"
+                                >
+                                  {property.agentPhone}
+                                </a>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-6 w-6"
+                                  onClick={() => copyToClipboard(property.agentPhone!, 'Agent phone')}
+                                >
+                                  {copiedField === 'Agent phone' ? (
+                                    <CheckCircle2 className="h-3 w-3 text-green-500" />
+                                  ) : (
+                                    <Copy className="h-3 w-3 text-muted-foreground" />
+                                  )}
+                                </Button>
+                              </>
+                            ) : (
+                              <span className="text-muted-foreground">Not available</span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <Mail className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-sm text-muted-foreground">Email</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {property.agentEmail ? (
+                              <>
+                                <a
+                                  href={`mailto:${property.agentEmail}`}
+                                  className="font-medium text-primary hover:underline truncate max-w-[200px]"
+                                >
+                                  {property.agentEmail}
+                                </a>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-6 w-6"
+                                  onClick={() => copyToClipboard(property.agentEmail!, 'Agent email')}
+                                >
+                                  {copiedField === 'Agent email' ? (
+                                    <CheckCircle2 className="h-3 w-3 text-green-500" />
+                                  ) : (
+                                    <Copy className="h-3 w-3 text-muted-foreground" />
+                                  )}
+                                </Button>
+                              </>
+                            ) : (
+                              <span className="text-muted-foreground">Not available</span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <BadgeCheck className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-sm text-muted-foreground">License #</span>
+                          </div>
+                          <span className="font-mono text-sm">{property.agentLicenseNumber || 'N/A'}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Brokerage Info */}
+                    <div className="space-y-4">
+                      <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide flex items-center gap-2">
+                        <Building2 className="h-4 w-4" />
+                        Brokerage
+                      </h4>
+                      <div className="space-y-3 pl-2 border-l-2 border-primary/20">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <Building2 className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-sm text-muted-foreground">Brokerage</span>
+                          </div>
+                          <span className="font-medium truncate max-w-[200px]">{property.brokerageName || property.brokerName || 'Not available'}</span>
+                        </div>
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <Phone className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-sm text-muted-foreground">Phone</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {property.brokerPhone ? (
+                              <>
+                                <a
+                                  href={`tel:${property.brokerPhone}`}
+                                  className="font-medium text-primary hover:underline"
+                                >
+                                  {property.brokerPhone}
+                                </a>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-6 w-6"
+                                  onClick={() => copyToClipboard(property.brokerPhone!, 'Broker phone')}
+                                >
+                                  {copiedField === 'Broker phone' ? (
+                                    <CheckCircle2 className="h-3 w-3 text-green-500" />
+                                  ) : (
+                                    <Copy className="h-3 w-3 text-muted-foreground" />
+                                  )}
+                                </Button>
+                              </>
+                            ) : (
+                              <span className="text-muted-foreground">Not available</span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <FileText className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-sm text-muted-foreground">MLS</span>
+                          </div>
+                          <span className="font-medium">{property.mlsName || 'N/A'}</span>
+                        </div>
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <Link2 className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-sm text-muted-foreground">Source</span>
+                          </div>
+                          <span className="font-medium">{property.listingSource || 'Zillow'}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Quick Action Buttons */}
+                  <div className="mt-6 pt-4 border-t border-border/50 flex gap-3">
+                    {property.agentPhone && (
+                      <Button
+                        variant="default"
+                        size="sm"
+                        className="gap-2"
+                        onClick={() => window.open(`tel:${property.agentPhone}`, '_self')}
+                      >
+                        <Phone className="h-4 w-4" />
+                        Call Agent
+                      </Button>
+                    )}
+                    {property.agentEmail && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="gap-2"
+                        onClick={() => window.open(`mailto:${property.agentEmail}?subject=Inquiry about ${property.address}`, '_blank')}
+                      >
+                        <Mail className="h-4 w-4" />
+                        Email Agent
+                      </Button>
+                    )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="gap-2"
+                      onClick={() => window.open(`https://www.zillow.com/homes/${encodeURIComponent(property.address)}_rb/`, '_blank')}
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                      View on Zillow
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
               {property.description && (
-                <Card className="mt-6">
-                  <CardHeader>
-                    <CardTitle>Description</CardTitle>
+                <Card className="mt-6 border-border hover:shadow-md transition-shadow">
+                  <CardHeader className="pb-4">
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                      <div className="p-2 rounded-lg bg-primary/10">
+                        <FileText className="h-4 w-4 text-primary" />
+                      </div>
+                      Description
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-muted-foreground leading-relaxed">
+                    <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
                       {property.description}
                     </p>
                   </CardContent>
@@ -360,31 +654,8 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
               )}
             </TabsContent>
 
-            <TabsContent value="photos" className="mt-6">
-              {property.images && property.images.length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {property.images.map((image, index) => (
-                    <div key={index} className="aspect-video relative">
-                      <img 
-                        src={image} 
-                        alt={`Property ${index + 1}`}
-                        className="w-full h-full object-cover rounded-lg"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).style.display = 'none';
-                        }}
-                      />
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <Card>
-                  <CardContent className="p-8 text-center">
-                    <div className="text-muted-foreground">
-                      No photos available for this property
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
+            <TabsContent value="photos" className="flex-1 overflow-auto p-6">
+              <PhotosGallery property={property} />
             </TabsContent>
 
             <TabsContent value="ai-analysis" className="flex-1 overflow-auto p-6">
