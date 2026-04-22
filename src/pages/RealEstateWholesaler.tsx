@@ -161,43 +161,40 @@ export default function RealEstateWholesaler() {
       setLoadingStatus('');
       toast.success(`Found ${sorted.length} properties. Fetching Zestimates...`);
 
-      // Step 3: Enrich with zestimates in background
+      // Step 3: Enrich with zestimates in background (progressive updates)
       try {
-        console.log('[AIWholesail v2.1] Starting zestimate enrichment for', results.length, 'properties');
+        console.log('[AIWholesail] Starting zestimate enrichment for', results.length, 'properties (capped at 50)');
 
         const enriched = await zillowAPI.enrichWithZestimates(
           results,
           (completed, total) => {
-            if (completed % 100 === 0 || completed === total) {
-              toast.info(`Zestimates: ${completed}/${total} checked`);
-            }
+            toast.info(`Zestimates: ${completed}/${total} checked`);
+          },
+          // Progressive: update UI after each chunk so deals appear immediately
+          (partiallyEnriched) => {
+            if (currentSearchId !== searchIdRef.current) return;
+            const sorted = sortPropertiesByWholesalePotential(partiallyEnriched);
+            setProperties(sorted);
           }
         );
 
-        console.log('[AIWholesail v2.1] Enrichment complete. Sample:', enriched.slice(0, 2).map(p => ({ zpid: p.zpid, price: p.price, zestimate: p.zestimate })));
-
-        // Only update if this is still the current search
         if (currentSearchId !== searchIdRef.current) {
-          // Search ID changed — user started a new search, discard
-          console.log('[AIWholesail v2.1] Discarding stale enrichment results');
+          console.log('[AIWholesail] Discarding stale enrichment results');
           return;
         }
 
-        // Re-sort with zestimates — best deals first
         let enrichedSorted = sortPropertiesByWholesalePotential(enriched);
 
-        // Apply wholesale filter if toggled
         if (params.wholesaleOnly) {
           const deals = enrichedSorted.filter(p => p.price && p.zestimate && p.price < p.zestimate);
           if (deals.length > 0) enrichedSorted = deals;
         }
 
-        console.log('[AIWholesail v2.1] Setting enriched properties:', enrichedSorted.length, 'with zestimates:', enrichedSorted.filter(p => p.zestimate).length);
         setProperties(enrichedSorted);
 
         const dealCount = enrichedSorted.filter(p => p.price && p.zestimate && p.zestimate > p.price).length;
         const withZest = enrichedSorted.filter(p => p.zestimate).length;
-        toast.success(`Done! ${dealCount} deals below market value (${withZest} Zestimates found)`);
+        toast.success(`Done! ${dealCount} deals below market value (${withZest}/${enrichedSorted.length} Zestimates found)`);
       } catch (enrichError) {
         console.warn('Enrichment failed:', enrichError);
         toast.error('Zestimate enrichment failed. Showing results without spread data.');
