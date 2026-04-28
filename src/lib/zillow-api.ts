@@ -1,8 +1,15 @@
 import { PropertySearchParams, Property, ZillowAPIResponse } from '@/types/zillow';
+import { supabase } from '@/integrations/supabase/client';
 
-// Use Hetzner API endpoint instead of Supabase Edge Functions
+// Supabase Edge Function for Zillow data
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://ztgsevhzbeywytoqlsbf.supabase.co';
+const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || '';
+
+// Fallback to Hetzner API if Supabase is not configured
 const ZILLOW_API_URL = import.meta.env.VITE_ZILLOW_API_URL || 'https://api.aiwholesail.com/zillow/zillow';
 const ZILLOW_API_KEY = import.meta.env.VITE_ZILLOW_API_KEY || '';
+
+const USE_SUPABASE = !!SUPABASE_URL && !!SUPABASE_KEY;
 
 export class ZillowAPI {
 
@@ -159,6 +166,34 @@ export class ZillowAPI {
   }
 
   private async fetchPage(params: PropertySearchParams, page: number) {
+    if (USE_SUPABASE) {
+      try {
+        const result = await this.fetchPageViaSupabase(params, page);
+        if (result?.success) return result;
+        console.warn('[ZillowAPI] Supabase returned error, falling back to Hetzner');
+      } catch (err) {
+        console.warn('[ZillowAPI] Supabase failed, falling back to Hetzner:', err);
+      }
+    }
+    return this.fetchPageViaHetzner(params, page);
+  }
+
+  private async fetchPageViaSupabase(params: PropertySearchParams, page: number) {
+    const { data, error } = await supabase.functions.invoke('get-zillow-data', {
+      body: {
+        searchParams: { ...params, page },
+        action: 'search'
+      }
+    });
+
+    if (error) {
+      throw new Error(`Supabase Zillow search failed: ${error.message}`);
+    }
+
+    return data;
+  }
+
+  private async fetchPageViaHetzner(params: PropertySearchParams, page: number) {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
     };
@@ -588,6 +623,34 @@ export class ZillowAPI {
   }
 
   private async callApi(action: string, searchParams?: any): Promise<any> {
+    if (USE_SUPABASE) {
+      try {
+        const result = await this.callApiViaSupabase(action, searchParams);
+        if (result?.success) return result;
+        console.warn(`[ZillowAPI] Supabase ${action} returned error, falling back to Hetzner`);
+      } catch (err) {
+        console.warn(`[ZillowAPI] Supabase ${action} failed, falling back to Hetzner:`, err);
+      }
+    }
+    return this.callApiViaHetzner(action, searchParams);
+  }
+
+  private async callApiViaSupabase(action: string, searchParams?: any): Promise<any> {
+    const { data, error } = await supabase.functions.invoke('get-zillow-data', {
+      body: { action, searchParams }
+    });
+
+    if (error) {
+      throw new Error(`Supabase API request failed: ${error.message}`);
+    }
+
+    if (!data?.success) {
+      throw new Error(data?.error || 'API request failed');
+    }
+    return data;
+  }
+
+  private async callApiViaHetzner(action: string, searchParams?: any): Promise<any> {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
     };
@@ -604,8 +667,8 @@ export class ZillowAPI {
     }
 
     const data = await response.json();
-    if (!data.success) {
-      throw new Error(data.error || 'API request failed');
+    if (!data?.success) {
+      throw new Error(data?.error || 'API request failed');
     }
     return data;
   }
@@ -634,22 +697,22 @@ export class ZillowAPI {
   }
 
   /**
-   * Enrich search results with zestimates using server-side batch endpoint.
-   * Caps at MAX_ENRICH properties and uses small chunks with progressive UI updates.
+   * Enrich search results with zestimates.
    *
-   * The batch-zestimates endpoint takes ~1.6s per zpid. Enriching 800+ properties
-   * from a 20-page search would take ~22 minutes. Instead we:
-   * 1. Cap at 50 properties (first page + some of second)
-   * 2. Use 25-zpid chunks for ~40s per chunk
-   * 3. Call onChunkComplete after each chunk so the UI updates progressively
+   * Uses Supabase edge function (get-zillow-data with action: 'zestimate') or
+   * Hetzner batch endpoint as fallback. Fetches zestimates in parallel chunks.
+   *
+   * IMPORTANT: After enrichment completes, ALL properties that weren't enriched
+   * (no zpid, beyond cap, or failed) are marked zestimateUnavailable so the UI
+   * never shows an infinite "Calculating..." spinner.
    */
   async enrichWithZestimates(
     properties: Property[],
     onProgress?: (completed: number, total: number) => void,
     onChunkComplete?: (partiallyEnriched: Property[]) => void
   ): Promise<Property[]> {
-    const MAX_ENRICH = 50; // Cap: ~80s total instead of ~22 min
-    const CHUNK_SIZE = 25;
+    const MAX_ENRICH = 80;
+    const CHUNK_SIZE = 10; // Smaller chunks for parallel individual calls
 
     const propertiesWithZpid = properties.map(p => ({
       property: p,
@@ -666,45 +729,106 @@ export class ZillowAPI {
     console.log(`[Zestimate Enrichment] Total: ${properties.length}, With ZPID: ${totalWithZpid}, Enriching: ${toEnrich.length} (capped from ${totalWithZpid}), Already have: ${alreadyHaveZest}`);
 
     if (toEnrich.length === 0) {
-      return properties;
+      // Mark all properties without zestimate as unavailable
+      return this.markRemainingUnavailable(properties);
     }
 
     const allZpids = toEnrich.map(({ zpid }) => zpid!);
     onProgress?.(0, allZpids.length);
 
-    const ZILLOW_BASE = ZILLOW_API_URL.replace(/\/zillow$/, '');
     const allZestimates: Record<string, number | null> = {};
 
     try {
+      // Try Supabase edge function first for batch zestimates
+      let useSupabaseForZest = USE_SUPABASE;
+
       for (let i = 0; i < allZpids.length; i += CHUNK_SIZE) {
         const chunk = allZpids.slice(i, i + CHUNK_SIZE);
         const chunkNum = Math.floor(i / CHUNK_SIZE) + 1;
 
-        const batchHeaders: Record<string, string> = { 'Content-Type': 'application/json' };
-        if (ZILLOW_API_KEY) batchHeaders['x-api-key'] = ZILLOW_API_KEY;
+        console.log(`[Zestimate Enrichment] Chunk ${chunkNum} (${chunk.length} zpids) via ${useSupabaseForZest ? 'Supabase' : 'Hetzner'}`);
 
-        console.log(`[Zestimate Enrichment] Chunk ${chunkNum} (${chunk.length} zpids)`);
+        let chunkSuccess = false;
 
-        const response = await fetch(`${ZILLOW_BASE}/batch-zestimates`, {
-          method: 'POST',
-          headers: batchHeaders,
-          body: JSON.stringify({ zpids: chunk }),
-        });
+        // Try Supabase: parallel individual zestimate calls
+        if (useSupabaseForZest) {
+          try {
+            const results = await Promise.allSettled(
+              chunk.map(zpid =>
+                supabase.functions.invoke('get-zillow-data', {
+                  body: { action: 'zestimate', searchParams: { zpid } }
+                }).then(({ data, error }) => {
+                  if (error || !data?.success) return { zpid, zestimate: null };
+                  // Extract zestimate from various possible response structures
+                  const d = data?.data || {};
+                  const zest = d.zestimate ?? d.value ?? d.amount ?? null;
+                  return { zpid, zestimate: typeof zest === 'number' && zest > 0 ? zest : null };
+                })
+              )
+            );
 
-        if (response.ok) {
-          const result = await response.json();
-          if (result.success && result.data) {
-            Object.assign(allZestimates, result.data);
-            const chunkHits = Object.values(result.data).filter((v: any) => v !== null && v > 0).length;
-            console.log(`[Zestimate Enrichment] Chunk ${chunkNum}: ${chunkHits}/${chunk.length} zestimates (${result.stats?.cached || 0} cached, ${result.stats?.durationMs || 0}ms)`);
+            let chunkHits = 0;
+            let chunkErrors = 0;
+            for (const result of results) {
+              if (result.status === 'fulfilled') {
+                allZestimates[result.value.zpid] = result.value.zestimate;
+                if (result.value.zestimate !== null) chunkHits++;
+              } else {
+                chunkErrors++;
+              }
+            }
+
+            // If ALL results failed, switch to Hetzner for remaining chunks
+            if (chunkErrors === chunk.length) {
+              console.warn(`[Zestimate Enrichment] Supabase chunk ${chunkNum} fully failed, switching to Hetzner`);
+              useSupabaseForZest = false;
+            } else {
+              chunkSuccess = true;
+              console.log(`[Zestimate Enrichment] Chunk ${chunkNum}: ${chunkHits}/${chunk.length} zestimates found via Supabase`);
+            }
+          } catch (err) {
+            console.warn(`[Zestimate Enrichment] Supabase chunk ${chunkNum} error, switching to Hetzner:`, err);
+            useSupabaseForZest = false;
           }
-        } else {
-          console.error(`[Zestimate Enrichment] Chunk ${chunkNum} failed: ${response.status}`);
+        }
+
+        // Hetzner fallback: batch endpoint
+        if (!chunkSuccess) {
+          const ZILLOW_BASE = ZILLOW_API_URL.replace(/\/zillow$/, '');
+          const batchHeaders: Record<string, string> = { 'Content-Type': 'application/json' };
+          if (ZILLOW_API_KEY) batchHeaders['x-api-key'] = ZILLOW_API_KEY;
+
+          try {
+            const response = await fetch(`${ZILLOW_BASE}/batch-zestimates`, {
+              method: 'POST',
+              headers: batchHeaders,
+              body: JSON.stringify({ zpids: chunk }),
+            });
+
+            if (response.ok) {
+              const result = await response.json();
+              if (result.success && result.data) {
+                Object.assign(allZestimates, result.data);
+                const chunkHits = Object.values(result.data).filter((v: any) => v !== null && v > 0).length;
+                console.log(`[Zestimate Enrichment] Chunk ${chunkNum}: ${chunkHits}/${chunk.length} zestimates via Hetzner`);
+              }
+            } else {
+              console.error(`[Zestimate Enrichment] Hetzner chunk ${chunkNum} failed: ${response.status}`);
+              for (const zpid of chunk) {
+                allZestimates[zpid] = null;
+              }
+            }
+          } catch (err) {
+            console.error(`[Zestimate Enrichment] Hetzner chunk ${chunkNum} error:`, err);
+            for (const zpid of chunk) {
+              allZestimates[zpid] = null;
+            }
+          }
         }
 
         onProgress?.(Math.min(i + chunk.length, allZpids.length), allZpids.length);
 
-        // Progressive UI update: merge what we have so far and notify caller
+        // Progressive UI update
         if (onChunkComplete) {
           const partialMerge = this.mergeZestimates(properties, allZestimates);
           onChunkComplete(partialMerge);
@@ -719,7 +843,9 @@ export class ZillowAPI {
     const withZest = Object.values(allZestimates).filter(v => v !== null && v > 0).length;
     console.log(`[Zestimate Enrichment] Complete: ${withZest}/${allZpids.length} have zestimates`);
 
-    return this.mergeZestimates(properties, allZestimates);
+    // Merge enriched data, then mark ALL remaining without zestimate as unavailable
+    const enriched = this.mergeZestimates(properties, allZestimates);
+    return this.markRemainingUnavailable(enriched);
   }
 
   private mergeZestimates(properties: Property[], zestimates: Record<string, number | null>): Property[] {
@@ -731,6 +857,20 @@ export class ZillowAPI {
         if (zest !== null && zest > 0) {
           return { ...p, zestimate: zest };
         }
+        return { ...p, zestimateUnavailable: true };
+      }
+      return p;
+    });
+  }
+
+  /**
+   * Mark any property that still has no zestimate as unavailable.
+   * This prevents the UI from showing an infinite "Calculating..." spinner
+   * for properties that were beyond the enrichment cap or had no zpid.
+   */
+  private markRemainingUnavailable(properties: Property[]): Property[] {
+    return properties.map(p => {
+      if (!p.zestimate && !(p as any).zestimateUnavailable) {
         return { ...p, zestimateUnavailable: true };
       }
       return p;

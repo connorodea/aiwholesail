@@ -126,16 +126,16 @@ export default function RealEstateWholesaler() {
       setLastSearchLocation(params.location);
       setIsSearchingFSBO(params.fsboOnly || false);
 
-      // Step 1: Fetch all pages
-      const searchResults = await zillowAPI.searchProperties(params, 20);
+      // Step 1: Fetch pages (cap at 3 so most results get zestimate enrichment)
+      const searchResults = await zillowAPI.searchProperties(params, 3);
 
       if (searchResults.length === 0) {
         setError("No properties found. Try adjusting your search criteria.");
         return;
       }
 
-      // Step 2: Show results immediately
-      let results = searchResults;
+      // Step 2: Filter out properties with no price (can't calculate spreads)
+      let results = searchResults.filter(p => p.price && p.price > 0);
 
       // Apply keyword filter if provided
       if (params.keywords?.trim()) {
@@ -157,7 +157,7 @@ export default function RealEstateWholesaler() {
       setIsLoading(false);
       setLoadingProgress(0);
       setLoadingStatus('');
-      toast.success(`Found ${sorted.length} properties. Fetching Zestimates...`);
+      toast.success(`Found ${sorted.length} properties with pricing. Fetching Zestimates for spread calculations...`);
 
       // Step 3: Enrich with zestimates in background (progressive updates)
       try {
@@ -375,7 +375,7 @@ export default function RealEstateWholesaler() {
                         
                         const getIsHighValue = (property: any) => {
                           const spread = getSpread(property);
-                          return spread >= 35000;
+                          return spread >= 30000;
                         };
                         
                         const aSpread = getSpread(a);
