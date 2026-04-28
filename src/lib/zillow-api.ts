@@ -711,8 +711,8 @@ export class ZillowAPI {
     onProgress?: (completed: number, total: number) => void,
     onChunkComplete?: (partiallyEnriched: Property[]) => void
   ): Promise<Property[]> {
-    const MAX_ENRICH = 80;
-    const CHUNK_SIZE = 10; // Smaller chunks for parallel individual calls
+    const MAX_ENRICH = 150; // Enrich as many as possible to find +$30K deals
+    const CHUNK_SIZE = USE_SUPABASE ? 10 : 25; // Hetzner batch handles parallelism server-side
 
     const propertiesWithZpid = properties.map(p => ({
       property: p,

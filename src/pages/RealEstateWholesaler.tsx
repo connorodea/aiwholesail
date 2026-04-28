@@ -126,8 +126,8 @@ export default function RealEstateWholesaler() {
       setLastSearchLocation(params.location);
       setIsSearchingFSBO(params.fsboOnly || false);
 
-      // Step 1: Fetch pages (cap at 3 so most results get zestimate enrichment)
-      const searchResults = await zillowAPI.searchProperties(params, 3);
+      // Step 1: Fetch up to 5 pages to cast a wide net for +$30K spread deals
+      const searchResults = await zillowAPI.searchProperties(params, 5);
 
       if (searchResults.length === 0) {
         setError("No properties found. Try adjusting your search criteria.");
@@ -157,22 +157,27 @@ export default function RealEstateWholesaler() {
       setIsLoading(false);
       setLoadingProgress(0);
       setLoadingStatus('');
-      toast.success(`Found ${sorted.length} properties with pricing. Fetching Zestimates for spread calculations...`);
+      toast.success(`Found ${sorted.length} properties. Calculating spreads (Zestimate vs Listing Price)...`);
 
-      // Step 3: Enrich with zestimates in background (progressive updates)
+      // Step 3: Enrich with zestimates to calculate spreads
       try {
-        console.log('[AIWholesail] Starting zestimate enrichment for', results.length, 'properties (capped at 50)');
+        console.log('[AIWholesail] Starting zestimate enrichment for', results.length, 'properties');
 
         const enriched = await zillowAPI.enrichWithZestimates(
           results,
           (completed, total) => {
-            toast.info(`Zestimates: ${completed}/${total} checked`);
+            toast.info(`Checking Zestimates: ${completed}/${total}`);
           },
-          // Progressive: update UI after each chunk so deals appear immediately
+          // Progressive: re-sort after each chunk so $30K+ deals bubble to top immediately
           (partiallyEnriched) => {
             if (currentSearchId !== searchIdRef.current) return;
             const sorted = sortPropertiesByWholesalePotential(partiallyEnriched);
             setProperties(sorted);
+            // Log deals found so far
+            const dealsFound = sorted.filter(p => p.zestimate && p.price && (p.zestimate - p.price) >= 30000).length;
+            if (dealsFound > 0) {
+              toast.success(`${dealsFound} deal${dealsFound > 1 ? 's' : ''} with +$30K spread found so far!`);
+            }
           }
         );
 
@@ -190,9 +195,17 @@ export default function RealEstateWholesaler() {
 
         setProperties(enrichedSorted);
 
-        const dealCount = enrichedSorted.filter(p => p.price && p.zestimate && p.zestimate > p.price).length;
+        const bigDeals = enrichedSorted.filter(p => p.price && p.zestimate && (p.zestimate - p.price) >= 30000).length;
+        const allPositive = enrichedSorted.filter(p => p.price && p.zestimate && p.zestimate > p.price).length;
         const withZest = enrichedSorted.filter(p => p.zestimate).length;
-        toast.success(`Done! ${dealCount} deals below market value (${withZest}/${enrichedSorted.length} Zestimates found)`);
+
+        if (bigDeals > 0) {
+          toast.success(`Found ${bigDeals} properties with +$30K spreads! (${allPositive} total below market, ${withZest} Zestimates checked)`);
+        } else if (allPositive > 0) {
+          toast.info(`${allPositive} properties below market value, but none with +$30K spreads yet. Try a different area.`);
+        } else {
+          toast.info(`No deals found in this area — all ${withZest} properties are at or above Zestimate. Try a different location.`);
+        }
       } catch (enrichError) {
         console.warn('Enrichment failed:', enrichError);
         toast.error('Zestimate enrichment failed. Showing results without spread data.');
