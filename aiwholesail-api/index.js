@@ -14,6 +14,7 @@ const stripeRoutes = require('./routes/stripe');
 const aiRoutes = require('./routes/ai');
 const propertyRoutes = require('./routes/property');
 const communicationsRoutes = require('./routes/communications');
+const sequencesRoutes = require('./routes/sequences');
 const utilityRoutes = require('./routes/utility');
 
 // Import middleware
@@ -90,6 +91,7 @@ app.use('/api/stripe', stripeRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/property', propertyRoutes);
 app.use('/api/communications', communicationsRoutes);
+app.use('/api/sequences', sequencesRoutes);
 app.use('/api', utilityRoutes);
 
 // Handle 404
