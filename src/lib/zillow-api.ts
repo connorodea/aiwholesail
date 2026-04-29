@@ -880,6 +880,29 @@ export class ZillowAPI {
     });
   }
 
+  async autocomplete(query: string): Promise<any[]> {
+    try {
+      const rapidApiKey = import.meta.env.VITE_PROPDATA_RAPIDAPI_KEY || '';
+      if (!rapidApiKey) return [];
+
+      const response = await fetch(
+        `https://zillow-scraper-api.p.rapidapi.com/zillow/search/autocomplete?query=${encodeURIComponent(query)}`,
+        {
+          headers: {
+            'x-rapidapi-key': rapidApiKey,
+            'x-rapidapi-host': 'zillow-scraper-api.p.rapidapi.com'
+          }
+        }
+      );
+
+      if (!response.ok) return [];
+      const data = await response.json();
+      return data?.data?.suggestions || [];
+    } catch {
+      return [];
+    }
+  }
+
   async testConnection(): Promise<boolean> {
     try {
       const data = await this.callApi('test');
