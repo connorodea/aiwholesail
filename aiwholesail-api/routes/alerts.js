@@ -149,14 +149,17 @@ router.post('/', authenticate, [
     maxPrice,
     minSqft,
     maxSqft,
-    alertFrequency
+    alertFrequency,
+    phoneNumber,
+    minSpread
   } = req.body;
 
   const result = await query(
     `INSERT INTO property_alerts (
       user_id, location, property_types, min_bedrooms, max_bedrooms,
-      min_bathrooms, max_bathrooms, max_price, min_sqft, max_sqft, alert_frequency
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+      min_bathrooms, max_bathrooms, max_price, min_sqft, max_sqft,
+      alert_frequency, phone_number, min_spread
+    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
     RETURNING *`,
     [
       req.user.id,
@@ -169,7 +172,9 @@ router.post('/', authenticate, [
       maxPrice || null,
       minSqft || null,
       maxSqft || null,
-      alertFrequency || 'daily'
+      alertFrequency || 'daily',
+      phoneNumber || null,
+      minSpread || 30000
     ]
   );
 
@@ -199,7 +204,9 @@ router.put('/:id', authenticate, [
     minSqft,
     maxSqft,
     alertFrequency,
-    isActive
+    isActive,
+    phoneNumber,
+    minSpread
   } = req.body;
 
   // Build dynamic update query
@@ -211,7 +218,8 @@ router.put('/:id', authenticate, [
     location, property_types: propertyTypes, min_bedrooms: minBedrooms,
     max_bedrooms: maxBedrooms, min_bathrooms: minBathrooms, max_bathrooms: maxBathrooms,
     max_price: maxPrice, min_sqft: minSqft, max_sqft: maxSqft,
-    alert_frequency: alertFrequency, is_active: isActive
+    alert_frequency: alertFrequency, is_active: isActive,
+    phone_number: phoneNumber, min_spread: minSpread
   };
 
   for (const [key, value] of Object.entries(fields)) {
