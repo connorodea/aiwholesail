@@ -16,19 +16,22 @@ const USE_SUPABASE = import.meta.env.VITE_USE_SUPABASE_ZILLOW === 'true';
 
 export class ZillowAPI {
 
-  async searchProperties(params: PropertySearchParams, maxPages: number = 3): Promise<Property[]> {
+  async searchProperties(
+    params: PropertySearchParams,
+    maxPages: number = 3,
+    onPageProgress?: (loaded: number, total: number, propertiesSoFar: number) => void
+  ): Promise<Property[]> {
     try {
       console.log('Searching with params:', params, `Max pages: ${maxPages}`);
       console.log('FSBO toggle status:', params.fsboOnly);
-      
+
       if (params.fsboOnly) {
         console.log('FSBO search requested - using API filtering');
-        const results = await this.performSearch(params, maxPages);
+        const results = await this.performSearch(params, maxPages, onPageProgress);
         console.log(`FSBO API results: ${results.length} properties found`);
         return results;
       } else {
-        // Regular search for non-FSBO requests
-        return await this.performSearch(params, maxPages);
+        return await this.performSearch(params, maxPages, onPageProgress);
       }
     } catch (error) {
       console.error('Error fetching properties:', error);
@@ -62,7 +65,11 @@ export class ZillowAPI {
     return trimmed;
   }
 
-  private async performSearch(params: PropertySearchParams, maxPages: number): Promise<Property[]> {
+  private async performSearch(
+    params: PropertySearchParams,
+    maxPages: number,
+    onPageProgress?: (loaded: number, total: number, propertiesSoFar: number) => void
+  ): Promise<Property[]> {
     let allProperties: Property[] = [];
     let currentPage = 1;
     let totalPages = 1;
@@ -104,24 +111,31 @@ export class ZillowAPI {
     // Process first page
     const firstPageProperties = this.processPropertyData(responseData);
     allProperties.push(...firstPageProperties);
+    onPageProgress?.(1, totalPages, allProperties.length);
 
-    // Fetch remaining pages in parallel for better performance
+    // Fetch remaining pages — use batches of 3 for progressive loading
     if (totalPages > 1) {
-      const remainingPagePromises = [];
-      for (let page = 2; page <= totalPages; page++) {
-        remainingPagePromises.push(this.fetchPage(normalizedParams, page));
-      }
-
-      const remainingPagesData = await Promise.allSettled(remainingPagePromises);
-
-      for (const result of remainingPagesData) {
-        if (result.status === 'fulfilled' && result.value.success) {
-          const pageData = result.value.data?.data || result.value.data;
-          const pageProperties = this.processPropertyData(pageData);
-          allProperties.push(...pageProperties);
-        } else {
-          console.warn('Failed to fetch page:', result.status === 'rejected' ? result.reason : result.value.error);
+      const BATCH_SIZE = 3;
+      for (let batchStart = 2; batchStart <= totalPages; batchStart += BATCH_SIZE) {
+        const batchEnd = Math.min(batchStart + BATCH_SIZE - 1, totalPages);
+        const batchPromises = [];
+        for (let page = batchStart; page <= batchEnd; page++) {
+          batchPromises.push(this.fetchPage(normalizedParams, page));
         }
+
+        const batchResults = await Promise.allSettled(batchPromises);
+
+        for (const result of batchResults) {
+          if (result.status === 'fulfilled' && result.value.success) {
+            const pageData = result.value.data?.data || result.value.data;
+            const pageProperties = this.processPropertyData(pageData);
+            allProperties.push(...pageProperties);
+          } else {
+            console.warn('Failed to fetch page:', result.status === 'rejected' ? (result as any).reason : (result as any).value?.error);
+          }
+        }
+
+        onPageProgress?.(Math.min(batchEnd, totalPages), totalPages, allProperties.length);
       }
     }
 

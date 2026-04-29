@@ -122,7 +122,16 @@ export default function RealEstateWholesaler() {
       // Step 1: Fetch pages — more for state-wide searches to find deals
       const isStateSearch = isStateOnlyLocation(params.location);
       const maxPages = isStateSearch ? 10 : 5;
-      const searchResults = await zillowAPI.searchProperties(params, maxPages);
+
+      if (isStateSearch) {
+        setLoadingStatus(`State-wide search: fetching properties across ${params.location}... This may take a minute.`);
+      }
+
+      const searchResults = await zillowAPI.searchProperties(params, maxPages, (loaded, total, count) => {
+        const pct = Math.round((loaded / total) * 60) + 20; // 20-80% range for search
+        setLoadingProgress(pct);
+        setLoadingStatus(`Fetching page ${loaded}/${total} — ${count} properties found so far...`);
+      });
 
       if (searchResults.length === 0) {
         setError("No properties found. Try adjusting your search criteria.");
@@ -149,10 +158,9 @@ export default function RealEstateWholesaler() {
 
       const sorted = sortPropertiesByWholesalePotential(results);
       setProperties(sorted);
-      setIsLoading(false);
-      setLoadingProgress(0);
-      setLoadingStatus('');
-      toast.success(`Found ${sorted.length} properties. Calculating spreads (Zestimate vs Listing Price)...`);
+      setLoadingProgress(80);
+      setLoadingStatus(`Found ${sorted.length} properties. Now calculating spreads...`);
+      setIsLoading(false); // Hide the blocking loader, show results while enriching
 
       // Step 3: Enrich with zestimates to calculate spreads
       try {
@@ -161,7 +169,9 @@ export default function RealEstateWholesaler() {
         const enriched = await zillowAPI.enrichWithZestimates(
           results,
           (completed, total) => {
-            toast.info(`Checking Zestimates: ${completed}/${total}`);
+            const pct = Math.round((completed / total) * 20) + 80; // 80-100% range
+            setLoadingProgress(pct);
+            setLoadingStatus(`Calculating spreads: ${completed}/${total} Zestimates checked...`);
           },
           // Progressive: re-sort after each chunk so $30K+ deals bubble to top immediately
           (partiallyEnriched) => {
@@ -194,6 +204,10 @@ export default function RealEstateWholesaler() {
         const allPositive = enrichedSorted.filter(p => p.price && p.zestimate && p.zestimate > p.price).length;
         const withZest = enrichedSorted.filter(p => p.zestimate).length;
 
+        // Clear progress bar
+        setLoadingProgress(0);
+        setLoadingStatus('');
+
         if (bigDeals > 0) {
           toast.success(`Found ${bigDeals} properties with +$30K spreads! (${allPositive} total below market, ${withZest} Zestimates checked)`);
         } else if (allPositive > 0) {
@@ -203,6 +217,8 @@ export default function RealEstateWholesaler() {
         }
       } catch (enrichError) {
         console.warn('Enrichment failed:', enrichError);
+        setLoadingProgress(0);
+        setLoadingStatus('');
         toast.error('Zestimate enrichment failed. Showing results without spread data.');
       }
 
@@ -277,8 +293,8 @@ export default function RealEstateWholesaler() {
               )}
             </section>
 
-            {/* Loading Progress Bar */}
-            {isLoading && (
+            {/* Loading Progress Bar — visible during search AND enrichment */}
+            {(isLoading || loadingProgress > 0) && (
               <section className="max-w-2xl mx-auto animate-fade-in">
                 <div className="feature-card p-8 backdrop-blur-sm rounded-2xl">
                   <div className="space-y-4">
@@ -293,9 +309,10 @@ export default function RealEstateWholesaler() {
                       />
                     </div>
                     <p className="text-xs text-muted-foreground text-center">
-                      {loadingProgress < 50 ? 'Fetching listings from Zillow...' :
-                       loadingProgress < 90 ? 'Fetching Zestimates to calculate wholesale spreads...' :
-                       'Almost done...'}
+                      {loadingProgress <= 20 ? 'Starting search...' :
+                       loadingProgress <= 80 ? 'Fetching property listings — results will appear as they load...' :
+                       loadingProgress < 100 ? 'Calculating Zestimate spreads — deals will appear as found...' :
+                       'Complete!'}
                     </p>
                   </div>
                 </div>
