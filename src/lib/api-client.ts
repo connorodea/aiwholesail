@@ -529,6 +529,47 @@ export const communications = {
   },
 };
 
+// ============ SEQUENCES API ============
+export const sequences = {
+  listTemplates: async () => apiFetch('/api/sequences/templates'),
+
+  getTemplate: async (id: string) => apiFetch(`/api/sequences/templates/${id}`),
+
+  createTemplate: async (data: { name: string; description?: string; category: string; steps: any[] }) => {
+    return apiFetch('/api/sequences/templates', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  deleteTemplate: async (id: string) => {
+    return apiFetch(`/api/sequences/templates/${id}`, { method: 'DELETE' });
+  },
+
+  assign: async (leadId: string, templateId: string, variables: Record<string, string>) => {
+    return apiFetch('/api/sequences/assign', {
+      method: 'POST',
+      body: JSON.stringify({ leadId, templateId, variables }),
+    });
+  },
+
+  listActive: async () => apiFetch('/api/sequences/active'),
+
+  getLeadSequences: async (leadId: string) => apiFetch(`/api/sequences/lead/${leadId}`),
+
+  pause: async (id: string) => {
+    return apiFetch(`/api/sequences/${id}/pause`, { method: 'PATCH' });
+  },
+
+  resume: async (id: string) => {
+    return apiFetch(`/api/sequences/${id}/resume`, { method: 'PATCH' });
+  },
+
+  cancel: async (id: string) => {
+    return apiFetch(`/api/sequences/${id}/cancel`, { method: 'PATCH' });
+  },
+};
+
 // ============ UTILITY API ============
 export const utility = {
   geocode: async (address: string) => {
@@ -556,6 +597,7 @@ const apiClient = {
   ai,
   property,
   communications,
+  sequences,
   utility,
   onAuthStateChange,
 };
