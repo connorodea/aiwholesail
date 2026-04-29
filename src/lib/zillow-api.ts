@@ -9,7 +9,10 @@ const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || '';
 const ZILLOW_API_URL = import.meta.env.VITE_ZILLOW_API_URL || 'https://api.aiwholesail.com/zillow/zillow';
 const ZILLOW_API_KEY = import.meta.env.VITE_ZILLOW_API_KEY || '';
 
-const USE_SUPABASE = !!SUPABASE_URL && !!SUPABASE_KEY;
+// Supabase edge function is available but currently returns errors.
+// Use Hetzner as primary, Supabase as future upgrade path.
+// Set VITE_USE_SUPABASE_ZILLOW=true to enable Supabase as primary.
+const USE_SUPABASE = import.meta.env.VITE_USE_SUPABASE_ZILLOW === 'true';
 
 export class ZillowAPI {
 
