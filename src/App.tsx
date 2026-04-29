@@ -26,6 +26,7 @@ import OffMarket from "./pages/OffMarket";
 import Analyzer from "./pages/Analyzer";
 import Favorites from "./pages/Favorites";
 import Alerts from "./pages/Alerts";
+import Buyers from "./pages/Buyers";
 
 const queryClient = new QueryClient();
 
@@ -67,6 +68,11 @@ const App = () => (
                 <Route path="/app/alerts" element={
                   <ProtectedRoute>
                     <Alerts />
+                  </ProtectedRoute>
+                } />
+                <Route path="/app/buyers" element={
+                  <ProtectedRoute>
+                    <Buyers />
                   </ProtectedRoute>
                 } />
                 <Route path="/auth" element={<Auth />} />
