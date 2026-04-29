@@ -26,6 +26,7 @@ import {
   ChevronDown,
   Target,
   Brain,
+  FileText,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/contexts/SubscriptionContext';
@@ -37,6 +38,7 @@ const navItems = [
   { href: '/app', label: 'Search', icon: Search },
   { href: '/app/off-market', label: 'Off-Market', icon: Target },
   { href: '/app/analyzer', label: 'AI Analyzer', icon: Brain },
+  { href: '/app/contracts', label: 'Contracts', icon: FileText },
   { href: '/app/favorites', label: 'Favorites', icon: Heart },
   { href: '/app/alerts', label: 'Alerts', icon: Bell },
 ];
