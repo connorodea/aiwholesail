@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Property } from '@/types/zillow';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
@@ -31,9 +31,11 @@ import {
   Image,
   History,
   Home,
-  Receipt
+  Receipt,
+  Loader2
 } from 'lucide-react';
 import { calculateWholesalePotential } from '@/lib/wholesale-calculator';
+import { zillowAPI } from '@/lib/zillow-api';
 import { PropertyAnalysisChat } from './PropertyAnalysisChat';
 import { AIPropertyAnalyzer } from './AIPropertyAnalyzer';
 import { InvestmentCalculator } from './InvestmentCalculator';
@@ -55,8 +57,76 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
   const { addToFavorites, removeFromFavorites, isFavorite } = useFavorites();
   const { exportLead } = useLeads();
   const [copiedField, setCopiedField] = React.useState<string | null>(null);
+  const [enrichedProperty, setEnrichedProperty] = useState<Property | null>(null);
+  const [isLoadingDetails, setIsLoadingDetails] = useState(false);
+
+  // Auto-fetch full property details when modal opens
+  useEffect(() => {
+    if (!isOpen || !property) {
+      setEnrichedProperty(null);
+      return;
+    }
+
+    const zpid = property.zpid || property.id;
+    if (!zpid || !/^\d{5,}$/.test(String(zpid))) {
+      setEnrichedProperty(property);
+      return;
+    }
+
+    let cancelled = false;
+    setIsLoadingDetails(true);
+    setEnrichedProperty(property); // Show what we have immediately
+
+    zillowAPI.getPropertyDetails(String(zpid))
+      .then(details => {
+        if (cancelled || !details) return;
+        // Merge detailed data into property, preserving search data as fallback
+        const merged: Property = {
+          ...property,
+          description: details.description || details.homeDescription || property.description,
+          yearBuilt: details.yearBuilt || details.year_built || property.yearBuilt,
+          lotSize: details.lotSize || details.lot_size_sqft || details.lotAreaValue || property.lotSize,
+          propertyType: details.homeType || details.propertyType || details.home_type || property.propertyType,
+          stories: details.stories || details.resoFacts?.stories || (property as any).stories,
+          parking: details.parkingCapacity || details.garageParkingCapacity || details.resoFacts?.parkingCapacity || (property as any).parking,
+          // Agent info (details endpoint often has this)
+          agentName: details.attributionInfo?.agentName || details.listingAgent?.name || property.agentName,
+          agentPhone: details.attributionInfo?.agentPhoneNumber || details.listingAgent?.phone || property.agentPhone,
+          agentEmail: details.attributionInfo?.agentEmail || property.agentEmail,
+          agentLicenseNumber: details.attributionInfo?.agentLicenseNumber || property.agentLicenseNumber,
+          brokerageName: details.attributionInfo?.brokerageName || details.listingAgent?.brokerage || property.brokerageName,
+          brokerPhone: details.attributionInfo?.brokerPhoneNumber || property.brokerPhone,
+          mlsId: details.attributionInfo?.mlsId || details.mlsId || property.mlsId,
+          mlsName: details.attributionInfo?.mlsName || property.mlsName,
+          // Images
+          images: details.photos || details.responsivePhotos?.map((p: any) => p.mixedSources?.jpeg?.[0]?.url || p.url).filter(Boolean) || property.images,
+          // Zestimate (might be more accurate from details)
+          zestimate: property.zestimate || details.zestimate,
+          // Rent estimate
+          rentZestimate: details.rentZestimate || details.rent_zestimate || (property as any).rentZestimate,
+          // Tax info
+          propertyTaxRate: details.propertyTaxRate || details.taxAnnualAmount ? (details.taxAnnualAmount / (property.price || 1) * 100).toFixed(2) : (property as any).propertyTaxRate,
+          // Price per sqft
+          pricePerSqft: property.pricePerSqft || (property.price && property.sqft ? property.price / property.sqft : undefined),
+          // Preserve listing URL
+          listingUrl: details.url || details.hdpUrl || property.listingUrl,
+        };
+        setEnrichedProperty(merged);
+      })
+      .catch(err => {
+        console.warn('[PropertyModal] Failed to fetch details, using search data:', err);
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoadingDetails(false);
+      });
+
+    return () => { cancelled = true; };
+  }, [isOpen, property?.id, property?.zpid]);
 
   if (!property) return null;
+
+  // Use enriched property data (falls back to search data)
+  const displayProperty = enrichedProperty || property;
 
   const copyToClipboard = async (text: string, fieldName: string) => {
     try {
@@ -81,17 +151,17 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
     return new Intl.NumberFormat('en-US').format(num);
   };
 
-  const wholesalePotential = calculateWholesalePotential(property);
-  const isPropertyFavorite = isFavorite(property.id || property.zpid || '');
+  const wholesalePotential = calculateWholesalePotential(displayProperty);
+  const isPropertyFavorite = isFavorite(displayProperty.id || displayProperty.zpid || '');
 
   const handleToggleFavorite = async () => {
-    const propertyId = property.id || property.zpid || '';
+    const propertyId = displayProperty.id || displayProperty.zpid || '';
     try {
       if (isPropertyFavorite) {
         await removeFromFavorites(propertyId);
         toast.success('Removed from favorites');
       } else {
-        await addToFavorites(property);
+        await addToFavorites(displayProperty);
         toast.success('Added to favorites');
       }
     } catch (error) {
@@ -101,7 +171,7 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
 
   const handleConvertToLead = async () => {
     try {
-      await exportLead(property);
+      await exportLead(displayProperty);
       toast.success('Property converted to lead!');
     } catch (error) {
       toast.error('Failed to convert to lead');
@@ -117,34 +187,40 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
             <div className="flex-1 pr-6">
               <div className="flex items-center gap-3 mb-6">
                 <Badge variant="outline" className="text-xs font-medium border-border/50 bg-muted/30 rounded-full px-3 py-1.5">
-                  {property.status}
+                  {displayProperty.status}
                 </Badge>
-                {property.isFSBO && (
+                {displayProperty.isFSBO && (
                   <Badge variant="secondary" className="text-xs rounded-full px-3 py-1.5 bg-info/10 text-info border-info/20">FSBO</Badge>
                 )}
-                <Badge 
+                <Badge
                   variant={wholesalePotential.tier === 'excellent' || wholesalePotential.tier === 'great' ? 'default' : 'secondary'}
                   className="text-xs rounded-full px-3 py-1.5"
                 >
                   {wholesalePotential.tier} potential
                 </Badge>
+                {isLoadingDetails && (
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                    Loading details...
+                  </div>
+                )}
               </div>
               <DialogTitle className="text-4xl font-bold mb-4 leading-tight bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text">
-                {property.address}
+                {displayProperty.address}
               </DialogTitle>
               <div className="flex items-center gap-2 text-muted-foreground">
                 <MapPin className="h-4 w-4" />
-                <span className="text-sm font-medium">{property.propertyType || 'Property'}</span>
+                <span className="text-sm font-medium">{displayProperty.propertyType || 'Property'}</span>
               </div>
             </div>
             
             <div className="text-right">
               <div className="text-3xl font-bold mb-2 text-foreground">
-                {property.price ? formatPrice(property.price) : 'Price N/A'}
+                {displayProperty.price ? formatPrice(displayProperty.price) : 'Price N/A'}
               </div>
-              {property.pricePerSqft && (
+              {displayProperty.pricePerSqft && (
                 <div className="text-sm text-muted-foreground font-medium mb-4">
-                  ${Math.round(property.pricePerSqft)}/sqft
+                  ${Math.round(displayProperty.pricePerSqft)}/sqft
                 </div>
               )}
               <div className="flex gap-3">
@@ -221,7 +297,7 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                         </div>
                         <span className="text-sm font-medium text-muted-foreground">Bedrooms</span>
                       </div>
-                      <div className="text-3xl font-bold text-foreground">{property.bedrooms || '—'}</div>
+                      <div className="text-3xl font-bold text-foreground">{displayProperty.bedrooms || '—'}</div>
                     </CardContent>
                   </Card>
                   <Card className="border-border hover:shadow-md transition-shadow">
@@ -232,7 +308,7 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                         </div>
                         <span className="text-sm font-medium text-muted-foreground">Bathrooms</span>
                       </div>
-                      <div className="text-3xl font-bold text-foreground">{property.bathrooms || '—'}</div>
+                      <div className="text-3xl font-bold text-foreground">{displayProperty.bathrooms || '—'}</div>
                     </CardContent>
                   </Card>
                   <Card className="border-border hover:shadow-md transition-shadow">
@@ -243,7 +319,7 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                         </div>
                         <span className="text-sm font-medium text-muted-foreground">Square Feet</span>
                       </div>
-                      <div className="text-3xl font-bold text-foreground">{property.sqft ? formatNumber(property.sqft) : '—'}</div>
+                      <div className="text-3xl font-bold text-foreground">{displayProperty.sqft ? formatNumber(displayProperty.sqft) : '—'}</div>
                     </CardContent>
                   </Card>
                   <Card className="border-border hover:shadow-md transition-shadow">
@@ -254,7 +330,7 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                         </div>
                         <span className="text-sm font-medium text-muted-foreground">Days on Market</span>
                       </div>
-                      <div className="text-3xl font-bold text-foreground">{property.daysOnMarket || '—'}</div>
+                      <div className="text-3xl font-bold text-foreground">{displayProperty.daysOnMarket || '—'}</div>
                     </CardContent>
                   </Card>
                 </div>
@@ -301,11 +377,11 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                       <div className="space-y-6">
                         <div className="flex justify-between items-center py-3 border-b border-border">
                           <span className="text-sm font-medium text-muted-foreground">Current Price</span>
-                          <span className="text-lg font-semibold">{formatPrice(property.price || 0)}</span>
+                          <span className="text-lg font-semibold">{formatPrice(displayProperty.price || 0)}</span>
                         </div>
                         <div className="flex justify-between items-center py-3 border-b border-border">
                           <span className="text-sm font-medium text-muted-foreground">Zestimate</span>
-                          <span className="text-lg font-semibold">{formatPrice(property.zestimate || 0)}</span>
+                          <span className="text-lg font-semibold">{formatPrice(displayProperty.zestimate || 0)}</span>
                         </div>
                         {wholesalePotential.tier === 'excellent' || wholesalePotential.tier === 'great' ? (
                           <div className="p-4 bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-950/50 dark:to-green-950/50 rounded-xl border border-emerald-200 dark:border-emerald-800">
@@ -334,19 +410,19 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
             </TabsContent>
 
             <TabsContent value="investment" className="flex-1 overflow-auto p-6">
-              <InvestmentCalculator property={property} />
+              <InvestmentCalculator property={displayProperty} />
             </TabsContent>
 
             <TabsContent value="comps" className="flex-1 overflow-auto p-6">
-              <ComparableSalesTable property={property} />
+              <ComparableSalesTable property={displayProperty} />
             </TabsContent>
 
             <TabsContent value="price-history" className="flex-1 overflow-auto p-6">
-              <PriceHistoryChart property={property} />
+              <PriceHistoryChart property={displayProperty} />
             </TabsContent>
 
             <TabsContent value="taxes" className="flex-1 overflow-auto p-6">
-              <TaxCarryingCosts property={property} />
+              <TaxCarryingCosts property={displayProperty} />
             </TabsContent>
 
             <TabsContent value="details" className="mt-6 overflow-auto p-6">
@@ -363,23 +439,23 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                   <CardContent className="space-y-3">
                     <div className="flex justify-between py-2 border-b border-border/50">
                       <span className="text-muted-foreground">Property Type</span>
-                      <span className="font-medium">{property.propertyType || 'N/A'}</span>
+                      <span className="font-medium">{displayProperty.propertyType || 'N/A'}</span>
                     </div>
                     <div className="flex justify-between py-2 border-b border-border/50">
                       <span className="text-muted-foreground">Year Built</span>
-                      <span className="font-medium">{property.yearBuilt || 'N/A'}</span>
+                      <span className="font-medium">{displayProperty.yearBuilt || 'N/A'}</span>
                     </div>
                     <div className="flex justify-between py-2 border-b border-border/50">
                       <span className="text-muted-foreground">Lot Size</span>
-                      <span className="font-medium">{property.lotSize || 'N/A'}</span>
+                      <span className="font-medium">{displayProperty.lotSize ? formatNumber(Number(displayProperty.lotSize)) + ' sqft' : 'N/A'}</span>
                     </div>
                     <div className="flex justify-between py-2 border-b border-border/50">
                       <span className="text-muted-foreground">Stories</span>
-                      <span className="font-medium">{property.stories || 'N/A'}</span>
+                      <span className="font-medium">{(displayProperty as any).stories || 'N/A'}</span>
                     </div>
                     <div className="flex justify-between py-2">
                       <span className="text-muted-foreground">Parking</span>
-                      <span className="font-medium">{property.parking || 'N/A'}</span>
+                      <span className="font-medium">{(displayProperty as any).parking || 'N/A'}</span>
                     </div>
                   </CardContent>
                 </Card>
@@ -396,23 +472,23 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                   <CardContent className="space-y-3">
                     <div className="flex justify-between py-2 border-b border-border/50">
                       <span className="text-muted-foreground">Status</span>
-                      <Badge variant="outline" className="font-medium">{property.status}</Badge>
+                      <Badge variant="outline" className="font-medium">{displayProperty.status}</Badge>
                     </div>
                     <div className="flex justify-between py-2 border-b border-border/50">
                       <span className="text-muted-foreground">Days on Market</span>
-                      <span className="font-medium">{property.daysOnMarket || 'N/A'}</span>
+                      <span className="font-medium">{displayProperty.daysOnMarket || 'N/A'}</span>
                     </div>
                     <div className="flex justify-between py-2 border-b border-border/50">
                       <span className="text-muted-foreground">Price per Sq Ft</span>
-                      <span className="font-medium">{property.pricePerSqft ? `$${Math.round(property.pricePerSqft)}` : 'N/A'}</span>
+                      <span className="font-medium">{displayProperty.pricePerSqft ? `$${Math.round(displayProperty.pricePerSqft)}` : 'N/A'}</span>
                     </div>
                     <div className="flex justify-between py-2 border-b border-border/50">
                       <span className="text-muted-foreground">Property Tax</span>
-                      <span className="font-medium">{property.propertyTaxRate ? `${property.propertyTaxRate}%` : 'N/A'}</span>
+                      <span className="font-medium">{(displayProperty as any).propertyTaxRate ? `${(displayProperty as any).propertyTaxRate}%` : 'N/A'}</span>
                     </div>
                     <div className="flex justify-between py-2">
                       <span className="text-muted-foreground">MLS ID</span>
-                      <span className="font-medium font-mono text-sm">{property.mlsId || 'N/A'}</span>
+                      <span className="font-medium font-mono text-sm">{displayProperty.mlsId || 'N/A'}</span>
                     </div>
                   </CardContent>
                 </Card>
@@ -443,13 +519,13 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                             <span className="text-sm text-muted-foreground">Name</span>
                           </div>
                           <div className="flex items-center gap-2">
-                            <span className="font-medium">{property.agentName || 'Not available'}</span>
-                            {property.agentName && (
+                            <span className="font-medium">{displayProperty.agentName || 'Not available'}</span>
+                            {displayProperty.agentName && (
                               <Button
                                 variant="ghost"
                                 size="icon"
                                 className="h-6 w-6"
-                                onClick={() => copyToClipboard(property.agentName!, 'Agent name')}
+                                onClick={() => copyToClipboard(displayProperty.agentName!, 'Agent name')}
                               >
                                 {copiedField === 'Agent name' ? (
                                   <CheckCircle2 className="h-3 w-3 text-green-500" />
@@ -466,19 +542,19 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                             <span className="text-sm text-muted-foreground">Phone</span>
                           </div>
                           <div className="flex items-center gap-2">
-                            {property.agentPhone ? (
+                            {displayProperty.agentPhone ? (
                               <>
                                 <a
-                                  href={`tel:${property.agentPhone}`}
+                                  href={`tel:${displayProperty.agentPhone}`}
                                   className="font-medium text-primary hover:underline"
                                 >
-                                  {property.agentPhone}
+                                  {displayProperty.agentPhone}
                                 </a>
                                 <Button
                                   variant="ghost"
                                   size="icon"
                                   className="h-6 w-6"
-                                  onClick={() => copyToClipboard(property.agentPhone!, 'Agent phone')}
+                                  onClick={() => copyToClipboard(displayProperty.agentPhone!, 'Agent phone')}
                                 >
                                   {copiedField === 'Agent phone' ? (
                                     <CheckCircle2 className="h-3 w-3 text-green-500" />
@@ -498,19 +574,19 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                             <span className="text-sm text-muted-foreground">Email</span>
                           </div>
                           <div className="flex items-center gap-2">
-                            {property.agentEmail ? (
+                            {displayProperty.agentEmail ? (
                               <>
                                 <a
-                                  href={`mailto:${property.agentEmail}`}
+                                  href={`mailto:${displayProperty.agentEmail}`}
                                   className="font-medium text-primary hover:underline truncate max-w-[200px]"
                                 >
-                                  {property.agentEmail}
+                                  {displayProperty.agentEmail}
                                 </a>
                                 <Button
                                   variant="ghost"
                                   size="icon"
                                   className="h-6 w-6"
-                                  onClick={() => copyToClipboard(property.agentEmail!, 'Agent email')}
+                                  onClick={() => copyToClipboard(displayProperty.agentEmail!, 'Agent email')}
                                 >
                                   {copiedField === 'Agent email' ? (
                                     <CheckCircle2 className="h-3 w-3 text-green-500" />
@@ -529,7 +605,7 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                             <BadgeCheck className="h-4 w-4 text-muted-foreground" />
                             <span className="text-sm text-muted-foreground">License #</span>
                           </div>
-                          <span className="font-mono text-sm">{property.agentLicenseNumber || 'N/A'}</span>
+                          <span className="font-mono text-sm">{displayProperty.agentLicenseNumber || 'N/A'}</span>
                         </div>
                       </div>
                     </div>
@@ -546,7 +622,7 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                             <Building2 className="h-4 w-4 text-muted-foreground" />
                             <span className="text-sm text-muted-foreground">Brokerage</span>
                           </div>
-                          <span className="font-medium truncate max-w-[200px]">{property.brokerageName || property.brokerName || 'Not available'}</span>
+                          <span className="font-medium truncate max-w-[200px]">{displayProperty.brokerageName || displayProperty.brokerName || 'Not available'}</span>
                         </div>
                         <div className="flex items-center justify-between gap-2">
                           <div className="flex items-center gap-2">
@@ -554,19 +630,19 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                             <span className="text-sm text-muted-foreground">Phone</span>
                           </div>
                           <div className="flex items-center gap-2">
-                            {property.brokerPhone ? (
+                            {displayProperty.brokerPhone ? (
                               <>
                                 <a
-                                  href={`tel:${property.brokerPhone}`}
+                                  href={`tel:${displayProperty.brokerPhone}`}
                                   className="font-medium text-primary hover:underline"
                                 >
-                                  {property.brokerPhone}
+                                  {displayProperty.brokerPhone}
                                 </a>
                                 <Button
                                   variant="ghost"
                                   size="icon"
                                   className="h-6 w-6"
-                                  onClick={() => copyToClipboard(property.brokerPhone!, 'Broker phone')}
+                                  onClick={() => copyToClipboard(displayProperty.brokerPhone!, 'Broker phone')}
                                 >
                                   {copiedField === 'Broker phone' ? (
                                     <CheckCircle2 className="h-3 w-3 text-green-500" />
@@ -585,14 +661,14 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                             <FileText className="h-4 w-4 text-muted-foreground" />
                             <span className="text-sm text-muted-foreground">MLS</span>
                           </div>
-                          <span className="font-medium">{property.mlsName || 'N/A'}</span>
+                          <span className="font-medium">{displayProperty.mlsName || 'N/A'}</span>
                         </div>
                         <div className="flex items-center justify-between gap-2">
                           <div className="flex items-center gap-2">
                             <Link2 className="h-4 w-4 text-muted-foreground" />
                             <span className="text-sm text-muted-foreground">Source</span>
                           </div>
-                          <span className="font-medium">{property.listingSource || 'Zillow'}</span>
+                          <span className="font-medium">{displayProperty.listingSource || 'Zillow'}</span>
                         </div>
                       </div>
                     </div>
@@ -600,23 +676,23 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
 
                   {/* Quick Action Buttons */}
                   <div className="mt-6 pt-4 border-t border-border/50 flex gap-3">
-                    {property.agentPhone && (
+                    {displayProperty.agentPhone && (
                       <Button
                         variant="default"
                         size="sm"
                         className="gap-2"
-                        onClick={() => window.open(`tel:${property.agentPhone}`, '_self')}
+                        onClick={() => window.open(`tel:${displayProperty.agentPhone}`, '_self')}
                       >
                         <Phone className="h-4 w-4" />
                         Call Agent
                       </Button>
                     )}
-                    {property.agentEmail && (
+                    {displayProperty.agentEmail && (
                       <Button
                         variant="outline"
                         size="sm"
                         className="gap-2"
-                        onClick={() => window.open(`mailto:${property.agentEmail}?subject=Inquiry about ${property.address}`, '_blank')}
+                        onClick={() => window.open(`mailto:${displayProperty.agentEmail}?subject=Inquiry about ${displayProperty.address}`, '_blank')}
                       >
                         <Mail className="h-4 w-4" />
                         Email Agent
@@ -626,7 +702,7 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                       variant="outline"
                       size="sm"
                       className="gap-2"
-                      onClick={() => window.open(`https://www.zillow.com/homes/${encodeURIComponent(property.address)}_rb/`, '_blank')}
+                      onClick={() => window.open(`https://www.zillow.com/homes/${encodeURIComponent(displayProperty.address)}_rb/`, '_blank')}
                     >
                       <ExternalLink className="h-4 w-4" />
                       View on Zillow
@@ -635,7 +711,7 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                 </CardContent>
               </Card>
 
-              {property.description && (
+              {displayProperty.description && (
                 <Card className="mt-6 border-border hover:shadow-md transition-shadow">
                   <CardHeader className="pb-4">
                     <CardTitle className="flex items-center gap-2 text-lg">
@@ -647,7 +723,7 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                   </CardHeader>
                   <CardContent>
                     <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
-                      {property.description}
+                      {displayProperty.description}
                     </p>
                   </CardContent>
                 </Card>
@@ -655,11 +731,11 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
             </TabsContent>
 
             <TabsContent value="photos" className="flex-1 overflow-auto p-6">
-              <PhotosGallery property={property} />
+              <PhotosGallery property={displayProperty} />
             </TabsContent>
 
             <TabsContent value="ai-analysis" className="flex-1 overflow-auto p-6">
-              <AIPropertyAnalyzer property={property} />
+              <AIPropertyAnalyzer property={displayProperty} />
             </TabsContent>
           </Tabs>
         </div>
