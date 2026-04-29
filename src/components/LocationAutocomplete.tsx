@@ -3,8 +3,18 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { MapPin, Loader2, AlertTriangle } from 'lucide-react';
-import { utility } from '@/lib/api-client';
+import { zillowAPI } from '@/lib/zillow-api';
 
+interface ZillowSuggestion {
+  display: string;
+  type: string;
+  region_type?: string;
+  city?: string;
+  state?: string;
+  county?: string;
+}
+
+// Keep old interface for backwards compat
 interface LocationSuggestion {
   place_name: string;
   center: [number, number];
@@ -111,7 +121,7 @@ export function LocationAutocomplete({
   placeholder = "e.g., Charlotte, NC or Oakland County, MI or 90210",
   required = false
 }: LocationAutocompleteProps) {
-  const [suggestions, setSuggestions] = useState<LocationSuggestion[]>([]);
+  const [zillowSuggestions, setZillowSuggestions] = useState<ZillowSuggestion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [validationState, setValidationState] = useState<LocationValidation>({ isValid: true, warning: null });
@@ -129,24 +139,17 @@ export function LocationAutocomplete({
 
   const fetchSuggestions = async (query: string) => {
     if (!query.trim() || query.length < 2) {
-      setSuggestions([]);
+      setZillowSuggestions([]);
       return;
     }
 
     setIsLoading(true);
     try {
-      const response = await utility.geocode(query);
-
-      if (response.error) {
-        console.error('Geocoding error:', response.error);
-        setSuggestions([]);
-        return;
-      }
-
-      setSuggestions((response.data as any)?.features || []);
+      const results = await zillowAPI.autocomplete(query);
+      setZillowSuggestions(results);
     } catch (error) {
       console.error('Error fetching location suggestions:', error);
-      setSuggestions([]);
+      setZillowSuggestions([]);
     } finally {
       setIsLoading(false);
     }
@@ -167,62 +170,10 @@ export function LocationAutocomplete({
     }, 300);
   };
 
-  const handleSuggestionClick = (suggestion: LocationSuggestion) => {
-    // For state-level searches, warn the user that this won't work
-    if (suggestion.place_type.includes('region')) {
-      // Don't allow selecting just a state - show the full name to indicate it's a state
-      onChange(suggestion.place_name);
-      setSuggestions([]);
-      setShowSuggestions(false);
-      return;
-    }
-
-    // For counties, extract state from context if available
-    if (suggestion.place_type.includes('district') || suggestion.place_name.toLowerCase().includes('county')) {
-      // The place_name should already include state from Mapbox
-      // Format: "Oakland County, Michigan, United States"
-      // Extract just "Oakland County, Michigan" or "Oakland County, MI"
-      const parts = suggestion.place_name.split(',').map(p => p.trim());
-      if (parts.length >= 2) {
-        // Find the state part (should be second element, before "United States")
-        let countyWithState = parts[0];
-        for (let i = 1; i < parts.length; i++) {
-          const part = parts[i].toLowerCase();
-          if (part === 'united states' || part === 'usa') break;
-          // Check if this is a state name
-          if (US_STATES[part] || STATE_ABBREVIATIONS.includes(parts[i].toUpperCase())) {
-            countyWithState = `${parts[0]}, ${parts[i]}`;
-            break;
-          }
-        }
-        onChange(countyWithState);
-        setSuggestions([]);
-        setShowSuggestions(false);
-        return;
-      }
-    }
-
-    // For cities and other specific locations, use the full place name but simplify it
-    // "Detroit, Michigan, United States" -> "Detroit, MI" or "Detroit, Michigan"
-    const parts = suggestion.place_name.split(',').map(p => p.trim());
-    if (parts.length >= 2) {
-      // Find city + state
-      const city = parts[0];
-      for (let i = 1; i < parts.length; i++) {
-        const part = parts[i].toLowerCase();
-        if (part === 'united states' || part === 'usa') break;
-        if (US_STATES[part] || STATE_ABBREVIATIONS.includes(parts[i].toUpperCase())) {
-          onChange(`${city}, ${parts[i]}`);
-          setSuggestions([]);
-          setShowSuggestions(false);
-          return;
-        }
-      }
-    }
-
-    // Fallback: use full place name
-    onChange(suggestion.place_name);
-    setSuggestions([]);
+  const handleSuggestionClick = (suggestion: ZillowSuggestion) => {
+    // Use the display value directly - Zillow already formats it as "City, ST"
+    onChange(suggestion.display);
+    setZillowSuggestions([]);
     setShowSuggestions(false);
   };
 
@@ -261,9 +212,9 @@ export function LocationAutocomplete({
           )}
         </div>
 
-        {showSuggestions && suggestions.length > 0 && (
+        {showSuggestions && zillowSuggestions.length > 0 && (
           <div className="absolute z-50 w-full mt-1 bg-background border border-border rounded-md shadow-lg max-h-60 overflow-y-auto">
-            {suggestions.map((suggestion, index) => (
+            {zillowSuggestions.map((suggestion, index) => (
               <button
                 key={index}
                 type="button"
@@ -272,7 +223,10 @@ export function LocationAutocomplete({
               >
                 <div className="flex items-center gap-2">
                   <MapPin className="h-3 w-3 text-muted-foreground flex-shrink-0" />
-                  <span className="text-sm truncate">{suggestion.place_name}</span>
+                  <div className="flex-1 min-w-0">
+                    <span className="text-sm font-medium truncate block">{suggestion.display}</span>
+                    <span className="text-xs text-muted-foreground">{suggestion.region_type || suggestion.type}</span>
+                  </div>
                 </div>
               </button>
             ))}
