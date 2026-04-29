@@ -97,11 +97,11 @@ interface LocationValidation {
 }
 
 function validateLocation(value: string): LocationValidation {
+  // State-wide searches are supported (e.g., "MI" or "Michigan")
   if (isStateOnly(value)) {
     return {
-      isValid: false,
-      warning: 'state-only',
-      message: 'State-wide searches are not supported. Please enter a city, ZIP code, or county with state.'
+      isValid: true,
+      warning: null
     };
   }
   if (isCountyWithoutState(value)) {
@@ -234,15 +234,6 @@ export function LocationAutocomplete({
         )}
       </div>
 
-      {validationState.warning === 'state-only' && (
-        <Alert variant="destructive" className="py-2">
-          <AlertTriangle className="h-4 w-4" />
-          <AlertDescription className="text-xs">
-            <strong>State-wide searches are not supported.</strong> Please enter a specific city (e.g., "Detroit, MI"), ZIP code, or county name with state.
-          </AlertDescription>
-        </Alert>
-      )}
-
       {validationState.warning === 'county-no-state' && (
         <Alert variant="destructive" className="py-2">
           <AlertTriangle className="h-4 w-4" />
@@ -253,7 +244,7 @@ export function LocationAutocomplete({
       )}
 
       <p className="text-xs text-muted-foreground">
-        Search by city, ZIP code, or county <span className="font-medium">with state</span>. Examples: "Detroit, MI" or "Oakland County, MI"
+        Search by state, city, ZIP code, or county. Examples: "MI", "Detroit, MI", or "Oakland County, MI"
       </p>
     </div>
   );
