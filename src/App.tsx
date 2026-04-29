@@ -22,6 +22,10 @@ import Privacy from "./pages/Privacy";
 import Refund from "./pages/Refund";
 import Contact from "./pages/Contact";
 import FAQ from "./pages/FAQ";
+import OffMarket from "./pages/OffMarket";
+import Analyzer from "./pages/Analyzer";
+import Favorites from "./pages/Favorites";
+import Alerts from "./pages/Alerts";
 
 const queryClient = new QueryClient();
 
@@ -43,6 +47,26 @@ const App = () => (
                 <Route path="/app" element={
                   <ProtectedRoute>
                     <RealEstateWholesaler />
+                  </ProtectedRoute>
+                } />
+                <Route path="/app/off-market" element={
+                  <ProtectedRoute>
+                    <OffMarket />
+                  </ProtectedRoute>
+                } />
+                <Route path="/app/analyzer" element={
+                  <ProtectedRoute>
+                    <Analyzer />
+                  </ProtectedRoute>
+                } />
+                <Route path="/app/favorites" element={
+                  <ProtectedRoute>
+                    <Favorites />
+                  </ProtectedRoute>
+                } />
+                <Route path="/app/alerts" element={
+                  <ProtectedRoute>
+                    <Alerts />
                   </ProtectedRoute>
                 } />
                 <Route path="/auth" element={<Auth />} />
