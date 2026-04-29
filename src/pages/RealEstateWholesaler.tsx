@@ -298,29 +298,80 @@ export default function RealEstateWholesaler() {
               )}
             </section>
 
-            {/* Loading Progress Bar — visible during search AND enrichment */}
+            {/* Loading Animation — visible during search AND enrichment */}
             {(isLoading || loadingProgress > 0) && (
               <section className="max-w-2xl mx-auto animate-fade-in">
-                <div className="feature-card p-8 backdrop-blur-sm rounded-2xl">
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
-                      <p className="text-sm font-medium text-foreground">{loadingStatus}</p>
+                <div className="feature-card p-10 backdrop-blur-sm rounded-2xl border border-primary/20 bg-gradient-to-br from-background via-primary/5 to-background">
+                  <div className="space-y-6">
+                    {/* Animated icon row */}
+                    <div className="flex justify-center gap-3">
+                      {[0, 1, 2, 3, 4].map(i => (
+                        <div
+                          key={i}
+                          className="w-3 h-3 rounded-full bg-primary"
+                          style={{
+                            animation: 'pulse 1.4s ease-in-out infinite',
+                            animationDelay: `${i * 0.2}s`,
+                            opacity: 0.3,
+                          }}
+                        />
+                      ))}
                     </div>
-                    <div className="w-full bg-muted/50 rounded-full h-2.5 overflow-hidden">
-                      <div
-                        className="bg-gradient-to-r from-primary to-primary/70 h-full rounded-full transition-all duration-500 ease-out"
-                        style={{ width: `${loadingProgress}%` }}
-                      />
+
+                    {/* Main status */}
+                    <div className="text-center space-y-2">
+                      <p className="text-lg font-semibold text-foreground">
+                        {loadingProgress <= 20 ? 'Scanning the market...' :
+                         loadingProgress <= 50 ? 'Pulling property data...' :
+                         loadingProgress <= 80 ? 'Analyzing hundreds of listings...' :
+                         loadingProgress < 95 ? 'Calculating Zestimate spreads...' :
+                         'Finalizing results...'}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {loadingStatus}
+                      </p>
                     </div>
-                    <p className="text-xs text-muted-foreground text-center">
-                      {loadingProgress <= 20 ? 'Starting search...' :
-                       loadingProgress <= 80 ? 'Fetching property listings — results will appear as they load...' :
-                       loadingProgress < 100 ? 'Calculating Zestimate spreads — deals will appear as found...' :
-                       'Complete!'}
-                    </p>
+
+                    {/* Progress bar */}
+                    <div className="space-y-2">
+                      <div className="w-full bg-muted/50 rounded-full h-3 overflow-hidden">
+                        <div
+                          className="h-full rounded-full transition-all duration-700 ease-out"
+                          style={{
+                            width: `${loadingProgress}%`,
+                            background: 'linear-gradient(90deg, hsl(var(--primary)) 0%, hsl(var(--primary) / 0.7) 50%, hsl(var(--primary)) 100%)',
+                            backgroundSize: '200% 100%',
+                            animation: 'shimmer 2s ease-in-out infinite',
+                          }}
+                        />
+                      </div>
+                      <div className="flex justify-between text-xs text-muted-foreground">
+                        <span>{Math.round(loadingProgress)}%</span>
+                        <span>
+                          {loadingProgress <= 80 ? 'Searching properties' : 'Calculating spreads'}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Tip message */}
+                    <div className="text-center pt-2 border-t border-border/30">
+                      <p className="text-xs text-muted-foreground italic">
+                        {loadingProgress <= 50
+                          ? 'Large searches (states, counties) pull hundreds of listings. Please be patient!'
+                          : loadingProgress <= 80
+                          ? 'Properties will appear as they load. Deals with +$30K spreads will sort to the top.'
+                          : 'Comparing each listing price against its Zestimate to find profitable spreads...'}
+                      </p>
+                    </div>
                   </div>
                 </div>
+
+                <style>{`
+                  @keyframes shimmer {
+                    0% { background-position: 200% 0; }
+                    100% { background-position: -200% 0; }
+                  }
+                `}</style>
               </section>
             )}
 
