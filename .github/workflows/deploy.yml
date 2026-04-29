@@ -105,17 +105,16 @@ jobs:
       # Verify the VPS target directory exists before transferring files.
       - name: Verify target directory on VPS
         run: |
-          ssh hetzner_co 'test -d /var/www/aiwholesail || { echo "ERROR: /var/www/aiwholesail does not exist on VPS. Run bootstrap steps."; exit 1; }'
+          ssh hetzner_co 'test -d /var/www/aiwholesail.com || { echo "ERROR: /var/www/aiwholesail.com does not exist on VPS. Run bootstrap steps."; exit 1; }'
 
-      # Sync the built static assets.  The trailing slash on dist/ means rsync
-      # copies the *contents* of dist/ into /var/www/aiwholesail/dist/ — not a
-      # nested dist/dist/.  --delete removes stale files from previous deploys.
+      # Sync the built static assets directly to the nginx root.
+      # --delete removes stale files from previous deploys.
       - name: Rsync dist/ to VPS
         run: |
           rsync -az --delete \
             -e "ssh -i ~/.ssh/deploy_key -p ${{ secrets.HETZNER_CO_PORT || '22' }} -o StrictHostKeyChecking=no" \
             dist/ \
-            ${{ secrets.HETZNER_CO_USER }}@${{ secrets.HETZNER_CO_HOST }}:/var/www/aiwholesail/dist/
+            ${{ secrets.HETZNER_CO_USER }}@${{ secrets.HETZNER_CO_HOST }}:/var/www/aiwholesail.com/
 
       # Copy the remote deploy script so the VPS always has the latest version.
       - name: Upload deploy script
