@@ -10,6 +10,39 @@ const { checkDatabaseRateLimit } = require('../middleware/rateLimit');
 const router = express.Router();
 
 /**
+ * Send SMS via Twilio
+ */
+async function sendTwilioSMS(to, message) {
+  const accountSid = process.env.TWILIO_ACCOUNT_SID;
+  const authToken = process.env.TWILIO_AUTH_TOKEN;
+  const fromNumber = process.env.TWILIO_PHONE_NUMBER;
+
+  if (!accountSid || !authToken || !fromNumber) {
+    throw new Error('Twilio not configured');
+  }
+
+  const response = await axios.post(
+    `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`,
+    new URLSearchParams({
+      To: to.replace(/[^\d+]/g, ''),
+      From: fromNumber,
+      Body: message
+    }).toString(),
+    {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      auth: {
+        username: accountSid,
+        password: authToken
+      }
+    }
+  );
+
+  return response.data;
+}
+
+/**
  * POST /api/communications/email/send
  * Send email via Resend
  */
@@ -72,7 +105,7 @@ router.post('/email/send', authenticate, [
 
 /**
  * POST /api/communications/sms/send
- * Send SMS via Plivo
+ * Send SMS via Twilio
  */
 router.post('/sms/send', authenticate, [
   body('to').notEmpty().withMessage('Recipient phone number required'),
@@ -88,33 +121,10 @@ router.post('/sms/send', authenticate, [
     return res.status(429).json({ error: 'Rate limit exceeded' });
   }
 
-  const { to, message, from } = req.body;
-  const plivoAuthId = process.env.PLIVO_AUTH_ID;
-  const plivoAuthToken = process.env.PLIVO_AUTH_TOKEN;
-  const plivoPhoneNumber = process.env.PLIVO_PHONE_NUMBER;
-
-  if (!plivoAuthId || !plivoAuthToken) {
-    return res.status(500).json({ error: 'SMS service not configured' });
-  }
-
-  const requestBody = {
-    src: from || plivoPhoneNumber,
-    dst: to.replace(/\D/g, ''), // Remove non-digits
-    text: message,
-    type: 'sms'
-  };
+  const { to, message } = req.body;
 
   try {
-    const response = await axios.post(
-      `https://api.plivo.com/v1/Account/${plivoAuthId}/Message/`,
-      requestBody,
-      {
-        headers: {
-          'Authorization': `Basic ${Buffer.from(`${plivoAuthId}:${plivoAuthToken}`).toString('base64')}`,
-          'Content-Type': 'application/json'
-        }
-      }
-    );
+    const result = await sendTwilioSMS(to, message);
 
     await logSecurityEvent('sms_sent', {
       to: to.substring(0, 3) + '***',
@@ -123,12 +133,11 @@ router.post('/sms/send', authenticate, [
 
     res.json({
       success: true,
-      messageId: response.data.message_uuid,
-      cost: 0.0045,
-      data: response.data
+      messageId: result.sid,
+      data: result
     });
   } catch (error) {
-    console.error('[Communications] Plivo error:', error.response?.data || error.message);
+    console.error('[Communications] Twilio error:', error.message);
     res.status(500).json({
       success: false,
       error: 'Failed to send SMS'
@@ -137,8 +146,71 @@ router.post('/sms/send', authenticate, [
 }));
 
 /**
+ * POST /api/communications/spread-alert
+ * Send SMS alert for profitable spread properties found during search.
+ * Called by the frontend after enrichment finds +$30K deals.
+ */
+router.post('/spread-alert', authenticate, [
+  body('deals').isArray({ min: 1 }).withMessage('At least one deal required'),
+  body('location').notEmpty().withMessage('Search location required'),
+  body('phone').notEmpty().withMessage('Phone number required')
+], asyncHandler(async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ error: 'Validation failed', errors: errors.array() });
+  }
+
+  const rateLimit = await checkDatabaseRateLimit(req.user.id, 'spread-alert-sms', 5, 60);
+  if (!rateLimit.allowed) {
+    return res.status(429).json({ error: 'Alert rate limit exceeded. Max 5 alerts per hour.' });
+  }
+
+  const { deals, location, phone } = req.body;
+
+  // Build alert message with top deals
+  const topDeals = deals.slice(0, 3);
+  const dealLines = topDeals.map(d => {
+    const spread = d.zestimate - d.price;
+    return `${d.address}: $${(d.price / 1000).toFixed(0)}K list / $${(d.zestimate / 1000).toFixed(0)}K Zest = +$${(spread / 1000).toFixed(0)}K spread`;
+  });
+
+  const message = [
+    `AIWholesail Deal Alert!`,
+    `${deals.length} properties with +$30K spreads found in ${location}:`,
+    '',
+    ...dealLines,
+    deals.length > 3 ? `...and ${deals.length - 3} more deals` : '',
+    '',
+    'View at aiwholesail.com/app'
+  ].filter(Boolean).join('\n');
+
+  try {
+    const result = await sendTwilioSMS(phone, message);
+
+    await logSecurityEvent('spread_alert_sent', {
+      location,
+      dealCount: deals.length,
+      phone: phone.substring(0, 3) + '***'
+    }, req.user.id, req);
+
+    res.json({
+      success: true,
+      messageId: result.sid,
+      dealCount: deals.length,
+      message: 'Spread alert sent'
+    });
+  } catch (error) {
+    console.error('[Communications] Spread alert error:', error.message);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to send spread alert'
+    });
+  }
+}));
+
+/**
  * POST /api/communications/call/make
- * Make a phone call via Plivo
+ * Make a phone call via Twilio
  */
 router.post('/call/make', authenticate, [
   body('to').notEmpty().withMessage('Recipient phone number required')
@@ -153,31 +225,26 @@ router.post('/call/make', authenticate, [
     return res.status(429).json({ error: 'Rate limit exceeded' });
   }
 
-  const { to, from, answerUrl } = req.body;
-  const plivoAuthId = process.env.PLIVO_AUTH_ID;
-  const plivoAuthToken = process.env.PLIVO_AUTH_TOKEN;
-  const plivoPhoneNumber = process.env.PLIVO_PHONE_NUMBER;
+  const { to } = req.body;
+  const accountSid = process.env.TWILIO_ACCOUNT_SID;
+  const authToken = process.env.TWILIO_AUTH_TOKEN;
+  const fromNumber = process.env.TWILIO_PHONE_NUMBER;
 
-  if (!plivoAuthId || !plivoAuthToken) {
+  if (!accountSid || !authToken) {
     return res.status(500).json({ error: 'Call service not configured' });
   }
 
-  const requestBody = {
-    from: from || plivoPhoneNumber,
-    to: to.replace(/\D/g, ''),
-    answer_url: answerUrl || `${process.env.API_URL}/api/communications/call/answer`,
-    answer_method: 'GET'
-  };
-
   try {
     const response = await axios.post(
-      `https://api.plivo.com/v1/Account/${plivoAuthId}/Call/`,
-      requestBody,
+      `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Calls.json`,
+      new URLSearchParams({
+        To: to.replace(/[^\d+]/g, ''),
+        From: fromNumber,
+        Url: `${process.env.API_URL || 'https://api.aiwholesail.com'}/api/communications/call/answer`
+      }).toString(),
       {
-        headers: {
-          'Authorization': `Basic ${Buffer.from(`${plivoAuthId}:${plivoAuthToken}`).toString('base64')}`,
-          'Content-Type': 'application/json'
-        }
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        auth: { username: accountSid, password: authToken }
       }
     );
 
@@ -187,11 +254,11 @@ router.post('/call/make', authenticate, [
 
     res.json({
       success: true,
-      callId: response.data.request_uuid,
+      callId: response.data.sid,
       data: response.data
     });
   } catch (error) {
-    console.error('[Communications] Plivo call error:', error.response?.data || error.message);
+    console.error('[Communications] Twilio call error:', error.response?.data || error.message);
     res.status(500).json({
       success: false,
       error: 'Failed to initiate call'
@@ -201,20 +268,19 @@ router.post('/call/make', authenticate, [
 
 /**
  * GET /api/communications/call/answer
- * Plivo call answer webhook
+ * Twilio call answer webhook (TwiML)
  */
 router.get('/call/answer', (req, res) => {
-  // Return Plivo XML for call handling
-  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+  const twiml = `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
-  <Speak voice="WOMAN">Hello, this is AI Wholesail calling about a property opportunity. Please hold for an agent.</Speak>
-  <Wait length="2"/>
-  <Speak voice="WOMAN">Thank you for your time. Goodbye.</Speak>
+  <Say voice="Polly.Joanna">Hello, this is AI Wholesail calling about a property opportunity. Please hold for an agent.</Say>
+  <Pause length="2"/>
+  <Say voice="Polly.Joanna">Thank you for your time. Goodbye.</Say>
   <Hangup/>
 </Response>`;
 
   res.set('Content-Type', 'text/xml');
-  res.send(xml);
+  res.send(twiml);
 });
 
 /**

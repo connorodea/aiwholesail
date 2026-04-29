@@ -7,7 +7,9 @@ import { Property, PropertySearchParams } from '@/types/zillow';
 import { zillowAPI } from '@/lib/zillow-api';
 import { sortPropertiesByWholesalePotential } from '@/lib/wholesale-calculator';
 import { Button } from '@/components/ui/button';
-import { User, Download } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { User, Download, Bell, MessageSquare } from 'lucide-react';
+import { communications } from '@/lib/api-client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useLeads } from '@/hooks/useLeads';
@@ -44,6 +46,9 @@ export default function RealEstateWholesaler() {
   const [sortBy, setSortBy] = useState<'price-high' | 'price-low' | 'newest' | 'oldest' | 'default'>('default');
   const [isSearchingFSBO, setIsSearchingFSBO] = useState<boolean>(false);
   const [searchMode, setSearchMode] = useState<'on-market' | 'off-market'>('on-market');
+  const [showSmsAlert, setShowSmsAlert] = useState(false);
+  const [smsPhone, setSmsPhone] = useState('');
+  const [sendingSms, setSendingSms] = useState(false);
   const searchIdRef = useRef(0);
 
   // US States lookup
@@ -376,10 +381,61 @@ export default function RealEstateWholesaler() {
                         <Download className="h-4 w-4" />
                         {exportLoading ? 'Exporting...' : 'Export CSV'}
                       </Button>
+
+                      {/* SMS Alert for deals */}
+                      {properties.some(p => p.price && p.zestimate && (p.zestimate - p.price) >= 30000) && (
+                        <Button
+                          onClick={() => setShowSmsAlert(!showSmsAlert)}
+                          variant={showSmsAlert ? 'default' : 'outline'}
+                          size="sm"
+                          className="gap-2 h-9 px-4 text-sm font-medium smooth-transition"
+                        >
+                          <MessageSquare className="h-4 w-4" />
+                          SMS Alert
+                        </Button>
+                      )}
                     </div>
                   )}
                 </div>
-                
+
+                {/* SMS Alert Input */}
+                {showSmsAlert && (
+                  <div className="flex items-center gap-3 p-4 bg-muted/30 rounded-xl border border-border">
+                    <MessageSquare className="h-5 w-5 text-primary flex-shrink-0" />
+                    <Input
+                      placeholder="Your phone number (e.g., +1234567890)"
+                      value={smsPhone}
+                      onChange={(e) => setSmsPhone(e.target.value)}
+                      className="max-w-xs bg-background"
+                    />
+                    <Button
+                      size="sm"
+                      disabled={sendingSms || !smsPhone.trim()}
+                      onClick={async () => {
+                        const deals = properties.filter(p => p.price && p.zestimate && (p.zestimate - p.price) >= 30000);
+                        if (deals.length === 0) return;
+                        setSendingSms(true);
+                        try {
+                          const response = await communications.sendSpreadAlert(
+                            deals.map(d => ({ address: d.address, price: d.price, zestimate: d.zestimate })),
+                            lastSearchLocation,
+                            smsPhone
+                          );
+                          if ((response as any).error) throw new Error((response as any).error);
+                          toast.success(`SMS alert sent with ${deals.length} deals!`);
+                          setShowSmsAlert(false);
+                        } catch (err: any) {
+                          toast.error(err.message || 'Failed to send SMS alert');
+                        } finally {
+                          setSendingSms(false);
+                        }
+                      }}
+                    >
+                      {sendingSms ? 'Sending...' : `Send ${properties.filter(p => p.price && p.zestimate && (p.zestimate - p.price) >= 30000).length} Deals`}
+                    </Button>
+                  </div>
+                )}
+
                 <div className="property-grid">
                   {[...properties].sort((a, b) => {
                     switch (sortBy) {
