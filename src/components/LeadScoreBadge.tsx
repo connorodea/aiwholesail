@@ -18,8 +18,8 @@ export function LeadScoreBadge({ leadId, className = "", showIcon = true }: Lead
       try {
         const response = await leads.get(leadId);
 
-        if (response.data?.overall_score) {
-          setScore(response.data.overall_score);
+        if ((response.data as any)?.overall_score) {
+          setScore((response.data as any).overall_score);
         }
       } catch (error) {
         console.error('Error loading lead score:', error);

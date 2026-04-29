@@ -166,7 +166,7 @@ export class RapidAPIService {
       const response = await utility.generatePdf('property-report', { htmlContent, ...options });
 
       if (response.error) throw new Error(response.error);
-      return { success: true, pdfUrl: response.data?.pdfUrl, data: response.data };
+      return { success: true, pdfUrl: (response.data as any)?.pdfUrl, data: response.data };
     } catch (error) {
       console.error('PDF generation failed:', error);
       return {
@@ -182,7 +182,7 @@ export class RapidAPIService {
       const response = await communications.sendSms(to, message);
 
       if (response.error) throw new Error(response.error);
-      return { success: true, messageId: response.data?.messageId };
+      return { success: true, messageId: (response.data as any)?.messageId };
     } catch (error) {
       console.error('Plivo SMS failed:', error);
       return {

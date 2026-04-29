@@ -175,10 +175,10 @@ export function AIWholesaleAnalyzer({ properties, market }: AIWholesaleAnalyzerP
         return;
       }
 
-      setAnalysisResult(response.data);
+      setAnalysisResult(response.data as any);
       toast({
         title: "Analysis Complete",
-        description: `Found ${data.ranked_opportunities.length} actionable wholesale opportunities.`,
+        description: `Found ${(response.data as any).ranked_opportunities.length} actionable wholesale opportunities.`,
       });
 
     } catch (error) {

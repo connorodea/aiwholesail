@@ -68,9 +68,9 @@ export function AIPropertyAnalyzer({ property }: AIPropertyAnalyzerProps) {
         throw new Error(response.error);
       }
 
-      if (response.data?.response) {
+      if ((response.data as any)?.response) {
         // Parse the AI response to extract analysis data
-        const analysisText = response.data.response;
+        const analysisText = (response.data as any).response;
         // Create a structured analysis from the AI response
         const analysis = {
           wholesaleScore: 75,

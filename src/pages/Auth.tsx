@@ -60,8 +60,8 @@ export default function Auth() {
         throw new Error(response.error);
       }
 
-      if (response.data?.url) {
-        window.open(response.data.url, '_blank');
+      if ((response.data as any)?.url) {
+        window.open((response.data as any).url, '_blank');
         toast.success('Redirecting to checkout...');
       } else {
         throw new Error('No checkout URL received');

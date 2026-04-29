@@ -123,7 +123,7 @@ class OffMarketAPI {
       }
 
       // Convert date strings back to Date objects
-      const result = response.data;
+      const result = response.data as any;
       if (result.properties) {
         result.properties = result.properties.map((property: any) => ({
           ...property,

@@ -84,14 +84,14 @@ export function DealAnalysisPanel() {
         throw new Error(response.error);
       }
 
-      if (response.data?.success) {
-        setAnalysis(response.data.analysis);
+      if ((response.data as any)?.success) {
+        setAnalysis((response.data as any).analysis);
         toast({
           title: "Analysis Complete",
           description: "Property analysis has been generated successfully.",
         });
       } else {
-        throw new Error(response.data?.error || 'Analysis failed');
+        throw new Error((response.data as any)?.error || 'Analysis failed');
       }
     } catch (error) {
       console.error('Error analyzing deal:', error);

@@ -88,7 +88,7 @@ export const PropertyAlertsManager = () => {
     try {
       const response = await alertsApi.list();
       if (response.error) throw new Error(response.error);
-      setAlerts((response.data?.alerts || []) as PropertyAlert[]);
+      setAlerts(((response.data as any)?.alerts || []) as PropertyAlert[]);
     } catch (error: any) {
       console.error('Error fetching alerts:', error);
       toast.error('Failed to load property alerts');

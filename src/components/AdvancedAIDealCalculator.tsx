@@ -194,15 +194,15 @@ const AdvancedAIDealCalculator: React.FC<AdvancedAIDealCalculatorProps> = ({
 
       if (response.error) throw new Error(response.error);
 
-      if (response.data?.success) {
-        setDealMetrics(response.data.deal_metrics);
+      if ((response.data as any)?.success) {
+        setDealMetrics((response.data as any).deal_metrics);
 
         toast({
           title: "🎯 Advanced Analysis Complete",
-          description: `Deal Grade: ${response.data.deal_metrics.deal_grade} | Investment: ${response.data.deal_metrics.investment_recommendation}`,
+          description: `Deal Grade: ${(response.data as any).deal_metrics.deal_grade} | Investment: ${(response.data as any).deal_metrics.investment_recommendation}`,
         });
       } else {
-        throw new Error(response.data?.error || 'Analysis failed');
+        throw new Error((response.data as any)?.error || 'Analysis failed');
       }
     } catch (error) {
       console.error('Advanced deal analysis error:', error);

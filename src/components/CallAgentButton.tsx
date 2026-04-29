@@ -36,7 +36,7 @@ export function CallAgentButton({ agentPhone, agentName, propertyAddress, disabl
 
       if (response.error) throw new Error(response.error);
 
-      if (response.data?.success) {
+      if ((response.data as any)?.success) {
         toast({
           title: "Call initiated",
           description: `Connecting you to ${agentName || 'the listing agent'}. You should receive a call shortly.`,
@@ -44,7 +44,7 @@ export function CallAgentButton({ agentPhone, agentName, propertyAddress, disabl
         setIsOpen(false);
         setUserPhone('');
       } else {
-        throw new Error(response.data?.error || 'Failed to initiate call');
+        throw new Error((response.data as any)?.error || 'Failed to initiate call');
       }
     } catch (error) {
       console.error('Error making call:', error);

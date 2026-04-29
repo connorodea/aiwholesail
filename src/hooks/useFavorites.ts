@@ -18,7 +18,7 @@ export function useFavorites() {
 
       if (response.error) throw new Error(response.error);
 
-      const favoriteProperties = response.data?.favorites?.map((fav: any) => {
+      const favoriteProperties = (response.data as any)?.favorites?.map((fav: any) => {
         const propertyData = fav.property_data as Property;
         return {
           ...propertyData,
@@ -52,7 +52,7 @@ export function useFavorites() {
         throw new Error(response.error);
       }
 
-      setFavorites(prev => [{ ...property, favoriteId: response.data?.id }, ...prev]);
+      setFavorites(prev => [{ ...property, favoriteId: (response.data as any)?.id }, ...prev]);
       toast.success('Added to favorites');
       return true;
     } catch (error) {

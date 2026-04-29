@@ -90,7 +90,7 @@ export function PropertyAnalysisChat({ property, isOpen }: PropertyAnalysisChatP
       setMessages([{
         id: Date.now().toString(),
         role: 'assistant',
-        content: response.data?.response || 'Analysis complete. Ask me any questions about this property!',
+        content: (response.data as any)?.response || 'Analysis complete. Ask me any questions about this property!',
         timestamp: new Date()
       }]);
 
@@ -145,7 +145,7 @@ export function PropertyAnalysisChat({ property, isOpen }: PropertyAnalysisChatP
       setMessages(prev => prev.slice(0, -1).concat([{
         id: Date.now().toString(),
         role: 'assistant',
-        content: response.data?.response || 'I was unable to process your request. Please try again.',
+        content: (response.data as any)?.response || 'I was unable to process your request. Please try again.',
         timestamp: new Date()
       }]));
 
