@@ -2,8 +2,9 @@
  * AIWholesail API Client
  * Replaces Supabase client for self-hosted API on Hetzner
  */
+import { API_BASE_URL } from './platform';
 
-const API_URL = import.meta.env.VITE_API_URL || 'https://api.aiwholesail.com';
+const API_URL = API_BASE_URL;
 
 // Token storage keys
 const ACCESS_TOKEN_KEY = 'aiwholesail_access_token';
