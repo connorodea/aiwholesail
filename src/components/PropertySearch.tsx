@@ -20,7 +20,7 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
   const [searchParams, setSearchParams] = useState<PropertySearchParams>({
     location: '',
     homeType: 'Houses, Townhomes, Multi-family, Condos/Co-ops',
-    wholesaleOnly: false // Show all properties, sorted by best deals first
+    wholesaleOnly: true // Default: only show properties priced below Zestimate
   });
   const { toast } = useToast();
 
