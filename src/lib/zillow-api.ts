@@ -113,30 +113,32 @@ export class ZillowAPI {
     allProperties.push(...firstPageProperties);
     onPageProgress?.(1, totalPages, allProperties.length);
 
-    // Fetch remaining pages — use batches of 3 for progressive loading
+    // Fetch ALL remaining pages in parallel (fast), report progress as each lands
     if (totalPages > 1) {
-      const BATCH_SIZE = 3;
-      for (let batchStart = 2; batchStart <= totalPages; batchStart += BATCH_SIZE) {
-        const batchEnd = Math.min(batchStart + BATCH_SIZE - 1, totalPages);
-        const batchPromises = [];
-        for (let page = batchStart; page <= batchEnd; page++) {
-          batchPromises.push(this.fetchPage(normalizedParams, page));
-        }
+      let pagesLoaded = 1;
 
-        const batchResults = await Promise.allSettled(batchPromises);
-
-        for (const result of batchResults) {
-          if (result.status === 'fulfilled' && result.value.success) {
-            const pageData = result.value.data?.data || result.value.data;
-            const pageProperties = this.processPropertyData(pageData);
-            allProperties.push(...pageProperties);
-          } else {
-            console.warn('Failed to fetch page:', result.status === 'rejected' ? (result as any).reason : (result as any).value?.error);
-          }
-        }
-
-        onPageProgress?.(Math.min(batchEnd, totalPages), totalPages, allProperties.length);
+      const pagePromises = [];
+      for (let page = 2; page <= totalPages; page++) {
+        pagePromises.push(
+          this.fetchPage(normalizedParams, page).then(result => {
+            if (result.success) {
+              const pageData = result.data?.data || result.data;
+              const pageProperties = this.processPropertyData(pageData);
+              allProperties.push(...pageProperties);
+            }
+            pagesLoaded++;
+            onPageProgress?.(pagesLoaded, totalPages, allProperties.length);
+            return result;
+          }).catch(err => {
+            pagesLoaded++;
+            onPageProgress?.(pagesLoaded, totalPages, allProperties.length);
+            console.warn('Failed to fetch page:', err);
+            return null;
+          })
+        );
       }
+
+      await Promise.allSettled(pagePromises);
     }
 
     console.log(`Total properties fetched across ${totalPages} pages: ${allProperties.length}`);
