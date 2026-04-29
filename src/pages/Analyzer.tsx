@@ -14,7 +14,7 @@ export default function Analyzer() {
           </p>
         </section>
         <section className="max-w-6xl mx-auto animate-fade-in">
-          <AIWholesaleAnalyzer properties={[]} />
+          <AIWholesaleAnalyzer properties={[]} market="" />
         </section>
       </main>
       <ChatAssistant />
