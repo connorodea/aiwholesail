@@ -6,6 +6,7 @@ import { Separator } from '@/components/ui/separator';
 import { MapPin, Bed, Bath, Square, Eye, ExternalLink, Search, TrendingUp, TrendingDown, Clock, Flame, User, Phone, Building2, Heart, Star } from 'lucide-react';
 import { useState } from 'react';
 import { SkipTraceModal } from './SkipTraceModal';
+import { AddToPipelineButton } from './pipeline/AddToPipelineButton';
 
 interface PropertyCardProps {
   property: Property;
@@ -277,6 +278,7 @@ export function PropertyCard({ property, onViewDetails }: PropertyCardProps) {
         >
           <Search className="h-4 w-4" />
         </Button>
+        <AddToPipelineButton property={property} variant="icon" size="sm" />
         <Button
           variant="outline"
           size="sm"
