@@ -99,13 +99,6 @@ export default function RealEstateWholesaler() {
   };
 
   const handleSearch = async (params: PropertySearchParams) => {
-    // Validate location - block state-only searches
-    if (isStateOnlyLocation(params.location)) {
-      setError("State-wide searches are not supported. Please enter a specific city (e.g., 'Detroit, MI'), ZIP code, or county name with state.");
-      toast.error("Please enter a city, ZIP code, or county with state - state-wide searches are not supported.");
-      return;
-    }
-
     // Validate county searches have a state
     if (isCountyWithoutState(params.location)) {
       setError("Please include a state with county searches. Example: 'Oakland County, MI' or 'Oakland County, Michigan'");
@@ -126,8 +119,10 @@ export default function RealEstateWholesaler() {
       setLastSearchLocation(params.location);
       setIsSearchingFSBO(params.fsboOnly || false);
 
-      // Step 1: Fetch up to 5 pages to cast a wide net for +$30K spread deals
-      const searchResults = await zillowAPI.searchProperties(params, 5);
+      // Step 1: Fetch pages — more for state-wide searches to find deals
+      const isStateSearch = isStateOnlyLocation(params.location);
+      const maxPages = isStateSearch ? 10 : 5;
+      const searchResults = await zillowAPI.searchProperties(params, maxPages);
 
       if (searchResults.length === 0) {
         setError("No properties found. Try adjusting your search criteria.");
