@@ -79,17 +79,17 @@ export function LeadScoringPanel({ leadId, propertyData }: LeadScoringPanelProps
       // Only try to load existing scores from DB when we have a real lead UUID and not forcing rescore
       if (uuidValid && !forceRescore) {
         const response = await leads.get(leadId);
-        if (response.data?.overall_score) {
+        if ((response.data as any)?.overall_score) {
           setScores({
             id: leadId,
-            motivation_score: response.data.motivation_score || 0,
-            urgency_score: response.data.urgency_score || 0,
-            profitability_score: response.data.profitability_score || 0,
-            contactability_score: response.data.contactability_score || 0,
-            overall_score: response.data.overall_score || 0,
-            confidence_score: response.data.confidence_score || 0,
-            scoring_factors: response.data.scoring_factors || [],
-            last_updated: response.data.last_updated || new Date().toISOString()
+            motivation_score: (response.data as any).motivation_score || 0,
+            urgency_score: (response.data as any).urgency_score || 0,
+            profitability_score: (response.data as any).profitability_score || 0,
+            contactability_score: (response.data as any).contactability_score || 0,
+            overall_score: (response.data as any).overall_score || 0,
+            confidence_score: (response.data as any).confidence_score || 0,
+            scoring_factors: (response.data as any).scoring_factors || [],
+            last_updated: (response.data as any).last_updated || new Date().toISOString()
           });
           setIsLoading(false);
           return;
@@ -101,7 +101,7 @@ export function LeadScoringPanel({ leadId, propertyData }: LeadScoringPanelProps
 
       if (response.error) throw new Error(response.error);
 
-      const scoringData = response.data?.scoring || {
+      const scoringData = (response.data as any)?.scoring || {
         overallScore: 500,
         motivationScore: 50,
         urgencyScore: 50,
@@ -124,7 +124,7 @@ export function LeadScoringPanel({ leadId, propertyData }: LeadScoringPanelProps
         last_updated: new Date().toISOString()
       });
 
-      if (!response.data?.cached) {
+      if (!(response.data as any)?.cached) {
         toast({
           title: 'Lead Scored Successfully',
           description: `Overall score: ${calculatedScore}/1000`,

@@ -58,7 +58,7 @@ export function SecurityProvider({ children }: { children: React.ReactNode }) {
     // Set security level based on user and session
     if (!user || !session) {
       setSecurityLevel('low');
-    } else if (session.expires_at && new Date(session.expires_at) < new Date(Date.now() + 3600000)) {
+    } else if ((session as any).expires_at && new Date((session as any).expires_at) < new Date(Date.now() + 3600000)) {
       setSecurityLevel('high'); // Session expires within 1 hour
     } else {
       setSecurityLevel('medium');

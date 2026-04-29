@@ -99,8 +99,8 @@ export const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
 
       console.log('Checkout response:', response.data);
 
-      if (response.data?.url) {
-        window.open(response.data.url, '_blank');
+      if ((response.data as any)?.url) {
+        window.open((response.data as any).url, '_blank');
         toast.success('Redirecting to checkout...');
       } else {
         throw new Error('No checkout URL received');
@@ -127,8 +127,8 @@ export const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
 
       console.log('Customer portal response:', response.data);
 
-      if (response.data?.url) {
-        window.open(response.data.url, '_blank');
+      if ((response.data as any)?.url) {
+        window.open((response.data as any).url, '_blank');
         toast.success('Opening subscription management...');
       } else {
         throw new Error('No portal URL received');

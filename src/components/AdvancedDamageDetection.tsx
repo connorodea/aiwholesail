@@ -82,19 +82,19 @@ const AdvancedDamageDetection: React.FC<AdvancedDamageDetectionProps> = ({
 
       if (response.error) throw new Error(response.error);
 
-      if (response.data?.success) {
-        setAnalysis(response.data.analysis);
+      if ((response.data as any)?.success) {
+        setAnalysis((response.data as any).analysis);
         setAnalysisMetadata({
-          models_used: response.data.models_used,
-          analysis_timestamp: response.data.analysis_timestamp
+          models_used: (response.data as any).models_used,
+          analysis_timestamp: (response.data as any).analysis_timestamp
         });
 
         toast({
           title: "🔬 Advanced Analysis Complete",
-          description: `Detected ${response.data.analysis.length} potential issues using state-of-the-art AI models`,
+          description: `Detected ${(response.data as any).analysis.length} potential issues using state-of-the-art AI models`,
         });
       } else {
-        throw new Error(response.data?.error || 'Analysis failed');
+        throw new Error((response.data as any)?.error || 'Analysis failed');
       }
     } catch (error) {
       console.error('Advanced damage detection error:', error);

@@ -63,7 +63,7 @@ export function DashboardNav() {
     try {
       const response = await stripe.createPortal();
       if (response.error) throw new Error(response.error);
-      window.open(response.data?.url, '_blank');
+      window.open((response.data as any)?.url, '_blank');
     } catch {
       toast.error('Failed to open subscription portal');
     }

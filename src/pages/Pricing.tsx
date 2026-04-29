@@ -68,9 +68,9 @@ export default function Pricing() {
 
       console.log('Checkout response:', response.data);
 
-      if (response.data?.url) {
+      if ((response.data as any)?.url) {
         // Redirect to Stripe checkout in the same window
-        window.location.href = response.data.url;
+        window.location.href = (response.data as any).url;
       } else {
         throw new Error('No checkout URL received');
       }

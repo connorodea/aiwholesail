@@ -26,12 +26,12 @@ export async function sendEmail(options: SendEmailOptions): Promise<{
       return { success: false, error: response.error };
     }
 
-    if (response.data?.success) {
-      console.log(`✅ Email sent: ${response.data.messageId}`);
-      return { success: true, messageId: response.data.messageId };
+    if ((response.data as any)?.success) {
+      console.log(`✅ Email sent: ${(response.data as any).messageId}`);
+      return { success: true, messageId: (response.data as any).messageId };
     }
 
-    return { success: false, error: response.data?.error || 'Unknown error' };
+    return { success: false, error: (response.data as any)?.error || 'Unknown error' };
   } catch (err: any) {
     console.error(`❌ Email error: ${err.message}`);
     return { success: false, error: err.message };

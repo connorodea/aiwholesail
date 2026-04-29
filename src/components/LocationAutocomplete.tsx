@@ -143,7 +143,7 @@ export function LocationAutocomplete({
         return;
       }
 
-      setSuggestions(response.data?.features || []);
+      setSuggestions((response.data as any)?.features || []);
     } catch (error) {
       console.error('Error fetching location suggestions:', error);
       setSuggestions([]);

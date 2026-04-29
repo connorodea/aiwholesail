@@ -43,7 +43,7 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
       }
 
       if (response.data) {
-        setSubscription(response.data);
+        setSubscription(response.data as any);
       }
     } catch (error) {
       console.error('Error refreshing subscription:', error);

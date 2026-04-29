@@ -89,7 +89,7 @@ export const ChatAssistant = () => {
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: response.data?.response || 'I apologize, but I could not generate a response.',
+        content: (response.data as any)?.response || 'I apologize, but I could not generate a response.',
         timestamp: new Date(),
         searchPerformed: false
       };
