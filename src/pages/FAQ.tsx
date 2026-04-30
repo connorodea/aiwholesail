@@ -98,27 +98,27 @@ export default function FAQ() {
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-[0.95] mb-6">
             Frequently asked
             <br />
-            <span className="bg-gradient-to-r from-primary via-cyan-400 to-primary bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-neutral-800 via-white to-white bg-clip-text text-transparent">
               questions.
             </span>
           </h1>
 
           <p className="text-lg md:text-xl text-white/60 max-w-2xl mx-auto leading-relaxed font-light">
             Everything you need to know about AIWholesail. Can not find your answer here?{' '}
-            <Link to="/contact" className="text-primary hover:underline">
+            <Link to="/contact" className="text-cyan-400 hover:underline">
               Reach out to our support team
             </Link>.
           </p>
         </div>
 
         {/* Fade to white */}
-        <div className="h-24 bg-gradient-to-b from-[#0a0a0a] to-background" />
+        <div className="h-24 bg-gradient-to-b from-[#0a0a0a] to-[#08090a]" />
       </section>
 
       {/* ===== FAQ ACCORDION -- LIGHT ===== */}
       <section className="py-24 px-4">
         <div className="container mx-auto max-w-3xl">
-          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-4">Common Questions</p>
+          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-4">Common Questions</p>
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-16">
             Get the answers you need.
           </h2>
@@ -127,7 +127,7 @@ export default function FAQ() {
             {faqs.map((faq, index) => (
               <div
                 key={index}
-                className="bg-white/[0.03] border border-white/[0.06] rounded-3xl overflow-hidden transition-all duration-300 hover:border-primary/20"
+                className="bg-white/[0.03] border border-white/[0.06] rounded-xl overflow-hidden transition-all duration-300 hover:border-cyan-500/20"
               >
                 <button
                   onClick={() => toggleItem(index)}
@@ -135,10 +135,10 @@ export default function FAQ() {
                 >
                   <h3 className="text-base font-semibold tracking-tight pr-4">{faq.question}</h3>
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-colors ${
-                    openItems.includes(index) ? 'bg-primary/10' : 'bg-muted'
+                    openItems.includes(index) ? 'bg-cyan-500/10' : 'bg-muted'
                   }`}>
                     {openItems.includes(index) ? (
-                      <Minus className="h-4 w-4 text-primary" />
+                      <Minus className="h-4 w-4 text-cyan-400" />
                     ) : (
                       <Plus className="h-4 w-4 text-neutral-400" />
                     )}
@@ -159,7 +159,7 @@ export default function FAQ() {
       {/* ===== STILL HAVE QUESTIONS -- DARK ===== */}
       <section className="bg-[#0a0a0a] text-white py-24 px-4">
         <div className="container mx-auto text-center max-w-3xl">
-          <Sparkles className="h-8 w-8 text-primary mx-auto mb-6" />
+          <Sparkles className="h-8 w-8 text-cyan-400 mx-auto mb-6" />
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
             Still have questions?
           </h2>
@@ -168,7 +168,7 @@ export default function FAQ() {
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link to="/contact">
-              <Button size="lg" className="rounded-full px-8 text-base font-semibold bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25 gap-2">
+              <Button size="lg" className="rounded-full px-8 text-base font-semibold bg-cyan-500 hover:bg-cyan-400 shadow-lg shadow-cyan-500/25 gap-2">
                 Contact Support <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>

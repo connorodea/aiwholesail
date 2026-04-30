@@ -153,7 +153,7 @@ export default function UseCases() {
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-[0.95] mb-6">
             One platform, every
             <br />
-            <span className="bg-gradient-to-r from-primary via-cyan-400 to-primary bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-neutral-800 via-white to-white bg-clip-text text-transparent">
               investing strategy.
             </span>
           </h1>
@@ -164,7 +164,7 @@ export default function UseCases() {
         </div>
 
         {/* Fade to white */}
-        <div className="h-24 bg-gradient-to-b from-[#0a0a0a] to-background" />
+        <div className="h-24 bg-gradient-to-b from-[#0a0a0a] to-[#08090a]" />
       </section>
 
       {/* ===== AUDIENCE SECTIONS -- ALTERNATING LIGHT/DARK ===== */}
@@ -179,12 +179,12 @@ export default function UseCases() {
                   {/* Content Side */}
                   <div className={index % 2 === 1 ? 'lg:order-2' : ''}>
                     <div className="flex items-center gap-3 mb-4">
-                      <div className={`flex items-center justify-center w-12 h-12 rounded-2xl ${isDark ? 'bg-white/10 text-primary' : 'bg-primary/10 text-primary'}`}>
+                      <div className={`flex items-center justify-center w-12 h-12 rounded-2xl ${isDark ? 'bg-white/10 text-cyan-400' : 'bg-cyan-500/10 text-cyan-400'}`}>
                         {item.icon}
                       </div>
                     </div>
 
-                    <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-3">
+                    <p className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-3">
                       {item.tagline}
                     </p>
 
@@ -199,7 +199,7 @@ export default function UseCases() {
                     <ul className="space-y-4 mb-8">
                       {item.useCases.map((useCase, i) => (
                         <li key={i} className="flex items-start gap-3">
-                          <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                          <CheckCircle2 className="h-5 w-5 text-cyan-400 mt-0.5 flex-shrink-0" />
                           <span className={`text-sm font-light leading-relaxed ${isDark ? 'text-white/70' : ''}`}>
                             {useCase}
                           </span>
@@ -210,13 +210,13 @@ export default function UseCases() {
 
                   {/* Highlight Card Side */}
                   <div className={index % 2 === 1 ? 'lg:order-1' : ''}>
-                    <div className={`rounded-3xl p-8 lg:p-10 ${
+                    <div className={`rounded-xl p-8 lg:p-10 ${
                       isDark
                         ? 'bg-white/5 border border-white/10'
                         : 'bg-white/[0.03] border border-white/[0.06]'
                     }`}>
                       <div className="flex items-center gap-2 mb-6">
-                        <div className={`flex items-center justify-center w-9 h-9 rounded-xl ${isDark ? 'bg-white/10 text-primary' : 'bg-primary/10 text-primary'}`}>
+                        <div className={`flex items-center justify-center w-9 h-9 rounded-xl ${isDark ? 'bg-white/10 text-cyan-400' : 'bg-cyan-500/10 text-cyan-400'}`}>
                           {item.accentIcon}
                         </div>
                         <span className={`text-xs font-semibold tracking-[0.15em] uppercase ${isDark ? 'text-white/40' : 'text-neutral-400'}`}>
@@ -228,7 +228,7 @@ export default function UseCases() {
 
                       {item.highlight.type === 'metric' ? (
                         <>
-                          <div className="text-5xl md:text-6xl font-bold text-primary mb-3 tracking-tight">
+                          <div className="text-5xl md:text-6xl font-bold text-cyan-400 mb-3 tracking-tight">
                             {item.highlight.value}
                           </div>
                           <p className={`font-light text-sm leading-relaxed ${isDark ? 'text-white/50' : 'text-neutral-400'}`}>
@@ -237,7 +237,7 @@ export default function UseCases() {
                         </>
                       ) : (
                         <>
-                          <blockquote className={`text-lg font-light leading-relaxed mb-4 ${isDark ? 'text-white/80' : 'text-foreground/90'}`}>
+                          <blockquote className={`text-lg font-light leading-relaxed mb-4 ${isDark ? 'text-white/80' : 'text-white/90'}`}>
                             &ldquo;{item.highlight.value}&rdquo;
                           </blockquote>
                           <p className={`text-sm font-light ${isDark ? 'text-white/40' : 'text-neutral-400'}`}>
@@ -253,7 +253,7 @@ export default function UseCases() {
 
             {/* Gradient transitions between dark/light sections */}
             {isDark && index < audiences.length - 1 && (
-              <div className="h-24 bg-gradient-to-b from-[#0a0a0a] to-background" />
+              <div className="h-24 bg-gradient-to-b from-[#0a0a0a] to-[#08090a]" />
             )}
             {!isDark && index < audiences.length - 1 && audiences[index + 1] && (index + 1) % 2 === 1 && (
               <div className="h-24 bg-gradient-to-b from-background to-[#0a0a0a]" />
@@ -271,7 +271,7 @@ export default function UseCases() {
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight leading-tight mb-6">
             No matter your strategy,
             <br />
-            <span className="bg-gradient-to-r from-primary via-cyan-400 to-primary bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-neutral-800 via-white to-white bg-clip-text text-transparent">
               find deals faster.
             </span>
           </h2>
@@ -280,7 +280,7 @@ export default function UseCases() {
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link to="/pricing">
-              <Button size="lg" className="rounded-full px-10 text-base font-semibold bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25 gap-2">
+              <Button size="lg" className="rounded-full px-10 text-base font-semibold bg-cyan-500 hover:bg-cyan-400 shadow-lg shadow-cyan-500/25 gap-2">
                 Start Free Trial <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>

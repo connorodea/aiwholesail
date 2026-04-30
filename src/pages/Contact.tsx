@@ -70,7 +70,7 @@ export default function Contact() {
         </div>
 
         {/* Fade to white */}
-        <div className="h-24 bg-gradient-to-b from-[#0a0a0a] to-background" />
+        <div className="h-24 bg-gradient-to-b from-[#0a0a0a] to-[#08090a]" />
       </section>
 
       {/* ===== CONTACT FORM + INFO — LIGHT ===== */}
@@ -78,10 +78,10 @@ export default function Contact() {
         <div className="container mx-auto max-w-6xl">
           <div className="grid lg:grid-cols-2 gap-8">
             {/* Contact Form */}
-            <div className="bg-white/[0.03] border border-white/[0.06] rounded-3xl p-8 md:p-10">
+            <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-8 md:p-10">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                  <Send className="h-5 w-5 text-primary" />
+                <div className="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center">
+                  <Send className="h-5 w-5 text-cyan-400" />
                 </div>
                 <h2 className="text-2xl font-bold tracking-tight">Send us a message</h2>
               </div>
@@ -145,7 +145,7 @@ export default function Contact() {
                 <Button
                   type="submit"
                   disabled={loading}
-                  className="w-full h-12 rounded-full bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25 font-semibold text-base gap-2"
+                  className="w-full h-12 rounded-full bg-cyan-500 hover:bg-cyan-400 shadow-lg shadow-cyan-500/25 font-semibold text-base gap-2"
                 >
                   {loading ? (
                     <div className="flex items-center gap-2">
@@ -164,17 +164,17 @@ export default function Contact() {
 
             {/* Contact Information */}
             <div className="space-y-4">
-              <div className="bg-white/[0.03] border border-white/[0.06] rounded-3xl p-8">
+              <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-8">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                    <Mail className="h-5 w-5 text-primary" />
+                  <div className="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center">
+                    <Mail className="h-5 w-5 text-cyan-400" />
                   </div>
                   <h3 className="text-lg font-bold tracking-tight">Email Support</h3>
                 </div>
                 <p className="text-neutral-400 font-light mb-3">
                   Get help with your account, billing, or any questions.
                 </p>
-                <a href="mailto:support@aiwholesail.com" className="text-primary hover:text-primary/80 font-medium transition-colors">
+                <a href="mailto:support@aiwholesail.com" className="text-cyan-400 hover:text-cyan-400/80 font-medium transition-colors">
                   support@aiwholesail.com
                 </a>
                 <p className="text-sm text-neutral-400 font-light mt-2">
@@ -182,17 +182,17 @@ export default function Contact() {
                 </p>
               </div>
 
-              <div className="bg-white/[0.03] border border-white/[0.06] rounded-3xl p-8">
+              <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-8">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                    <Phone className="h-5 w-5 text-primary" />
+                  <div className="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center">
+                    <Phone className="h-5 w-5 text-cyan-400" />
                   </div>
                   <h3 className="text-lg font-bold tracking-tight">Sales Inquiries</h3>
                 </div>
                 <p className="text-neutral-400 font-light mb-3">
                   Questions about pricing, features, or enterprise solutions?
                 </p>
-                <a href="mailto:sales@aiwholesail.com" className="text-primary hover:text-primary/80 font-medium transition-colors">
+                <a href="mailto:sales@aiwholesail.com" className="text-cyan-400 hover:text-cyan-400/80 font-medium transition-colors">
                   sales@aiwholesail.com
                 </a>
                 <p className="text-sm text-neutral-400 font-light mt-2">
@@ -200,10 +200,10 @@ export default function Contact() {
                 </p>
               </div>
 
-              <div className="bg-white/[0.03] border border-white/[0.06] rounded-3xl p-8">
+              <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-8">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                    <MapPin className="h-5 w-5 text-primary" />
+                  <div className="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center">
+                    <MapPin className="h-5 w-5 text-cyan-400" />
                   </div>
                   <h3 className="text-lg font-bold tracking-tight">Business Hours</h3>
                 </div>
@@ -217,13 +217,13 @@ export default function Contact() {
                 </p>
               </div>
 
-              <div className="bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/20 rounded-3xl p-8 text-center">
+              <div className="bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/20 rounded-xl p-8 text-center">
                 <h3 className="text-lg font-bold tracking-tight mb-2">Need quick answers?</h3>
                 <p className="text-neutral-400 font-light mb-5">
                   Check our FAQ section for common questions and instant solutions.
                 </p>
                 <Link to="/faq">
-                  <Button variant="outline" className="rounded-full px-6 border-primary/30 hover:bg-primary/10 font-medium">
+                  <Button variant="outline" className="rounded-full px-6 border-primary/30 hover:bg-cyan-500/10 font-medium">
                     Visit FAQ Section
                   </Button>
                 </Link>

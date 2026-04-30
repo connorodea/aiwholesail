@@ -133,7 +133,7 @@ export default function Auth() {
               <>
                 Create your
                 <br />
-                <span className="bg-gradient-to-r from-primary via-cyan-400 to-primary bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-neutral-800 via-white to-white bg-clip-text text-transparent">
                   account.
                 </span>
               </>
@@ -141,7 +141,7 @@ export default function Auth() {
               <>
                 Welcome to
                 <br />
-                <span className="bg-gradient-to-r from-primary via-cyan-400 to-primary bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-neutral-800 via-white to-white bg-clip-text text-transparent">
                   AIWholesail.
                 </span>
               </>
@@ -157,13 +157,13 @@ export default function Auth() {
         </div>
 
         {/* Fade to white */}
-        <div className="h-24 bg-gradient-to-b from-[#0a0a0a] to-background" />
+        <div className="h-24 bg-gradient-to-b from-[#0a0a0a] to-[#08090a]" />
       </section>
 
       {/* ===== AUTH FORM — LIGHT ===== */}
       <section className="py-24 px-4 bg-[#08090a]">
         <div className="container mx-auto max-w-md">
-          <div className="bg-white/[0.03] border border-white/[0.06] rounded-3xl p-8 md:p-10">
+          <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-8 md:p-10">
             <form onSubmit={handleSubmit} className="space-y-5">
               {isSignUp && (
                 <div className="space-y-2">
@@ -218,7 +218,7 @@ export default function Auth() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-neutral-400 hover:text-foreground transition-colors"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-neutral-400 hover:text-white transition-colors"
                     aria-label={showPassword ? "Hide password" : "Show password"}
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -249,7 +249,7 @@ export default function Auth() {
                           toast.error('Failed to send reset link. Please try again.');
                         }
                       }}
-                      className="text-xs text-primary hover:text-primary/80 font-medium transition-colors"
+                      className="text-xs text-cyan-400 hover:text-cyan-400/80 font-medium transition-colors"
                     >
                       Forgot password?
                     </button>
@@ -260,7 +260,7 @@ export default function Auth() {
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full h-12 rounded-full bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25 font-semibold text-base gap-2"
+                className="w-full h-12 rounded-full bg-cyan-500 hover:bg-cyan-400 shadow-lg shadow-cyan-500/25 font-semibold text-base gap-2"
                 size="lg"
               >
                 {loading ? (
@@ -280,11 +280,11 @@ export default function Auth() {
             {/* Trust Indicators */}
             <div className="flex items-center justify-center gap-4 mt-6 pt-6 border-t border-border/30">
               <div className="flex items-center gap-1.5 text-xs text-neutral-400">
-                <Shield className="h-3.5 w-3.5 text-primary" />
+                <Shield className="h-3.5 w-3.5 text-cyan-400" />
                 <span>Secure</span>
               </div>
               <div className="flex items-center gap-1.5 text-xs text-neutral-400">
-                <CheckCircle className="h-3.5 w-3.5 text-primary" />
+                <CheckCircle className="h-3.5 w-3.5 text-cyan-400" />
                 <span>10,000+ Users</span>
               </div>
             </div>
@@ -296,7 +296,7 @@ export default function Auth() {
                 <button
                   type="button"
                   onClick={() => setIsSignUp(!isSignUp)}
-                  className="text-primary hover:text-primary/80 font-medium transition-colors"
+                  className="text-cyan-400 hover:text-cyan-400/80 font-medium transition-colors"
                 >
                   {isSignUp ? 'Sign In' : 'Create Account'}
                 </button>

@@ -64,7 +64,7 @@ export default function About() {
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-[0.95] mb-6">
             Built by investors,
             <br />
-            <span className="bg-gradient-to-r from-primary via-cyan-400 to-primary bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-neutral-800 via-white to-white bg-clip-text text-transparent">
               for investors.
             </span>
           </h1>
@@ -75,13 +75,13 @@ export default function About() {
         </div>
 
         {/* Fade to white */}
-        <div className="h-24 bg-gradient-to-b from-[#0a0a0a] to-background" />
+        <div className="h-24 bg-gradient-to-b from-[#0a0a0a] to-[#08090a]" />
       </section>
 
       {/* ===== VALUES -- LIGHT (Bento) ===== */}
       <section className="py-24 px-4">
         <div className="container mx-auto max-w-7xl">
-          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-4">What Drives Us</p>
+          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-4">What Drives Us</p>
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
             Three principles behind every feature.
           </h2>
@@ -93,10 +93,10 @@ export default function About() {
             {values.map((item) => (
               <div
                 key={item.title}
-                className="bg-white/[0.03] border border-white/[0.06] rounded-3xl p-8 group hover:border-primary/20 transition-all duration-300"
+                className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-8 group hover:border-cyan-500/20 transition-all duration-300"
               >
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary/20 transition-colors">
-                  <item.icon className="h-6 w-6 text-primary" />
+                <div className="w-12 h-12 rounded-xl bg-cyan-500/10 flex items-center justify-center mb-6 group-hover:bg-cyan-500/20 transition-colors">
+                  <item.icon className="h-6 w-6 text-cyan-400" />
                 </div>
                 <h3 className="text-lg font-bold tracking-tight mb-3">{item.title}</h3>
                 <p className="text-neutral-400 leading-relaxed font-light">
@@ -111,7 +111,7 @@ export default function About() {
       {/* ===== OUR STORY -- LIGHT (muted bg) ===== */}
       <section className="py-24 px-4 bg-white/[0.02]">
         <div className="container mx-auto max-w-4xl">
-          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-4 text-center">Our Story</p>
+          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-4 text-center">Our Story</p>
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-center mb-12">
             Why we built AIWholesail.
           </h2>
@@ -149,7 +149,7 @@ export default function About() {
       {/* ===== BY THE NUMBERS -- DARK ===== */}
       <section className="bg-[#0a0a0a] text-white py-24 px-4">
         <div className="container mx-auto max-w-7xl">
-          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-4 text-center">By the Numbers</p>
+          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-4 text-center">By the Numbers</p>
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-center mb-4">
             The scale of our platform means more opportunities for you.
           </h2>
@@ -163,7 +163,7 @@ export default function About() {
                 key={stat.label}
                 className="bg-white/5 border border-white/10 rounded-2xl p-8 text-center hover:bg-white/10 transition-colors"
               >
-                <stat.icon className="h-6 w-6 text-primary mx-auto mb-4" />
+                <stat.icon className="h-6 w-6 text-cyan-400 mx-auto mb-4" />
                 <div className="text-4xl md:text-5xl font-bold tracking-tight mb-2">
                   {stat.value}
                 </div>
@@ -177,7 +177,7 @@ export default function About() {
       </section>
 
       {/* Fade dark to white */}
-      <div className="h-24 bg-gradient-to-b from-[#0a0a0a] to-background" />
+      <div className="h-24 bg-gradient-to-b from-[#0a0a0a] to-[#08090a]" />
 
       {/* ===== CTA -- LIGHT ===== */}
       <section className="py-24 px-4">
@@ -189,13 +189,13 @@ export default function About() {
             Join thousands of investors using AIWholesail to uncover profitable opportunities faster than ever before.
           </p>
           <Link to="/pricing">
-            <Button size="lg" className="rounded-full px-10 text-base font-semibold bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25 gap-2">
+            <Button size="lg" className="rounded-full px-10 text-base font-semibold bg-cyan-500 hover:bg-cyan-400 shadow-lg shadow-cyan-500/25 gap-2">
               Start Your Free Trial <ArrowRight className="h-4 w-4" />
             </Button>
           </Link>
           <div className="flex items-center justify-center gap-6 text-sm text-neutral-400 mt-6">
-            <span className="flex items-center gap-1.5"><Shield className="h-3.5 w-3.5 text-primary" /> No Credit Card Required</span>
-            <span className="flex items-center gap-1.5"><CheckCircle className="h-3.5 w-3.5 text-primary" /> Cancel Anytime</span>
+            <span className="flex items-center gap-1.5"><Shield className="h-3.5 w-3.5 text-cyan-400" /> No Credit Card Required</span>
+            <span className="flex items-center gap-1.5"><CheckCircle className="h-3.5 w-3.5 text-cyan-400" /> Cancel Anytime</span>
           </div>
         </div>
       </section>

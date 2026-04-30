@@ -125,7 +125,7 @@ export default function Blog() {
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">
             Expert guides for
             <br />
-            <span className="bg-gradient-to-r from-primary via-cyan-400 to-primary bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-neutral-800 via-white to-white bg-clip-text text-transparent">
               smarter investing.
             </span>
           </h1>
@@ -137,20 +137,20 @@ export default function Blog() {
         </div>
 
         {/* Fade to white */}
-        <div className="h-24 bg-gradient-to-b from-[#0a0a0a] to-background" />
+        <div className="h-24 bg-gradient-to-b from-[#0a0a0a] to-[#08090a]" />
       </section>
 
       {/* ===== FEATURED ARTICLE — LIGHT ===== */}
       {featuredArticle && (
         <section className="py-24 px-4 bg-[#08090a]">
           <div className="container mx-auto max-w-6xl">
-            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-4">Featured</p>
+            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-4">Featured</p>
             <Link to={featuredArticle?.slug ? `/blog/${featuredArticle.slug}` : '/blog'} className="block group">
-              <div className="bg-white/[0.03] border border-white/[0.06] rounded-3xl p-8 md:p-12 transition-all duration-300 hover:border-primary/20">
+              <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-8 md:p-12 transition-all duration-300 hover:border-cyan-500/20">
                 <div className="grid md:grid-cols-5 gap-8 items-center">
                   <div className="md:col-span-3">
                     <div className="flex items-center gap-3 mb-4">
-                      <Badge className="bg-primary/10 text-primary border-0 text-xs font-medium">
+                      <Badge className="bg-cyan-500/10 text-cyan-400 border-0 text-xs font-medium">
                         Featured
                       </Badge>
                       <Badge
@@ -161,7 +161,7 @@ export default function Blog() {
                         {featuredArticle.category}
                       </Badge>
                     </div>
-                    <h2 className="text-2xl md:text-3xl font-bold tracking-tight mb-4 group-hover:text-primary transition-colors">
+                    <h2 className="text-2xl md:text-3xl font-bold tracking-tight mb-4 group-hover:text-cyan-400 transition-colors">
                       {featuredArticle.title}
                     </h2>
                     <p className="text-neutral-400 font-light leading-relaxed mb-6">
@@ -172,7 +172,7 @@ export default function Blog() {
                         <Clock className="h-3.5 w-3.5" />
                         {featuredArticle.readTime}
                       </span>
-                      <span className="text-sm font-medium text-primary flex items-center gap-1 group-hover:gap-2 transition-all">
+                      <span className="text-sm font-medium text-cyan-400 flex items-center gap-1 group-hover:gap-2 transition-all">
                         Read article
                         <ArrowRight className="h-3.5 w-3.5" />
                       </span>
@@ -182,7 +182,7 @@ export default function Blog() {
                   <div className="md:col-span-2">
                     <div className="aspect-[4/3] rounded-2xl bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 border border-border/30 flex items-center justify-center">
                       <div className="text-center">
-                        <Sparkles className="h-10 w-10 text-primary/30 mx-auto mb-3" />
+                        <Sparkles className="h-10 w-10 text-cyan-400/30 mx-auto mb-3" />
                         <span className="text-xs text-neutral-400/60 font-light">
                           Featured article
                         </span>
@@ -199,14 +199,14 @@ export default function Blog() {
       {/* ===== ARTICLE GRID — LIGHT ===== */}
       <section className="py-24 px-4 bg-[#08090a]">
         <div className="container mx-auto max-w-6xl">
-          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-4">Latest Articles</p>
+          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-4">Latest Articles</p>
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-16">
             Insights to sharpen your edge.
           </h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {gridArticles.map((article, index) => (
               <Link to={article.slug ? `/blog/${article.slug}` : '/blog'} key={index} className="group">
-                <article className="h-full bg-white/[0.03] border border-white/[0.06] rounded-3xl p-6 transition-all duration-300 hover:border-primary/20 flex flex-col">
+                <article className="h-full bg-white/[0.03] border border-white/[0.06] rounded-xl p-6 transition-all duration-300 hover:border-cyan-500/20 flex flex-col">
                   {/* Image Placeholder */}
                   <div className="aspect-[16/9] rounded-2xl bg-gradient-to-br from-muted/80 to-muted/50 border border-border/30 mb-5 flex items-center justify-center">
                     <BookOpen className="h-6 w-6 text-neutral-400/30" />
@@ -228,7 +228,7 @@ export default function Blog() {
                   </div>
 
                   {/* Title */}
-                  <h3 className="text-lg font-bold tracking-tight mb-2 group-hover:text-primary transition-colors leading-snug">
+                  <h3 className="text-lg font-bold tracking-tight mb-2 group-hover:text-cyan-400 transition-colors leading-snug">
                     {article.title}
                   </h3>
 
@@ -238,7 +238,7 @@ export default function Blog() {
                   </p>
 
                   {/* Read More */}
-                  <span className="text-sm font-medium text-primary flex items-center gap-1 group-hover:gap-2 transition-all mt-auto">
+                  <span className="text-sm font-medium text-cyan-400 flex items-center gap-1 group-hover:gap-2 transition-all mt-auto">
                     Read more
                     <ArrowRight className="h-3.5 w-3.5" />
                   </span>
@@ -253,9 +253,9 @@ export default function Blog() {
       <section className="relative bg-[#0a0a0a] text-white py-24 px-4 overflow-hidden">
         <div className="relative container mx-auto max-w-4xl text-center">
           <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-white/10 mx-auto mb-6">
-            <Mail className="h-7 w-7 text-primary" />
+            <Mail className="h-7 w-7 text-cyan-400" />
           </div>
-          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-4">Stay Informed</p>
+          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-4">Stay Informed</p>
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">
             Get weekly deal insights.
           </h2>
@@ -277,7 +277,7 @@ export default function Blog() {
             <Button
               type="submit"
               size="lg"
-              className="h-12 px-8 text-base font-semibold shrink-0 rounded-full bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25 gap-2"
+              className="h-12 px-8 text-base font-semibold shrink-0 rounded-full bg-cyan-500 hover:bg-cyan-400 shadow-lg shadow-cyan-500/25 gap-2"
             >
               Subscribe
               <ArrowRight className="h-4 w-4" />

@@ -29,7 +29,7 @@ export default function Refund() {
         </div>
 
         {/* Fade to white */}
-        <div className="h-24 bg-gradient-to-b from-[#0a0a0a] to-background" />
+        <div className="h-24 bg-gradient-to-b from-[#0a0a0a] to-[#08090a]" />
       </section>
 
       {/* ===== CONTENT — LIGHT ===== */}
@@ -51,9 +51,9 @@ export default function Refund() {
               <h2 className="text-2xl font-bold tracking-tight mb-4">2. Refund Eligibility</h2>
               <p className="text-neutral-400 font-light leading-relaxed mb-3">We offer refunds under the following circumstances:</p>
               <ul className="list-disc pl-6 space-y-1.5 text-neutral-400 font-light leading-relaxed">
-                <li><strong className="text-foreground font-medium">Technical Issues:</strong> If you experience significant technical problems that prevent you from using our service and we cannot resolve them within 7 business days</li>
-                <li><strong className="text-foreground font-medium">Billing Errors:</strong> If you were charged incorrectly due to a system error</li>
-                <li><strong className="text-foreground font-medium">Subscription Cancellation:</strong> If you cancel within the first 7 days of a new billing cycle (excluding the free trial period)</li>
+                <li><strong className="text-white font-medium">Technical Issues:</strong> If you experience significant technical problems that prevent you from using our service and we cannot resolve them within 7 business days</li>
+                <li><strong className="text-white font-medium">Billing Errors:</strong> If you were charged incorrectly due to a system error</li>
+                <li><strong className="text-white font-medium">Subscription Cancellation:</strong> If you cancel within the first 7 days of a new billing cycle (excluding the free trial period)</li>
               </ul>
             </div>
 

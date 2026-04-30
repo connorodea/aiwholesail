@@ -97,7 +97,7 @@ export default function Pricing() {
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-[0.95] mb-6">
             Simple, transparent
             <br />
-            <span className="bg-gradient-to-r from-primary via-cyan-400 to-primary bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-neutral-800 via-white to-white bg-clip-text text-transparent">
               pricing.
             </span>
           </h1>
@@ -108,13 +108,13 @@ export default function Pricing() {
         </div>
 
         {/* Fade to white */}
-        <div className="h-24 bg-gradient-to-b from-[#0a0a0a] to-background" />
+        <div className="h-24 bg-gradient-to-b from-[#0a0a0a] to-[#08090a]" />
       </section>
 
       {/* ===== PLAN CARDS -- LIGHT ===== */}
       <section className="py-24 px-4">
         <div className="container mx-auto max-w-7xl">
-          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-4 text-center">Choose Your Plan</p>
+          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-4 text-center">Choose Your Plan</p>
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-center mb-4">
             Invest in your deal flow.
           </h2>
@@ -126,7 +126,7 @@ export default function Pricing() {
             {plans.map((plan) => (
               <div
                 key={plan.name}
-                className={`relative bg-white/[0.03] border rounded-3xl p-8 md:p-10 flex flex-col justify-between group hover:border-primary/20 transition-all duration-300 ${
+                className={`relative bg-white/[0.03] border rounded-xl p-8 md:p-10 flex flex-col justify-between group hover:border-cyan-500/20 transition-all duration-300 ${
                   plan.popular
                     ? 'border-2 border-primary/30 shadow-lg shadow-primary/5'
                     : 'border-white/[0.06]'
@@ -134,7 +134,7 @@ export default function Pricing() {
               >
                 {plan.popular && (
                   <div className="absolute -top-3 left-8">
-                    <Badge className="bg-primary text-primary-foreground text-xs px-3 py-1">
+                    <Badge className="bg-cyan-500 text-black text-xs px-3 py-1">
                       <Star className="h-3 w-3 mr-1" />
                       Most Popular
                     </Badge>
@@ -152,7 +152,7 @@ export default function Pricing() {
                   <ul className="space-y-3 mb-8">
                     {plan.features.map((feature, index) => (
                       <li key={index} className="flex items-start gap-3">
-                        <Check className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                        <Check className="h-4 w-4 text-cyan-400 mt-0.5 flex-shrink-0" />
                         <span className="text-sm font-light">{feature}</span>
                       </li>
                     ))}
@@ -163,7 +163,7 @@ export default function Pricing() {
                   <Button
                     className={`w-full h-12 text-base font-semibold rounded-full gap-2 ${
                       plan.popular
-                        ? 'bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25'
+                        ? 'bg-cyan-500 hover:bg-cyan-400 shadow-lg shadow-cyan-500/25'
                         : ''
                     }`}
                     onClick={() => handleSelectPlan(plan)}
@@ -186,11 +186,11 @@ export default function Pricing() {
           <div className="mt-12 text-center">
             {user ? (
               <p className="text-sm text-neutral-400">
-                <Link to="/app" className="text-primary hover:underline">Go to Dashboard</Link>
+                <Link to="/app" className="text-cyan-400 hover:underline">Go to Dashboard</Link>
               </p>
             ) : (
               <p className="text-sm text-neutral-400">
-                Already have an account? <Link to="/auth" className="text-primary hover:underline">Sign in here</Link>
+                Already have an account? <Link to="/auth" className="text-cyan-400 hover:underline">Sign in here</Link>
               </p>
             )}
           </div>
@@ -200,7 +200,7 @@ export default function Pricing() {
       {/* ===== WHAT'S INCLUDED -- DARK ===== */}
       <section className="bg-[#0a0a0a] text-white py-24 px-4">
         <div className="container mx-auto max-w-7xl">
-          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-4 text-center">Every Plan Includes</p>
+          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-4 text-center">Every Plan Includes</p>
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-center mb-12">
             Everything you need to close more deals.
           </h2>
@@ -215,7 +215,7 @@ export default function Pricing() {
               { label: 'Data Export', desc: 'Export your leads, saved properties, and contact data anytime you need it.' },
             ].map(item => (
               <div key={item.label} className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-colors">
-                <CheckCircle className="h-5 w-5 text-primary mb-3" />
+                <CheckCircle className="h-5 w-5 text-cyan-400 mb-3" />
                 <h4 className="font-semibold text-sm mb-1">{item.label}</h4>
                 <p className="text-xs text-white/50 leading-relaxed">{item.desc}</p>
               </div>
@@ -225,7 +225,7 @@ export default function Pricing() {
       </section>
 
       {/* Fade dark to white */}
-      <div className="h-24 bg-gradient-to-b from-[#0a0a0a] to-background" />
+      <div className="h-24 bg-gradient-to-b from-[#0a0a0a] to-[#08090a]" />
 
       {/* ===== CTA -- LIGHT ===== */}
       <section className="py-24 px-4">
@@ -237,13 +237,13 @@ export default function Pricing() {
             Join thousands of investors using AIWholesail to uncover profitable opportunities faster than ever before.
           </p>
           <Link to="/pricing">
-            <Button size="lg" className="rounded-full px-10 text-base font-semibold bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25 gap-2">
+            <Button size="lg" className="rounded-full px-10 text-base font-semibold bg-cyan-500 hover:bg-cyan-400 shadow-lg shadow-cyan-500/25 gap-2">
               Start Your Free Trial <ArrowRight className="h-4 w-4" />
             </Button>
           </Link>
           <div className="flex items-center justify-center gap-6 text-sm text-neutral-400 mt-6">
-            <span className="flex items-center gap-1.5"><Shield className="h-3.5 w-3.5 text-primary" /> No Credit Card Required</span>
-            <span className="flex items-center gap-1.5"><CheckCircle className="h-3.5 w-3.5 text-primary" /> Cancel Anytime</span>
+            <span className="flex items-center gap-1.5"><Shield className="h-3.5 w-3.5 text-cyan-400" /> No Credit Card Required</span>
+            <span className="flex items-center gap-1.5"><CheckCircle className="h-3.5 w-3.5 text-cyan-400" /> Cancel Anytime</span>
           </div>
         </div>
       </section>

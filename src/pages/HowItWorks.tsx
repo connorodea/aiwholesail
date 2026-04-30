@@ -83,7 +83,7 @@ export default function HowItWorks() {
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-[0.95] mb-6">
             How
             <br />
-            <span className="bg-gradient-to-r from-primary via-cyan-400 to-primary bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-neutral-800 via-white to-white bg-clip-text text-transparent">
               AIWholesail works.
             </span>
           </h1>
@@ -94,13 +94,13 @@ export default function HowItWorks() {
         </div>
 
         {/* Fade to white */}
-        <div className="h-24 bg-gradient-to-b from-[#0a0a0a] to-background" />
+        <div className="h-24 bg-gradient-to-b from-[#0a0a0a] to-[#08090a]" />
       </section>
 
       {/* ===== 6 STEPS -- LIGHT ===== */}
       <section className="py-24 px-4">
         <div className="container mx-auto max-w-7xl">
-          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-4">The Process</p>
+          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-4">The Process</p>
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
             Your path from search to closing.
           </h2>
@@ -112,12 +112,12 @@ export default function HowItWorks() {
             {steps.map((step) => (
               <div
                 key={step.number}
-                className="bg-white/[0.03] border border-white/[0.06] rounded-3xl p-8 flex flex-col justify-between min-h-[300px] group hover:border-primary/20 transition-all duration-300"
+                className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-8 flex flex-col justify-between min-h-[300px] group hover:border-cyan-500/20 transition-all duration-300"
               >
                 <div>
                   <div className="flex items-center gap-3 mb-5">
-                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                      <step.icon className="h-5 w-5 text-primary" />
+                    <div className="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center">
+                      <step.icon className="h-5 w-5 text-cyan-400" />
                     </div>
                     <span className="text-xs font-semibold tracking-[0.15em] uppercase text-neutral-400">
                       Step {step.number}
@@ -141,7 +141,7 @@ export default function HowItWorks() {
         <div className="container mx-auto max-w-7xl">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div>
-              <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-4">Smart Technology</p>
+              <p className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-4">Smart Technology</p>
               <h2 className="text-4xl md:text-5xl font-bold tracking-tight leading-[1.05] mb-6">
                 We do the
                 <br />research.
@@ -152,7 +152,7 @@ export default function HowItWorks() {
                 Behind every deal score and property analysis is advanced AI and real-time market data built for speed and accuracy.
               </p>
               <Link to="/pricing">
-                <Button className="rounded-full px-6 gap-2 bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25">
+                <Button className="rounded-full px-6 gap-2 bg-cyan-500 hover:bg-cyan-400 shadow-lg shadow-cyan-500/25">
                   Start Free Trial <ArrowRight className="h-4 w-4" />
                 </Button>
               </Link>
@@ -166,7 +166,7 @@ export default function HowItWorks() {
                 { icon: Bell, label: 'Instant Alerts', desc: 'Get notified the moment high-profit deals appear' },
               ].map(item => (
                 <div key={item.label} className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-colors">
-                  <item.icon className="h-6 w-6 text-primary mb-3" />
+                  <item.icon className="h-6 w-6 text-cyan-400 mb-3" />
                   <h4 className="font-semibold text-sm mb-1">{item.label}</h4>
                   <p className="text-xs text-white/50">{item.desc}</p>
                 </div>
@@ -177,7 +177,7 @@ export default function HowItWorks() {
       </section>
 
       {/* Fade dark to white */}
-      <div className="h-24 bg-gradient-to-b from-[#0a0a0a] to-background" />
+      <div className="h-24 bg-gradient-to-b from-[#0a0a0a] to-[#08090a]" />
 
       {/* ===== CTA -- LIGHT ===== */}
       <section className="py-24 px-4">
@@ -189,13 +189,13 @@ export default function HowItWorks() {
             See it in action. Start your free trial and search your first market in under two minutes.
           </p>
           <Link to="/pricing">
-            <Button size="lg" className="rounded-full px-10 text-base font-semibold bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25 gap-2">
+            <Button size="lg" className="rounded-full px-10 text-base font-semibold bg-cyan-500 hover:bg-cyan-400 shadow-lg shadow-cyan-500/25 gap-2">
               Start Your Free Trial <ArrowRight className="h-4 w-4" />
             </Button>
           </Link>
           <div className="flex items-center justify-center gap-6 text-sm text-neutral-400 mt-6">
-            <span className="flex items-center gap-1.5"><Shield className="h-3.5 w-3.5 text-primary" /> No Credit Card Required</span>
-            <span className="flex items-center gap-1.5"><CheckCircle className="h-3.5 w-3.5 text-primary" /> Cancel Anytime</span>
+            <span className="flex items-center gap-1.5"><Shield className="h-3.5 w-3.5 text-cyan-400" /> No Credit Card Required</span>
+            <span className="flex items-center gap-1.5"><CheckCircle className="h-3.5 w-3.5 text-cyan-400" /> Cancel Anytime</span>
           </div>
         </div>
       </section>
