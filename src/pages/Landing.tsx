@@ -260,7 +260,7 @@ const Landing = () => {
       </section>
 
       {/* ===== WHO IT'S FOR — Clean cards ===== */}
-      <section className="py-16 px-4 bg-muted/30">
+      <section className="py-16 px-4 bg-gradient-to-b from-background via-muted/20 to-background">
         <div className="container mx-auto max-w-7xl">
           <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-4 text-center">Built For</p>
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-center mb-12">
@@ -284,6 +284,9 @@ const Landing = () => {
           </div>
         </div>
       </section>
+
+      {/* Fade light to dark */}
+      <div className="h-24 bg-gradient-to-b from-background to-[#0a0a0a]" />
 
       {/* ===== AI SECTION — DARK ===== */}
       <section className="relative bg-[#0a0a0a] text-white py-24 px-4 overflow-hidden">
@@ -380,8 +383,8 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* ===== PRICING PREVIEW — WHITE ===== */}
-      <section className="py-24 px-4 bg-muted/20">
+      {/* ===== PRICING PREVIEW ===== */}
+      <section className="py-24 px-4 bg-gradient-to-b from-background via-muted/15 to-background">
         <div className="container mx-auto max-w-4xl text-center">
           <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-4">Pricing</p>
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
@@ -419,6 +422,9 @@ const Landing = () => {
           </div>
         </div>
       </section>
+
+      {/* Fade light to dark */}
+      <div className="h-24 bg-gradient-to-b from-background to-[#0a0a0a]" />
 
       {/* ===== FINAL CTA — DARK with gradient ===== */}
       <section className="relative bg-gradient-to-b from-[#0a0a0a] via-[#0a0a0a] to-[#0f1a14] text-white py-32 px-4 overflow-hidden">
