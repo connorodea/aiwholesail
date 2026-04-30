@@ -1,13 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { SEOHead } from '@/components/SEOHead';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, RefreshCw, DollarSign, TrendingUp, Sparkles, ChevronRight, Infinity, CheckCircle2, XCircle } from 'lucide-react';
+import { PublicLayout } from '@/components/PublicLayout';
+import { RefreshCw, DollarSign, TrendingUp, Sparkles, ChevronRight, Infinity, CheckCircle2, XCircle } from 'lucide-react';
 
 const fmt = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
 const fmtPct = (n: number) => `${n.toFixed(1)}%`;
@@ -19,29 +14,22 @@ export default function BRRRRCalculator() {
   const [refiLtv, setRefiLtv] = useState(75);
   const [refiRate, setRefiRate] = useState(7.5);
   const [monthlyRent, setMonthlyRent] = useState(1800);
-
-  // Monthly expenses
   const [taxes, setTaxes] = useState(250);
   const [insurance, setInsurance] = useState(120);
   const [maintenance, setMaintenance] = useState(150);
   const [management, setManagement] = useState(180);
   const [vacancy, setVacancy] = useState(90);
-
-  // Holding costs
   const [holdingMonths, setHoldingMonths] = useState(4);
   const [monthlyHolding, setMonthlyHolding] = useState(800);
 
   const results = useMemo(() => {
     const totalHolding = holdingMonths * monthlyHolding;
     const totalCashInvested = purchasePrice + rehabCosts + totalHolding;
-
     const refiLoanAmount = Math.round(arv * (refiLtv / 100));
     const cashLeftInDeal = totalCashInvested - refiLoanAmount;
-    const moneyOut = refiLoanAmount - 0; // money returned at refi
 
-    // Monthly mortgage payment (PI) on refi loan
     const monthlyRate = refiRate / 100 / 12;
-    const numPayments = 360; // 30-year
+    const numPayments = 360;
     let monthlyMortgage = 0;
     if (monthlyRate > 0 && refiLoanAmount > 0) {
       monthlyMortgage = refiLoanAmount * (monthlyRate * Math.pow(1 + monthlyRate, numPayments)) / (Math.pow(1 + monthlyRate, numPayments) - 1);
@@ -51,7 +39,6 @@ export default function BRRRRCalculator() {
     const monthlyCashFlow = monthlyRent - totalMonthlyExpenses;
     const annualCashFlow = monthlyCashFlow * 12;
 
-    // Cash-on-cash return (on cash left in deal)
     let cashOnCash = 0;
     const infiniteReturn = cashLeftInDeal <= 0;
     if (!infiniteReturn && cashLeftInDeal > 0) {
@@ -73,40 +60,25 @@ export default function BRRRRCalculator() {
     };
   }, [purchasePrice, rehabCosts, arv, refiLtv, refiRate, monthlyRent, taxes, insurance, maintenance, management, vacancy, holdingMonths, monthlyHolding]);
 
+  const inputClass = "w-full bg-neutral-900/50 border border-white/[0.08] text-white rounded-md pl-9 pr-4 py-3 text-sm focus:outline-none focus:border-cyan-500/30 transition-colors";
+  const inputClassNoIcon = "w-full bg-neutral-900/50 border border-white/[0.08] text-white rounded-md px-4 py-3 text-sm focus:outline-none focus:border-cyan-500/30 transition-colors";
+
   return (
-    <div className="min-h-screen bg-[#08090a] text-white">
+    <PublicLayout>
       <SEOHead
         title="Free BRRRR Calculator - BRRRR Method Calculator"
         description="Analyze BRRRR deals with this free calculator. Calculate cash invested, refinance proceeds, monthly cash flow, and cash-on-cash return for Buy-Rehab-Rent-Refinance-Repeat strategies."
         keywords="brrrr calculator, brrrr method calculator, buy rehab rent refinance repeat, brrrr analysis, real estate brrrr, brrrr investment calculator, rental property calculator"
       />
 
-      {/* Header */}
-      <header className="fixed top-4 left-4 right-4 z-50">
-        <div className="container mx-auto max-w-7xl">
-          <div className="bg-neutral-950/90 backdrop-blur-xl border border-white/[0.06] rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.4)] px-6 py-4">
-            <div className="flex items-center justify-between">
-              <Link to="/" className="flex items-center space-x-2 text-sm font-medium hover:text-white transition-colors">
-                <ArrowLeft className="h-4 w-4" />
-                <span>Back to Home</span>
-              </Link>
-              <div className="text-lg font-semibold">AIWholesail</div>
-              <Link to="/pricing" className="text-sm font-medium text-cyan-400 hover:text-cyan-400/80 transition-colors">
-                Pricing
-              </Link>
-            </div>
-          </div>
-        </div>
-      </header>
-
       {/* Hero */}
-      <section className="pt-32 pb-8 px-4">
+      <section className="pt-24 pb-8 px-4">
         <div className="container mx-auto text-center max-w-3xl">
-          <Badge variant="secondary" className="mb-4">
-            <RefreshCw className="h-3 w-3 mr-1" />
+          <span className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full bg-cyan-500/10 text-cyan-400 mb-4">
+            <RefreshCw className="h-3 w-3" />
             Free Tool
-          </Badge>
-          <h1 className="text-4xl md:text-5xl font-medium tracking-tight mb-4">
+          </span>
+          <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4 text-white">
             BRRRR <span className="text-cyan-400">Calculator</span>
           </h1>
           <p className="text-lg text-neutral-400 font-light max-w-2xl mx-auto">
@@ -122,156 +94,121 @@ export default function BRRRRCalculator() {
 
             {/* Inputs */}
             <div className="lg:col-span-3 space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-xl">Purchase & Rehab</CardTitle>
-                  <CardDescription>Enter acquisition and renovation costs.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
+              <div className="border border-white/[0.05] bg-gradient-to-b from-neutral-900/50 to-transparent rounded-xl p-6 md:p-8">
+                <h2 className="text-xl font-bold tracking-tight text-white mb-2">Purchase & Rehab</h2>
+                <p className="text-sm text-neutral-400 mb-6">Enter acquisition and renovation costs.</p>
+                <div className="space-y-4">
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="purchase">Purchase Price</Label>
+                      <label htmlFor="purchase" className="text-sm text-neutral-300">Purchase Price</label>
                       <div className="relative">
-                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
-                        <Input id="purchase" type="number" className="pl-9" value={purchasePrice} onChange={(e) => setPurchasePrice(Number(e.target.value))} min={0} />
+                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-500" />
+                        <input id="purchase" type="number" className={inputClass} value={purchasePrice} onChange={(e) => setPurchasePrice(Number(e.target.value))} min={0} />
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="rehab">Rehab Costs</Label>
+                      <label htmlFor="rehab" className="text-sm text-neutral-300">Rehab Costs</label>
                       <div className="relative">
-                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
-                        <Input id="rehab" type="number" className="pl-9" value={rehabCosts} onChange={(e) => setRehabCosts(Number(e.target.value))} min={0} />
+                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-500" />
+                        <input id="rehab" type="number" className={inputClass} value={rehabCosts} onChange={(e) => setRehabCosts(Number(e.target.value))} min={0} />
                       </div>
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="arv">After Repair Value (ARV)</Label>
+                    <label htmlFor="arv" className="text-sm text-neutral-300">After Repair Value (ARV)</label>
                     <div className="relative">
-                      <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
-                      <Input id="arv" type="number" className="pl-9" value={arv} onChange={(e) => setArv(Number(e.target.value))} min={0} />
+                      <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-500" />
+                      <input id="arv" type="number" className={inputClass} value={arv} onChange={(e) => setArv(Number(e.target.value))} min={0} />
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-xl">Refinance Terms</CardTitle>
-                  <CardDescription>Expected loan terms after stabilization.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="ltv">Refinance LTV (%)</Label>
-                      <Input id="ltv" type="number" value={refiLtv} onChange={(e) => setRefiLtv(Number(e.target.value))} min={0} max={100} />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="rate">Interest Rate (%)</Label>
-                      <Input id="rate" type="number" step={0.1} value={refiRate} onChange={(e) => setRefiRate(Number(e.target.value))} min={0} max={20} />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-xl">Rental Income & Expenses</CardTitle>
-                  <CardDescription>Monthly income and recurring costs after rehab is complete.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
+              <div className="border border-white/[0.05] bg-gradient-to-b from-neutral-900/50 to-transparent rounded-xl p-6 md:p-8">
+                <h2 className="text-xl font-bold tracking-tight text-white mb-2">Refinance Terms</h2>
+                <p className="text-sm text-neutral-400 mb-6">Expected loan terms after stabilization.</p>
+                <div className="grid sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="rent">Monthly Rent</Label>
+                    <label htmlFor="ltv" className="text-sm text-neutral-300">Refinance LTV (%)</label>
+                    <input id="ltv" type="number" className={inputClassNoIcon} value={refiLtv} onChange={(e) => setRefiLtv(Number(e.target.value))} min={0} max={100} />
+                  </div>
+                  <div className="space-y-2">
+                    <label htmlFor="rate" className="text-sm text-neutral-300">Interest Rate (%)</label>
+                    <input id="rate" type="number" step={0.1} className={inputClassNoIcon} value={refiRate} onChange={(e) => setRefiRate(Number(e.target.value))} min={0} max={20} />
+                  </div>
+                </div>
+              </div>
+
+              <div className="border border-white/[0.05] bg-gradient-to-b from-neutral-900/50 to-transparent rounded-xl p-6 md:p-8">
+                <h2 className="text-xl font-bold tracking-tight text-white mb-2">Rental Income & Expenses</h2>
+                <p className="text-sm text-neutral-400 mb-6">Monthly income and recurring costs after rehab is complete.</p>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label htmlFor="rent" className="text-sm text-neutral-300">Monthly Rent</label>
                     <div className="relative">
-                      <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
-                      <Input id="rent" type="number" className="pl-9" value={monthlyRent} onChange={(e) => setMonthlyRent(Number(e.target.value))} min={0} />
+                      <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-500" />
+                      <input id="rent" type="number" className={inputClass} value={monthlyRent} onChange={(e) => setMonthlyRent(Number(e.target.value))} min={0} />
                     </div>
                   </div>
 
-                  <Separator />
+                  <div className="border-t border-white/[0.06] pt-4" />
                   <p className="text-sm font-medium text-neutral-400">Monthly Expenses</p>
 
                   <div className="grid sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="expTaxes">Property Taxes</Label>
-                      <div className="relative">
-                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
-                        <Input id="expTaxes" type="number" className="pl-9" value={taxes} onChange={(e) => setTaxes(Number(e.target.value))} min={0} />
+                    {[
+                      { id: 'expTaxes', label: 'Property Taxes', value: taxes, setter: setTaxes },
+                      { id: 'expIns', label: 'Insurance', value: insurance, setter: setInsurance },
+                      { id: 'expMaint', label: 'Maintenance', value: maintenance, setter: setMaintenance },
+                      { id: 'expMgmt', label: 'Management', value: management, setter: setManagement },
+                      { id: 'expVac', label: 'Vacancy Reserve', value: vacancy, setter: setVacancy },
+                    ].map(exp => (
+                      <div key={exp.id} className="space-y-2">
+                        <label htmlFor={exp.id} className="text-sm text-neutral-300">{exp.label}</label>
+                        <div className="relative">
+                          <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-500" />
+                          <input id={exp.id} type="number" className={inputClass} value={exp.value} onChange={(e) => exp.setter(Number(e.target.value))} min={0} />
+                        </div>
                       </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="expIns">Insurance</Label>
-                      <div className="relative">
-                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
-                        <Input id="expIns" type="number" className="pl-9" value={insurance} onChange={(e) => setInsurance(Number(e.target.value))} min={0} />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="expMaint">Maintenance</Label>
-                      <div className="relative">
-                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
-                        <Input id="expMaint" type="number" className="pl-9" value={maintenance} onChange={(e) => setMaintenance(Number(e.target.value))} min={0} />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="expMgmt">Management</Label>
-                      <div className="relative">
-                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
-                        <Input id="expMgmt" type="number" className="pl-9" value={management} onChange={(e) => setManagement(Number(e.target.value))} min={0} />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="expVac">Vacancy Reserve</Label>
-                      <div className="relative">
-                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
-                        <Input id="expVac" type="number" className="pl-9" value={vacancy} onChange={(e) => setVacancy(Number(e.target.value))} min={0} />
-                      </div>
-                    </div>
+                    ))}
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-xl">Holding Costs</CardTitle>
-                  <CardDescription>Costs incurred while the property is being rehabbed (before renting).</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="holdMonths">Rehab Duration (months)</Label>
-                      <Input id="holdMonths" type="number" value={holdingMonths} onChange={(e) => setHoldingMonths(Math.max(0, Number(e.target.value)))} min={0} max={24} />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="holdCost">Monthly Holding Cost</Label>
-                      <div className="relative">
-                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
-                        <Input id="holdCost" type="number" className="pl-9" value={monthlyHolding} onChange={(e) => setMonthlyHolding(Number(e.target.value))} min={0} />
-                      </div>
-                      <p className="text-xs text-neutral-400">Loan payments, utilities, insurance during rehab</p>
-                    </div>
+              <div className="border border-white/[0.05] bg-gradient-to-b from-neutral-900/50 to-transparent rounded-xl p-6 md:p-8">
+                <h2 className="text-xl font-bold tracking-tight text-white mb-2">Holding Costs</h2>
+                <p className="text-sm text-neutral-400 mb-6">Costs incurred while the property is being rehabbed (before renting).</p>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label htmlFor="holdMonths" className="text-sm text-neutral-300">Rehab Duration (months)</label>
+                    <input id="holdMonths" type="number" className={inputClassNoIcon} value={holdingMonths} onChange={(e) => setHoldingMonths(Math.max(0, Number(e.target.value)))} min={0} max={24} />
                   </div>
-                </CardContent>
-              </Card>
+                  <div className="space-y-2">
+                    <label htmlFor="holdCost" className="text-sm text-neutral-300">Monthly Holding Cost</label>
+                    <div className="relative">
+                      <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-500" />
+                      <input id="holdCost" type="number" className={inputClass} value={monthlyHolding} onChange={(e) => setMonthlyHolding(Number(e.target.value))} min={0} />
+                    </div>
+                    <p className="text-xs text-neutral-500">Loan payments, utilities, insurance during rehab</p>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Results */}
             <div className="lg:col-span-2 space-y-6">
               <div className="lg:sticky lg:top-28">
-                <Card className="border-primary/20 shadow-lg">
-                  <CardHeader>
-                    <CardTitle className="text-xl flex items-center gap-2">
-                      <TrendingUp className="h-5 w-5 text-cyan-400" />
-                      BRRRR Analysis
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
+                <div className="border border-white/[0.05] bg-gradient-to-b from-neutral-900/50 to-transparent rounded-xl p-6 md:p-8">
+                  <h2 className="text-xl font-bold tracking-tight text-white flex items-center gap-2 mb-6">
+                    <TrendingUp className="h-5 w-5 text-cyan-400" />
+                    BRRRR Analysis
+                  </h2>
+                  <div className="space-y-6">
 
-                    {/* Infinite return badge */}
                     {results.infiniteReturn && (
-                      <div className="rounded-lg bg-green-500/10 border border-green-500/20 p-4 text-center">
+                      <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/20 p-4 text-center">
                         <div className="flex items-center justify-center gap-2 mb-1">
-                          <Infinity className="h-5 w-5 text-green-600" />
-                          <span className="font-semibold text-green-600">Infinite Return</span>
+                          <Infinity className="h-5 w-5 text-emerald-400" />
+                          <span className="font-semibold text-emerald-400">Infinite Return</span>
                         </div>
                         <p className="text-xs text-neutral-400">All your cash is returned at refinance. You have none of your own money left in this deal.</p>
                       </div>
@@ -279,101 +216,99 @@ export default function BRRRRCalculator() {
 
                     {/* Investment summary */}
                     <div>
-                      <p className="text-sm font-medium mb-3">Investment Summary</p>
+                      <p className="text-sm font-medium text-white mb-3">Investment Summary</p>
                       <div className="space-y-2">
-                        <div className="flex justify-between text-sm">
-                          <span className="text-neutral-400">Purchase Price</span>
-                          <span className="tabular-nums">{fmt.format(purchasePrice)}</span>
-                        </div>
-                        <div className="flex justify-between text-sm">
-                          <span className="text-neutral-400">Rehab Costs</span>
-                          <span className="tabular-nums">{fmt.format(rehabCosts)}</span>
-                        </div>
-                        <div className="flex justify-between text-sm">
-                          <span className="text-neutral-400">Holding Costs ({holdingMonths} mo)</span>
-                          <span className="tabular-nums">{fmt.format(results.totalHolding)}</span>
-                        </div>
-                        <Separator />
+                        {[
+                          { label: 'Purchase Price', value: fmt.format(purchasePrice) },
+                          { label: 'Rehab Costs', value: fmt.format(rehabCosts) },
+                          { label: `Holding Costs (${holdingMonths} mo)`, value: fmt.format(results.totalHolding) },
+                        ].map(row => (
+                          <div key={row.label} className="flex justify-between text-sm">
+                            <span className="text-neutral-400">{row.label}</span>
+                            <span className="tabular-nums text-white">{row.value}</span>
+                          </div>
+                        ))}
+                        <div className="border-t border-white/[0.06] pt-2" />
                         <div className="flex justify-between text-sm font-semibold">
-                          <span>Total Cash Invested</span>
-                          <span className="tabular-nums">{fmt.format(results.totalCashInvested)}</span>
+                          <span className="text-white">Total Cash Invested</span>
+                          <span className="tabular-nums text-white">{fmt.format(results.totalCashInvested)}</span>
                         </div>
                       </div>
                     </div>
 
-                    <Separator />
+                    <div className="border-t border-white/[0.06]" />
 
                     {/* Refinance */}
                     <div>
-                      <p className="text-sm font-medium mb-3">Refinance</p>
+                      <p className="text-sm font-medium text-white mb-3">Refinance</p>
                       <div className="space-y-2">
                         <div className="flex justify-between text-sm">
                           <span className="text-neutral-400">ARV</span>
-                          <span className="tabular-nums">{fmt.format(arv)}</span>
+                          <span className="tabular-nums text-white">{fmt.format(arv)}</span>
                         </div>
                         <div className="flex justify-between text-sm">
                           <span className="text-neutral-400">Loan Amount ({refiLtv}% LTV)</span>
-                          <span className="tabular-nums">{fmt.format(results.refiLoanAmount)}</span>
+                          <span className="tabular-nums text-white">{fmt.format(results.refiLoanAmount)}</span>
                         </div>
                         <div className="flex justify-between text-sm">
                           <span className="text-neutral-400">Money Back at Refi</span>
-                          <span className="tabular-nums font-medium text-green-600">{fmt.format(results.moneyOut)}</span>
+                          <span className="tabular-nums font-medium text-emerald-400">{fmt.format(results.moneyOut)}</span>
                         </div>
-                        <Separator />
+                        <div className="border-t border-white/[0.06] pt-2" />
                         <div className="flex justify-between text-sm font-semibold">
-                          <span>Cash Left in Deal</span>
-                          <span className={`tabular-nums ${results.cashLeftInDeal <= 0 ? 'text-green-600' : ''}`}>
+                          <span className="text-white">Cash Left in Deal</span>
+                          <span className={`tabular-nums ${results.cashLeftInDeal <= 0 ? 'text-emerald-400' : 'text-white'}`}>
                             {results.cashLeftInDeal <= 0 ? fmt.format(0) : fmt.format(results.cashLeftInDeal)}
                           </span>
                         </div>
                         {results.cashLeftInDeal < 0 && (
                           <div className="flex justify-between text-sm">
                             <span className="text-neutral-400">Cash Surplus at Refi</span>
-                            <span className="tabular-nums text-green-600">{fmt.format(Math.abs(results.cashLeftInDeal))}</span>
+                            <span className="tabular-nums text-emerald-400">{fmt.format(Math.abs(results.cashLeftInDeal))}</span>
                           </div>
                         )}
                       </div>
                     </div>
 
-                    <Separator />
+                    <div className="border-t border-white/[0.06]" />
 
                     {/* Monthly cash flow */}
                     <div>
-                      <p className="text-sm font-medium mb-3">Monthly Cash Flow</p>
+                      <p className="text-sm font-medium text-white mb-3">Monthly Cash Flow</p>
                       <div className="space-y-2">
                         <div className="flex justify-between text-sm">
                           <span className="text-neutral-400">Rental Income</span>
-                          <span className="tabular-nums text-green-600">+{fmt.format(monthlyRent)}</span>
+                          <span className="tabular-nums text-emerald-400">+{fmt.format(monthlyRent)}</span>
                         </div>
                         <div className="flex justify-between text-sm">
                           <span className="text-neutral-400">Mortgage (P&I)</span>
-                          <span className="tabular-nums text-red-500">-{fmt.format(results.monthlyMortgage)}</span>
+                          <span className="tabular-nums text-red-400">-{fmt.format(results.monthlyMortgage)}</span>
                         </div>
                         <div className="flex justify-between text-sm">
                           <span className="text-neutral-400">Operating Expenses</span>
-                          <span className="tabular-nums text-red-500">-{fmt.format(taxes + insurance + maintenance + management + vacancy)}</span>
+                          <span className="tabular-nums text-red-400">-{fmt.format(taxes + insurance + maintenance + management + vacancy)}</span>
                         </div>
-                        <Separator />
+                        <div className="border-t border-white/[0.06] pt-2" />
                         <div className="flex justify-between text-sm font-semibold">
-                          <span>Net Cash Flow</span>
-                          <span className={`tabular-nums ${results.monthlyCashFlow >= 0 ? 'text-green-600' : 'text-red-500'}`}>
+                          <span className="text-white">Net Cash Flow</span>
+                          <span className={`tabular-nums ${results.monthlyCashFlow >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
                             {fmt.format(results.monthlyCashFlow)}/mo
                           </span>
                         </div>
                       </div>
                     </div>
 
-                    <Separator />
+                    <div className="border-t border-white/[0.06]" />
 
                     {/* Returns */}
                     <div className="grid grid-cols-2 gap-3">
-                      <div className="rounded-lg border p-3 text-center">
+                      <div className="rounded-xl border border-white/[0.08] p-3 text-center">
                         <p className="text-xs text-neutral-400 mb-1">Annual Cash Flow</p>
-                        <p className={`text-lg font-semibold ${results.annualCashFlow >= 0 ? 'text-green-600' : 'text-red-500'}`}>
+                        <p className={`text-lg font-semibold ${results.annualCashFlow >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
                           {fmt.format(results.annualCashFlow)}
                         </p>
                       </div>
-                      <div className="rounded-lg border p-3 text-center">
+                      <div className="rounded-xl border border-white/[0.08] p-3 text-center">
                         <p className="text-xs text-neutral-400 mb-1">Cash-on-Cash</p>
                         <p className="text-lg font-semibold text-cyan-400">
                           {results.infiniteReturn ? (
@@ -386,54 +321,39 @@ export default function BRRRRCalculator() {
                     </div>
 
                     {/* Quick verdict */}
-                    <div className="rounded-lg bg-white/[0.03] p-4 space-y-2">
-                      <p className="text-sm font-medium">Quick Checks</p>
-                      <div className="flex items-center gap-2 text-sm">
-                        {results.monthlyCashFlow > 0 ? (
-                          <CheckCircle2 className="h-4 w-4 text-green-600 flex-shrink-0" />
-                        ) : (
-                          <XCircle className="h-4 w-4 text-red-500 flex-shrink-0" />
-                        )}
-                        <span className="text-neutral-400">Positive cash flow after refi</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        {results.infiniteReturn ? (
-                          <CheckCircle2 className="h-4 w-4 text-green-600 flex-shrink-0" />
-                        ) : (
-                          <XCircle className="h-4 w-4 text-red-500 flex-shrink-0" />
-                        )}
-                        <span className="text-neutral-400">All cash returned at refinance</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        {results.cashOnCash > 12 || results.infiniteReturn ? (
-                          <CheckCircle2 className="h-4 w-4 text-green-600 flex-shrink-0" />
-                        ) : (
-                          <XCircle className="h-4 w-4 text-red-500 flex-shrink-0" />
-                        )}
-                        <span className="text-neutral-400">Cash-on-cash above 12%</span>
-                      </div>
+                    <div className="rounded-xl bg-white/[0.03] border border-white/[0.08] p-4 space-y-2">
+                      <p className="text-sm font-medium text-white">Quick Checks</p>
+                      {[
+                        { pass: results.monthlyCashFlow > 0, label: 'Positive cash flow after refi' },
+                        { pass: results.infiniteReturn, label: 'All cash returned at refinance' },
+                        { pass: results.cashOnCash > 12 || results.infiniteReturn, label: 'Cash-on-cash above 12%' },
+                      ].map(check => (
+                        <div key={check.label} className="flex items-center gap-2 text-sm">
+                          {check.pass
+                            ? <CheckCircle2 className="h-4 w-4 text-emerald-400 flex-shrink-0" />
+                            : <XCircle className="h-4 w-4 text-red-400 flex-shrink-0" />
+                          }
+                          <span className="text-neutral-400">{check.label}</span>
+                        </div>
+                      ))}
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
 
                 {/* CTA */}
-                <Card className="mt-6 bg-cyan-500/5 border-primary/20">
-                  <CardContent className="pt-6">
-                    <div className="flex items-start gap-3">
-                      <Sparkles className="h-5 w-5 text-cyan-400 mt-0.5 flex-shrink-0" />
-                      <div>
-                        <p className="font-medium text-sm mb-1">Want AI to find BRRRR deals automatically?</p>
-                        <p className="text-xs text-neutral-400 mb-3">AIWholesail scans off-market properties and runs BRRRR analysis in real time so you can move fast on the best opportunities.</p>
-                        <Button asChild size="sm">
-                          <Link to="/pricing">
-                            Try AIWholesail Free
-                            <ChevronRight className="h-4 w-4 ml-1" />
-                          </Link>
-                        </Button>
-                      </div>
+                <div className="mt-6 border border-white/[0.05] bg-cyan-500/5 rounded-xl p-6">
+                  <div className="flex items-start gap-3">
+                    <Sparkles className="h-5 w-5 text-cyan-400 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="font-medium text-sm text-white mb-1">Want AI to find BRRRR deals automatically?</p>
+                      <p className="text-xs text-neutral-400 mb-3">AIWholesail scans off-market properties and runs BRRRR analysis in real time so you can move fast on the best opportunities.</p>
+                      <Link to="/pricing" className="inline-flex items-center gap-1 bg-cyan-500 hover:bg-cyan-400 text-black font-semibold px-4 py-2 rounded-md text-sm transition-colors">
+                        Try AIWholesail Free
+                        <ChevronRight className="h-4 w-4" />
+                      </Link>
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -443,32 +363,30 @@ export default function BRRRRCalculator() {
       {/* Educational Section */}
       <section className="pb-20 px-4">
         <div className="container mx-auto max-w-4xl">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-2xl">How to Use This BRRRR Calculator</CardTitle>
-            </CardHeader>
-            <CardContent className="prose prose-sm max-w-none space-y-4 text-neutral-400">
+          <div className="border border-white/[0.05] bg-gradient-to-b from-neutral-900/50 to-transparent rounded-xl p-6 md:p-8">
+            <h2 className="text-2xl font-bold tracking-tight text-white mb-6">How to Use This BRRRR Calculator</h2>
+            <div className="space-y-4 text-neutral-400 text-sm leading-relaxed">
               <p>
                 The BRRRR method -- Buy, Rehab, Rent, Refinance, Repeat -- is a strategy for building a rental portfolio by recycling your capital. The goal is to buy undervalued properties, force appreciation through renovation, rent them out, and then refinance to pull your original investment back out so you can do it again.
               </p>
-              <h3 className="text-foreground font-semibold text-base">What each section means</h3>
-              <ul className="space-y-2">
-                <li><strong>Purchase & Rehab:</strong> Your total acquisition cost. In a true BRRRR, you buy with cash or a short-term loan, then refinance into a long-term mortgage after the rehab is complete.</li>
-                <li><strong>After Repair Value (ARV):</strong> The appraised value of the property after all renovations. This determines how much a lender will give you at refinance. Research comparable sales within a half-mile radius that closed in the last 90 days.</li>
-                <li><strong>Refinance LTV:</strong> Most conventional lenders offer 70-80% LTV on investment properties. The higher the LTV, the more cash you recover -- but the larger your monthly mortgage payment.</li>
-                <li><strong>Cash Left in Deal:</strong> This is the key BRRRR metric. If the refinance proceeds cover your total investment, you have zero dollars left in the deal and achieve an "infinite return" -- you are making money on a property with none of your own capital at risk.</li>
+              <h3 className="text-white font-semibold text-base">What each section means</h3>
+              <ul className="space-y-2 list-disc list-inside">
+                <li><strong className="text-white">Purchase & Rehab:</strong> Your total acquisition cost. In a true BRRRR, you buy with cash or a short-term loan, then refinance into a long-term mortgage after the rehab is complete.</li>
+                <li><strong className="text-white">After Repair Value (ARV):</strong> The appraised value of the property after all renovations. This determines how much a lender will give you at refinance.</li>
+                <li><strong className="text-white">Refinance LTV:</strong> Most conventional lenders offer 70-80% LTV on investment properties. The higher the LTV, the more cash you recover -- but the larger your monthly mortgage payment.</li>
+                <li><strong className="text-white">Cash Left in Deal:</strong> This is the key BRRRR metric. If the refinance proceeds cover your total investment, you have zero dollars left in the deal and achieve an "infinite return."</li>
               </ul>
-              <h3 className="text-foreground font-semibold text-base">Common mistakes</h3>
-              <ul className="space-y-1">
+              <h3 className="text-white font-semibold text-base">Common mistakes</h3>
+              <ul className="space-y-1 list-disc list-inside">
                 <li>Overestimating ARV -- be conservative with comps. Appraisers are not on your side.</li>
                 <li>Underestimating rehab costs -- always add a 10-15% contingency buffer.</li>
                 <li>Ignoring holding costs -- every month of rehab costs you money in loan payments, utilities, and insurance.</li>
                 <li>Forgetting vacancy -- budget 5-8% of gross rent for vacancy and turnover.</li>
               </ul>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
       </section>
-    </div>
+    </PublicLayout>
   );
 }
