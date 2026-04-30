@@ -240,7 +240,7 @@ export default function RealEstateWholesaler() {
   };
 
   return (
-    <div className="min-h-screen bg-background font-sans">
+    <div className="min-h-screen bg-[#08090a] text-white font-sans">
       <DashboardNav />
 
       {/* Main Content */}
@@ -537,8 +537,8 @@ export default function RealEstateWholesaler() {
           /* Enhanced Favorites Section */
           <section className="space-y-10 animate-fade-in">
             <div className="text-center space-y-4 max-w-2xl mx-auto">
-              <h1 className="text-3xl md:text-4xl font-medium tracking-tight">Your favorites</h1>
-              <p className="text-lg text-muted-foreground font-light leading-relaxed">
+              <h1 className="text-3xl md:text-4xl font-medium tracking-tight text-white">Your favorites</h1>
+              <p className="text-lg text-neutral-400 font-light leading-relaxed">
                 Properties you've saved for later review
               </p>
             </div>

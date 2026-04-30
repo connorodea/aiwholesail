@@ -50,7 +50,7 @@ export default function Account() {
   const isSubscribed = (subscription as any)?.subscribed;
 
   return (
-    <div className="min-h-screen bg-background font-sans">
+    <div className="min-h-screen bg-[#08090a] text-white font-sans">
       <DashboardNav />
       <SEOHead title="Account Settings" noIndex={true} />
 
