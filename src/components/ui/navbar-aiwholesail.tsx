@@ -44,16 +44,16 @@ const dropdowns: DropdownConfig[] = [
     columnHeadings: ["Find Deals", "Manage Deals"],
     columns: [
       [
-        { label: "Property Search", description: "Search any market instantly", href: "/how-it-works", icon: IconSearch },
-        { label: "Deal Scoring", description: "AI scores every property 0-100", href: "/how-it-works", icon: IconChartBar },
-        { label: "Property Alerts", description: "Get notified on new opportunities", href: "/how-it-works", icon: IconBell },
+        { label: "Property Search", description: "Search any market instantly", href: "/app", icon: IconSearch },
+        { label: "Deal Scoring", description: "AI scores every property 0-100", href: "/app/analyzer", icon: IconChartBar },
+        { label: "Property Alerts", description: "Get notified on new opportunities", href: "/app/alerts", icon: IconBell },
         { label: "Market Intelligence", description: "Understand any market in seconds", href: "/markets", icon: IconBuildingSkyscraper },
       ],
       [
-        { label: "Deal Pipeline", description: "Track deals from lead to close", href: "/how-it-works", icon: IconTarget },
-        { label: "Buyer Matching", description: "Match buyers to properties", href: "/how-it-works", icon: IconUsers },
-        { label: "Follow-up Sequences", description: "Automated seller outreach", href: "/how-it-works", icon: IconMail },
-        { label: "Contract Generator", description: "Create contracts in seconds", href: "/how-it-works", icon: IconFileText },
+        { label: "Deal Pipeline", description: "Track deals from lead to close", href: "/app/pipeline", icon: IconTarget },
+        { label: "Buyer Matching", description: "Match buyers to properties", href: "/app/buyers", icon: IconUsers },
+        { label: "Follow-up Sequences", description: "Automated seller outreach", href: "/app/sequences", icon: IconMail },
+        { label: "Contract Generator", description: "Create contracts in seconds", href: "/app/contracts", icon: IconFileText },
       ],
     ],
   },
