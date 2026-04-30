@@ -1,586 +1,514 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Search, DollarSign, MapPin, Star, Brain, BarChart3, MessageSquare, Eye, Zap, Shield, ChevronRight, Play, ArrowRight, X, Bell, Users, Target } from "lucide-react";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import {
+  ArrowRight, Play, X, Menu, Zap, Brain, Search, DollarSign,
+  BarChart3, Bell, Users, Target, Shield, CheckCircle, Star,
+  TrendingUp, MapPin, ChevronRight, Sparkles, Eye,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { toast } from "@/hooks/use-toast";
-import ScrollSailboat from "@/components/ScrollSailboat";
-import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { SEOHead } from "@/components/SEOHead";
+import { GradientOrbs } from "@/components/effects/GradientOrbs";
 
 const aiWholesailLogo = "/lovable-uploads/8dcdb5d0-ddfb-406f-a5f0-b3c5112d210a.png";
 
 const Landing = () => {
   const { user } = useAuth();
-  const [loading, setLoading] = useState(false);
-  const [showDemoModal, setShowDemoModal] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [showDemo, setShowDemo] = useState(false);
 
-  // Animation refs for different sections
-  const heroRef = useScrollAnimation({
-    threshold: 0.2
-  });
-  const featuresRef = useScrollAnimation({
-    threshold: 0.1
-  });
-  const pricingRef = useScrollAnimation({
-    threshold: 0.1
-  });
-  const testimonialsRef = useScrollAnimation({
-    threshold: 0.1
-  });
-  const ctaRef = useScrollAnimation({
-    threshold: 0.1
-  });
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
-  const handleStartTrial = () => {
-    // Always redirect to pricing page for plan selection
-    window.location.href = '/pricing';
-  };
-
-  const handleSubscribe = () => {
-    // Redirect to pricing page for plan selection
-    window.location.href = '/pricing';
-  };
-
-  const handleWatchDemo = () => {
-    setShowDemoModal(true);
-  };
-
-  const closeDemoModal = () => {
-    setShowDemoModal(false);
-  };
-
-  // Close modal on escape key
-  const handleKeyDown = (e) => {
-    if (e.key === 'Escape') {
-      closeDemoModal();
-    }
-  };
+  const navLinks = [
+    { label: "How It Works", href: "/how-it-works" },
+    { label: "Use Cases", href: "/use-cases" },
+    { label: "Pricing", href: "/pricing" },
+    { label: "Tools", href: "/tools" },
+  ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 relative">
+    <div className="min-h-screen bg-background">
       <SEOHead />
-      {/* Scroll-driven sailboat animation */}
-      <ScrollSailboat />
-      
+
       {/* Demo Modal */}
-      {showDemoModal && (
-        <div 
-          className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
-          onClick={closeDemoModal}
-          onKeyDown={handleKeyDown}
-          tabIndex={-1}
-        >
-          <div 
-            className="relative w-full max-w-4xl bg-background rounded-2xl shadow-2xl overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Close button */}
-            <button
-              onClick={closeDemoModal}
-              className="absolute top-4 right-4 z-10 p-2 bg-background/80 hover:bg-background rounded-full transition-colors"
-            >
+      {showDemo && (
+        <div className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setShowDemo(false)}>
+          <div className="relative w-full max-w-4xl bg-background rounded-2xl shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+            <button onClick={() => setShowDemo(false)} className="absolute top-4 right-4 z-10 p-2 bg-background/80 hover:bg-background rounded-full transition-colors">
               <X className="h-5 w-5" />
             </button>
-            
-            {/* Video container */}
-            <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
-              <iframe 
-                src="https://www.loom.com/embed/02baa8ef2cdb48bd9c5e21e800be6edd?sid=8f338d4e-71f1-4d64-b9a2-31f7ecdcc40b" 
-                frameBorder="0" 
-                allowFullScreen
-                className="absolute inset-0 w-full h-full rounded-2xl"
-              />
+            <div className="relative w-full" style={{ paddingBottom: "56.25%" }}>
+              <iframe src="https://www.loom.com/embed/02baa8ef2cdb48bd9c5e21e800be6edd?sid=8f338d4e-71f1-4d64-b9a2-31f7ecdcc40b" frameBorder="0" allowFullScreen className="absolute inset-0 w-full h-full rounded-2xl" />
             </div>
           </div>
         </div>
       )}
 
-      {/* Header */}
-      <header className="fixed top-4 left-4 right-4 z-50 animate-fade-in">
-        <div className="container mx-auto max-w-7xl">
-          <div className="bg-card/80 backdrop-blur-xl border border-border/50 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 px-6 py-4">
-            <div className="flex items-center justify-between">
-              {/* Brand Section */}
-              <div className="flex items-center space-x-3">
-                <div className="relative group">
-                  <img src={aiWholesailLogo} alt="AIWholesail" className="h-10 w-auto object-contain transition-transform duration-300 group-hover:scale-105" />
-                  <div className="absolute -inset-2 bg-gradient-to-r from-primary/20 to-accent/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"></div>
-                </div>
-              </div>
-              
-              {/* Action Buttons */}
-              <div className="flex items-center space-x-3">
+      {/* ===== NAVBAR ===== */}
+      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? "py-2" : "py-4"}`}>
+        <div className="container mx-auto max-w-7xl px-4">
+          <div className={`relative rounded-2xl transition-all duration-500 ${
+            scrolled
+              ? "bg-background/80 backdrop-blur-2xl border border-border/40 shadow-[0_8px_32px_rgba(0,0,0,0.12)]"
+              : "bg-transparent"
+          }`}>
+            <div className="px-6 py-3 flex items-center justify-between">
+              {/* Logo */}
+              <Link to="/" className="flex items-center gap-2.5 group shrink-0">
+                <img src={aiWholesailLogo} alt="AIWholesail" className="h-8 w-auto object-contain" />
+                <span className="hidden sm:block text-lg font-bold tracking-tight">AIWholesail</span>
+              </Link>
+
+              {/* Desktop Nav */}
+              <nav className="hidden md:flex items-center gap-1">
+                {navLinks.map(link => (
+                  <Link key={link.label} to={link.href} className="px-3.5 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors rounded-lg">
+                    {link.label}
+                  </Link>
+                ))}
+              </nav>
+
+              {/* CTA */}
+              <div className="flex items-center gap-2">
                 {user ? (
                   <Link to="/app">
-                    <Button variant="default" size="sm" className="hover-scale shadow-sm">
-                      <Eye className="h-4 w-4 mr-2" />
-                      Dashboard
+                    <Button size="sm" className="rounded-full px-5 gap-2 bg-primary hover:bg-primary/90">
+                      <Sparkles className="h-3.5 w-3.5" /> Dashboard
                     </Button>
                   </Link>
                 ) : (
-                  <div className="flex items-center space-x-2">
-                    <Link to="/auth">
-                      <Button variant="ghost" size="sm" className="hover-scale">
-                        Sign In
+                  <>
+                    <Link to="/auth" className="hidden sm:block">
+                      <Button variant="ghost" size="sm" className="rounded-full px-4">Sign In</Button>
+                    </Link>
+                    <Link to="/pricing">
+                      <Button size="sm" className="rounded-full px-5 gap-2 bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25">
+                        <Zap className="h-3.5 w-3.5" />
+                        <span className="hidden sm:inline">Start Free Trial</span>
+                        <span className="sm:hidden">Try Free</span>
                       </Button>
                     </Link>
-                    <Button size="sm" className="hover-scale shadow-sm" onClick={handleStartTrial}>
-                      Get Started
-                    </Button>
-                  </div>
+                  </>
                 )}
+                <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+                  <SheetTrigger asChild className="md:hidden">
+                    <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full"><Menu className="h-4 w-4" /></Button>
+                  </SheetTrigger>
+                  <SheetContent side="right" className="w-72 pt-10">
+                    <nav className="flex flex-col gap-1">
+                      {navLinks.map(link => (
+                        <Link key={link.label} to={link.href} onClick={() => setMobileOpen(false)} className="px-4 py-3 text-base font-medium hover:bg-muted/50 rounded-lg">{link.label}</Link>
+                      ))}
+                    </nav>
+                    <div className="mt-6 pt-6 border-t flex flex-col gap-2">
+                      {!user && <Link to="/auth" onClick={() => setMobileOpen(false)}><Button variant="outline" className="w-full rounded-full">Sign In</Button></Link>}
+                      <Link to="/pricing" onClick={() => setMobileOpen(false)}><Button className="w-full rounded-full gap-2"><Zap className="h-4 w-4" /> Start Free Trial</Button></Link>
+                    </div>
+                  </SheetContent>
+                </Sheet>
               </div>
             </div>
           </div>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section ref={heroRef.ref} className="relative pt-32 pb-16 px-4 overflow-hidden">
-        {/* Subtle background elements */}
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/2 to-transparent"></div>
-        
-        <div className={`container mx-auto text-center relative z-10 max-w-4xl transition-all duration-1000 ${heroRef.isVisible ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-          <div className="space-y-8">
-            
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-medium leading-tight tracking-tight">
-              <span className="block mb-2">Find Profitable</span>
-              <span className="block bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                Wholesale Deals
-              </span>
-            </h1>
-            
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed font-light">
-              Discover undervalued properties with AI-powered analysis, comprehensive market data, 
-              and automated deal scoring. Turn data into profit.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4">
-              <Button size="lg" onClick={handleStartTrial} disabled={loading} className="text-base font-medium px-8 py-3 rounded-full">
-                {loading ? "Loading..." : "Start 7-Day Free Trial"}
+      {/* ===== HERO — DARK ===== */}
+      <section className="relative bg-gradient-to-b from-[#0a0a0a] via-[#0f0f0f] to-[#0a0a0a] text-white overflow-hidden">
+        <GradientOrbs variant="hero" />
+
+        <div className="relative container mx-auto max-w-6xl px-4 pt-40 pb-24 text-center">
+          <Badge className="mb-6 bg-white/10 text-white/80 border-white/10 backdrop-blur-sm text-xs font-medium px-4 py-1.5 rounded-full">
+            <Sparkles className="h-3 w-3 mr-1.5" /> AI-Powered Real Estate Intelligence
+          </Badge>
+
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[0.95] mb-6">
+            Find Profitable
+            <br />
+            <span className="bg-gradient-to-r from-primary via-cyan-400 to-primary bg-clip-text text-transparent">
+              Real Estate Deals.
+            </span>
+          </h1>
+
+          <p className="text-lg md:text-xl text-white/60 max-w-2xl mx-auto leading-relaxed font-light mb-10">
+            AI analyzes thousands of properties in seconds. Get instant spread calculations, deal scoring, and market intelligence — so you close deals others miss.
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Link to="/pricing">
+              <Button size="lg" className="rounded-full px-8 text-base font-semibold bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25 gap-2">
+                Start 7-Day Free Trial <ArrowRight className="h-4 w-4" />
               </Button>
-              {!user && (
-                <Button 
-                  variant="outline" 
-                  size="lg" 
-                  onClick={handleWatchDemo} 
-                  className="text-base font-medium px-8 py-3 rounded-full"
-                >
-                  <Play className="h-4 w-4 mr-2" />
-                  Watch Demo
-                </Button>
-              )}
-            </div>
-            
-            <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground pt-6">
-              <div className="flex items-center gap-1.5">
-                <Shield className="h-3.5 w-3.5 text-primary" />
-                <span>Credit Card Required</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <CheckCircle className="h-3.5 w-3.5 text-primary" />
-                <span>7-Day Free Trial</span>
-              </div>
-            </div>
+            </Link>
+            <Button size="lg" variant="outline" className="rounded-full px-8 text-base font-semibold border-white/20 text-white hover:bg-white/10 gap-2" onClick={() => setShowDemo(true)}>
+              <Play className="h-4 w-4" /> Watch Demo
+            </Button>
+          </div>
+
+          <div className="flex items-center justify-center gap-6 text-sm text-white/40 mt-8">
+            <span className="flex items-center gap-1.5"><Shield className="h-3.5 w-3.5" /> Credit Card Required</span>
+            <span className="flex items-center gap-1.5"><CheckCircle className="h-3.5 w-3.5" /> Cancel Anytime</span>
           </div>
         </div>
+
+        {/* Fade to white */}
+        <div className="h-24 bg-gradient-to-b from-[#0a0a0a] to-background" />
       </section>
 
-      {/* Features Section — 9-Feature Grid */}
-      <section ref={featuresRef.ref} className="py-24 px-4">
-        <div className="container mx-auto max-w-7xl">
-          <div className={`text-center mb-16 space-y-4 transition-all duration-1000 delay-200 ${featuresRef.isVisible ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-            <h2 className="text-3xl md:text-4xl font-medium tracking-tight">
-              Everything you need to <span className="text-primary">succeed</span>
-            </h2>
-            <p className="text-lg text-muted-foreground font-light max-w-2xl mx-auto">
-              Our comprehensive platform combines cutting-edge AI with real estate expertise
-              to give you the competitive edge you need.
-            </p>
-          </div>
-
-          <div className={`grid sm:grid-cols-2 lg:grid-cols-3 gap-6 transition-all duration-1000 delay-400 ${featuresRef.isVisible ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-            {[
-              { icon: Brain, title: "AI-Powered Analysis", desc: "Advanced machine learning algorithms analyze property data, market trends, and investment potential to identify the most profitable opportunities." },
-              { icon: Search, title: "Smart Property Search", desc: "Natural language search with advanced filtering across multiple MLS sources. Find distressed properties, foreclosures, and wholesale opportunities instantly." },
-              { icon: MessageSquare, title: "AI Chat Assistant", desc: "Get instant answers about market data, property analysis, and investment strategies from our AI assistant with real-time web search capabilities." },
-              { icon: DollarSign, title: "Deal Analysis & ROI", desc: "Instant profit calculations, repair estimates, ARV analysis, and wholesale margin projections. Know your numbers before making an offer." },
-              { icon: BarChart3, title: "Market Intelligence", desc: "Real-time market data from 14 sources, comparable sales analysis, neighborhood insights, and predictive market trends." },
-              { icon: Bell, title: "Property Alerts", desc: "Set up automated alerts for your criteria. Get notified instantly when new deals matching your investment strategy hit the market." },
-              { icon: Users, title: "Skip Tracing", desc: "Find property owner contact information with integrated skip tracing. Connect directly with motivated sellers to close deals faster." },
-              { icon: Target, title: "Lead Scoring", desc: "AI-powered lead scoring identifies the most motivated sellers. Focus your efforts on the highest probability deals." },
-              { icon: Zap, title: "FSBO Detection", desc: "Automatically identify For Sale By Owner properties with higher potential margins due to no agent commissions." },
-            ].map((feature, index) => (
-              <Card key={feature.title} className="group bg-card/50 border-border/50 hover:border-primary/30 hover:bg-card transition-all duration-300 hover:shadow-lg hover:shadow-primary/5" style={{ animationDelay: `${index * 50}ms` }}>
-                <CardHeader>
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                    <feature.icon className="h-6 w-6 text-primary" />
-                  </div>
-                  <CardTitle className="text-lg font-medium">{feature.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription className="text-muted-foreground leading-relaxed font-light">{feature.desc}</CardDescription>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* How It Works Section */}
-      <section className="py-24 px-4 bg-secondary/30">
-        <div className="container mx-auto max-w-6xl">
-          <div className="text-center space-y-4 mb-16">
-            <h2 className="text-3xl md:text-4xl font-medium tracking-tight">
-              How it <span className="text-primary">works</span>
-            </h2>
-            <p className="text-lg text-muted-foreground font-light max-w-2xl mx-auto">
-              From search to close in four simple steps. Our platform streamlines your wholesale workflow.
-            </p>
-          </div>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[
-              { step: "01", icon: Search, title: "Search Properties", desc: "Enter any location, zip code, or address. Filter by price, property type, and wholesale potential." },
-              { step: "02", icon: Brain, title: "AI Analysis", desc: "Our AI instantly analyzes each property, calculating ARV, repair estimates, and wholesale margins." },
-              { step: "03", icon: DollarSign, title: "Find Spreads", desc: "Identify properties with significant spreads between listing price and estimated value." },
-              { step: "04", icon: CheckCircle, title: "Close Deals", desc: "Use skip tracing to contact owners directly and close profitable wholesale deals." },
-            ].map((item, index) => (
-              <div key={item.step} className="relative">
-                {index < 3 && (
-                  <div className="hidden lg:block absolute top-12 left-1/2 w-full h-px bg-gradient-to-r from-primary/50 to-primary/0" />
-                )}
-                <div className="relative z-10 text-center space-y-4">
-                  <div className="inline-flex items-center justify-center w-24 h-24 rounded-2xl bg-card border border-border shadow-lg">
-                    <div className="text-center">
-                      <div className="text-xs font-medium text-muted-foreground mb-1">STEP</div>
-                      <div className="text-2xl font-bold text-primary">{item.step}</div>
-                    </div>
-                  </div>
-                  <div className="w-12 h-12 mx-auto rounded-xl bg-primary/10 flex items-center justify-center">
-                    <item.icon className="h-6 w-6 text-primary" />
-                  </div>
-                  <div className="space-y-2">
-                    <h3 className="text-lg font-medium">{item.title}</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed font-light">{item.desc}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Pricing Section - Clean & Minimal */}
-      <section ref={pricingRef.ref} className="py-24 px-4">
-        <div className="container mx-auto text-center max-w-5xl">
-          <div className={`space-y-4 mb-16 transition-all duration-1000 ${pricingRef.isVisible ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-            <h2 className="text-3xl md:text-4xl font-medium tracking-tight">
-              Simple, transparent <span className="text-primary">pricing</span>
-            </h2>
-            <p className="text-lg text-muted-foreground font-light max-w-2xl mx-auto">
-              Choose the plan that fits your business. Both plans include a 7-day free trial.
-            </p>
-          </div>
-          
-          <div className={`grid md:grid-cols-2 gap-6 max-w-3xl mx-auto transition-all duration-1000 delay-300 ${pricingRef.isVisible ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-            {/* Pro Plan */}
-            <Card className="border-2 border-primary/30 hover:border-primary/50 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 bg-gradient-to-br from-primary/5 via-primary/2 to-transparent shadow-[0_0_20px_hsl(var(--primary)_/_0.1)] hover:shadow-[0_0_30px_hsl(var(--primary)_/_0.15)] ring-1 ring-primary/20 hover:ring-primary/30 relative overflow-hidden">
-              <CardHeader className="text-center pb-4">
-                <div className="mb-3">
-                  <Badge className="bg-primary text-primary-foreground text-xs">Most Popular</Badge>
-                </div>
-                <CardTitle className="text-xl font-medium text-primary mb-2">Pro</CardTitle>
-                <div className="text-4xl font-medium mb-2">
-                  $29
-                  <span className="text-lg font-normal text-muted-foreground">/month</span>
-                </div>
-                <CardDescription className="font-light">
-                  Perfect for individual wholesalers
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-3 text-left mb-8">
-                  {["Up to 5 alert locations", "Automated updates every 24 hours", "Advanced property matching", "Email notifications", "Basic market analytics", "7-day free trial included"].map(feature => (
-                    <li key={feature} className="flex items-start gap-3">
-                      <CheckCircle className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                      <span className="text-sm font-light">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-                
-                <div className="space-y-3">
-                  <Button className="w-full h-10 text-sm font-medium" onClick={handleStartTrial} disabled={loading}>
-                    {loading ? "Loading..." : "Start 7-Day Free Trial"}
-                  </Button>
-                  <p className="text-xs text-muted-foreground font-light">
-                    Credit card required • Cancel anytime during trial
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Elite Plan */}
-            <Card className="border border-border/50 hover:border-primary/20 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-              <CardHeader className="text-center pb-4">
-                <CardTitle className="text-xl font-medium mb-2">Elite</CardTitle>
-                <div className="text-4xl font-medium mb-2">
-                  $99
-                  <span className="text-lg font-normal text-muted-foreground">/month</span>
-                </div>
-                <CardDescription className="font-light">
-                  For serious real estate professionals
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-3 text-left mb-8">
-                  {["Unlimited alert locations", "Real-time updates every 4 hours", "Advanced AI property analysis", "Priority email notifications", "Comprehensive market insights", "Skip tracing integration", "Lead scoring analytics", "7-day free trial included"].map(feature => (
-                    <li key={feature} className="flex items-start gap-3">
-                      <CheckCircle className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                      <span className="text-sm font-light">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-                
-                <div className="space-y-3">
-                  <Button className="w-full h-10 text-sm font-medium" variant="outline" onClick={handleStartTrial} disabled={loading}>
-                    {loading ? "Loading..." : "Start 7-Day Free Trial"}
-                  </Button>
-                  <p className="text-xs text-muted-foreground font-light">
-                    Credit card required • Cancel anytime during trial
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials - Clean Design */}
-      <section ref={testimonialsRef.ref} className="py-24 px-4">
-        <div className="container mx-auto max-w-6xl">
-          <div className={`text-center mb-16 space-y-4 transition-all duration-1000 ${testimonialsRef.isVisible ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-            <h2 className="text-3xl md:text-4xl font-medium tracking-tight">
-              What our <span className="text-primary">users say</span>
-            </h2>
-            <p className="text-lg text-muted-foreground font-light max-w-2xl mx-auto">
-              Join thousands of successful real estate investors who've transformed 
-              their business with AIWholesail.
-            </p>
-          </div>
-          
-          <div className={`grid md:grid-cols-2 gap-8 transition-all duration-1000 delay-300 ${testimonialsRef.isVisible ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-            {[
-              {
-                name: "Sarah Johnson",
-                role: "Real Estate Investor",
-                content: "AIWholesail helped me find 3 profitable deals in my first month. The AI analysis is incredibly accurate and saved me countless hours of research.",
-                profit: "$85,000"
-              },
-              {
-                name: "Mike Chen",
-                role: "Wholesale Specialist",
-                content: "The time I save on research and analysis has doubled my deal flow. This platform is a game-changer for serious wholesalers.",
-                profit: "$120,000"
-              },
-              {
-                name: "Jennifer Davis",
-                role: "Property Flipper",
-                content: "Finally, a tool that understands real estate investing. The ROI calculations are spot-on every time, and the AI chat helps me understand market trends.",
-                profit: "$95,000"
-              },
-              {
-                name: "Robert Martinez",
-                role: "Investment Advisor",
-                content: "The automated alerts have transformed how I source deals for my clients. We're closing 40% more transactions since implementing AIWholesail.",
-                profit: "$150,000"
-              }
-            ].map((testimonial, index) => (
-              <div key={index} className="group bg-card border border-border/50 rounded-2xl p-6 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
-                <div className="flex mb-4">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="h-4 w-4 fill-primary text-primary" />
-                  ))}
-                </div>
-                
-                <p className="text-muted-foreground mb-6 leading-relaxed font-light">
-                  "{testimonial.content}"
-                </p>
-                
-                <div className="border-t border-border/30 pt-4">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p className="font-medium">{testimonial.name}</p>
-                      <p className="text-sm text-muted-foreground font-light">{testimonial.role}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xs text-muted-foreground font-light">Profit Generated</p>
-                      <p className="font-medium text-primary">{testimonial.profit}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section - Minimal */}
+      {/* ===== PLATFORM SECTION — WHITE ===== */}
       <section className="py-24 px-4">
-        <div className="container mx-auto text-center max-w-3xl">
-          <div className="space-y-8">
-            <h2 className="text-3xl md:text-5xl font-medium tracking-tight leading-tight">
-              Ready to transform your 
-              <span className="block text-primary">real estate business?</span>
-            </h2>
-            
-            <p className="text-lg md:text-xl text-muted-foreground font-light max-w-2xl mx-auto">
-              Join thousands of successful investors who use AIWholesail to find profitable deals 
-              faster than ever before.
-            </p>
-            
-            <div className="pt-4">
-              <Button size="lg" onClick={handleSubscribe} disabled={loading} className="text-base font-medium px-8 py-3 rounded-full">
-                {loading ? "Loading..." : "Start Your Free Trial"}
-              </Button>
-            </div>
-            
-            <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground pt-4">
-              <div className="flex items-center gap-1.5">
-                <CheckCircle className="h-3.5 w-3.5 text-primary" />
-                <span className="font-light">7-Day Free Trial</span>
+        <div className="container mx-auto max-w-7xl">
+          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-4">Platform</p>
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.05] max-w-2xl mb-6">
+            Discover our AI
+            <br />powered platform
+          </h2>
+          <p className="text-lg text-muted-foreground font-light max-w-xl mb-16">
+            Everything you need to find, analyze, and close profitable real estate deals — powered by advanced AI.
+          </p>
+
+          {/* Bento Grid */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {/* Card 1 — Large */}
+            <div className="lg:col-span-2 bg-gradient-to-br from-muted/50 to-muted/30 border border-border/50 rounded-3xl p-8 md:p-10 flex flex-col justify-between min-h-[320px] group hover:border-primary/20 transition-all duration-300">
+              <div>
+                <Badge className="bg-primary/10 text-primary border-0 mb-4">
+                  <Search className="h-3 w-3 mr-1" /> Smart Search
+                </Badge>
+                <h3 className="text-2xl md:text-3xl font-bold tracking-tight mb-3">
+                  Search any market.<br />Find deals instantly.
+                </h3>
+                <p className="text-muted-foreground font-light max-w-md">
+                  Enter any location, zip code, or address. AI pulls from Zillow, off-market sources, and FSBO listings — then ranks everything by profit potential.
+                </p>
               </div>
-              <div className="flex items-center gap-1.5">
-                <Shield className="h-3.5 w-3.5 text-primary" />
-                <span className="font-light">Credit Card Required</span>
+              <div className="mt-6 flex items-center gap-2 text-sm font-medium text-primary group-hover:gap-3 transition-all">
+                Learn more <ChevronRight className="h-4 w-4" />
+              </div>
+            </div>
+
+            {/* Card 2 */}
+            <div className="bg-gradient-to-br from-muted/50 to-muted/30 border border-border/50 rounded-3xl p-8 flex flex-col justify-between min-h-[320px] group hover:border-primary/20 transition-all duration-300">
+              <div>
+                <Badge className="bg-emerald-500/10 text-emerald-600 border-0 mb-4">
+                  <DollarSign className="h-3 w-3 mr-1" /> Spread Analysis
+                </Badge>
+                <h3 className="text-xl font-bold tracking-tight mb-3">
+                  Know your profit before you offer.
+                </h3>
+                <p className="text-sm text-muted-foreground font-light">
+                  Instant Zestimate comparison, spread calculation, and deal scoring on every property.
+                </p>
+              </div>
+              <div className="mt-6 flex items-center gap-2 text-sm font-medium text-primary group-hover:gap-3 transition-all">
+                Learn more <ChevronRight className="h-4 w-4" />
+              </div>
+            </div>
+
+            {/* Card 3 */}
+            <div className="bg-gradient-to-br from-muted/50 to-muted/30 border border-border/50 rounded-3xl p-8 flex flex-col justify-between min-h-[280px] group hover:border-primary/20 transition-all duration-300">
+              <div>
+                <Badge className="bg-violet-500/10 text-violet-600 border-0 mb-4">
+                  <Brain className="h-3 w-3 mr-1" /> AI Analysis
+                </Badge>
+                <h3 className="text-xl font-bold tracking-tight mb-3">
+                  AI-powered due diligence.
+                </h3>
+                <p className="text-sm text-muted-foreground font-light">
+                  ARV estimates, repair cost analysis, comp data, and investment scoring — all automated.
+                </p>
+              </div>
+            </div>
+
+            {/* Card 4 */}
+            <div className="bg-gradient-to-br from-muted/50 to-muted/30 border border-border/50 rounded-3xl p-8 flex flex-col justify-between min-h-[280px] group hover:border-primary/20 transition-all duration-300">
+              <div>
+                <Badge className="bg-orange-500/10 text-orange-600 border-0 mb-4">
+                  <Bell className="h-3 w-3 mr-1" /> Alerts
+                </Badge>
+                <h3 className="text-xl font-bold tracking-tight mb-3">
+                  Never miss a deal.
+                </h3>
+                <p className="text-sm text-muted-foreground font-light">
+                  Set your criteria. Get instant alerts when properties with +$30K spreads hit the market.
+                </p>
+              </div>
+            </div>
+
+            {/* Card 5 */}
+            <div className="bg-gradient-to-br from-muted/50 to-muted/30 border border-border/50 rounded-3xl p-8 flex flex-col justify-between min-h-[280px] group hover:border-primary/20 transition-all duration-300">
+              <div>
+                <Badge className="bg-cyan-500/10 text-cyan-600 border-0 mb-4">
+                  <Target className="h-3 w-3 mr-1" /> Pipeline
+                </Badge>
+                <h3 className="text-xl font-bold tracking-tight mb-3">
+                  Track deals to close.
+                </h3>
+                <p className="text-sm text-muted-foreground font-light">
+                  Kanban pipeline, buyer matching, follow-up sequences, and contract generation — all in one place.
+                </p>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-border/10 bg-gradient-to-b from-background to-background/50 px-4 py-16">
+      {/* ===== WHO IT'S FOR — Clean cards ===== */}
+      <section className="py-16 px-4 bg-muted/30">
         <div className="container mx-auto max-w-7xl">
-          <div className="bg-card/40 backdrop-blur-xl border border-border/30 rounded-3xl shadow-lg p-12">
-            <div className="grid lg:grid-cols-12 gap-12 items-start">
-              
-              {/* Brand Section */}
-              <div className="lg:col-span-4 space-y-6">
-                <div className="flex items-center space-x-3">
-                  <div className="relative group">
-                    <img 
-                      src={aiWholesailLogo} 
-                      alt="AIWholesail" 
-                      className="h-12 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
-                    />
-                    <div className="absolute -inset-2 bg-gradient-to-r from-primary/20 to-accent/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"></div>
-                  </div>
+          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-4 text-center">Built For</p>
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-center mb-12">
+            Every real estate professional.
+          </h2>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[
+              { icon: TrendingUp, title: "Wholesalers", desc: "Find spreads, assign contracts, match buyers" },
+              { icon: DollarSign, title: "Flippers", desc: "Estimate rehab costs, calculate ARV, score deals" },
+              { icon: BarChart3, title: "Landlords", desc: "Analyze cash flow, cap rates, rental potential" },
+              { icon: Users, title: "Agents", desc: "Impress clients with AI-powered market data" },
+            ].map(item => (
+              <div key={item.title} className="bg-background border border-border/50 rounded-2xl p-6 text-center hover:border-primary/20 hover:shadow-lg transition-all duration-300 group">
+                <div className="w-12 h-12 mx-auto rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                  <item.icon className="h-6 w-6 text-primary" />
                 </div>
-                <p className="text-muted-foreground font-light leading-relaxed max-w-sm">
-                  Discover undervalued properties with AI-powered analysis and comprehensive market data. 
-                  Turn data into profit with intelligent wholesale investing.
-                </p>
-                <div className="flex items-center space-x-4 pt-2">
-                  <Button size="sm" className="rounded-full px-6" onClick={handleStartTrial}>
-                    Get Started
-                  </Button>
-                  <Link to="/contact" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                    Contact Us
-                  </Link>
-                </div>
+                <h3 className="font-bold mb-1">{item.title}</h3>
+                <p className="text-sm text-muted-foreground font-light">{item.desc}</p>
               </div>
-              
-              {/* Navigation Links */}
-              <div className="lg:col-span-8">
-                <div className="grid md:grid-cols-3 gap-8">
-                  
-                  {/* Product */}
-                  <div className="space-y-4">
-                    <h3 className="font-medium text-foreground">Product</h3>
-                    <ul className="space-y-3">
-                      {[
-                        { label: "Property Search", to: "/app" },
-                        { label: "AI Analysis", to: "/app" },
-                        { label: "Market Intelligence", to: "/app" },
-                        { label: "Deal Calculator", to: "/app" }
-                      ].map((link, index) => (
-                        <li key={index}>
-                          <Link 
-                            to={link.to} 
-                            className="text-sm text-muted-foreground hover:text-foreground transition-colors font-light"
-                          >
-                            {link.label}
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  
-                  {/* Company */}
-                  <div className="space-y-4">
-                    <h3 className="font-medium text-foreground">Company</h3>
-                    <ul className="space-y-3">
-                      {[
-                        { label: "Contact Us", to: "/contact" },
-                        { label: "FAQ", to: "/faq" },
-                        { label: "Pricing", to: "/pricing" }
-                      ].map((link, index) => (
-                        <li key={index}>
-                          <Link 
-                            to={link.to} 
-                            className="text-sm text-muted-foreground hover:text-foreground transition-colors font-light"
-                          >
-                            {link.label}
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  
-                  {/* Legal */}
-                  <div className="space-y-4">
-                    <h3 className="font-medium text-foreground">Legal</h3>
-                    <ul className="space-y-3">
-                      {[
-                        { label: "Privacy Policy", to: "/privacy" },
-                        { label: "Terms of Service", to: "/terms" },
-                        { label: "Refund Policy", to: "/refund" }
-                      ].map((link, index) => (
-                        <li key={index}>
-                          <Link 
-                            to={link.to} 
-                            className="text-sm text-muted-foreground hover:text-foreground transition-colors font-light"
-                          >
-                            {link.label}
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  
-                </div>
-              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== AI SECTION — DARK ===== */}
+      <section className="relative bg-[#0a0a0a] text-white py-24 px-4 overflow-hidden">
+        <GradientOrbs variant="section" />
+        <div className="relative container mx-auto max-w-7xl">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <div>
+              <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-4">AI Engine</p>
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.05] mb-6">
+                AI powers
+                <br />instant analysis,
+                <br />deal scoring,
+                <br />and market
+                <br />intelligence.
+              </h2>
+              <Link to="/how-it-works">
+                <Button className="rounded-full px-6 gap-2 bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25 mt-4">
+                  See How It Works <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
             </div>
-            
-            {/* Bottom Section */}
-            <div className="border-t border-border/20 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-              <p className="text-sm text-muted-foreground font-light">
-                © 2026 AIWholesail. All rights reserved.
-              </p>
-              <div className="flex items-center space-x-6">
-                <Badge variant="secondary" className="text-xs font-light">
-                  <Zap className="h-3 w-3 mr-1" />
-                  AI-Powered
-                </Badge>
-                <div className="flex items-center space-x-1">
-                  <div className="h-2 w-2 bg-primary rounded-full animate-pulse"></div>
-                  <span className="text-xs text-muted-foreground font-light">Live Updates</span>
+            <div className="grid grid-cols-2 gap-4">
+              {[
+                { icon: Brain, label: "AI Deal Scoring", desc: "Every property scored 0-100" },
+                { icon: Search, label: "Smart Search", desc: "Zillow + off-market sources" },
+                { icon: BarChart3, label: "Market Intel", desc: "Comps, trends, demographics" },
+                { icon: Zap, label: "Instant Alerts", desc: "+$30K spreads, FSBO, auctions" },
+              ].map(item => (
+                <div key={item.label} className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-colors">
+                  <item.icon className="h-6 w-6 text-primary mb-3" />
+                  <h4 className="font-semibold text-sm mb-1">{item.label}</h4>
+                  <p className="text-xs text-white/50">{item.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== STATS BAR — DARK ===== */}
+      <section className="bg-[#0a0a0a] border-t border-white/5 py-16 px-4">
+        <div className="container mx-auto max-w-5xl">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            {[
+              { value: "10K+", label: "Properties Analyzed Daily" },
+              { value: "50", label: "States Covered" },
+              { value: "$2.3B+", label: "Deal Volume Tracked" },
+              { value: "4.8/5", label: "User Rating" },
+            ].map(stat => (
+              <div key={stat.label}>
+                <div className="text-4xl md:text-5xl font-bold text-white tracking-tight">{stat.value}</div>
+                <div className="text-sm text-white/40 mt-2 font-light">{stat.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Fade dark to white */}
+      <div className="h-16 bg-gradient-to-b from-[#0a0a0a] to-background" />
+
+      {/* ===== TESTIMONIALS — WHITE ===== */}
+      <section className="py-24 px-4">
+        <div className="container mx-auto max-w-6xl">
+          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-4 text-center">Testimonials</p>
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-center mb-12">
+            Trusted by real estate professionals.
+          </h2>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            {[
+              { name: "Sarah Johnson", role: "Real Estate Investor", content: "AIWholesail helped me find 3 profitable deals in my first month. The AI analysis is incredibly accurate.", profit: "$85K" },
+              { name: "Mike Chen", role: "Real Estate Investor", content: "The time I save on research has doubled my deal flow. This is a game-changer for serious investors.", profit: "$120K" },
+              { name: "Jennifer Davis", role: "Property Flipper", content: "The ROI calculations are spot-on every time. The AI chat helps me understand market trends in seconds.", profit: "$95K" },
+              { name: "Robert Martinez", role: "Investment Advisor", content: "We're closing 40% more transactions since implementing AIWholesail for our deal sourcing.", profit: "$150K" },
+            ].map((t, i) => (
+              <div key={i} className="bg-muted/30 border border-border/50 rounded-2xl p-8 hover:shadow-lg transition-all duration-300">
+                <div className="flex gap-1 mb-4">
+                  {[...Array(5)].map((_, j) => <Star key={j} className="h-4 w-4 fill-primary text-primary" />)}
+                </div>
+                <p className="text-muted-foreground leading-relaxed font-light mb-6">"{t.content}"</p>
+                <div className="flex justify-between items-end border-t border-border/30 pt-4">
+                  <div>
+                    <p className="font-semibold text-sm">{t.name}</p>
+                    <p className="text-xs text-muted-foreground">{t.role}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs text-muted-foreground">Profit</p>
+                    <p className="font-bold text-primary">{t.profit}</p>
+                  </div>
                 </div>
               </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== PRICING PREVIEW — WHITE ===== */}
+      <section className="py-24 px-4 bg-muted/20">
+        <div className="container mx-auto max-w-4xl text-center">
+          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-4">Pricing</p>
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
+            Simple, transparent pricing.
+          </h2>
+          <p className="text-lg text-muted-foreground font-light max-w-2xl mx-auto mb-12">
+            Start with a 7-day free trial. No commitment.
+          </p>
+          <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+            {/* Pro */}
+            <div className="bg-background border-2 border-primary/30 rounded-2xl p-8 text-left shadow-lg shadow-primary/5 relative">
+              <Badge className="absolute -top-3 left-6 bg-primary text-primary-foreground text-xs">Most Popular</Badge>
+              <h3 className="text-lg font-bold mb-1">Pro</h3>
+              <div className="text-4xl font-bold mb-1">$29<span className="text-lg font-normal text-muted-foreground">/mo</span></div>
+              <p className="text-sm text-muted-foreground font-light mb-6">Perfect for individual investors</p>
+              <ul className="space-y-2.5 mb-8">
+                {["5 alert locations", "24-hour updates", "Advanced property matching", "Email notifications", "Basic market analytics"].map(f => (
+                  <li key={f} className="flex items-start gap-2.5 text-sm"><CheckCircle className="h-4 w-4 text-primary mt-0.5 shrink-0" />{f}</li>
+                ))}
+              </ul>
+              <Link to="/pricing"><Button className="w-full rounded-full">Start Free Trial</Button></Link>
+            </div>
+            {/* Elite */}
+            <div className="bg-background border border-border/50 rounded-2xl p-8 text-left">
+              <h3 className="text-lg font-bold mb-1">Elite</h3>
+              <div className="text-4xl font-bold mb-1">$99<span className="text-lg font-normal text-muted-foreground">/mo</span></div>
+              <p className="text-sm text-muted-foreground font-light mb-6">For serious professionals</p>
+              <ul className="space-y-2.5 mb-8">
+                {["Unlimited locations", "4-hour updates", "Advanced AI analysis", "Skip tracing", "Lead scoring", "Priority support"].map(f => (
+                  <li key={f} className="flex items-start gap-2.5 text-sm"><CheckCircle className="h-4 w-4 text-primary mt-0.5 shrink-0" />{f}</li>
+                ))}
+              </ul>
+              <Link to="/pricing"><Button variant="outline" className="w-full rounded-full">Start Free Trial</Button></Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== FINAL CTA — DARK with gradient ===== */}
+      <section className="relative bg-gradient-to-b from-[#0a0a0a] via-[#0a0a0a] to-[#0f1a14] text-white py-32 px-4 overflow-hidden">
+        <GradientOrbs variant="cta" />
+
+        <div className="relative container mx-auto max-w-3xl text-center">
+          <h2 className="text-4xl md:text-6xl font-bold tracking-tight leading-tight mb-6">
+            Ready to find
+            <br />
+            <span className="bg-gradient-to-r from-primary via-cyan-400 to-primary bg-clip-text text-transparent">
+              your next deal?
+            </span>
+          </h2>
+          <p className="text-lg text-white/50 font-light max-w-xl mx-auto mb-10">
+            Join thousands of investors using AI to find profitable real estate deals faster than ever.
+          </p>
+          <Link to="/pricing">
+            <Button size="lg" className="rounded-full px-10 text-base font-semibold bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25 gap-2">
+              Start Your Free Trial <ArrowRight className="h-4 w-4" />
+            </Button>
+          </Link>
+        </div>
+      </section>
+
+      {/* ===== FOOTER — DARK ===== */}
+      <footer className="bg-[#0a0a0a] text-white border-t border-white/5 px-4 py-16">
+        <div className="container mx-auto max-w-7xl">
+          <div className="grid lg:grid-cols-5 gap-12">
+            {/* Brand */}
+            <div className="lg:col-span-2 space-y-4">
+              <div className="flex items-center gap-2.5">
+                <img src={aiWholesailLogo} alt="AIWholesail" className="h-8 w-auto" />
+                <span className="text-lg font-bold tracking-tight">AIWholesail</span>
+              </div>
+              <p className="text-sm text-white/40 font-light max-w-xs leading-relaxed">
+                AI-powered platform for real estate professionals to find, analyze, and close profitable deals.
+              </p>
+            </div>
+
+            {/* Product */}
+            <div>
+              <h4 className="text-xs font-semibold tracking-[0.15em] uppercase text-white/60 mb-4">Product</h4>
+              <ul className="space-y-2.5">
+                {[
+                  { label: "How It Works", to: "/how-it-works" },
+                  { label: "Use Cases", to: "/use-cases" },
+                  { label: "Pricing", to: "/pricing" },
+                ].map(link => (
+                  <li key={link.label}><Link to={link.to} className="text-sm text-white/40 hover:text-white transition-colors">{link.label}</Link></li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Resources */}
+            <div>
+              <h4 className="text-xs font-semibold tracking-[0.15em] uppercase text-white/60 mb-4">Resources</h4>
+              <ul className="space-y-2.5">
+                {[
+                  { label: "Blog", to: "/blog" },
+                  { label: "Free Tools", to: "/tools" },
+                  { label: "About Us", to: "/about" },
+                  { label: "FAQ", to: "/faq" },
+                  { label: "Contact", to: "/contact" },
+                ].map(link => (
+                  <li key={link.label}><Link to={link.to} className="text-sm text-white/40 hover:text-white transition-colors">{link.label}</Link></li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Legal */}
+            <div>
+              <h4 className="text-xs font-semibold tracking-[0.15em] uppercase text-white/60 mb-4">Legal</h4>
+              <ul className="space-y-2.5">
+                {[
+                  { label: "Privacy Policy", to: "/privacy" },
+                  { label: "Terms of Service", to: "/terms" },
+                  { label: "Refund Policy", to: "/refund" },
+                ].map(link => (
+                  <li key={link.label}><Link to={link.to} className="text-sm text-white/40 hover:text-white transition-colors">{link.label}</Link></li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          <div className="border-t border-white/5 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-xs text-white/30">&copy; 2026 AIWholesail. All rights reserved.</p>
+            <div className="flex items-center gap-4">
+              <Badge variant="outline" className="text-xs text-white/30 border-white/10"><Zap className="h-3 w-3 mr-1" /> AI-Powered</Badge>
+              <div className="flex items-center gap-1.5"><div className="h-2 w-2 bg-primary rounded-full animate-pulse" /><span className="text-xs text-white/30">Live Updates</span></div>
             </div>
           </div>
         </div>

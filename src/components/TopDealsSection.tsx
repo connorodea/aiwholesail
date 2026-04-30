@@ -381,7 +381,7 @@ export function TopDealsSection() {
           <div className="absolute -inset-4 bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 blur-xl -z-10 rounded-full"></div>
         </div>
         <p className="text-xl text-muted-foreground max-w-4xl mx-auto leading-relaxed">
-          Elite wholesale opportunities discovered by AI across {TOP_MARKETS.length}+ markets nationwide. 
+          Elite investment opportunities discovered by AI across {TOP_MARKETS.length}+ markets nationwide.
           Updated in real-time with profit scoring algorithms.
         </p>
         
@@ -566,7 +566,7 @@ export function TopDealsSection() {
           <div className="space-y-2">
             <h3 className="text-2xl font-bold text-foreground">No Deals Found</h3>
             <p className="text-muted-foreground max-w-md mx-auto">
-              Our AI is scanning nationwide markets. Try refreshing to discover new wholesale opportunities.
+              Our AI is scanning nationwide markets. Try refreshing to discover new investment opportunities.
             </p>
           </div>
           <Button variant="default" size="lg" onClick={fetchTopDeals} className="">

@@ -344,7 +344,7 @@ export function ComparableSalesTable({ property }: ComparableSalesTableProps) {
             <div className="flex items-start gap-3">
               <CheckCircle2 className="h-6 w-6 text-green-500 flex-shrink-0 mt-0.5" />
               <div>
-                <div className="font-semibold text-green-600">Wholesale Opportunity Confirmed</div>
+                <div className="font-semibold text-green-600">Profitable Deal Confirmed</div>
                 <div className="text-sm text-muted-foreground mt-1">
                   Based on {comparables.length} comparable sales, this property is priced {formatPrice(spreadFromComps)} below
                   the estimated ARV of {formatPrice(estimatedARV)}. The average $/sqft in this area is ${avgPricePerSqft}.

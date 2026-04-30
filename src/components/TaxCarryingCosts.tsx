@@ -422,7 +422,7 @@ export function TaxCarryingCosts({ property }: TaxCarryingCostsProps) {
               <div className="text-sm text-muted-foreground mt-1">
                 At {formatCurrency(totalMonthlyCarrying)}/month in carrying costs, you'll spend {formatCurrency(totalMonthlyCarrying * 3)} over 3 months
                 or {formatCurrency(totalMonthlyCarrying * 6)} over 6 months while holding this property.
-                Factor these costs into your wholesale or flip calculations.
+                Factor these costs into your deal or flip calculations.
               </div>
             </div>
           </div>

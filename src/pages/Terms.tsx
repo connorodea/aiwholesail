@@ -8,7 +8,7 @@ export default function Terms() {
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
       <SEOHead 
         title="Terms of Service"
-        description="Terms of Service for AI Wholesail - AI-powered real estate wholesale deal finder platform."
+        description="Terms of Service for AIWholesail - AI-powered real estate deal finder platform."
         noIndex={false}
       />
       
@@ -48,7 +48,7 @@ export default function Terms() {
                 <h2 className="text-2xl font-semibold mb-4">2. Description of Service</h2>
                 <p>
                   AI Wholesail is a software platform that provides AI-powered real estate analysis, property search, 
-                  and wholesale deal identification tools. Our service includes but is not limited to:
+                  and deal identification tools. Our service includes but is not limited to:
                 </p>
                 <ul className="list-disc pl-6 mt-2 space-y-1">
                   <li>Property search and filtering capabilities</li>

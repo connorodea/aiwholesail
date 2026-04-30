@@ -43,7 +43,7 @@ const plans: SubscriptionPlan[] = [
     name: 'Pro',
     price: 29,
     priceId: 'price_1QjrSuCwWnuOPtC4Bfwu6IEs',
-    description: 'Perfect for individual wholesalers - 7-day free trial',
+    description: 'Perfect for individual investors - 7-day free trial',
     features: [
       'Up to 5 alert locations',
       'Automated updates every 24 hours',

@@ -17,8 +17,8 @@ export default function FAQ() {
 
   const faqs = [
     {
-      question: "What is AI Wholesail and how does it work?",
-      answer: "AI Wholesail is an AI-powered platform that helps real estate wholesalers find profitable deals. We use machine learning to analyze property data, market trends, and investment potential to identify undervalued properties. Our platform searches multiple data sources, provides automated deal analysis, and sends you alerts when properties match your criteria."
+      question: "What is AIWholesail and how does it work?",
+      answer: "AIWholesail is an AI-powered platform that helps real estate professionals find profitable deals. We use machine learning to analyze property data, market trends, and investment potential to identify undervalued properties. Our platform searches multiple data sources, provides automated deal analysis, and sends you alerts when properties match your criteria."
     },
     {
       question: "How does the 7-day free trial work?",
@@ -42,7 +42,7 @@ export default function FAQ() {
     },
     {
       question: "What types of properties can I search for?",
-      answer: "You can search for residential properties including single-family homes, condos, townhouses, and multi-family properties (2-4 units). Our platform specializes in finding distressed properties, foreclosures, estate sales, and other wholesale opportunities."
+      answer: "You can search for residential properties including single-family homes, condos, townhouses, and multi-family properties (2-4 units). Our platform specializes in finding undervalued properties, foreclosures, estate sales, and other investment opportunities."
     },
     {
       question: "How do property alerts work?",
@@ -53,12 +53,12 @@ export default function FAQ() {
       answer: "Skip tracing is included with Elite plans and allows you to find contact information for property owners. This feature helps you connect directly with motivated sellers for off-market opportunities."
     },
     {
-      question: "Can I use AI Wholesail in my area?",
+      question: "Can I use AIWholesail in my area?",
       answer: "We cover most major metropolitan areas in the United States. Our data sources include MLS systems, public records, and other real estate databases. Contact us if you're unsure about coverage in your specific market."
     },
     {
       question: "How does the AI deal scoring work?",
-      answer: "Our AI analyzes multiple factors including purchase price, estimated repairs, after-repair value (ARV), market demand, days on market, and comparable sales. It then assigns a score from 1-100, with higher scores indicating better wholesale potential."
+      answer: "Our AI analyzes multiple factors including purchase price, estimated repairs, after-repair value (ARV), market demand, days on market, and comparable sales. It then assigns a score from 1-100, with higher scores indicating better profit potential."
     },
     {
       question: "Can I export my leads and data?",
@@ -73,7 +73,7 @@ export default function FAQ() {
       answer: "Yes, we take data security seriously. All data is encrypted in transit and at rest. We comply with industry security standards and never share your personal information with third parties without your consent. See our Privacy Policy for details."
     },
     {
-      question: "Can I integrate AI Wholesail with my existing tools?",
+      question: "Can I integrate AIWholesail with my existing tools?",
       answer: "Currently, we offer data export capabilities. We're working on API integrations with popular CRM systems and are open to discussing specific integration needs for Enterprise customers."
     }
   ];
@@ -82,7 +82,7 @@ export default function FAQ() {
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
       <SEOHead 
         title="Frequently Asked Questions"
-        description="Get answers to common questions about AI Wholesail - pricing, features, trials, and how our AI-powered real estate platform works."
+        description="Get answers to common questions about AIWholesail - pricing, features, trials, and how our AI-powered real estate deal-finding platform works."
         noIndex={false}
       />
       
@@ -108,7 +108,7 @@ export default function FAQ() {
           <div className="text-center mb-12">
             <h1 className="text-4xl md:text-5xl font-bold mb-4">Frequently Asked Questions</h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Find answers to common questions about AI Wholesail. Can't find what you're looking for? 
+              Find answers to common questions about AIWholesail. Can't find what you're looking for? 
               <Link to="/contact" className="text-primary hover:underline ml-1">Contact our support team</Link>.
             </p>
           </div>
@@ -141,7 +141,7 @@ export default function FAQ() {
           <div className="mt-12 text-center bg-primary/5 border border-primary/20 rounded-2xl p-8">
             <h2 className="text-2xl font-bold mb-4">Still have questions?</h2>
             <p className="text-muted-foreground mb-6">
-              Our support team is here to help you get the most out of AI Wholesail.
+              Our support team is here to help you get the most out of AIWholesail.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link to="/contact">

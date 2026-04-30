@@ -116,7 +116,7 @@ export default function Auth() {
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 relative">
       <SEOHead 
         title={isSignUp ? "Create Account" : "Sign In"}
-        description={isSignUp ? "Create your AI Wholesail account and start finding profitable real estate deals with our 7-day free trial." : "Sign in to your AI Wholesail account to access your real estate wholesale dashboard."}
+        description={isSignUp ? "Create your AIWholesail account and start finding profitable real estate deals with our 7-day free trial." : "Sign in to your AIWholesail account to access your real estate deal-finding dashboard."}
         noIndex={false}
       />
       {/* Header */}

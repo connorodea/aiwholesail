@@ -39,7 +39,6 @@ import { toast } from 'sonner';
 
 const navItems = [
   { href: '/app', label: 'Search', icon: Search },
-  { href: '/app/off-market', label: 'Off-Market', icon: Target },
   { href: '/app/analyzer', label: 'AI Analyzer', icon: Brain },
   { href: '/app/pipeline', label: 'Pipeline', icon: Kanban },
   { href: '/app/buyers', label: 'Buyers', icon: Users },

@@ -178,7 +178,7 @@ export function AIWholesaleAnalyzer({ properties, market }: AIWholesaleAnalyzerP
       setAnalysisResult(response.data as any);
       toast({
         title: "Analysis Complete",
-        description: `Found ${(response.data as any).ranked_opportunities.length} actionable wholesale opportunities.`,
+        description: `Found ${(response.data as any).ranked_opportunities.length} actionable investment opportunities.`,
       });
 
     } catch (error) {
@@ -237,7 +237,7 @@ export function AIWholesaleAnalyzer({ properties, market }: AIWholesaleAnalyzerP
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `wholesale-opportunities-${market}-${new Date().toISOString().split('T')[0]}.csv`;
+    a.download = `deal-opportunities-${market}-${new Date().toISOString().split('T')[0]}.csv`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -249,10 +249,10 @@ export function AIWholesaleAnalyzer({ properties, market }: AIWholesaleAnalyzerP
       <CardHeader className="pb-4 sm:pb-6">
         <CardTitle className="flex items-center gap-2 sm:gap-3 text-xl sm:text-2xl text-foreground">
           <Brain className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-          AI Wholesale Opportunity Analyzer
+          AI Deal Analyzer
         </CardTitle>
         <p className="text-sm text-muted-foreground">
-          Advanced AI analysis to identify the best wholesale opportunities with defensible numbers, ARV calculations, and contact strategies.
+          Advanced AI analysis to identify the best investment opportunities with defensible numbers, ARV calculations, and contact strategies.
         </p>
       </CardHeader>
       

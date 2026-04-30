@@ -22,6 +22,11 @@ import Privacy from "./pages/Privacy";
 import Refund from "./pages/Refund";
 import Contact from "./pages/Contact";
 import FAQ from "./pages/FAQ";
+import About from "./pages/About";
+import HowItWorks from "./pages/HowItWorks";
+import UseCases from "./pages/UseCases";
+import Blog from "./pages/Blog";
+import BlogPost from "./pages/BlogPost";
 import OffMarket from "./pages/OffMarket";
 import Analyzer from "./pages/Analyzer";
 import Favorites from "./pages/Favorites";
@@ -30,6 +35,15 @@ import Pipeline from "./pages/Pipeline";
 import Buyers from "./pages/Buyers";
 import Sequences from "./pages/Sequences";
 import Contracts from "./pages/Contracts";
+import ToolsIndex from "./pages/tools/ToolsIndex";
+import MortgageCalculator from "./pages/tools/MortgageCalculator";
+import WholesaleDealCalculator from "./pages/tools/WholesaleDealCalculator";
+import ARVCalculator from "./pages/tools/ARVCalculator";
+import CashFlowCalculator from "./pages/tools/CashFlowCalculator";
+import RehabEstimator from "./pages/tools/RehabEstimator";
+import BRRRRCalculator from "./pages/tools/BRRRRCalculator";
+import OfferPriceCalculator from "./pages/tools/OfferPriceCalculator";
+import CapRateCalculator from "./pages/tools/CapRateCalculator";
 
 const queryClient = new QueryClient();
 
@@ -100,7 +114,21 @@ const App = () => (
                 <Route path="/refund" element={<Refund />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/faq" element={<FAQ />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/how-it-works" element={<HowItWorks />} />
+                <Route path="/use-cases" element={<UseCases />} />
+                <Route path="/blog" element={<Blog />} />
+                <Route path="/blog/:slug" element={<BlogPost />} />
                 <Route path="/index" element={<Index />} />
+                <Route path="/tools/mortgage-calculator" element={<MortgageCalculator />} />
+                <Route path="/tools/wholesale-deal-calculator" element={<WholesaleDealCalculator />} />
+                <Route path="/tools/arv-calculator" element={<ARVCalculator />} />
+                <Route path="/tools/cash-flow-calculator" element={<CashFlowCalculator />} />
+                <Route path="/tools/rehab-estimator" element={<RehabEstimator />} />
+                <Route path="/tools/brrrr-calculator" element={<BRRRRCalculator />} />
+                <Route path="/tools/offer-price-calculator" element={<OfferPriceCalculator />} />
+                <Route path="/tools/cap-rate-calculator" element={<CapRateCalculator />} />
+                <Route path="/tools" element={<ToolsIndex />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>

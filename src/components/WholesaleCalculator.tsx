@@ -63,7 +63,7 @@ export function WholesaleCalculator({ property }: WholesaleCalculatorProps) {
       recommendations.push('Look for ways to reduce repair cost estimates');
       recommendations.push('This deal may not meet the 70% rule');
     } else {
-      recommendations.push('This property shows positive wholesale potential');
+      recommendations.push('This property shows positive deal potential');
       if (property.daysOnMarket && property.daysOnMarket > 60) {
         recommendations.push('Long time on market suggests motivated seller');
       }
@@ -116,7 +116,7 @@ export function WholesaleCalculator({ property }: WholesaleCalculatorProps) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Calculator className="h-5 w-5" />
-          Wholesale Deal Calculator
+          Deal Calculator
           {results && (
             <Badge className={getQualityColor(results.dealQuality)}>
               {results.dealQuality.charAt(0).toUpperCase() + results.dealQuality.slice(1)} Deal
@@ -225,7 +225,7 @@ export function WholesaleCalculator({ property }: WholesaleCalculatorProps) {
                   {formatPrice(results.profitPotential)}
                 </div>
                 <div className="text-xs text-muted-foreground">
-                  Wholesale opportunity
+                  Investment opportunity
                 </div>
               </div>
             </div>
