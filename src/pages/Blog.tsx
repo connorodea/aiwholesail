@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import {
-  ArrowLeft,
   ArrowRight,
   Clock,
   BookOpen,
@@ -12,6 +11,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { SEOHead } from '@/components/SEOHead';
+import { PublicLayout } from '@/components/PublicLayout';
 import blogIndex from '@/data/blog/index.json';
 
 interface Article {
@@ -108,71 +108,52 @@ export default function Blog() {
   const gridArticles = allArticles.filter((a) => !a.featured);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+    <PublicLayout>
       <SEOHead
         title="Resources & Insights"
         description="Expert guides, market insights, and strategies for real estate professionals. Learn how to find profitable deals with AI-powered analysis."
         keywords="real estate blog, investing guides, market insights, deal analysis, ARV calculator, wholesaling tips, real estate strategy"
       />
 
-      {/* Header */}
-      <header className="fixed top-4 left-4 right-4 z-50">
-        <div className="container mx-auto max-w-7xl">
-          <div className="bg-card/80 backdrop-blur-xl border border-border/50 rounded-2xl shadow-lg px-6 py-4">
-            <div className="flex items-center justify-between">
-              <Link
-                to="/"
-                className="flex items-center space-x-2 text-sm font-medium hover:text-primary transition-colors"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                <span>Back to Home</span>
-              </Link>
-              <div className="text-lg font-semibold">Blog</div>
-              <div className="w-20" />
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Hero */}
-      <section className="pt-32 pb-16 px-4">
-        <div className="container mx-auto max-w-4xl text-center">
-          <Badge
-            variant="secondary"
-            className="mb-6 px-4 py-1.5 text-sm font-medium bg-primary/10 text-primary border-0"
-          >
-            <BookOpen className="h-3.5 w-3.5 mr-1.5" />
-            Resources & Insights
+      {/* ===== HERO — DARK ===== */}
+      <section className="relative bg-gradient-to-b from-[#0a0a0a] via-[#0f0f0f] to-[#0a0a0a] text-white overflow-hidden">
+        <div className="relative container mx-auto max-w-6xl px-4 pt-24 pb-20 text-center">
+          <Badge className="mb-6 bg-white/10 text-white/80 border-white/10 backdrop-blur-sm text-xs font-medium px-4 py-1.5 rounded-full">
+            <BookOpen className="h-3 w-3 mr-1.5" /> Resources & Insights
           </Badge>
-          <h1 className="text-4xl md:text-5xl font-medium tracking-tight mb-6">
-            Expert guides for{' '}
-            <span className="text-primary">smarter investing</span>
+
+          <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">
+            Expert guides for
+            <br />
+            <span className="bg-gradient-to-r from-primary via-cyan-400 to-primary bg-clip-text text-transparent">
+              smarter investing.
+            </span>
           </h1>
-          <p className="text-lg text-muted-foreground font-light leading-relaxed max-w-2xl mx-auto">
+
+          <p className="text-lg md:text-xl text-white/60 max-w-2xl mx-auto leading-relaxed font-light">
             Market insights, deal analysis strategies, and actionable guides to
             help you find and close profitable real estate deals.
           </p>
         </div>
+
+        {/* Fade to white */}
+        <div className="h-24 bg-gradient-to-b from-[#0a0a0a] to-background" />
       </section>
 
-      {/* Featured Article */}
+      {/* ===== FEATURED ARTICLE — LIGHT ===== */}
       {featuredArticle && (
-        <section className="pb-16 px-4">
-          <div className="container mx-auto max-w-7xl">
+        <section className="py-24 px-4 bg-background">
+          <div className="container mx-auto max-w-6xl">
+            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-4">Featured</p>
             <Link to={featuredArticle?.slug ? `/blog/${featuredArticle.slug}` : '/blog'} className="block group">
-              <div className="bg-card/50 border border-border/50 rounded-2xl p-8 md:p-12 transition-all duration-200 hover:border-primary/20 hover:shadow-lg">
+              <div className="bg-gradient-to-br from-muted/50 to-muted/30 border border-border/50 rounded-3xl p-8 md:p-12 transition-all duration-300 hover:border-primary/20">
                 <div className="grid md:grid-cols-5 gap-8 items-center">
-                  {/* Text Content */}
                   <div className="md:col-span-3">
                     <div className="flex items-center gap-3 mb-4">
-                      <Badge
-                        variant="secondary"
-                        className="text-xs font-medium border-0 bg-primary/10 text-primary"
-                      >
+                      <Badge className="bg-primary/10 text-primary border-0 text-xs font-medium">
                         Featured
                       </Badge>
                       <Badge
-                        variant="secondary"
                         className={`text-xs font-medium border-0 ${
                           categoryColors[featuredArticle.category] || ''
                         }`}
@@ -180,7 +161,7 @@ export default function Blog() {
                         {featuredArticle.category}
                       </Badge>
                     </div>
-                    <h2 className="text-2xl md:text-3xl font-medium tracking-tight mb-4 group-hover:text-primary transition-colors">
+                    <h2 className="text-2xl md:text-3xl font-bold tracking-tight mb-4 group-hover:text-primary transition-colors">
                       {featuredArticle.title}
                     </h2>
                     <p className="text-muted-foreground font-light leading-relaxed mb-6">
@@ -198,9 +179,8 @@ export default function Blog() {
                     </div>
                   </div>
 
-                  {/* Visual Placeholder */}
                   <div className="md:col-span-2">
-                    <div className="aspect-[4/3] rounded-xl bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 border border-border/30 flex items-center justify-center">
+                    <div className="aspect-[4/3] rounded-2xl bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 border border-border/30 flex items-center justify-center">
                       <div className="text-center">
                         <Sparkles className="h-10 w-10 text-primary/30 mx-auto mb-3" />
                         <span className="text-xs text-muted-foreground/60 font-light">
@@ -216,25 +196,25 @@ export default function Blog() {
         </section>
       )}
 
-      {/* Article Grid */}
-      <section className="pb-24 px-4">
-        <div className="container mx-auto max-w-7xl">
-          <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-8">
-            Latest articles
-          </h3>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* ===== ARTICLE GRID — LIGHT ===== */}
+      <section className="py-24 px-4 bg-background">
+        <div className="container mx-auto max-w-6xl">
+          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-4">Latest Articles</p>
+          <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-16">
+            Insights to sharpen your edge.
+          </h2>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {gridArticles.map((article, index) => (
               <Link to={article.slug ? `/blog/${article.slug}` : '/blog'} key={index} className="group">
-                <article className="h-full bg-card/50 border border-border/50 rounded-2xl p-6 transition-all duration-200 hover:border-primary/20 hover:shadow-lg flex flex-col">
+                <article className="h-full bg-gradient-to-br from-muted/50 to-muted/30 border border-border/50 rounded-3xl p-6 transition-all duration-300 hover:border-primary/20 flex flex-col">
                   {/* Image Placeholder */}
-                  <div className="aspect-[16/9] rounded-xl bg-gradient-to-br from-muted/50 to-muted/30 border border-border/30 mb-5 flex items-center justify-center">
+                  <div className="aspect-[16/9] rounded-2xl bg-gradient-to-br from-muted/80 to-muted/50 border border-border/30 mb-5 flex items-center justify-center">
                     <BookOpen className="h-6 w-6 text-muted-foreground/30" />
                   </div>
 
                   {/* Category + Read Time */}
                   <div className="flex items-center justify-between mb-3">
                     <Badge
-                      variant="secondary"
                       className={`text-xs font-medium border-0 ${
                         categoryColors[article.category] || ''
                       }`}
@@ -248,7 +228,7 @@ export default function Blog() {
                   </div>
 
                   {/* Title */}
-                  <h3 className="text-lg font-medium tracking-tight mb-2 group-hover:text-primary transition-colors leading-snug">
+                  <h3 className="text-lg font-bold tracking-tight mb-2 group-hover:text-primary transition-colors leading-snug">
                     {article.title}
                   </h3>
 
@@ -269,47 +249,45 @@ export default function Blog() {
         </div>
       </section>
 
-      {/* Newsletter CTA */}
-      <section className="py-24 px-4">
-        <div className="container mx-auto max-w-4xl">
-          <div className="bg-card/50 border border-border/50 rounded-2xl p-12 md:p-16 text-center">
-            <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-primary/10 text-primary mx-auto mb-6">
-              <Mail className="h-7 w-7" />
-            </div>
-            <h2 className="text-3xl md:text-4xl font-medium tracking-tight mb-4">
-              Get weekly deal{' '}
-              <span className="text-primary">insights</span>
-            </h2>
-            <p className="text-muted-foreground font-light leading-relaxed max-w-xl mx-auto mb-8">
-              Join thousands of investors who receive our weekly newsletter with
-              market analysis, deal breakdowns, and actionable investing
-              strategies.
-            </p>
-            <form
-              onSubmit={(e) => e.preventDefault()}
-              className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto"
-            >
-              <Input
-                type="email"
-                placeholder="you@example.com"
-                className="h-12 bg-background/50 border-border/50 text-base"
-                aria-label="Email address for newsletter"
-              />
-              <Button
-                type="submit"
-                size="lg"
-                className="h-12 px-8 text-base font-medium shrink-0"
-              >
-                Subscribe
-                <ArrowRight className="h-4 w-4 ml-2" />
-              </Button>
-            </form>
-            <p className="text-xs text-muted-foreground font-light mt-4">
-              Free forever. Unsubscribe anytime. No spam.
-            </p>
+      {/* ===== NEWSLETTER CTA — DARK ===== */}
+      <section className="relative bg-[#0a0a0a] text-white py-24 px-4 overflow-hidden">
+        <div className="relative container mx-auto max-w-4xl text-center">
+          <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-white/10 mx-auto mb-6">
+            <Mail className="h-7 w-7 text-primary" />
           </div>
+          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-4">Stay Informed</p>
+          <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">
+            Get weekly deal insights.
+          </h2>
+          <p className="text-lg text-white/60 font-light leading-relaxed max-w-xl mx-auto mb-10">
+            Join thousands of investors who receive our weekly newsletter with
+            market analysis, deal breakdowns, and actionable investing
+            strategies.
+          </p>
+          <form
+            onSubmit={(e) => e.preventDefault()}
+            className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto"
+          >
+            <Input
+              type="email"
+              placeholder="you@example.com"
+              className="h-12 bg-white/5 border-white/10 text-white text-base placeholder:text-white/30 focus:border-primary"
+              aria-label="Email address for newsletter"
+            />
+            <Button
+              type="submit"
+              size="lg"
+              className="h-12 px-8 text-base font-semibold shrink-0 rounded-full bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25 gap-2"
+            >
+              Subscribe
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </form>
+          <p className="text-xs text-white/30 font-light mt-4">
+            Free forever. Unsubscribe anytime. No spam.
+          </p>
         </div>
       </section>
-    </div>
+    </PublicLayout>
   );
 }
