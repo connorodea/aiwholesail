@@ -133,7 +133,7 @@ export function AIPropertyAnalyzer({ property }: AIPropertyAnalyzerProps) {
             </div>
             <h3 className="text-2xl font-semibold mb-3 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">AI Property Analysis</h3>
             <p className="text-muted-foreground mb-8 max-w-lg leading-relaxed">
-              Get detailed insights about this property's wholesale potential, market positioning, and investment opportunities using advanced AI analysis.
+              Get detailed insights about this property's deal potential, market positioning, and investment opportunities using advanced AI analysis.
             </p>
             <Button onClick={analyzeProperty} size="lg" className="gap-3 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 shadow-lg hover:shadow-xl transition-all duration-300 rounded-xl px-8 py-3">
               <Zap className="h-5 w-5" />
@@ -186,7 +186,7 @@ export function AIPropertyAnalyzer({ property }: AIPropertyAnalyzerProps) {
                   </Badge>
                 </div>
                 <div className="text-center p-6 bg-gradient-to-br from-muted/20 to-muted/10 rounded-2xl border border-border/30 shadow-inner">
-                  <div className="text-sm text-muted-foreground mb-2 font-medium">Wholesale Score</div>
+                  <div className="text-sm text-muted-foreground mb-2 font-medium">Deal Score</div>
                   <div className={`text-3xl font-bold ${getScoreColor(analysis.wholesaleScore)}`}>
                     {analysis.wholesaleScore}/100
                   </div>
