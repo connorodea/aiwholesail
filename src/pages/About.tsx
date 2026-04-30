@@ -229,7 +229,7 @@ export default function About() {
               </div>
               <div className="flex items-center gap-1.5">
                 <Shield className="h-3.5 w-3.5 text-primary" />
-                <span className="font-light">Credit Card Required</span>
+                <span className="font-light">No Credit Card Required</span>
               </div>
             </div>
           </div>

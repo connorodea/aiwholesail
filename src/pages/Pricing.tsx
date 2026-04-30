@@ -113,7 +113,7 @@ export default function Pricing() {
               Choose your <span className="text-primary">plan</span>
             </h1>
             <p className="text-lg text-muted-foreground font-light max-w-2xl mx-auto">
-              Start your 7-day free trial today. Enter your credit card details to get started - you won't be charged until after your trial ends.
+              Start your 7-day free trial today. No credit card required — just sign up and start finding deals.
             </p>
           </div>
           
@@ -167,7 +167,7 @@ export default function Pricing() {
                   </Button>
                   
                   <p className="text-xs text-muted-foreground font-light mt-3 text-center">
-                    Credit card required • Cancel anytime during trial
+                    No credit card required • Cancel anytime
                   </p>
                 </CardContent>
               </Card>
