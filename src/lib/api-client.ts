@@ -630,6 +630,26 @@ export const sequences = {
   },
 };
 
+// ============ CONTRACTS API ============
+export const contracts = {
+  list: async () => apiFetch('/api/contracts'),
+
+  get: async (id: string) => apiFetch(`/api/contracts/${id}`),
+
+  generate: async (data: any) => {
+    return apiFetch('/api/contracts/generate', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  getForLead: async (leadId: string) => apiFetch(`/api/contracts/lead/${leadId}`),
+
+  delete: async (id: string) => {
+    return apiFetch(`/api/contracts/${id}`, { method: 'DELETE' });
+  },
+};
+
 // ============ UTILITY API ============
 export const utility = {
   geocode: async (address: string) => {
@@ -639,7 +659,7 @@ export const utility = {
     });
   },
 
-  generatePdf: async (type: 'property-report' | 'lead-export' | 'deal-analysis', data: any) => {
+  generatePdf: async (type: 'property-report' | 'lead-export' | 'deal-analysis' | 'contract', data: any) => {
     return apiFetch('/api/pdf/generate', {
       method: 'POST',
       body: JSON.stringify({ type, data }),
@@ -659,6 +679,7 @@ const apiClient = {
   communications,
   buyers,
   sequences,
+  contracts,
   utility,
   onAuthStateChange,
 };

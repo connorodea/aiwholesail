@@ -16,6 +16,7 @@ const propertyRoutes = require('./routes/property');
 const communicationsRoutes = require('./routes/communications');
 const buyersRoutes = require('./routes/buyers');
 const sequencesRoutes = require('./routes/sequences');
+const contractsRoutes = require('./routes/contracts');
 const utilityRoutes = require('./routes/utility');
 
 // Import middleware
@@ -94,6 +95,7 @@ app.use('/api/property', propertyRoutes);
 app.use('/api/communications', communicationsRoutes);
 app.use('/api/buyers', buyersRoutes);
 app.use('/api/sequences', sequencesRoutes);
+app.use('/api/contracts', contractsRoutes);
 app.use('/api', utilityRoutes);
 
 // Handle 404

@@ -29,6 +29,7 @@ import Alerts from "./pages/Alerts";
 import Pipeline from "./pages/Pipeline";
 import Buyers from "./pages/Buyers";
 import Sequences from "./pages/Sequences";
+import Contracts from "./pages/Contracts";
 
 const queryClient = new QueryClient();
 
@@ -85,6 +86,11 @@ const App = () => (
                 <Route path="/app/sequences" element={
                   <ProtectedRoute>
                     <Sequences />
+                  </ProtectedRoute>
+                } />
+                <Route path="/app/contracts" element={
+                  <ProtectedRoute>
+                    <Contracts />
                   </ProtectedRoute>
                 } />
                 <Route path="/auth" element={<Auth />} />

@@ -29,6 +29,7 @@ import {
   Kanban,
   Users,
   Repeat,
+  FileText,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/contexts/SubscriptionContext';
@@ -43,6 +44,7 @@ const navItems = [
   { href: '/app/pipeline', label: 'Pipeline', icon: Kanban },
   { href: '/app/buyers', label: 'Buyers', icon: Users },
   { href: '/app/sequences', label: 'Sequences', icon: Repeat },
+  { href: '/app/contracts', label: 'Contracts', icon: FileText },
   { href: '/app/favorites', label: 'Favorites', icon: Heart },
   { href: '/app/alerts', label: 'Alerts', icon: Bell },
 ];
