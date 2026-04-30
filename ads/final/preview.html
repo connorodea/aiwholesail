@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AIWholesail Ad Preview</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0b1120; color: #fff; font-family: -apple-system, sans-serif; padding: 40px; }
+  h1 { font-size: 28px; margin-bottom: 8px; }
+  h1 span { color: #2dd4a3; }
+  .subtitle { color: rgba(255,255,255,0.4); margin-bottom: 40px; font-size: 14px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 30px; }
+  .card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; overflow: hidden; }
+  .card video { width: 100%; display: block; background: #000; }
+  .card .info { padding: 16px 20px; }
+  .card .info h3 { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+  .card .info .meta { font-size: 13px; color: rgba(255,255,255,0.4); }
+  .card .info .meta span { color: #2dd4a3; }
+</style>
+</head>
+<body>
+  <h1><span>AIWholesail</span> Ad Preview</h1>
+  <p class="subtitle">Click play on any video to preview. All files are in this folder ready for upload.</p>
+  <div class="grid">
+    <div class="card">
+      <video controls preload="metadata" src="aiwholesail-fb-square-avatar.mp4"></video>
+      <div class="info">
+        <h3>Facebook Feed — Square</h3>
+        <div class="meta"><span>1080x1080</span> · 48s · Avatar + Desktop Demo</div>
+      </div>
+    </div>
+    <div class="card">
+      <video controls preload="metadata" src="aiwholesail-story-avatar.mp4"></video>
+      <div class="info">
+        <h3>Instagram Story / TikTok</h3>
+        <div class="meta"><span>1080x1920</span> · 27s · Avatar + Mobile Demo</div>
+      </div>
+    </div>
+    <div class="card">
+      <video controls preload="metadata" src="aiwholesail-landscape-avatar.mp4"></video>
+      <div class="info">
+        <h3>Facebook Feed — Landscape</h3>
+        <div class="meta"><span>1200x628</span> · 23s · Avatar + Desktop Demo</div>
+      </div>
+    </div>
+    <div class="card">
+      <video controls preload="metadata" src="aiwholesail-avatar-full.mp4"></video>
+      <div class="info">
+        <h3>Full Avatar — Square</h3>
+        <div class="meta"><span>1080x1080</span> · 48s · Avatar Only + Branding</div>
+      </div>
+    </div>
+    <div class="card">
+      <video controls preload="metadata" src="aiwholesail-story-pip.mp4"></video>
+      <div class="info">
+        <h3>Story — Site Demo + Avatar PiP</h3>
+        <div class="meta"><span>1080x1920</span> · 27s · Mobile Site + Avatar Corner</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
