@@ -27,6 +27,7 @@ import HowItWorks from "./pages/HowItWorks";
 import UseCases from "./pages/UseCases";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
+import Developers from "./pages/Developers";
 import OffMarket from "./pages/OffMarket";
 import Analyzer from "./pages/Analyzer";
 import Favorites from "./pages/Favorites";
@@ -125,6 +126,7 @@ const App = () => (
                 <Route path="/use-cases" element={<UseCases />} />
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/blog/:slug" element={<BlogPost />} />
+                <Route path="/developers" element={<Developers />} />
                 <Route path="/index" element={<Index />} />
                 <Route path="/tools/mortgage-calculator" element={<MortgageCalculator />} />
                 <Route path="/tools/wholesale-deal-calculator" element={<WholesaleDealCalculator />} />
