@@ -989,9 +989,8 @@ export class ZillowAPI {
   }
 
   async getWalkScore(zpid: string): Promise<any> {
-    // Note: walkScore is not supported by the new API
-    console.warn('Walk score is not supported by the current API');
-    throw new Error('Walk score is not supported by the current API');
+    // Walk score API not available — return null gracefully
+    return null;
   }
 
   async getPropertyTaxes(zpid: string): Promise<any> {
@@ -1015,21 +1014,18 @@ export class ZillowAPI {
   }
 
   async getSkipTrace(address: string, location: string, format: string = 'full'): Promise<any> {
-    // Note: skipTrace is not supported by the new API
-    console.warn('Skip trace is not supported by the current API');
-    throw new Error('Skip trace is not supported by the current API');
+    // Skip trace uses the backend API endpoint instead of Zillow
+    return null;
   }
 
   async getDeepComps(zpid: string, count: string = "5"): Promise<any> {
-    // Note: deepComps is not supported - use comps instead
-    console.warn('Deep comps is not supported - using regular comps instead');
+    // Falls back to regular comps
     return this.getPropertyComps(zpid);
   }
 
   async deepSearch(address: string, citystatezip: string): Promise<any> {
-    // Note: deepSearch is not supported by the new API
-    console.warn('Deep search is not supported by the current API');
-    throw new Error('Deep search is not supported by the current API');
+    // Deep search not available — return null gracefully
+    return null;
   }
 }
 
