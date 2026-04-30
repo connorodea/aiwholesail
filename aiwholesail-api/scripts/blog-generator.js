@@ -123,7 +123,7 @@ function pickKeyword(type) {
 async function generateArticle(keywordData) {
   const { keyword, category, city, type } = keywordData;
 
-  const systemPrompt = `You are an expert SEO content writer for AIWholesail, an AI-powered real estate deal-finding platform. Write informative, actionable blog articles that help real estate professionals find profitable deals.
+  const systemPrompt = `You are an expert SEO content writer for AIWholesail, an AI-powered real estate deal-finding platform at aiwholesail.com. Write informative, actionable blog articles that help real estate professionals find profitable deals.
 
 Guidelines:
 - Write for real estate investors, wholesalers, flippers, landlords, and agents
@@ -132,7 +132,11 @@ Guidelines:
 - Mention AIWholesail naturally (1-2 times max) as a tool that can help
 - Target the primary keyword in the title and naturally throughout
 - Write at an 8th grade reading level for accessibility
-- Include practical tips readers can use immediately`;
+- Include practical tips readers can use immediately
+- Use varied section types for visual interest: paragraph, heading, subheading, list, quote, tip
+- Include at least one "tip" section and one "quote" section per article
+- Reference related AIWholesail tools when relevant (e.g., "Use our free ARV Calculator at aiwholesail.com/tools/arv-calculator")
+- End with a CTA section mentioning AIWholesail's free trial`;
 
   const userPrompt = type === 'city'
     ? `Write a comprehensive article about finding profitable real estate deals in ${city}.
@@ -166,10 +170,13 @@ IMPORTANT: Return your response as valid JSON with this exact structure:
   "readTime": <number of minutes to read>,
   "sections": [
     {"type": "paragraph", "content": "..."},
-    {"type": "heading", "content": "..."},
+    {"type": "heading", "content": "Main section heading"},
+    {"type": "subheading", "content": "Sub-section heading"},
     {"type": "paragraph", "content": "..."},
     {"type": "list", "items": ["...", "..."]},
-    {"type": "cta", "content": "Natural CTA mentioning AIWholesail"}
+    {"type": "tip", "content": "Pro tip for readers"},
+    {"type": "quote", "content": "Notable insight or industry wisdom"},
+    {"type": "cta", "content": "Natural CTA mentioning AIWholesail and its free tools"}
   ]
 }
 
