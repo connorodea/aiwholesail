@@ -105,7 +105,7 @@
     "tagline": "Real estate investing CRM and tools",
     "pricing": "$99/month",
     "weaknesses": [
-      "Outdated interface that feels clunky",
+      "Outdated interface that feels clunky and slow",
       "No AI or machine learning capabilities",
       "Limited property data compared to modern platforms",
       "Slow to update with new features",
@@ -137,6 +137,286 @@
       "Starts at $29/mo with full feature access",
       "Professional contract management with e-signatures",
       "Real-time market intelligence and comp analysis"
+    ]
+  },
+  {
+    "slug": "realeflow",
+    "name": "Realeflow",
+    "tagline": "Real estate investor marketing and deal management",
+    "pricing": "$99/month",
+    "weaknesses": [
+      "Complex setup process with a steep onboarding curve",
+      "No AI-powered deal scoring or property analysis",
+      "Marketing features require additional per-piece costs",
+      "Interface design feels outdated and cluttered",
+      "Lead management lacks intelligent prioritization"
+    ],
+    "aiwholesailAdvantages": [
+      "One-click setup with intuitive onboarding",
+      "AI automatically scores and ranks every deal",
+      "All marketing tools included in base subscription",
+      "Modern, clean UI built for speed and simplicity",
+      "AI-driven lead prioritization puts best deals first"
+    ]
+  },
+  {
+    "slug": "freedomsoft",
+    "name": "FreedomSoft",
+    "tagline": "All-in-one real estate investing system",
+    "pricing": "$197/month",
+    "weaknesses": [
+      "Very expensive at $197/mo for solo investors",
+      "No AI or machine learning analysis features",
+      "Overwhelming feature set leads to analysis paralysis",
+      "Built-in website builder produces generic-looking sites",
+      "Phone system and SMS cost extra per usage"
+    ],
+    "aiwholesailAdvantages": [
+      "85% cheaper at $29/mo with smarter features",
+      "AI-powered analysis replaces manual busywork",
+      "Streamlined workflow focused on deal flow, not bloat",
+      "Professional landing pages with conversion optimization",
+      "Communication tools included at no extra cost"
+    ]
+  },
+  {
+    "slug": "podio",
+    "name": "Podio",
+    "tagline": "Customizable project and CRM workspace",
+    "pricing": "$24/month per user",
+    "weaknesses": [
+      "Not purpose-built for real estate -- requires heavy customization",
+      "No property data, comps, or deal analysis built in",
+      "Requires third-party integrations for basic RE investor needs",
+      "Per-user pricing gets expensive for teams quickly",
+      "No skip tracing, direct mail, or seller outreach features"
+    ],
+    "aiwholesailAdvantages": [
+      "Purpose-built for real estate investors from day one",
+      "Property data, comps, and AI scoring included natively",
+      "No integrations needed -- everything works out of the box",
+      "Flat monthly pricing regardless of team size",
+      "Skip tracing, outreach, and deal analysis all built in"
+    ]
+  },
+  {
+    "slug": "resimpli",
+    "name": "REsimpli",
+    "tagline": "Real estate investor CRM and lead management",
+    "pricing": "$99/month",
+    "weaknesses": [
+      "No AI-powered deal scoring or automated analysis",
+      "Drip campaigns and SMS cost additional per message",
+      "Limited property data -- relies on manual entry for many fields",
+      "Reporting dashboards lack depth for advanced analytics",
+      "No built-in comparable sales or ARV calculations"
+    ],
+    "aiwholesailAdvantages": [
+      "AI deal scoring included -- no manual analysis needed",
+      "All communication tools included in base price",
+      "Rich property data pulled automatically from multiple sources",
+      "Advanced analytics dashboard with ROI tracking",
+      "Automated ARV and comp analysis on every property"
+    ]
+  },
+  {
+    "slug": "carrot",
+    "name": "Carrot",
+    "tagline": "Real estate investor websites and SEO",
+    "pricing": "$69/month",
+    "weaknesses": [
+      "Only provides websites -- no deal analysis or CRM",
+      "SEO results take months to generate leads",
+      "Templates look similar across thousands of investor sites",
+      "No property data, skip tracing, or outreach tools",
+      "Additional cost for premium themes and add-ons"
+    ],
+    "aiwholesailAdvantages": [
+      "Full deal-finding platform, not just a website builder",
+      "AI finds and scores deals immediately -- no waiting for SEO",
+      "Unique, conversion-optimized landing pages included",
+      "Property data, skip tracing, and outreach all built in",
+      "All features included in one flat monthly price"
+    ]
+  },
+  {
+    "slug": "investorfuse",
+    "name": "InvestorFuse",
+    "tagline": "Lead management CRM for real estate investors",
+    "pricing": "$149/month",
+    "weaknesses": [
+      "Expensive at $149/mo for CRM-only functionality",
+      "No property data, comps, or deal analysis features",
+      "No AI-powered lead scoring or deal evaluation",
+      "Limited to lead management -- not a full investing platform",
+      "No skip tracing or automated seller outreach"
+    ],
+    "aiwholesailAdvantages": [
+      "Full investing platform with CRM included at $29/mo",
+      "Property data and comp analysis built into every lead",
+      "AI automatically scores leads and deals by profitability",
+      "Complete pipeline from lead generation to disposition",
+      "Skip tracing and multi-channel outreach included"
+    ]
+  },
+  {
+    "slug": "reikit",
+    "name": "REIkit",
+    "tagline": "Real estate investment calculators and analysis",
+    "pricing": "$39/month",
+    "weaknesses": [
+      "Calculator-focused with no lead generation tools",
+      "No property search or deal sourcing features",
+      "No AI -- all analysis requires manual data entry",
+      "No CRM, pipeline management, or outreach tools",
+      "Limited to analysis -- does not help you find or close deals"
+    ],
+    "aiwholesailAdvantages": [
+      "AI-powered calculators that auto-populate property data",
+      "Built-in lead generation and property search",
+      "AI handles analysis automatically -- no manual entry",
+      "Full CRM with pipeline management and outreach",
+      "Complete platform from finding deals to closing them"
+    ]
+  },
+  {
+    "slug": "flipster",
+    "name": "Flipster",
+    "tagline": "House flipping project management tool",
+    "pricing": "$55/month",
+    "weaknesses": [
+      "Focused only on flipping -- not wholesaling or rentals",
+      "No AI-powered deal analysis or property scoring",
+      "No lead generation or property sourcing features",
+      "Limited to project management after you already have a deal",
+      "No skip tracing, outreach, or marketing tools"
+    ],
+    "aiwholesailAdvantages": [
+      "Supports wholesaling, flipping, AND rental strategies",
+      "AI scores deals before you buy -- not just after",
+      "Built-in lead generation and property sourcing",
+      "Full pipeline management from sourcing to exit",
+      "Skip tracing, outreach, and marketing all included"
+    ]
+  },
+  {
+    "slug": "mashvisor",
+    "name": "Mashvisor",
+    "tagline": "Rental property analytics and Airbnb data",
+    "pricing": "$49/month billed annually",
+    "weaknesses": [
+      "Focused on rental and Airbnb analysis only -- no wholesaling tools",
+      "Requires annual billing -- no true monthly option",
+      "No off-market deal sourcing or skip tracing",
+      "No AI deal scoring -- provides data but no intelligent recommendations",
+      "Property data limited to listed properties on major platforms"
+    ],
+    "aiwholesailAdvantages": [
+      "Supports all strategies: wholesale, flip, rental, and Airbnb",
+      "Flexible monthly billing with no annual commitment",
+      "Off-market deal sourcing and skip tracing built in",
+      "AI scores and recommends the best deals automatically",
+      "Comprehensive data on both listed and off-market properties"
+    ]
+  },
+  {
+    "slug": "roofstock",
+    "name": "Roofstock",
+    "tagline": "Online marketplace for turnkey rental properties",
+    "pricing": "0.5% buyer marketplace fee",
+    "weaknesses": [
+      "Marketplace model -- limited to their curated inventory only",
+      "0.5% transaction fee adds up on larger properties",
+      "No off-market deals or wholesale opportunities",
+      "No AI deal analysis -- rely on their pre-packaged numbers",
+      "Cannot source your own deals or use with outside properties"
+    ],
+    "aiwholesailAdvantages": [
+      "Find deals anywhere -- not limited to a curated marketplace",
+      "No transaction fees -- flat monthly subscription",
+      "Off-market deals and wholesale opportunities included",
+      "AI analyzes any property you find -- complete independence",
+      "Source, analyze, and close your own deals on your terms"
+    ]
+  },
+  {
+    "slug": "rentometer",
+    "name": "Rentometer",
+    "tagline": "Rent comparison and rental rate analysis",
+    "pricing": "$29/month",
+    "weaknesses": [
+      "Single-purpose tool -- only provides rent estimates",
+      "No property analysis, deal scoring, or investment calculators",
+      "No lead generation, skip tracing, or outreach features",
+      "No CRM or deal pipeline management",
+      "Data accuracy varies by market and property type"
+    ],
+    "aiwholesailAdvantages": [
+      "Rent estimates included as part of full property analysis",
+      "AI deal scoring, ARV, and investment calculators all included",
+      "Lead generation, skip tracing, and outreach built in",
+      "Full CRM and deal pipeline management included",
+      "Multi-source data validation for higher accuracy"
+    ]
+  },
+  {
+    "slug": "stessa",
+    "name": "Stessa",
+    "tagline": "Rental property financial tracking and reporting",
+    "pricing": "Free (Pro at $20/month)",
+    "weaknesses": [
+      "Only tracks finances after you own the property",
+      "No deal sourcing, analysis, or acquisition tools",
+      "No AI-powered deal scoring or market intelligence",
+      "No lead generation, skip tracing, or outreach",
+      "Limited to landlords -- not useful for wholesalers or flippers"
+    ],
+    "aiwholesailAdvantages": [
+      "Full acquisition pipeline from sourcing to closing",
+      "AI-powered deal analysis before you buy",
+      "Built for wholesalers, flippers, AND landlords",
+      "Lead generation, skip tracing, and outreach included",
+      "Financial tracking plus deal sourcing in one platform"
+    ]
+  },
+  {
+    "slug": "biggerpockets-pro",
+    "name": "BiggerPockets Pro",
+    "tagline": "Real estate investing education and community",
+    "pricing": "$39/month",
+    "weaknesses": [
+      "Primarily an education and community platform -- not a deal tool",
+      "Calculators require manual data entry for every property",
+      "No AI-powered analysis, scoring, or automation",
+      "No lead generation, skip tracing, or seller outreach",
+      "No CRM or deal pipeline management features"
+    ],
+    "aiwholesailAdvantages": [
+      "Purpose-built deal-finding and analysis platform",
+      "AI auto-populates data and scores properties instantly",
+      "Fully automated analysis, scoring, and deal ranking",
+      "Lead generation, skip tracing, and outreach built in",
+      "Complete CRM and pipeline management included"
+    ]
+  },
+  {
+    "slug": "realtymogul",
+    "name": "RealtyMogul",
+    "tagline": "Online real estate crowdfunding platform",
+    "pricing": "1-1.5% annual management fee",
+    "weaknesses": [
+      "Passive investing only -- no control over deal selection",
+      "High minimum investments starting at $5,000+",
+      "Annual management fees reduce overall returns",
+      "No tools for active investors who want to find their own deals",
+      "Illiquid investments with long lock-up periods"
+    ],
+    "aiwholesailAdvantages": [
+      "Full control over every deal you pursue",
+      "Start investing with low monthly subscription, not $5,000+",
+      "No management fees eating into your profits",
+      "Built for active investors who want to source and close deals",
+      "Liquid strategy -- wholesale deals close in days, not years"
     ]
   }
 ]
