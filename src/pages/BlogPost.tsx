@@ -1,14 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import {
   ArrowLeft, Clock, Calendar, User, Tag, ArrowRight, Zap,
   ChevronRight, BookOpen, Calculator, Search,
 } from 'lucide-react';
 import { SEOHead } from '@/components/SEOHead';
-import { GradientOrbs } from '@/components/effects/GradientOrbs';
+import { PublicLayout } from '@/components/PublicLayout';
 import blogIndex from '@/data/blog/index.json';
 
 interface BlogArticle {
@@ -30,10 +28,10 @@ interface BlogArticle {
 }
 
 const categoryColors: Record<string, string> = {
-  'Beginner Guide': 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20',
-  'Strategy': 'bg-blue-500/10 text-blue-600 border-blue-500/20',
-  'AI & Tech': 'bg-violet-500/10 text-violet-600 border-violet-500/20',
-  'Market Insights': 'bg-amber-500/10 text-amber-600 border-amber-500/20',
+  'Beginner Guide': 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+  'Strategy': 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+  'AI & Tech': 'bg-violet-500/10 text-violet-400 border-violet-500/20',
+  'Market Insights': 'bg-amber-500/10 text-amber-400 border-amber-500/20',
 };
 
 export default function BlogPost() {
@@ -65,25 +63,27 @@ export default function BlogPost() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#08090a] flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
-      </div>
+      <PublicLayout>
+        <div className="flex items-center justify-center py-40">
+          <div className="w-8 h-8 border-2 border-cyan-500/30 border-t-cyan-500 rounded-full animate-spin" />
+        </div>
+      </PublicLayout>
     );
   }
 
   if (notFound || !article) {
     return (
-      <div className="min-h-screen bg-[#08090a]">
+      <PublicLayout>
         <div className="container mx-auto max-w-3xl pt-32 pb-16 px-4 text-center">
-          <h1 className="text-3xl font-bold mb-4">Article Not Found</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-white mb-4">Article Not Found</h1>
           <p className="text-neutral-400 mb-6">The article you're looking for doesn't exist or has been moved.</p>
           <Link to="/blog">
-            <Button variant="outline" className="gap-2 rounded-full">
+            <button className="inline-flex items-center gap-2 px-6 py-3 border border-white/[0.08] rounded-md text-sm text-white hover:bg-white/[0.04] transition-colors">
               <ArrowLeft className="h-4 w-4" /> Back to Blog
-            </Button>
+            </button>
           </Link>
         </div>
-      </div>
+      </PublicLayout>
     );
   }
 
@@ -94,39 +94,27 @@ export default function BlogPost() {
   });
 
   return (
-    <div className="min-h-screen bg-[#08090a]">
+    <PublicLayout>
       <SEOHead
         title={article.title}
         description={article.metaDescription || article.excerpt}
         keywords={article.metaKeywords || article.tags.join(', ')}
       />
 
-      {/* ===== HERO HEADER — DARK ===== */}
-      <section className="relative bg-[#0a0a0a] text-white overflow-hidden">
-        <GradientOrbs variant="section" />
-
-        {/* Nav */}
-        <div className="relative container mx-auto max-w-7xl px-4 pt-6">
-          <div className="flex items-center justify-between">
-            <Link to="/blog" className="flex items-center gap-2 text-sm text-white/60 hover:text-white transition-colors">
+      {/* ===== HERO HEADER ===== */}
+      <section className="relative bg-gradient-to-b from-[#0a0a0a] via-[#0f0f0f] to-[#0a0a0a] text-white overflow-hidden">
+        <div className="relative container mx-auto max-w-3xl px-4 pt-28 pb-20">
+          <div className="flex items-center gap-2 mb-6">
+            <Link to="/blog" className="flex items-center gap-2 text-sm text-white/50 hover:text-white transition-colors">
               <ArrowLeft className="h-4 w-4" />
               <span>Blog</span>
             </Link>
-            <Link to="/" className="text-lg font-bold tracking-tight">AIWholesail</Link>
-            <Link to="/pricing">
-              <Button size="sm" className="rounded-full px-5 gap-2 bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25">
-                <Zap className="h-3.5 w-3.5" /> Try Free
-              </Button>
-            </Link>
           </div>
-        </div>
 
-        {/* Article Header */}
-        <div className="relative container mx-auto max-w-3xl px-4 pt-16 pb-20">
           <Badge variant="outline" className={`mb-6 text-xs border ${categoryColors[article.category] || 'border-white/20 text-white/60'}`}>
             {article.category}
           </Badge>
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight leading-[1.1] mb-6">
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight leading-[1.1] text-white mb-6">
             {article.title}
           </h1>
           <p className="text-lg text-white/50 font-light leading-relaxed mb-8 max-w-2xl">
@@ -144,25 +132,23 @@ export default function BlogPost() {
             </span>
           </div>
         </div>
-
-        <div className="h-16 bg-gradient-to-b from-[#0a0a0a] to-background" />
       </section>
 
-      {/* ===== ARTICLE BODY — WHITE ===== */}
-      <main className="pb-16 px-4">
+      {/* ===== ARTICLE BODY ===== */}
+      <section className="py-16 px-4">
         <article className="container mx-auto max-w-2xl">
-          <div className="space-y-7 -mt-4">
+          <div className="space-y-7">
             {article.sections.map((section, i) => {
               switch (section.type) {
                 case 'heading':
                   return (
-                    <h2 key={i} className="text-2xl md:text-3xl font-bold tracking-tight mt-14 mb-2">
+                    <h2 key={i} className="text-2xl md:text-3xl font-bold tracking-tight text-white mt-14 mb-2">
                       {section.content}
                     </h2>
                   );
                 case 'subheading':
                   return (
-                    <h3 key={i} className="text-xl font-bold tracking-tight mt-8 mb-2">
+                    <h3 key={i} className="text-xl font-bold tracking-tight text-white mt-8 mb-2">
                       {section.content}
                     </h3>
                   );
@@ -177,7 +163,7 @@ export default function BlogPost() {
                     <ul key={i} className="space-y-3 my-6 ml-1">
                       {section.items?.map((item, j) => (
                         <li key={j} className="flex gap-3 text-[17px] text-neutral-400 leading-[1.8] font-light">
-                          <span className="text-primary mt-1 shrink-0 font-bold">&bull;</span>
+                          <span className="text-cyan-400 mt-1 shrink-0 font-bold">&bull;</span>
                           <span>{item}</span>
                         </li>
                       ))}
@@ -185,25 +171,25 @@ export default function BlogPost() {
                   );
                 case 'quote':
                   return (
-                    <blockquote key={i} className="my-8 pl-6 border-l-2 border-primary/30 italic text-[17px] text-neutral-400/80 leading-[1.8]">
+                    <blockquote key={i} className="my-8 pl-6 border-l-2 border-cyan-500/30 italic text-[17px] text-neutral-400/80 leading-[1.8]">
                       {section.content}
                     </blockquote>
                   );
                 case 'tip':
                   return (
-                    <div key={i} className="my-8 p-6 bg-primary/5 border border-primary/10 rounded-2xl">
-                      <p className="text-sm font-semibold text-primary mb-1">Pro Tip</p>
+                    <div key={i} className="my-8 p-6 border border-white/[0.05] bg-gradient-to-b from-neutral-900/50 to-transparent rounded-xl">
+                      <p className="text-sm font-semibold text-cyan-400 mb-1">Pro Tip</p>
                       <p className="text-[15px] text-neutral-400 leading-relaxed">{section.content}</p>
                     </div>
                   );
                 case 'cta':
                   return (
-                    <div key={i} className="my-12 p-8 bg-[#0a0a0a] text-white rounded-2xl text-center space-y-4">
-                      <p className="font-medium leading-relaxed">{section.content}</p>
+                    <div key={i} className="my-12 p-8 border border-white/[0.05] bg-gradient-to-b from-neutral-900/50 to-transparent rounded-xl text-center space-y-4">
+                      <p className="font-medium leading-relaxed text-white">{section.content}</p>
                       <Link to="/pricing">
-                        <Button className="rounded-full px-6 gap-2 bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25">
+                        <button className="inline-flex items-center gap-2 px-6 py-3 bg-cyan-500 hover:bg-cyan-400 text-black font-semibold rounded-md transition-colors">
                           <Zap className="h-4 w-4" /> Start Free Trial
-                        </Button>
+                        </button>
                       </Link>
                     </div>
                   );
@@ -219,7 +205,7 @@ export default function BlogPost() {
               <div className="flex items-center gap-2 flex-wrap">
                 <Tag className="h-4 w-4 text-neutral-400" />
                 {article.tags.map((tag) => (
-                  <Badge key={tag} variant="outline" className="text-xs font-light rounded-full">
+                  <Badge key={tag} variant="outline" className="text-xs font-light rounded-full border-white/[0.08] text-neutral-400">
                     {tag}
                   </Badge>
                 ))}
@@ -227,18 +213,18 @@ export default function BlogPost() {
             </div>
           )}
 
-          {/* Internal Links — SEO interlinking */}
-          <div className="mt-12 p-6 bg-white/[0.02] border border-white/[0.06] rounded-2xl">
-            <p className="text-xs font-semibold tracking-[0.15em] uppercase text-primary mb-4">Explore More</p>
+          {/* Internal Links -- SEO interlinking */}
+          <div className="mt-12 p-6 border border-white/[0.05] bg-gradient-to-b from-neutral-900/50 to-transparent rounded-xl">
+            <p className="text-xs font-semibold tracking-[0.15em] uppercase text-cyan-400 mb-4">Explore More</p>
             <div className="grid sm:grid-cols-3 gap-3">
-              <Link to="/tools" className="flex items-center gap-2 text-sm text-neutral-400 hover:text-foreground transition-colors p-2 rounded-lg hover:bg-white/[0.03]">
-                <Calculator className="h-4 w-4 text-primary" /> Free Calculators
+              <Link to="/tools" className="flex items-center gap-2 text-sm text-neutral-400 hover:text-white transition-colors p-2 rounded-lg hover:bg-white/[0.03]">
+                <Calculator className="h-4 w-4 text-cyan-400" /> Free Calculators
               </Link>
-              <Link to="/how-it-works" className="flex items-center gap-2 text-sm text-neutral-400 hover:text-foreground transition-colors p-2 rounded-lg hover:bg-white/[0.03]">
-                <BookOpen className="h-4 w-4 text-primary" /> How It Works
+              <Link to="/how-it-works" className="flex items-center gap-2 text-sm text-neutral-400 hover:text-white transition-colors p-2 rounded-lg hover:bg-white/[0.03]">
+                <BookOpen className="h-4 w-4 text-cyan-400" /> How It Works
               </Link>
-              <Link to="/use-cases" className="flex items-center gap-2 text-sm text-neutral-400 hover:text-foreground transition-colors p-2 rounded-lg hover:bg-white/[0.03]">
-                <Search className="h-4 w-4 text-primary" /> Use Cases
+              <Link to="/use-cases" className="flex items-center gap-2 text-sm text-neutral-400 hover:text-white transition-colors p-2 rounded-lg hover:bg-white/[0.03]">
+                <Search className="h-4 w-4 text-cyan-400" /> Use Cases
               </Link>
             </div>
           </div>
@@ -247,21 +233,21 @@ export default function BlogPost() {
         {/* Related Articles */}
         {relatedArticles.length > 0 && (
           <div className="container mx-auto max-w-5xl mt-20">
-            <Separator className="mb-16" />
-            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-4">Keep Reading</p>
-            <h3 className="text-2xl md:text-3xl font-bold tracking-tight mb-8">More articles</h3>
+            <div className="border-t border-white/[0.06] mb-16" />
+            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-4">Keep Reading</p>
+            <h3 className="text-2xl md:text-3xl font-bold tracking-tight text-white mb-8">More articles</h3>
             <div className="grid md:grid-cols-3 gap-4">
               {relatedArticles.map((a: any) => (
                 <Link key={a.slug} to={`/blog/${a.slug}`} className="group">
-                  <div className="bg-white/[0.02] border border-white/[0.06] rounded-2xl p-6 hover:border-primary/20 hover:shadow-lg transition-all duration-300 h-full flex flex-col">
+                  <div className="border border-white/[0.05] bg-gradient-to-b from-neutral-900/50 to-transparent rounded-xl p-6 hover:border-cyan-500/20 hover:shadow-lg transition-all duration-300 h-full flex flex-col">
                     <Badge variant="outline" className={`text-[10px] w-fit mb-3 ${categoryColors[a.category] || ''}`}>
                       {a.category}
                     </Badge>
-                    <h4 className="font-bold text-sm mb-2 group-hover:text-primary transition-colors leading-snug">
+                    <h4 className="font-bold text-sm text-white mb-2 group-hover:text-cyan-400 transition-colors leading-snug">
                       {a.title}
                     </h4>
                     <p className="text-xs text-neutral-400 font-light line-clamp-2 flex-1">{a.excerpt}</p>
-                    <div className="flex items-center gap-1 text-xs font-medium text-primary mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex items-center gap-1 text-xs font-medium text-cyan-400 mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
                       Read article <ChevronRight className="h-3 w-3" />
                     </div>
                   </div>
@@ -271,30 +257,30 @@ export default function BlogPost() {
           </div>
         )}
 
-        {/* Bottom CTA — Dark */}
+        {/* Bottom CTA */}
         <div className="container mx-auto max-w-3xl mt-20">
-          <div className="bg-[#0a0a0a] text-white rounded-2xl p-10 md:p-12 text-center">
-            <h3 className="text-2xl md:text-3xl font-bold tracking-tight mb-3">
+          <div className="border border-white/[0.05] bg-gradient-to-b from-neutral-900/50 to-transparent rounded-xl p-10 md:p-12 text-center">
+            <h3 className="text-2xl md:text-3xl font-bold tracking-tight text-white mb-3">
               Find Profitable Deals with AI
             </h3>
-            <p className="text-sm text-white/50 font-light max-w-md mx-auto mb-6">
+            <p className="text-sm text-neutral-400 font-light max-w-md mx-auto mb-6">
               AIWholesail analyzes thousands of properties daily. Get instant deal scoring and market intelligence.
             </p>
             <div className="flex gap-3 justify-center flex-wrap">
               <Link to="/pricing">
-                <Button className="rounded-full px-6 gap-2 bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25">
+                <button className="inline-flex items-center gap-2 px-6 py-3 bg-cyan-500 hover:bg-cyan-400 text-black font-semibold rounded-md transition-colors">
                   <Zap className="h-4 w-4" /> Start Free Trial
-                </Button>
+                </button>
               </Link>
               <Link to="/blog">
-                <Button variant="outline" className="rounded-full px-6 gap-2 border-white/20 text-white hover:bg-white/10">
+                <button className="inline-flex items-center gap-2 px-6 py-3 border border-white/[0.08] rounded-md text-sm text-white hover:bg-white/[0.04] transition-colors">
                   <ArrowRight className="h-4 w-4" /> More Articles
-                </Button>
+                </button>
               </Link>
             </div>
           </div>
         </div>
-      </main>
-    </div>
+      </section>
+    </PublicLayout>
   );
 }
