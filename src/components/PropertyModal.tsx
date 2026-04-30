@@ -45,6 +45,7 @@ import { PhotosGallery } from './PhotosGallery';
 import { TaxCarryingCosts } from './TaxCarryingCosts';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useLeads } from '@/hooks/useLeads';
+import { AddToPipelineButton } from './pipeline/AddToPipelineButton';
 import { toast } from 'sonner';
 
 interface PropertyModalProps {
@@ -242,6 +243,7 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                   <Phone className="h-4 w-4" />
                   Convert to Lead
                 </Button>
+                <AddToPipelineButton property={displayProperty} variant="full" size="sm" />
               </div>
             </div>
           </div>
