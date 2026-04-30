@@ -77,7 +77,7 @@ export function DashboardNav() {
           <div className="flex items-center justify-between h-14">
             {/* Logo */}
             <Link to="/app" className="flex items-center gap-2 shrink-0">
-              <img src={aiWholesailLogo} alt="AIWholesail" className="h-10 w-auto object-contain" />
+              <img src={aiWholesailLogo} alt="AIWholesail" className="h-20 w-auto object-contain" />
             </Link>
 
             {/* Desktop Nav */}
