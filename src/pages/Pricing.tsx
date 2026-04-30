@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Check, Star, ArrowLeft } from 'lucide-react';
+import { Check, Star, ArrowRight, Shield, CheckCircle, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { stripe } from '@/lib/api-client';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { SEOHead } from '@/components/SEOHead';
+import { PublicLayout } from '@/components/PublicLayout';
 
 const plans = [
   {
@@ -52,12 +52,12 @@ export default function Pricing() {
     localStorage.setItem('selectedPlan', JSON.stringify(plan));
 
     if (!user) {
-      // Not logged in → send to signup with plan context
+      // Not logged in -> send to signup with plan context
       window.location.href = `/auth?mode=signup&plan=${plan.name}`;
       return;
     }
 
-    // Already logged in → go to Stripe checkout
+    // Already logged in -> go to Stripe checkout
     setLoading(plan.priceId);
     try {
       const response = await stripe.createCheckout(plan.name, false);
@@ -80,72 +80,76 @@ export default function Pricing() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
-      <SEOHead 
+    <PublicLayout>
+      <SEOHead
         title="Pricing Plans"
         description="Choose the perfect AIWholesail plan for your real estate business. Start with a 7-day free trial. Pro at $29/month or Elite at $99/month."
         noIndex={false}
       />
-      {/* Header */}
-      <header className="fixed top-4 left-4 right-4 z-50">
-        <div className="container mx-auto max-w-7xl">
-          <div className="bg-card/80 backdrop-blur-xl border border-border/50 rounded-2xl shadow-lg px-6 py-4">
-            <div className="flex items-center justify-between">
-              <Link to="/" className="flex items-center space-x-2 text-sm font-medium hover:text-primary transition-colors">
-                <ArrowLeft className="h-4 w-4" />
-                <span>Back to Home</span>
-              </Link>
-              <div className="text-lg font-semibold">Choose Your Plan</div>
-              <div className="w-20"></div> {/* Spacer for centering */}
-            </div>
-          </div>
-        </div>
-      </header>
 
-      {/* Pricing Section */}
-      <section className="pt-32 pb-16 px-4">
-        <div className="container mx-auto text-center max-w-5xl">
-          <div className="space-y-4 mb-16">
-            <h1 className="text-4xl md:text-5xl font-medium tracking-tight">
-              Choose your <span className="text-primary">plan</span>
-            </h1>
-            <p className="text-lg text-muted-foreground font-light max-w-2xl mx-auto">
-              Start your 7-day free trial today. No credit card required — just sign up and start finding deals.
-            </p>
-          </div>
-          
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+      {/* ===== HERO -- DARK ===== */}
+      <section className="relative bg-gradient-to-b from-[#0a0a0a] via-[#0f0f0f] to-[#0a0a0a] text-white overflow-hidden">
+        <div className="relative container mx-auto max-w-6xl px-4 pt-28 pb-20 text-center">
+          <Badge className="mb-6 bg-white/10 text-white/80 border-white/10 backdrop-blur-sm text-xs font-medium px-4 py-1.5 rounded-full">
+            <Sparkles className="h-3 w-3 mr-1.5" /> 7-Day Free Trial on Every Plan
+          </Badge>
+
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-[0.95] mb-6">
+            Simple, transparent
+            <br />
+            <span className="bg-gradient-to-r from-primary via-cyan-400 to-primary bg-clip-text text-transparent">
+              pricing.
+            </span>
+          </h1>
+
+          <p className="text-lg md:text-xl text-white/60 max-w-2xl mx-auto leading-relaxed font-light">
+            Start free for 7 days. No credit card required. Pick the plan that fits your business and upgrade when you are ready.
+          </p>
+        </div>
+
+        {/* Fade to white */}
+        <div className="h-24 bg-gradient-to-b from-[#0a0a0a] to-background" />
+      </section>
+
+      {/* ===== PLAN CARDS -- LIGHT ===== */}
+      <section className="py-24 px-4">
+        <div className="container mx-auto max-w-7xl">
+          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-4 text-center">Choose Your Plan</p>
+          <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-center mb-4">
+            Invest in your deal flow.
+          </h2>
+          <p className="text-lg text-muted-foreground font-light max-w-2xl mx-auto text-center mb-16">
+            Both plans include full access to AI-powered property analysis, market search, and deal alerts. Choose the scale that matches your business.
+          </p>
+
+          <div className="grid md:grid-cols-2 gap-4 max-w-4xl mx-auto">
             {plans.map((plan) => (
-              <Card 
+              <div
                 key={plan.name}
-                className={`relative transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${
-                  plan.popular 
-                    ? 'border-2 border-primary/30 hover:border-primary/50 bg-gradient-to-br from-primary/5 via-primary/2 to-transparent shadow-[0_0_20px_hsl(var(--primary)_/_0.1)] hover:shadow-[0_0_30px_hsl(var(--primary)_/_0.15)] ring-1 ring-primary/20 hover:ring-primary/30' 
-                    : 'border border-border/50 hover:border-primary/20'
+                className={`relative bg-gradient-to-br from-muted/50 to-muted/30 border rounded-3xl p-8 md:p-10 flex flex-col justify-between group hover:border-primary/20 transition-all duration-300 ${
+                  plan.popular
+                    ? 'border-2 border-primary/30 shadow-lg shadow-primary/5'
+                    : 'border-border/50'
                 }`}
               >
                 {plan.popular && (
-                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                    <Badge className="bg-primary text-primary-foreground">
+                  <div className="absolute -top-3 left-8">
+                    <Badge className="bg-primary text-primary-foreground text-xs px-3 py-1">
                       <Star className="h-3 w-3 mr-1" />
                       Most Popular
                     </Badge>
                   </div>
                 )}
 
-                <CardHeader className="text-center pb-4">
-                  <CardTitle className="text-2xl font-medium mb-2">{plan.name}</CardTitle>
-                  <div className="text-4xl font-medium mb-2">
-                    ${plan.price}
+                <div>
+                  <h3 className="text-xl font-bold tracking-tight mb-2">{plan.name}</h3>
+                  <div className="flex items-baseline gap-1 mb-2">
+                    <span className="text-5xl font-bold tracking-tight">${plan.price}</span>
                     <span className="text-lg font-normal text-muted-foreground">/month</span>
                   </div>
-                  <CardDescription className="font-light">
-                    {plan.description}
-                  </CardDescription>
-                </CardHeader>
+                  <p className="text-muted-foreground font-light mb-8">{plan.description}</p>
 
-                <CardContent>
-                  <ul className="space-y-3 text-left mb-8">
+                  <ul className="space-y-3 mb-8">
                     {plan.features.map((feature, index) => (
                       <li key={index} className="flex items-start gap-3">
                         <Check className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
@@ -153,21 +157,29 @@ export default function Pricing() {
                       </li>
                     ))}
                   </ul>
-                  
-                  <Button 
-                    className="w-full h-12 text-base font-medium" 
+                </div>
+
+                <div>
+                  <Button
+                    className={`w-full h-12 text-base font-semibold rounded-full gap-2 ${
+                      plan.popular
+                        ? 'bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25'
+                        : ''
+                    }`}
                     onClick={() => handleSelectPlan(plan)}
                     disabled={loading === plan.priceId}
-                    variant={plan.popular ? "default" : "outline"}
+                    variant={plan.popular ? 'default' : 'outline'}
                   >
-                    {loading === plan.priceId ? 'Loading...' : `Start 7-Day Free Trial - $${plan.price}/month`}
+                    {loading === plan.priceId
+                      ? 'Loading...'
+                      : `Start Free Trial`}
+                    {loading !== plan.priceId && <ArrowRight className="h-4 w-4" />}
                   </Button>
-                  
                   <p className="text-xs text-muted-foreground font-light mt-3 text-center">
-                    No credit card required • Cancel anytime
+                    No credit card required
                   </p>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             ))}
           </div>
 
@@ -184,6 +196,57 @@ export default function Pricing() {
           </div>
         </div>
       </section>
-    </div>
+
+      {/* ===== WHAT'S INCLUDED -- DARK ===== */}
+      <section className="bg-[#0a0a0a] text-white py-24 px-4">
+        <div className="container mx-auto max-w-7xl">
+          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-4 text-center">Every Plan Includes</p>
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-center mb-12">
+            Everything you need to close more deals.
+          </h2>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto">
+            {[
+              { label: 'AI Deal Scoring', desc: 'Every property scored so you focus on the best opportunities first.' },
+              { label: 'Market Search', desc: 'Search any market by city, zip code, or address and see results instantly.' },
+              { label: 'Property Analysis', desc: 'Full investment breakdown including estimated value, comparable sales, and profit potential.' },
+              { label: 'Custom Alerts', desc: 'Get notified the moment a high-profit deal hits the market in your area.' },
+              { label: 'Deal Pipeline', desc: 'Track every deal from first contact to closing in one organized view.' },
+              { label: 'Data Export', desc: 'Export your leads, saved properties, and contact data anytime you need it.' },
+            ].map(item => (
+              <div key={item.label} className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-colors">
+                <CheckCircle className="h-5 w-5 text-primary mb-3" />
+                <h4 className="font-semibold text-sm mb-1">{item.label}</h4>
+                <p className="text-xs text-white/50 leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Fade dark to white */}
+      <div className="h-24 bg-gradient-to-b from-[#0a0a0a] to-background" />
+
+      {/* ===== CTA -- LIGHT ===== */}
+      <section className="py-24 px-4">
+        <div className="container mx-auto text-center max-w-3xl">
+          <h2 className="text-4xl md:text-5xl font-bold tracking-tight leading-tight mb-6">
+            Ready to find your next deal?
+          </h2>
+          <p className="text-lg text-muted-foreground font-light max-w-2xl mx-auto mb-10">
+            Join thousands of investors using AIWholesail to uncover profitable opportunities faster than ever before.
+          </p>
+          <Link to="/pricing">
+            <Button size="lg" className="rounded-full px-10 text-base font-semibold bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25 gap-2">
+              Start Your Free Trial <ArrowRight className="h-4 w-4" />
+            </Button>
+          </Link>
+          <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground mt-6">
+            <span className="flex items-center gap-1.5"><Shield className="h-3.5 w-3.5 text-primary" /> No Credit Card Required</span>
+            <span className="flex items-center gap-1.5"><CheckCircle className="h-3.5 w-3.5 text-primary" /> Cancel Anytime</span>
+          </div>
+        </div>
+      </section>
+    </PublicLayout>
   );
 }
