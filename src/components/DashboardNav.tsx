@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   IconMenu2,
@@ -16,6 +16,8 @@ import {
   IconLogout,
   IconUser,
   IconClock,
+  IconSun,
+  IconMoon,
 } from '@tabler/icons-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
@@ -44,6 +46,22 @@ export function DashboardNav() {
   const { favorites } = useFavorites();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [lightMode, setLightMode] = useState(() => document.documentElement.classList.contains('light'));
+
+  const toggleTheme = () => {
+    const next = !lightMode;
+    setLightMode(next);
+    document.documentElement.classList.toggle('light', next);
+    localStorage.setItem('aiwholesail-theme', next ? 'light' : 'dark');
+  };
+
+  useEffect(() => {
+    const saved = localStorage.getItem('aiwholesail-theme');
+    if (saved === 'light') {
+      setLightMode(true);
+      document.documentElement.classList.add('light');
+    }
+  }, []);
 
   const initials = user?.email?.slice(0, 2).toUpperCase() || 'U';
 
@@ -116,6 +134,15 @@ export function DashboardNav() {
                   {trialDaysRemaining}d trial
                 </div>
               )}
+
+              {/* Theme toggle */}
+              <button
+                onClick={toggleTheme}
+                className="hidden sm:flex size-8 items-center justify-center rounded-md text-neutral-400 hover:text-white hover:bg-white/[0.06] transition-colors"
+                title={lightMode ? 'Switch to dark mode' : 'Switch to light mode'}
+              >
+                {lightMode ? <IconMoon className="size-4" /> : <IconSun className="size-4" />}
+              </button>
 
               {/* Profile dropdown */}
               {user && (
