@@ -24,7 +24,7 @@ const requireStripe = (req, res, next) => {
  * POST /api/stripe/checkout
  * Create a checkout session for subscription
  */
-router.post('/checkout', optionalAuth, [
+router.post('/checkout', authenticate, [
   body('priceId').notEmpty().withMessage('Plan type required')
 ], asyncHandler(async (req, res) => {
   const errors = validationResult(req);
@@ -147,26 +147,48 @@ router.post('/portal', authenticate, asyncHandler(async (req, res) => {
  * GET /api/stripe/subscription
  * Check subscription status
  */
-router.get('/subscription', authenticate, requireStripe, asyncHandler(async (req, res) => {
+router.get('/subscription', authenticate, asyncHandler(async (req, res) => {
   const user = req.user;
 
   console.log('[Stripe] Checking subscription for user', { userId: user.id, email: user.email });
 
+  // First check database for existing subscription/trial
+  const dbSub = await query(
+    'SELECT * FROM subscribers WHERE user_id = $1 OR email = $2 LIMIT 1',
+    [user.id, user.email]
+  );
+
+  // If Stripe is not configured, return DB state only
+  if (!stripe) {
+    if (dbSub.rows.length > 0) {
+      const sub = dbSub.rows[0];
+      return res.json({
+        subscribed: sub.subscribed,
+        subscription_tier: sub.subscription_tier,
+        subscription_end: sub.subscription_end,
+        is_trial: sub.is_trial,
+        trial_start: sub.trial_start,
+        trial_end: sub.trial_end,
+      });
+    }
+    return res.json({ subscribed: false });
+  }
+
   const customers = await stripe.customers.list({ email: user.email, limit: 1 });
 
   if (customers.data.length === 0) {
-    // Update database with unsubscribed state
-    await query(
-      `INSERT INTO subscribers (email, user_id, subscribed, updated_at)
-       VALUES ($1, $2, false, NOW())
-       ON CONFLICT (email) DO UPDATE SET
-         subscribed = false,
-         subscription_tier = NULL,
-         subscription_end = NULL,
-         updated_at = NOW()`,
-      [user.email, user.id]
-    );
-
+    // No Stripe customer — return DB trial state if it exists
+    if (dbSub.rows.length > 0) {
+      const sub = dbSub.rows[0];
+      return res.json({
+        subscribed: sub.subscribed,
+        subscription_tier: sub.subscription_tier,
+        subscription_end: sub.subscription_end,
+        is_trial: sub.is_trial,
+        trial_start: sub.trial_start,
+        trial_end: sub.trial_end,
+      });
+    }
     return res.json({ subscribed: false });
   }
 
