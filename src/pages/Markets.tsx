@@ -63,7 +63,7 @@ export default function Markets() {
   }, [query, tempFilter]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[#08090a]">
       <SEOHead
         title="Wholesale Real Estate Markets -- 50 US Cities"
         description="Browse 50+ US real estate markets for wholesale, flip, and rental investing. AI-powered market data, median home prices, growth rates, and top zip codes."
@@ -112,19 +112,19 @@ export default function Markets() {
           <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
             {/* Search */}
             <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
               <input
                 type="text"
                 placeholder="Search city or state..."
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-muted/30 border border-border/50 rounded-xl text-sm focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-colors"
+                className="w-full pl-10 pr-4 py-3 bg-white/[0.02] border border-white/[0.06] rounded-xl text-sm focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-colors"
               />
             </div>
 
             {/* Temperature filter */}
             <div className="flex items-center gap-2">
-              <Filter className="h-4 w-4 text-muted-foreground" />
+              <Filter className="h-4 w-4 text-neutral-400" />
               {(['all', 'hot', 'warm', 'cool'] as TempFilter[]).map((t) => (
                 <button
                   key={t}
@@ -132,7 +132,7 @@ export default function Markets() {
                   className={`px-4 py-2 rounded-lg text-xs font-medium transition-all ${
                     tempFilter === t
                       ? 'bg-primary/10 text-primary border border-primary/20'
-                      : 'bg-muted/30 text-muted-foreground border border-border/50 hover:border-primary/20'
+                      : 'bg-white/[0.02] text-neutral-400 border border-white/[0.06] hover:border-primary/20'
                   }`}
                 >
                   {t === 'all' ? 'All Markets' : `${t.charAt(0).toUpperCase() + t.slice(1)}`}
@@ -141,7 +141,7 @@ export default function Markets() {
             </div>
           </div>
 
-          <p className="text-sm text-muted-foreground font-light mt-4">
+          <p className="text-sm text-neutral-400 font-light mt-4">
             {filtered.length} market{filtered.length !== 1 ? 's' : ''} found
           </p>
         </div>
@@ -153,7 +153,7 @@ export default function Markets() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filtered.map((city) => (
               <Link key={city.slug} to={`/markets/${city.slug}`} className="group">
-                <div className="h-full bg-gradient-to-br from-muted/50 to-muted/20 border border-border/50 rounded-3xl p-7 hover:border-primary/20 hover:shadow-lg transition-all duration-300 flex flex-col">
+                <div className="h-full bg-gradient-to-br from-muted/50 to-muted/20 border border-white/[0.06] rounded-3xl p-7 hover:border-primary/20 hover:shadow-lg transition-all duration-300 flex flex-col">
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
                       <MapPin className="h-4 w-4 text-primary" />
@@ -170,27 +170,27 @@ export default function Markets() {
                   <h3 className="text-xl font-bold tracking-tight mb-1 group-hover:text-primary transition-colors">
                     {city.city}, {city.state}
                   </h3>
-                  <p className="text-xs text-muted-foreground font-light mb-5">{city.stateFull}</p>
+                  <p className="text-xs text-neutral-400 font-light mb-5">{city.stateFull}</p>
 
                   <div className="mt-auto grid grid-cols-3 gap-3">
                     <div>
                       <div className="flex items-center gap-1 mb-1">
-                        <DollarSign className="h-3 w-3 text-muted-foreground/50" />
-                        <span className="text-[10px] text-muted-foreground/70 uppercase tracking-wider">Median</span>
+                        <DollarSign className="h-3 w-3 text-neutral-400/50" />
+                        <span className="text-[10px] text-neutral-400/70 uppercase tracking-wider">Median</span>
                       </div>
                       <p className="text-sm font-semibold">{formatCurrency(city.medianHomePrice)}</p>
                     </div>
                     <div>
                       <div className="flex items-center gap-1 mb-1">
-                        <TrendingUp className="h-3 w-3 text-muted-foreground/50" />
-                        <span className="text-[10px] text-muted-foreground/70 uppercase tracking-wider">Growth</span>
+                        <TrendingUp className="h-3 w-3 text-neutral-400/50" />
+                        <span className="text-[10px] text-neutral-400/70 uppercase tracking-wider">Growth</span>
                       </div>
                       <p className="text-sm font-semibold">{city.priceGrowth}%</p>
                     </div>
                     <div>
                       <div className="flex items-center gap-1 mb-1">
-                        <MapPin className="h-3 w-3 text-muted-foreground/50" />
-                        <span className="text-[10px] text-muted-foreground/70 uppercase tracking-wider">Rent</span>
+                        <MapPin className="h-3 w-3 text-neutral-400/50" />
+                        <span className="text-[10px] text-neutral-400/70 uppercase tracking-wider">Rent</span>
                       </div>
                       <p className="text-sm font-semibold">${city.avgRent.toLocaleString()}</p>
                     </div>
@@ -199,7 +199,7 @@ export default function Markets() {
                   {/* Investor types */}
                   <div className="flex flex-wrap gap-1.5 mt-4 pt-4 border-t border-border/30">
                     {city.investorTypes.map((type) => (
-                      <Badge key={type} variant="outline" className="text-[10px] font-light border-border/50 text-muted-foreground">
+                      <Badge key={type} variant="outline" className="text-[10px] font-light border-white/[0.06] text-neutral-400">
                         {type}
                       </Badge>
                     ))}
@@ -211,9 +211,9 @@ export default function Markets() {
 
           {filtered.length === 0 && (
             <div className="text-center py-20">
-              <MapPin className="h-10 w-10 text-muted-foreground/30 mx-auto mb-4" />
+              <MapPin className="h-10 w-10 text-neutral-400/30 mx-auto mb-4" />
               <p className="text-lg font-medium mb-2">No markets found</p>
-              <p className="text-sm text-muted-foreground font-light">Try a different search or filter.</p>
+              <p className="text-sm text-neutral-400 font-light">Try a different search or filter.</p>
             </div>
           )}
         </div>

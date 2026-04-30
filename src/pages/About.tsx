@@ -85,7 +85,7 @@ export default function About() {
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
             Three principles behind every feature.
           </h2>
-          <p className="text-lg text-muted-foreground font-light max-w-xl mb-16">
+          <p className="text-lg text-neutral-400 font-light max-w-xl mb-16">
             These values guide every decision we make and every tool we build.
           </p>
 
@@ -93,13 +93,13 @@ export default function About() {
             {values.map((item) => (
               <div
                 key={item.title}
-                className="bg-gradient-to-br from-muted/50 to-muted/30 border border-border/50 rounded-3xl p-8 group hover:border-primary/20 transition-all duration-300"
+                className="bg-white/[0.03] border border-white/[0.06] rounded-3xl p-8 group hover:border-primary/20 transition-all duration-300"
               >
                 <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary/20 transition-colors">
                   <item.icon className="h-6 w-6 text-primary" />
                 </div>
                 <h3 className="text-lg font-bold tracking-tight mb-3">{item.title}</h3>
-                <p className="text-muted-foreground leading-relaxed font-light">
+                <p className="text-neutral-400 leading-relaxed font-light">
                   {item.description}
                 </p>
               </div>
@@ -109,14 +109,14 @@ export default function About() {
       </section>
 
       {/* ===== OUR STORY -- LIGHT (muted bg) ===== */}
-      <section className="py-24 px-4 bg-muted/30">
+      <section className="py-24 px-4 bg-white/[0.02]">
         <div className="container mx-auto max-w-4xl">
           <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-4 text-center">Our Story</p>
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-center mb-12">
             Why we built AIWholesail.
           </h2>
 
-          <div className="space-y-6 text-muted-foreground font-light leading-relaxed text-base md:text-lg">
+          <div className="space-y-6 text-neutral-400 font-light leading-relaxed text-base md:text-lg">
             <p>
               We started AIWholesail because finding profitable real estate
               deals should not require a team of analysts, a massive data
@@ -185,7 +185,7 @@ export default function About() {
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight leading-tight mb-6">
             Ready to find your next deal?
           </h2>
-          <p className="text-lg text-muted-foreground font-light max-w-2xl mx-auto mb-10">
+          <p className="text-lg text-neutral-400 font-light max-w-2xl mx-auto mb-10">
             Join thousands of investors using AIWholesail to uncover profitable opportunities faster than ever before.
           </p>
           <Link to="/pricing">
@@ -193,7 +193,7 @@ export default function About() {
               Start Your Free Trial <ArrowRight className="h-4 w-4" />
             </Button>
           </Link>
-          <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground mt-6">
+          <div className="flex items-center justify-center gap-6 text-sm text-neutral-400 mt-6">
             <span className="flex items-center gap-1.5"><Shield className="h-3.5 w-3.5 text-primary" /> No Credit Card Required</span>
             <span className="flex items-center gap-1.5"><CheckCircle className="h-3.5 w-3.5 text-primary" /> Cancel Anytime</span>
           </div>

@@ -93,7 +93,7 @@ export default function ARVCalculator() {
   }, [comps, subjectSqft, conditionAdj, marketAdj]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+    <div className="min-h-screen bg-[#08090a] text-white">
       <SEOHead
         title="ARV Calculator - After Repair Value Estimator"
         description="Free ARV calculator for real estate investors. Estimate the After Repair Value of any property using comparable sales, condition adjustments, and market trends. Get a confidence-rated valuation range."
@@ -103,14 +103,14 @@ export default function ARVCalculator() {
       {/* Header */}
       <header className="fixed top-4 left-4 right-4 z-50">
         <div className="container mx-auto max-w-7xl">
-          <div className="bg-card/80 backdrop-blur-xl border border-border/50 rounded-2xl shadow-lg px-6 py-4">
+          <div className="bg-neutral-950/90 backdrop-blur-xl border border-white/[0.06] rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.4)] px-6 py-4">
             <div className="flex items-center justify-between">
-              <Link to="/" className="flex items-center space-x-2 text-sm font-medium hover:text-primary transition-colors">
+              <Link to="/" className="flex items-center space-x-2 text-sm font-medium hover:text-white transition-colors">
                 <ArrowLeft className="h-4 w-4" />
                 <span>Back to Home</span>
               </Link>
               <Link to="/" className="text-lg font-semibold">AIWholesail</Link>
-              <Link to="/pricing" className="text-sm font-medium text-primary hover:text-primary/80 transition-colors">
+              <Link to="/pricing" className="text-sm font-medium text-cyan-400 hover:text-cyan-400/80 transition-colors">
                 Try Free
               </Link>
             </div>
@@ -128,7 +128,7 @@ export default function ARVCalculator() {
           <h1 className="text-4xl md:text-5xl font-medium tracking-tight mb-4">
             ARV Calculator
           </h1>
-          <p className="text-lg text-muted-foreground font-light max-w-2xl mx-auto">
+          <p className="text-lg text-neutral-400 font-light max-w-2xl mx-auto">
             Estimate the After Repair Value of any property using comparable sales data. Adjust for condition and market trends to get a confidence-rated valuation range.
           </p>
         </div>
@@ -142,7 +142,7 @@ export default function ARVCalculator() {
             {/* Inputs */}
             <div className="space-y-6">
               {/* Comps */}
-              <Card className="border border-border/50">
+              <Card className="border border-white/[0.06]">
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-xl font-medium">Comparable Sales</CardTitle>
@@ -151,7 +151,7 @@ export default function ARVCalculator() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {comps.map((comp, i) => (
-                    <div key={comp.id} className="space-y-3 p-4 rounded-lg border border-border/50 bg-muted/30">
+                    <div key={comp.id} className="space-y-3 p-4 rounded-lg border border-white/[0.06] bg-white/[0.02]">
                       <div className="flex items-center justify-between">
                         <div className="flex-1 mr-3">
                           <Input
@@ -164,7 +164,7 @@ export default function ARVCalculator() {
                         {comps.length > 1 && (
                           <button
                             onClick={() => removeComp(comp.id)}
-                            className="text-muted-foreground hover:text-destructive transition-colors p-1"
+                            className="text-neutral-400 hover:text-destructive transition-colors p-1"
                             aria-label={`Remove ${comp.label}`}
                           >
                             <X className="h-4 w-4" />
@@ -173,9 +173,9 @@ export default function ARVCalculator() {
                       </div>
                       <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-1">
-                          <Label className="text-xs text-muted-foreground">Sale Price</Label>
+                          <Label className="text-xs text-neutral-400">Sale Price</Label>
                           <div className="relative">
-                            <DollarSign className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                            <DollarSign className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-neutral-400" />
                             <Input
                               type="number"
                               value={comp.price || ''}
@@ -187,9 +187,9 @@ export default function ARVCalculator() {
                           </div>
                         </div>
                         <div className="space-y-1">
-                          <Label className="text-xs text-muted-foreground">Sq Ft</Label>
+                          <Label className="text-xs text-neutral-400">Sq Ft</Label>
                           <div className="relative">
-                            <Ruler className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                            <Ruler className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-neutral-400" />
                             <Input
                               type="number"
                               value={comp.sqft || ''}
@@ -214,7 +214,7 @@ export default function ARVCalculator() {
               </Card>
 
               {/* Subject & Adjustments */}
-              <Card className="border border-border/50">
+              <Card className="border border-white/[0.06]">
                 <CardHeader>
                   <CardTitle className="text-xl font-medium">Subject Property</CardTitle>
                 </CardHeader>
@@ -222,7 +222,7 @@ export default function ARVCalculator() {
                   <div className="space-y-2">
                     <Label htmlFor="subjectSqft" className="text-sm font-medium">Square Footage</Label>
                     <div className="relative">
-                      <Ruler className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Ruler className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
                       <Input
                         id="subjectSqft"
                         type="number"
@@ -239,7 +239,7 @@ export default function ARVCalculator() {
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <Label className="text-sm font-medium">Condition Adjustment</Label>
-                      <span className={`text-sm font-semibold ${conditionAdj > 0 ? 'text-emerald-600' : conditionAdj < 0 ? 'text-red-500' : 'text-muted-foreground'}`}>
+                      <span className={`text-sm font-semibold ${conditionAdj > 0 ? 'text-emerald-600' : conditionAdj < 0 ? 'text-red-500' : 'text-neutral-400'}`}>
                         {conditionAdj > 0 ? '+' : ''}{conditionAdj}%
                       </span>
                     </div>
@@ -251,7 +251,7 @@ export default function ARVCalculator() {
                       step={1}
                       aria-label="Condition adjustment percentage"
                     />
-                    <div className="flex justify-between text-xs text-muted-foreground">
+                    <div className="flex justify-between text-xs text-neutral-400">
                       <span>Below avg (-20%)</span>
                       <span>Average</span>
                       <span>Above avg (+20%)</span>
@@ -261,7 +261,7 @@ export default function ARVCalculator() {
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <Label className="text-sm font-medium">Market Trend Adjustment</Label>
-                      <span className={`text-sm font-semibold ${marketAdj > 0 ? 'text-emerald-600' : marketAdj < 0 ? 'text-red-500' : 'text-muted-foreground'}`}>
+                      <span className={`text-sm font-semibold ${marketAdj > 0 ? 'text-emerald-600' : marketAdj < 0 ? 'text-red-500' : 'text-neutral-400'}`}>
                         {marketAdj > 0 ? '+' : ''}{marketAdj}%
                       </span>
                     </div>
@@ -273,7 +273,7 @@ export default function ARVCalculator() {
                       step={1}
                       aria-label="Market trend adjustment percentage"
                     />
-                    <div className="flex justify-between text-xs text-muted-foreground">
+                    <div className="flex justify-between text-xs text-neutral-400">
                       <span>Declining (-10%)</span>
                       <span>Stable</span>
                       <span>Appreciating (+10%)</span>
@@ -285,7 +285,7 @@ export default function ARVCalculator() {
 
             {/* Results */}
             <div className="space-y-6">
-              <Card className="border border-border/50 bg-gradient-to-br from-primary/5 to-transparent">
+              <Card className="border border-white/[0.06] bg-gradient-to-br from-primary/5 to-transparent">
                 <CardHeader>
                   <CardTitle className="text-xl font-medium">Estimated ARV</CardTitle>
                 </CardHeader>
@@ -293,15 +293,15 @@ export default function ARVCalculator() {
                   {results ? (
                     <div className="space-y-6">
                       <div className="text-center">
-                        <p className="text-5xl font-semibold tracking-tight text-primary">
+                        <p className="text-5xl font-semibold tracking-tight text-cyan-400">
                           {fmt.format(results.estimatedARV)}
                         </p>
-                        <p className="text-sm text-muted-foreground mt-1">Mid-point estimate</p>
+                        <p className="text-sm text-neutral-400 mt-1">Mid-point estimate</p>
                       </div>
 
                       {/* Range Bar */}
                       <div className="space-y-2">
-                        <div className="flex justify-between text-xs text-muted-foreground">
+                        <div className="flex justify-between text-xs text-neutral-400">
                           <span>Low</span>
                           <span>Mid</span>
                           <span>High</span>
@@ -322,22 +322,22 @@ export default function ARVCalculator() {
 
                       <div className="space-y-3">
                         <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Avg Price / Sq Ft (Comps)</span>
+                          <span className="text-neutral-400">Avg Price / Sq Ft (Comps)</span>
                           <span className="font-medium">{fmtPsf.format(results.avgPsf)}</span>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Adjusted Price / Sq Ft</span>
+                          <span className="text-neutral-400">Adjusted Price / Sq Ft</span>
                           <span className="font-medium">{fmtPsf.format(results.adjustedPsf)}</span>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Subject Sq Ft</span>
+                          <span className="text-neutral-400">Subject Sq Ft</span>
                           <span className="font-medium">{subjectSqft.toLocaleString()}</span>
                         </div>
 
                         <Separator />
 
                         <div className="flex justify-between text-sm items-center">
-                          <span className="text-muted-foreground">Confidence Level</span>
+                          <span className="text-neutral-400">Confidence Level</span>
                           <Badge variant="outline" className={results.confidenceColor}>
                             <BarChart3 className="h-3 w-3 mr-1" />
                             {results.confidence} ({results.validCount} comp{results.validCount !== 1 ? 's' : ''})
@@ -354,20 +354,20 @@ export default function ARVCalculator() {
                       )}
                     </div>
                   ) : (
-                    <p className="text-sm text-muted-foreground text-center py-8">Enter at least one comparable sale and the subject square footage to see results.</p>
+                    <p className="text-sm text-neutral-400 text-center py-8">Enter at least one comparable sale and the subject square footage to see results.</p>
                   )}
                 </CardContent>
               </Card>
 
               {/* Comp Breakdown */}
               {results && (
-                <Card className="border border-border/50">
+                <Card className="border border-white/[0.06]">
                   <CardHeader>
                     <CardTitle className="text-lg font-medium">Comp Breakdown</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-2">
-                      <div className="grid grid-cols-3 text-xs text-muted-foreground font-medium pb-2 border-b border-border">
+                      <div className="grid grid-cols-3 text-xs text-neutral-400 font-medium pb-2 border-b border-border">
                         <span>Property</span>
                         <span className="text-right">Price</span>
                         <span className="text-right">$/Sq Ft</span>
@@ -376,7 +376,7 @@ export default function ARVCalculator() {
                         <div key={comp.id} className="grid grid-cols-3 text-sm py-1.5">
                           <span className="font-medium truncate pr-2">{comp.label}</span>
                           <span className="text-right">{fmt.format(comp.price)}</span>
-                          <span className="text-right text-primary">{fmtPsf.format(comp.price / comp.sqft)}</span>
+                          <span className="text-right text-cyan-400">{fmtPsf.format(comp.price / comp.sqft)}</span>
                         </div>
                       ))}
                     </div>
@@ -391,7 +391,7 @@ export default function ARVCalculator() {
             <Separator />
             <div className="max-w-3xl mx-auto space-y-8">
               <h2 className="text-2xl font-medium tracking-tight">How to Use This ARV Calculator</h2>
-              <div className="space-y-6 text-muted-foreground font-light leading-relaxed">
+              <div className="space-y-6 text-neutral-400 font-light leading-relaxed">
                 <p>
                   The After Repair Value (ARV) is the estimated market value of a property after all renovations are complete. It is the single most important number in any fix-and-flip or wholesale deal, because it determines how much you can pay for the property and still make a profit.
                 </p>
@@ -420,7 +420,7 @@ export default function ARVCalculator() {
             <Separator />
             <div className="text-center space-y-4 py-8">
               <h2 className="text-2xl font-medium tracking-tight">Want AI to Pull Comps Automatically?</h2>
-              <p className="text-muted-foreground font-light max-w-lg mx-auto">
+              <p className="text-neutral-400 font-light max-w-lg mx-auto">
                 AIWholesail uses AI-powered comp analysis to estimate ARV instantly, pulling recent sales data and adjusting for dozens of property factors you might miss.
               </p>
               <Link to="/pricing">

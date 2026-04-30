@@ -86,9 +86,9 @@ export default function MarketPage() {
 
   if (!city) {
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4">
+      <div className="min-h-screen bg-[#08090a] flex flex-col items-center justify-center px-4">
         <h1 className="text-3xl font-bold mb-4">Market Not Found</h1>
-        <p className="text-muted-foreground mb-6">We could not find data for this market.</p>
+        <p className="text-neutral-400 mb-6">We could not find data for this market.</p>
         <Link to="/markets">
           <Button variant="outline" className="gap-2 rounded-full">
             <MapPin className="h-4 w-4" /> Browse All Markets
@@ -110,7 +110,7 @@ export default function MarketPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[#08090a]">
       <SEOHead
         title={`${city.city}, ${city.state} Real Estate Wholesale Market`}
         description={`Find profitable wholesale real estate deals in ${city.city}, ${city.stateFull}. Median home price ${formatCurrency(city.medianHomePrice)}, ${city.priceGrowth}% growth. AI-powered deal scoring for ${city.city} investors.`}
@@ -172,13 +172,13 @@ export default function MarketPage() {
               return (
                 <div
                   key={stat.label}
-                  className="bg-gradient-to-br from-muted/50 to-muted/20 border border-border/50 rounded-3xl p-6 hover:border-primary/20 transition-all duration-300"
+                  className="bg-gradient-to-br from-muted/50 to-muted/20 border border-white/[0.06] rounded-3xl p-6 hover:border-primary/20 transition-all duration-300"
                 >
                   <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
                     <Icon className="h-5 w-5 text-primary" />
                   </div>
                   <div className="text-2xl md:text-3xl font-bold tracking-tight mb-1">{stat.value}</div>
-                  <p className="text-sm text-muted-foreground font-light">{stat.label}</p>
+                  <p className="text-sm text-neutral-400 font-light">{stat.label}</p>
                 </div>
               );
             })}
@@ -193,7 +193,7 @@ export default function MarketPage() {
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4 max-w-lg">
             Hottest zips in {city.city}.
           </h2>
-          <p className="text-muted-foreground font-light mb-10 max-w-xl">
+          <p className="text-neutral-400 font-light mb-10 max-w-xl">
             These zip codes show the highest deal activity and investor interest in the {city.city} metro area.
           </p>
 
@@ -201,13 +201,13 @@ export default function MarketPage() {
             {city.topZips.map((zip) => (
               <div
                 key={zip}
-                className="bg-gradient-to-br from-muted/50 to-muted/20 border border-border/50 rounded-2xl px-6 py-4 hover:border-primary/20 transition-all duration-300"
+                className="bg-gradient-to-br from-muted/50 to-muted/20 border border-white/[0.06] rounded-2xl px-6 py-4 hover:border-primary/20 transition-all duration-300"
               >
                 <div className="flex items-center gap-2">
                   <MapPin className="h-4 w-4 text-primary" />
                   <span className="text-lg font-bold tracking-tight">{zip}</span>
                 </div>
-                <p className="text-xs text-muted-foreground font-light mt-1">{city.city}, {city.state}</p>
+                <p className="text-xs text-neutral-400 font-light mt-1">{city.city}, {city.state}</p>
               </div>
             ))}
           </div>
@@ -221,7 +221,7 @@ export default function MarketPage() {
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4 max-w-lg">
             How to invest in {city.city}.
           </h2>
-          <p className="text-muted-foreground font-light mb-10 max-w-xl">
+          <p className="text-neutral-400 font-light mb-10 max-w-xl">
             These strategies are actively producing returns for investors in the {city.city}, {city.state} market.
           </p>
 
@@ -232,13 +232,13 @@ export default function MarketPage() {
               return (
                 <div
                   key={type}
-                  className="bg-gradient-to-br from-muted/50 to-muted/20 border border-border/50 rounded-3xl p-8 hover:border-primary/20 transition-all duration-300"
+                  className="bg-gradient-to-br from-muted/50 to-muted/20 border border-white/[0.06] rounded-3xl p-8 hover:border-primary/20 transition-all duration-300"
                 >
                   <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-5 text-primary">
                     {detail.icon}
                   </div>
                   <h3 className="text-xl font-bold tracking-tight mb-3">{detail.label}</h3>
-                  <p className="text-sm text-muted-foreground font-light leading-relaxed">{detail.description}</p>
+                  <p className="text-sm text-neutral-400 font-light leading-relaxed">{detail.description}</p>
                 </div>
               );
             })}
@@ -249,16 +249,16 @@ export default function MarketPage() {
       {/* ===== INTERNAL LINKS ===== */}
       <section className="py-12 px-4">
         <div className="container mx-auto max-w-7xl">
-          <div className="p-6 bg-muted/30 border border-border/50 rounded-2xl">
+          <div className="p-6 bg-white/[0.02] border border-white/[0.06] rounded-2xl">
             <p className="text-xs font-semibold tracking-[0.15em] uppercase text-primary mb-4">Explore More</p>
             <div className="grid sm:grid-cols-3 gap-3">
-              <Link to="/tools" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors p-2 rounded-lg hover:bg-muted/50">
+              <Link to="/tools" className="flex items-center gap-2 text-sm text-neutral-400 hover:text-foreground transition-colors p-2 rounded-lg hover:bg-white/[0.03]">
                 <Calculator className="h-4 w-4 text-primary" /> Free Calculators
               </Link>
-              <Link to="/blog" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors p-2 rounded-lg hover:bg-muted/50">
+              <Link to="/blog" className="flex items-center gap-2 text-sm text-neutral-400 hover:text-foreground transition-colors p-2 rounded-lg hover:bg-white/[0.03]">
                 <BookOpen className="h-4 w-4 text-primary" /> Blog & Guides
               </Link>
-              <Link to="/use-cases" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors p-2 rounded-lg hover:bg-muted/50">
+              <Link to="/use-cases" className="flex items-center gap-2 text-sm text-neutral-400 hover:text-foreground transition-colors p-2 rounded-lg hover:bg-white/[0.03]">
                 <Search className="h-4 w-4 text-primary" /> Use Cases
               </Link>
             </div>
@@ -275,7 +275,7 @@ export default function MarketPage() {
             <div className="grid md:grid-cols-3 gap-4">
               {related.map((r) => (
                 <Link key={r.slug} to={`/markets/${r.slug}`} className="group">
-                  <div className="bg-gradient-to-br from-muted/50 to-muted/20 border border-border/50 rounded-3xl p-7 hover:border-primary/20 transition-all duration-300 h-full flex flex-col">
+                  <div className="bg-gradient-to-br from-muted/50 to-muted/20 border border-white/[0.06] rounded-3xl p-7 hover:border-primary/20 transition-all duration-300 h-full flex flex-col">
                     <div className="flex items-center gap-2 mb-3">
                       <MapPin className="h-4 w-4 text-primary" />
                       <Badge variant="outline" className={`text-[10px] border ${tempColors[r.marketTemp] || ''}`}>
@@ -285,7 +285,7 @@ export default function MarketPage() {
                     <h3 className="text-lg font-bold tracking-tight mb-1 group-hover:text-primary transition-colors">
                       {r.city}, {r.state}
                     </h3>
-                    <p className="text-sm text-muted-foreground font-light mb-4 flex-1">
+                    <p className="text-sm text-neutral-400 font-light mb-4 flex-1">
                       Median {formatCurrency(r.medianHomePrice)} &middot; {r.priceGrowth}% growth
                     </p>
                     <div className="flex items-center gap-1 text-xs font-medium text-primary opacity-0 group-hover:opacity-100 transition-opacity">

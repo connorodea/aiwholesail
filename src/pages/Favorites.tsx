@@ -45,10 +45,10 @@ export default function Favorites() {
           <div className="max-w-md mx-auto animate-scale-in">
             <div className="feature-card p-10 text-center">
               <div className="w-16 h-16 bg-muted rounded-2xl flex items-center justify-center mx-auto mb-6">
-                <Heart className="h-8 w-8 text-muted-foreground" />
+                <Heart className="h-8 w-8 text-neutral-400" />
               </div>
               <h3 className="text-lg font-medium mb-3 tracking-tight">No favorites yet</h3>
-              <p className="text-muted-foreground mb-8 font-light leading-relaxed">
+              <p className="text-neutral-400 mb-8 font-light leading-relaxed">
                 Start exploring properties and save the ones you like
               </p>
               <Button

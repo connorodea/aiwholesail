@@ -103,7 +103,7 @@ export default function CashFlowCalculator() {
   const totalExpenseValue = expenseBreakdown.reduce((sum, e) => sum + e.value, 0);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+    <div className="min-h-screen bg-[#08090a] text-white">
       <SEOHead
         title="Rental Property Cash Flow Calculator - Free Investment Tool"
         description="Free rental property cash flow calculator. Analyze monthly cash flow, cash-on-cash return, cap rate, and GRM. See a complete expense breakdown for any rental investment property."
@@ -113,14 +113,14 @@ export default function CashFlowCalculator() {
       {/* Header */}
       <header className="fixed top-4 left-4 right-4 z-50">
         <div className="container mx-auto max-w-7xl">
-          <div className="bg-card/80 backdrop-blur-xl border border-border/50 rounded-2xl shadow-lg px-6 py-4">
+          <div className="bg-neutral-950/90 backdrop-blur-xl border border-white/[0.06] rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.4)] px-6 py-4">
             <div className="flex items-center justify-between">
-              <Link to="/" className="flex items-center space-x-2 text-sm font-medium hover:text-primary transition-colors">
+              <Link to="/" className="flex items-center space-x-2 text-sm font-medium hover:text-white transition-colors">
                 <ArrowLeft className="h-4 w-4" />
                 <span>Back to Home</span>
               </Link>
               <Link to="/" className="text-lg font-semibold">AIWholesail</Link>
-              <Link to="/pricing" className="text-sm font-medium text-primary hover:text-primary/80 transition-colors">
+              <Link to="/pricing" className="text-sm font-medium text-cyan-400 hover:text-cyan-400/80 transition-colors">
                 Try Free
               </Link>
             </div>
@@ -138,7 +138,7 @@ export default function CashFlowCalculator() {
           <h1 className="text-4xl md:text-5xl font-medium tracking-tight mb-4">
             Cash Flow Calculator
           </h1>
-          <p className="text-lg text-muted-foreground font-light max-w-2xl mx-auto">
+          <p className="text-lg text-neutral-400 font-light max-w-2xl mx-auto">
             Analyze any rental property's cash flow, returns, and expense breakdown. See monthly and annual numbers, cash-on-cash return, cap rate, and gross rent multiplier in real time.
           </p>
         </div>
@@ -151,7 +151,7 @@ export default function CashFlowCalculator() {
 
             {/* Inputs */}
             <div className="space-y-6">
-              <Card className="border border-border/50">
+              <Card className="border border-white/[0.06]">
                 <CardHeader>
                   <CardTitle className="text-xl font-medium">Property & Financing</CardTitle>
                 </CardHeader>
@@ -159,7 +159,7 @@ export default function CashFlowCalculator() {
                   <div className="space-y-2">
                     <Label htmlFor="purchasePrice" className="text-sm font-medium">Purchase Price</Label>
                     <div className="relative">
-                      <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
                       <Input
                         id="purchasePrice"
                         type="number"
@@ -175,7 +175,7 @@ export default function CashFlowCalculator() {
                     <div className="space-y-2">
                       <Label htmlFor="downPayment" className="text-sm font-medium">Down Payment (%)</Label>
                       <div className="relative">
-                        <Percent className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Percent className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
                         <Input
                           id="downPayment"
                           type="number"
@@ -191,7 +191,7 @@ export default function CashFlowCalculator() {
                     <div className="space-y-2">
                       <Label htmlFor="interestRate" className="text-sm font-medium">Interest Rate (%)</Label>
                       <div className="relative">
-                        <Percent className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Percent className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
                         <Input
                           id="interestRate"
                           type="number"
@@ -209,7 +209,7 @@ export default function CashFlowCalculator() {
                   <div className="space-y-2">
                     <Label htmlFor="monthlyRent" className="text-sm font-medium">Monthly Rent</Label>
                     <div className="relative">
-                      <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
                       <Input
                         id="monthlyRent"
                         type="number"
@@ -223,7 +223,7 @@ export default function CashFlowCalculator() {
                 </CardContent>
               </Card>
 
-              <Card className="border border-border/50">
+              <Card className="border border-white/[0.06]">
                 <CardHeader>
                   <CardTitle className="text-xl font-medium">Expenses</CardTitle>
                 </CardHeader>
@@ -232,7 +232,7 @@ export default function CashFlowCalculator() {
                     <div className="space-y-2">
                       <Label htmlFor="propertyTax" className="text-sm font-medium">Property Tax (Annual)</Label>
                       <div className="relative">
-                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
                         <Input
                           id="propertyTax"
                           type="number"
@@ -246,7 +246,7 @@ export default function CashFlowCalculator() {
                     <div className="space-y-2">
                       <Label htmlFor="insurance" className="text-sm font-medium">Insurance (Annual)</Label>
                       <div className="relative">
-                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
                         <Input
                           id="insurance"
                           type="number"
@@ -262,7 +262,7 @@ export default function CashFlowCalculator() {
                   <div className="space-y-2">
                     <Label htmlFor="hoaExpense" className="text-sm font-medium">HOA (Monthly)</Label>
                     <div className="relative">
-                      <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
                       <Input
                         id="hoaExpense"
                         type="number"
@@ -280,7 +280,7 @@ export default function CashFlowCalculator() {
                     <div className="space-y-2">
                       <Label htmlFor="vacancy" className="text-sm font-medium">Vacancy (%)</Label>
                       <div className="relative">
-                        <Percent className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Percent className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
                         <Input
                           id="vacancy"
                           type="number"
@@ -296,7 +296,7 @@ export default function CashFlowCalculator() {
                     <div className="space-y-2">
                       <Label htmlFor="mgmt" className="text-sm font-medium">Mgmt Fee (%)</Label>
                       <div className="relative">
-                        <Percent className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Percent className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
                         <Input
                           id="mgmt"
                           type="number"
@@ -312,7 +312,7 @@ export default function CashFlowCalculator() {
                     <div className="space-y-2">
                       <Label htmlFor="maint" className="text-sm font-medium">Maint. (%)</Label>
                       <div className="relative">
-                        <Percent className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Percent className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
                         <Input
                           id="maint"
                           type="number"
@@ -330,7 +330,7 @@ export default function CashFlowCalculator() {
                   <div className="space-y-2">
                     <Label htmlFor="otherExpenses" className="text-sm font-medium">Other Expenses (Monthly)</Label>
                     <div className="relative">
-                      <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
                       <Input
                         id="otherExpenses"
                         type="number"
@@ -353,7 +353,7 @@ export default function CashFlowCalculator() {
                   ? 'border-emerald-500/30 bg-gradient-to-br from-emerald-50/50 to-transparent dark:from-emerald-950/20'
                   : results
                     ? 'border-red-500/30 bg-gradient-to-br from-red-50/50 to-transparent dark:from-red-950/20'
-                    : 'border-border/50'
+                    : 'border-white/[0.06]'
               }`}>
                 <CardContent className="pt-6">
                   {results ? (
@@ -363,17 +363,17 @@ export default function CashFlowCalculator() {
                           ? <TrendingUp className="h-6 w-6 text-emerald-500" />
                           : <TrendingDown className="h-6 w-6 text-red-500" />
                         }
-                        <p className="text-sm text-muted-foreground">Monthly Cash Flow</p>
+                        <p className="text-sm text-neutral-400">Monthly Cash Flow</p>
                       </div>
                       <p className={`text-5xl font-semibold tracking-tight ${results.monthlyCashFlow >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
                         {fmtDecimal.format(results.monthlyCashFlow)}
                       </p>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-neutral-400">
                         {fmtDecimal.format(results.annualCashFlow)} / year
                       </p>
                     </div>
                   ) : (
-                    <p className="text-sm text-muted-foreground text-center py-4">Enter property details to see cash flow.</p>
+                    <p className="text-sm text-neutral-400 text-center py-4">Enter property details to see cash flow.</p>
                   )}
                 </CardContent>
               </Card>
@@ -381,24 +381,24 @@ export default function CashFlowCalculator() {
               {/* Key Metrics */}
               {results && (
                 <div className="grid grid-cols-3 gap-4">
-                  <Card className="border border-border/50">
+                  <Card className="border border-white/[0.06]">
                     <CardContent className="pt-4 pb-4 text-center">
-                      <p className="text-xs text-muted-foreground mb-1">Cash-on-Cash</p>
-                      <p className={`text-xl font-semibold ${results.cashOnCash >= 0 ? 'text-primary' : 'text-red-500'}`}>
+                      <p className="text-xs text-neutral-400 mb-1">Cash-on-Cash</p>
+                      <p className={`text-xl font-semibold ${results.cashOnCash >= 0 ? 'text-cyan-400' : 'text-red-500'}`}>
                         {fmtPct(results.cashOnCash)}
                       </p>
                     </CardContent>
                   </Card>
-                  <Card className="border border-border/50">
+                  <Card className="border border-white/[0.06]">
                     <CardContent className="pt-4 pb-4 text-center">
-                      <p className="text-xs text-muted-foreground mb-1">Cap Rate</p>
-                      <p className="text-xl font-semibold text-primary">{fmtPct(results.capRate)}</p>
+                      <p className="text-xs text-neutral-400 mb-1">Cap Rate</p>
+                      <p className="text-xl font-semibold text-cyan-400">{fmtPct(results.capRate)}</p>
                     </CardContent>
                   </Card>
-                  <Card className="border border-border/50">
+                  <Card className="border border-white/[0.06]">
                     <CardContent className="pt-4 pb-4 text-center">
-                      <p className="text-xs text-muted-foreground mb-1">GRM</p>
-                      <p className="text-xl font-semibold text-primary">{results.grm.toFixed(1)}x</p>
+                      <p className="text-xs text-neutral-400 mb-1">GRM</p>
+                      <p className="text-xl font-semibold text-cyan-400">{results.grm.toFixed(1)}x</p>
                     </CardContent>
                   </Card>
                 </div>
@@ -406,7 +406,7 @@ export default function CashFlowCalculator() {
 
               {/* Income vs Expenses */}
               {results && (
-                <Card className="border border-border/50">
+                <Card className="border border-white/[0.06]">
                   <CardHeader>
                     <CardTitle className="text-lg font-medium">Monthly Breakdown</CardTitle>
                   </CardHeader>
@@ -414,11 +414,11 @@ export default function CashFlowCalculator() {
                     {/* Income */}
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Gross Rent</span>
+                        <span className="text-neutral-400">Gross Rent</span>
                         <span className="font-medium">{fmtDecimal.format(results.grossMonthlyIncome)}</span>
                       </div>
                       <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">Vacancy Loss ({vacancyRate}%)</span>
+                        <span className="text-neutral-400">Vacancy Loss ({vacancyRate}%)</span>
                         <span className="font-medium text-red-500">-{fmtDecimal.format(results.vacancyLoss)}</span>
                       </div>
                       <div className="flex justify-between text-sm font-semibold pt-1 border-t border-border">
@@ -435,7 +435,7 @@ export default function CashFlowCalculator() {
                         <div key={exp.label} className="flex justify-between text-sm">
                           <div className="flex items-center gap-2">
                             <div className={`w-2 h-2 rounded-full ${exp.color}`} />
-                            <span className="text-muted-foreground">{exp.label}</span>
+                            <span className="text-neutral-400">{exp.label}</span>
                           </div>
                           <span className="font-medium">{fmtDecimal.format(exp.value)}</span>
                         </div>
@@ -449,7 +449,7 @@ export default function CashFlowCalculator() {
                     {/* Visual Bar */}
                     {totalExpenseValue > 0 && (
                       <div className="space-y-2">
-                        <p className="text-xs text-muted-foreground">Expense Distribution</p>
+                        <p className="text-xs text-neutral-400">Expense Distribution</p>
                         <div className="flex h-3 rounded-full overflow-hidden">
                           {expenseBreakdown.map(exp => (
                             <div
@@ -473,7 +473,7 @@ export default function CashFlowCalculator() {
             <Separator />
             <div className="max-w-3xl mx-auto space-y-8">
               <h2 className="text-2xl font-medium tracking-tight">How to Use This Cash Flow Calculator</h2>
-              <div className="space-y-6 text-muted-foreground font-light leading-relaxed">
+              <div className="space-y-6 text-neutral-400 font-light leading-relaxed">
                 <p>
                   Cash flow is the lifeblood of rental property investing. This calculator helps you determine whether a property will put money in your pocket each month or drain it. A positive cash flow means the property pays for itself and generates profit; negative cash flow means you are subsidizing the investment out of pocket.
                 </p>
@@ -500,7 +500,7 @@ export default function CashFlowCalculator() {
             <Separator />
             <div className="text-center space-y-4 py-8">
               <h2 className="text-2xl font-medium tracking-tight">Want AI to Analyze Rentals for You?</h2>
-              <p className="text-muted-foreground font-light max-w-lg mx-auto">
+              <p className="text-neutral-400 font-light max-w-lg mx-auto">
                 AIWholesail provides instant AI-powered analysis on any property, including cash flow projections, comp-based ARV, and deal scoring, so you can make faster, smarter investment decisions.
               </p>
               <Link to="/pricing">

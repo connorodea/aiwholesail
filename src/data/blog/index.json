@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "what-is-wholesale-real-estate-a-complete-beginner-s-guide",
+      "title": "What Is Wholesale Real Estate? A Complete Beginner's Guide",
+      "excerpt": "Wholesale real estate is one of the fastest ways to break into property investing with little to no money down. This guide breaks down exactly how it works, what you can earn, and how to land your first deal.",
+      "category": "Beginner Guide",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-04-30T06:00:54.408Z",
+      "readTime": 7,
+      "tags": [
+        "what is wholesale real estate",
+        "real estate wholesaling",
+        "how to wholesale real estate",
+        "wholesale deals",
+        "assignment of contract"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-use-ai-for-real-estate-investing-a-complete-guide-for-smart-property-inve",
       "title": "How to Use AI for Real Estate Investing: A Complete Guide for Smart Property Investors",
       "excerpt": "Discover how artificial intelligence is transforming real estate investing with automated deal analysis, market predictions, and property valuation tools. Learn practical ways to leverage AI technology to find better deals and maximize your investment returns.",
@@ -15,7 +32,7 @@
         "automated deal analysis",
         "property valuation AI"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-find-wholesale-deals-beginners-guide",

@@ -14,7 +14,7 @@ const fmtPct = (n: number) => `${n.toFixed(2)}%`;
 const fmtGrm = (n: number) => `${n.toFixed(1)}x`;
 
 function getCapRateRating(rate: number): { label: string; color: string; description: string } {
-  if (rate <= 0) return { label: 'N/A', color: 'text-muted-foreground', description: 'Enter valid property data to see a rating.' };
+  if (rate <= 0) return { label: 'N/A', color: 'text-neutral-400', description: 'Enter valid property data to see a rating.' };
   if (rate < 4) return { label: 'Low', color: 'text-orange-500', description: 'Typical of prime urban markets. Lower returns but potentially stronger appreciation and stability.' };
   if (rate < 7) return { label: 'Average', color: 'text-blue-500', description: 'Balanced risk and return. Common in suburban markets with steady demand.' };
   if (rate < 10) return { label: 'Good', color: 'text-green-600', description: 'Strong cash flow relative to price. Often found in secondary markets or value-add properties.' };
@@ -78,7 +78,7 @@ export default function CapRateCalculator() {
   }, [propertyValue, grossAnnualRent, vacancyRate, propertyTax, insuranceAnnual, maintenanceAnnual, managementFeePct, otherExpenses, unitCount]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+    <div className="min-h-screen bg-[#08090a] text-white">
       <SEOHead
         title="Free Cap Rate Calculator - Capitalization Rate Calculator"
         description="Calculate cap rate, NOI, and GRM for investment properties. Compare property values at different cap rates. Free capitalization rate calculator for real estate investors."
@@ -88,14 +88,14 @@ export default function CapRateCalculator() {
       {/* Header */}
       <header className="fixed top-4 left-4 right-4 z-50">
         <div className="container mx-auto max-w-7xl">
-          <div className="bg-card/80 backdrop-blur-xl border border-border/50 rounded-2xl shadow-lg px-6 py-4">
+          <div className="bg-neutral-950/90 backdrop-blur-xl border border-white/[0.06] rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.4)] px-6 py-4">
             <div className="flex items-center justify-between">
-              <Link to="/" className="flex items-center space-x-2 text-sm font-medium hover:text-primary transition-colors">
+              <Link to="/" className="flex items-center space-x-2 text-sm font-medium hover:text-white transition-colors">
                 <ArrowLeft className="h-4 w-4" />
                 <span>Back to Home</span>
               </Link>
               <div className="text-lg font-semibold">AIWholesail</div>
-              <Link to="/pricing" className="text-sm font-medium text-primary hover:text-primary/80 transition-colors">
+              <Link to="/pricing" className="text-sm font-medium text-cyan-400 hover:text-cyan-400/80 transition-colors">
                 Pricing
               </Link>
             </div>
@@ -111,9 +111,9 @@ export default function CapRateCalculator() {
             Free Tool
           </Badge>
           <h1 className="text-4xl md:text-5xl font-medium tracking-tight mb-4">
-            Cap Rate <span className="text-primary">Calculator</span>
+            Cap Rate <span className="text-cyan-400">Calculator</span>
           </h1>
-          <p className="text-lg text-muted-foreground font-light max-w-2xl mx-auto">
+          <p className="text-lg text-neutral-400 font-light max-w-2xl mx-auto">
             Calculate the capitalization rate, net operating income, and gross rent multiplier for any investment property. See what your property would be worth at different cap rates.
           </p>
         </div>
@@ -136,17 +136,17 @@ export default function CapRateCalculator() {
                     <div className="space-y-2">
                       <Label htmlFor="propValue">Property Value / Purchase Price</Label>
                       <div className="relative">
-                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
                         <Input id="propValue" type="number" className="pl-9" value={propertyValue} onChange={(e) => setPropertyValue(Number(e.target.value))} min={0} />
                       </div>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="grossRent">Gross Annual Rent</Label>
                       <div className="relative">
-                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
                         <Input id="grossRent" type="number" className="pl-9" value={grossAnnualRent} onChange={(e) => setGrossAnnualRent(Number(e.target.value))} min={0} />
                       </div>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs text-neutral-400">
                         Monthly: {fmt.format(Math.round(grossAnnualRent / 12))}
                       </p>
                     </div>
@@ -159,7 +159,7 @@ export default function CapRateCalculator() {
                     <div className="space-y-2">
                       <Label htmlFor="units">Number of Units</Label>
                       <Input id="units" type="number" value={unitCount} onChange={(e) => setUnitCount(Math.max(1, Number(e.target.value)))} min={1} max={500} />
-                      <p className="text-xs text-muted-foreground">For price-per-unit calculation</p>
+                      <p className="text-xs text-neutral-400">For price-per-unit calculation</p>
                     </div>
                   </div>
                 </CardContent>
@@ -175,37 +175,37 @@ export default function CapRateCalculator() {
                     <div className="space-y-2">
                       <Label htmlFor="expTax">Property Tax (annual)</Label>
                       <div className="relative">
-                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
                         <Input id="expTax" type="number" className="pl-9" value={propertyTax} onChange={(e) => setPropertyTax(Number(e.target.value))} min={0} />
                       </div>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="expIns">Insurance (annual)</Label>
                       <div className="relative">
-                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
                         <Input id="expIns" type="number" className="pl-9" value={insuranceAnnual} onChange={(e) => setInsuranceAnnual(Number(e.target.value))} min={0} />
                       </div>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="expMaint">Maintenance (annual)</Label>
                       <div className="relative">
-                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
                         <Input id="expMaint" type="number" className="pl-9" value={maintenanceAnnual} onChange={(e) => setMaintenanceAnnual(Number(e.target.value))} min={0} />
                       </div>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="expMgmt">Management Fee (% of rent)</Label>
                       <Input id="expMgmt" type="number" step={0.5} value={managementFeePct} onChange={(e) => setManagementFeePct(Number(e.target.value))} min={0} max={25} />
-                      <p className="text-xs text-muted-foreground">{fmt.format(results.managementFee)}/year</p>
+                      <p className="text-xs text-neutral-400">{fmt.format(results.managementFee)}/year</p>
                     </div>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="expOther">Other Operating Expenses (annual)</Label>
                     <div className="relative">
-                      <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
                       <Input id="expOther" type="number" className="pl-9" value={otherExpenses} onChange={(e) => setOtherExpenses(Number(e.target.value))} min={0} />
                     </div>
-                    <p className="text-xs text-muted-foreground">Landscaping, HOA, pest control, etc.</p>
+                    <p className="text-xs text-neutral-400">Landscaping, HOA, pest control, etc.</p>
                   </div>
                 </CardContent>
               </Card>
@@ -217,7 +217,7 @@ export default function CapRateCalculator() {
                 <Card className="border-primary/20 shadow-lg">
                   <CardHeader>
                     <CardTitle className="text-xl flex items-center gap-2">
-                      <TrendingUp className="h-5 w-5 text-primary" />
+                      <TrendingUp className="h-5 w-5 text-cyan-400" />
                       Property Analysis
                     </CardTitle>
                   </CardHeader>
@@ -226,19 +226,19 @@ export default function CapRateCalculator() {
                     {/* Key metrics */}
                     <div className="grid grid-cols-3 gap-3 text-center">
                       <div className="rounded-lg border p-3">
-                        <p className="text-xs text-muted-foreground mb-1">Cap Rate</p>
+                        <p className="text-xs text-neutral-400 mb-1">Cap Rate</p>
                         <p className={`text-xl font-semibold ${results.rating.color}`}>
                           {results.capRate > 0 ? fmtPct(results.capRate) : '--'}
                         </p>
                       </div>
                       <div className="rounded-lg border p-3">
-                        <p className="text-xs text-muted-foreground mb-1">NOI</p>
+                        <p className="text-xs text-neutral-400 mb-1">NOI</p>
                         <p className="text-xl font-semibold tabular-nums">
                           {fmt.format(results.noi)}
                         </p>
                       </div>
                       <div className="rounded-lg border p-3">
-                        <p className="text-xs text-muted-foreground mb-1">GRM</p>
+                        <p className="text-xs text-neutral-400 mb-1">GRM</p>
                         <p className="text-xl font-semibold tabular-nums">
                           {results.grm > 0 ? fmtGrm(results.grm) : '--'}
                         </p>
@@ -248,18 +248,18 @@ export default function CapRateCalculator() {
                     {/* Cap rate rating */}
                     <div className={`rounded-lg border p-4`}>
                       <div className="flex items-center gap-2 mb-1">
-                        <Info className="h-4 w-4 text-muted-foreground" />
+                        <Info className="h-4 w-4 text-neutral-400" />
                         <p className="text-sm font-medium">
                           Cap Rate: <span className={results.rating.color}>{results.rating.label}</span>
                         </p>
                       </div>
-                      <p className="text-xs text-muted-foreground">{results.rating.description}</p>
+                      <p className="text-xs text-neutral-400">{results.rating.description}</p>
                     </div>
 
                     {/* Multi-family price per unit */}
                     {unitCount > 1 && (
                       <div className="rounded-lg border p-4">
-                        <p className="text-sm text-muted-foreground mb-1">Price Per Unit ({unitCount} units)</p>
+                        <p className="text-sm text-neutral-400 mb-1">Price Per Unit ({unitCount} units)</p>
                         <p className="text-lg font-semibold tabular-nums">{fmt.format(results.pricePerUnit)}</p>
                       </div>
                     )}
@@ -271,11 +271,11 @@ export default function CapRateCalculator() {
                       <p className="text-sm font-medium mb-3">Income Breakdown</p>
                       <div className="space-y-2">
                         <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Gross Rent</span>
+                          <span className="text-neutral-400">Gross Rent</span>
                           <span className="tabular-nums">{fmt.format(grossAnnualRent)}</span>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Vacancy Loss ({vacancyRate}%)</span>
+                          <span className="text-neutral-400">Vacancy Loss ({vacancyRate}%)</span>
                           <span className="tabular-nums text-red-500">-{fmt.format(results.vacancyLoss)}</span>
                         </div>
                         <Separator />
@@ -291,23 +291,23 @@ export default function CapRateCalculator() {
                       <p className="text-sm font-medium mb-3">Expenses</p>
                       <div className="space-y-2">
                         <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Property Tax</span>
+                          <span className="text-neutral-400">Property Tax</span>
                           <span className="tabular-nums">-{fmt.format(propertyTax)}</span>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Insurance</span>
+                          <span className="text-neutral-400">Insurance</span>
                           <span className="tabular-nums">-{fmt.format(insuranceAnnual)}</span>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Maintenance</span>
+                          <span className="text-neutral-400">Maintenance</span>
                           <span className="tabular-nums">-{fmt.format(maintenanceAnnual)}</span>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Management ({managementFeePct}%)</span>
+                          <span className="text-neutral-400">Management ({managementFeePct}%)</span>
                           <span className="tabular-nums">-{fmt.format(results.managementFee)}</span>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Other</span>
+                          <span className="text-neutral-400">Other</span>
                           <span className="tabular-nums">-{fmt.format(otherExpenses)}</span>
                         </div>
                         <Separator />
@@ -321,9 +321,9 @@ export default function CapRateCalculator() {
                     <Separator />
 
                     {/* NOI highlight */}
-                    <div className="rounded-lg bg-primary/5 border border-primary/20 p-4 text-center">
-                      <p className="text-xs text-muted-foreground mb-1">Net Operating Income (NOI)</p>
-                      <p className="text-2xl font-semibold text-primary tabular-nums">{fmt.format(results.noi)}</p>
+                    <div className="rounded-lg bg-cyan-500/5 border border-primary/20 p-4 text-center">
+                      <p className="text-xs text-neutral-400 mb-1">Net Operating Income (NOI)</p>
+                      <p className="text-2xl font-semibold text-cyan-400 tabular-nums">{fmt.format(results.noi)}</p>
                     </div>
 
                     <Separator />
@@ -331,26 +331,26 @@ export default function CapRateCalculator() {
                     {/* Value at different cap rates */}
                     <div>
                       <p className="text-sm font-medium mb-3">Estimated Value at Different Cap Rates</p>
-                      <p className="text-xs text-muted-foreground mb-3">Using your NOI of {fmt.format(results.noi)}, here is what this property would be worth if the market priced it at different cap rates.</p>
+                      <p className="text-xs text-neutral-400 mb-3">Using your NOI of {fmt.format(results.noi)}, here is what this property would be worth if the market priced it at different cap rates.</p>
                       <div className="space-y-2">
                         <div className="flex items-center justify-between text-sm rounded-lg border p-3">
                           <div>
                             <span className="font-medium">5% Cap</span>
-                            <span className="text-xs text-muted-foreground ml-2">(Low risk / A-class)</span>
+                            <span className="text-xs text-neutral-400 ml-2">(Low risk / A-class)</span>
                           </div>
                           <span className="tabular-nums font-medium">{fmt.format(results.valueAt5)}</span>
                         </div>
                         <div className="flex items-center justify-between text-sm rounded-lg border p-3">
                           <div>
                             <span className="font-medium">7% Cap</span>
-                            <span className="text-xs text-muted-foreground ml-2">(Average market)</span>
+                            <span className="text-xs text-neutral-400 ml-2">(Average market)</span>
                           </div>
                           <span className="tabular-nums font-medium">{fmt.format(results.valueAt7)}</span>
                         </div>
                         <div className="flex items-center justify-between text-sm rounded-lg border p-3">
                           <div>
                             <span className="font-medium">10% Cap</span>
-                            <span className="text-xs text-muted-foreground ml-2">(High yield)</span>
+                            <span className="text-xs text-neutral-400 ml-2">(High yield)</span>
                           </div>
                           <span className="tabular-nums font-medium">{fmt.format(results.valueAt10)}</span>
                         </div>
@@ -363,19 +363,19 @@ export default function CapRateCalculator() {
                       <div className="space-y-1.5">
                         <div className="flex items-center gap-3 text-xs">
                           <Badge variant="outline" className="text-orange-500 border-orange-500/30 min-w-[52px] justify-center">2-4%</Badge>
-                          <span className="text-muted-foreground">Prime / Gateway markets. Appreciation play.</span>
+                          <span className="text-neutral-400">Prime / Gateway markets. Appreciation play.</span>
                         </div>
                         <div className="flex items-center gap-3 text-xs">
                           <Badge variant="outline" className="text-blue-500 border-blue-500/30 min-w-[52px] justify-center">5-7%</Badge>
-                          <span className="text-muted-foreground">Balanced return. Suburban / stable demand.</span>
+                          <span className="text-neutral-400">Balanced return. Suburban / stable demand.</span>
                         </div>
                         <div className="flex items-center gap-3 text-xs">
                           <Badge variant="outline" className="text-green-600 border-green-600/30 min-w-[52px] justify-center">8-10%</Badge>
-                          <span className="text-muted-foreground">Strong cash flow. Secondary / tertiary markets.</span>
+                          <span className="text-neutral-400">Strong cash flow. Secondary / tertiary markets.</span>
                         </div>
                         <div className="flex items-center gap-3 text-xs">
                           <Badge variant="outline" className="text-green-700 border-green-700/30 min-w-[52px] justify-center">10%+</Badge>
-                          <span className="text-muted-foreground">Excellent yield. Verify risk factors carefully.</span>
+                          <span className="text-neutral-400">Excellent yield. Verify risk factors carefully.</span>
                         </div>
                       </div>
                     </div>
@@ -383,13 +383,13 @@ export default function CapRateCalculator() {
                 </Card>
 
                 {/* CTA */}
-                <Card className="mt-6 bg-primary/5 border-primary/20">
+                <Card className="mt-6 bg-cyan-500/5 border-primary/20">
                   <CardContent className="pt-6">
                     <div className="flex items-start gap-3">
-                      <Sparkles className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                      <Sparkles className="h-5 w-5 text-cyan-400 mt-0.5 flex-shrink-0" />
                       <div>
                         <p className="font-medium text-sm mb-1">Want AI to analyze cap rates across your pipeline?</p>
-                        <p className="text-xs text-muted-foreground mb-3">AIWholesail calculates NOI, cap rate, and GRM for every property automatically using real-time rental data and expense estimates.</p>
+                        <p className="text-xs text-neutral-400 mb-3">AIWholesail calculates NOI, cap rate, and GRM for every property automatically using real-time rental data and expense estimates.</p>
                         <Button asChild size="sm">
                           <Link to="/pricing">
                             Try AIWholesail Free
@@ -413,7 +413,7 @@ export default function CapRateCalculator() {
             <CardHeader>
               <CardTitle className="text-2xl">How to Use This Cap Rate Calculator</CardTitle>
             </CardHeader>
-            <CardContent className="prose prose-sm max-w-none space-y-4 text-muted-foreground">
+            <CardContent className="prose prose-sm max-w-none space-y-4 text-neutral-400">
               <p>
                 The capitalization rate (cap rate) is one of the most important metrics in real estate investing. It measures the rate of return on an investment property based on the income it generates, independent of how the property is financed.
               </p>

@@ -104,7 +104,7 @@ export default function HowItWorks() {
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
             Your path from search to closing.
           </h2>
-          <p className="text-lg text-muted-foreground font-light max-w-xl mb-16">
+          <p className="text-lg text-neutral-400 font-light max-w-xl mb-16">
             Every step is designed to save you time and surface the most profitable opportunities first.
           </p>
 
@@ -112,21 +112,21 @@ export default function HowItWorks() {
             {steps.map((step) => (
               <div
                 key={step.number}
-                className="bg-gradient-to-br from-muted/50 to-muted/30 border border-border/50 rounded-3xl p-8 flex flex-col justify-between min-h-[300px] group hover:border-primary/20 transition-all duration-300"
+                className="bg-white/[0.03] border border-white/[0.06] rounded-3xl p-8 flex flex-col justify-between min-h-[300px] group hover:border-primary/20 transition-all duration-300"
               >
                 <div>
                   <div className="flex items-center gap-3 mb-5">
                     <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
                       <step.icon className="h-5 w-5 text-primary" />
                     </div>
-                    <span className="text-xs font-semibold tracking-[0.15em] uppercase text-muted-foreground">
+                    <span className="text-xs font-semibold tracking-[0.15em] uppercase text-neutral-400">
                       Step {step.number}
                     </span>
                   </div>
                   <h3 className="text-xl font-bold tracking-tight mb-3">
                     {step.title}
                   </h3>
-                  <p className="text-sm text-muted-foreground font-light leading-relaxed">
+                  <p className="text-sm text-neutral-400 font-light leading-relaxed">
                     {step.description}
                   </p>
                 </div>
@@ -185,7 +185,7 @@ export default function HowItWorks() {
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight leading-tight mb-6">
             Ready to find your next deal?
           </h2>
-          <p className="text-lg text-muted-foreground font-light max-w-2xl mx-auto mb-10">
+          <p className="text-lg text-neutral-400 font-light max-w-2xl mx-auto mb-10">
             See it in action. Start your free trial and search your first market in under two minutes.
           </p>
           <Link to="/pricing">
@@ -193,7 +193,7 @@ export default function HowItWorks() {
               Start Your Free Trial <ArrowRight className="h-4 w-4" />
             </Button>
           </Link>
-          <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground mt-6">
+          <div className="flex items-center justify-center gap-6 text-sm text-neutral-400 mt-6">
             <span className="flex items-center gap-1.5"><Shield className="h-3.5 w-3.5 text-primary" /> No Credit Card Required</span>
             <span className="flex items-center gap-1.5"><CheckCircle className="h-3.5 w-3.5 text-primary" /> Cancel Anytime</span>
           </div>
