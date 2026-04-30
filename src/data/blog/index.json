@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-use-ai-for-real-estate-investing-a-complete-guide-for-smart-property-inve",
+      "title": "How to Use AI for Real Estate Investing: A Complete Guide for Smart Property Investors",
+      "excerpt": "Discover how artificial intelligence is transforming real estate investing with automated deal analysis, market predictions, and property valuation tools. Learn practical ways to leverage AI technology to find better deals and maximize your investment returns.",
+      "category": "AI & Tech",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-04-30T02:34:07.804Z",
+      "readTime": 7,
+      "tags": [
+        "AI real estate investing",
+        "artificial intelligence property investment",
+        "real estate technology",
+        "automated deal analysis",
+        "property valuation AI"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-find-wholesale-deals-beginners-guide",
       "title": "How to Find Wholesale Real Estate Deals: A Beginner's Guide",
       "excerpt": "Learn the fundamentals of finding profitable wholesale real estate deals, from identifying motivated sellers to calculating your maximum allowable offer.",
@@ -8,8 +25,12 @@
       "author": "AIWholesail Team",
       "publishedAt": "2026-04-29T12:00:00Z",
       "readTime": 8,
-      "tags": ["wholesale", "beginners", "deal finding"],
-      "featured": true
+      "tags": [
+        "wholesale",
+        "beginners",
+        "deal finding"
+      ],
+      "featured": false
     },
     {
       "slug": "what-is-arv-after-repair-value-explained",
@@ -19,7 +40,11 @@
       "author": "AIWholesail Team",
       "publishedAt": "2026-04-29T08:00:00Z",
       "readTime": 6,
-      "tags": ["arv", "valuation", "investing basics"],
+      "tags": [
+        "arv",
+        "valuation",
+        "investing basics"
+      ],
       "featured": false
     },
     {
@@ -30,7 +55,11 @@
       "author": "AIWholesail Team",
       "publishedAt": "2026-04-28T14:00:00Z",
       "readTime": 7,
-      "tags": ["ai", "technology", "market trends"],
+      "tags": [
+        "ai",
+        "technology",
+        "market trends"
+      ],
       "featured": false
     }
   ]
