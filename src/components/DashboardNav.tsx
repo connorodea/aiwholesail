@@ -26,6 +26,8 @@ import {
   ChevronDown,
   Target,
   Brain,
+  Kanban,
+  Users,
   Repeat,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -38,6 +40,8 @@ const navItems = [
   { href: '/app', label: 'Search', icon: Search },
   { href: '/app/off-market', label: 'Off-Market', icon: Target },
   { href: '/app/analyzer', label: 'AI Analyzer', icon: Brain },
+  { href: '/app/pipeline', label: 'Pipeline', icon: Kanban },
+  { href: '/app/buyers', label: 'Buyers', icon: Users },
   { href: '/app/sequences', label: 'Sequences', icon: Repeat },
   { href: '/app/favorites', label: 'Favorites', icon: Heart },
   { href: '/app/alerts', label: 'Alerts', icon: Bell },

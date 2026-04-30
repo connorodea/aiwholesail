@@ -529,6 +529,66 @@ export const communications = {
   },
 };
 
+// ============ BUYERS API ============
+export const buyers = {
+  list: async (params?: { search?: string; tags?: string; location?: string; limit?: number; offset?: number }) => {
+    const query = params ? new URLSearchParams(
+      Object.fromEntries(Object.entries(params).filter(([, v]) => v != null).map(([k, v]) => [k, String(v)]))
+    ).toString() : '';
+    return apiFetch(`/api/buyers${query ? `?${query}` : ''}`);
+  },
+
+  get: async (id: string) => apiFetch(`/api/buyers/${id}`),
+
+  create: async (buyer: {
+    firstName: string;
+    lastName: string;
+    company?: string;
+    email?: string;
+    phone?: string;
+    criteria: any;
+    tags?: string[];
+    notes?: string;
+  }) => {
+    return apiFetch('/api/buyers', {
+      method: 'POST',
+      body: JSON.stringify(buyer),
+    });
+  },
+
+  update: async (id: string, data: any) => {
+    return apiFetch(`/api/buyers/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  },
+
+  delete: async (id: string) => {
+    return apiFetch(`/api/buyers/${id}`, { method: 'DELETE' });
+  },
+
+  match: async (propertyData: any) => {
+    return apiFetch('/api/buyers/match', {
+      method: 'POST',
+      body: JSON.stringify({ property: propertyData }),
+    });
+  },
+
+  import: async (buyerRows: any[]) => {
+    return apiFetch('/api/buyers/import', {
+      method: 'POST',
+      body: JSON.stringify({ buyers: buyerRows }),
+    });
+  },
+
+  outreach: async (buyerId: string, dealData: any, channels: ('email' | 'sms')[]) => {
+    return apiFetch(`/api/buyers/${buyerId}/outreach`, {
+      method: 'POST',
+      body: JSON.stringify({ deal: dealData, channels }),
+    });
+  },
+};
+
 // ============ SEQUENCES API ============
 export const sequences = {
   listTemplates: async () => apiFetch('/api/sequences/templates'),
@@ -597,6 +657,7 @@ const apiClient = {
   ai,
   property,
   communications,
+  buyers,
   sequences,
   utility,
   onAuthStateChange,
