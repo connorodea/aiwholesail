@@ -8,7 +8,7 @@ export default function Refund() {
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
       <SEOHead 
         title="Refund Policy"
-        description="Refund Policy for AI Wholesail - Learn about our refund terms and how to request refunds."
+        description="Refund Policy for AIWholesail - Learn about our refund terms and how to request refunds."
         noIndex={false}
       />
       
@@ -39,7 +39,7 @@ export default function Refund() {
               <section>
                 <h2 className="text-2xl font-semibold mb-4">1. Free Trial Period</h2>
                 <p>
-                  AI Wholesail offers a 7-day free trial for all new subscribers. During this period, you can 
+                  AIWholesail offers a 7-day free trial for all new subscribers. During this period, you can 
                   explore all features of our platform without any charges. You may cancel your subscription 
                   at any time during the trial period without being charged.
                 </p>

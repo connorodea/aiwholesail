@@ -39,7 +39,7 @@ export default function Terms() {
               <section>
                 <h2 className="text-2xl font-semibold mb-4">1. Acceptance of Terms</h2>
                 <p>
-                  By accessing and using AI Wholesail ("Service"), you accept and agree to be bound by the terms 
+                  By accessing and using AIWholesail ("Service"), you accept and agree to be bound by the terms 
                   and provision of this agreement. If you do not agree to abide by the above, please do not use this service.
                 </p>
               </section>
@@ -47,7 +47,7 @@ export default function Terms() {
               <section>
                 <h2 className="text-2xl font-semibold mb-4">2. Description of Service</h2>
                 <p>
-                  AI Wholesail is a software platform that provides AI-powered real estate analysis, property search, 
+                  AIWholesail is a software platform that provides AI-powered real estate analysis, property search, 
                   and deal identification tools. Our service includes but is not limited to:
                 </p>
                 <ul className="list-disc pl-6 mt-2 space-y-1">
@@ -99,7 +99,7 @@ export default function Terms() {
                 <h2 className="text-2xl font-semibold mb-4">6. Intellectual Property</h2>
                 <p>
                   The Service and its original content, features, and functionality are and will remain the 
-                  exclusive property of AI Wholesail and its licensors. The service is protected by copyright, 
+                  exclusive property of AIWholesail and its licensors. The service is protected by copyright, 
                   trademark, and other laws.
                 </p>
               </section>
@@ -115,7 +115,7 @@ export default function Terms() {
               <section>
                 <h2 className="text-2xl font-semibold mb-4">8. Limitation of Liability</h2>
                 <p>
-                  In no event shall AI Wholesail, nor its directors, employees, partners, agents, suppliers, 
+                  In no event shall AIWholesail, nor its directors, employees, partners, agents, suppliers, 
                   or affiliates, be liable for any indirect, incidental, special, consequential, or punitive 
                   damages, including without limitation, loss of profits, data, use, goodwill, or other 
                   intangible losses, resulting from your use of the Service.

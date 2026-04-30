@@ -8,7 +8,7 @@ export default function Privacy() {
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
       <SEOHead 
         title="Privacy Policy"
-        description="Privacy Policy for AI Wholesail - Learn how we protect and handle your personal information."
+        description="Privacy Policy for AIWholesail - Learn how we protect and handle your personal information."
         noIndex={false}
       />
       
@@ -39,7 +39,7 @@ export default function Privacy() {
               <section>
                 <h2 className="text-2xl font-semibold mb-4">1. Introduction</h2>
                 <p>
-                  AI Wholesail ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy 
+                  AIWholesail ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy 
                   explains how we collect, use, disclose, and safeguard your information when you visit our website 
                   and use our services.
                 </p>
@@ -157,7 +157,7 @@ export default function Privacy() {
                   <br />
                   Email: privacy@aiwholesail.com
                   <br />
-                  Mail: AI Wholesail Privacy Team
+                  Mail: AIWholesail Privacy Team
                 </p>
               </section>
             </div>
