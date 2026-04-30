@@ -89,8 +89,10 @@ export default function Auth() {
             toast.error(error.message);
           }
         } else {
-          toast.success('Account created successfully! Please check your email to verify your account.');
-          // Don't clear stored plan - it will be used after email verification
+          toast.success('Welcome to AIWholesail! Your 7-day free trial has started.');
+          localStorage.removeItem('selectedPlan');
+          // Go straight to app — trial starts automatically
+          navigate('/app');
         }
       } else {
         const { error } = await signIn(email, password);
