@@ -3,14 +3,13 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
-import { LogIn, UserPlus, Eye, EyeOff, Mail, Home, Shield, CheckCircle } from 'lucide-react';
+import { LogIn, UserPlus, Eye, EyeOff, Mail, Shield, CheckCircle, ArrowRight } from 'lucide-react';
 import { stripe, auth } from '@/lib/api-client';
 import { SEOHead } from '@/components/SEOHead';
-const aiWholesailLogo = '/lovable-uploads/8dcdb5d0-ddfb-406f-a5f0-b3c5112d210a.png';
+import { PublicLayout } from '@/components/PublicLayout';
 
 export default function Auth() {
   const [searchParams] = useSearchParams();
@@ -22,7 +21,7 @@ export default function Auth() {
   const [showPassword, setShowPassword] = useState(false);
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
-  
+
   // Check if user was just verified
   const isVerified = searchParams.get('verified') === 'true';
 
@@ -31,7 +30,7 @@ export default function Auth() {
     if (isVerified && !user) {
       toast.success('Email verified successfully! Please wait while we redirect you...');
     }
-    
+
     if (user) {
       // Check if there's a stored plan selection for post-signup checkout
       const storedPlan = localStorage.getItem('selectedPlan');
@@ -115,213 +114,197 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 relative">
-      <SEOHead 
+    <PublicLayout>
+      <SEOHead
         title={isSignUp ? "Create Account" : "Sign In"}
         description={isSignUp ? "Create your AIWholesail account and start finding profitable real estate deals with our 7-day free trial." : "Sign in to your AIWholesail account to access your real estate deal-finding dashboard."}
         noIndex={false}
       />
-      {/* Header */}
-      <header className="fixed top-4 left-4 right-4 z-50 animate-fade-in">
-        <div className="container mx-auto max-w-7xl">
-          <div className="bg-card/80 backdrop-blur-xl border border-border/50 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 px-6 py-4">
-            <div className="flex items-center justify-between">
-              {/* Brand Section */}
-              <div className="flex items-center space-x-3">
-                <div className="relative group">
-                  <img src={aiWholesailLogo} alt="AIWholesail" className="h-10 w-auto object-contain transition-transform duration-300 group-hover:scale-105" />
-                  <div className="absolute -inset-2 bg-gradient-to-r from-primary/20 to-accent/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"></div>
+
+      {/* ===== HERO — DARK ===== */}
+      <section className="relative bg-gradient-to-b from-[#0a0a0a] via-[#0f0f0f] to-[#0a0a0a] text-white overflow-hidden">
+        <div className="relative container mx-auto max-w-6xl px-4 pt-24 pb-20 text-center">
+          <Badge className="mb-6 bg-white/10 text-white/80 border-white/10 backdrop-blur-sm text-xs font-medium px-4 py-1.5 rounded-full">
+            <Shield className="h-3 w-3 mr-1.5" /> Secure Authentication
+          </Badge>
+
+          <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">
+            {isSignUp ? (
+              <>
+                Create your
+                <br />
+                <span className="bg-gradient-to-r from-primary via-cyan-400 to-primary bg-clip-text text-transparent">
+                  account.
+                </span>
+              </>
+            ) : (
+              <>
+                Welcome to
+                <br />
+                <span className="bg-gradient-to-r from-primary via-cyan-400 to-primary bg-clip-text text-transparent">
+                  AIWholesail.
+                </span>
+              </>
+            )}
+          </h1>
+
+          <p className="text-lg md:text-xl text-white/60 max-w-2xl mx-auto leading-relaxed font-light">
+            {isSignUp
+              ? "Start finding profitable real estate deals today with a 7-day free trial."
+              : "Sign in to access your dashboard and continue finding profitable deals."
+            }
+          </p>
+        </div>
+
+        {/* Fade to white */}
+        <div className="h-24 bg-gradient-to-b from-[#0a0a0a] to-background" />
+      </section>
+
+      {/* ===== AUTH FORM — LIGHT ===== */}
+      <section className="py-24 px-4 bg-background">
+        <div className="container mx-auto max-w-md">
+          <div className="bg-gradient-to-br from-muted/50 to-muted/30 border border-border/50 rounded-3xl p-8 md:p-10">
+            <form onSubmit={handleSubmit} className="space-y-5">
+              {isSignUp && (
+                <div className="space-y-2">
+                  <Label htmlFor="fullName" className="text-sm font-medium">
+                    Full Name
+                  </Label>
+                  <Input
+                    id="fullName"
+                    type="text"
+                    placeholder="Enter your full name"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    required={isSignUp}
+                    className="h-11 bg-muted/50 border-border/50 focus:border-primary transition-colors"
+                  />
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-sm font-medium">
+                  Email Address
+                </Label>
+                <div className="relative">
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="your@email.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="h-11 pl-4 pr-12 bg-muted/50 border-border/50 focus:border-primary transition-colors"
+                  />
+                  <Mail className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 </div>
               </div>
-              
-              {/* Back to Home */}
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="hover-scale" 
-                onClick={() => navigate('/')}
-              >
-                <Home className="h-4 w-4 mr-2" />
-                Back to Home
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
 
-      {/* Auth Section */}
-      <section className="relative pt-24 pb-16 px-4 overflow-hidden">
-        {/* Subtle background elements */}
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/2 to-transparent"></div>
-        
-        <div className="container mx-auto max-w-2xl relative z-10">
-          <div className="space-y-8">
-            {/* Header */}
-            <div className="text-center space-y-6">
-              <Badge variant="secondary" className="text-xs font-medium">
-                <Shield className="h-3 w-3 mr-1.5" />
-                Secure Authentication
-              </Badge>
-              
-              <h1 className="text-4xl md:text-5xl font-medium leading-tight tracking-tight">
-                <span className="block mb-2 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                  {isSignUp ? "Join AIWholesail" : "Welcome Back"}
-                </span>
-              </h1>
-              
-              <p className="text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed font-light">
-                {isSignUp 
-                  ? "Transform your real estate business with AI-powered analysis and market intelligence." 
-                  : "Access your personalized dashboard and continue finding profitable deals."
-                }
-              </p>
-            </div>
-
-            {/* Form Card */}
-            <Card className="border border-border/50 rounded-2xl shadow-lg backdrop-blur-sm bg-card/50 max-w-md mx-auto">
-              <CardContent className="p-8">
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  {isSignUp && (
-                    <div className="space-y-2">
-                      <Label htmlFor="fullName" className="text-sm font-medium">
-                        Full Name
-                      </Label>
-                      <Input
-                        id="fullName"
-                        type="text"
-                        placeholder="Enter your full name"
-                        value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
-                        required={isSignUp}
-                        className="h-11 border-border/50 bg-background/50 focus:border-primary transition-colors"
-                      />
-                    </div>
-                  )}
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="email" className="text-sm font-medium">
-                      Email Address
-                    </Label>
-                    <div className="relative">
-                      <Input
-                        id="email"
-                        type="email"
-                        placeholder="your@email.com"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                        className="h-11 pl-4 pr-12 border-border/50 bg-background/50 focus:border-primary transition-colors"
-                      />
-                      <Mail className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="password" className="text-sm font-medium">
-                      Password
-                    </Label>
-                    <div className="relative">
-                      <Input
-                        id="password"
-                        type={showPassword ? "text" : "password"}
-                        placeholder={isSignUp ? "Create a strong password" : "Enter your password"}
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                        minLength={8}
-                        className="h-11 pl-4 pr-12 border-border/50 bg-background/50 focus:border-primary transition-colors"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                      >
-                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </button>
-                    </div>
-                    {isSignUp && (
-                      <p className="text-xs text-muted-foreground">
-                        Min 8 characters with uppercase, lowercase, number, and special character
-                      </p>
-                    )}
-                    {!isSignUp && (
-                      <div className="text-right">
-                        <button
-                          type="button"
-                          onClick={async () => {
-                            if (!email) {
-                              toast.error('Please enter your email address first.');
-                              return;
-                            }
-                            try {
-                              const response = await auth.forgotPassword(email);
-                              if (response.error) {
-                                toast.error(response.error);
-                              } else {
-                                toast.success('Password reset link sent! Check your email.');
-                              }
-                            } catch (error) {
-                              toast.error('Failed to send reset link. Please try again.');
-                            }
-                          }}
-                          className="text-xs text-primary hover:text-primary/80 font-medium transition-colors"
-                        >
-                          Forgot password?
-                        </button>
-                      </div>
-                    )}
-                  </div>
-
-                  <Button 
-                    type="submit" 
-                    disabled={loading}
-                    className="w-full h-11 font-medium"
-                    size="lg"
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-sm font-medium">
+                  Password
+                </Label>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder={isSignUp ? "Create a strong password" : "Enter your password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    minLength={8}
+                    className="h-11 pl-4 pr-12 bg-muted/50 border-border/50 focus:border-primary transition-colors"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
                   >
-                    {loading ? (
-                      <div className="flex items-center gap-2">
-                        <div className="w-4 h-4 border-2 border-current/30 border-t-current rounded-full animate-spin"></div>
-                        <span>Processing...</span>
-                      </div>
-                    ) : (
-                      <>
-                        {isSignUp ? <UserPlus className="h-4 w-4 mr-2" /> : <LogIn className="h-4 w-4 mr-2" />}
-                        {isSignUp ? 'Create Account' : 'Sign In'}
-                      </>
-                    )}
-                  </Button>
-                </form>
-
-                {/* Trust Indicators */}
-                <div className="flex items-center justify-center gap-4 mt-6 pt-6 border-t border-border/30">
-                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <Shield className="h-3.5 w-3.5 text-primary" />
-                    <span>Secure</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <CheckCircle className="h-3.5 w-3.5 text-primary" />
-                    <span>10,000+ Users</span>
-                  </div>
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
                 </div>
-
-                {/* Switch Mode */}
-                <div className="text-center mt-6">
-                  <p className="text-sm text-muted-foreground">
-                    {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
+                {isSignUp && (
+                  <p className="text-xs text-muted-foreground font-light">
+                    Min 8 characters with uppercase, lowercase, number, and special character
+                  </p>
+                )}
+                {!isSignUp && (
+                  <div className="text-right">
                     <button
                       type="button"
-                      onClick={() => setIsSignUp(!isSignUp)}
-                      className="text-primary hover:text-primary/80 font-medium transition-colors"
+                      onClick={async () => {
+                        if (!email) {
+                          toast.error('Please enter your email address first.');
+                          return;
+                        }
+                        try {
+                          const response = await auth.forgotPassword(email);
+                          if (response.error) {
+                            toast.error(response.error);
+                          } else {
+                            toast.success('Password reset link sent! Check your email.');
+                          }
+                        } catch (error) {
+                          toast.error('Failed to send reset link. Please try again.');
+                        }
+                      }}
+                      className="text-xs text-primary hover:text-primary/80 font-medium transition-colors"
                     >
-                      {isSignUp ? 'Sign In' : 'Create Account'}
+                      Forgot password?
                     </button>
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+                  </div>
+                )}
+              </div>
+
+              <Button
+                type="submit"
+                disabled={loading}
+                className="w-full h-12 rounded-full bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25 font-semibold text-base gap-2"
+                size="lg"
+              >
+                {loading ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-current/30 border-t-current rounded-full animate-spin" />
+                    <span>Processing...</span>
+                  </div>
+                ) : (
+                  <>
+                    {isSignUp ? 'Create Account' : 'Sign In'}
+                    <ArrowRight className="h-4 w-4" />
+                  </>
+                )}
+              </Button>
+            </form>
+
+            {/* Trust Indicators */}
+            <div className="flex items-center justify-center gap-4 mt-6 pt-6 border-t border-border/30">
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <Shield className="h-3.5 w-3.5 text-primary" />
+                <span>Secure</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <CheckCircle className="h-3.5 w-3.5 text-primary" />
+                <span>10,000+ Users</span>
+              </div>
+            </div>
+
+            {/* Switch Mode */}
+            <div className="text-center mt-6">
+              <p className="text-sm text-muted-foreground">
+                {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
+                <button
+                  type="button"
+                  onClick={() => setIsSignUp(!isSignUp)}
+                  className="text-primary hover:text-primary/80 font-medium transition-colors"
+                >
+                  {isSignUp ? 'Sign In' : 'Create Account'}
+                </button>
+              </p>
+            </div>
           </div>
         </div>
       </section>
-    </div>
+    </PublicLayout>
   );
 }
