@@ -14,7 +14,7 @@ const plans = [
     name: 'Pro',
     price: 29,
     priceId: 'price_1QjrSuCwWnuOPtC4Bfwu6IEs',
-    description: 'Perfect for individual wholesalers',
+    description: 'Perfect for individual investors',
     features: [
       'Up to 5 alert locations',
       'Automated updates every 24 hours',
@@ -86,7 +86,7 @@ export default function Pricing() {
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
       <SEOHead 
         title="Pricing Plans"
-        description="Choose the perfect AI Wholesail plan for your real estate business. Start with a 7-day free trial. Pro at $29/month or Elite at $99/month."
+        description="Choose the perfect AIWholesail plan for your real estate business. Start with a 7-day free trial. Pro at $29/month or Elite at $99/month."
         noIndex={false}
       />
       {/* Header */}

@@ -12,9 +12,9 @@ interface SEOHeadProps {
 }
 
 export function SEOHead({ 
-  title = "AI Wholesail - Advanced Real Estate Wholesale Analytics",
-  description = "AI-powered wholesale real estate tools. Find profitable deals, analyze properties, and scale your business with advanced AI analytics and market intelligence.",
-  keywords = "real estate wholesale, property analysis, AI real estate, wholesale deals, property investment, real estate analytics",
+  title = "AIWholesail - Find Profitable Real Estate Deals with AI",
+  description = "AI-powered tools for real estate professionals. Find profitable deals, analyze properties, and close faster with advanced AI analytics and market intelligence.",
+  keywords = "real estate deals, property analysis, AI real estate, profitable deals, property investment, real estate analytics, real estate investing",
   canonicalUrl,
   ogImage = "/og-image.jpg",
   noIndex = false
