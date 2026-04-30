@@ -34,19 +34,141 @@ try {
   );
   for (const silo of siloData.silos || []) {
     for (const kw of silo.keywords || []) {
-      LONG_TAIL_KEYWORDS.push({ keyword: kw.keyword, category: kw.category });
+      LONG_TAIL_KEYWORDS.push({ keyword: kw.keyword, category: kw.category, silo: silo.name });
     }
   }
   console.log(`[Blog] Loaded ${LONG_TAIL_KEYWORDS.length} keywords from ${siloData.silos.length} silos`);
 } catch (e) {
   console.warn('[Blog] Failed to load keyword-silos.json, using fallback');
   LONG_TAIL_KEYWORDS = [
-    { keyword: "how to find wholesale real estate deals", category: "Beginner Guide" },
-    { keyword: "how to calculate ARV for real estate", category: "Strategy" },
-    { keyword: "what is a good cap rate for rental property", category: "Strategy" },
-    { keyword: "how to flip houses for beginners", category: "Beginner Guide" },
-    { keyword: "BRRRR method explained", category: "Strategy" },
+    { keyword: "how to find wholesale real estate deals", category: "Beginner Guide", silo: "Wholesaling" },
+    { keyword: "how to calculate ARV for real estate", category: "Strategy", silo: "Deal Analysis" },
+    { keyword: "what is a good cap rate for rental property", category: "Strategy", silo: "Deal Analysis" },
+    { keyword: "how to flip houses for beginners", category: "Beginner Guide", silo: "House Flipping" },
+    { keyword: "BRRRR method explained", category: "Strategy", silo: "Rental Property Investing" },
   ];
+}
+
+// Load topical clusters for internal linking
+let TOPICAL_CLUSTERS = { pillars: [] };
+try {
+  TOPICAL_CLUSTERS = JSON.parse(
+    fs.readFileSync(path.join(__dirname, '..', '..', 'src', 'data', 'topical-clusters.json'), 'utf8')
+  );
+  console.log(`[Blog] Loaded ${TOPICAL_CLUSTERS.pillars.length} pillar clusters for internal linking`);
+} catch (e) {
+  console.warn('[Blog] Failed to load topical-clusters.json, interlinking disabled');
+}
+
+// Load guides for linking
+let GUIDES = [];
+try {
+  GUIDES = JSON.parse(
+    fs.readFileSync(path.join(__dirname, '..', '..', 'src', 'data', 'guides.json'), 'utf8')
+  );
+  console.log(`[Blog] Loaded ${GUIDES.length} guides for linking`);
+} catch (e) {
+  console.warn('[Blog] Failed to load guides.json');
+}
+
+// ============ INTERLINKING ENGINE ============
+
+function findRelatedContent(keyword, silo) {
+  const links = {
+    pillarPage: null,
+    siblingArticles: [],
+    relatedGuides: [],
+    relatedTools: [],
+    relatedMarkets: [],
+  };
+
+  const keywordLower = keyword.toLowerCase();
+
+  // Find the matching pillar based on keyword/silo relevance
+  const siloToPillar = {
+    'Wholesaling': 1,
+    'House Flipping': 4,
+    'Rental Property Investing': 6,
+    'Real Estate Market Analysis': 9,
+    'Real Estate Financing': 8,
+    'For Sale By Owner (FSBO)': 3,
+    'Foreclosures & Distressed Properties': 3,
+    'Real Estate Technology': 2,
+    'Tax & Legal': 10,
+    'First-Time Investors': 1,
+    'Investment Strategies': 6,
+    'Deal Finding & Lead Generation': 3,
+    'Real Estate Business & Scaling': 10,
+    'Passive & Alternative RE Investing': 6,
+    'Property Analysis & Calculators': 4,
+  };
+
+  const pillarId = siloToPillar[silo] || null;
+  const pillar = TOPICAL_CLUSTERS.pillars.find(p => p.id === pillarId);
+
+  if (pillar) {
+    links.pillarPage = {
+      title: pillar.title,
+      url: `/guides/${pillar.slug}`,
+    };
+
+    // Pick 2-3 random cluster siblings from the same pillar
+    const shuffled = [...pillar.clusters].sort(() => Math.random() - 0.5);
+    links.siblingArticles = shuffled.slice(0, 3).map(c => ({
+      title: c.title,
+      url: `/blog/${c.slug}`,
+    }));
+  }
+
+  // Find related guides
+  const guideMatches = GUIDES.filter(g => {
+    const gText = `${g.title} ${g.description} ${g.keywords}`.toLowerCase();
+    const words = keywordLower.split(' ').filter(w => w.length > 3);
+    return words.some(w => gText.includes(w));
+  });
+  links.relatedGuides = guideMatches.slice(0, 2).map(g => ({
+    title: g.title,
+    url: `/guides/${g.slug}`,
+  }));
+
+  // Determine related tools based on keyword content
+  const toolMap = [
+    { keywords: ['arv', 'after repair', 'property value'], tool: 'ARV Calculator', url: '/tools/arv-calculator' },
+    { keywords: ['cap rate', 'capitalization'], tool: 'Cap Rate Calculator', url: '/tools/cap-rate-calculator' },
+    { keywords: ['cash flow', 'rental', 'rent', 'income'], tool: 'Cash Flow Calculator', url: '/tools/cash-flow-calculator' },
+    { keywords: ['wholesale', 'assignment', 'mao', 'deal'], tool: 'Deal Calculator', url: '/tools/wholesale-deal-calculator' },
+    { keywords: ['rehab', 'renovation', 'repair cost', 'flip'], tool: 'Rehab Estimator', url: '/tools/rehab-estimator' },
+    { keywords: ['brrrr', 'refinance', 'buy rehab'], tool: 'BRRRR Calculator', url: '/tools/brrrr-calculator' },
+    { keywords: ['mortgage', 'loan', 'payment', 'financing'], tool: 'Mortgage Calculator', url: '/tools/mortgage-calculator' },
+    { keywords: ['offer', 'purchase price', 'bid'], tool: 'Offer Price Calculator', url: '/tools/offer-price-calculator' },
+  ];
+
+  for (const tm of toolMap) {
+    if (tm.keywords.some(k => keywordLower.includes(k))) {
+      links.relatedTools.push({ tool: tm.tool, url: tm.url });
+    }
+  }
+  if (links.relatedTools.length === 0) {
+    links.relatedTools.push({ tool: 'Deal Calculator', url: '/tools/wholesale-deal-calculator' });
+  }
+
+  // Pick 2-3 related markets based on silo
+  const marketsBySilo = {
+    'Wholesaling': ['atlanta-ga', 'houston-tx', 'phoenix-az', 'tampa-fl'],
+    'House Flipping': ['phoenix-az', 'las-vegas-nv', 'dallas-tx', 'nashville-tn'],
+    'Rental Property Investing': ['indianapolis-in', 'memphis-tn', 'cleveland-oh', 'kansas-city-mo'],
+    'Real Estate Financing': ['dallas-tx', 'atlanta-ga', 'charlotte-nc', 'austin-tx'],
+    'Real Estate Market Analysis': ['miami-fl', 'denver-co', 'seattle-wa', 'raleigh-nc'],
+    'Real Estate Technology': ['san-francisco-ca', 'austin-tx', 'denver-co', 'nashville-tn'],
+    'Deal Finding & Lead Generation': ['detroit-mi', 'memphis-tn', 'st-louis-mo', 'baltimore-md'],
+  };
+  const markets = marketsBySilo[silo] || ['atlanta-ga', 'dallas-tx', 'phoenix-az', 'houston-tx'];
+  links.relatedMarkets = markets.slice(0, 3).map(slug => ({
+    slug,
+    url: `/markets/${slug}`,
+  }));
+
+  return links;
 }
 
 // Load cities dynamically from the expanded cities file
@@ -91,11 +213,29 @@ function pickKeyword(type) {
     });
     if (availableCities.length === 0) return null;
     const city = availableCities[Math.floor(Math.random() * availableCities.length)];
+    const citySlug = slugify(city);
     return {
       keyword: `real estate deals in ${city}`,
       category: 'Market Insights',
       city,
       type: 'city',
+      links: {
+        pillarPage: { title: 'Real Estate Investing for Beginners', url: '/guides/real-estate-investing-for-beginners' },
+        siblingArticles: [
+          { title: 'How to Find Off-Market Real Estate Deals', url: '/guides/off-market-real-estate-deals' },
+          { title: 'How to Analyze Real Estate Deals Like a Pro', url: '/guides/how-to-analyze-real-estate-deals' },
+        ],
+        relatedGuides: [
+          { title: 'Wholesaling Real Estate for Beginners', url: '/guides/wholesaling-real-estate-for-beginners' },
+        ],
+        relatedTools: [
+          { tool: 'Deal Calculator', url: '/tools/wholesale-deal-calculator' },
+          { tool: 'ARV Calculator', url: '/tools/arv-calculator' },
+        ],
+        relatedMarkets: [
+          { slug: citySlug, url: `/markets/${citySlug}` },
+        ],
+      },
     };
   }
 
@@ -104,14 +244,50 @@ function pickKeyword(type) {
     return !usedSlugs.has(slug);
   });
   if (available.length === 0) return null;
+  const selected = available[Math.floor(Math.random() * available.length)];
   return {
-    ...available[Math.floor(Math.random() * available.length)],
+    ...selected,
     type: 'long-tail',
+    links: findRelatedContent(selected.keyword, selected.silo),
   };
 }
 
 async function generateArticle(keywordData) {
-  const { keyword, category, city, type } = keywordData;
+  const { keyword, category, city, type, links } = keywordData;
+
+  // Build internal linking instructions
+  let linkingInstructions = '';
+  if (links) {
+    const linkParts = [];
+
+    if (links.pillarPage) {
+      linkParts.push(`- Link to the parent guide: "${links.pillarPage.title}" at aiwholesail.com${links.pillarPage.url} (include this link naturally in the introduction or first section)`);
+    }
+
+    if (links.siblingArticles.length > 0) {
+      const siblings = links.siblingArticles.map(s => `"${s.title}" at aiwholesail.com${s.url}`).join(', ');
+      linkParts.push(`- Link to these related articles naturally within the content: ${siblings}`);
+    }
+
+    if (links.relatedTools.length > 0) {
+      const tools = links.relatedTools.map(t => `${t.tool} at aiwholesail.com${t.url}`).join(', ');
+      linkParts.push(`- Reference these free tools: ${tools}`);
+    }
+
+    if (links.relatedGuides.length > 0) {
+      const guides = links.relatedGuides.map(g => `"${g.title}" at aiwholesail.com${g.url}`).join(', ');
+      linkParts.push(`- Link to these guides for deeper reading: ${guides}`);
+    }
+
+    if (links.relatedMarkets.length > 0) {
+      const markets = links.relatedMarkets.map(m => `aiwholesail.com${m.url}`).join(', ');
+      linkParts.push(`- Mention relevant markets with links: ${markets}`);
+    }
+
+    if (linkParts.length > 0) {
+      linkingInstructions = `\n\nINTERNAL LINKING (CRITICAL FOR SEO — weave these links naturally into the content):\n${linkParts.join('\n')}`;
+    }
+  }
 
   const systemPrompt = `You are an expert SEO content writer for AIWholesail, an AI-powered real estate deal-finding platform at aiwholesail.com. Write informative, actionable blog articles that help real estate professionals find profitable deals.
 
@@ -126,6 +302,7 @@ Guidelines:
 - Use varied section types for visual interest: paragraph, heading, subheading, list, quote, tip
 - Include at least one "tip" section and one "quote" section per article
 - Reference related AIWholesail tools when relevant (e.g., "Use our free ARV Calculator at aiwholesail.com/tools/arv-calculator")
+- IMPORTANT: Include internal links to related content on aiwholesail.com. Format links as: [anchor text](url). Include 3-5 internal links per article.
 - End with a CTA section mentioning AIWholesail's free trial`;
 
   const userPrompt = type === 'city'
@@ -134,13 +311,13 @@ Guidelines:
 Include: local market overview, average home prices, best neighborhoods for investors, types of deals available (wholesale, flip, rental), local market trends, and practical tips for out-of-state investors looking at this market.
 
 Primary keyword: "${keyword}"
-Target length: 1200-1500 words.`
+Target length: 1200-1500 words.${linkingInstructions}`
     : `Write a comprehensive article targeting the keyword: "${keyword}"
 
 This should be an informative, SEO-optimized article that thoroughly answers this topic for real estate investors. Include practical examples, numbers, and step-by-step guidance where appropriate.
 
 Primary keyword: "${keyword}"
-Target length: 1000-1400 words.`;
+Target length: 1000-1400 words.${linkingInstructions}`;
 
   const response = await anthropic.messages.create({
     model: 'claude-sonnet-4-6',
@@ -200,6 +377,14 @@ Use a mix of paragraph, heading, list, and one cta section at the end. Return ON
     metaDescription: articleData.metaDescription,
     metaKeywords: articleData.metaKeywords,
     sections: articleData.sections,
+    // Internal linking metadata for frontend rendering
+    relatedLinks: links ? {
+      pillarPage: links.pillarPage || null,
+      siblingArticles: links.siblingArticles || [],
+      relatedGuides: links.relatedGuides || [],
+      relatedTools: links.relatedTools || [],
+      relatedMarkets: links.relatedMarkets || [],
+    } : null,
   };
 
   return article;
