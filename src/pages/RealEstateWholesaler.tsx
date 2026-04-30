@@ -255,7 +255,7 @@ export default function RealEstateWholesaler() {
             <section className="text-center space-y-10 max-w-6xl mx-auto animate-fade-in">
               <div className="space-y-6">
                 <h1 className="text-4xl md:text-5xl font-medium tracking-tight leading-tight">
-                  Find profitable wholesale deals
+                  Find profitable real estate deals
                 </h1>
                 <p className="text-xl text-muted-foreground font-light max-w-2xl mx-auto leading-relaxed">
                   Discover undervalued properties with AI-powered analysis and comprehensive market data
@@ -382,7 +382,7 @@ export default function RealEstateWholesaler() {
                   <div className="space-y-2">
                     <h2 className="text-2xl font-medium tracking-tight">
                       {properties.some(p => p.price && p.zestimate && p.price < p.zestimate) 
-                        ? 'Best wholesale deals' 
+                        ? 'Best deals found'
                         : 'Search results'}
                     </h2>
                     <p className="text-muted-foreground font-light">
