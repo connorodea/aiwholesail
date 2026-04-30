@@ -208,7 +208,7 @@ export default function Developers() {
   const [activeTab, setActiveTab] = useState<'curl' | 'javascript'>('curl');
 
   return (
-    <div className="min-h-screen bg-background antialiased">
+    <div className="min-h-screen bg-[#08090a] antialiased">
       <SEOHead
         title="API for Developers"
         description="Integrate AI-powered real estate deal analysis into your applications with the AIWholesail API. Property search, deal scoring, market analysis, and buyer matching."
@@ -291,7 +291,7 @@ export default function Developers() {
       {/* ============================================================ */}
       {/*  SECTION 2 — API Overview (Light)                            */}
       {/* ============================================================ */}
-      <section className="py-20 md:py-28 px-4 bg-background">
+      <section className="py-20 md:py-28 px-4 bg-[#08090a]">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-16">
             <Badge variant="secondary" className="mb-4 text-xs uppercase tracking-wider">
@@ -300,7 +300,7 @@ export default function Developers() {
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
               Powerful Real Estate Intelligence
             </h2>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+            <p className="text-neutral-400 text-lg max-w-2xl mx-auto">
               Everything you need to build real estate applications, automate deal flow,
               or power your investment platform.
             </p>
@@ -310,7 +310,7 @@ export default function Developers() {
             {apiCapabilities.map((cap) => (
               <Card
                 key={cap.title}
-                className="group border border-border/50 bg-card/50 hover:border-primary/20 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300"
+                className="group border border-white/[0.06] bg-card/50 hover:border-primary/20 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300"
               >
                 <CardContent className="p-8">
                   <div className="flex items-start gap-5">
@@ -319,7 +319,7 @@ export default function Developers() {
                     </div>
                     <div>
                       <h3 className="text-lg font-semibold mb-2">{cap.title}</h3>
-                      <p className="text-muted-foreground text-[15px] leading-relaxed">
+                      <p className="text-neutral-400 text-[15px] leading-relaxed">
                         {cap.description}
                       </p>
                     </div>
@@ -382,7 +382,7 @@ export default function Developers() {
       {/* ============================================================ */}
       {/*  SECTION 4 — Code Examples (Light)                           */}
       {/* ============================================================ */}
-      <section className="py-20 md:py-28 px-4 bg-background">
+      <section className="py-20 md:py-28 px-4 bg-[#08090a]">
         <div className="container mx-auto max-w-4xl">
           <div className="text-center mb-12">
             <Badge variant="secondary" className="mb-4 text-xs uppercase tracking-wider">
@@ -391,19 +391,19 @@ export default function Developers() {
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
               Up and Running in Minutes
             </h2>
-            <p className="text-muted-foreground text-lg max-w-xl mx-auto">
+            <p className="text-neutral-400 text-lg max-w-xl mx-auto">
               Simple, well-documented endpoints. Here is a property analysis request.
             </p>
           </div>
 
           {/* Tab switcher */}
-          <div className="flex items-center gap-1 mb-4 bg-muted/50 rounded-xl p-1 w-fit mx-auto">
+          <div className="flex items-center gap-1 mb-4 bg-white/[0.03] rounded-xl p-1 w-fit mx-auto">
             <button
               onClick={() => setActiveTab('curl')}
               className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${
                 activeTab === 'curl'
-                  ? 'bg-background text-foreground shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground'
+                  ? 'bg-[#08090a] text-foreground shadow-sm'
+                  : 'text-neutral-400 hover:text-foreground'
               }`}
             >
               <Terminal className="h-4 w-4" />
@@ -413,8 +413,8 @@ export default function Developers() {
               onClick={() => setActiveTab('javascript')}
               className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${
                 activeTab === 'javascript'
-                  ? 'bg-background text-foreground shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground'
+                  ? 'bg-[#08090a] text-foreground shadow-sm'
+                  : 'text-neutral-400 hover:text-foreground'
               }`}
             >
               <Braces className="h-4 w-4" />
@@ -514,7 +514,7 @@ export default function Developers() {
       {/* ============================================================ */}
       {/*  SECTION 6 — CTA (Light)                                     */}
       {/* ============================================================ */}
-      <section className="py-20 md:py-28 px-4 bg-background">
+      <section className="py-20 md:py-28 px-4 bg-[#08090a]">
         <div className="container mx-auto max-w-3xl text-center">
           <div className="mb-8">
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 mb-6">
@@ -523,7 +523,7 @@ export default function Developers() {
             <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
               Ready to Build?
             </h2>
-            <p className="text-muted-foreground text-lg max-w-xl mx-auto leading-relaxed">
+            <p className="text-neutral-400 text-lg max-w-xl mx-auto leading-relaxed">
               API access starts at <strong className="text-foreground">$199/month</strong> with
               1,000 requests per minute. Contact us to get your API key and full documentation.
             </p>
@@ -550,7 +550,7 @@ export default function Developers() {
             </Link>
           </div>
 
-          <div className="mt-8 flex items-center justify-center gap-6 text-sm text-muted-foreground">
+          <div className="mt-8 flex items-center justify-center gap-6 text-sm text-neutral-400">
             <span className="flex items-center gap-1.5">
               <Shield className="h-4 w-4" />
               SSL Encrypted

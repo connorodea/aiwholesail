@@ -142,11 +142,11 @@ export default function Blog() {
 
       {/* ===== FEATURED ARTICLE — LIGHT ===== */}
       {featuredArticle && (
-        <section className="py-24 px-4 bg-background">
+        <section className="py-24 px-4 bg-[#08090a]">
           <div className="container mx-auto max-w-6xl">
             <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-4">Featured</p>
             <Link to={featuredArticle?.slug ? `/blog/${featuredArticle.slug}` : '/blog'} className="block group">
-              <div className="bg-gradient-to-br from-muted/50 to-muted/30 border border-border/50 rounded-3xl p-8 md:p-12 transition-all duration-300 hover:border-primary/20">
+              <div className="bg-white/[0.03] border border-white/[0.06] rounded-3xl p-8 md:p-12 transition-all duration-300 hover:border-primary/20">
                 <div className="grid md:grid-cols-5 gap-8 items-center">
                   <div className="md:col-span-3">
                     <div className="flex items-center gap-3 mb-4">
@@ -164,11 +164,11 @@ export default function Blog() {
                     <h2 className="text-2xl md:text-3xl font-bold tracking-tight mb-4 group-hover:text-primary transition-colors">
                       {featuredArticle.title}
                     </h2>
-                    <p className="text-muted-foreground font-light leading-relaxed mb-6">
+                    <p className="text-neutral-400 font-light leading-relaxed mb-6">
                       {featuredArticle.excerpt}
                     </p>
                     <div className="flex items-center gap-4">
-                      <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                      <span className="flex items-center gap-1.5 text-sm text-neutral-400">
                         <Clock className="h-3.5 w-3.5" />
                         {featuredArticle.readTime}
                       </span>
@@ -183,7 +183,7 @@ export default function Blog() {
                     <div className="aspect-[4/3] rounded-2xl bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 border border-border/30 flex items-center justify-center">
                       <div className="text-center">
                         <Sparkles className="h-10 w-10 text-primary/30 mx-auto mb-3" />
-                        <span className="text-xs text-muted-foreground/60 font-light">
+                        <span className="text-xs text-neutral-400/60 font-light">
                           Featured article
                         </span>
                       </div>
@@ -197,7 +197,7 @@ export default function Blog() {
       )}
 
       {/* ===== ARTICLE GRID — LIGHT ===== */}
-      <section className="py-24 px-4 bg-background">
+      <section className="py-24 px-4 bg-[#08090a]">
         <div className="container mx-auto max-w-6xl">
           <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-4">Latest Articles</p>
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-16">
@@ -206,10 +206,10 @@ export default function Blog() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {gridArticles.map((article, index) => (
               <Link to={article.slug ? `/blog/${article.slug}` : '/blog'} key={index} className="group">
-                <article className="h-full bg-gradient-to-br from-muted/50 to-muted/30 border border-border/50 rounded-3xl p-6 transition-all duration-300 hover:border-primary/20 flex flex-col">
+                <article className="h-full bg-white/[0.03] border border-white/[0.06] rounded-3xl p-6 transition-all duration-300 hover:border-primary/20 flex flex-col">
                   {/* Image Placeholder */}
                   <div className="aspect-[16/9] rounded-2xl bg-gradient-to-br from-muted/80 to-muted/50 border border-border/30 mb-5 flex items-center justify-center">
-                    <BookOpen className="h-6 w-6 text-muted-foreground/30" />
+                    <BookOpen className="h-6 w-6 text-neutral-400/30" />
                   </div>
 
                   {/* Category + Read Time */}
@@ -221,7 +221,7 @@ export default function Blog() {
                     >
                       {article.category}
                     </Badge>
-                    <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1 text-xs text-neutral-400">
                       <Clock className="h-3 w-3" />
                       {article.readTime}
                     </span>
@@ -233,7 +233,7 @@ export default function Blog() {
                   </h3>
 
                   {/* Excerpt */}
-                  <p className="text-sm text-muted-foreground font-light leading-relaxed mb-4 flex-1">
+                  <p className="text-sm text-neutral-400 font-light leading-relaxed mb-4 flex-1">
                     {article.excerpt}
                   </p>
 

@@ -127,7 +127,7 @@ export default function FAQ() {
             {faqs.map((faq, index) => (
               <div
                 key={index}
-                className="bg-gradient-to-br from-muted/50 to-muted/30 border border-border/50 rounded-3xl overflow-hidden transition-all duration-300 hover:border-primary/20"
+                className="bg-white/[0.03] border border-white/[0.06] rounded-3xl overflow-hidden transition-all duration-300 hover:border-primary/20"
               >
                 <button
                   onClick={() => toggleItem(index)}
@@ -140,14 +140,14 @@ export default function FAQ() {
                     {openItems.includes(index) ? (
                       <Minus className="h-4 w-4 text-primary" />
                     ) : (
-                      <Plus className="h-4 w-4 text-muted-foreground" />
+                      <Plus className="h-4 w-4 text-neutral-400" />
                     )}
                   </div>
                 </button>
 
                 {openItems.includes(index) && (
                   <div className="px-8 pb-6">
-                    <p className="text-muted-foreground font-light leading-relaxed">{faq.answer}</p>
+                    <p className="text-neutral-400 font-light leading-relaxed">{faq.answer}</p>
                   </div>
                 )}
               </div>

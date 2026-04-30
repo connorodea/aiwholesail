@@ -207,7 +207,7 @@ export default function RehabEstimator() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+    <div className="min-h-screen bg-[#08090a] text-white">
       <SEOHead
         title="Free Rehab Cost Estimator - Renovation Cost Calculator"
         description="Estimate renovation and rehab costs for investment properties. Room-by-room cost breakdown with low, mid, and high estimates. Free rehab cost calculator for real estate investors."
@@ -217,14 +217,14 @@ export default function RehabEstimator() {
       {/* Header */}
       <header className="fixed top-4 left-4 right-4 z-50">
         <div className="container mx-auto max-w-7xl">
-          <div className="bg-card/80 backdrop-blur-xl border border-border/50 rounded-2xl shadow-lg px-6 py-4">
+          <div className="bg-neutral-950/90 backdrop-blur-xl border border-white/[0.06] rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.4)] px-6 py-4">
             <div className="flex items-center justify-between">
-              <Link to="/" className="flex items-center space-x-2 text-sm font-medium hover:text-primary transition-colors">
+              <Link to="/" className="flex items-center space-x-2 text-sm font-medium hover:text-white transition-colors">
                 <ArrowLeft className="h-4 w-4" />
                 <span>Back to Home</span>
               </Link>
               <div className="text-lg font-semibold">AIWholesail</div>
-              <Link to="/pricing" className="text-sm font-medium text-primary hover:text-primary/80 transition-colors">
+              <Link to="/pricing" className="text-sm font-medium text-cyan-400 hover:text-cyan-400/80 transition-colors">
                 Pricing
               </Link>
             </div>
@@ -240,9 +240,9 @@ export default function RehabEstimator() {
             Free Tool
           </Badge>
           <h1 className="text-4xl md:text-5xl font-medium tracking-tight mb-4">
-            Rehab Cost <span className="text-primary">Estimator</span>
+            Rehab Cost <span className="text-cyan-400">Estimator</span>
           </h1>
-          <p className="text-lg text-muted-foreground font-light max-w-2xl mx-auto">
+          <p className="text-lg text-neutral-400 font-light max-w-2xl mx-auto">
             Get a room-by-room renovation cost estimate for your next investment property. See low, mid, and high range projections with a built-in 15% contingency buffer.
           </p>
         </div>
@@ -284,7 +284,7 @@ export default function RehabEstimator() {
                   <div className="space-y-2">
                     <Label htmlFor="kitchen">Kitchen Renovation</Label>
                     {renderLevelSelect(kitchenLevel, setKitchenLevel, 'kitchen')}
-                    <p className="text-xs text-muted-foreground">Minor $5K-15K / Major $15K-40K / Full $40K-80K</p>
+                    <p className="text-xs text-neutral-400">Minor $5K-15K / Major $15K-40K / Full $40K-80K</p>
                   </div>
 
                   <Separator />
@@ -294,7 +294,7 @@ export default function RehabEstimator() {
                     <Label htmlFor="bathCount">Bathrooms</Label>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-1">
-                        <Label htmlFor="bathCount" className="text-xs text-muted-foreground">Count</Label>
+                        <Label htmlFor="bathCount" className="text-xs text-neutral-400">Count</Label>
                         <Input
                           id="bathCount"
                           type="number"
@@ -305,11 +305,11 @@ export default function RehabEstimator() {
                         />
                       </div>
                       <div className="space-y-1">
-                        <Label htmlFor="bathLevel" className="text-xs text-muted-foreground">Level (each)</Label>
+                        <Label htmlFor="bathLevel" className="text-xs text-neutral-400">Level (each)</Label>
                         {renderLevelSelect(bathroomLevel, setBathroomLevel, 'bathLevel')}
                       </div>
                     </div>
-                    <p className="text-xs text-muted-foreground">Minor $3K-8K / Major $8K-20K / Full $20K-40K each</p>
+                    <p className="text-xs text-neutral-400">Minor $3K-8K / Major $8K-20K / Full $20K-40K each</p>
                   </div>
 
                   <Separator />
@@ -319,7 +319,7 @@ export default function RehabEstimator() {
                     <Label>Flooring</Label>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-1">
-                        <Label htmlFor="floorSqft" className="text-xs text-muted-foreground">Square Feet</Label>
+                        <Label htmlFor="floorSqft" className="text-xs text-neutral-400">Square Feet</Label>
                         <Input
                           id="floorSqft"
                           type="number"
@@ -329,7 +329,7 @@ export default function RehabEstimator() {
                         />
                       </div>
                       <div className="space-y-1">
-                        <Label htmlFor="floorMat" className="text-xs text-muted-foreground">Material</Label>
+                        <Label htmlFor="floorMat" className="text-xs text-neutral-400">Material</Label>
                         <Select value={flooringMaterial} onValueChange={(v) => setFlooringMaterial(v as typeof flooringMaterial)}>
                           <SelectTrigger id="floorMat" className="h-10">
                             <SelectValue />
@@ -356,7 +356,7 @@ export default function RehabEstimator() {
                       onChange={(e) => setPaintSqft(Math.max(0, Number(e.target.value)))}
                       min={0}
                     />
-                    <p className="text-xs text-muted-foreground">$1.50-$3.00 per sqft</p>
+                    <p className="text-xs text-neutral-400">$1.50-$3.00 per sqft</p>
                   </div>
 
                   <Separator />
@@ -366,14 +366,14 @@ export default function RehabEstimator() {
                     <div className="flex items-center justify-between rounded-lg border p-4">
                       <div>
                         <Label htmlFor="roof" className="cursor-pointer">Roof Replacement</Label>
-                        <p className="text-xs text-muted-foreground">$5K - $15K</p>
+                        <p className="text-xs text-neutral-400">$5K - $15K</p>
                       </div>
                       <Switch id="roof" checked={roofNeeded} onCheckedChange={setRoofNeeded} />
                     </div>
                     <div className="flex items-center justify-between rounded-lg border p-4">
                       <div>
                         <Label htmlFor="hvac" className="cursor-pointer">HVAC System</Label>
-                        <p className="text-xs text-muted-foreground">$4K - $10K</p>
+                        <p className="text-xs text-neutral-400">$4K - $10K</p>
                       </div>
                       <Switch id="hvac" checked={hvacNeeded} onCheckedChange={setHvacNeeded} />
                     </div>
@@ -386,12 +386,12 @@ export default function RehabEstimator() {
                     <div className="space-y-2">
                       <Label htmlFor="electrical">Electrical</Label>
                       {renderLevelSelect(electricalLevel, setElectricalLevel, 'electrical')}
-                      <p className="text-xs text-muted-foreground">Minor $1K-5K / Major $5K-15K</p>
+                      <p className="text-xs text-neutral-400">Minor $1K-5K / Major $5K-15K</p>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="plumbing">Plumbing</Label>
                       {renderLevelSelect(plumbingLevel, setPlumbingLevel, 'plumbing')}
-                      <p className="text-xs text-muted-foreground">Minor $1K-5K / Major $5K-15K</p>
+                      <p className="text-xs text-neutral-400">Minor $1K-5K / Major $5K-15K</p>
                     </div>
                   </div>
 
@@ -408,7 +408,7 @@ export default function RehabEstimator() {
                       min={0}
                       max={50}
                     />
-                    <p className="text-xs text-muted-foreground">$300-$800 per window</p>
+                    <p className="text-xs text-neutral-400">$300-$800 per window</p>
                   </div>
 
                   <Separator />
@@ -417,7 +417,7 @@ export default function RehabEstimator() {
                   <div className="flex items-center justify-between rounded-lg border p-4">
                     <div>
                       <Label htmlFor="landscaping" className="cursor-pointer">Landscaping</Label>
-                      <p className="text-xs text-muted-foreground">$1K - $5K</p>
+                      <p className="text-xs text-neutral-400">$1K - $5K</p>
                     </div>
                     <Switch id="landscaping" checked={landscapingNeeded} onCheckedChange={setLandscapingNeeded} />
                   </div>
@@ -431,7 +431,7 @@ export default function RehabEstimator() {
                 <Card className="border-primary/20 shadow-lg">
                   <CardHeader>
                     <CardTitle className="text-xl flex items-center gap-2">
-                      <DollarSign className="h-5 w-5 text-primary" />
+                      <DollarSign className="h-5 w-5 text-cyan-400" />
                       Estimated Rehab Cost
                     </CardTitle>
                     <CardDescription>Low, mid, and high range projections</CardDescription>
@@ -440,15 +440,15 @@ export default function RehabEstimator() {
                     {/* Total estimates */}
                     <div className="grid grid-cols-3 gap-3 text-center">
                       <div className="rounded-lg bg-green-500/10 p-3">
-                        <p className="text-xs text-muted-foreground mb-1">Low</p>
+                        <p className="text-xs text-neutral-400 mb-1">Low</p>
                         <p className="text-lg font-semibold text-green-600">{fmt.format(results.totalLow)}</p>
                       </div>
                       <div className="rounded-lg bg-primary/10 p-3">
-                        <p className="text-xs text-muted-foreground mb-1">Mid</p>
-                        <p className="text-lg font-semibold text-primary">{fmt.format(results.totalMid)}</p>
+                        <p className="text-xs text-neutral-400 mb-1">Mid</p>
+                        <p className="text-lg font-semibold text-cyan-400">{fmt.format(results.totalMid)}</p>
                       </div>
                       <div className="rounded-lg bg-orange-500/10 p-3">
-                        <p className="text-xs text-muted-foreground mb-1">High</p>
+                        <p className="text-xs text-neutral-400 mb-1">High</p>
                         <p className="text-lg font-semibold text-orange-600">{fmt.format(results.totalHigh)}</p>
                       </div>
                     </div>
@@ -456,7 +456,7 @@ export default function RehabEstimator() {
                     {/* Cost per sqft */}
                     {totalSqft > 0 && (
                       <div className="rounded-lg border p-4">
-                        <p className="text-sm text-muted-foreground mb-2">Cost Per Square Foot</p>
+                        <p className="text-sm text-neutral-400 mb-2">Cost Per Square Foot</p>
                         <div className="flex justify-between text-sm">
                           <span>{fmt.format(results.costPerSqftLow)}</span>
                           <span className="font-semibold">{fmt.format(results.costPerSqftMid)}</span>
@@ -472,11 +472,11 @@ export default function RehabEstimator() {
                       <p className="text-sm font-medium mb-3">Breakdown</p>
                       <div className="space-y-2">
                         {results.categories.length === 0 && (
-                          <p className="text-sm text-muted-foreground italic">Select renovation items to see a breakdown.</p>
+                          <p className="text-sm text-neutral-400 italic">Select renovation items to see a breakdown.</p>
                         )}
                         {results.categories.map((cat) => (
                           <div key={cat.name} className="flex items-center justify-between text-sm">
-                            <span className="text-muted-foreground">{cat.name}</span>
+                            <span className="text-neutral-400">{cat.name}</span>
                             <span className="font-medium tabular-nums">{fmt.format(cat.mid)}</span>
                           </div>
                         ))}
@@ -484,11 +484,11 @@ export default function RehabEstimator() {
                           <>
                             <Separator />
                             <div className="flex items-center justify-between text-sm">
-                              <span className="text-muted-foreground">Subtotal</span>
+                              <span className="text-neutral-400">Subtotal</span>
                               <span className="font-medium tabular-nums">{fmt.format(results.subtotalMid)}</span>
                             </div>
                             <div className="flex items-center justify-between text-sm">
-                              <span className="text-muted-foreground flex items-center gap-1">
+                              <span className="text-neutral-400 flex items-center gap-1">
                                 <AlertTriangle className="h-3 w-3" />
                                 Contingency (15%)
                               </span>
@@ -497,7 +497,7 @@ export default function RehabEstimator() {
                             <Separator />
                             <div className="flex items-center justify-between text-sm font-semibold">
                               <span>Total (mid estimate)</span>
-                              <span className="text-primary tabular-nums">{fmt.format(results.totalMid)}</span>
+                              <span className="text-cyan-400 tabular-nums">{fmt.format(results.totalMid)}</span>
                             </div>
                           </>
                         )}
@@ -507,13 +507,13 @@ export default function RehabEstimator() {
                 </Card>
 
                 {/* CTA */}
-                <Card className="mt-6 bg-primary/5 border-primary/20">
+                <Card className="mt-6 bg-cyan-500/5 border-primary/20">
                   <CardContent className="pt-6">
                     <div className="flex items-start gap-3">
-                      <Sparkles className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                      <Sparkles className="h-5 w-5 text-cyan-400 mt-0.5 flex-shrink-0" />
                       <div>
                         <p className="font-medium text-sm mb-1">Want AI to estimate rehab costs automatically?</p>
-                        <p className="text-xs text-muted-foreground mb-3">AIWholesail analyzes property photos and comps to generate accurate rehab budgets in seconds.</p>
+                        <p className="text-xs text-neutral-400 mb-3">AIWholesail analyzes property photos and comps to generate accurate rehab budgets in seconds.</p>
                         <Button asChild size="sm">
                           <Link to="/pricing">
                             Try AIWholesail Free
@@ -537,7 +537,7 @@ export default function RehabEstimator() {
             <CardHeader>
               <CardTitle className="text-2xl">How to Use This Rehab Cost Estimator</CardTitle>
             </CardHeader>
-            <CardContent className="prose prose-sm max-w-none space-y-4 text-muted-foreground">
+            <CardContent className="prose prose-sm max-w-none space-y-4 text-neutral-400">
               <p>
                 This rehab cost estimator gives you a ballpark renovation budget organized room-by-room. It is designed for real estate investors evaluating fix-and-flip or BRRRR properties, not for homeowners planning a custom remodel.
               </p>

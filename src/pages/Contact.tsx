@@ -74,11 +74,11 @@ export default function Contact() {
       </section>
 
       {/* ===== CONTACT FORM + INFO — LIGHT ===== */}
-      <section className="py-24 px-4 bg-background">
+      <section className="py-24 px-4 bg-[#08090a]">
         <div className="container mx-auto max-w-6xl">
           <div className="grid lg:grid-cols-2 gap-8">
             {/* Contact Form */}
-            <div className="bg-gradient-to-br from-muted/50 to-muted/30 border border-border/50 rounded-3xl p-8 md:p-10">
+            <div className="bg-white/[0.03] border border-white/[0.06] rounded-3xl p-8 md:p-10">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
                   <Send className="h-5 w-5 text-primary" />
@@ -97,7 +97,7 @@ export default function Contact() {
                       onChange={handleChange}
                       placeholder="Your full name"
                       required
-                      className="h-11 bg-muted/50 border-border/50 focus:border-primary transition-colors"
+                      className="h-11 bg-white/[0.03] border-white/[0.06] focus:border-primary transition-colors"
                     />
                   </div>
                   <div className="space-y-2">
@@ -110,7 +110,7 @@ export default function Contact() {
                       onChange={handleChange}
                       placeholder="your@email.com"
                       required
-                      className="h-11 bg-muted/50 border-border/50 focus:border-primary transition-colors"
+                      className="h-11 bg-white/[0.03] border-white/[0.06] focus:border-primary transition-colors"
                     />
                   </div>
                 </div>
@@ -124,7 +124,7 @@ export default function Contact() {
                     onChange={handleChange}
                     placeholder="What's this about?"
                     required
-                    className="h-11 bg-muted/50 border-border/50 focus:border-primary transition-colors"
+                    className="h-11 bg-white/[0.03] border-white/[0.06] focus:border-primary transition-colors"
                   />
                 </div>
 
@@ -138,7 +138,7 @@ export default function Contact() {
                     placeholder="Tell us how we can help..."
                     rows={6}
                     required
-                    className="bg-muted/50 border-border/50 focus:border-primary transition-colors"
+                    className="bg-white/[0.03] border-white/[0.06] focus:border-primary transition-colors"
                   />
                 </div>
 
@@ -164,62 +164,62 @@ export default function Contact() {
 
             {/* Contact Information */}
             <div className="space-y-4">
-              <div className="bg-gradient-to-br from-muted/50 to-muted/30 border border-border/50 rounded-3xl p-8">
+              <div className="bg-white/[0.03] border border-white/[0.06] rounded-3xl p-8">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
                     <Mail className="h-5 w-5 text-primary" />
                   </div>
                   <h3 className="text-lg font-bold tracking-tight">Email Support</h3>
                 </div>
-                <p className="text-muted-foreground font-light mb-3">
+                <p className="text-neutral-400 font-light mb-3">
                   Get help with your account, billing, or any questions.
                 </p>
                 <a href="mailto:support@aiwholesail.com" className="text-primary hover:text-primary/80 font-medium transition-colors">
                   support@aiwholesail.com
                 </a>
-                <p className="text-sm text-muted-foreground font-light mt-2">
+                <p className="text-sm text-neutral-400 font-light mt-2">
                   Response time: Within 24 hours
                 </p>
               </div>
 
-              <div className="bg-gradient-to-br from-muted/50 to-muted/30 border border-border/50 rounded-3xl p-8">
+              <div className="bg-white/[0.03] border border-white/[0.06] rounded-3xl p-8">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
                     <Phone className="h-5 w-5 text-primary" />
                   </div>
                   <h3 className="text-lg font-bold tracking-tight">Sales Inquiries</h3>
                 </div>
-                <p className="text-muted-foreground font-light mb-3">
+                <p className="text-neutral-400 font-light mb-3">
                   Questions about pricing, features, or enterprise solutions?
                 </p>
                 <a href="mailto:sales@aiwholesail.com" className="text-primary hover:text-primary/80 font-medium transition-colors">
                   sales@aiwholesail.com
                 </a>
-                <p className="text-sm text-muted-foreground font-light mt-2">
+                <p className="text-sm text-neutral-400 font-light mt-2">
                   Response time: Within 4 hours (business days)
                 </p>
               </div>
 
-              <div className="bg-gradient-to-br from-muted/50 to-muted/30 border border-border/50 rounded-3xl p-8">
+              <div className="bg-white/[0.03] border border-white/[0.06] rounded-3xl p-8">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
                     <MapPin className="h-5 w-5 text-primary" />
                   </div>
                   <h3 className="text-lg font-bold tracking-tight">Business Hours</h3>
                 </div>
-                <div className="space-y-1.5 text-muted-foreground font-light">
+                <div className="space-y-1.5 text-neutral-400 font-light">
                   <p>Monday - Friday: 9:00 AM - 6:00 PM EST</p>
                   <p>Saturday: 10:00 AM - 4:00 PM EST</p>
                   <p>Sunday: Closed</p>
                 </div>
-                <p className="text-sm text-muted-foreground font-light mt-3">
+                <p className="text-sm text-neutral-400 font-light mt-3">
                   Emergency support available 24/7 for critical issues
                 </p>
               </div>
 
               <div className="bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/20 rounded-3xl p-8 text-center">
                 <h3 className="text-lg font-bold tracking-tight mb-2">Need quick answers?</h3>
-                <p className="text-muted-foreground font-light mb-5">
+                <p className="text-neutral-400 font-light mb-5">
                   Check our FAQ section for common questions and instant solutions.
                 </p>
                 <Link to="/faq">

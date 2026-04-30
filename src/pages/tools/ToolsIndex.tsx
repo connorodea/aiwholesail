@@ -84,7 +84,7 @@ export default function ToolsIndex() {
         <div className="relative container mx-auto max-w-7xl px-4 pt-6">
           <div className="flex items-center justify-between">
             <Link to="/" className="flex items-center gap-2.5">
-              <span className="text-lg font-bold tracking-tight">AIWholesail</span>
+              <span className="text-lg font-bold tracking-tight text-white">AIWholesail</span>
             </Link>
             <Link to="/pricing">
               <Button size="sm" className="rounded-full px-5 gap-2 bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25">
@@ -95,7 +95,7 @@ export default function ToolsIndex() {
         </div>
 
         <div className="relative container mx-auto max-w-5xl px-4 pt-24 pb-28 text-center">
-          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-6">Free Tools</p>
+          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-6">Free Tools</p>
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[0.95] mb-6">
             Real Estate
             <br />
@@ -115,7 +115,7 @@ export default function ToolsIndex() {
       {/* ===== TOOLS GRID — WHITE ===== */}
       <section className="py-20 px-4">
         <div className="container mx-auto max-w-7xl">
-          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-4">Calculators</p>
+          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-4">Calculators</p>
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-16 max-w-lg">
             Pick a calculator.
             <br />Run the numbers.
@@ -128,15 +128,15 @@ export default function ToolsIndex() {
               const Icon = tool.icon;
               return (
                 <Link key={tool.slug} to={`/tools/${tool.slug}`} className="lg:col-span-2 group">
-                  <div className="h-full bg-gradient-to-br from-muted/50 to-muted/20 border border-border/50 rounded-3xl p-8 md:p-10 flex flex-col justify-between min-h-[300px] hover:border-primary/20 transition-all duration-300">
+                  <div className="h-full bg-gradient-to-br from-muted/50 to-muted/20 border border-white/[0.06] rounded-3xl p-8 md:p-10 flex flex-col justify-between min-h-[300px] hover:border-primary/20 transition-all duration-300">
                     <div>
-                      <Badge className={`${i === 0 ? 'bg-primary/10 text-primary' : 'bg-emerald-500/10 text-emerald-600'} border-0 mb-5`}>
+                      <Badge className={`${i === 0 ? 'bg-primary/10 text-cyan-400' : 'bg-emerald-500/10 text-emerald-600'} border-0 mb-5`}>
                         <Icon className="h-3 w-3 mr-1" /> {tool.category}
                       </Badge>
                       <h3 className="text-2xl md:text-3xl font-bold tracking-tight mb-3">{tool.title}</h3>
-                      <p className="text-muted-foreground font-light max-w-sm">{tool.description}</p>
+                      <p className="text-neutral-400 font-light max-w-sm">{tool.description}</p>
                     </div>
-                    <div className="mt-6 flex items-center gap-2 text-sm font-medium text-primary group-hover:gap-3 transition-all">
+                    <div className="mt-6 flex items-center gap-2 text-sm font-medium text-cyan-400 group-hover:gap-3 transition-all">
                       Open calculator <ChevronRight className="h-4 w-4" />
                     </div>
                   </div>
@@ -149,15 +149,15 @@ export default function ToolsIndex() {
               const Icon = tool.icon;
               return (
               <Link key={tool.slug} to={`/tools/${tool.slug}`} className="group">
-                <div className="h-full bg-gradient-to-br from-muted/50 to-muted/20 border border-border/50 rounded-3xl p-7 flex flex-col justify-between min-h-[220px] hover:border-primary/20 transition-all duration-300">
+                <div className="h-full bg-gradient-to-br from-muted/50 to-muted/20 border border-white/[0.06] rounded-3xl p-7 flex flex-col justify-between min-h-[220px] hover:border-primary/20 transition-all duration-300">
                   <div>
                     <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/15 transition-colors">
-                      <Icon className="h-5 w-5 text-primary" />
+                      <Icon className="h-5 w-5 text-cyan-400" />
                     </div>
                     <h3 className="font-bold tracking-tight mb-2">{tool.title}</h3>
-                    <p className="text-sm text-muted-foreground font-light leading-relaxed">{tool.description}</p>
+                    <p className="text-sm text-neutral-400 font-light leading-relaxed">{tool.description}</p>
                   </div>
-                  <div className="mt-4 flex items-center gap-1.5 text-xs font-medium text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="mt-4 flex items-center gap-1.5 text-xs font-medium text-cyan-400 opacity-0 group-hover:opacity-100 transition-opacity">
                     Open <ChevronRight className="h-3 w-3" />
                   </div>
                 </div>
@@ -173,7 +173,7 @@ export default function ToolsIndex() {
         <GradientOrbs variant="cta" />
 
         <div className="relative container mx-auto max-w-3xl text-center">
-          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-6">Go Further</p>
+          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-6">Go Further</p>
           <h2 className="text-4xl md:text-6xl font-bold tracking-tight leading-tight mb-6">
             Want AI to run
             <br />
@@ -196,7 +196,7 @@ export default function ToolsIndex() {
       <footer className="bg-[#0a0a0a] text-white border-t border-white/5 px-4 py-12">
         <div className="container mx-auto max-w-7xl flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="flex items-center gap-2.5">
-            <span className="text-lg font-bold tracking-tight">AIWholesail</span>
+            <span className="text-lg font-bold tracking-tight text-white">AIWholesail</span>
           </div>
           <div className="flex items-center gap-6 text-sm text-white/40">
             <Link to="/" className="hover:text-white transition-colors">Home</Link>

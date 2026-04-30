@@ -192,7 +192,7 @@ export default function UseCases() {
                       {item.audience}
                     </h2>
 
-                    <p className={`font-light leading-relaxed mb-8 ${isDark ? 'text-white/60' : 'text-muted-foreground'}`}>
+                    <p className={`font-light leading-relaxed mb-8 ${isDark ? 'text-white/60' : 'text-neutral-400'}`}>
                       {item.description}
                     </p>
 
@@ -213,13 +213,13 @@ export default function UseCases() {
                     <div className={`rounded-3xl p-8 lg:p-10 ${
                       isDark
                         ? 'bg-white/5 border border-white/10'
-                        : 'bg-gradient-to-br from-muted/50 to-muted/30 border border-border/50'
+                        : 'bg-white/[0.03] border border-white/[0.06]'
                     }`}>
                       <div className="flex items-center gap-2 mb-6">
                         <div className={`flex items-center justify-center w-9 h-9 rounded-xl ${isDark ? 'bg-white/10 text-primary' : 'bg-primary/10 text-primary'}`}>
                           {item.accentIcon}
                         </div>
-                        <span className={`text-xs font-semibold tracking-[0.15em] uppercase ${isDark ? 'text-white/40' : 'text-muted-foreground'}`}>
+                        <span className={`text-xs font-semibold tracking-[0.15em] uppercase ${isDark ? 'text-white/40' : 'text-neutral-400'}`}>
                           {item.highlight.type === 'metric'
                             ? 'Key metric'
                             : 'From the community'}
@@ -231,7 +231,7 @@ export default function UseCases() {
                           <div className="text-5xl md:text-6xl font-bold text-primary mb-3 tracking-tight">
                             {item.highlight.value}
                           </div>
-                          <p className={`font-light text-sm leading-relaxed ${isDark ? 'text-white/50' : 'text-muted-foreground'}`}>
+                          <p className={`font-light text-sm leading-relaxed ${isDark ? 'text-white/50' : 'text-neutral-400'}`}>
                             {item.highlight.label}
                           </p>
                         </>
@@ -240,7 +240,7 @@ export default function UseCases() {
                           <blockquote className={`text-lg font-light leading-relaxed mb-4 ${isDark ? 'text-white/80' : 'text-foreground/90'}`}>
                             &ldquo;{item.highlight.value}&rdquo;
                           </blockquote>
-                          <p className={`text-sm font-light ${isDark ? 'text-white/40' : 'text-muted-foreground'}`}>
+                          <p className={`text-sm font-light ${isDark ? 'text-white/40' : 'text-neutral-400'}`}>
                             -- {item.highlight.label}
                           </p>
                         </>

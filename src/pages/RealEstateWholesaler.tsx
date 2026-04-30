@@ -257,7 +257,7 @@ export default function RealEstateWholesaler() {
                 <h1 className="text-4xl md:text-5xl font-medium tracking-tight leading-tight">
                   Find profitable real estate deals
                 </h1>
-                <p className="text-xl text-muted-foreground font-light max-w-2xl mx-auto leading-relaxed">
+                <p className="text-xl text-neutral-400 font-light max-w-2xl mx-auto leading-relaxed">
                   Discover undervalued properties with AI-powered analysis and comprehensive market data
                 </p>
               </div>
@@ -297,14 +297,14 @@ export default function RealEstateWholesaler() {
                          loadingProgress < 95 ? 'Calculating Zestimate spreads...' :
                          'Finalizing results...'}
                       </p>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-neutral-400">
                         {loadingStatus}
                       </p>
                     </div>
 
                     {/* Progress bar */}
                     <div className="space-y-2">
-                      <div className="w-full bg-muted/50 rounded-full h-3 overflow-hidden">
+                      <div className="w-full bg-white/[0.03] rounded-full h-3 overflow-hidden">
                         <div
                           className="h-full rounded-full transition-all duration-700 ease-out"
                           style={{
@@ -315,7 +315,7 @@ export default function RealEstateWholesaler() {
                           }}
                         />
                       </div>
-                      <div className="flex justify-between text-xs text-muted-foreground">
+                      <div className="flex justify-between text-xs text-neutral-400">
                         <span>{Math.round(loadingProgress)}%</span>
                         <span>
                           {loadingProgress <= 80 ? 'Searching properties' : 'Calculating spreads'}
@@ -325,7 +325,7 @@ export default function RealEstateWholesaler() {
 
                     {/* Tip message */}
                     <div className="text-center pt-2 border-t border-border/30">
-                      <p className="text-xs text-muted-foreground italic">
+                      <p className="text-xs text-neutral-400 italic">
                         {loadingProgress <= 50
                           ? 'Large searches (states, counties) pull hundreds of listings. Please be patient!'
                           : loadingProgress <= 80
@@ -355,7 +355,7 @@ export default function RealEstateWholesaler() {
                         ? 'Best deals found'
                         : 'Search results'}
                     </h2>
-                    <p className="text-muted-foreground font-light">
+                    <p className="text-neutral-400 font-light">
                       {properties.length} {properties.length === 1 ? 'property' : 'properties'} found
                     </p>
                   </div>
@@ -421,7 +421,7 @@ export default function RealEstateWholesaler() {
 
                 {/* SMS Alert Input */}
                 {showSmsAlert && (
-                  <div className="flex items-center gap-3 p-4 bg-muted/30 rounded-xl border border-border">
+                  <div className="flex items-center gap-3 p-4 bg-white/[0.02] rounded-xl border border-border">
                     <MessageSquare className="h-5 w-5 text-primary flex-shrink-0" />
                     <Input
                       placeholder="Your phone number (e.g., +1234567890)"
@@ -563,10 +563,10 @@ export default function RealEstateWholesaler() {
               <div className="max-w-md mx-auto animate-scale-in">
                 <div className="feature-card p-10 text-center">
                   <div className="w-16 h-16 bg-muted rounded-2xl flex items-center justify-center mx-auto mb-6">
-                    <User className="h-8 w-8 text-muted-foreground" />
+                    <User className="h-8 w-8 text-neutral-400" />
                   </div>
                   <h3 className="text-lg font-medium mb-3 tracking-tight">No favorites yet</h3>
-                  <p className="text-muted-foreground mb-8 font-light leading-relaxed">
+                  <p className="text-neutral-400 mb-8 font-light leading-relaxed">
                     Start exploring properties and save the ones you like for later review
                   </p>
                   <Button 
