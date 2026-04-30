@@ -1,0 +1,75 @@
+{
+  "slug": "how-to-find-wholesale-deals-beginners-guide",
+  "title": "How to Find Wholesale Real Estate Deals: A Beginner's Guide",
+  "excerpt": "Learn the fundamentals of finding profitable wholesale real estate deals, from identifying motivated sellers to calculating your maximum allowable offer.",
+  "category": "Beginner Guide",
+  "author": "AIWholesail Team",
+  "publishedAt": "2026-04-29T12:00:00Z",
+  "readTime": 8,
+  "tags": ["wholesale", "beginners", "deal finding"],
+  "metaDescription": "Complete beginner's guide to finding wholesale real estate deals. Learn to identify motivated sellers, calculate MAO, and close your first deal.",
+  "metaKeywords": "wholesale real estate, find wholesale deals, beginner real estate investing, motivated sellers, MAO calculator",
+  "sections": [
+    {
+      "type": "paragraph",
+      "content": "Wholesale real estate is one of the fastest ways to break into real estate investing with minimal capital. Instead of buying and holding properties, wholesalers find undervalued properties, get them under contract, and assign that contract to an end buyer for a fee. The key? Finding the right deals before anyone else does."
+    },
+    {
+      "type": "heading",
+      "content": "What Makes a Good Wholesale Deal?"
+    },
+    {
+      "type": "paragraph",
+      "content": "A profitable wholesale deal comes down to one metric: the spread. The spread is the difference between what you can get the property under contract for and what an end buyer will pay. Most experienced wholesalers look for a minimum spread of $20,000-$30,000 to make a deal worth pursuing."
+    },
+    {
+      "type": "heading",
+      "content": "Where to Find Wholesale Deals"
+    },
+    {
+      "type": "paragraph",
+      "content": "The best wholesale deals come from motivated sellers — people who need to sell quickly due to financial distress, divorce, inherited properties, job relocation, or simply wanting to avoid the hassle of a traditional sale. Here are the most effective channels:"
+    },
+    {
+      "type": "list",
+      "items": [
+        "MLS Listings — Look for properties priced significantly below their Zestimate or comparable sales. FSBO (For Sale By Owner) properties are especially promising since there's no agent commission eating into your margins.",
+        "Driving for Dollars — Physically drive through neighborhoods looking for distressed properties: overgrown lawns, boarded windows, code violation notices. These often indicate motivated sellers.",
+        "Off-Market Sources — Tax delinquent lists, probate records, pre-foreclosure filings, and absentee owner lists are gold mines for finding sellers who haven't listed yet.",
+        "Online Property Platforms — Tools like AIWholesail use AI to scan thousands of listings simultaneously, automatically calculating spreads and identifying the most profitable opportunities."
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Calculating Your Maximum Allowable Offer (MAO)"
+    },
+    {
+      "type": "paragraph",
+      "content": "The MAO formula is the foundation of wholesale deal analysis. The standard formula is: MAO = ARV × 70% - Repair Costs - Wholesale Fee. For example, if a property has an ARV of $200,000, needs $30,000 in repairs, and you want a $10,000 wholesale fee, your MAO would be: $200,000 × 0.70 - $30,000 - $10,000 = $100,000."
+    },
+    {
+      "type": "heading",
+      "content": "Using AI to Find Deals Faster"
+    },
+    {
+      "type": "paragraph",
+      "content": "Modern AI tools have transformed how investors find deals. Instead of manually searching through hundreds of listings, AI can analyze thousands of properties in seconds, automatically comparing listing prices to estimated values, scoring each property's investment potential, and alerting you when new opportunities match your criteria."
+    },
+    {
+      "type": "paragraph",
+      "content": "The biggest advantage of AI-powered deal finding is speed. In competitive markets, the investor who identifies and acts on a deal first wins. AI eliminates hours of manual research and gives you a data-driven edge over investors still doing things the old way."
+    },
+    {
+      "type": "heading",
+      "content": "Getting Started"
+    },
+    {
+      "type": "paragraph",
+      "content": "Start by picking a market you know well. Learn the neighborhoods, understand typical property values, and build relationships with local contractors who can give you repair estimates. Then use a combination of MLS searching and AI tools to identify properties with strong spreads. Your first deal might take weeks to find, but once you understand the process, you'll develop an eye for spotting opportunities others miss."
+    },
+    {
+      "type": "cta",
+      "content": "Ready to find your first deal? AIWholesail's AI analyzes thousands of properties daily, automatically calculating spreads and scoring every listing's profit potential. Start your 7-day free trial and see what deals are waiting in your market."
+    }
+  ]
+}

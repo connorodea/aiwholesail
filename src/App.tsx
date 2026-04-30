@@ -26,6 +26,7 @@ import About from "./pages/About";
 import HowItWorks from "./pages/HowItWorks";
 import UseCases from "./pages/UseCases";
 import Blog from "./pages/Blog";
+import BlogPost from "./pages/BlogPost";
 import OffMarket from "./pages/OffMarket";
 import Analyzer from "./pages/Analyzer";
 import Favorites from "./pages/Favorites";
@@ -108,6 +109,7 @@ const App = () => (
                 <Route path="/how-it-works" element={<HowItWorks />} />
                 <Route path="/use-cases" element={<UseCases />} />
                 <Route path="/blog" element={<Blog />} />
+                <Route path="/blog/:slug" element={<BlogPost />} />
                 <Route path="/index" element={<Index />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
