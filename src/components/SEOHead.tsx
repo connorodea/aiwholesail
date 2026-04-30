@@ -16,7 +16,7 @@ export function SEOHead({
   description = "AI-powered tools for real estate professionals. Find profitable deals, analyze properties, and close faster with advanced AI analytics and market intelligence.",
   keywords = "real estate deals, property analysis, AI real estate, profitable deals, property investment, real estate analytics, real estate investing",
   canonicalUrl,
-  ogImage = "/og-image.jpg",
+  ogImage = "https://aiwholesail.com/og-image.png",
   noIndex = false
 }: SEOHeadProps) {
   const fullTitle = title.includes('AI Wholesail') ? title : `${title} | AI Wholesail`;
