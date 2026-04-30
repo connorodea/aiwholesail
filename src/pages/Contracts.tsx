@@ -10,7 +10,7 @@ export default function Contracts() {
         <section className="text-center space-y-4 max-w-2xl mx-auto animate-fade-in">
           <h1 className="text-3xl md:text-4xl font-medium tracking-tight">Contract Generator</h1>
           <p className="text-lg text-muted-foreground font-light leading-relaxed">
-            Generate wholesale contracts, purchase agreements, and letters of intent
+            Generate real estate contracts, purchase agreements, and letters of intent
           </p>
         </section>
         <section className="max-w-5xl mx-auto animate-fade-in">

@@ -47,7 +47,7 @@ export default function Contact() {
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
       <SEOHead 
         title="Contact Us"
-        description="Get in touch with AI Wholesail support team. We're here to help with questions about our real estate wholesale platform."
+        description="Get in touch with the AIWholesail support team. We're here to help with questions about our real estate investing platform."
         noIndex={false}
       />
       
