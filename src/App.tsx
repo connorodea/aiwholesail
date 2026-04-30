@@ -35,6 +35,7 @@ import Pipeline from "./pages/Pipeline";
 import Buyers from "./pages/Buyers";
 import Sequences from "./pages/Sequences";
 import Contracts from "./pages/Contracts";
+import Account from "./pages/Account";
 import ToolsIndex from "./pages/tools/ToolsIndex";
 import MortgageCalculator from "./pages/tools/MortgageCalculator";
 import WholesaleDealCalculator from "./pages/tools/WholesaleDealCalculator";
@@ -105,6 +106,11 @@ const App = () => (
                 <Route path="/app/contracts" element={
                   <ProtectedRoute>
                     <Contracts />
+                  </ProtectedRoute>
+                } />
+                <Route path="/app/account" element={
+                  <ProtectedRoute>
+                    <Account />
                   </ProtectedRoute>
                 } />
                 <Route path="/auth" element={<Auth />} />
