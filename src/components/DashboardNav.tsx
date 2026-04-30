@@ -24,7 +24,7 @@ import { useFavorites } from '@/hooks/useFavorites';
 import { stripe } from '@/lib/api-client';
 import { toast } from 'sonner';
 
-const aiWholesailLogo = '/lovable-uploads/8dcdb5d0-ddfb-406f-a5f0-b3c5112d210a.png';
+const aiWholesailLogo = '/logo-white.png';
 
 const navItems = [
   { href: '/app', label: 'Search', icon: IconSearch },

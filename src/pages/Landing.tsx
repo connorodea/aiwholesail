@@ -16,7 +16,7 @@ import { NavbarAIWholesail } from "@/components/ui/navbar-aiwholesail";
 import { ScrollReveal, GlassMorph, FloatingOrb, LiquidSection, StaggerChildren, staggerItem } from "@/components/effects/LiquidGlass";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 
-const aiWholesailLogo = "/lovable-uploads/8dcdb5d0-ddfb-406f-a5f0-b3c5112d210a.png";
+const aiWholesailLogo = "/logo-white.png";
 
 const navItems = [
   { title: "Features", link: "/how-it-works" },

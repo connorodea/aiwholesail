@@ -5,7 +5,7 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Menu } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
-const aiWholesailLogo = '/lovable-uploads/8dcdb5d0-ddfb-406f-a5f0-b3c5112d210a.png';
+const aiWholesailLogo = '/logo-white.png';
 
 const navLinks = [
   { label: 'How It Works', href: '/how-it-works' },
