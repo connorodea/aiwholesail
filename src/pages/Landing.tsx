@@ -10,6 +10,7 @@ import {
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { SEOHead } from "@/components/SEOHead";
+import { GradientOrbs } from "@/components/effects/GradientOrbs";
 
 const aiWholesailLogo = "/lovable-uploads/8dcdb5d0-ddfb-406f-a5f0-b3c5112d210a.png";
 
@@ -29,7 +30,7 @@ const Landing = () => {
     { label: "How It Works", href: "/how-it-works" },
     { label: "Use Cases", href: "/use-cases" },
     { label: "Pricing", href: "/pricing" },
-    { label: "Blog", href: "/blog" },
+    { label: "Tools", href: "/tools" },
   ];
 
   return (
@@ -120,8 +121,7 @@ const Landing = () => {
 
       {/* ===== HERO — DARK ===== */}
       <section className="relative bg-gradient-to-b from-[#0a0a0a] via-[#0f0f0f] to-[#0a0a0a] text-white overflow-hidden">
-        {/* Gradient orb */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-gradient-to-b from-primary/20 via-primary/5 to-transparent rounded-full blur-3xl pointer-events-none" />
+        <GradientOrbs variant="hero" />
 
         <div className="relative container mx-auto max-w-6xl px-4 pt-40 pb-24 text-center">
           <Badge className="mb-6 bg-white/10 text-white/80 border-white/10 backdrop-blur-sm text-xs font-medium px-4 py-1.5 rounded-full">
@@ -286,8 +286,9 @@ const Landing = () => {
       </section>
 
       {/* ===== AI SECTION — DARK ===== */}
-      <section className="bg-[#0a0a0a] text-white py-24 px-4">
-        <div className="container mx-auto max-w-7xl">
+      <section className="relative bg-[#0a0a0a] text-white py-24 px-4 overflow-hidden">
+        <GradientOrbs variant="section" />
+        <div className="relative container mx-auto max-w-7xl">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div>
               <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-4">AI Engine</p>
@@ -422,8 +423,7 @@ const Landing = () => {
 
       {/* ===== FINAL CTA — DARK with gradient ===== */}
       <section className="relative bg-gradient-to-b from-[#0a0a0a] via-[#0a0a0a] to-[#0f1a14] text-white py-32 px-4 overflow-hidden">
-        {/* Gradient orb */}
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-gradient-to-t from-primary/15 via-primary/5 to-transparent rounded-full blur-3xl pointer-events-none" />
+        <GradientOrbs variant="cta" />
 
         <div className="relative container mx-auto max-w-3xl text-center">
           <h2 className="text-4xl md:text-6xl font-bold tracking-tight leading-tight mb-6">
@@ -479,6 +479,7 @@ const Landing = () => {
               <ul className="space-y-2.5">
                 {[
                   { label: "Blog", to: "/blog" },
+                  { label: "Free Tools", to: "/tools" },
                   { label: "About Us", to: "/about" },
                   { label: "FAQ", to: "/faq" },
                   { label: "Contact", to: "/contact" },
