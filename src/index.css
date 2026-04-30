@@ -118,7 +118,6 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    /* Mobile optimizations */
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
     scroll-behavior: smooth;
@@ -128,16 +127,124 @@ All colors MUST be HSL.
     @apply font-semibold tracking-tight;
   }
 
-  h1 {
-    @apply text-4xl lg:text-5xl;
+  h1 { @apply text-4xl lg:text-5xl; }
+  h2 { @apply text-3xl lg:text-4xl; }
+  h3 { @apply text-2xl lg:text-3xl; }
+
+  /* ===== GLOBAL DARK THEME OVERRIDES ===== */
+  /* Force ALL inputs, labels, textareas, selects to be dark-theme readable */
+
+  input, textarea, select {
+    background-color: hsl(0 0% 12%) !important;
+    color: white !important;
+    border-color: hsl(0 0% 22%) !important;
   }
 
-  h2 {
-    @apply text-3xl lg:text-4xl;
+  input::placeholder, textarea::placeholder {
+    color: hsl(0 0% 45%) !important;
   }
 
-  h3 {
-    @apply text-2xl lg:text-3xl;
+  input:focus, textarea:focus, select:focus {
+    border-color: hsl(187 85% 53% / 0.4) !important;
+    outline: none !important;
+    box-shadow: 0 0 0 2px hsl(187 85% 53% / 0.15) !important;
+  }
+
+  label {
+    color: hsl(0 0% 82%) !important;
+  }
+
+  /* Dialog/modal backgrounds */
+  [role="dialog"], [data-radix-popper-content-wrapper] {
+    color: white;
+  }
+
+  [role="dialog"] > div {
+    background-color: hsl(0 0% 8%) !important;
+    border-color: hsl(0 0% 18%) !important;
+    color: white !important;
+  }
+
+  /* Shadcn Card overrides */
+  [class*="CardHeader"], [class*="CardTitle"], [class*="CardContent"] {
+    color: white;
+  }
+
+  /* Select dropdown content */
+  [role="listbox"], [data-radix-select-viewport] {
+    background-color: hsl(0 0% 10%) !important;
+    border-color: hsl(0 0% 20%) !important;
+  }
+
+  [role="option"] {
+    color: white !important;
+  }
+
+  [role="option"]:hover, [role="option"][data-highlighted] {
+    background-color: hsl(0 0% 15%) !important;
+  }
+
+  /* Checkbox and switch */
+  [role="checkbox"], [role="switch"] {
+    border-color: hsl(0 0% 30%) !important;
+  }
+
+  /* Tabs */
+  [role="tablist"] {
+    background-color: hsl(0 0% 10%) !important;
+    border-color: hsl(0 0% 18%) !important;
+  }
+
+  [role="tab"] {
+    color: hsl(0 0% 60%) !important;
+  }
+
+  [role="tab"][data-state="active"] {
+    color: white !important;
+    background-color: hsl(0 0% 15%) !important;
+  }
+
+  /* Light mode overrides — undo all the !important when .light is active */
+  .light input, .light textarea, .light select {
+    background-color: white !important;
+    color: hsl(0 0% 9%) !important;
+    border-color: hsl(0 0% 85%) !important;
+  }
+
+  .light input::placeholder, .light textarea::placeholder {
+    color: hsl(0 0% 55%) !important;
+  }
+
+  .light label {
+    color: hsl(0 0% 20%) !important;
+  }
+
+  .light [role="dialog"] > div {
+    background-color: white !important;
+    border-color: hsl(0 0% 90%) !important;
+    color: hsl(0 0% 9%) !important;
+  }
+
+  .light [role="listbox"], .light [data-radix-select-viewport] {
+    background-color: white !important;
+    border-color: hsl(0 0% 90%) !important;
+  }
+
+  .light [role="option"] {
+    color: hsl(0 0% 9%) !important;
+  }
+
+  .light [role="tablist"] {
+    background-color: hsl(0 0% 96%) !important;
+  }
+
+  .light [role="tab"] {
+    color: hsl(0 0% 40%) !important;
+  }
+
+  .light [role="tab"][data-state="active"] {
+    color: hsl(0 0% 9%) !important;
+    background-color: white !important;
   }
 }
 
