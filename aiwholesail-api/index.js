@@ -37,17 +37,21 @@ app.use(helmet({
 // CORS configuration
 const corsOrigins = process.env.CORS_ORIGINS
   ? process.env.CORS_ORIGINS.split(',')
-  : ['https://aiwholesail.com', 'https://www.aiwholesail.com', 'http://localhost:3000', 'http://localhost:5173'];
+  : ['https://aiwholesail.com', 'https://www.aiwholesail.com'];
+
+// In development only, also allow localhost
+if (process.env.NODE_ENV === 'development') {
+  corsOrigins.push('http://localhost:3000', 'http://localhost:5173', 'http://localhost:8080');
+}
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps or curl requests)
+    // Allow requests with no origin (mobile apps, server-to-server, curl)
     if (!origin) return callback(null, true);
 
-    if (corsOrigins.includes(origin) || process.env.NODE_ENV !== 'production') {
+    if (corsOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      // Return 403 instead of 500 for CORS violations
       const err = new Error('Not allowed by CORS');
       err.status = 403;
       callback(err);

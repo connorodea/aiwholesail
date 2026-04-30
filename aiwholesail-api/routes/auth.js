@@ -25,6 +25,12 @@ router.post('/signup', [
   body('email').isEmail().normalizeEmail().withMessage('Valid email required'),
   body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters'),
   body('fullName').optional().trim().isLength({ max: 255 })
+    .custom(value => {
+      if (value && /<[^>]*>/g.test(value)) {
+        throw new Error('Name contains invalid characters');
+      }
+      return true;
+    })
 ], asyncHandler(async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
