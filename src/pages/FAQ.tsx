@@ -22,7 +22,7 @@ export default function FAQ() {
     },
     {
       question: "How does the 7-day free trial work?",
-      answer: "When you sign up for any plan, you get 7 days of full access to all features without any charges. You'll need to provide a credit card, but you won't be charged until after the trial ends. You can cancel anytime during the trial period without being billed."
+      answer: "When you sign up for any plan, you get 7 days of full access to all features — no credit card required. Just create an account and start finding deals immediately. You can upgrade to a paid plan anytime."
     },
     {
       question: "What's the difference between Pro and Elite plans?",

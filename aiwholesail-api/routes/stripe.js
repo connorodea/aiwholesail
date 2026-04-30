@@ -90,6 +90,7 @@ router.post('/checkout', optionalAuth, [
       }
     ],
     mode: 'subscription',
+    payment_method_collection: 'if_required',
     subscription_data: {
       trial_period_days: 7,
       trial_settings: {
