@@ -28,9 +28,10 @@ const Landing = () => {
 
   const navLinks = [
     { label: 'Features', href: '#features' },
+    { label: 'How It Works', href: '/how-it-works' },
+    { label: 'Use Cases', href: '/use-cases' },
     { label: 'Pricing', href: '#pricing' },
-    { label: 'FAQ', href: '/faq' },
-    { label: 'Contact', href: '/contact' },
+    { label: 'Blog', href: '/blog' },
   ];
 
   const scrollToSection = (href: string) => {
@@ -621,14 +622,14 @@ const Landing = () => {
                     <h3 className="font-medium text-foreground">Product</h3>
                     <ul className="space-y-3">
                       {[
+                        { label: "How It Works", to: "/how-it-works" },
+                        { label: "Use Cases", to: "/use-cases" },
+                        { label: "Pricing", to: "/pricing" },
                         { label: "Property Search", to: "/app" },
-                        { label: "AI Analysis", to: "/app" },
-                        { label: "Market Intelligence", to: "/app" },
-                        { label: "Deal Calculator", to: "/app" }
                       ].map((link, index) => (
                         <li key={index}>
-                          <Link 
-                            to={link.to} 
+                          <Link
+                            to={link.to}
                             className="text-sm text-muted-foreground hover:text-foreground transition-colors font-light"
                           >
                             {link.label}
@@ -637,19 +638,20 @@ const Landing = () => {
                       ))}
                     </ul>
                   </div>
-                  
+
                   {/* Company */}
                   <div className="space-y-4">
                     <h3 className="font-medium text-foreground">Company</h3>
                     <ul className="space-y-3">
                       {[
-                        { label: "Contact Us", to: "/contact" },
+                        { label: "About Us", to: "/about" },
+                        { label: "Blog", to: "/blog" },
                         { label: "FAQ", to: "/faq" },
-                        { label: "Pricing", to: "/pricing" }
+                        { label: "Contact Us", to: "/contact" },
                       ].map((link, index) => (
                         <li key={index}>
-                          <Link 
-                            to={link.to} 
+                          <Link
+                            to={link.to}
                             className="text-sm text-muted-foreground hover:text-foreground transition-colors font-light"
                           >
                             {link.label}
