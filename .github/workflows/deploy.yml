@@ -4,16 +4,22 @@ on:
   push:
     branches:
       - main
+      - staging
+  pull_request:
+    branches:
+      - staging
+      - main
 
-# Prevent concurrent deployments for the same branch.
-# A run already in progress will be cancelled when a newer push arrives.
 concurrency:
   group: deploy-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  NODE_VERSION: '20'
+
 jobs:
   # ---------------------------------------------------------------------------
-  # Job 1: CI — typecheck + production build
+  # Job 1: CI — typecheck + build (runs on all pushes and PRs)
   # ---------------------------------------------------------------------------
   ci:
     name: CI (typecheck + build)
@@ -23,25 +29,33 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js 20
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
 
-      # tsc --noEmit exercises the compiler without writing files.
-      # tsconfig.app.json covers the React source tree (src/).
       - name: Typecheck
         run: npx tsc --noEmit -p tsconfig.app.json
 
-      - name: Build
+      # Build with the correct API URL based on target branch
+      - name: Build (staging)
+        if: github.ref == 'refs/heads/staging' || (github.event_name == 'pull_request' && github.base_ref == 'staging')
         run: npm run build
+        env:
+          VITE_API_URL: https://staging-api.aiwholesail.com
 
-      # Upload dist/ so the deploy job can consume it without rebuilding.
+      - name: Build (production)
+        if: github.ref == 'refs/heads/main' || (github.event_name == 'pull_request' && github.base_ref == 'main')
+        run: npm run build
+        env:
+          VITE_API_URL: https://api.aiwholesail.com
+
       - name: Upload dist artifact
+        if: github.event_name == 'push'
         uses: actions/upload-artifact@v4
         with:
           name: dist
@@ -50,45 +64,40 @@ jobs:
           retention-days: 1
 
   # ---------------------------------------------------------------------------
-  # Job 2: Deploy — rsync dist/ to Hetzner VPS, reload nginx
+  # Job 2: Deploy Staging — push to staging branch
   # ---------------------------------------------------------------------------
-  deploy:
-    name: Deploy to Hetzner (connorodea)
+  deploy-staging:
+    name: Deploy to Staging
     runs-on: ubuntu-latest
     needs: ci
+    if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Download the build artifact produced by the CI job.
       - name: Download dist artifact
         uses: actions/download-artifact@v4
         with:
           name: dist
           path: dist/
 
-      # Fail immediately if any required secret is absent.
       - name: Validate required secrets
         run: |
           missing=()
-          [[ -z "${{ secrets.HETZNER_CO_HOST }}" ]]     && missing+=("HETZNER_CO_HOST")
-          [[ -z "${{ secrets.HETZNER_CO_USER }}" ]]     && missing+=("HETZNER_CO_USER")
-          [[ -z "${{ secrets.HETZNER_CO_SSH_KEY }}" ]]  && missing+=("HETZNER_CO_SSH_KEY")
+          [[ -z "${{ secrets.HETZNER_CO_HOST }}" ]]    && missing+=("HETZNER_CO_HOST")
+          [[ -z "${{ secrets.HETZNER_CO_USER }}" ]]    && missing+=("HETZNER_CO_USER")
+          [[ -z "${{ secrets.HETZNER_CO_SSH_KEY }}" ]] && missing+=("HETZNER_CO_SSH_KEY")
           if [[ ${#missing[@]} -gt 0 ]]; then
-            echo "ERROR: The following required secrets are not set: ${missing[*]}"
+            echo "ERROR: Missing secrets: ${missing[*]}"
             exit 1
           fi
-          echo "All required secrets are present."
 
       - name: Configure SSH
         run: |
-          mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
-          # Write the private key — using printf to avoid trailing-newline issues.
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
           printf '%s\n' "${{ secrets.HETZNER_CO_SSH_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          # Resolve SSH port (default 22 if secret is empty).
           SSH_PORT="${{ secrets.HETZNER_CO_PORT }}"
           SSH_PORT="${SSH_PORT:-22}"
           cat >> ~/.ssh/config <<EOF
@@ -102,30 +111,125 @@ jobs:
           EOF
           chmod 600 ~/.ssh/config
 
-      # Verify the VPS target directory exists before transferring files.
-      - name: Verify target directory on VPS
-        run: |
-          ssh hetzner_co 'test -d /var/www/aiwholesail.com || { echo "ERROR: /var/www/aiwholesail.com does not exist on VPS. Run bootstrap steps."; exit 1; }'
-
-      # Sync the built static assets directly to the nginx root.
-      # --delete removes stale files from previous deploys.
-      - name: Rsync dist/ to VPS
+      # Deploy frontend to staging
+      - name: Rsync frontend to staging
         run: |
           rsync -az --delete \
-            -e "ssh -i ~/.ssh/deploy_key -p ${{ secrets.HETZNER_CO_PORT || '22' }} -o StrictHostKeyChecking=no" \
+            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
+            dist/ \
+            ${{ secrets.HETZNER_CO_USER }}@${{ secrets.HETZNER_CO_HOST }}:/var/www/staging.aiwholesail.com/
+
+      # Deploy API to staging
+      - name: Rsync API to staging
+        run: |
+          rsync -az --delete \
+            --exclude='node_modules' --exclude='.env' \
+            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
+            aiwholesail-api/ \
+            ${{ secrets.HETZNER_CO_USER }}@${{ secrets.HETZNER_CO_HOST }}:/var/www/aiwholesail-api-staging/
+
+      - name: Install API deps and restart staging
+        run: |
+          ssh hetzner_co << 'DEPLOY'
+            set -euo pipefail
+            cd /var/www/aiwholesail-api-staging
+            npm install --omit=dev 2>&1 | tail -3
+            # Install any missing optional deps
+            npm install resend twilio axios 2>/dev/null || true
+            sudo systemctl restart aiwholesail-api-staging
+            sleep 2
+            if systemctl is-active --quiet aiwholesail-api-staging; then
+              echo "Staging API is running."
+            else
+              echo "ERROR: Staging API failed to start."
+              journalctl -u aiwholesail-api-staging --no-pager -n 10
+              exit 1
+            fi
+            sudo systemctl reload nginx
+            echo "Staging deployment complete at $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+          DEPLOY
+
+  # ---------------------------------------------------------------------------
+  # Job 3: Deploy Production — push to main branch
+  # ---------------------------------------------------------------------------
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: ci
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download dist artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Validate required secrets
+        run: |
+          missing=()
+          [[ -z "${{ secrets.HETZNER_CO_HOST }}" ]]    && missing+=("HETZNER_CO_HOST")
+          [[ -z "${{ secrets.HETZNER_CO_USER }}" ]]    && missing+=("HETZNER_CO_USER")
+          [[ -z "${{ secrets.HETZNER_CO_SSH_KEY }}" ]] && missing+=("HETZNER_CO_SSH_KEY")
+          if [[ ${#missing[@]} -gt 0 ]]; then
+            echo "ERROR: Missing secrets: ${missing[*]}"
+            exit 1
+          fi
+
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s\n' "${{ secrets.HETZNER_CO_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          SSH_PORT="${{ secrets.HETZNER_CO_PORT }}"
+          SSH_PORT="${SSH_PORT:-22}"
+          cat >> ~/.ssh/config <<EOF
+          Host hetzner_co
+            HostName ${{ secrets.HETZNER_CO_HOST }}
+            User ${{ secrets.HETZNER_CO_USER }}
+            Port ${SSH_PORT}
+            IdentityFile ~/.ssh/deploy_key
+            StrictHostKeyChecking no
+            LogLevel ERROR
+          EOF
+          chmod 600 ~/.ssh/config
+
+      # Deploy frontend to production
+      - name: Rsync frontend to production
+        run: |
+          rsync -az --delete \
+            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
             dist/ \
             ${{ secrets.HETZNER_CO_USER }}@${{ secrets.HETZNER_CO_HOST }}:/var/www/aiwholesail.com/
 
-      # Copy the remote deploy script so the VPS always has the latest version.
-      - name: Upload deploy script
+      # Deploy API to production
+      - name: Rsync API to production
         run: |
-          scp deploy/deploy.sh hetzner_co:/var/www/aiwholesail/deploy.sh
-          ssh hetzner_co 'chmod +x /var/www/aiwholesail/deploy.sh'
+          rsync -az --delete \
+            --exclude='node_modules' --exclude='.env' \
+            -e "ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no" \
+            aiwholesail-api/ \
+            ${{ secrets.HETZNER_CO_USER }}@${{ secrets.HETZNER_CO_HOST }}:/var/www/aiwholesail-api/
 
-      # Execute the remote deploy script (nginx reload, permission fix, etc.).
-      - name: Run remote deploy script
+      - name: Install API deps and restart production
         run: |
-          ssh hetzner_co 'bash /var/www/aiwholesail/deploy.sh'
-
-      - name: Deployment complete
-        run: echo "Deployment finished successfully."
+          ssh hetzner_co << 'DEPLOY'
+            set -euo pipefail
+            cd /var/www/aiwholesail-api
+            npm install --omit=dev 2>&1 | tail -3
+            npm install resend twilio axios 2>/dev/null || true
+            sudo systemctl restart aiwholesail-api
+            sleep 2
+            if systemctl is-active --quiet aiwholesail-api; then
+              echo "Production API is running."
+            else
+              echo "ERROR: Production API failed to start."
+              journalctl -u aiwholesail-api --no-pager -n 10
+              exit 1
+            fi
+            sudo systemctl reload nginx
+            echo "Production deployment complete at $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+          DEPLOY

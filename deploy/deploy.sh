@@ -2,68 +2,56 @@
 # deploy/deploy.sh
 #
 # Remote deployment script for aiwholesail (static Vite build).
-# This script runs ON the VPS after rsync has delivered dist/ to
-# /var/www/aiwholesail/dist/.
+# Runs ON the VPS after rsync delivers files.
 #
-# Responsibilities:
-#   1. Fix ownership/permissions on the delivered files.
-#   2. Reload nginx to pick up any config changes (non-restart — zero downtime).
-#   3. Emit a clear success or failure message.
-#
-# Requirements (one-time VPS bootstrap):
-#   - nginx installed and serving /var/www/aiwholesail/dist
-#   - deploy user has passwordless sudo for: nginx, chown on /var/www/aiwholesail
-#     Example sudoers line:
-#       deploy ALL=(ALL) NOPASSWD: /usr/bin/systemctl reload nginx, \
-#                                  /usr/bin/chown -R www-data:www-data /var/www/aiwholesail/dist
+# Usage:
+#   bash deploy.sh              # defaults to production
+#   bash deploy.sh staging      # deploys staging environment
 
 set -euo pipefail
 
-APP_DIR="/var/www/aiwholesail"
-DIST_DIR="${APP_DIR}/dist"
+ENV="${1:-production}"
 
-# --------------------------------------------------------------------------
-# Guard: ensure the dist directory was actually delivered.
-# --------------------------------------------------------------------------
-if [[ ! -d "${DIST_DIR}" ]]; then
-  echo "ERROR: dist directory not found at ${DIST_DIR}. Rsync may have failed."
-  exit 1
+if [[ "$ENV" == "staging" ]]; then
+  FRONTEND_DIR="/var/www/staging.aiwholesail.com"
+  API_SERVICE="aiwholesail-api-staging"
+else
+  FRONTEND_DIR="/var/www/aiwholesail.com"
+  API_SERVICE="aiwholesail-api"
 fi
 
-echo "Starting deployment for aiwholesail..."
+echo "Deploying ${ENV} environment..."
 
-# --------------------------------------------------------------------------
-# Step 1: Fix ownership so nginx (www-data) can read the files.
-# --------------------------------------------------------------------------
-echo "Setting file ownership on ${DIST_DIR}..."
-sudo chown -R www-data:www-data "${DIST_DIR}"
-# Directories need execute permission; files need read permission only.
-find "${DIST_DIR}" -type d -exec chmod 755 {} \;
-find "${DIST_DIR}" -type f -exec chmod 644 {} \;
-echo "Ownership and permissions set."
+# Fix frontend permissions
+if [[ -d "${FRONTEND_DIR}" ]]; then
+  echo "Setting permissions on ${FRONTEND_DIR}..."
+  find "${FRONTEND_DIR}" -type d -exec chmod 755 {} \;
+  find "${FRONTEND_DIR}" -type f -exec chmod 644 {} \;
+fi
 
-# --------------------------------------------------------------------------
-# Step 2: Reload nginx.
-#   - 'reload' sends SIGHUP — nginx re-reads config and swaps workers
-#     without dropping existing connections (zero downtime).
-#   - Use 'restart' only if config changes require a full process restart.
-# --------------------------------------------------------------------------
+# Restart API service
+if systemctl list-units --full -all | grep -q "${API_SERVICE}.service"; then
+  echo "Restarting ${API_SERVICE}..."
+  sudo systemctl restart "${API_SERVICE}"
+  sleep 2
+  if systemctl is-active --quiet "${API_SERVICE}"; then
+    echo "${API_SERVICE} is running."
+  else
+    echo "ERROR: ${API_SERVICE} failed to start."
+    journalctl -u "${API_SERVICE}" --no-pager -n 10
+    exit 1
+  fi
+fi
+
+# Reload nginx
 echo "Reloading nginx..."
 sudo systemctl reload nginx
-echo "nginx reloaded."
-
-# --------------------------------------------------------------------------
-# Step 3: Confirm nginx is healthy.
-# --------------------------------------------------------------------------
 if systemctl is-active --quiet nginx; then
   echo "nginx is running."
 else
-  echo "ERROR: nginx is not active after reload. Check 'journalctl -u nginx'."
+  echo "ERROR: nginx is not active after reload."
   exit 1
 fi
 
-# --------------------------------------------------------------------------
-# Done.
-# --------------------------------------------------------------------------
 DEPLOY_TIME=$(date -u '+%Y-%m-%dT%H:%M:%SZ')
-echo "Deployment complete at ${DEPLOY_TIME}."
+echo "${ENV} deployment complete at ${DEPLOY_TIME}."
