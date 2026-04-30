@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
-  ArrowLeft,
   ArrowRight,
   Repeat,
   Hammer,
@@ -14,11 +13,13 @@ import {
   BarChart3,
   Bell,
   Brain,
-  DollarSign,
   CheckCircle2,
   Sparkles,
+  Shield,
+  CheckCircle,
 } from 'lucide-react';
 import { SEOHead } from '@/components/SEOHead';
+import { PublicLayout } from '@/components/PublicLayout';
 
 interface UseCase {
   icon: React.ReactNode;
@@ -38,7 +39,7 @@ const audiences: UseCase[] = [
   {
     icon: <Repeat className="h-6 w-6" />,
     audience: 'Wholesalers',
-    tagline: 'How wholesalers use AIWholesail',
+    tagline: 'Find deals and assign contracts faster',
     description:
       'Find deeply discounted properties, calculate your assignment fee instantly, and connect with verified cash buyers -- all from one platform.',
     useCases: [
@@ -56,47 +57,47 @@ const audiences: UseCase[] = [
   },
   {
     icon: <Hammer className="h-6 w-6" />,
-    audience: 'Fix & Flippers',
-    tagline: 'How flippers use AIWholesail',
+    audience: 'Fix and Flippers',
+    tagline: 'Identify rehab potential and maximize profit',
     description:
       'Identify properties with the highest rehab potential, estimate repair costs with AI assistance, and track every deal through your pipeline.',
     useCases: [
-      'Identify properties with high rehab potential using property condition analysis',
-      'Estimate repair costs with AI-assisted damage detection and cost modeling',
-      'Calculate after-repair value (ARV) and profit margins with comparable sales data',
+      'Identify properties with high rehab potential using condition analysis',
+      'Estimate repair costs with AI-assisted cost modeling',
+      'Calculate after-repair value and profit margins with comparable sales data',
       'Track deals through your pipeline from acquisition to sale',
     ],
     highlight: {
       type: 'metric',
       value: '87%',
-      label: 'ARV estimate accuracy based on comparable sales analysis',
+      label: 'Value estimate accuracy based on comparable sales analysis',
     },
     accentIcon: <BarChart3 className="h-5 w-5" />,
   },
   {
     icon: <Building2 className="h-6 w-6" />,
-    audience: 'Buy & Hold Investors',
-    tagline: 'How rental investors use AIWholesail',
+    audience: 'Buy and Hold Investors',
+    tagline: 'Source rental properties below market value',
     description:
       'Source rental properties below market value, analyze cash flow potential, and set up automated alerts so you never miss a deal in your target markets.',
     useCases: [
       'Find rental properties listed below market value across multiple markets',
       'Analyze monthly cash flow potential, cash-on-cash return, and cap rates',
-      'Compare cap rates and rental yields across different neighborhoods and markets',
+      'Compare rental yields across different neighborhoods and markets',
       'Set up custom alerts for properties matching your investment criteria',
     ],
     highlight: {
       type: 'quote',
       value:
         'I set up alerts in three zip codes and found a 4-unit under market value within the first week.',
-      label: 'Buy & hold investor, Atlanta metro',
+      label: 'Buy and hold investor, Atlanta metro',
     },
     accentIcon: <Bell className="h-5 w-5" />,
   },
   {
     icon: <Users className="h-6 w-6" />,
     audience: 'Real Estate Agents',
-    tagline: 'How agents use AIWholesail',
+    tagline: 'Give your clients an edge with AI insights',
     description:
       'Give your clients an edge with AI-powered market intelligence. Source off-market opportunities and run instant property analysis during showings.',
     useCases: [
@@ -114,7 +115,7 @@ const audiences: UseCase[] = [
   {
     icon: <GraduationCap className="h-6 w-6" />,
     audience: 'New Investors',
-    tagline: 'How beginners use AIWholesail',
+    tagline: 'Start your investing journey with confidence',
     description:
       'Start your investing journey with AI-guided analysis and deal scoring. Build confidence with the same professional tools experienced investors rely on.',
     useCases: [
@@ -135,172 +136,166 @@ const audiences: UseCase[] = [
 
 export default function UseCases() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+    <PublicLayout>
       <SEOHead
         title="Use Cases"
         description="See how real estate wholesalers, flippers, buy & hold investors, agents, and new investors use AIWholesail to find profitable deals faster with AI."
         keywords="real estate use cases, wholesaling, fix and flip, rental investing, real estate agents, new investors, AI property analysis"
       />
 
-      {/* Header */}
-      <header className="fixed top-4 left-4 right-4 z-50">
-        <div className="container mx-auto max-w-7xl">
-          <div className="bg-card/80 backdrop-blur-xl border border-border/50 rounded-2xl shadow-lg px-6 py-4">
-            <div className="flex items-center justify-between">
-              <Link
-                to="/"
-                className="flex items-center space-x-2 text-sm font-medium hover:text-primary transition-colors"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                <span>Back to Home</span>
-              </Link>
-              <div className="text-lg font-semibold">Use Cases</div>
-              <div className="w-20" />
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Hero */}
-      <section className="pt-32 pb-16 px-4">
-        <div className="container mx-auto max-w-4xl text-center">
-          <Badge
-            variant="secondary"
-            className="mb-6 px-4 py-1.5 text-sm font-medium bg-primary/10 text-primary border-0"
-          >
-            <Sparkles className="h-3.5 w-3.5 mr-1.5" />
-            Built for every strategy
+      {/* ===== HERO -- DARK ===== */}
+      <section className="relative bg-gradient-to-b from-[#0a0a0a] via-[#0f0f0f] to-[#0a0a0a] text-white overflow-hidden">
+        <div className="relative container mx-auto max-w-6xl px-4 pt-28 pb-20 text-center">
+          <Badge className="mb-6 bg-white/10 text-white/80 border-white/10 backdrop-blur-sm text-xs font-medium px-4 py-1.5 rounded-full">
+            <Sparkles className="h-3 w-3 mr-1.5" /> Built for Every Strategy
           </Badge>
-          <h1 className="text-4xl md:text-5xl font-medium tracking-tight mb-6">
-            One platform, every{' '}
-            <span className="text-primary">investing strategy</span>
+
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-[0.95] mb-6">
+            One platform, every
+            <br />
+            <span className="bg-gradient-to-r from-primary via-cyan-400 to-primary bg-clip-text text-transparent">
+              investing strategy.
+            </span>
           </h1>
-          <p className="text-lg text-muted-foreground font-light leading-relaxed max-w-2xl mx-auto">
-            Whether you wholesale, flip, hold, or are just getting started,
-            AIWholesail gives you the AI-powered tools to find, analyze, and
-            close better deals.
+
+          <p className="text-lg md:text-xl text-white/60 max-w-2xl mx-auto leading-relaxed font-light">
+            Whether you wholesale, flip, hold, or are just getting started -- AIWholesail gives you the AI-powered tools to find, analyze, and close better deals.
           </p>
         </div>
+
+        {/* Fade to white */}
+        <div className="h-24 bg-gradient-to-b from-[#0a0a0a] to-background" />
       </section>
 
-      {/* Audience Sections */}
-      <section className="pb-24 px-4">
-        <div className="container mx-auto max-w-7xl space-y-16">
-          {audiences.map((item, index) => (
-            <div
-              key={item.audience}
-              className={`grid lg:grid-cols-2 gap-8 lg:gap-16 items-center ${
-                index % 2 === 1 ? 'lg:direction-rtl' : ''
-              }`}
-            >
-              {/* Content Side */}
-              <div className={index % 2 === 1 ? 'lg:order-2' : ''}>
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-primary/10 text-primary">
-                    {item.icon}
-                  </div>
-                  <div>
-                    <h2 className="text-3xl md:text-4xl font-medium tracking-tight">
+      {/* ===== AUDIENCE SECTIONS -- ALTERNATING LIGHT/DARK ===== */}
+      {audiences.map((item, index) => {
+        const isDark = index % 2 === 1;
+
+        return (
+          <div key={item.audience}>
+            <section className={`py-24 px-4 ${isDark ? 'bg-[#0a0a0a] text-white' : ''}`}>
+              <div className="container mx-auto max-w-7xl">
+                <div className={`grid lg:grid-cols-2 gap-8 lg:gap-16 items-center`}>
+                  {/* Content Side */}
+                  <div className={index % 2 === 1 ? 'lg:order-2' : ''}>
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className={`flex items-center justify-center w-12 h-12 rounded-2xl ${isDark ? 'bg-white/10 text-primary' : 'bg-primary/10 text-primary'}`}>
+                        {item.icon}
+                      </div>
+                    </div>
+
+                    <p className="text-xs font-semibold tracking-[0.2em] uppercase text-primary mb-3">
+                      {item.tagline}
+                    </p>
+
+                    <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
                       {item.audience}
                     </h2>
-                  </div>
-                </div>
 
-                <p className="text-sm font-medium text-primary mb-3 uppercase tracking-wider">
-                  {item.tagline}
-                </p>
+                    <p className={`font-light leading-relaxed mb-8 ${isDark ? 'text-white/60' : 'text-muted-foreground'}`}>
+                      {item.description}
+                    </p>
 
-                <p className="text-muted-foreground font-light leading-relaxed mb-8">
-                  {item.description}
-                </p>
-
-                <ul className="space-y-4 mb-8">
-                  {item.useCases.map((useCase, i) => (
-                    <li key={i} className="flex items-start gap-3">
-                      <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                      <span className="text-sm font-light leading-relaxed">
-                        {useCase}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Highlight Card Side */}
-              <div className={index % 2 === 1 ? 'lg:order-1' : ''}>
-                <div className="bg-card/50 border border-border/50 rounded-2xl p-8 lg:p-10">
-                  <div className="flex items-center gap-2 mb-6">
-                    <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-primary/10 text-primary">
-                      {item.accentIcon}
-                    </div>
-                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                      {item.highlight.type === 'metric'
-                        ? 'Key metric'
-                        : 'From the community'}
-                    </span>
+                    <ul className="space-y-4 mb-8">
+                      {item.useCases.map((useCase, i) => (
+                        <li key={i} className="flex items-start gap-3">
+                          <CheckCircle2 className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                          <span className={`text-sm font-light leading-relaxed ${isDark ? 'text-white/70' : ''}`}>
+                            {useCase}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
 
-                  {item.highlight.type === 'metric' ? (
-                    <>
-                      <div className="text-5xl md:text-6xl font-medium text-primary mb-3 tracking-tight">
-                        {item.highlight.value}
+                  {/* Highlight Card Side */}
+                  <div className={index % 2 === 1 ? 'lg:order-1' : ''}>
+                    <div className={`rounded-3xl p-8 lg:p-10 ${
+                      isDark
+                        ? 'bg-white/5 border border-white/10'
+                        : 'bg-gradient-to-br from-muted/50 to-muted/30 border border-border/50'
+                    }`}>
+                      <div className="flex items-center gap-2 mb-6">
+                        <div className={`flex items-center justify-center w-9 h-9 rounded-xl ${isDark ? 'bg-white/10 text-primary' : 'bg-primary/10 text-primary'}`}>
+                          {item.accentIcon}
+                        </div>
+                        <span className={`text-xs font-semibold tracking-[0.15em] uppercase ${isDark ? 'text-white/40' : 'text-muted-foreground'}`}>
+                          {item.highlight.type === 'metric'
+                            ? 'Key metric'
+                            : 'From the community'}
+                        </span>
                       </div>
-                      <p className="text-muted-foreground font-light text-sm leading-relaxed">
-                        {item.highlight.label}
-                      </p>
-                    </>
-                  ) : (
-                    <>
-                      <blockquote className="text-lg font-light leading-relaxed mb-4 text-foreground/90">
-                        &ldquo;{item.highlight.value}&rdquo;
-                      </blockquote>
-                      <p className="text-sm text-muted-foreground font-light">
-                        -- {item.highlight.label}
-                      </p>
-                    </>
-                  )}
+
+                      {item.highlight.type === 'metric' ? (
+                        <>
+                          <div className="text-5xl md:text-6xl font-bold text-primary mb-3 tracking-tight">
+                            {item.highlight.value}
+                          </div>
+                          <p className={`font-light text-sm leading-relaxed ${isDark ? 'text-white/50' : 'text-muted-foreground'}`}>
+                            {item.highlight.label}
+                          </p>
+                        </>
+                      ) : (
+                        <>
+                          <blockquote className={`text-lg font-light leading-relaxed mb-4 ${isDark ? 'text-white/80' : 'text-foreground/90'}`}>
+                            &ldquo;{item.highlight.value}&rdquo;
+                          </blockquote>
+                          <p className={`text-sm font-light ${isDark ? 'text-white/40' : 'text-muted-foreground'}`}>
+                            -- {item.highlight.label}
+                          </p>
+                        </>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
-      </section>
+            </section>
 
-      {/* CTA Section */}
-      <section className="py-24 px-4">
-        <div className="container mx-auto max-w-4xl">
-          <div className="bg-card/50 border border-border/50 rounded-2xl p-12 md:p-16 text-center">
-            <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-primary/10 text-primary mx-auto mb-6">
-              <DollarSign className="h-7 w-7" />
-            </div>
-            <h2 className="text-3xl md:text-4xl font-medium tracking-tight mb-4">
-              No matter your strategy, AIWholesail helps you find deals{' '}
-              <span className="text-primary">faster</span>
-            </h2>
-            <p className="text-muted-foreground font-light leading-relaxed max-w-2xl mx-auto mb-8">
-              Start your 7-day free trial and see why thousands of real estate
-              professionals trust AIWholesail to power their deal flow.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Link to="/pricing">
-                <Button size="lg" className="h-12 px-8 text-base font-medium">
-                  Start Free Trial
-                  <ArrowRight className="h-4 w-4 ml-2" />
-                </Button>
-              </Link>
-              <Link to="/contact">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="h-12 px-8 text-base font-medium"
-                >
-                  Talk to Sales
-                </Button>
-              </Link>
-            </div>
+            {/* Gradient transitions between dark/light sections */}
+            {isDark && index < audiences.length - 1 && (
+              <div className="h-24 bg-gradient-to-b from-[#0a0a0a] to-background" />
+            )}
+            {!isDark && index < audiences.length - 1 && audiences[index + 1] && (index + 1) % 2 === 1 && (
+              <div className="h-24 bg-gradient-to-b from-background to-[#0a0a0a]" />
+            )}
+          </div>
+        );
+      })}
+
+      {/* Fade from last section to CTA */}
+      <div className="h-24 bg-gradient-to-b from-background to-[#0a0a0a]" />
+
+      {/* ===== CTA -- DARK ===== */}
+      <section className="bg-[#0a0a0a] text-white py-24 px-4">
+        <div className="container mx-auto text-center max-w-3xl">
+          <h2 className="text-4xl md:text-5xl font-bold tracking-tight leading-tight mb-6">
+            No matter your strategy,
+            <br />
+            <span className="bg-gradient-to-r from-primary via-cyan-400 to-primary bg-clip-text text-transparent">
+              find deals faster.
+            </span>
+          </h2>
+          <p className="text-lg text-white/60 font-light max-w-2xl mx-auto mb-10">
+            Start your 7-day free trial and see why thousands of real estate professionals trust AIWholesail to power their deal flow.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Link to="/pricing">
+              <Button size="lg" className="rounded-full px-10 text-base font-semibold bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25 gap-2">
+                Start Free Trial <ArrowRight className="h-4 w-4" />
+              </Button>
+            </Link>
+            <Link to="/contact">
+              <Button size="lg" variant="outline" className="rounded-full px-8 text-base font-semibold border-white/20 text-white hover:bg-white/10 gap-2">
+                Talk to Sales
+              </Button>
+            </Link>
+          </div>
+          <div className="flex items-center justify-center gap-6 text-sm text-white/40 mt-8">
+            <span className="flex items-center gap-1.5"><Shield className="h-3.5 w-3.5" /> No Credit Card Required</span>
+            <span className="flex items-center gap-1.5"><CheckCircle className="h-3.5 w-3.5" /> Cancel Anytime</span>
           </div>
         </div>
       </section>
-    </div>
+    </PublicLayout>
   );
 }
