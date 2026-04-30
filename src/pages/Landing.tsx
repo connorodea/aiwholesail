@@ -13,8 +13,6 @@ import { Heading, Subheading } from "@/components/proactiv/Heading";
 import { Container } from "@/components/proactiv/Container";
 import { FeatureIconContainer } from "@/components/proactiv/FeatureIconContainer";
 import { NavbarAIWholesail } from "@/components/ui/navbar-aiwholesail";
-import { ScrollReveal, GlassMorph, FloatingOrb, LiquidSection, StaggerChildren, staggerItem } from "@/components/effects/LiquidGlass";
-import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 
 const aiWholesailLogo = "/logo-white.png";
 
@@ -70,17 +68,12 @@ const Landing = () => {
         <AmbientColor />
 
         <Container className="flex flex-col items-center justify-center relative z-10">
-          <ScrollReveal direction="none" blur scale>
-            <TextGenerateEffect
-              words="Find profitable real estate deals — before everyone else"
-              className="text-5xl md:text-7xl font-medium max-w-5xl mx-auto text-center tracking-tight mt-6 py-6 bg-clip-text text-transparent bg-gradient-to-b from-neutral-800 via-white to-white"
-            />
-          </ScrollReveal>
-          <ScrollReveal delay={0.3}>
-            <Subheading className="max-w-2xl">
-              Stop spending hours searching. Our AI scans thousands of properties, calculates your profit instantly, and alerts you the moment new opportunities hit the market.
-            </Subheading>
-          </ScrollReveal>
+          <Heading as="h1" size="2xl" className="mt-6 py-6">
+            Find profitable real estate deals — before everyone else
+          </Heading>
+          <Subheading className="max-w-2xl">
+            Stop spending hours searching. Our AI scans thousands of properties, calculates your profit instantly, and alerts you the moment new opportunities hit the market.
+          </Subheading>
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-3 mt-8 relative z-10">
@@ -124,19 +117,17 @@ const Landing = () => {
       </div>
 
       {/* ===== FEATURES GRID ===== */}
-      <LiquidSection className="py-20 sm:py-32" orbs>
+      <section className="relative py-20 sm:py-32">
         <Container>
-          <ScrollReveal>
-            <FeatureIconContainer className="flex justify-center items-center mx-auto mb-4">
-              <Sparkles className="h-5 w-5 text-cyan-500" />
-            </FeatureIconContainer>
-            <Heading className="pt-4">Everything you need to close more deals</Heading>
-            <Subheading>
-              Whether you're wholesaling, flipping, or building a rental portfolio — one platform handles it all.
-            </Subheading>
-          </ScrollReveal>
+          <FeatureIconContainer className="flex justify-center items-center mx-auto mb-4">
+            <Sparkles className="h-5 w-5 text-cyan-500" />
+          </FeatureIconContainer>
+          <Heading className="pt-4">Everything you need to close more deals</Heading>
+          <Subheading>
+            Whether you're wholesaling, flipping, or building a rental portfolio — one platform handles it all.
+          </Subheading>
 
-          <StaggerChildren className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-16">
             {[
               { icon: Search, title: "Smart Property Search", desc: "Just type a city, zip code, or address. We search multiple sources and show you every property with profit potential — sorted by the best deals first." },
               { icon: DollarSign, title: "Instant Profit Analysis", desc: "See exactly how much money is in every deal. We compare listing prices to market values so you know your numbers before you make an offer." },
@@ -147,64 +138,59 @@ const Landing = () => {
               { icon: Mail, title: "Automated Follow-ups", desc: "Set up text and email sequences that run automatically. Stay in touch with sellers and buyers without lifting a finger." },
               { icon: FileText, title: "Contract Generator", desc: "Generate assignment agreements, purchase contracts, and letters of intent. Fill in the details and download a professional PDF." },
               { icon: BarChart3, title: "Market Intelligence", desc: "Understand any market in seconds. See median prices, trends, comparable sales, and neighborhood data all in one dashboard." },
-            ].map((feature, i) => (
-              <motion.div
+            ].map((feature) => (
+              <div
                 key={feature.title}
-                variants={staggerItem}
+                className="relative group p-6 rounded-xl border border-white/[0.05] bg-gradient-to-b from-neutral-900/50 to-transparent hover:border-cyan-500/20 transition-all duration-300"
               >
-                <GlassMorph className="p-6 h-full group hover:border-cyan-500/20 transition-all duration-300" glow>
-                  <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                    style={{
-                      backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.03) 1px, transparent 0)',
-                      backgroundSize: '24px 24px',
-                    }}
-                  />
-                  <div className="relative z-10">
-                    <FeatureIconContainer className="mb-4">
-                      <feature.icon className="h-4 w-4 text-cyan-500" />
-                    </FeatureIconContainer>
-                    <h3 className="text-sm font-semibold text-white mb-2">{feature.title}</h3>
-                    <p className="text-xs text-neutral-400 leading-relaxed">{feature.desc}</p>
-                  </div>
-                </GlassMorph>
-              </motion.div>
+                {/* Grid pattern background */}
+                <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  style={{
+                    backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.03) 1px, transparent 0)',
+                    backgroundSize: '24px 24px',
+                  }}
+                />
+                <div className="relative z-10">
+                  <FeatureIconContainer className="mb-4">
+                    <feature.icon className="h-4 w-4 text-cyan-500" />
+                  </FeatureIconContainer>
+                  <h3 className="text-sm font-semibold text-white mb-2">{feature.title}</h3>
+                  <p className="text-xs text-neutral-400 leading-relaxed">{feature.desc}</p>
+                </div>
+              </div>
             ))}
-          </StaggerChildren>
+          </div>
         </Container>
-      </LiquidSection>
+      </section>
 
       {/* ===== WHO IT'S FOR ===== */}
-      <LiquidSection className="py-20" parallax>
+      <section className="relative py-20">
         <div className="absolute inset-0 h-px top-0 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
         <Container>
-          <ScrollReveal>
-            <FeatureIconContainer className="flex justify-center items-center mx-auto mb-4">
-              <Users className="h-5 w-5 text-cyan-500" />
-            </FeatureIconContainer>
-            <Heading className="pt-4">Built for every strategy</Heading>
-            <Subheading>Wholesalers, flippers, landlords, agents — one platform for every approach to profitable real estate.</Subheading>
-          </ScrollReveal>
+          <FeatureIconContainer className="flex justify-center items-center mx-auto mb-4">
+            <Users className="h-5 w-5 text-cyan-500" />
+          </FeatureIconContainer>
+          <Heading className="pt-4">Built for every strategy</Heading>
+          <Subheading>Wholesalers, flippers, landlords, agents — one platform for every approach to profitable real estate.</Subheading>
 
-          <StaggerChildren className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-12">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-12">
             {[
               { icon: TrendingUp, title: "Wholesalers", desc: "Find undervalued properties, calculate assignment fees, and match with cash buyers" },
               { icon: DollarSign, title: "Flippers", desc: "Estimate renovation costs, calculate after-repair values, and score every deal" },
               { icon: BarChart3, title: "Landlords", desc: "Analyze rental income, calculate returns, and find properties below market value" },
               { icon: Users, title: "Agents", desc: "Impress clients with instant market data and professional property analysis" },
             ].map(item => (
-              <motion.div key={item.title} variants={staggerItem}>
-                <GlassMorph className="p-6 text-center group hover:border-cyan-500/20 transition-all duration-300 h-full">
-                  <div className="w-12 h-12 mx-auto rounded-xl bg-cyan-500/10 flex items-center justify-center mb-4 group-hover:bg-cyan-500/20 transition-colors">
-                    <item.icon className="h-5 w-5 text-cyan-500" />
-                  </div>
-                  <h3 className="text-sm font-semibold mb-2">{item.title}</h3>
-                  <p className="text-xs text-neutral-400">{item.desc}</p>
-                </GlassMorph>
-              </motion.div>
+              <div key={item.title} className="p-6 rounded-xl border border-white/[0.05] bg-neutral-900/30 hover:border-cyan-500/20 transition-all duration-300 text-center group">
+                <div className="w-12 h-12 mx-auto rounded-xl bg-cyan-500/10 flex items-center justify-center mb-4 group-hover:bg-cyan-500/20 transition-colors">
+                  <item.icon className="h-5 w-5 text-cyan-500" />
+                </div>
+                <h3 className="text-sm font-semibold mb-2">{item.title}</h3>
+                <p className="text-xs text-neutral-400">{item.desc}</p>
+              </div>
             ))}
-          </StaggerChildren>
+          </div>
         </Container>
-      </LiquidSection>
+      </section>
 
       {/* ===== TESTIMONIALS ===== */}
       <section className="relative py-20">
