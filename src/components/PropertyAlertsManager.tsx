@@ -262,7 +262,7 @@ export const PropertyAlertsManager = () => {
             Property Alerts
           </h2>
           <p className="text-muted-foreground">
-            Get notified when new wholesale opportunities match your criteria
+            Get notified when new investment opportunities match your criteria
           </p>
           <div className="flex items-center gap-4 mt-2 text-sm">
             <span className="text-muted-foreground">
@@ -419,7 +419,7 @@ export const PropertyAlertsManager = () => {
               <Bell className="h-12 w-12 text-muted-foreground mb-4" />
               <h3 className="text-lg font-semibold mb-2">No Property Alerts Yet</h3>
               <p className="text-muted-foreground mb-4">
-                Create your first alert to get notified of wholesale opportunities
+                Create your first alert to get notified of investment opportunities
               </p>
               <Button onClick={() => setShowNewAlert(true)}>
                 Create Your First Alert

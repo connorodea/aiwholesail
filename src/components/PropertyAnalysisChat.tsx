@@ -74,7 +74,7 @@ export function PropertyAnalysisChat({ property, isOpen }: PropertyAnalysisChatP
     const analysisMessage: Message = {
       id: Date.now().toString(),
       role: 'assistant',
-      content: 'Analyzing this property for wholesale opportunities...',
+      content: 'Analyzing this property for investment opportunities...',
       timestamp: new Date(),
       isAnalyzing: true
     };
@@ -100,7 +100,7 @@ export function PropertyAnalysisChat({ property, isOpen }: PropertyAnalysisChatP
       setMessages([{
         id: Date.now().toString(),
         role: 'assistant',
-        content: 'I encountered an error analyzing this property. Please try asking me a specific question about the wholesale potential.',
+        content: 'I encountered an error analyzing this property. Please try asking me a specific question about the deal potential.',
         timestamp: new Date()
       }]);
       toast.error('Analysis failed. Please try again.');
@@ -257,7 +257,7 @@ export function PropertyAnalysisChat({ property, isOpen }: PropertyAnalysisChatP
   };
 
   const quickQuestions = [
-    "What's the wholesale potential of this property?",
+    "What's the deal potential of this property?",
     "Calculate the 70% ARV rule for this deal",
     "What repairs might this property need?",
     "How does this compare to market comps?",
@@ -276,7 +276,7 @@ export function PropertyAnalysisChat({ property, isOpen }: PropertyAnalysisChatP
               <Brain className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <h2 className="text-xl font-semibold">AI Wholesale Analysis</h2>
+              <h2 className="text-xl font-semibold">AI Deal Analysis</h2>
               <p className="text-sm text-muted-foreground">
                 Expert analysis powered by Claude Sonnet 4
               </p>
@@ -300,7 +300,7 @@ export function PropertyAnalysisChat({ property, isOpen }: PropertyAnalysisChatP
                 </div>
                 <h3 className="text-xl font-semibold mb-3">Ready to Analyze</h3>
                 <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-                  Get comprehensive wholesale analysis using advanced AI, market data, and property insights
+                  Get comprehensive deal analysis using advanced AI, market data, and property insights
                 </p>
                 <Button 
                   onClick={runInitialAnalysis}
@@ -401,7 +401,7 @@ export function PropertyAnalysisChat({ property, isOpen }: PropertyAnalysisChatP
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Ask about wholesale potential, ARV, repair estimates, or market analysis..."
+              placeholder="Ask about deal potential, ARV, repair estimates, or market analysis..."
               disabled={isLoading || showStartButton}
               className="flex-1 h-11 bg-background border-border focus:ring-2 focus:ring-primary/20"
             />

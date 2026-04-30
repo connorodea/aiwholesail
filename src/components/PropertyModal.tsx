@@ -345,7 +345,7 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                         <DollarSign className="h-5 w-5 text-primary" />
                       </div>
                       <div className="flex-1">
-                        <span className="text-xl">Wholesale Analysis</span>
+                        <span className="text-xl">Deal Analysis</span>
                         <Badge 
                           variant={wholesalePotential.tier === 'excellent' || wholesalePotential.tier === 'great' ? 'default' : 'secondary'}
                           className="ml-3"
@@ -359,7 +359,7 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                     <div className="grid grid-cols-2 gap-10">
                       <div className="space-y-6">
                         <div className="flex justify-between items-center py-3 border-b border-border">
-                          <span className="text-sm font-medium text-muted-foreground">Wholesale Score</span>
+                          <span className="text-sm font-medium text-muted-foreground">Deal Score</span>
                           <span className="text-2xl font-bold text-foreground">{wholesalePotential.score}/100</span>
                         </div>
                         <div className="flex justify-between items-center py-3 border-b border-border">
@@ -390,7 +390,7 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                             <div className="flex items-center gap-3">
                               <Star className="h-5 w-5 text-emerald-600" />
                               <span className="font-semibold text-emerald-700 dark:text-emerald-300">
-                                Excellent wholesale opportunity!
+                                Excellent investment opportunity!
                               </span>
                             </div>
                           </div>
@@ -399,7 +399,7 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                             <div className="flex items-center gap-3">
                               <Star className="h-5 w-5 text-blue-600" />
                               <span className="font-semibold text-blue-700 dark:text-blue-300">
-                                Good wholesale potential
+                                Good profit potential
                               </span>
                             </div>
                           </div>

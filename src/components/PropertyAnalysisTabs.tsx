@@ -242,7 +242,7 @@ export function PropertyAnalysisTabs({ property }: PropertyAnalysisTabsProps) {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Calculator className="h-5 w-5 text-primary" />
-                Wholesale Calculator
+                Deal Calculator
               </CardTitle>
             </CardHeader>
             <CardContent>

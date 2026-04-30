@@ -21,7 +21,7 @@ export const ChatAssistant = () => {
     {
       id: '1',
       role: 'assistant',
-      content: 'Hi! I\'m your AI real estate assistant. I can help you with market analysis, property evaluation, wholesale strategies, and platform features. I can also search the web for specific property information. How can I help you today?',
+      content: 'Hi! I\'m your AI real estate assistant. I can help you with market analysis, property evaluation, investment strategies, and platform features. I can also search the web for specific property information. How can I help you today?',
       timestamp: new Date()
     }
   ]);

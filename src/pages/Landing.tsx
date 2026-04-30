@@ -149,7 +149,7 @@ const Landing = () => {
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-medium leading-tight tracking-tight">
               <span className="block mb-2">Find Profitable</span>
               <span className="block bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                Wholesale Deals
+                Real Estate Deals
               </span>
             </h1>
             
@@ -205,9 +205,9 @@ const Landing = () => {
           <div className={`grid sm:grid-cols-2 lg:grid-cols-3 gap-6 transition-all duration-1000 delay-400 ${featuresRef.isVisible ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
             {[
               { icon: Brain, title: "AI-Powered Analysis", desc: "Advanced machine learning algorithms analyze property data, market trends, and investment potential to identify the most profitable opportunities." },
-              { icon: Search, title: "Smart Property Search", desc: "Natural language search with advanced filtering across multiple MLS sources. Find distressed properties, foreclosures, and wholesale opportunities instantly." },
+              { icon: Search, title: "Smart Property Search", desc: "Natural language search with advanced filtering across multiple MLS sources. Find undervalued properties, foreclosures, and investment opportunities instantly." },
               { icon: MessageSquare, title: "AI Chat Assistant", desc: "Get instant answers about market data, property analysis, and investment strategies from our AI assistant with real-time web search capabilities." },
-              { icon: DollarSign, title: "Deal Analysis & ROI", desc: "Instant profit calculations, repair estimates, ARV analysis, and wholesale margin projections. Know your numbers before making an offer." },
+              { icon: DollarSign, title: "Deal Analysis & ROI", desc: "Instant profit calculations, repair estimates, ARV analysis, and profit margin projections. Know your numbers before making an offer." },
               { icon: BarChart3, title: "Market Intelligence", desc: "Real-time market data from 14 sources, comparable sales analysis, neighborhood insights, and predictive market trends." },
               { icon: Bell, title: "Property Alerts", desc: "Set up automated alerts for your criteria. Get notified instantly when new deals matching your investment strategy hit the market." },
               { icon: Users, title: "Skip Tracing", desc: "Find property owner contact information with integrated skip tracing. Connect directly with motivated sellers to close deals faster." },
@@ -238,16 +238,16 @@ const Landing = () => {
               How it <span className="text-primary">works</span>
             </h2>
             <p className="text-lg text-muted-foreground font-light max-w-2xl mx-auto">
-              From search to close in four simple steps. Our platform streamlines your wholesale workflow.
+              From search to close in four simple steps. Our platform streamlines your deal-finding workflow.
             </p>
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {[
-              { step: "01", icon: Search, title: "Search Properties", desc: "Enter any location, zip code, or address. Filter by price, property type, and wholesale potential." },
-              { step: "02", icon: Brain, title: "AI Analysis", desc: "Our AI instantly analyzes each property, calculating ARV, repair estimates, and wholesale margins." },
+              { step: "01", icon: Search, title: "Search Properties", desc: "Enter any location, zip code, or address. Filter by price, property type, and profit potential." },
+              { step: "02", icon: Brain, title: "AI Analysis", desc: "Our AI instantly analyzes each property, calculating ARV, repair estimates, and profit margins." },
               { step: "03", icon: DollarSign, title: "Find Spreads", desc: "Identify properties with significant spreads between listing price and estimated value." },
-              { step: "04", icon: CheckCircle, title: "Close Deals", desc: "Use skip tracing to contact owners directly and close profitable wholesale deals." },
+              { step: "04", icon: CheckCircle, title: "Close Deals", desc: "Use skip tracing to contact owners directly and close profitable deals faster." },
             ].map((item, index) => (
               <div key={item.step} className="relative">
                 {index < 3 && (
@@ -299,7 +299,7 @@ const Landing = () => {
                   <span className="text-lg font-normal text-muted-foreground">/month</span>
                 </div>
                 <CardDescription className="font-light">
-                  Perfect for individual wholesalers
+                  Perfect for individual investors
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -382,8 +382,8 @@ const Landing = () => {
               },
               {
                 name: "Mike Chen",
-                role: "Wholesale Specialist",
-                content: "The time I save on research and analysis has doubled my deal flow. This platform is a game-changer for serious wholesalers.",
+                role: "Real Estate Investor",
+                content: "The time I save on research and analysis has doubled my deal flow. This platform is a game-changer for serious investors.",
                 profit: "$120,000"
               },
               {
@@ -482,7 +482,7 @@ const Landing = () => {
                 </div>
                 <p className="text-muted-foreground font-light leading-relaxed max-w-sm">
                   Discover undervalued properties with AI-powered analysis and comprehensive market data. 
-                  Turn data into profit with intelligent wholesale investing.
+                  Turn data into profit with intelligent real estate investing.
                 </p>
                 <div className="flex items-center space-x-4 pt-2">
                   <Button size="sm" className="rounded-full px-6" onClick={handleStartTrial}>

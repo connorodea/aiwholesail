@@ -85,7 +85,7 @@ export default function Pipeline() {
         <section className="text-center space-y-4 max-w-2xl mx-auto animate-fade-in">
           <h1 className="text-3xl md:text-4xl font-medium tracking-tight">Deal Pipeline</h1>
           <p className="text-lg text-muted-foreground font-light leading-relaxed">
-            Track your wholesale deals from lead to close
+            Track your deals from lead to close
           </p>
         </section>
 

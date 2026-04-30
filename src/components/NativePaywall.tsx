@@ -106,7 +106,7 @@ export function NativePaywall({ onSubscribed }: NativePaywallProps) {
           {/* Header */}
           <div className="text-center space-y-4">
             <h1 className="text-3xl font-bold tracking-tight">
-              Find Profitable Wholesale Deals
+              Find Profitable Real Estate Deals
             </h1>
             <p className="text-muted-foreground">
               Discover properties with +$30K spreads between listing price and Zestimate.

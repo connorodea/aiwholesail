@@ -67,7 +67,7 @@ export async function sendPropertyAlert(userEmail: string, propertyData: any) {
         <!-- AI Analysis -->
         <div style="background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); padding: 20px; border-radius: 8px; border-left: 4px solid #10b981; margin-bottom: 30px;">
           <p style="margin: 0; color: #065f46; font-size: 16px; line-height: 1.5;">
-            <strong>📊 AI Analysis:</strong> This property matches your investment criteria and shows excellent potential for wholesale opportunities based on market data and comparable sales.
+            <strong>📊 AI Analysis:</strong> This property matches your investment criteria and shows excellent potential for profitable deals based on market data and comparable sales.
           </p>
         </div>
         
@@ -208,7 +208,7 @@ export async function sendWelcomeEmail(userEmail: string, userName?: string) {
       <!-- Header -->
       <div style="text-align: center; padding: 40px 0; background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%); border-radius: 12px 12px 0 0;">
         <h1 style="color: white; margin: 0; font-size: 32px; font-weight: bold;">🎉 Welcome to AI Wholesail!</h1>
-        <p style="color: #e9d5ff; margin: 15px 0 0 0; font-size: 18px;">Your wholesale real estate journey starts now</p>
+        <p style="color: #e9d5ff; margin: 15px 0 0 0; font-size: 18px;">Your real estate investing journey starts now</p>
       </div>
       
       <!-- Welcome Content -->
@@ -216,7 +216,7 @@ export async function sendWelcomeEmail(userEmail: string, userName?: string) {
         <h2 style="margin: 0 0 20px 0; color: #5b21b6; font-size: 24px;">Hi ${displayName}! 👋</h2>
         
         <p style="margin: 0 0 25px 0; font-size: 16px; line-height: 1.6; color: #374151;">
-          Thank you for joining AI Wholesail! You now have access to the most advanced AI-powered tools for finding, analyzing, and closing wholesale real estate deals.
+          Thank you for joining AI Wholesail! You now have access to the most advanced AI-powered tools for finding, analyzing, and closing real estate deals.
         </p>
         
         <!-- Quick Start Steps -->
