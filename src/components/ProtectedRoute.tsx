@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { isNative } from '@/lib/platform';
 import { initPurchases, identifyUser, hasAnySubscription } from '@/lib/purchases';
@@ -12,6 +12,7 @@ interface ProtectedRouteProps {
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { user, loading } = useAuth();
+  const location = useLocation();
   const [checkingSubscription, setCheckingSubscription] = useState(isNative);
   const [hasSubscription, setHasSubscription] = useState(false);
   const [showPaywall, setShowPaywall] = useState(false);
@@ -63,9 +64,10 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     );
   }
 
-  // Redirect to auth page if not authenticated
+  // Redirect to auth page if not authenticated, preserving intended destination
   if (!user) {
-    return <Navigate to="/auth" replace />;
+    const redirect = encodeURIComponent(location.pathname + location.search);
+    return <Navigate to={`/auth?redirect=${redirect}`} replace />;
   }
 
   // Native: show paywall if no subscription

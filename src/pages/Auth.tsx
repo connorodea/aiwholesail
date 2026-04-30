@@ -25,6 +25,8 @@ export default function Auth() {
 
   // Check if user was just verified
   const isVerified = searchParams.get('verified') === 'true';
+  // Check for redirect destination (from ProtectedRoute)
+  const redirectTo = searchParams.get('redirect');
 
   useEffect(() => {
     // Show verification success message if user just verified
@@ -45,9 +47,10 @@ export default function Auth() {
         handleCheckout(plan);
         return;
       }
-      navigate('/app');
+      // Redirect to intended page or default to /app
+      navigate(redirectTo || '/app');
     }
-  }, [user, navigate, isVerified]);
+  }, [user, navigate, isVerified, redirectTo]);
 
   const handleCheckout = async (plan: any) => {
     try {
@@ -93,8 +96,8 @@ export default function Auth() {
           analytics.signUp('email');
           analytics.beginTrial('Pro');
           localStorage.removeItem('selectedPlan');
-          // Go straight to app — trial starts automatically
-          navigate('/app');
+          // Go to intended page or default to app — trial starts automatically
+          navigate(redirectTo || '/app');
         }
       } else {
         const { error } = await signIn(email, password);
@@ -107,7 +110,7 @@ export default function Auth() {
         } else {
           toast.success('Signed in successfully!');
           analytics.login('email');
-          navigate('/app');
+          navigate(redirectTo || '/app');
         }
       }
     } catch (error) {
