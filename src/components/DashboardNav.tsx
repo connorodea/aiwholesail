@@ -1,51 +1,40 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import {
-  Home,
-  Search,
-  Heart,
-  Bell,
-  BarChart3,
-  Settings,
-  LogOut,
-  CreditCard,
-  Menu,
-  Timer,
-  User,
-  ChevronDown,
-  Target,
-  Brain,
-  Kanban,
-  Users,
-  Repeat,
-  FileText,
-} from 'lucide-react';
+  IconMenu2,
+  IconX,
+  IconChevronDown,
+  IconSearch,
+  IconBrain,
+  IconLayoutKanban,
+  IconUsers,
+  IconRepeat,
+  IconFileText,
+  IconHeart,
+  IconBell,
+  IconCreditCard,
+  IconLogout,
+  IconUser,
+  IconClock,
+} from '@tabler/icons-react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { useFavorites } from '@/hooks/useFavorites';
 import { stripe } from '@/lib/api-client';
 import { toast } from 'sonner';
 
+const aiWholesailLogo = '/lovable-uploads/8dcdb5d0-ddfb-406f-a5f0-b3c5112d210a.png';
+
 const navItems = [
-  { href: '/app', label: 'Search', icon: Search },
-  { href: '/app/analyzer', label: 'AI Analyzer', icon: Brain },
-  { href: '/app/pipeline', label: 'Pipeline', icon: Kanban },
-  { href: '/app/buyers', label: 'Buyers', icon: Users },
-  { href: '/app/sequences', label: 'Sequences', icon: Repeat },
-  { href: '/app/contracts', label: 'Contracts', icon: FileText },
-  { href: '/app/favorites', label: 'Favorites', icon: Heart },
-  { href: '/app/alerts', label: 'Alerts', icon: Bell },
+  { href: '/app', label: 'Search', icon: IconSearch },
+  { href: '/app/analyzer', label: 'Analyzer', icon: IconBrain },
+  { href: '/app/pipeline', label: 'Pipeline', icon: IconLayoutKanban },
+  { href: '/app/buyers', label: 'Buyers', icon: IconUsers },
+  { href: '/app/sequences', label: 'Sequences', icon: IconRepeat },
+  { href: '/app/contracts', label: 'Contracts', icon: IconFileText },
+  { href: '/app/favorites', label: 'Favorites', icon: IconHeart },
+  { href: '/app/alerts', label: 'Alerts', icon: IconBell },
 ];
 
 export function DashboardNav() {
@@ -53,7 +42,8 @@ export function DashboardNav() {
   const { user, signOut } = useAuth();
   const { isTrialActive, trialDaysRemaining } = useSubscription();
   const { favorites } = useFavorites();
-  const [isOpen, setIsOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
 
   const initials = user?.email?.slice(0, 2).toUpperCase() || 'U';
 
@@ -77,137 +67,179 @@ export function DashboardNav() {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <Link to="/app" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/80 rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform">
-              <Home className="h-4 w-4 text-primary-foreground" />
-            </div>
-            <span className="text-lg font-semibold tracking-tight hidden sm:block">
-              AIWholesail
-            </span>
-          </Link>
+    <nav className="fixed top-0 left-0 right-0 z-50">
+      {/* Main bar */}
+      <div
+        className="bg-neutral-950/90 backdrop-blur-xl border-b border-white/[0.06]"
+        style={{ boxShadow: '0 1px 0 0 rgba(255,255,255,0.03) inset, 0 4px 20px rgba(0,0,0,0.4)' }}
+      >
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-6">
+          <div className="flex items-center justify-between h-14">
+            {/* Logo */}
+            <Link to="/app" className="flex items-center gap-2 shrink-0">
+              <img src={aiWholesailLogo} alt="AIWholesail" className="h-7 w-auto object-contain" />
+            </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-1">
-            {navItems.map((item) => {
-              const isActive = location.pathname === item.href;
-              return (
-                <Link key={item.href} to={item.href}>
-                  <Button
-                    variant={isActive ? 'secondary' : 'ghost'}
-                    size="sm"
-                    className={`gap-2 ${isActive ? 'bg-primary/10 text-primary hover:bg-primary/15' : ''}`}
+            {/* Desktop Nav */}
+            <div className="hidden lg:flex items-center gap-0.5">
+              {navItems.map((item) => {
+                const isActive = location.pathname === item.href;
+                const Icon = item.icon;
+                return (
+                  <Link
+                    key={item.href}
+                    to={item.href}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[13px] transition-all duration-200 ${
+                      isActive
+                        ? 'bg-white/[0.08] text-white shadow-[0px_1px_0px_0px_rgba(255,255,255,0.06)_inset]'
+                        : 'text-neutral-400 hover:text-white hover:bg-white/[0.04]'
+                    }`}
                   >
-                    <item.icon className="h-4 w-4" />
-                    {item.label}
+                    <Icon className="size-4" />
+                    <span>{item.label}</span>
                     {item.label === 'Favorites' && favorites.length > 0 && (
-                      <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-xs">
+                      <span className="ml-0.5 px-1.5 py-0.5 text-[10px] font-medium bg-cyan-500/20 text-cyan-400 rounded-full">
                         {favorites.length}
-                      </Badge>
+                      </span>
                     )}
-                  </Button>
-                </Link>
-              );
-            })}
-          </div>
+                  </Link>
+                );
+              })}
+            </div>
 
-          {/* Right Side */}
-          <div className="flex items-center gap-3">
-            {isTrialActive && trialDaysRemaining != null && (
-              <Badge variant="outline" className="hidden sm:flex gap-1.5 text-orange-600 border-orange-300 bg-orange-50">
-                <Timer className="h-3 w-3" />
-                {trialDaysRemaining}d trial
-              </Badge>
-            )}
-
-            {user ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="gap-2">
-                    <Avatar className="h-7 w-7">
-                      <AvatarFallback className="bg-primary/10 text-primary text-xs">
-                        {initials}
-                      </AvatarFallback>
-                    </Avatar>
-                    <span className="hidden sm:block text-sm">{user.email?.split('@')[0]}</span>
-                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <div className="px-2 py-1.5">
-                    <p className="text-sm font-medium">{user.fullName || user.email?.split('@')[0]}</p>
-                    <p className="text-xs text-muted-foreground">{user.email}</p>
-                  </div>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleManageSubscription}>
-                    <CreditCard className="mr-2 h-4 w-4" />
-                    Manage Subscription
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive">
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Sign Out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <Link to="/auth">
-                <Button size="sm">Sign In</Button>
-              </Link>
-            )}
-
-            {/* Mobile Menu */}
-            <Sheet open={isOpen} onOpenChange={setIsOpen}>
-              <SheetTrigger asChild className="md:hidden">
-                <Button variant="ghost" size="icon">
-                  <Menu className="h-5 w-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="w-72">
-                <div className="flex flex-col gap-6 mt-6">
-                  {isTrialActive && trialDaysRemaining != null && (
-                    <Badge variant="outline" className="w-fit gap-1.5 text-orange-600 border-orange-300 bg-orange-50">
-                      <Timer className="h-3 w-3" />
-                      {trialDaysRemaining} days left in trial
-                    </Badge>
-                  )}
-                  <nav className="flex flex-col gap-1">
-                    {navItems.map((item) => {
-                      const isActive = location.pathname === item.href;
-                      return (
-                        <Link key={item.href} to={item.href} onClick={() => setIsOpen(false)}>
-                          <Button
-                            variant={isActive ? 'secondary' : 'ghost'}
-                            className={`w-full justify-start gap-3 ${isActive ? 'bg-primary/10 text-primary' : ''}`}
-                          >
-                            <item.icon className="h-4 w-4" />
-                            {item.label}
-                            {item.label === 'Favorites' && favorites.length > 0 && (
-                              <Badge variant="secondary" className="ml-auto">{favorites.length}</Badge>
-                            )}
-                          </Button>
-                        </Link>
-                      );
-                    })}
-                  </nav>
-                  <div className="flex flex-col gap-1 pt-4 border-t">
-                    <Button variant="ghost" className="w-full justify-start gap-3" onClick={handleManageSubscription}>
-                      <CreditCard className="h-4 w-4" />
-                      Manage Subscription
-                    </Button>
-                    <Button variant="ghost" className="w-full justify-start gap-3 text-destructive hover:text-destructive" onClick={handleSignOut}>
-                      <LogOut className="h-4 w-4" />
-                      Sign Out
-                    </Button>
-                  </div>
+            {/* Right side */}
+            <div className="flex items-center gap-2">
+              {/* Trial badge */}
+              {isTrialActive && trialDaysRemaining != null && (
+                <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                  <IconClock className="size-3" />
+                  {trialDaysRemaining}d trial
                 </div>
-              </SheetContent>
-            </Sheet>
+              )}
+
+              {/* Profile dropdown */}
+              {user && (
+                <div className="relative">
+                  <button
+                    onClick={() => setProfileOpen(!profileOpen)}
+                    className="flex items-center gap-2 px-2 py-1.5 rounded-md text-neutral-400 hover:text-white hover:bg-white/[0.04] transition-colors"
+                  >
+                    <div className="size-7 rounded-md bg-gradient-to-b from-neutral-700 to-neutral-800 flex items-center justify-center text-[10px] font-semibold text-white ring-1 ring-white/10">
+                      {initials}
+                    </div>
+                    <span className="hidden sm:block text-[13px]">{user.email?.split('@')[0]}</span>
+                    <IconChevronDown className={`size-3.5 transition-transform duration-200 ${profileOpen ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  <AnimatePresence>
+                    {profileOpen && (
+                      <>
+                        <div className="fixed inset-0 z-40" onClick={() => setProfileOpen(false)} />
+                        <motion.div
+                          initial={{ opacity: 0, y: 4, scale: 0.98 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: 4, scale: 0.98 }}
+                          transition={{ duration: 0.15, ease: [0.23, 1, 0.32, 1] }}
+                          className="absolute right-0 top-full mt-2 w-56 z-50 rounded-xl bg-neutral-900 p-1 ring-1 ring-white/10"
+                          style={{ boxShadow: '0 8px 30px rgba(0,0,0,0.5), 0 2px 8px rgba(0,0,0,0.4), 0 1px 0 0 rgba(255,255,255,0.06) inset' }}
+                        >
+                          <div className="px-3 py-2">
+                            <p className="text-sm font-medium text-white">{user.fullName || user.email?.split('@')[0]}</p>
+                            <p className="text-xs text-neutral-500">{user.email}</p>
+                          </div>
+                          <div className="h-px bg-white/[0.06] my-1" />
+                          <Link
+                            to="/app/account"
+                            onClick={() => setProfileOpen(false)}
+                            className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-neutral-300 hover:bg-white/[0.06] hover:text-white transition-colors"
+                          >
+                            <IconUser className="size-4 text-neutral-500" />
+                            Account
+                          </Link>
+                          <button
+                            onClick={() => { handleManageSubscription(); setProfileOpen(false); }}
+                            className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-neutral-300 hover:bg-white/[0.06] hover:text-white transition-colors w-full text-left"
+                          >
+                            <IconCreditCard className="size-4 text-neutral-500" />
+                            Manage Subscription
+                          </button>
+                          <div className="h-px bg-white/[0.06] my-1" />
+                          <button
+                            onClick={() => { handleSignOut(); setProfileOpen(false); }}
+                            className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-red-400 hover:bg-red-500/10 transition-colors w-full text-left"
+                          >
+                            <IconLogout className="size-4" />
+                            Sign Out
+                          </button>
+                        </motion.div>
+                      </>
+                    )}
+                  </AnimatePresence>
+                </div>
+              )}
+
+              {/* Mobile toggle */}
+              <button
+                className="lg:hidden relative inline-flex size-9 items-center justify-center rounded-md text-neutral-400 hover:bg-white/[0.06] hover:text-white"
+                onClick={() => setMobileOpen(!mobileOpen)}
+              >
+                {mobileOpen ? <IconX className="size-5" /> : <IconMenu2 className="size-5" />}
+              </button>
+            </div>
           </div>
         </div>
+
+        {/* Mobile nav */}
+        <AnimatePresence>
+          {mobileOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="overflow-hidden border-t border-white/[0.06] lg:hidden"
+            >
+              <div className="px-4 py-3 space-y-1">
+                {isTrialActive && trialDaysRemaining != null && (
+                  <div className="flex items-center gap-1.5 px-3 py-2 mb-2 rounded-lg text-xs font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                    <IconClock className="size-3" />
+                    {trialDaysRemaining} days left in trial
+                  </div>
+                )}
+                {navItems.map((item) => {
+                  const isActive = location.pathname === item.href;
+                  const Icon = item.icon;
+                  return (
+                    <Link
+                      key={item.href}
+                      to={item.href}
+                      onClick={() => setMobileOpen(false)}
+                      className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${
+                        isActive
+                          ? 'bg-white/[0.08] text-white'
+                          : 'text-neutral-400 hover:bg-white/[0.04] hover:text-white'
+                      }`}
+                    >
+                      <Icon className="size-4" />
+                      {item.label}
+                      {item.label === 'Favorites' && favorites.length > 0 && (
+                        <span className="ml-auto px-1.5 py-0.5 text-[10px] bg-cyan-500/20 text-cyan-400 rounded-full">{favorites.length}</span>
+                      )}
+                    </Link>
+                  );
+                })}
+                <div className="h-px bg-white/[0.06] my-2" />
+                <button onClick={() => { handleManageSubscription(); setMobileOpen(false); }} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-neutral-400 hover:bg-white/[0.04] hover:text-white w-full">
+                  <IconCreditCard className="size-4" />
+                  Manage Subscription
+                </button>
+                <button onClick={() => { handleSignOut(); setMobileOpen(false); }} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-red-400 hover:bg-red-500/10 w-full">
+                  <IconLogout className="size-4" />
+                  Sign Out
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </nav>
   );
