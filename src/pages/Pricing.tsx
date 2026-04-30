@@ -48,35 +48,32 @@ export default function Pricing() {
   const [loading, setLoading] = useState<string | null>(null);
 
   const handleSelectPlan = async (plan: typeof plans[0]) => {
-    setLoading(plan.priceId);
-    
-    try {
-      // Always go to Stripe checkout first, regardless of login status
-      // Store the plan info for post-payment account creation
-      localStorage.setItem('selectedPlan', JSON.stringify(plan));
-      localStorage.setItem('pendingCheckout', 'true');
-      
-      console.log('Starting checkout for plan:', plan.name, 'with priceId:', plan.priceId);
+    // Store selected plan for post-signup
+    localStorage.setItem('selectedPlan', JSON.stringify(plan));
 
-      // Create a checkout session (guest or authenticated)
-      const response = await stripe.createCheckout(plan.name, !user);
+    if (!user) {
+      // Not logged in → send to signup with plan context
+      window.location.href = `/auth?mode=signup&plan=${plan.name}`;
+      return;
+    }
+
+    // Already logged in → go to Stripe checkout
+    setLoading(plan.priceId);
+    try {
+      const response = await stripe.createCheckout(plan.name, false);
 
       if (response.error) {
-        console.error('Checkout error:', response.error);
         throw new Error(response.error);
       }
 
-      console.log('Checkout response:', response.data);
-
       if ((response.data as any)?.url) {
-        // Redirect to Stripe checkout in the same window
         window.location.href = (response.data as any).url;
       } else {
         throw new Error('No checkout URL received');
       }
     } catch (error: any) {
       console.error('Error creating checkout:', error);
-      toast.error(error.message || 'Failed to start checkout process');
+      toast.error(error.message || 'Failed to start checkout. Please try again.');
     } finally {
       setLoading(null);
     }
