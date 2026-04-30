@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-birmingham-al-the-investor-s-complete-guide-to-profits-in-t",
+      "title": "Real Estate Deals in Birmingham AL: The Investor's Complete Guide to Profits in the Magic City",
+      "excerpt": "Birmingham, Alabama is quietly becoming one of the Southeast's hottest markets for real estate investors, with affordable entry points and strong rental demand. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Birmingham AL.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-04-30T12:01:02.725Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Birmingham AL",
+        "Birmingham Alabama real estate investing",
+        "wholesale real estate Birmingham",
+        "flip houses Birmingham AL",
+        "rental properties Birmingham"
+      ],
+      "featured": true
+    },
+    {
       "slug": "what-is-wholesale-real-estate-a-complete-beginner-s-guide",
       "title": "What Is Wholesale Real Estate? A Complete Beginner's Guide",
       "excerpt": "Wholesale real estate is one of the fastest ways to break into property investing with little to no money down. This guide breaks down exactly how it works, what you can earn, and how to land your first deal.",
@@ -15,7 +32,7 @@
         "wholesale deals",
         "assignment of contract"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-use-ai-for-real-estate-investing-a-complete-guide-for-smart-property-inve",
