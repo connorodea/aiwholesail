@@ -123,45 +123,36 @@ export default function ToolsIndex() {
 
           {/* Bento grid — 2 large + 6 small */}
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Featured tool 1 — large */}
-            <Link to={`/tools/${tools[0].slug}`} className="lg:col-span-2 group">
-              <div className="h-full bg-gradient-to-br from-muted/50 to-muted/20 border border-border/50 rounded-3xl p-8 md:p-10 flex flex-col justify-between min-h-[300px] hover:border-primary/20 transition-all duration-300">
-                <div>
-                  <Badge className="bg-primary/10 text-primary border-0 mb-5">
-                    <tools[0].icon className="h-3 w-3 mr-1" /> {tools[0].category}
-                  </Badge>
-                  <h3 className="text-2xl md:text-3xl font-bold tracking-tight mb-3">{tools[0].title}</h3>
-                  <p className="text-muted-foreground font-light max-w-sm">{tools[0].description}</p>
-                </div>
-                <div className="mt-6 flex items-center gap-2 text-sm font-medium text-primary group-hover:gap-3 transition-all">
-                  Open calculator <ChevronRight className="h-4 w-4" />
-                </div>
-              </div>
-            </Link>
-
-            {/* Featured tool 2 — large */}
-            <Link to={`/tools/${tools[1].slug}`} className="lg:col-span-2 group">
-              <div className="h-full bg-gradient-to-br from-muted/50 to-muted/20 border border-border/50 rounded-3xl p-8 md:p-10 flex flex-col justify-between min-h-[300px] hover:border-primary/20 transition-all duration-300">
-                <div>
-                  <Badge className="bg-emerald-500/10 text-emerald-600 border-0 mb-5">
-                    <tools[1].icon className="h-3 w-3 mr-1" /> {tools[1].category}
-                  </Badge>
-                  <h3 className="text-2xl md:text-3xl font-bold tracking-tight mb-3">{tools[1].title}</h3>
-                  <p className="text-muted-foreground font-light max-w-sm">{tools[1].description}</p>
-                </div>
-                <div className="mt-6 flex items-center gap-2 text-sm font-medium text-primary group-hover:gap-3 transition-all">
-                  Open calculator <ChevronRight className="h-4 w-4" />
-                </div>
-              </div>
-            </Link>
+            {/* Featured tools — large */}
+            {tools.slice(0, 2).map((tool, i) => {
+              const Icon = tool.icon;
+              return (
+                <Link key={tool.slug} to={`/tools/${tool.slug}`} className="lg:col-span-2 group">
+                  <div className="h-full bg-gradient-to-br from-muted/50 to-muted/20 border border-border/50 rounded-3xl p-8 md:p-10 flex flex-col justify-between min-h-[300px] hover:border-primary/20 transition-all duration-300">
+                    <div>
+                      <Badge className={`${i === 0 ? 'bg-primary/10 text-primary' : 'bg-emerald-500/10 text-emerald-600'} border-0 mb-5`}>
+                        <Icon className="h-3 w-3 mr-1" /> {tool.category}
+                      </Badge>
+                      <h3 className="text-2xl md:text-3xl font-bold tracking-tight mb-3">{tool.title}</h3>
+                      <p className="text-muted-foreground font-light max-w-sm">{tool.description}</p>
+                    </div>
+                    <div className="mt-6 flex items-center gap-2 text-sm font-medium text-primary group-hover:gap-3 transition-all">
+                      Open calculator <ChevronRight className="h-4 w-4" />
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
 
             {/* Remaining tools — standard cards */}
-            {tools.slice(2).map(tool => (
+            {tools.slice(2).map(tool => {
+              const Icon = tool.icon;
+              return (
               <Link key={tool.slug} to={`/tools/${tool.slug}`} className="group">
                 <div className="h-full bg-gradient-to-br from-muted/50 to-muted/20 border border-border/50 rounded-3xl p-7 flex flex-col justify-between min-h-[220px] hover:border-primary/20 transition-all duration-300">
                   <div>
                     <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/15 transition-colors">
-                      <tool.icon className="h-5 w-5 text-primary" />
+                      <Icon className="h-5 w-5 text-primary" />
                     </div>
                     <h3 className="font-bold tracking-tight mb-2">{tool.title}</h3>
                     <p className="text-sm text-muted-foreground font-light leading-relaxed">{tool.description}</p>
@@ -171,7 +162,8 @@ export default function ToolsIndex() {
                   </div>
                 </div>
               </Link>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
