@@ -31,6 +31,8 @@ import Developers from "./pages/Developers";
 import Markets from "./pages/Markets";
 import MarketPage from "./pages/MarketPage";
 import ComparisonPage from "./pages/ComparisonPage";
+import Guides from "./pages/Guides";
+import GuidePage from "./pages/GuidePage";
 import OffMarket from "./pages/OffMarket";
 import Analyzer from "./pages/Analyzer";
 import Favorites from "./pages/Favorites";
@@ -133,6 +135,8 @@ const App = () => (
                 <Route path="/markets" element={<Markets />} />
                 <Route path="/markets/:slug" element={<MarketPage />} />
                 <Route path="/vs/:slug" element={<ComparisonPage />} />
+                <Route path="/guides" element={<Guides />} />
+                <Route path="/guides/:slug" element={<GuidePage />} />
                 <Route path="/index" element={<Index />} />
                 <Route path="/tools/mortgage-calculator" element={<MortgageCalculator />} />
                 <Route path="/tools/wholesale-deal-calculator" element={<WholesaleDealCalculator />} />
