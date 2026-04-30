@@ -8,59 +8,59 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Dark theme as default with your color palette */
-    --background: 210 69% 13%; /* #0B2436 */
-    --foreground: 0 0% 100%; /* #FFFFFF */
+    /* Charcoal dark theme matching homepage Proactiv design */
+    --background: 220 10% 3.5%; /* #08090a */
+    --foreground: 0 0% 100%; /* white */
 
-    --card: 210 69% 15%;
+    --card: 0 0% 8%; /* neutral-900 */
     --card-foreground: 0 0% 100%;
 
-    --popover: 210 69% 15%;
+    --popover: 0 0% 8%;
     --popover-foreground: 0 0% 100%;
 
-    /* Primary - Teal */
-    --primary: 174 72% 42%; /* #1FB6A6 */
-    --primary-foreground: 0 0% 100%; /* #FFFFFF */
-    --primary-glow: 174 72% 52%;
+    /* Primary - Cyan matching homepage */
+    --primary: 187 85% 53%; /* cyan-500 #06b6d4 */
+    --primary-foreground: 0 0% 0%; /* black text on cyan */
+    --primary-glow: 187 85% 60%;
 
-    /* Secondary - Darker variant */
-    --secondary: 210 69% 18%;
+    /* Secondary */
+    --secondary: 0 0% 10%; /* neutral-900 */
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 210 69% 20%;
-    --muted-foreground: 210 20% 70%;
+    --muted: 0 0% 12%; /* neutral-800ish */
+    --muted-foreground: 0 0% 55%; /* neutral-400 */
 
-    /* Accent - Same teal for consistency */
-    --accent: 174 72% 42%; /* #1FB6A6 */
-    --accent-foreground: 0 0% 100%; /* #FFFFFF */
+    /* Accent */
+    --accent: 187 85% 53%; /* cyan-500 */
+    --accent-foreground: 0 0% 0%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 210 40% 25%;
-    --input: 210 40% 25%;
-    --ring: 174 72% 42%; /* #1FB6A6 */
+    --border: 0 0% 15%; /* white/[0.06] equivalent */
+    --input: 0 0% 12%; /* dark input bg */
+    --ring: 187 85% 53%; /* cyan-500 */
 
     --radius: 0.5rem;
 
-    /* App specific colors using your palette */
-    --success: 174 72% 42%; /* #1FB6A6 for success */
+    /* App colors */
+    --success: 160 84% 39%;
     --success-foreground: 0 0% 100%;
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
-    --info: 174 72% 42%; /* #1FB6A6 for info */
-    --info-foreground: 0 0% 100%;
+    --info: 187 85% 53%;
+    --info-foreground: 0 0% 0%;
 
     /* Dark theme gradients */
     --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
-    --gradient-hero: linear-gradient(135deg, hsl(var(--background)), hsl(var(--muted)));
-    --gradient-card: linear-gradient(145deg, hsl(var(--card)), hsl(var(--muted) / 0.3));
-    
+    --gradient-hero: linear-gradient(135deg, hsl(220 10% 3.5%), hsl(0 0% 8%));
+    --gradient-card: linear-gradient(145deg, hsl(0 0% 8%), hsl(0 0% 6%));
+
     /* Dark theme shadows */
-    --shadow-glow: 0 0 24px hsl(var(--primary) / 0.2);
-    --shadow-elegant: 0 4px 20px -4px hsl(var(--primary) / 0.15);
-    --shadow-card: 0 2px 8px -2px hsl(0 0% 0% / 0.3);
-    --shadow-intense: 0 12px 40px -8px hsl(var(--primary) / 0.25);
+    --shadow-glow: 0 0 24px hsl(var(--primary) / 0.15);
+    --shadow-elegant: 0 4px 20px -4px hsl(0 0% 0% / 0.4);
+    --shadow-card: 0 2px 8px -2px hsl(0 0% 0% / 0.5);
+    --shadow-intense: 0 12px 40px -8px hsl(0 0% 0% / 0.5);
 
     --sidebar-background: 0 0% 98%;
 
