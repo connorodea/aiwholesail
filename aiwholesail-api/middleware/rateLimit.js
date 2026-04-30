@@ -30,8 +30,21 @@ const rateLimiter = async (req, res, next) => {
     const endpoint = req.path;
     const key = `${identifier}:${endpoint}`;
 
-    // Different limits for different endpoints
-    const limits = getEndpointLimits(endpoint);
+    // Look up subscription tier for tier-aware rate limiting
+    let subscriptionTier = null;
+    if (req.user?.id) {
+      try {
+        const subResult = await query(
+          'SELECT subscription_tier FROM subscribers WHERE user_id = $1 AND subscribed = true LIMIT 1',
+          [req.user.id]
+        );
+        if (subResult.rows.length > 0) {
+          subscriptionTier = subResult.rows[0].subscription_tier;
+        }
+      } catch {}
+    }
+
+    const limits = getEndpointLimits(endpoint, subscriptionTier);
 
     const now = Date.now();
     const windowMs = limits.windowMs;
@@ -78,40 +91,42 @@ const rateLimiter = async (req, res, next) => {
 
 /**
  * Get rate limits for specific endpoints
+ * Tier-aware: Pro = throttled, Elite = unlimited
  */
-function getEndpointLimits(endpoint) {
-  // Strict limits for auth endpoints
+function getEndpointLimits(endpoint, subscriptionTier) {
+  const isElite = subscriptionTier === 'Elite' || subscriptionTier === 'Premium';
+
+  // Strict limits for auth endpoints (same for all)
   if (endpoint.includes('/auth/signin') || endpoint.includes('/auth/signup')) {
-    return { max: 10, windowMs: 60000 }; // 10 per minute
+    return { max: 10, windowMs: 60000 };
   }
 
-  // Strict limits for password reset
   if (endpoint.includes('/auth/reset')) {
-    return { max: 5, windowMs: 300000 }; // 5 per 5 minutes
+    return { max: 5, windowMs: 300000 };
   }
 
-  // AI endpoints (expensive)
+  // AI endpoints — Pro: 10/min, Elite: 100/min
   if (endpoint.includes('/ai/')) {
-    return { max: 20, windowMs: 60000 }; // 20 per minute
+    return isElite ? { max: 100, windowMs: 60000 } : { max: 10, windowMs: 60000 };
   }
 
-  // Stripe endpoints
+  // Stripe endpoints (same for all)
   if (endpoint.includes('/stripe/')) {
-    return { max: 30, windowMs: 60000 }; // 30 per minute
+    return { max: 30, windowMs: 60000 };
   }
 
-  // Property data endpoints
+  // Property search — Pro: 30/min, Elite: unlimited (300/min)
   if (endpoint.includes('/property/') || endpoint.includes('/zillow/')) {
-    return { max: 60, windowMs: 60000 }; // 60 per minute
+    return isElite ? { max: 300, windowMs: 60000 } : { max: 30, windowMs: 60000 };
   }
 
-  // Communication endpoints
+  // Communication endpoints — Pro: 10/min, Elite: 50/min
   if (endpoint.includes('/email/') || endpoint.includes('/sms/') || endpoint.includes('/call/')) {
-    return { max: 20, windowMs: 60000 }; // 20 per minute
+    return isElite ? { max: 50, windowMs: 60000 } : { max: 10, windowMs: 60000 };
   }
 
-  // Default limits
-  return { max: 100, windowMs: 60000 }; // 100 per minute
+  // Default — Pro: 60/min, Elite: 300/min
+  return isElite ? { max: 300, windowMs: 60000 } : { max: 60, windowMs: 60000 };
 }
 
 /**
