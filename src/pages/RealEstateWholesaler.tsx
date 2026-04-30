@@ -262,40 +262,10 @@ export default function RealEstateWholesaler() {
                 </p>
               </div>
 
-              {/* On-Market / Off-Market Toggle */}
-              <div className="flex items-center justify-center gap-1 p-1 bg-muted/50 rounded-lg max-w-md mx-auto">
-                <button
-                  onClick={() => setSearchMode('on-market')}
-                  className={`flex-1 px-4 py-2.5 rounded-md text-sm font-medium transition-all ${
-                    searchMode === 'on-market'
-                      ? 'bg-background shadow-sm text-foreground'
-                      : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  On-Market (Zillow)
-                </button>
-                <button
-                  onClick={() => setSearchMode('off-market')}
-                  className={`flex-1 px-4 py-2.5 rounded-md text-sm font-medium transition-all ${
-                    searchMode === 'off-market'
-                      ? 'bg-background shadow-sm text-foreground'
-                      : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  Off-Market (PropData)
-                </button>
+              {/* Property Search */}
+              <div className="feature-card p-8 backdrop-blur-sm">
+                <PropertySearch onSearch={handleSearch} isLoading={isLoading} />
               </div>
-
-              {searchMode === 'on-market' ? (
-                <div className="feature-card p-8 backdrop-blur-sm">
-                  <PropertySearch onSearch={handleSearch} isLoading={isLoading} />
-                </div>
-              ) : (
-                <div className="space-y-8 text-left">
-                  <PropDataPropertySearch />
-                  <PropDataMarketPanel />
-                </div>
-              )}
             </section>
 
             {/* Loading Animation — visible during search AND enrichment */}
