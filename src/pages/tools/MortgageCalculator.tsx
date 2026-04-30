@@ -86,7 +86,7 @@ export default function MortgageCalculator() {
   }, [loanAmount, monthlyRate, totalPayments, propertyTax, insurance, hoa, termYears]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+    <div className="min-h-screen bg-[#08090a] text-white">
       <SEOHead
         title="Free Mortgage Calculator - Monthly Payment & Amortization"
         description="Calculate your monthly mortgage payment, total interest, and see a full amortization breakdown. Free mortgage calculator for home buyers and real estate investors."
@@ -96,14 +96,14 @@ export default function MortgageCalculator() {
       {/* Header */}
       <header className="fixed top-4 left-4 right-4 z-50">
         <div className="container mx-auto max-w-7xl">
-          <div className="bg-card/80 backdrop-blur-xl border border-border/50 rounded-2xl shadow-lg px-6 py-4">
+          <div className="bg-neutral-950/90 backdrop-blur-xl border border-white/[0.06] rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.4)] px-6 py-4">
             <div className="flex items-center justify-between">
-              <Link to="/" className="flex items-center space-x-2 text-sm font-medium hover:text-primary transition-colors">
+              <Link to="/" className="flex items-center space-x-2 text-sm font-medium hover:text-white transition-colors">
                 <ArrowLeft className="h-4 w-4" />
                 <span>Back to Home</span>
               </Link>
               <Link to="/" className="text-lg font-semibold">AIWholesail</Link>
-              <Link to="/pricing" className="text-sm font-medium text-primary hover:text-primary/80 transition-colors">
+              <Link to="/pricing" className="text-sm font-medium text-cyan-400 hover:text-cyan-400/80 transition-colors">
                 Try Free
               </Link>
             </div>
@@ -121,7 +121,7 @@ export default function MortgageCalculator() {
           <h1 className="text-4xl md:text-5xl font-medium tracking-tight mb-4">
             Mortgage Calculator
           </h1>
-          <p className="text-lg text-muted-foreground font-light max-w-2xl mx-auto">
+          <p className="text-lg text-neutral-400 font-light max-w-2xl mx-auto">
             Estimate your monthly mortgage payment, total cost of the loan, and see how principal and interest split over time.
           </p>
         </div>
@@ -133,7 +133,7 @@ export default function MortgageCalculator() {
           <div className="grid lg:grid-cols-2 gap-8">
 
             {/* Inputs */}
-            <Card className="border border-border/50">
+            <Card className="border border-white/[0.06]">
               <CardHeader>
                 <CardTitle className="text-xl font-medium">Loan Details</CardTitle>
               </CardHeader>
@@ -141,7 +141,7 @@ export default function MortgageCalculator() {
                 <div className="space-y-2">
                   <Label htmlFor="homePrice" className="text-sm font-medium">Home Price</Label>
                   <div className="relative">
-                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
                     <Input
                       id="homePrice"
                       type="number"
@@ -157,7 +157,7 @@ export default function MortgageCalculator() {
                   <div className="space-y-2">
                     <Label htmlFor="downPercent" className="text-sm font-medium">Down Payment (%)</Label>
                     <div className="relative">
-                      <Percent className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Percent className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
                       <Input
                         id="downPercent"
                         type="number"
@@ -171,8 +171,8 @@ export default function MortgageCalculator() {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium text-muted-foreground">Down Payment ($)</Label>
-                    <div className="flex items-center h-10 px-3 rounded-md border border-border bg-muted/50 text-sm">
+                    <Label className="text-sm font-medium text-neutral-400">Down Payment ($)</Label>
+                    <div className="flex items-center h-10 px-3 rounded-md border border-border bg-white/[0.03] text-sm">
                       {fmt.format(downPaymentDollars)}
                     </div>
                   </div>
@@ -182,7 +182,7 @@ export default function MortgageCalculator() {
                   <div className="space-y-2">
                     <Label htmlFor="interestRate" className="text-sm font-medium">Interest Rate (%)</Label>
                     <div className="relative">
-                      <Percent className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Percent className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
                       <Input
                         id="interestRate"
                         type="number"
@@ -214,7 +214,7 @@ export default function MortgageCalculator() {
                 <div className="space-y-2">
                   <Label htmlFor="propertyTax" className="text-sm font-medium">Property Tax (Annual)</Label>
                   <div className="relative">
-                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
                     <Input
                       id="propertyTax"
                       type="number"
@@ -229,7 +229,7 @@ export default function MortgageCalculator() {
                 <div className="space-y-2">
                   <Label htmlFor="insurance" className="text-sm font-medium">Homeowners Insurance (Annual)</Label>
                   <div className="relative">
-                    <Shield className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Shield className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
                     <Input
                       id="insurance"
                       type="number"
@@ -244,7 +244,7 @@ export default function MortgageCalculator() {
                 <div className="space-y-2">
                   <Label htmlFor="hoa" className="text-sm font-medium">HOA (Monthly)</Label>
                   <div className="relative">
-                    <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
                     <Input
                       id="hoa"
                       type="number"
@@ -260,7 +260,7 @@ export default function MortgageCalculator() {
 
             {/* Results */}
             <div className="space-y-6">
-              <Card className="border border-border/50 bg-gradient-to-br from-primary/5 to-transparent">
+              <Card className="border border-white/[0.06] bg-gradient-to-br from-primary/5 to-transparent">
                 <CardHeader>
                   <CardTitle className="text-xl font-medium">Monthly Payment</CardTitle>
                 </CardHeader>
@@ -268,30 +268,30 @@ export default function MortgageCalculator() {
                   {results ? (
                     <div className="space-y-6">
                       <div className="text-center">
-                        <p className="text-5xl font-semibold tracking-tight text-primary">
+                        <p className="text-5xl font-semibold tracking-tight text-cyan-400">
                           {fmtDecimal.format(results.totalMonthly)}
                         </p>
-                        <p className="text-sm text-muted-foreground mt-1">per month</p>
+                        <p className="text-sm text-neutral-400 mt-1">per month</p>
                       </div>
 
                       <Separator />
 
                       <div className="space-y-3">
                         <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Principal & Interest</span>
+                          <span className="text-neutral-400">Principal & Interest</span>
                           <span className="font-medium">{fmtDecimal.format(results.monthlyPI)}</span>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Property Tax</span>
+                          <span className="text-neutral-400">Property Tax</span>
                           <span className="font-medium">{fmtDecimal.format(results.monthlyTax)}</span>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Insurance</span>
+                          <span className="text-neutral-400">Insurance</span>
                           <span className="font-medium">{fmtDecimal.format(results.monthlyInsurance)}</span>
                         </div>
                         {results.monthlyHOA > 0 && (
                           <div className="flex justify-between text-sm">
-                            <span className="text-muted-foreground">HOA</span>
+                            <span className="text-neutral-400">HOA</span>
                             <span className="font-medium">{fmtDecimal.format(results.monthlyHOA)}</span>
                           </div>
                         )}
@@ -300,31 +300,31 @@ export default function MortgageCalculator() {
                       <Separator />
 
                       <div className="grid grid-cols-2 gap-4">
-                        <div className="text-center p-3 rounded-lg bg-muted/50">
-                          <p className="text-xs text-muted-foreground mb-1">Total Cost of Loan</p>
+                        <div className="text-center p-3 rounded-lg bg-white/[0.03]">
+                          <p className="text-xs text-neutral-400 mb-1">Total Cost of Loan</p>
                           <p className="text-lg font-semibold">{fmt.format(results.totalCost)}</p>
                         </div>
-                        <div className="text-center p-3 rounded-lg bg-muted/50">
-                          <p className="text-xs text-muted-foreground mb-1">Total Interest Paid</p>
+                        <div className="text-center p-3 rounded-lg bg-white/[0.03]">
+                          <p className="text-xs text-neutral-400 mb-1">Total Interest Paid</p>
                           <p className="text-lg font-semibold">{fmt.format(results.totalInterest)}</p>
                         </div>
                       </div>
                     </div>
                   ) : (
-                    <p className="text-sm text-muted-foreground text-center py-8">Enter valid loan details to see your results.</p>
+                    <p className="text-sm text-neutral-400 text-center py-8">Enter valid loan details to see your results.</p>
                   )}
                 </CardContent>
               </Card>
 
               {/* Amortization Summary */}
               {results && results.amortizationSummary.length > 0 && (
-                <Card className="border border-border/50">
+                <Card className="border border-white/[0.06]">
                   <CardHeader>
                     <CardTitle className="text-lg font-medium">Amortization Summary</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
-                      <div className="grid grid-cols-4 text-xs text-muted-foreground font-medium pb-2 border-b border-border">
+                      <div className="grid grid-cols-4 text-xs text-neutral-400 font-medium pb-2 border-b border-border">
                         <span>Year</span>
                         <span className="text-right">Principal</span>
                         <span className="text-right">Interest</span>
@@ -350,7 +350,7 @@ export default function MortgageCalculator() {
             <Separator />
             <div className="max-w-3xl mx-auto space-y-8">
               <h2 className="text-2xl font-medium tracking-tight">How to Use This Mortgage Calculator</h2>
-              <div className="space-y-6 text-muted-foreground font-light leading-relaxed">
+              <div className="space-y-6 text-neutral-400 font-light leading-relaxed">
                 <p>
                   This mortgage calculator helps you estimate the true cost of a home loan. Enter the purchase price, your down payment, the interest rate from your lender, and choose between a 15-year or 30-year term. The calculator factors in property tax, homeowners insurance, and HOA fees to give you the complete monthly picture.
                 </p>
@@ -376,7 +376,7 @@ export default function MortgageCalculator() {
             <Separator />
             <div className="text-center space-y-4 py-8">
               <h2 className="text-2xl font-medium tracking-tight">Want AI to Analyze Deals Automatically?</h2>
-              <p className="text-muted-foreground font-light max-w-lg mx-auto">
+              <p className="text-neutral-400 font-light max-w-lg mx-auto">
                 AIWholesail uses artificial intelligence to find, analyze, and score real estate deals for you, so you never miss a profitable opportunity.
               </p>
               <Link to="/pricing">

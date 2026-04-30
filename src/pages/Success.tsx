@@ -70,7 +70,7 @@ const Success = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <p className="text-muted-foreground">
+            <p className="text-neutral-400">
               You've successfully subscribed to AI Wholesail Pro. Create your account to access unlimited property searches, AI-powered deal analysis, and advanced market insights.
             </p>
             <Link to="/auth?mode=signup&fromPayment=true">
@@ -79,7 +79,7 @@ const Success = () => {
                 Create Your Account
               </Button>
             </Link>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-neutral-400">
               Already have an account? <Link to="/auth" className="text-primary hover:underline">Sign in here</Link>
             </p>
           </CardContent>
@@ -112,7 +112,7 @@ const Success = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-muted-foreground">
+          <p className="text-neutral-400">
             {isTrialActive 
               ? `You have ${trialDaysRemaining} days to explore all premium features including unlimited property searches, AI-powered deal analysis, and advanced market insights. No charge until your trial ends.`
               : `You now have access to all premium features including unlimited property searches, AI-powered deal analysis, and advanced market insights.`

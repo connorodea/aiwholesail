@@ -161,9 +161,9 @@ export default function Auth() {
       </section>
 
       {/* ===== AUTH FORM — LIGHT ===== */}
-      <section className="py-24 px-4 bg-background">
+      <section className="py-24 px-4 bg-[#08090a]">
         <div className="container mx-auto max-w-md">
-          <div className="bg-gradient-to-br from-muted/50 to-muted/30 border border-border/50 rounded-3xl p-8 md:p-10">
+          <div className="bg-white/[0.03] border border-white/[0.06] rounded-3xl p-8 md:p-10">
             <form onSubmit={handleSubmit} className="space-y-5">
               {isSignUp && (
                 <div className="space-y-2">
@@ -177,7 +177,7 @@ export default function Auth() {
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     required={isSignUp}
-                    className="h-11 bg-muted/50 border-border/50 focus:border-primary transition-colors"
+                    className="h-11 bg-white/[0.03] border-white/[0.06] focus:border-primary transition-colors"
                   />
                 </div>
               )}
@@ -194,9 +194,9 @@ export default function Auth() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    className="h-11 pl-4 pr-12 bg-muted/50 border-border/50 focus:border-primary transition-colors"
+                    className="h-11 pl-4 pr-12 bg-white/[0.03] border-white/[0.06] focus:border-primary transition-colors"
                   />
-                  <Mail className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Mail className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-neutral-400" />
                 </div>
               </div>
 
@@ -213,19 +213,19 @@ export default function Auth() {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     minLength={8}
-                    className="h-11 pl-4 pr-12 bg-muted/50 border-border/50 focus:border-primary transition-colors"
+                    className="h-11 pl-4 pr-12 bg-white/[0.03] border-white/[0.06] focus:border-primary transition-colors"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-neutral-400 hover:text-foreground transition-colors"
                     aria-label={showPassword ? "Hide password" : "Show password"}
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
                 {isSignUp && (
-                  <p className="text-xs text-muted-foreground font-light">
+                  <p className="text-xs text-neutral-400 font-light">
                     Min 8 characters with uppercase, lowercase, number, and special character
                   </p>
                 )}
@@ -279,11 +279,11 @@ export default function Auth() {
 
             {/* Trust Indicators */}
             <div className="flex items-center justify-center gap-4 mt-6 pt-6 border-t border-border/30">
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <div className="flex items-center gap-1.5 text-xs text-neutral-400">
                 <Shield className="h-3.5 w-3.5 text-primary" />
                 <span>Secure</span>
               </div>
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <div className="flex items-center gap-1.5 text-xs text-neutral-400">
                 <CheckCircle className="h-3.5 w-3.5 text-primary" />
                 <span>10,000+ Users</span>
               </div>
@@ -291,7 +291,7 @@ export default function Auth() {
 
             {/* Switch Mode */}
             <div className="text-center mt-6">
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-neutral-400">
                 {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
                 <button
                   type="button"

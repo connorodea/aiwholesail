@@ -65,7 +65,7 @@ export default function BlogPost() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-screen bg-[#08090a] flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
       </div>
     );
@@ -73,10 +73,10 @@ export default function BlogPost() {
 
   if (notFound || !article) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-[#08090a]">
         <div className="container mx-auto max-w-3xl pt-32 pb-16 px-4 text-center">
           <h1 className="text-3xl font-bold mb-4">Article Not Found</h1>
-          <p className="text-muted-foreground mb-6">The article you're looking for doesn't exist or has been moved.</p>
+          <p className="text-neutral-400 mb-6">The article you're looking for doesn't exist or has been moved.</p>
           <Link to="/blog">
             <Button variant="outline" className="gap-2 rounded-full">
               <ArrowLeft className="h-4 w-4" /> Back to Blog
@@ -94,7 +94,7 @@ export default function BlogPost() {
   });
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[#08090a]">
       <SEOHead
         title={article.title}
         description={article.metaDescription || article.excerpt}
@@ -168,7 +168,7 @@ export default function BlogPost() {
                   );
                 case 'paragraph':
                   return (
-                    <p key={i} className="text-[17px] text-muted-foreground leading-[1.8] font-light">
+                    <p key={i} className="text-[17px] text-neutral-400 leading-[1.8] font-light">
                       {section.content}
                     </p>
                   );
@@ -176,7 +176,7 @@ export default function BlogPost() {
                   return (
                     <ul key={i} className="space-y-3 my-6 ml-1">
                       {section.items?.map((item, j) => (
-                        <li key={j} className="flex gap-3 text-[17px] text-muted-foreground leading-[1.8] font-light">
+                        <li key={j} className="flex gap-3 text-[17px] text-neutral-400 leading-[1.8] font-light">
                           <span className="text-primary mt-1 shrink-0 font-bold">&bull;</span>
                           <span>{item}</span>
                         </li>
@@ -185,7 +185,7 @@ export default function BlogPost() {
                   );
                 case 'quote':
                   return (
-                    <blockquote key={i} className="my-8 pl-6 border-l-2 border-primary/30 italic text-[17px] text-muted-foreground/80 leading-[1.8]">
+                    <blockquote key={i} className="my-8 pl-6 border-l-2 border-primary/30 italic text-[17px] text-neutral-400/80 leading-[1.8]">
                       {section.content}
                     </blockquote>
                   );
@@ -193,7 +193,7 @@ export default function BlogPost() {
                   return (
                     <div key={i} className="my-8 p-6 bg-primary/5 border border-primary/10 rounded-2xl">
                       <p className="text-sm font-semibold text-primary mb-1">Pro Tip</p>
-                      <p className="text-[15px] text-muted-foreground leading-relaxed">{section.content}</p>
+                      <p className="text-[15px] text-neutral-400 leading-relaxed">{section.content}</p>
                     </div>
                   );
                 case 'cta':
@@ -215,9 +215,9 @@ export default function BlogPost() {
 
           {/* Tags */}
           {article.tags.length > 0 && (
-            <div className="mt-12 pt-8 border-t border-border/50">
+            <div className="mt-12 pt-8 border-t border-white/[0.06]">
               <div className="flex items-center gap-2 flex-wrap">
-                <Tag className="h-4 w-4 text-muted-foreground" />
+                <Tag className="h-4 w-4 text-neutral-400" />
                 {article.tags.map((tag) => (
                   <Badge key={tag} variant="outline" className="text-xs font-light rounded-full">
                     {tag}
@@ -228,16 +228,16 @@ export default function BlogPost() {
           )}
 
           {/* Internal Links — SEO interlinking */}
-          <div className="mt-12 p-6 bg-muted/30 border border-border/50 rounded-2xl">
+          <div className="mt-12 p-6 bg-white/[0.02] border border-white/[0.06] rounded-2xl">
             <p className="text-xs font-semibold tracking-[0.15em] uppercase text-primary mb-4">Explore More</p>
             <div className="grid sm:grid-cols-3 gap-3">
-              <Link to="/tools" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors p-2 rounded-lg hover:bg-muted/50">
+              <Link to="/tools" className="flex items-center gap-2 text-sm text-neutral-400 hover:text-foreground transition-colors p-2 rounded-lg hover:bg-white/[0.03]">
                 <Calculator className="h-4 w-4 text-primary" /> Free Calculators
               </Link>
-              <Link to="/how-it-works" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors p-2 rounded-lg hover:bg-muted/50">
+              <Link to="/how-it-works" className="flex items-center gap-2 text-sm text-neutral-400 hover:text-foreground transition-colors p-2 rounded-lg hover:bg-white/[0.03]">
                 <BookOpen className="h-4 w-4 text-primary" /> How It Works
               </Link>
-              <Link to="/use-cases" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors p-2 rounded-lg hover:bg-muted/50">
+              <Link to="/use-cases" className="flex items-center gap-2 text-sm text-neutral-400 hover:text-foreground transition-colors p-2 rounded-lg hover:bg-white/[0.03]">
                 <Search className="h-4 w-4 text-primary" /> Use Cases
               </Link>
             </div>
@@ -253,14 +253,14 @@ export default function BlogPost() {
             <div className="grid md:grid-cols-3 gap-4">
               {relatedArticles.map((a: any) => (
                 <Link key={a.slug} to={`/blog/${a.slug}`} className="group">
-                  <div className="bg-muted/30 border border-border/50 rounded-2xl p-6 hover:border-primary/20 hover:shadow-lg transition-all duration-300 h-full flex flex-col">
+                  <div className="bg-white/[0.02] border border-white/[0.06] rounded-2xl p-6 hover:border-primary/20 hover:shadow-lg transition-all duration-300 h-full flex flex-col">
                     <Badge variant="outline" className={`text-[10px] w-fit mb-3 ${categoryColors[a.category] || ''}`}>
                       {a.category}
                     </Badge>
                     <h4 className="font-bold text-sm mb-2 group-hover:text-primary transition-colors leading-snug">
                       {a.title}
                     </h4>
-                    <p className="text-xs text-muted-foreground font-light line-clamp-2 flex-1">{a.excerpt}</p>
+                    <p className="text-xs text-neutral-400 font-light line-clamp-2 flex-1">{a.excerpt}</p>
                     <div className="flex items-center gap-1 text-xs font-medium text-primary mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
                       Read article <ChevronRight className="h-3 w-3" />
                     </div>

@@ -74,7 +74,7 @@ export default function BRRRRCalculator() {
   }, [purchasePrice, rehabCosts, arv, refiLtv, refiRate, monthlyRent, taxes, insurance, maintenance, management, vacancy, holdingMonths, monthlyHolding]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+    <div className="min-h-screen bg-[#08090a] text-white">
       <SEOHead
         title="Free BRRRR Calculator - BRRRR Method Calculator"
         description="Analyze BRRRR deals with this free calculator. Calculate cash invested, refinance proceeds, monthly cash flow, and cash-on-cash return for Buy-Rehab-Rent-Refinance-Repeat strategies."
@@ -84,14 +84,14 @@ export default function BRRRRCalculator() {
       {/* Header */}
       <header className="fixed top-4 left-4 right-4 z-50">
         <div className="container mx-auto max-w-7xl">
-          <div className="bg-card/80 backdrop-blur-xl border border-border/50 rounded-2xl shadow-lg px-6 py-4">
+          <div className="bg-neutral-950/90 backdrop-blur-xl border border-white/[0.06] rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.4)] px-6 py-4">
             <div className="flex items-center justify-between">
-              <Link to="/" className="flex items-center space-x-2 text-sm font-medium hover:text-primary transition-colors">
+              <Link to="/" className="flex items-center space-x-2 text-sm font-medium hover:text-white transition-colors">
                 <ArrowLeft className="h-4 w-4" />
                 <span>Back to Home</span>
               </Link>
               <div className="text-lg font-semibold">AIWholesail</div>
-              <Link to="/pricing" className="text-sm font-medium text-primary hover:text-primary/80 transition-colors">
+              <Link to="/pricing" className="text-sm font-medium text-cyan-400 hover:text-cyan-400/80 transition-colors">
                 Pricing
               </Link>
             </div>
@@ -107,9 +107,9 @@ export default function BRRRRCalculator() {
             Free Tool
           </Badge>
           <h1 className="text-4xl md:text-5xl font-medium tracking-tight mb-4">
-            BRRRR <span className="text-primary">Calculator</span>
+            BRRRR <span className="text-cyan-400">Calculator</span>
           </h1>
-          <p className="text-lg text-muted-foreground font-light max-w-2xl mx-auto">
+          <p className="text-lg text-neutral-400 font-light max-w-2xl mx-auto">
             Analyze Buy, Rehab, Rent, Refinance, Repeat deals. See how much cash stays in the deal after refinancing and whether you achieve the coveted infinite return.
           </p>
         </div>
@@ -132,14 +132,14 @@ export default function BRRRRCalculator() {
                     <div className="space-y-2">
                       <Label htmlFor="purchase">Purchase Price</Label>
                       <div className="relative">
-                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
                         <Input id="purchase" type="number" className="pl-9" value={purchasePrice} onChange={(e) => setPurchasePrice(Number(e.target.value))} min={0} />
                       </div>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="rehab">Rehab Costs</Label>
                       <div className="relative">
-                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
                         <Input id="rehab" type="number" className="pl-9" value={rehabCosts} onChange={(e) => setRehabCosts(Number(e.target.value))} min={0} />
                       </div>
                     </div>
@@ -147,7 +147,7 @@ export default function BRRRRCalculator() {
                   <div className="space-y-2">
                     <Label htmlFor="arv">After Repair Value (ARV)</Label>
                     <div className="relative">
-                      <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
                       <Input id="arv" type="number" className="pl-9" value={arv} onChange={(e) => setArv(Number(e.target.value))} min={0} />
                     </div>
                   </div>
@@ -182,47 +182,47 @@ export default function BRRRRCalculator() {
                   <div className="space-y-2">
                     <Label htmlFor="rent">Monthly Rent</Label>
                     <div className="relative">
-                      <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
                       <Input id="rent" type="number" className="pl-9" value={monthlyRent} onChange={(e) => setMonthlyRent(Number(e.target.value))} min={0} />
                     </div>
                   </div>
 
                   <Separator />
-                  <p className="text-sm font-medium text-muted-foreground">Monthly Expenses</p>
+                  <p className="text-sm font-medium text-neutral-400">Monthly Expenses</p>
 
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="expTaxes">Property Taxes</Label>
                       <div className="relative">
-                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
                         <Input id="expTaxes" type="number" className="pl-9" value={taxes} onChange={(e) => setTaxes(Number(e.target.value))} min={0} />
                       </div>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="expIns">Insurance</Label>
                       <div className="relative">
-                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
                         <Input id="expIns" type="number" className="pl-9" value={insurance} onChange={(e) => setInsurance(Number(e.target.value))} min={0} />
                       </div>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="expMaint">Maintenance</Label>
                       <div className="relative">
-                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
                         <Input id="expMaint" type="number" className="pl-9" value={maintenance} onChange={(e) => setMaintenance(Number(e.target.value))} min={0} />
                       </div>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="expMgmt">Management</Label>
                       <div className="relative">
-                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
                         <Input id="expMgmt" type="number" className="pl-9" value={management} onChange={(e) => setManagement(Number(e.target.value))} min={0} />
                       </div>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="expVac">Vacancy Reserve</Label>
                       <div className="relative">
-                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
                         <Input id="expVac" type="number" className="pl-9" value={vacancy} onChange={(e) => setVacancy(Number(e.target.value))} min={0} />
                       </div>
                     </div>
@@ -244,10 +244,10 @@ export default function BRRRRCalculator() {
                     <div className="space-y-2">
                       <Label htmlFor="holdCost">Monthly Holding Cost</Label>
                       <div className="relative">
-                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
                         <Input id="holdCost" type="number" className="pl-9" value={monthlyHolding} onChange={(e) => setMonthlyHolding(Number(e.target.value))} min={0} />
                       </div>
-                      <p className="text-xs text-muted-foreground">Loan payments, utilities, insurance during rehab</p>
+                      <p className="text-xs text-neutral-400">Loan payments, utilities, insurance during rehab</p>
                     </div>
                   </div>
                 </CardContent>
@@ -260,7 +260,7 @@ export default function BRRRRCalculator() {
                 <Card className="border-primary/20 shadow-lg">
                   <CardHeader>
                     <CardTitle className="text-xl flex items-center gap-2">
-                      <TrendingUp className="h-5 w-5 text-primary" />
+                      <TrendingUp className="h-5 w-5 text-cyan-400" />
                       BRRRR Analysis
                     </CardTitle>
                   </CardHeader>
@@ -273,7 +273,7 @@ export default function BRRRRCalculator() {
                           <Infinity className="h-5 w-5 text-green-600" />
                           <span className="font-semibold text-green-600">Infinite Return</span>
                         </div>
-                        <p className="text-xs text-muted-foreground">All your cash is returned at refinance. You have none of your own money left in this deal.</p>
+                        <p className="text-xs text-neutral-400">All your cash is returned at refinance. You have none of your own money left in this deal.</p>
                       </div>
                     )}
 
@@ -282,15 +282,15 @@ export default function BRRRRCalculator() {
                       <p className="text-sm font-medium mb-3">Investment Summary</p>
                       <div className="space-y-2">
                         <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Purchase Price</span>
+                          <span className="text-neutral-400">Purchase Price</span>
                           <span className="tabular-nums">{fmt.format(purchasePrice)}</span>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Rehab Costs</span>
+                          <span className="text-neutral-400">Rehab Costs</span>
                           <span className="tabular-nums">{fmt.format(rehabCosts)}</span>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Holding Costs ({holdingMonths} mo)</span>
+                          <span className="text-neutral-400">Holding Costs ({holdingMonths} mo)</span>
                           <span className="tabular-nums">{fmt.format(results.totalHolding)}</span>
                         </div>
                         <Separator />
@@ -308,15 +308,15 @@ export default function BRRRRCalculator() {
                       <p className="text-sm font-medium mb-3">Refinance</p>
                       <div className="space-y-2">
                         <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">ARV</span>
+                          <span className="text-neutral-400">ARV</span>
                           <span className="tabular-nums">{fmt.format(arv)}</span>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Loan Amount ({refiLtv}% LTV)</span>
+                          <span className="text-neutral-400">Loan Amount ({refiLtv}% LTV)</span>
                           <span className="tabular-nums">{fmt.format(results.refiLoanAmount)}</span>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Money Back at Refi</span>
+                          <span className="text-neutral-400">Money Back at Refi</span>
                           <span className="tabular-nums font-medium text-green-600">{fmt.format(results.moneyOut)}</span>
                         </div>
                         <Separator />
@@ -328,7 +328,7 @@ export default function BRRRRCalculator() {
                         </div>
                         {results.cashLeftInDeal < 0 && (
                           <div className="flex justify-between text-sm">
-                            <span className="text-muted-foreground">Cash Surplus at Refi</span>
+                            <span className="text-neutral-400">Cash Surplus at Refi</span>
                             <span className="tabular-nums text-green-600">{fmt.format(Math.abs(results.cashLeftInDeal))}</span>
                           </div>
                         )}
@@ -342,15 +342,15 @@ export default function BRRRRCalculator() {
                       <p className="text-sm font-medium mb-3">Monthly Cash Flow</p>
                       <div className="space-y-2">
                         <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Rental Income</span>
+                          <span className="text-neutral-400">Rental Income</span>
                           <span className="tabular-nums text-green-600">+{fmt.format(monthlyRent)}</span>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Mortgage (P&I)</span>
+                          <span className="text-neutral-400">Mortgage (P&I)</span>
                           <span className="tabular-nums text-red-500">-{fmt.format(results.monthlyMortgage)}</span>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Operating Expenses</span>
+                          <span className="text-neutral-400">Operating Expenses</span>
                           <span className="tabular-nums text-red-500">-{fmt.format(taxes + insurance + maintenance + management + vacancy)}</span>
                         </div>
                         <Separator />
@@ -368,14 +368,14 @@ export default function BRRRRCalculator() {
                     {/* Returns */}
                     <div className="grid grid-cols-2 gap-3">
                       <div className="rounded-lg border p-3 text-center">
-                        <p className="text-xs text-muted-foreground mb-1">Annual Cash Flow</p>
+                        <p className="text-xs text-neutral-400 mb-1">Annual Cash Flow</p>
                         <p className={`text-lg font-semibold ${results.annualCashFlow >= 0 ? 'text-green-600' : 'text-red-500'}`}>
                           {fmt.format(results.annualCashFlow)}
                         </p>
                       </div>
                       <div className="rounded-lg border p-3 text-center">
-                        <p className="text-xs text-muted-foreground mb-1">Cash-on-Cash</p>
-                        <p className="text-lg font-semibold text-primary">
+                        <p className="text-xs text-neutral-400 mb-1">Cash-on-Cash</p>
+                        <p className="text-lg font-semibold text-cyan-400">
                           {results.infiniteReturn ? (
                             <span className="flex items-center justify-center gap-1"><Infinity className="h-5 w-5" /></span>
                           ) : (
@@ -386,7 +386,7 @@ export default function BRRRRCalculator() {
                     </div>
 
                     {/* Quick verdict */}
-                    <div className="rounded-lg bg-muted/50 p-4 space-y-2">
+                    <div className="rounded-lg bg-white/[0.03] p-4 space-y-2">
                       <p className="text-sm font-medium">Quick Checks</p>
                       <div className="flex items-center gap-2 text-sm">
                         {results.monthlyCashFlow > 0 ? (
@@ -394,7 +394,7 @@ export default function BRRRRCalculator() {
                         ) : (
                           <XCircle className="h-4 w-4 text-red-500 flex-shrink-0" />
                         )}
-                        <span className="text-muted-foreground">Positive cash flow after refi</span>
+                        <span className="text-neutral-400">Positive cash flow after refi</span>
                       </div>
                       <div className="flex items-center gap-2 text-sm">
                         {results.infiniteReturn ? (
@@ -402,7 +402,7 @@ export default function BRRRRCalculator() {
                         ) : (
                           <XCircle className="h-4 w-4 text-red-500 flex-shrink-0" />
                         )}
-                        <span className="text-muted-foreground">All cash returned at refinance</span>
+                        <span className="text-neutral-400">All cash returned at refinance</span>
                       </div>
                       <div className="flex items-center gap-2 text-sm">
                         {results.cashOnCash > 12 || results.infiniteReturn ? (
@@ -410,20 +410,20 @@ export default function BRRRRCalculator() {
                         ) : (
                           <XCircle className="h-4 w-4 text-red-500 flex-shrink-0" />
                         )}
-                        <span className="text-muted-foreground">Cash-on-cash above 12%</span>
+                        <span className="text-neutral-400">Cash-on-cash above 12%</span>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
 
                 {/* CTA */}
-                <Card className="mt-6 bg-primary/5 border-primary/20">
+                <Card className="mt-6 bg-cyan-500/5 border-primary/20">
                   <CardContent className="pt-6">
                     <div className="flex items-start gap-3">
-                      <Sparkles className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                      <Sparkles className="h-5 w-5 text-cyan-400 mt-0.5 flex-shrink-0" />
                       <div>
                         <p className="font-medium text-sm mb-1">Want AI to find BRRRR deals automatically?</p>
-                        <p className="text-xs text-muted-foreground mb-3">AIWholesail scans off-market properties and runs BRRRR analysis in real time so you can move fast on the best opportunities.</p>
+                        <p className="text-xs text-neutral-400 mb-3">AIWholesail scans off-market properties and runs BRRRR analysis in real time so you can move fast on the best opportunities.</p>
                         <Button asChild size="sm">
                           <Link to="/pricing">
                             Try AIWholesail Free
@@ -447,7 +447,7 @@ export default function BRRRRCalculator() {
             <CardHeader>
               <CardTitle className="text-2xl">How to Use This BRRRR Calculator</CardTitle>
             </CardHeader>
-            <CardContent className="prose prose-sm max-w-none space-y-4 text-muted-foreground">
+            <CardContent className="prose prose-sm max-w-none space-y-4 text-neutral-400">
               <p>
                 The BRRRR method -- Buy, Rehab, Rent, Refinance, Repeat -- is a strategy for building a rental portfolio by recycling your capital. The goal is to buy undervalued properties, force appreciation through renovation, rent them out, and then refinance to pull your original investment back out so you can do it again.
               </p>

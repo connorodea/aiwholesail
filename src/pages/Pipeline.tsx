@@ -91,33 +91,33 @@ export default function Pipeline() {
 
         {/* Stats Bar */}
         <section className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-4xl mx-auto animate-fade-in">
-          <Card className="border-border/50">
+          <Card className="border-white/[0.06]">
             <CardContent className="p-4 text-center">
-              <div className="text-xs text-muted-foreground flex items-center justify-center gap-1">
+              <div className="text-xs text-neutral-400 flex items-center justify-center gap-1">
                 <Layers className="h-3 w-3" /> Total Deals
               </div>
               <div className="text-2xl font-bold mt-1">{totalDeals}</div>
             </CardContent>
           </Card>
-          <Card className="border-border/50">
+          <Card className="border-white/[0.06]">
             <CardContent className="p-4 text-center">
-              <div className="text-xs text-muted-foreground flex items-center justify-center gap-1">
+              <div className="text-xs text-neutral-400 flex items-center justify-center gap-1">
                 <DollarSign className="h-3 w-3" /> Pipeline Value
               </div>
               <div className="text-2xl font-bold mt-1">{formatCompact(totalValue)}</div>
             </CardContent>
           </Card>
-          <Card className="border-border/50">
+          <Card className="border-white/[0.06]">
             <CardContent className="p-4 text-center">
-              <div className="text-xs text-muted-foreground flex items-center justify-center gap-1">
+              <div className="text-xs text-neutral-400 flex items-center justify-center gap-1">
                 <TrendingUp className="h-3 w-3" /> Total Spread
               </div>
               <div className="text-2xl font-bold mt-1 text-green-600">{formatCompact(totalSpread)}</div>
             </CardContent>
           </Card>
-          <Card className="border-border/50">
+          <Card className="border-white/[0.06]">
             <CardContent className="p-4 text-center">
-              <div className="text-xs text-muted-foreground">Under Contract</div>
+              <div className="text-xs text-neutral-400">Under Contract</div>
               <div className="text-2xl font-bold mt-1 text-emerald-600">{underContract}</div>
             </CardContent>
           </Card>
@@ -126,7 +126,7 @@ export default function Pipeline() {
         {/* Search + Refresh */}
         <section className="flex items-center gap-3 max-w-4xl mx-auto animate-fade-in">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
             <Input
               placeholder="Search deals by address or notes..."
               value={searchQuery}
@@ -149,7 +149,7 @@ export default function Pipeline() {
           {loading && deals.length === 0 ? (
             <div className="flex gap-4 overflow-x-auto pb-4 -mx-4 px-4">
               {PIPELINE_STAGES.map((stage) => (
-                <div key={stage.id} className="min-w-[280px] w-[280px] rounded-xl border bg-muted/30 border-border/50">
+                <div key={stage.id} className="min-w-[280px] w-[280px] rounded-xl border bg-white/[0.02] border-white/[0.06]">
                   <div className="p-3 border-b border-border/30">
                     <Skeleton className="h-5 w-24" />
                   </div>
@@ -178,9 +178,9 @@ export default function Pipeline() {
         {/* Empty state */}
         {!loading && deals.length === 0 && (
           <section className="text-center py-12 max-w-md mx-auto">
-            <Layers className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
+            <Layers className="h-12 w-12 text-neutral-400/50 mx-auto mb-4" />
             <h3 className="text-lg font-medium mb-2">No deals in your pipeline</h3>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-neutral-400">
               Search for properties and click the pipeline icon to start tracking deals.
             </p>
           </section>

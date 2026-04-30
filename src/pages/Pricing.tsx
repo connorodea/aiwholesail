@@ -118,7 +118,7 @@ export default function Pricing() {
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-center mb-4">
             Invest in your deal flow.
           </h2>
-          <p className="text-lg text-muted-foreground font-light max-w-2xl mx-auto text-center mb-16">
+          <p className="text-lg text-neutral-400 font-light max-w-2xl mx-auto text-center mb-16">
             Both plans include full access to AI-powered property analysis, market search, and deal alerts. Choose the scale that matches your business.
           </p>
 
@@ -126,10 +126,10 @@ export default function Pricing() {
             {plans.map((plan) => (
               <div
                 key={plan.name}
-                className={`relative bg-gradient-to-br from-muted/50 to-muted/30 border rounded-3xl p-8 md:p-10 flex flex-col justify-between group hover:border-primary/20 transition-all duration-300 ${
+                className={`relative bg-white/[0.03] border rounded-3xl p-8 md:p-10 flex flex-col justify-between group hover:border-primary/20 transition-all duration-300 ${
                   plan.popular
                     ? 'border-2 border-primary/30 shadow-lg shadow-primary/5'
-                    : 'border-border/50'
+                    : 'border-white/[0.06]'
                 }`}
               >
                 {plan.popular && (
@@ -145,9 +145,9 @@ export default function Pricing() {
                   <h3 className="text-xl font-bold tracking-tight mb-2">{plan.name}</h3>
                   <div className="flex items-baseline gap-1 mb-2">
                     <span className="text-5xl font-bold tracking-tight">${plan.price}</span>
-                    <span className="text-lg font-normal text-muted-foreground">/month</span>
+                    <span className="text-lg font-normal text-neutral-400">/month</span>
                   </div>
-                  <p className="text-muted-foreground font-light mb-8">{plan.description}</p>
+                  <p className="text-neutral-400 font-light mb-8">{plan.description}</p>
 
                   <ul className="space-y-3 mb-8">
                     {plan.features.map((feature, index) => (
@@ -175,7 +175,7 @@ export default function Pricing() {
                       : `Start Free Trial`}
                     {loading !== plan.priceId && <ArrowRight className="h-4 w-4" />}
                   </Button>
-                  <p className="text-xs text-muted-foreground font-light mt-3 text-center">
+                  <p className="text-xs text-neutral-400 font-light mt-3 text-center">
                     No credit card required
                   </p>
                 </div>
@@ -185,11 +185,11 @@ export default function Pricing() {
 
           <div className="mt-12 text-center">
             {user ? (
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-neutral-400">
                 <Link to="/app" className="text-primary hover:underline">Go to Dashboard</Link>
               </p>
             ) : (
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-neutral-400">
                 Already have an account? <Link to="/auth" className="text-primary hover:underline">Sign in here</Link>
               </p>
             )}
@@ -233,7 +233,7 @@ export default function Pricing() {
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight leading-tight mb-6">
             Ready to find your next deal?
           </h2>
-          <p className="text-lg text-muted-foreground font-light max-w-2xl mx-auto mb-10">
+          <p className="text-lg text-neutral-400 font-light max-w-2xl mx-auto mb-10">
             Join thousands of investors using AIWholesail to uncover profitable opportunities faster than ever before.
           </p>
           <Link to="/pricing">
@@ -241,7 +241,7 @@ export default function Pricing() {
               Start Your Free Trial <ArrowRight className="h-4 w-4" />
             </Button>
           </Link>
-          <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground mt-6">
+          <div className="flex items-center justify-center gap-6 text-sm text-neutral-400 mt-6">
             <span className="flex items-center gap-1.5"><Shield className="h-3.5 w-3.5 text-primary" /> No Credit Card Required</span>
             <span className="flex items-center gap-1.5"><CheckCircle className="h-3.5 w-3.5 text-primary" /> Cancel Anytime</span>
           </div>

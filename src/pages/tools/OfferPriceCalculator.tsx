@@ -59,7 +59,7 @@ export default function OfferPriceCalculator() {
   }, [arv, repairEstimate, profitMargin, assignmentFee, closingCostsPct, holdingCosts]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+    <div className="min-h-screen bg-[#08090a] text-white">
       <SEOHead
         title="Free 70% Rule Calculator - MAO Calculator for Real Estate"
         description="Calculate your Maximum Allowable Offer using the 70% rule or custom profit margins. Free MAO calculator for wholesalers and fix-and-flip investors."
@@ -69,14 +69,14 @@ export default function OfferPriceCalculator() {
       {/* Header */}
       <header className="fixed top-4 left-4 right-4 z-50">
         <div className="container mx-auto max-w-7xl">
-          <div className="bg-card/80 backdrop-blur-xl border border-border/50 rounded-2xl shadow-lg px-6 py-4">
+          <div className="bg-neutral-950/90 backdrop-blur-xl border border-white/[0.06] rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.4)] px-6 py-4">
             <div className="flex items-center justify-between">
-              <Link to="/" className="flex items-center space-x-2 text-sm font-medium hover:text-primary transition-colors">
+              <Link to="/" className="flex items-center space-x-2 text-sm font-medium hover:text-white transition-colors">
                 <ArrowLeft className="h-4 w-4" />
                 <span>Back to Home</span>
               </Link>
               <div className="text-lg font-semibold">AIWholesail</div>
-              <Link to="/pricing" className="text-sm font-medium text-primary hover:text-primary/80 transition-colors">
+              <Link to="/pricing" className="text-sm font-medium text-cyan-400 hover:text-cyan-400/80 transition-colors">
                 Pricing
               </Link>
             </div>
@@ -92,9 +92,9 @@ export default function OfferPriceCalculator() {
             Free Tool
           </Badge>
           <h1 className="text-4xl md:text-5xl font-medium tracking-tight mb-4">
-            Offer Price <span className="text-primary">Calculator</span>
+            Offer Price <span className="text-cyan-400">Calculator</span>
           </h1>
-          <p className="text-lg text-muted-foreground font-light max-w-2xl mx-auto">
+          <p className="text-lg text-neutral-400 font-light max-w-2xl mx-auto">
             Calculate your Maximum Allowable Offer using the industry-standard 70% rule or set a custom profit margin. See exactly how much room you have at every price point.
           </p>
         </div>
@@ -116,15 +116,15 @@ export default function OfferPriceCalculator() {
                   <div className="space-y-2">
                     <Label htmlFor="arv">After Repair Value (ARV)</Label>
                     <div className="relative">
-                      <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
                       <Input id="arv" type="number" className="pl-9" value={arv} onChange={(e) => setArv(Number(e.target.value))} min={0} />
                     </div>
-                    <p className="text-xs text-muted-foreground">Estimated market value after all repairs are completed.</p>
+                    <p className="text-xs text-neutral-400">Estimated market value after all repairs are completed.</p>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="repairs">Repair Estimate</Label>
                     <div className="relative">
-                      <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
                       <Input id="repairs" type="number" className="pl-9" value={repairEstimate} onChange={(e) => setRepairEstimate(Number(e.target.value))} min={0} />
                     </div>
                   </div>
@@ -151,7 +151,7 @@ export default function OfferPriceCalculator() {
                       step={1}
                       className="w-full"
                     />
-                    <div className="flex justify-between text-xs text-muted-foreground">
+                    <div className="flex justify-between text-xs text-neutral-400">
                       <span>10% (aggressive)</span>
                       <span>30% (standard)</span>
                       <span>50% (conservative)</span>
@@ -163,25 +163,25 @@ export default function OfferPriceCalculator() {
                   <div className="space-y-2">
                     <Label htmlFor="assignment">Assignment / Wholesale Fee</Label>
                     <div className="relative">
-                      <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
                       <Input id="assignment" type="number" className="pl-9" value={assignmentFee} onChange={(e) => setAssignmentFee(Number(e.target.value))} min={0} />
                     </div>
-                    <p className="text-xs text-muted-foreground">Set to $0 if you are the end buyer (fix-and-flip).</p>
+                    <p className="text-xs text-neutral-400">Set to $0 if you are the end buyer (fix-and-flip).</p>
                   </div>
 
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="closing">Closing Costs (% of ARV)</Label>
                       <Input id="closing" type="number" step={0.5} value={closingCostsPct} onChange={(e) => setClosingCostsPct(Number(e.target.value))} min={0} max={10} />
-                      <p className="text-xs text-muted-foreground">Typically 2-5% for buy + sell side</p>
+                      <p className="text-xs text-neutral-400">Typically 2-5% for buy + sell side</p>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="holding">Holding Costs (total)</Label>
                       <div className="relative">
-                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
                         <Input id="holding" type="number" className="pl-9" value={holdingCosts} onChange={(e) => setHoldingCosts(Number(e.target.value))} min={0} />
                       </div>
-                      <p className="text-xs text-muted-foreground">Loan, insurance, utilities during rehab</p>
+                      <p className="text-xs text-neutral-400">Loan, insurance, utilities during rehab</p>
                     </div>
                   </div>
                 </CardContent>
@@ -194,7 +194,7 @@ export default function OfferPriceCalculator() {
                 <Card className="border-primary/20 shadow-lg">
                   <CardHeader>
                     <CardTitle className="text-xl flex items-center gap-2">
-                      <BarChart3 className="h-5 w-5 text-primary" />
+                      <BarChart3 className="h-5 w-5 text-cyan-400" />
                       Maximum Allowable Offer
                     </CardTitle>
                   </CardHeader>
@@ -209,11 +209,11 @@ export default function OfferPriceCalculator() {
                       <p className="text-2xl font-semibold tabular-nums mb-2">
                         {results.mao70 > 0 ? fmt.format(results.mao70) : '$0'}
                       </p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs text-neutral-400">
                         {fmt.format(arv)} x 70% - {fmt.format(repairEstimate)} = {fmt.format(results.mao70)}
                       </p>
                       <div className="mt-2 text-xs">
-                        <span className="text-muted-foreground">Spread: </span>
+                        <span className="text-neutral-400">Spread: </span>
                         <span className={`font-medium ${results.profit70 > 0 ? 'text-green-600' : 'text-red-500'}`}>
                           {fmt.format(results.profit70)}
                         </span>
@@ -221,15 +221,15 @@ export default function OfferPriceCalculator() {
                     </div>
 
                     {/* Custom MAO */}
-                    <div className="rounded-lg border border-primary/20 bg-primary/5 p-4">
+                    <div className="rounded-lg border border-primary/20 bg-cyan-500/5 p-4">
                       <div className="flex items-center justify-between mb-1">
                         <p className="text-sm font-medium">Custom MAO ({profitMargin}% margin)</p>
                         <Badge className="text-xs">Your Numbers</Badge>
                       </div>
-                      <p className="text-2xl font-semibold tabular-nums text-primary mb-2">
+                      <p className="text-2xl font-semibold tabular-nums text-cyan-400 mb-2">
                         {results.customMao > 0 ? fmt.format(results.customMao) : '$0'}
                       </p>
-                      <div className="text-xs text-muted-foreground space-y-0.5">
+                      <div className="text-xs text-neutral-400 space-y-0.5">
                         <p>{fmt.format(arv)} x {100 - profitMargin}% = {fmt.format(Math.round(arv * (100 - profitMargin) / 100))}</p>
                         <p>- Repairs: {fmt.format(repairEstimate)}</p>
                         {assignmentFee > 0 && <p>- Assignment fee: {fmt.format(assignmentFee)}</p>}
@@ -237,7 +237,7 @@ export default function OfferPriceCalculator() {
                         <p>- Holding: {fmt.format(holdingCosts)}</p>
                       </div>
                       <div className="mt-2 text-xs">
-                        <span className="text-muted-foreground">Target profit: </span>
+                        <span className="text-neutral-400">Target profit: </span>
                         <span className={`font-medium ${results.profitCustom > 0 ? 'text-green-600' : 'text-red-500'}`}>
                           {fmt.format(results.profitCustom)}
                         </span>
@@ -253,7 +253,7 @@ export default function OfferPriceCalculator() {
                         {/* ARV bar */}
                         <div>
                           <div className="flex justify-between text-xs mb-1">
-                            <span className="text-muted-foreground">After Repair Value</span>
+                            <span className="text-neutral-400">After Repair Value</span>
                             <span className="tabular-nums">{fmt.format(arv)}</span>
                           </div>
                           <div className="h-3 rounded-full bg-muted overflow-hidden">
@@ -264,7 +264,7 @@ export default function OfferPriceCalculator() {
                         {/* 70% MAO bar */}
                         <div>
                           <div className="flex justify-between text-xs mb-1">
-                            <span className="text-muted-foreground">70% Rule MAO</span>
+                            <span className="text-neutral-400">70% Rule MAO</span>
                             <span className="tabular-nums">{fmt.format(results.mao70)}</span>
                           </div>
                           <div className="h-3 rounded-full bg-muted overflow-hidden">
@@ -275,7 +275,7 @@ export default function OfferPriceCalculator() {
                         {/* Custom MAO bar */}
                         <div>
                           <div className="flex justify-between text-xs mb-1">
-                            <span className="text-muted-foreground">Custom MAO</span>
+                            <span className="text-neutral-400">Custom MAO</span>
                             <span className="tabular-nums">{fmt.format(results.customMao)}</span>
                           </div>
                           <div className="h-3 rounded-full bg-muted overflow-hidden">
@@ -286,7 +286,7 @@ export default function OfferPriceCalculator() {
                         {/* Repairs bar */}
                         <div>
                           <div className="flex justify-between text-xs mb-1">
-                            <span className="text-muted-foreground">Repairs</span>
+                            <span className="text-neutral-400">Repairs</span>
                             <span className="tabular-nums">{fmt.format(repairEstimate)}</span>
                           </div>
                           <div className="h-3 rounded-full bg-muted overflow-hidden">
@@ -297,7 +297,7 @@ export default function OfferPriceCalculator() {
                         {/* Profit bar */}
                         <div>
                           <div className="flex justify-between text-xs mb-1">
-                            <span className="text-muted-foreground">Target Profit ({profitMargin}%)</span>
+                            <span className="text-neutral-400">Target Profit ({profitMargin}%)</span>
                             <span className="tabular-nums">{fmt.format(Math.round(arv * profitMargin / 100))}</span>
                           </div>
                           <div className="h-3 rounded-full bg-muted overflow-hidden">
@@ -310,13 +310,13 @@ export default function OfferPriceCalculator() {
                 </Card>
 
                 {/* CTA */}
-                <Card className="mt-6 bg-primary/5 border-primary/20">
+                <Card className="mt-6 bg-cyan-500/5 border-primary/20">
                   <CardContent className="pt-6">
                     <div className="flex items-start gap-3">
-                      <Sparkles className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                      <Sparkles className="h-5 w-5 text-cyan-400 mt-0.5 flex-shrink-0" />
                       <div>
                         <p className="font-medium text-sm mb-1">Want AI to calculate offers on every lead?</p>
-                        <p className="text-xs text-muted-foreground mb-3">AIWholesail auto-calculates MAO, ARV, and repair estimates for every property in your pipeline using AI and real-time comps.</p>
+                        <p className="text-xs text-neutral-400 mb-3">AIWholesail auto-calculates MAO, ARV, and repair estimates for every property in your pipeline using AI and real-time comps.</p>
                         <Button asChild size="sm">
                           <Link to="/pricing">
                             Try AIWholesail Free
@@ -340,7 +340,7 @@ export default function OfferPriceCalculator() {
             <CardHeader>
               <CardTitle className="text-2xl">How to Use This Offer Price Calculator</CardTitle>
             </CardHeader>
-            <CardContent className="prose prose-sm max-w-none space-y-4 text-muted-foreground">
+            <CardContent className="prose prose-sm max-w-none space-y-4 text-neutral-400">
               <p>
                 Every profitable real estate deal starts with the right offer price. Offer too high and you kill your margin. Offer too low and you never get deals accepted. This calculator helps you find the sweet spot using two proven methods.
               </p>
