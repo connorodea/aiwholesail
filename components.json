@@ -1,5 +1,13 @@
 {
   "$schema": "https://ui.shadcn.com/schema.json",
+  "registries": {
+    "@aceternity": {
+      "url": "https://ui.aceternity.com/registry/{name}.json",
+      "headers": {
+        "Authorization": "Bearer aceternity_33b5fd2f8564fc6a66cd7d9629a1d1b5e7ed13c080c64a8a4bfa14ac34591197"
+      }
+    }
+  },
   "style": "default",
   "rsc": false,
   "tsx": true,
