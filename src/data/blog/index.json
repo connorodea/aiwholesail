@@ -1,0 +1,37 @@
+{
+  "articles": [
+    {
+      "slug": "how-to-find-wholesale-deals-beginners-guide",
+      "title": "How to Find Wholesale Real Estate Deals: A Beginner's Guide",
+      "excerpt": "Learn the fundamentals of finding profitable wholesale real estate deals, from identifying motivated sellers to calculating your maximum allowable offer.",
+      "category": "Beginner Guide",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-04-29T12:00:00Z",
+      "readTime": 8,
+      "tags": ["wholesale", "beginners", "deal finding"],
+      "featured": true
+    },
+    {
+      "slug": "what-is-arv-after-repair-value-explained",
+      "title": "What Is ARV? After Repair Value Explained for Real Estate Investors",
+      "excerpt": "ARV is the most important number in real estate investing. Learn how to calculate it accurately and why getting it wrong can cost you thousands.",
+      "category": "Strategy",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-04-29T08:00:00Z",
+      "readTime": 6,
+      "tags": ["arv", "valuation", "investing basics"],
+      "featured": false
+    },
+    {
+      "slug": "how-ai-is-changing-real-estate-investing-2026",
+      "title": "How AI Is Changing Real Estate Investing in 2026",
+      "excerpt": "From automated deal scoring to predictive market analysis, AI tools are giving investors an unprecedented edge. Here's what's actually working.",
+      "category": "AI & Tech",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-04-28T14:00:00Z",
+      "readTime": 7,
+      "tags": ["ai", "technology", "market trends"],
+      "featured": false
+    }
+  ]
+}

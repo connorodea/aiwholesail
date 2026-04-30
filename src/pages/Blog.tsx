@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -11,13 +12,16 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { SEOHead } from '@/components/SEOHead';
+import blogIndex from '@/data/blog/index.json';
 
 interface Article {
+  slug?: string;
   title: string;
   excerpt: string;
   category: string;
-  readTime: string;
+  readTime: string | number;
   featured?: boolean;
+  publishedAt?: string;
 }
 
 const articles: Article[] = [
@@ -82,8 +86,26 @@ const categoryColors: Record<string, string> = {
 };
 
 export default function Blog() {
-  const featuredArticle = articles.find((a) => a.featured);
-  const gridArticles = articles.filter((a) => !a.featured);
+  // Merge dynamic articles from JSON manifest with hardcoded fallbacks
+  const dynamicArticles: Article[] = (blogIndex.articles || []).map((a: any) => ({
+    slug: a.slug,
+    title: a.title,
+    excerpt: a.excerpt,
+    category: a.category,
+    readTime: `${a.readTime} min read`,
+    featured: a.featured || false,
+    publishedAt: a.publishedAt,
+  }));
+
+  const allArticles = [
+    ...dynamicArticles,
+    ...articles.filter(
+      (a) => !dynamicArticles.some((d) => d.title === a.title)
+    ),
+  ];
+
+  const featuredArticle = allArticles.find((a) => a.featured);
+  const gridArticles = allArticles.filter((a) => !a.featured);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
@@ -137,7 +159,7 @@ export default function Blog() {
       {featuredArticle && (
         <section className="pb-16 px-4">
           <div className="container mx-auto max-w-7xl">
-            <Link to="/blog" className="block group">
+            <Link to={featuredArticle?.slug ? `/blog/${featuredArticle.slug}` : '/blog'} className="block group">
               <div className="bg-card/50 border border-border/50 rounded-2xl p-8 md:p-12 transition-all duration-200 hover:border-primary/20 hover:shadow-lg">
                 <div className="grid md:grid-cols-5 gap-8 items-center">
                   {/* Text Content */}
@@ -202,7 +224,7 @@ export default function Blog() {
           </h3>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {gridArticles.map((article, index) => (
-              <Link to="/blog" key={index} className="group">
+              <Link to={article.slug ? `/blog/${article.slug}` : '/blog'} key={index} className="group">
                 <article className="h-full bg-card/50 border border-border/50 rounded-2xl p-6 transition-all duration-200 hover:border-primary/20 hover:shadow-lg flex flex-col">
                   {/* Image Placeholder */}
                   <div className="aspect-[16/9] rounded-xl bg-gradient-to-br from-muted/50 to-muted/30 border border-border/30 mb-5 flex items-center justify-center">
