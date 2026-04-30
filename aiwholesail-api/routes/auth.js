@@ -75,6 +75,23 @@ router.post('/signup', [
     [userId, refreshToken, refreshExpiry]
   );
 
+  // Auto-start 7-day free trial
+  const trialEnd = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+  await query(
+    `INSERT INTO subscribers (email, user_id, subscribed, subscription_tier, is_trial, trial_start, trial_end, subscription_end, updated_at)
+     VALUES ($1, $2, true, 'Pro', true, NOW(), $3, $3, NOW())
+     ON CONFLICT (email) DO UPDATE SET
+       user_id = EXCLUDED.user_id,
+       subscribed = true,
+       subscription_tier = 'Pro',
+       is_trial = true,
+       trial_start = NOW(),
+       trial_end = EXCLUDED.trial_end,
+       subscription_end = EXCLUDED.subscription_end,
+       updated_at = NOW()`,
+    [normalizedEmail, userId, trialEnd]
+  );
+
   await logSecurityEvent('signup_success', { email: normalizedEmail.substring(0, 3) + '***' }, userId, req);
 
   res.status(201).json({
