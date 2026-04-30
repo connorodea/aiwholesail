@@ -26,51 +26,41 @@ const anthropic = new Anthropic({
 
 // ============ KEYWORD POOLS ============
 
-const LONG_TAIL_KEYWORDS = [
-  // Beginner questions (highest intent, low competition)
-  { keyword: "how to find wholesale real estate deals", category: "Beginner Guide" },
-  { keyword: "what is wholesale real estate", category: "Beginner Guide" },
-  { keyword: "how to calculate ARV for real estate", category: "Strategy" },
-  { keyword: "what is a good cap rate for rental property", category: "Strategy" },
-  { keyword: "how to find off market properties", category: "Strategy" },
-  { keyword: "how to wholesale real estate with no money", category: "Beginner Guide" },
-  { keyword: "how to find motivated sellers", category: "Strategy" },
-  { keyword: "how to calculate cash on cash return", category: "Strategy" },
-  { keyword: "what is the 70 percent rule in real estate", category: "Beginner Guide" },
-  { keyword: "how to flip houses for beginners", category: "Beginner Guide" },
-  { keyword: "best states for real estate investing 2026", category: "Market Insights" },
-  { keyword: "how to build a cash buyer list", category: "Strategy" },
-  { keyword: "how to do a comparative market analysis", category: "Strategy" },
-  { keyword: "what is assignment of contract real estate", category: "Beginner Guide" },
-  { keyword: "how to find distressed properties", category: "Strategy" },
-  { keyword: "what is a good rental yield", category: "Strategy" },
-  { keyword: "how to estimate rehab costs", category: "Strategy" },
-  { keyword: "BRRRR method explained", category: "Strategy" },
-  { keyword: "how to use AI for real estate investing", category: "AI & Tech" },
-  { keyword: "real estate deal analysis checklist", category: "Strategy" },
-  { keyword: "how to find FSBO properties", category: "Strategy" },
-  { keyword: "real estate skip tracing explained", category: "Strategy" },
-  { keyword: "how to negotiate with motivated sellers", category: "Strategy" },
-  { keyword: "best real estate investing strategies for beginners", category: "Beginner Guide" },
-  { keyword: "how to analyze a rental property", category: "Strategy" },
-  { keyword: "what is earnest money in real estate", category: "Beginner Guide" },
-  { keyword: "how to find pre foreclosure properties", category: "Strategy" },
-  { keyword: "real estate wholesaling vs flipping", category: "Strategy" },
-  { keyword: "how to find absentee owners", category: "Strategy" },
-  { keyword: "what is a wholesale assignment fee", category: "Beginner Guide" },
-];
+// Load keywords dynamically from the silo file
+let LONG_TAIL_KEYWORDS = [];
+try {
+  const siloData = JSON.parse(
+    fs.readFileSync(path.join(__dirname, '..', '..', 'src', 'data', 'keyword-silos.json'), 'utf8')
+  );
+  for (const silo of siloData.silos || []) {
+    for (const kw of silo.keywords || []) {
+      LONG_TAIL_KEYWORDS.push({ keyword: kw.keyword, category: kw.category });
+    }
+  }
+  console.log(`[Blog] Loaded ${LONG_TAIL_KEYWORDS.length} keywords from ${siloData.silos.length} silos`);
+} catch (e) {
+  console.warn('[Blog] Failed to load keyword-silos.json, using fallback');
+  LONG_TAIL_KEYWORDS = [
+    { keyword: "how to find wholesale real estate deals", category: "Beginner Guide" },
+    { keyword: "how to calculate ARV for real estate", category: "Strategy" },
+    { keyword: "what is a good cap rate for rental property", category: "Strategy" },
+    { keyword: "how to flip houses for beginners", category: "Beginner Guide" },
+    { keyword: "BRRRR method explained", category: "Strategy" },
+  ];
+}
 
-const CITIES = [
-  "Houston TX", "Dallas TX", "San Antonio TX", "Austin TX",
-  "Phoenix AZ", "Atlanta GA", "Charlotte NC", "Jacksonville FL",
-  "Tampa FL", "Orlando FL", "Nashville TN", "Memphis TN",
-  "Indianapolis IN", "Columbus OH", "Cleveland OH", "Detroit MI",
-  "Kansas City MO", "St Louis MO", "Birmingham AL", "Richmond VA",
-  "Raleigh NC", "Oklahoma City OK", "Milwaukee WI", "Las Vegas NV",
-  "Denver CO", "Minneapolis MN", "Pittsburgh PA", "Cincinnati OH",
-  "Sacramento CA", "Baltimore MD", "Louisville KY", "New Orleans LA",
-  "Tucson AZ", "El Paso TX", "Albuquerque NM", "Omaha NE",
-];
+// Load cities dynamically from the expanded cities file
+let CITIES = [];
+try {
+  const citiesData = JSON.parse(
+    fs.readFileSync(path.join(__dirname, '..', '..', 'src', 'data', 'cities.json'), 'utf8')
+  );
+  CITIES = citiesData.map(c => `${c.city} ${c.state}`);
+  console.log(`[Blog] Loaded ${CITIES.length} cities`);
+} catch (e) {
+  console.warn('[Blog] Failed to load cities.json, using fallback');
+  CITIES = ["Houston TX", "Dallas TX", "Phoenix AZ", "Atlanta GA", "Tampa FL"];
+}
 
 // ============ ARTICLE GENERATION ============
 
