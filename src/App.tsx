@@ -22,6 +22,10 @@ import Privacy from "./pages/Privacy";
 import Refund from "./pages/Refund";
 import Contact from "./pages/Contact";
 import FAQ from "./pages/FAQ";
+import About from "./pages/About";
+import HowItWorks from "./pages/HowItWorks";
+import UseCases from "./pages/UseCases";
+import Blog from "./pages/Blog";
 import OffMarket from "./pages/OffMarket";
 import Analyzer from "./pages/Analyzer";
 import Favorites from "./pages/Favorites";
@@ -100,6 +104,10 @@ const App = () => (
                 <Route path="/refund" element={<Refund />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/faq" element={<FAQ />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/how-it-works" element={<HowItWorks />} />
+                <Route path="/use-cases" element={<UseCases />} />
+                <Route path="/blog" element={<Blog />} />
                 <Route path="/index" element={<Index />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
