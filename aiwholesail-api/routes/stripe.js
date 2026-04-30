@@ -102,7 +102,7 @@ router.post('/checkout', optionalAuth, [
     cancel_url: `${frontendUrl}/pricing`,
     custom_text: {
       submit: {
-        message: 'Start your 7-day free trial of AI Wholesail Pro! You\'ll get access to advanced real estate wholesale tools and AI-powered analysis. No charge until trial ends.'
+        message: 'Start your 7-day free trial! Get access to AI-powered real estate deal analysis, property scoring, and market intelligence. No charge until trial ends.'
       }
     },
     metadata: {
@@ -203,11 +203,11 @@ router.get('/subscription', authenticate, requireStripe, asyncHandler(async (req
       const amount = price.unit_amount || 0;
 
       if (amount >= 9900) {
-        subscriptionTier = 'Premium';
+        subscriptionTier = 'Elite';
       } else if (amount >= 2900) {
-        subscriptionTier = 'Basic';
+        subscriptionTier = 'Pro';
       } else {
-        subscriptionTier = 'Basic';
+        subscriptionTier = 'Pro';
       }
 
       break;
@@ -332,9 +332,9 @@ async function handleSubscriptionUpdate(subscription) {
   }
 
   // Determine tier
-  let subscriptionTier = 'Basic';
+  let subscriptionTier = 'Pro';
   if (subscription.items?.data?.[0]?.price?.unit_amount >= 9900) {
-    subscriptionTier = 'Premium';
+    subscriptionTier = 'Elite';
   }
 
   await query(
