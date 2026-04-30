@@ -37,7 +37,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
         <div className="container mx-auto max-w-6xl px-4">
           <div className="flex items-center justify-between h-14">
             <Link to="/" className="flex items-center gap-2">
-              <img src={aiWholesailLogo} alt="AIWholesail" className="h-7 w-auto" />
+              <img src={aiWholesailLogo} alt="AIWholesail" className="h-21 w-auto" />
               <span className="text-sm font-semibold tracking-tight">AIWholesail</span>
             </Link>
 
@@ -98,7 +98,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
           <div className="grid lg:grid-cols-5 gap-10">
             <div className="lg:col-span-2 space-y-3">
               <div className="flex items-center gap-2">
-                <img src={aiWholesailLogo} alt="AIWholesail" className="h-6 w-auto opacity-60" />
+                <img src={aiWholesailLogo} alt="AIWholesail" className="h-18 w-auto opacity-60" />
                 <span className="text-sm font-semibold tracking-tight text-white/60">AIWholesail</span>
               </div>
               <p className="text-xs text-white/20 max-w-xs leading-relaxed">
