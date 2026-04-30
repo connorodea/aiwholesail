@@ -152,7 +152,7 @@ const Landing = () => {
           </div>
 
           <div className="flex items-center justify-center gap-6 text-sm text-white/40 mt-8">
-            <span className="flex items-center gap-1.5"><Shield className="h-3.5 w-3.5" /> Credit Card Required</span>
+            <span className="flex items-center gap-1.5"><Shield className="h-3.5 w-3.5" /> No Credit Card Required</span>
             <span className="flex items-center gap-1.5"><CheckCircle className="h-3.5 w-3.5" /> Cancel Anytime</span>
           </div>
         </div>
