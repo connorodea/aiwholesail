@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { analytics } from '@/lib/analytics';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -89,6 +90,8 @@ export default function Auth() {
           }
         } else {
           toast.success('Welcome to AIWholesail! Your 7-day free trial has started.');
+          analytics.signUp('email');
+          analytics.beginTrial('Pro');
           localStorage.removeItem('selectedPlan');
           // Go straight to app — trial starts automatically
           navigate('/app');
@@ -103,6 +106,7 @@ export default function Auth() {
           }
         } else {
           toast.success('Signed in successfully!');
+          analytics.login('email');
           navigate('/app');
         }
       }

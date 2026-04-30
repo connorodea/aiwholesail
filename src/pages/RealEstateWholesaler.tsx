@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { analytics } from '@/lib/analytics';
 import { PropertySearch } from '@/components/PropertySearch';
 import { PropertyCard } from '@/components/PropertyCard';
 import { PropertyModal } from '@/components/PropertyModal';
@@ -104,6 +105,9 @@ export default function RealEstateWholesaler() {
   };
 
   const handleSearch = async (params: PropertySearchParams) => {
+    // Track search event
+    analytics.propertySearch(params.location, { propertyType: params.homeType, minPrice: params.price_min, maxPrice: params.price_max });
+
     // Validate county searches have a state
     if (isCountyWithoutState(params.location)) {
       setError("Please include a state with county searches. Example: 'Oakland County, MI' or 'Oakland County, Michigan'");

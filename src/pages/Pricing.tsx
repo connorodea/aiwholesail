@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { analytics } from '@/lib/analytics';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Check, Star, ArrowRight, Shield, CheckCircle, Sparkles } from 'lucide-react';
@@ -48,7 +49,8 @@ export default function Pricing() {
   const [loading, setLoading] = useState<string | null>(null);
 
   const handleSelectPlan = async (plan: typeof plans[0]) => {
-    // Store selected plan for post-signup
+    // Track checkout intent
+    analytics.beginCheckout(plan.name, plan.price);
     localStorage.setItem('selectedPlan', JSON.stringify(plan));
 
     if (!user) {
