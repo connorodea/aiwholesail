@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Search, DollarSign, MapPin, Star, Brain, BarChart3, MessageSquare, Eye, Zap, Shield, ChevronRight, Play, ArrowRight, X, Bell, Users, Target } from "lucide-react";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { CheckCircle, Search, DollarSign, MapPin, Star, Brain, BarChart3, MessageSquare, Eye, Zap, Shield, ChevronRight, Play, ArrowRight, X, Bell, Users, Target, Menu, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
@@ -16,6 +17,29 @@ const Landing = () => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [showDemoModal, setShowDemoModal] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const navLinks = [
+    { label: 'Features', href: '#features' },
+    { label: 'Pricing', href: '#pricing' },
+    { label: 'FAQ', href: '/faq' },
+    { label: 'Contact', href: '/contact' },
+  ];
+
+  const scrollToSection = (href: string) => {
+    if (href.startsWith('#')) {
+      const el = document.querySelector(href);
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+      setMobileMenuOpen(false);
+    }
+  };
 
   // Animation refs for different sections
   const heroRef = useScrollAnimation({
@@ -98,40 +122,134 @@ const Landing = () => {
         </div>
       )}
 
-      {/* Header */}
-      <header className="fixed top-4 left-4 right-4 z-50 animate-fade-in">
-        <div className="container mx-auto max-w-7xl">
-          <div className="bg-card/80 backdrop-blur-xl border border-border/50 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 px-6 py-4">
-            <div className="flex items-center justify-between">
-              {/* Brand Section */}
-              <div className="flex items-center space-x-3">
-                <div className="relative group">
-                  <img src={aiWholesailLogo} alt="AIWholesail" className="h-10 w-auto object-contain transition-transform duration-300 group-hover:scale-105" />
-                  <div className="absolute -inset-2 bg-gradient-to-r from-primary/20 to-accent/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"></div>
-                </div>
+      {/* Header — Glassmorphism Floating Nav */}
+      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+        scrolled
+          ? 'py-2'
+          : 'py-4'
+      }`}>
+        <div className="container mx-auto max-w-7xl px-4">
+          <div className={`relative overflow-hidden rounded-2xl transition-all duration-500 ${
+            scrolled
+              ? 'bg-background/70 backdrop-blur-2xl border border-border/40 shadow-[0_8px_32px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)]'
+              : 'bg-background/40 backdrop-blur-xl border border-white/10 shadow-lg'
+          }`}>
+            {/* Subtle gradient shimmer on the border */}
+            <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-primary/5 via-transparent to-primary/5 pointer-events-none" />
+
+            <div className="relative px-6 py-3 flex items-center justify-between">
+              {/* Left — Logo + Nav */}
+              <div className="flex items-center gap-8">
+                {/* Logo */}
+                <Link to="/" className="flex items-center gap-2.5 group shrink-0">
+                  <div className="relative">
+                    <img
+                      src={aiWholesailLogo}
+                      alt="AIWholesail"
+                      className="h-9 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+                    />
+                    <div className="absolute -inset-1.5 bg-gradient-to-r from-primary/20 to-primary/10 rounded-lg blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  </div>
+                  <span className="hidden sm:block text-lg font-semibold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+                    AIWholesail
+                  </span>
+                </Link>
+
+                {/* Desktop Nav Links */}
+                <nav className="hidden md:flex items-center gap-1">
+                  {navLinks.map((link) =>
+                    link.href.startsWith('#') ? (
+                      <button
+                        key={link.label}
+                        onClick={() => scrollToSection(link.href)}
+                        className="px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted/50"
+                      >
+                        {link.label}
+                      </button>
+                    ) : (
+                      <Link
+                        key={link.label}
+                        to={link.href}
+                        className="px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted/50"
+                      >
+                        {link.label}
+                      </Link>
+                    )
+                  )}
+                </nav>
               </div>
-              
-              {/* Action Buttons */}
-              <div className="flex items-center space-x-3">
+
+              {/* Right — CTA Buttons */}
+              <div className="flex items-center gap-2">
                 {user ? (
                   <Link to="/app">
-                    <Button variant="default" size="sm" className="hover-scale shadow-sm">
-                      <Eye className="h-4 w-4 mr-2" />
+                    <Button size="sm" className="rounded-full px-5 gap-2 shadow-sm hover:shadow-md transition-all">
+                      <Sparkles className="h-3.5 w-3.5" />
                       Dashboard
                     </Button>
                   </Link>
                 ) : (
-                  <div className="flex items-center space-x-2">
-                    <Link to="/auth">
-                      <Button variant="ghost" size="sm" className="hover-scale">
+                  <>
+                    <Link to="/auth" className="hidden sm:block">
+                      <Button variant="ghost" size="sm" className="rounded-full px-4 text-muted-foreground hover:text-foreground">
                         Sign In
                       </Button>
                     </Link>
-                    <Button size="sm" className="hover-scale shadow-sm" onClick={handleStartTrial}>
-                      Get Started
+                    <Button
+                      size="sm"
+                      className="rounded-full px-5 gap-2 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary shadow-sm hover:shadow-md transition-all"
+                      onClick={handleStartTrial}
+                    >
+                      <Zap className="h-3.5 w-3.5" />
+                      <span className="hidden sm:inline">Start Free Trial</span>
+                      <span className="sm:hidden">Get Started</span>
                     </Button>
-                  </div>
+                  </>
                 )}
+
+                {/* Mobile Menu */}
+                <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+                  <SheetTrigger asChild className="md:hidden">
+                    <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full">
+                      <Menu className="h-4 w-4" />
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="right" className="w-72 pt-10">
+                    <nav className="flex flex-col gap-1">
+                      {navLinks.map((link) =>
+                        link.href.startsWith('#') ? (
+                          <button
+                            key={link.label}
+                            onClick={() => scrollToSection(link.href)}
+                            className="w-full text-left px-4 py-3 text-base font-medium text-foreground hover:bg-muted/50 rounded-lg transition-colors"
+                          >
+                            {link.label}
+                          </button>
+                        ) : (
+                          <Link
+                            key={link.label}
+                            to={link.href}
+                            onClick={() => setMobileMenuOpen(false)}
+                            className="px-4 py-3 text-base font-medium text-foreground hover:bg-muted/50 rounded-lg transition-colors"
+                          >
+                            {link.label}
+                          </Link>
+                        )
+                      )}
+                    </nav>
+                    <div className="mt-6 pt-6 border-t border-border/50 flex flex-col gap-2">
+                      {!user && (
+                        <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>
+                          <Button variant="outline" className="w-full rounded-full">Sign In</Button>
+                        </Link>
+                      )}
+                      <Button className="w-full rounded-full gap-2" onClick={() => { handleStartTrial(); setMobileMenuOpen(false); }}>
+                        <Zap className="h-4 w-4" />
+                        {user ? 'Dashboard' : 'Start Free Trial'}
+                      </Button>
+                    </div>
+                  </SheetContent>
+                </Sheet>
               </div>
             </div>
           </div>
@@ -190,7 +308,7 @@ const Landing = () => {
       </section>
 
       {/* Features Section — 9-Feature Grid */}
-      <section ref={featuresRef.ref} className="py-24 px-4">
+      <section id="features" ref={featuresRef.ref} className="py-24 px-4">
         <div className="container mx-auto max-w-7xl">
           <div className={`text-center mb-16 space-y-4 transition-all duration-1000 delay-200 ${featuresRef.isVisible ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
             <h2 className="text-3xl md:text-4xl font-medium tracking-tight">
@@ -275,7 +393,7 @@ const Landing = () => {
       </section>
 
       {/* Pricing Section - Clean & Minimal */}
-      <section ref={pricingRef.ref} className="py-24 px-4">
+      <section id="pricing" ref={pricingRef.ref} className="py-24 px-4">
         <div className="container mx-auto text-center max-w-5xl">
           <div className={`space-y-4 mb-16 transition-all duration-1000 ${pricingRef.isVisible ? 'animate-fade-in opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
             <h2 className="text-3xl md:text-4xl font-medium tracking-tight">
