@@ -682,6 +682,95 @@
         {"keyword": "real estate investing while in the military", "category": "Strategy", "difficulty": "low"},
         {"keyword": "how much should I spend on my first investment property", "category": "Beginner Guide", "difficulty": "low"}
       ]
+    },
+    {
+      "name": "Property Type Investing",
+      "pillar": "property-type-investing-guide",
+      "keywords": [
+        {"keyword": "how to invest in duplexes for beginners", "category": "Beginner Guide", "difficulty": "low"},
+        {"keyword": "mobile home park investing returns 2026", "category": "Strategy", "difficulty": "medium"},
+        {"keyword": "self storage facility investment guide", "category": "Strategy", "difficulty": "low"},
+        {"keyword": "land flipping step by step guide", "category": "Beginner Guide", "difficulty": "low"},
+        {"keyword": "mixed use property investing pros and cons", "category": "Strategy", "difficulty": "low"},
+        {"keyword": "single family vs multifamily which to invest in", "category": "Comparison", "difficulty": "low"},
+        {"keyword": "commercial real estate for beginners 2026", "category": "Beginner Guide", "difficulty": "medium"},
+        {"keyword": "small apartment building investing guide", "category": "Strategy", "difficulty": "low"},
+        {"keyword": "how to buy your first duplex investment", "category": "Beginner Guide", "difficulty": "low"},
+        {"keyword": "warehouse investing opportunities 2026", "category": "Strategy", "difficulty": "medium"},
+        {"keyword": "strip mall investment returns", "category": "Strategy", "difficulty": "low"},
+        {"keyword": "tiny home investing as rental strategy", "category": "Strategy", "difficulty": "low"},
+        {"keyword": "how to invest in vacation rentals", "category": "Strategy", "difficulty": "low"},
+        {"keyword": "senior living facility investment", "category": "Strategy", "difficulty": "medium"},
+        {"keyword": "triple net lease investing explained", "category": "Strategy", "difficulty": "low"}
+      ]
+    },
+    {
+      "name": "Market Timing & Cycles",
+      "pillar": "market-timing-and-cycles",
+      "keywords": [
+        {"keyword": "is now a good time to invest in real estate", "category": "Market Analysis", "difficulty": "low"},
+        {"keyword": "real estate market forecast 2026 2027", "category": "Market Analysis", "difficulty": "medium"},
+        {"keyword": "how to invest during a housing downturn", "category": "Strategy", "difficulty": "low"},
+        {"keyword": "interest rate impact on real estate investing", "category": "Market Analysis", "difficulty": "low"},
+        {"keyword": "best time of year to buy investment property", "category": "Strategy", "difficulty": "low"},
+        {"keyword": "housing market crash indicators to watch", "category": "Market Analysis", "difficulty": "medium"},
+        {"keyword": "recession proof real estate investing strategies", "category": "Strategy", "difficulty": "low"},
+        {"keyword": "how to find deals in a hot market", "category": "Strategy", "difficulty": "low"},
+        {"keyword": "buying real estate during inflation", "category": "Strategy", "difficulty": "low"},
+        {"keyword": "real estate market cycle stages explained", "category": "Market Analysis", "difficulty": "low"},
+        {"keyword": "when to sell investment property for maximum profit", "category": "Strategy", "difficulty": "low"},
+        {"keyword": "how rising interest rates affect real estate investors", "category": "Market Analysis", "difficulty": "low"}
+      ]
+    },
+    {
+      "name": "Real Estate Investor Lifestyle",
+      "pillar": "real-estate-investor-lifestyle",
+      "keywords": [
+        {"keyword": "how to quit your job through real estate investing", "category": "Strategy", "difficulty": "low"},
+        {"keyword": "real estate investing as a side hustle", "category": "Strategy", "difficulty": "low"},
+        {"keyword": "how many rental properties to retire", "category": "Strategy", "difficulty": "low"},
+        {"keyword": "building passive income through real estate", "category": "Strategy", "difficulty": "low"},
+        {"keyword": "real estate investing while working full time", "category": "Strategy", "difficulty": "low"},
+        {"keyword": "financial freedom through real estate timeline", "category": "Strategy", "difficulty": "low"},
+        {"keyword": "how much money do you need to retire from real estate", "category": "Strategy", "difficulty": "low"},
+        {"keyword": "real estate investing for millennials guide", "category": "Beginner Guide", "difficulty": "low"},
+        {"keyword": "balancing real estate investing with a W2 job", "category": "Strategy", "difficulty": "low"},
+        {"keyword": "creating generational wealth through property", "category": "Strategy", "difficulty": "low"}
+      ]
+    },
+    {
+      "name": "Advanced Wholesale Strategies",
+      "pillar": "advanced-wholesale-strategies",
+      "keywords": [
+        {"keyword": "virtual wholesaling step by step guide", "category": "Strategy", "difficulty": "low"},
+        {"keyword": "wholesale real estate in a different state", "category": "Strategy", "difficulty": "low"},
+        {"keyword": "creative financing for wholesale deals", "category": "Financing", "difficulty": "low"},
+        {"keyword": "how to wholesale commercial properties", "category": "Strategy", "difficulty": "medium"},
+        {"keyword": "reverse wholesaling strategy explained", "category": "Strategy", "difficulty": "low"},
+        {"keyword": "wholetailing vs wholesaling which is more profitable", "category": "Comparison", "difficulty": "low"},
+        {"keyword": "novation agreements in real estate explained", "category": "Legal", "difficulty": "low"},
+        {"keyword": "wholesale to retail flip conversion strategy", "category": "Strategy", "difficulty": "low"},
+        {"keyword": "JV wholesale deals how to structure", "category": "Strategy", "difficulty": "medium"},
+        {"keyword": "how to scale a wholesaling business to 10 deals per month", "category": "Scaling", "difficulty": "medium"},
+        {"keyword": "automated wholesale deal finding systems", "category": "Automation", "difficulty": "low"},
+        {"keyword": "wholesale real estate without cold calling", "category": "Strategy", "difficulty": "low"}
+      ]
+    },
+    {
+      "name": "Real Estate Tech & Automation",
+      "pillar": "real-estate-tech-and-automation",
+      "keywords": [
+        {"keyword": "best CRM for real estate investors 2026", "category": "Tools", "difficulty": "medium"},
+        {"keyword": "how to automate rental property management", "category": "Automation", "difficulty": "low"},
+        {"keyword": "AI tools replacing traditional real estate analysis", "category": "AI in Real Estate", "difficulty": "low"},
+        {"keyword": "best apps for real estate investors 2026", "category": "Tools", "difficulty": "medium"},
+        {"keyword": "how to use ChatGPT for real estate deals", "category": "AI in Real Estate", "difficulty": "low"},
+        {"keyword": "real estate investing automation stack", "category": "Automation", "difficulty": "low"},
+        {"keyword": "property management software comparison", "category": "Tools", "difficulty": "low"},
+        {"keyword": "best skip tracing tools compared 2026", "category": "Tools", "difficulty": "medium"},
+        {"keyword": "using drones for property inspection and analysis", "category": "Tools", "difficulty": "low"},
+        {"keyword": "smart home technology for rental properties", "category": "Tools", "difficulty": "low"}
+      ]
     }
   ]
 }

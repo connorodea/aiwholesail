@@ -13,6 +13,11 @@
  *   - Competitor pages
  *   - Tool pages
  *   - Blog posts
+ *   - City comparison pages
+ *   - Investor persona pages
+ *   - Checklist pages
+ *   - Software review pages
+ *   - State law pages
  *
  * Run:  node scripts/generate-sitemap.js
  * Output: public/sitemap.xml  (+ public/sitemap-index.xml if > 50,000 URLs)
@@ -55,6 +60,12 @@ try {
   console.warn('Warning: Could not load blog/index.json — skipping blog URLs');
 }
 
+const cityComparisons = loadJson(path.join(dataDir, 'city-comparisons.json'));
+const personas = loadJson(path.join(dataDir, 'personas.json'));
+const checklists = loadJson(path.join(dataDir, 'checklists.json'));
+const softwareReviews = loadJson(path.join(dataDir, 'software-reviews.json'));
+const stateLaws = loadJson(path.join(dataDir, 'state-laws.json'));
+
 // ---------------------------------------------------------------------------
 // Derive unique states (slug = stateFull lowercased, spaces -> hyphens)
 // ---------------------------------------------------------------------------
@@ -96,8 +107,12 @@ const staticPages = [
   { path: '/guides',       priority: '0.9', changefreq: 'weekly' },
   { path: '/glossary',     priority: '0.9', changefreq: 'weekly' },
   { path: '/deals',        priority: '0.9', changefreq: 'weekly' },
-  { path: '/laws',         priority: '0.5', changefreq: 'monthly' },
+  { path: '/laws',         priority: '0.7', changefreq: 'monthly' },
   { path: '/developers',   priority: '0.5', changefreq: 'monthly' },
+  { path: '/compare',      priority: '0.7', changefreq: 'monthly' },
+  { path: '/for',           priority: '0.7', changefreq: 'monthly' },
+  { path: '/checklists',    priority: '0.7', changefreq: 'monthly' },
+  { path: '/reviews',       priority: '0.7', changefreq: 'monthly' },
 ];
 
 // 2. Tool pages (13)
@@ -225,6 +240,31 @@ for (const article of blogArticles) {
   addUrl(`/blog/${article.slug}`, '0.7', 'monthly', lastmod);
 }
 
+// --- City comparisons: /compare/:city1-vs-:city2 ---
+for (const comp of cityComparisons) {
+  addUrl(`/compare/${comp.city1}-vs-${comp.city2}`, '0.6', 'monthly');
+}
+
+// --- Investor personas: /for/:slug ---
+for (const persona of personas) {
+  addUrl(`/for/${persona.slug}`, '0.7', 'monthly');
+}
+
+// --- Checklists: /checklists/:slug ---
+for (const checklist of checklists) {
+  addUrl(`/checklists/${checklist.slug}`, '0.7', 'monthly');
+}
+
+// --- Software reviews: /reviews/:slug ---
+for (const review of softwareReviews) {
+  addUrl(`/reviews/${review.slug}`, '0.7', 'monthly');
+}
+
+// --- State law pages: /laws/:slug ---
+for (const law of stateLaws) {
+  addUrl(`/laws/${law.slug}`, '0.7', 'monthly');
+}
+
 // ---------------------------------------------------------------------------
 // XML helpers
 // ---------------------------------------------------------------------------
@@ -328,5 +368,10 @@ console.log(`  Glossary pages:       ${glossary.length}`);
 console.log(`  Competitor pages:     ${competitors.length}`);
 console.log(`  Tool pages:           ${tools.length}`);
 console.log(`  Blog posts:           ${blogArticles.length}`);
+console.log(`  City comparisons:     ${cityComparisons.length}`);
+console.log(`  Investor personas:    ${personas.length}`);
+console.log(`  Checklists:           ${checklists.length}`);
+console.log(`  Software reviews:     ${softwareReviews.length}`);
+console.log(`  State law pages:      ${stateLaws.length}`);
 console.log(`  --------------------------------`);
 console.log(`  TOTAL URLs:           ${urls.length}`);
