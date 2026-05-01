@@ -3,6 +3,7 @@ import { favorites as favoritesApi } from '@/lib/api-client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Property } from '@/types/zillow';
 import { toast } from 'sonner';
+import { zillowAPI } from '@/lib/zillow-api';
 
 export function useFavorites() {
   const [favorites, setFavorites] = useState<Property[]>([]);
@@ -27,6 +28,31 @@ export function useFavorites() {
       }) || [];
 
       setFavorites(favoriteProperties);
+
+      // Enrich any favorites missing zestimates (so spread doesn't show "Calculating...")
+      const needsZestimate = favoriteProperties.filter((p: Property) => p.price && !p.zestimate && p.zpid);
+      if (needsZestimate.length > 0) {
+        try {
+          const enriched = await zillowAPI.enrichWithZestimates(needsZestimate);
+          setFavorites(prev => prev.map(fav => {
+            const match = enriched.find((e: Property) => e.id === fav.id || e.zpid === fav.zpid);
+            if (match?.zestimate) {
+              // Update the favorite in the DB with the zestimate
+              favoritesApi.add(fav.id, { ...fav, zestimate: match.zestimate }).catch(() => {});
+              return { ...fav, zestimate: match.zestimate };
+            }
+            if (match && !match.zestimate) {
+              return { ...fav, zestimateUnavailable: true } as any;
+            }
+            return fav;
+          }));
+        } catch {
+          // Mark all as unavailable so they stop showing "Calculating..."
+          setFavorites(prev => prev.map(fav =>
+            !fav.zestimate ? { ...fav, zestimateUnavailable: true } as any : fav
+          ));
+        }
+      }
     } catch (error) {
       console.error('Error fetching favorites:', error);
       toast.error('Failed to load favorites');

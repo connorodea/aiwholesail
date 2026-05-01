@@ -3,7 +3,7 @@
  * Spread Alert Worker
  *
  * Runs on a cron schedule. Efficiently finds +$30K spread deals and sends
- * SMS alerts to subscribed users.
+ * email alerts (via Resend) and optional SMS (via Twilio) to subscribed users.
  *
  * KEY OPTIMIZATION: Deduplicates by location. 1000 users watching "Detroit, MI"
  * = 1 Zillow API call, not 1000. Results are cached in property_search_cache
@@ -14,7 +14,7 @@
  * 2. For each location: search Zillow (1 call) → enrich with zestimates
  * 3. Upsert results into property_search_cache
  * 4. For each alert: find new deals matching criteria that haven't been sent
- * 5. Send SMS via Twilio, log to alert_sent_deals
+ * 5. Send email via Resend (always) + SMS via Twilio (if phone exists), log to alert_sent_deals
  *
  * Usage:
  *   node scripts/spread-alert-worker.js           # Run once
@@ -24,6 +24,8 @@
 require('dotenv').config();
 const axios = require('axios');
 const { Pool } = require('pg');
+const { Resend } = require('resend');
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const DRY_RUN = process.argv.includes('--dry-run');
@@ -40,6 +42,34 @@ const TWILIO_FROM = process.env.TWILIO_PHONE_NUMBER;
 const MAX_PAGES_PER_LOCATION = 5;
 const ZESTIMATE_BATCH_SIZE = 20;
 const MIN_SPREAD_DEFAULT = 30000;
+
+// State abbreviation → full name mapping for Zillow search
+const STATE_NAMES = {
+  AL: 'Alabama', AK: 'Alaska', AZ: 'Arizona', AR: 'Arkansas', CA: 'California',
+  CO: 'Colorado', CT: 'Connecticut', DE: 'Delaware', FL: 'Florida', GA: 'Georgia',
+  HI: 'Hawaii', ID: 'Idaho', IL: 'Illinois', IN: 'Indiana', IA: 'Iowa',
+  KS: 'Kansas', KY: 'Kentucky', LA: 'Louisiana', ME: 'Maine', MD: 'Maryland',
+  MA: 'Massachusetts', MI: 'Michigan', MN: 'Minnesota', MS: 'Mississippi', MO: 'Missouri',
+  MT: 'Montana', NE: 'Nebraska', NV: 'Nevada', NH: 'New Hampshire', NJ: 'New Jersey',
+  NM: 'New Mexico', NY: 'New York', NC: 'North Carolina', ND: 'North Dakota', OH: 'Ohio',
+  OK: 'Oklahoma', OR: 'Oregon', PA: 'Pennsylvania', RI: 'Rhode Island', SC: 'South Carolina',
+  SD: 'South Dakota', TN: 'Tennessee', TX: 'Texas', UT: 'Utah', VT: 'Vermont',
+  VA: 'Virginia', WA: 'Washington', WV: 'West Virginia', WI: 'Wisconsin', WY: 'Wyoming',
+  DC: 'District of Columbia',
+};
+
+/**
+ * Resolve a location string for Zillow search.
+ * If the location is a 2-letter state abbreviation, expand to full state name.
+ */
+function resolveSearchLocation(location) {
+  const trimmed = location.trim();
+  const upper = trimmed.toUpperCase();
+  if (upper.length === 2 && STATE_NAMES[upper]) {
+    return STATE_NAMES[upper];
+  }
+  return trimmed;
+}
 
 // ---------- Zillow API helpers ----------
 
@@ -116,12 +146,76 @@ async function sendSMS(to, message) {
   return response.data;
 }
 
+// ---------- Resend Email ----------
+
+async function sendAlertEmail(userEmail, location, deals) {
+  const dealRows = deals.map(d => {
+    const addr = d.address || 'Unknown';
+    const listPrice = d.price ? `$${Number(d.price).toLocaleString()}` : 'N/A';
+    const zestimate = d.zestimate ? `$${Number(d.zestimate).toLocaleString()}` : 'N/A';
+    const spread = (d.zestimate && d.price) ? `+$${Number(d.zestimate - d.price).toLocaleString()}` : 'N/A';
+    return `
+      <tr>
+        <td style="padding: 10px 12px; border-bottom: 1px solid #262626; color: #e5e5e5;">${addr}</td>
+        <td style="padding: 10px 12px; border-bottom: 1px solid #262626; color: #a3a3a3; text-align: right;">${listPrice}</td>
+        <td style="padding: 10px 12px; border-bottom: 1px solid #262626; color: #a3a3a3; text-align: right;">${zestimate}</td>
+        <td style="padding: 10px 12px; border-bottom: 1px solid #262626; color: #06b6d4; font-weight: 600; text-align: right;">${spread}</td>
+      </tr>
+    `;
+  }).join('');
+
+  const subject = `${deals.length} New +$30K Deal${deals.length > 1 ? 's' : ''} in ${location} — AIWholesail`;
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 700px; margin: 0 auto; background: #08090a; color: #ffffff; padding: 40px 30px; border-radius: 12px;">
+      <img src="https://aiwholesail.com/logo-white.png" alt="AIWholesail" style="height: 48px; margin-bottom: 24px;" />
+      <h2 style="color: #06b6d4; margin-bottom: 8px;">New Deals Found in ${location}</h2>
+      <p style="color: #a3a3a3; line-height: 1.6; margin-bottom: 24px;">
+        We found <strong style="color: #ffffff;">${deals.length}</strong> propert${deals.length > 1 ? 'ies' : 'y'} with +$30K spread in <strong style="color: #ffffff;">${location}</strong>. Here are the top deals:
+      </p>
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px; font-size: 14px;">
+        <thead>
+          <tr style="border-bottom: 2px solid #06b6d4;">
+            <th style="padding: 10px 12px; text-align: left; color: #06b6d4; font-weight: 600;">Address</th>
+            <th style="padding: 10px 12px; text-align: right; color: #06b6d4; font-weight: 600;">List Price</th>
+            <th style="padding: 10px 12px; text-align: right; color: #06b6d4; font-weight: 600;">Zestimate</th>
+            <th style="padding: 10px 12px; text-align: right; color: #06b6d4; font-weight: 600;">Spread</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${dealRows}
+        </tbody>
+      </table>
+      <a href="https://aiwholesail.com/app" style="display: inline-block; background: #06b6d4; color: #000; font-weight: 600; padding: 12px 32px; border-radius: 6px; text-decoration: none; font-size: 16px;">
+        View Deals on AIWholesail
+      </a>
+      <p style="color: #737373; font-size: 13px; margin-top: 24px; line-height: 1.5;">
+        You're receiving this because you set up a property alert for ${location}. Manage your alerts at aiwholesail.com/app.
+      </p>
+      <hr style="border: none; border-top: 1px solid #262626; margin: 24px 0;" />
+      <p style="color: #525252; font-size: 12px;">AIWholesail — Find profitable real estate deals with AI</p>
+    </div>
+  `;
+
+  if (DRY_RUN) {
+    console.log(`  [DRY RUN] Would send email to ${userEmail}: ${subject}`);
+    return { id: 'dry-run' };
+  }
+
+  const result = await resend.emails.send({
+    from: 'AIWholesail Alerts <alerts@aiwholesail.com>',
+    to: userEmail,
+    subject,
+    html,
+  });
+  return result;
+}
+
 // ---------- Main worker ----------
 
 async function run() {
   const jobStart = new Date();
   console.log(`\n=== Spread Alert Worker started at ${jobStart.toISOString()} ===`);
-  if (DRY_RUN) console.log('*** DRY RUN MODE — no SMS will be sent ***\n');
+  if (DRY_RUN) console.log('*** DRY RUN MODE — no emails/SMS will be sent ***\n');
 
   // Track job
   const jobResult = await pool.query(
@@ -137,7 +231,6 @@ async function run() {
       SELECT DISTINCT LOWER(TRIM(location)) AS location
       FROM property_alerts
       WHERE is_active = true
-        AND phone_number IS NOT NULL
         AND (
           last_alert_sent IS NULL
           OR (alert_frequency = 'daily' AND last_alert_sent < NOW() - INTERVAL '24 hours')
@@ -154,18 +247,20 @@ async function run() {
     // 2. For each unique location: search + enrich + cache
     for (const location of locations) {
       try {
-        console.log(`--- Searching: ${location} ---`);
+        // Resolve state abbreviations to full names for Zillow search
+        const searchLocation = resolveSearchLocation(location);
+        console.log(`--- Searching: ${location}${searchLocation !== location ? ` (→ ${searchLocation})` : ''} ---`);
 
         // Search Zillow (multiple pages)
         let allListings = [];
-        const firstPage = await searchZillow(location);
+        const firstPage = await searchZillow(searchLocation);
         const totalPages = Math.min(firstPage?.data?.total_pages || 1, MAX_PAGES_PER_LOCATION);
         const firstListings = (firstPage?.data?.listings || []).filter(p => p.price > 0);
         allListings.push(...firstListings);
 
         for (let page = 2; page <= totalPages; page++) {
           try {
-            const pageData = await searchZillow(location, page);
+            const pageData = await searchZillow(searchLocation, page);
             const listings = (pageData?.data?.listings || []).filter(p => p.price > 0);
             allListings.push(...listings);
           } catch (err) {
@@ -243,13 +338,12 @@ async function run() {
       }
     }
 
-    // 3. For each alert: find new deals from cache and send SMS
+    // 3. For each alert: find new deals from cache and send email + optional SMS
     const dueAlerts = await pool.query(`
       SELECT pa.*, u.email
       FROM property_alerts pa
       JOIN users u ON pa.user_id = u.id
       WHERE pa.is_active = true
-        AND pa.phone_number IS NOT NULL
         AND (
           pa.last_alert_sent IS NULL
           OR (pa.alert_frequency = 'daily' AND pa.last_alert_sent < NOW() - INTERVAL '24 hours')
@@ -301,27 +395,52 @@ async function run() {
           continue;
         }
 
-        console.log(`  Alert ${alert.id} (${alert.location}): ${deals.rows.length} new deals for ${alert.phone_number}`);
+        const userEmail = alert.email;
+        console.log(`  Alert ${alert.id} (${alert.location}): ${deals.rows.length} new deals for ${userEmail}${alert.phone_number ? ` + SMS to ${alert.phone_number}` : ''}`);
 
-        // Build SMS
-        const topDeals = deals.rows.slice(0, 3);
-        const dealLines = topDeals.map(d =>
-          `${d.address || 'Unknown'}: $${(d.price / 1000).toFixed(0)}K list / $${(d.zestimate / 1000).toFixed(0)}K Zest = +$${(d.spread / 1000).toFixed(0)}K`
-        );
+        let emailSent = false;
+        let smsSent = false;
 
-        const smsBody = [
-          `AIWholesail Alert!`,
-          `${deals.rows.length} new +$${(minSpread / 1000).toFixed(0)}K spread deals in ${alert.location}:`,
-          '',
-          ...dealLines,
-          deals.rows.length > 3 ? `...and ${deals.rows.length - 3} more` : '',
-          '',
-          'aiwholesail.com/app',
-        ].filter(Boolean).join('\n');
+        // Always send email alert
+        try {
+          await sendAlertEmail(userEmail, alert.location, deals.rows);
+          emailSent = true;
+          console.log(`    Email sent to ${userEmail}`);
+        } catch (emailErr) {
+          console.error(`    Failed to send email to ${userEmail}: ${emailErr.message}`);
+          stats.errors.push(`email to ${userEmail}: ${emailErr.message}`);
+        }
 
-        // Send SMS
-        await sendSMS(alert.phone_number, smsBody);
-        stats.alerts++;
+        // Send SMS if phone number exists (optional)
+        if (alert.phone_number) {
+          try {
+            const topDeals = deals.rows.slice(0, 3);
+            const dealLines = topDeals.map(d =>
+              `${d.address || 'Unknown'}: $${(d.price / 1000).toFixed(0)}K list / $${(d.zestimate / 1000).toFixed(0)}K Zest = +$${(d.spread / 1000).toFixed(0)}K`
+            );
+
+            const smsBody = [
+              `AIWholesail Alert!`,
+              `${deals.rows.length} new +$${(minSpread / 1000).toFixed(0)}K spread deals in ${alert.location}:`,
+              '',
+              ...dealLines,
+              deals.rows.length > 3 ? `...and ${deals.rows.length - 3} more` : '',
+              '',
+              'aiwholesail.com/app',
+            ].filter(Boolean).join('\n');
+
+            await sendSMS(alert.phone_number, smsBody);
+            smsSent = true;
+            console.log(`    SMS sent to ${alert.phone_number}`);
+          } catch (smsErr) {
+            console.error(`    Failed to send SMS to ${alert.phone_number}: ${smsErr.message}`);
+            stats.errors.push(`sms to ${alert.phone_number}: ${smsErr.message}`);
+          }
+        }
+
+        if (emailSent || smsSent) {
+          stats.alerts++;
+        }
 
         // Log sent deals (dedup)
         for (const deal of deals.rows) {
@@ -340,10 +459,10 @@ async function run() {
         // Log match
         for (const deal of deals.rows) {
           await pool.query(`
-            INSERT INTO property_alert_matches (alert_id, property_data, matched_at, sms_sent)
-            VALUES ($1, $2, NOW(), true)
+            INSERT INTO property_alert_matches (alert_id, property_data, matched_at, sms_sent, email_sent)
+            VALUES ($1, $2, NOW(), $3, $4)
             ON CONFLICT DO NOTHING
-          `, [alert.id, JSON.stringify(deal)]);
+          `, [alert.id, JSON.stringify(deal), smsSent, emailSent]);
         }
 
       } catch (err) {
