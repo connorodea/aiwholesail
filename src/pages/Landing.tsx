@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
@@ -28,6 +28,47 @@ const navItems = [
 const Landing = () => {
   const { user } = useAuth();
   const [showDemo, setShowDemo] = useState(false);
+
+  // Respect prefers-reduced-motion
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  useEffect(() => {
+    const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setPrefersReducedMotion(mql.matches);
+    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
+    mql.addEventListener("change", handler);
+    return () => mql.removeEventListener("change", handler);
+  }, []);
+
+  // Hero stagger: fade-up on load
+  const heroFadeUp = (delay: number) =>
+    prefersReducedMotion
+      ? {}
+      : {
+          initial: { opacity: 0, y: 20 } as const,
+          animate: { opacity: 1, y: 0 } as const,
+          transition: { duration: 0.8, ease: "easeOut" as const, delay },
+        };
+
+  // Scroll-triggered fade-in for sections below the fold
+  const sectionFadeIn = prefersReducedMotion
+    ? {}
+    : {
+        initial: { opacity: 0, y: 30 } as const,
+        whileInView: { opacity: 1, y: 0 } as const,
+        viewport: { once: true, margin: "-100px" },
+        transition: { duration: 0.6, ease: "easeOut" as const },
+      };
+
+  // Staggered card animation
+  const cardFadeIn = (index: number) =>
+    prefersReducedMotion
+      ? {}
+      : {
+          initial: { opacity: 0, y: 30 } as const,
+          whileInView: { opacity: 1, y: 0 } as const,
+          viewport: { once: true, margin: "-100px" },
+          transition: { duration: 0.5, ease: "easeOut" as const, delay: index * 0.08 },
+        };
 
   return (
     <div className="relative overflow-hidden bg-[#08090a] text-white min-h-screen">
@@ -70,18 +111,22 @@ const Landing = () => {
         <AmbientColor />
 
         <Container className="flex flex-col items-center justify-center relative z-10">
-          <Heading as="h1" size="2xl" className="mt-6 py-6">
-            Find profitable real estate deals —{" "}
-            <span className="bg-gradient-to-r from-cyan-500 via-cyan-400 to-cyan-500 bg-clip-text text-transparent">
-              before everyone else
-            </span>
-          </Heading>
-          <Subheading className="max-w-2xl">
-            Stop spending hours searching. Our AI scans thousands of properties, calculates your profit instantly, and alerts you the moment new opportunities hit the market.
-          </Subheading>
+          <motion.div {...heroFadeUp(0)}>
+            <Heading as="h1" size="2xl" className="mt-6 py-6">
+              Find profitable real estate deals —{" "}
+              <span className="bg-gradient-to-r from-cyan-500 via-cyan-400 to-cyan-500 bg-clip-text text-transparent">
+                before everyone else
+              </span>
+            </Heading>
+          </motion.div>
+          <motion.div {...heroFadeUp(0.1)}>
+            <Subheading className="max-w-2xl">
+              Stop spending hours searching. Our AI scans thousands of properties, calculates your profit instantly, and alerts you the moment new opportunities hit the market.
+            </Subheading>
+          </motion.div>
 
           {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-3 mt-8 relative z-10">
+          <motion.div {...heroFadeUp(0.2)} className="flex flex-col sm:flex-row gap-3 mt-8 relative z-10">
             <Link to="/pricing">
               <button className="bg-cyan-500 hover:bg-cyan-400 text-black text-sm md:text-base font-medium px-6 py-2.5 rounded-md transition-all hover:-translate-y-0.5 active:scale-[0.98] shadow-[0px_-1px_0px_0px_rgba(255,255,255,0.4)_inset,0px_1px_0px_0px_rgba(255,255,255,0.4)_inset] flex items-center gap-2">
                 Start 7-Day Free Trial <ArrowRight className="h-4 w-4" />
@@ -93,16 +138,16 @@ const Landing = () => {
             >
               <Play className="h-4 w-4" /> Watch Demo
             </button>
-          </div>
+          </motion.div>
 
           {/* Trust badges */}
-          <div className="flex items-center gap-6 mt-6 text-xs text-neutral-500">
+          <motion.div {...heroFadeUp(0.3)} className="flex items-center gap-6 mt-6 text-xs text-neutral-500">
             <span className="flex items-center gap-1.5"><Shield className="h-3 w-3" /> No credit card required</span>
             <span className="flex items-center gap-1.5"><CheckCircle className="h-3 w-3" /> 7-day free trial</span>
-          </div>
+          </motion.div>
 
           {/* Social proof */}
-          <div className="flex flex-col items-center mt-10 mb-10">
+          <motion.div {...heroFadeUp(0.3)} className="flex flex-col items-center mt-10 mb-10">
             <div className="flex -space-x-3 mb-3">
               {["SJ", "MC", "JD", "RM", "KL"].map((initials, i) => (
                 <div key={i} className="w-10 h-10 rounded-full border-2 border-neutral-800 bg-gradient-to-br from-cyan-500/20 to-neutral-800 flex items-center justify-center text-[10px] font-semibold text-white/70">
@@ -114,7 +159,7 @@ const Landing = () => {
               {[...Array(5)].map((_, i) => <Star key={i} className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />)}
             </div>
             <p className="text-neutral-500 text-xs">Trusted by real estate professionals nationwide</p>
-          </div>
+          </motion.div>
         </Container>
 
         {/* Gradient border reveal — simplified from Proactiv's conic gradient */}
@@ -122,7 +167,7 @@ const Landing = () => {
       </div>
 
       {/* ===== FEATURES GRID ===== */}
-      <section className="relative py-20 sm:py-32">
+      <motion.section className="relative py-20 sm:py-32" {...sectionFadeIn}>
         <Container>
           <FeatureIconContainer className="flex justify-center items-center mx-auto mb-4">
             <Sparkles className="h-5 w-5 text-cyan-500" />
@@ -143,9 +188,10 @@ const Landing = () => {
               { icon: Mail, title: "Automated Follow-ups", desc: "Set up text and email sequences that run automatically. Stay in touch with sellers and buyers without lifting a finger." },
               { icon: FileText, title: "Contract Generator", desc: "Generate assignment agreements, purchase contracts, and letters of intent. Fill in the details and download a professional PDF." },
               { icon: BarChart3, title: "Market Intelligence", desc: "Understand any market in seconds. See median prices, trends, comparable sales, and neighborhood data all in one dashboard." },
-            ].map((feature) => (
-              <div
+            ].map((feature, index) => (
+              <motion.div
                 key={feature.title}
+                {...cardFadeIn(index)}
                 className="relative group p-6 rounded-xl border border-white/[0.05] bg-gradient-to-b from-neutral-900/50 to-transparent hover:border-cyan-500/20 transition-all duration-300"
               >
                 {/* Grid pattern background */}
@@ -162,14 +208,14 @@ const Landing = () => {
                   <h3 className="text-sm font-semibold text-white mb-2">{feature.title}</h3>
                   <p className="text-xs text-neutral-400 leading-relaxed">{feature.desc}</p>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </Container>
-      </section>
+      </motion.section>
 
       {/* ===== WHO IT'S FOR ===== */}
-      <section className="relative py-20">
+      <motion.section className="relative py-20" {...sectionFadeIn}>
         <div className="absolute inset-0 h-px top-0 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
         <Container>
           <FeatureIconContainer className="flex justify-center items-center mx-auto mb-4">
@@ -184,18 +230,18 @@ const Landing = () => {
               { icon: DollarSign, title: "Flippers", desc: "Estimate renovation costs, calculate after-repair values, and score every deal" },
               { icon: BarChart3, title: "Landlords", desc: "Analyze rental income, calculate returns, and find properties below market value" },
               { icon: Users, title: "Agents", desc: "Impress clients with instant market data and professional property analysis" },
-            ].map(item => (
-              <div key={item.title} className="p-6 rounded-xl border border-white/[0.05] bg-neutral-900/30 hover:border-cyan-500/20 transition-all duration-300 text-center group">
+            ].map((item, index) => (
+              <motion.div key={item.title} {...cardFadeIn(index)} className="p-6 rounded-xl border border-white/[0.05] bg-neutral-900/30 hover:border-cyan-500/20 transition-all duration-300 text-center group">
                 <div className="w-12 h-12 mx-auto rounded-xl bg-cyan-500/10 flex items-center justify-center mb-4 group-hover:bg-cyan-500/20 transition-colors">
                   <item.icon className="h-5 w-5 text-cyan-500" />
                 </div>
                 <h3 className="text-sm font-semibold mb-2">{item.title}</h3>
                 <p className="text-xs text-neutral-400">{item.desc}</p>
-              </div>
+              </motion.div>
             ))}
           </div>
         </Container>
-      </section>
+      </motion.section>
 
       {/* ===== TESTIMONIALS ===== */}
       <section className="relative py-20">
