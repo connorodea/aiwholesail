@@ -970,10 +970,15 @@ export class ZillowAPI {
     }
 
     // Fallback: search for recently sold properties near the same location
+    // Use city+state+zip only (not full address) for better location matching
     if (location) {
       try {
+        // Extract city, state, zip from location string — skip street address
+        const parts = location.split(',').map(p => p.trim()).filter(Boolean);
+        const searchLocation = parts.length >= 3 ? parts.slice(1).join(', ') : parts.length >= 2 ? parts.slice(-2).join(', ') : location;
+
         const data = await this.callApi('search', {
-          location,
+          location: searchLocation,
           listing_type: 'recently_sold',
           page: '1'
         });
