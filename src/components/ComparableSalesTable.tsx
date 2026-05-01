@@ -59,15 +59,27 @@ export function ComparableSalesTable({ property }: ComparableSalesTableProps) {
       setError(null);
 
       try {
-        // Build location string for fallback — use city/state/zip, not full address
-        const cityStateParts = [
-          property.city,
-          property.state,
-          property.zipcode || property.zip
-        ].filter(Boolean);
-        const location = cityStateParts.length >= 2
-          ? cityStateParts.join(', ')
-          : property.address || property.streetAddress || '';
+        // Build location string for fallback — parse city/state/zip from address
+        // Property.address is typically "228 Gumtree Dr, Kannapolis, NC 28083"
+        // We need just "Kannapolis, NC 28083" for the search to return correct results
+        let location = '';
+        const addr = (property as any).city
+          ? [(property as any).city, (property as any).state, (property as any).zipcode || (property as any).zip].filter(Boolean).join(', ')
+          : '';
+        if (!location && property.address) {
+          // Parse city/state/zip from full address string
+          const parts = property.address.split(',').map(p => p.trim());
+          if (parts.length >= 3) {
+            // "228 Gumtree Dr, Kannapolis, NC 28083" → "Kannapolis, NC 28083"
+            location = parts.slice(1).join(', ');
+          } else if (parts.length === 2) {
+            // "Kannapolis, NC 28083" → use as-is
+            location = property.address;
+          } else {
+            location = property.address;
+          }
+        }
+        if (addr) location = addr;
 
         const data = await zillowAPI.getPropertyComps(zpid, location);
 
