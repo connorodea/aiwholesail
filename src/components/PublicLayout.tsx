@@ -27,7 +27,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
           <div className="grid lg:grid-cols-5 gap-6 sm:gap-8 lg:gap-10">
             <div className="lg:col-span-2 space-y-3">
               <div className="flex items-center gap-2">
-                <img src={aiWholesailLogo} alt="AIWholesail" className="h-10 sm:h-14 lg:h-18 w-auto opacity-60" />
+                <img src={aiWholesailLogo} alt="AIWholesail" className="h-6 sm:h-7 w-auto opacity-60" />
               </div>
               <p className="text-xs text-neutral-600 max-w-xs leading-relaxed">
                 AI-powered platform for real estate professionals to find, analyze, and close profitable deals.

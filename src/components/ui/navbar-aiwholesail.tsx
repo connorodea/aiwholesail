@@ -115,7 +115,7 @@ export function NavbarAIWholesail() {
           <div className="flex h-14 items-center justify-between gap-4">
             {/* Logo */}
             <Link to="/" className="flex shrink-0 items-center">
-              <img src={aiWholesailLogo} alt="AIWholesail" className="h-24 w-auto object-contain" />
+              <img src={aiWholesailLogo} alt="AIWholesail" className="h-8 w-auto object-contain" />
             </Link>
 
             {/* Desktop Nav */}

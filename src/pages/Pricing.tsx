@@ -276,7 +276,7 @@ export default function Pricing() {
           <p className="text-lg text-neutral-400 font-light max-w-2xl mx-auto mb-10">
             Join thousands of investors using AIWholesail to uncover profitable opportunities faster than ever before.
           </p>
-          <Link to="/pricing">
+          <Link to="/auth?mode=signup">
             <Button size="lg" className="rounded-full px-10 text-base font-semibold bg-cyan-500 hover:bg-cyan-400 shadow-lg shadow-cyan-500/25 gap-2">
               Start Your Free Trial <ArrowRight className="h-4 w-4" />
             </Button>

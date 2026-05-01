@@ -368,7 +368,7 @@ const Landing = () => {
           <div className="grid lg:grid-cols-5 gap-6 sm:gap-8 lg:gap-10">
             <div className="lg:col-span-2 space-y-3">
               <div className="flex items-center gap-2">
-                <img src={aiWholesailLogo} alt="AIWholesail" className="h-12 sm:h-16 lg:h-18 w-auto opacity-60" />
+                <img src={aiWholesailLogo} alt="AIWholesail" className="h-6 sm:h-7 w-auto opacity-60" />
                 <span className="text-sm font-semibold tracking-tight text-neutral-400">AIWholesail</span>
               </div>
               <p className="text-xs text-neutral-600 max-w-xs leading-relaxed">
