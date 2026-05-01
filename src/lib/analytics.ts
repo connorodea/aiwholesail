@@ -21,6 +21,7 @@ declare global {
   interface Window {
     gtag: (...args: any[]) => void;
     dataLayer: any[];
+    fbq: (command: string, ...args: any[]) => void;
   }
 }
 
@@ -35,12 +36,24 @@ function fire(eventName: string, params?: Record<string, any>) {
   }
 }
 
+/** Fire a Facebook Pixel standard event (only if fbq is loaded) */
+function fireFbq(eventName: string, params?: Record<string, any>) {
+  if (typeof window !== 'undefined' && typeof window.fbq === 'function') {
+    if (params) {
+      window.fbq('track', eventName, params);
+    } else {
+      window.fbq('track', eventName);
+    }
+  }
+}
+
 // ============ AUTH EVENTS ============
 
 export const analytics = {
   /** User creates a new account */
   signUp(method: string = 'email') {
     fire('sign_up', { method });
+    fireFbq('Lead', { content_name: 'sign_up', method });
   },
 
   /** User logs in */
@@ -51,6 +64,7 @@ export const analytics = {
   /** User starts free trial */
   beginTrial(plan: string) {
     fire('begin_trial', { plan, value: 0, currency: 'USD' });
+    fireFbq('StartTrial', { content_name: plan, currency: 'USD', value: 0 });
   },
 
   // ============ CHECKOUT EVENTS ============
@@ -62,6 +76,11 @@ export const analytics = {
       value: price,
       items: [{ item_name: plan, price, quantity: 1 }],
     });
+    fireFbq('InitiateCheckout', {
+      content_name: plan,
+      currency: 'USD',
+      value: price,
+    });
   },
 
   /** User completes subscription purchase */
@@ -71,6 +90,11 @@ export const analytics = {
       currency: 'USD',
       value: price,
       items: [{ item_name: plan, price, quantity: 1 }],
+    });
+    fireFbq('Purchase', {
+      content_name: plan,
+      currency: 'USD',
+      value: price,
     });
   },
 
@@ -82,6 +106,7 @@ export const analytics = {
       search_term: location,
       ...filters,
     });
+    fireFbq('Search', { search_string: location });
   },
 
   /** User views property details */
@@ -90,6 +115,13 @@ export const analytics = {
       currency: 'USD',
       value: price || 0,
       items: [{ item_id: propertyId, item_name: address, price }],
+    });
+    fireFbq('ViewContent', {
+      content_name: address,
+      content_ids: [propertyId],
+      content_type: 'property',
+      currency: 'USD',
+      value: price || 0,
     });
   },
 
@@ -106,6 +138,7 @@ export const analytics = {
       property_id: propertyId,
       address,
     });
+    fireFbq('Lead', { content_name: address, content_category: 'deal_pipeline' });
   },
 
   // ============ DEAL PIPELINE EVENTS ============
@@ -170,6 +203,7 @@ export const analytics = {
   /** User submits contact form */
   contactFormSubmit() {
     fire('contact_form_submit');
+    fireFbq('Lead', { content_name: 'contact_form' });
   },
 
   /** User clicks CTA button */

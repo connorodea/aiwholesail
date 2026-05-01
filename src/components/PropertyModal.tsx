@@ -45,6 +45,7 @@ import { PhotosGallery } from './PhotosGallery';
 import { TaxCarryingCosts } from './TaxCarryingCosts';
 import { ARVCalculator } from './ARVCalculator';
 import { AIPhotoAnalysis } from './AIPhotoAnalysis';
+import { generateDealReport } from './DealReportPDF';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useLeads } from '@/hooks/useLeads';
 import { AddToPipelineButton } from './pipeline/AddToPipelineButton';
@@ -244,6 +245,15 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                 >
                   <Phone className="h-4 w-4" />
                   Convert to Lead
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => generateDealReport(displayProperty)}
+                  className="gap-2 hover:bg-muted rounded-xl border-border/50 transition-all duration-300 hover:shadow-md"
+                >
+                  <FileText className="h-4 w-4" />
+                  Export PDF
                 </Button>
                 <AddToPipelineButton property={displayProperty} variant="full" size="sm" />
               </div>
