@@ -207,6 +207,38 @@ export const auth = {
     });
   },
 
+  deleteAccount: async (confirmEmail: string): Promise<ApiResponse<{ message: string }>> => {
+    const response = await apiFetch<{ message: string }>('/api/auth/account', {
+      method: 'DELETE',
+      body: JSON.stringify({ confirmEmail }),
+    });
+
+    if (response.data) {
+      tokenStorage.clear();
+      notifyAuthChange(null);
+    }
+
+    return response;
+  },
+
+  updateProfile: async (fullName: string): Promise<ApiResponse<{ message: string; user: User }>> => {
+    const response = await apiFetch<{ message: string; user: User }>('/api/auth/profile', {
+      method: 'PATCH',
+      body: JSON.stringify({ fullName }),
+    });
+
+    if (response.data?.user) {
+      const currentUser = tokenStorage.getUser();
+      if (currentUser) {
+        const updatedUser = { ...currentUser, fullName: response.data.user.fullName };
+        tokenStorage.setUser(updatedUser);
+        notifyAuthChange(updatedUser);
+      }
+    }
+
+    return response;
+  },
+
   getCurrentUser: (): User | null => tokenStorage.getUser(),
   getSession: () => tokenStorage.getAccessToken() ? { access_token: tokenStorage.getAccessToken() } : null,
 };

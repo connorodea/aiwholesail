@@ -5,6 +5,8 @@ const { body, validationResult } = require('express-validator');
 const { query } = require('../config/database');
 const { authenticate, generateAccessToken, generateRefreshToken, verifyRefreshToken } = require('../middleware/auth');
 const { asyncHandler, AppError, logSecurityEvent } = require('../middleware/errorHandler');
+const { checkDatabaseRateLimit } = require('../middleware/rateLimit');
+const { getClient } = require('../config/database');
 
 const { Resend } = require('resend');
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -471,6 +473,162 @@ router.get('/verify-email/:token', asyncHandler(async (req, res) => {
   // Redirect to frontend auth page with verified=true
   const frontendUrl = process.env.FRONTEND_URL || 'https://aiwholesail.com';
   res.redirect(`${frontendUrl}/auth?verified=true`);
+}));
+
+/**
+ * PATCH /api/auth/profile
+ * Update current user profile (name)
+ */
+router.patch('/profile', authenticate, [
+  body('fullName').trim().isLength({ min: 1, max: 255 }).withMessage('Name is required (max 255 characters)')
+    .custom(value => {
+      if (/<[^>]*>/g.test(value)) {
+        throw new Error('Name contains invalid characters');
+      }
+      return true;
+    })
+], asyncHandler(async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ error: 'Validation failed', errors: errors.array() });
+  }
+
+  const { fullName } = req.body;
+
+  await query(
+    'UPDATE users SET full_name = $1, updated_at = NOW() WHERE id = $2',
+    [fullName, req.user.id]
+  );
+
+  await logSecurityEvent('profile_updated', { field: 'fullName' }, req.user.id, req);
+
+  res.json({
+    message: 'Profile updated',
+    user: {
+      id: req.user.id,
+      email: req.user.email,
+      fullName
+    }
+  });
+}));
+
+/**
+ * DELETE /api/auth/account
+ * GDPR-compliant account deletion — permanently removes all user data
+ */
+router.delete('/account', authenticate, asyncHandler(async (req, res) => {
+  const { confirmEmail } = req.body;
+  const userId = req.user.id;
+
+  if (!confirmEmail) {
+    return res.status(400).json({ error: 'confirmEmail is required to confirm account deletion' });
+  }
+
+  // Fetch the user's email to verify confirmation
+  const userResult = await query('SELECT email FROM users WHERE id = $1', [userId]);
+  if (userResult.rows.length === 0) {
+    return res.status(404).json({ error: 'User not found' });
+  }
+
+  const userEmail = userResult.rows[0].email;
+  if (confirmEmail.toLowerCase().trim() !== userEmail.toLowerCase()) {
+    await logSecurityEvent('account_delete_email_mismatch', {
+      email: userEmail.substring(0, 3) + '***'
+    }, userId, req);
+    return res.status(400).json({ error: 'Email confirmation does not match account email' });
+  }
+
+  // Rate limit: 1 per day per user (1440 minutes = 24 hours)
+  const rateLimit = await checkDatabaseRateLimit(userId, 'account-delete', 1, 1440);
+  if (!rateLimit.allowed) {
+    return res.status(429).json({ error: 'Account deletion can only be requested once per day. Please try again later.' });
+  }
+
+  // Log security event BEFORE deletion (so we have an audit trail)
+  await logSecurityEvent('account_delete_initiated', {
+    email: userEmail.substring(0, 3) + '***',
+    userId
+  }, userId, req);
+
+  // Use a transaction to ensure all-or-nothing deletion
+  const client = await getClient();
+  try {
+    await client.query('BEGIN');
+
+    // 1. Delete sequence_executions for user's lead_sequences
+    await client.query(
+      `DELETE FROM sequence_executions
+       WHERE lead_sequence_id IN (
+         SELECT id FROM lead_sequences WHERE user_id = $1
+       )`,
+      [userId]
+    );
+
+    // 2. Delete lead_sequences
+    await client.query('DELETE FROM lead_sequences WHERE user_id = $1', [userId]);
+
+    // 3. Delete lead_contacts for user's leads
+    await client.query(
+      `DELETE FROM lead_contacts
+       WHERE lead_id IN (
+         SELECT id FROM leads WHERE user_id = $1
+       )`,
+      [userId]
+    );
+
+    // 4. Delete lead_scoring for user's leads
+    await client.query(
+      `DELETE FROM lead_scoring
+       WHERE lead_id IN (
+         SELECT id FROM leads WHERE user_id = $1
+       )`,
+      [userId]
+    );
+
+    // 5. Delete alert_sent_deals for user's alerts
+    await client.query(
+      `DELETE FROM alert_sent_deals
+       WHERE alert_id IN (
+         SELECT id FROM property_alerts WHERE user_id = $1
+       )`,
+      [userId]
+    );
+
+    // 6. Delete property_alert_matches for user's alerts
+    await client.query(
+      `DELETE FROM property_alert_matches
+       WHERE alert_id IN (
+         SELECT id FROM property_alerts WHERE user_id = $1
+       )`,
+      [userId]
+    );
+
+    // 7. Delete direct user-owned tables
+    await client.query('DELETE FROM sessions WHERE user_id = $1', [userId]);
+    await client.query('DELETE FROM favorites WHERE user_id = $1', [userId]);
+    await client.query('DELETE FROM leads WHERE user_id = $1', [userId]);
+    await client.query('DELETE FROM property_alerts WHERE user_id = $1', [userId]);
+    await client.query('DELETE FROM subscribers WHERE user_id = $1', [userId]);
+    await client.query('DELETE FROM profiles WHERE user_id = $1', [userId]);
+
+    // 8. Delete the user record last (foreign key constraints)
+    await client.query('DELETE FROM users WHERE id = $1', [userId]);
+
+    await client.query('COMMIT');
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('[Auth] Account deletion transaction failed:', err.message);
+    throw new AppError('Account deletion failed. Please try again or contact support.', 500);
+  } finally {
+    client.release();
+  }
+
+  await logSecurityEvent('account_delete_completed', {
+    email: userEmail.substring(0, 3) + '***',
+    deletedUserId: userId
+  }, null, req);
+
+  res.json({ message: 'Account deleted successfully' });
 }));
 
 module.exports = router;
