@@ -53,8 +53,9 @@ export function PublicLayout({ children }: PublicLayoutProps) {
               <div className="col-span-2 md:col-span-4 space-y-5">
                 <Link to="/" className="inline-block">
                   <picture>
-                    <source srcSet={aiWholesailLogoWebP} type="image/webp" />
-                    <img src={aiWholesailLogoPNG} alt="AIWholesail" className="h-12 sm:h-14 w-auto" width="77" height="56" loading="lazy" />
+                    <source srcSet="/logo-white.webp" type="image/webp" />
+                    <img src="/logo-white.png" alt="AIWholesail" className="h-12 sm:h-14 w-auto" width="77" height="56" loading="lazy" />
+                  </picture>
                 </Link>
                 <p className="text-[13px] text-neutral-500 leading-relaxed max-w-xs">
                   AI-powered platform for real estate professionals to find, analyze, and close profitable deals.
