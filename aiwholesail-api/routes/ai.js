@@ -22,7 +22,7 @@ const RAPIDAPI_KEY = process.env.RAPIDAPI_KEY;
  * AI-powered property analysis
  */
 router.post('/property-analysis', authenticate, attachSubscription, requireElite, [
-  body('property').isObject().withMessage('Property data required')
+  body('property').optional().isObject(), body('csv_data').optional().isArray(), body('market').optional().isString()
 ], asyncHandler(async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -166,7 +166,7 @@ Current property overview: ${JSON.stringify(property, null, 2)}`;
  * AI-powered lead scoring
  */
 router.post('/lead-scoring', authenticate, [
-  body('property').isObject().withMessage('Property data required')
+  body('property').optional().isObject(), body('csv_data').optional().isArray(), body('market').optional().isString()
 ], asyncHandler(async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -252,7 +252,7 @@ Please return a JSON object with the following structure:
  * Wholesale deal analysis
  */
 router.post('/wholesale-analyzer', authenticate, [
-  body('property').isObject().withMessage('Property data required')
+  body('property').optional().isObject(), body('csv_data').optional().isArray(), body('market').optional().isString()
 ], asyncHandler(async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -264,7 +264,20 @@ router.post('/wholesale-analyzer', authenticate, [
     return res.status(429).json({ error: 'Rate limit exceeded' });
   }
 
-  const { property, repairEstimate, arv } = req.body;
+  const { property, repairEstimate, arv, csv_data, market, analysis_params } = req.body;
+
+  // Batch mode: if csv_data is provided, analyze multiple properties
+  if (csv_data && Array.isArray(csv_data) && csv_data.length > 0) {
+    const params = analysis_params || {};
+    const batchMessage = "Analyze these " + csv_data.length + " wholesale deal candidates in " + (market || "the target market") + ". Properties: " + JSON.stringify(csv_data.slice(0, 25)) + ". For each: calculate ARV, repair costs, MAO (70% rule), wholesale profit, deal score (1-100). Rank best to worst. Return JSON with deals array.";
+    const batchResponse = await callClaude(WHOLESALE_ANALYSIS_PROMPT, batchMessage);
+    const batchText = batchResponse.content[0]?.text || "";
+    return res.json({ response: batchText, type: "batch", count: csv_data.length });
+  }
+
+  if (!property) {
+    return res.status(400).json({ error: "Either property or csv_data is required" });
+  }
 
   const userMessage = `Analyze this wholesale deal opportunity:
 
@@ -451,7 +464,7 @@ Be helpful, concise, and provide actionable advice.`;
  * AI-powered property photo condition analysis and rehab cost estimation
  */
 router.post('/photo-analysis', authenticate, attachSubscription, requireElite, [
-  body('property').isObject().withMessage('Property data required'),
+  body('property').optional().isObject(), body('csv_data').optional().isArray(), body('market').optional().isString(),
   body('imageUrls').isArray({ min: 1 }).withMessage('At least one image URL required')
 ], asyncHandler(async (req, res) => {
   const errors = validationResult(req);
