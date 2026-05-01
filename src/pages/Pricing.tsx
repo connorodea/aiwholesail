@@ -19,13 +19,12 @@ const plans = [
     priceId: 'price_1QjrSuCwWnuOPtC4Bfwu6IEs',
     description: 'Perfect for individual investors',
     features: [
-      '25 property searches per day',
-      'Up to 5 alert locations',
-      'Automated updates every 24 hours',
-      'Advanced property matching',
+      '10 property searches per day',
+      'Up to 3 alert locations',
+      'Updates every 24 hours',
+      'Basic property matching',
       'Email notifications',
       'Basic market analytics',
-      'Deal calculator tools',
       '7-day free trial included'
     ],
     popular: true
