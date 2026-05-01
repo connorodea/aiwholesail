@@ -83,6 +83,8 @@ const PropertyTypes = lazy(() => import("./pages/PropertyTypes"));
 const PropertyTypePage = lazy(() => import("./pages/PropertyTypePage"));
 const DealExamples = lazy(() => import("./pages/DealExamples"));
 const DealExamplePage = lazy(() => import("./pages/DealExamplePage"));
+const ZipCodes = lazy(() => import("./pages/ZipCodes"));
+const ZipCodePage = lazy(() => import("./pages/ZipCodePage"));
 
 const queryClient = new QueryClient();
 
@@ -216,6 +218,8 @@ const App = () => (
                 <Route path="/reviews/:slug" element={<SoftwareReviewPage />} />
                 <Route path="/property-types" element={<PropertyTypes />} />
                 <Route path="/property-types/:slug" element={<PropertyTypePage />} />
+                <Route path="/zip" element={<ZipCodes />} />
+                <Route path="/zip/:slug" element={<ZipCodePage />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
