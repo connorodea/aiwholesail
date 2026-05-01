@@ -19,11 +19,13 @@ const plans = [
     priceId: 'price_1QjrSuCwWnuOPtC4Bfwu6IEs',
     description: 'Perfect for individual investors',
     features: [
+      '25 property searches per day',
       'Up to 5 alert locations',
       'Automated updates every 24 hours',
       'Advanced property matching',
       'Email notifications',
       'Basic market analytics',
+      'Deal calculator tools',
       '7-day free trial included'
     ],
     popular: true
@@ -34,13 +36,16 @@ const plans = [
     priceId: 'price_1QjrTKCwWnuOPtC4xIzkUCeY',
     description: 'For serious real estate professionals',
     features: [
+      'Unlimited property searches',
       'Unlimited alert locations',
       'Real-time updates every 4 hours',
       'Advanced AI property analysis',
+      'AI photo condition analysis',
       'Priority email notifications',
       'Comprehensive market insights',
       'Skip tracing integration',
       'Lead scoring analytics',
+      'ARV & comps analysis',
       '7-day free trial included'
     ]
   }
