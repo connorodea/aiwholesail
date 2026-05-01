@@ -287,7 +287,7 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
               </TabsList>
             </div>
 
-            <TabsContent value="overview" className="flex-1 overflow-auto">
+            <TabsContent value="overview" className="flex-1 overflow-auto mt-0">
               <div className="p-6 space-y-8">
                 {/* Key Stats */}
                 <div className="grid grid-cols-4 gap-6">
@@ -411,23 +411,23 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
               </div>
             </TabsContent>
 
-            <TabsContent value="investment" className="flex-1 overflow-auto p-6">
+            <TabsContent value="investment" className="flex-1 overflow-auto p-6 mt-0">
               <InvestmentCalculator property={displayProperty} />
             </TabsContent>
 
-            <TabsContent value="comps" className="flex-1 overflow-auto p-6">
+            <TabsContent value="comps" className="flex-1 overflow-auto p-6 mt-0">
               <ComparableSalesTable property={displayProperty} />
             </TabsContent>
 
-            <TabsContent value="price-history" className="flex-1 overflow-auto p-6">
+            <TabsContent value="price-history" className="flex-1 overflow-auto p-6 mt-0">
               <PriceHistoryChart property={displayProperty} />
             </TabsContent>
 
-            <TabsContent value="taxes" className="flex-1 overflow-auto p-6">
+            <TabsContent value="taxes" className="flex-1 overflow-auto p-6 mt-0">
               <TaxCarryingCosts property={displayProperty} />
             </TabsContent>
 
-            <TabsContent value="details" className="mt-6 overflow-auto p-6">
+            <TabsContent value="details" className="flex-1 overflow-auto p-6 mt-0">
               <div className="grid grid-cols-2 gap-6">
                 <Card className="border-border hover:shadow-md transition-shadow">
                   <CardHeader className="pb-4">
@@ -732,11 +732,11 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
               )}
             </TabsContent>
 
-            <TabsContent value="photos" className="flex-1 overflow-auto p-6">
+            <TabsContent value="photos" className="flex-1 overflow-auto p-6 mt-0">
               <PhotosGallery property={displayProperty} />
             </TabsContent>
 
-            <TabsContent value="ai-analysis" className="flex-1 overflow-auto p-6">
+            <TabsContent value="ai-analysis" className="flex-1 overflow-auto p-6 mt-0">
               <AIPropertyAnalyzer property={displayProperty} />
             </TabsContent>
           </Tabs>

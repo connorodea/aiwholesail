@@ -958,7 +958,7 @@ export class ZillowAPI {
     }
   }
 
-  async getPropertyComps(zpid: string, location?: string): Promise<any> {
+  async getPropertyComps(zpid: string, location?: string, subjectLat?: number, subjectLng?: number): Promise<any> {
     // First try the direct comps endpoint
     try {
       const data = await this.callApi('comps', { zpid });
@@ -970,12 +970,18 @@ export class ZillowAPI {
     }
 
     // Fallback: search for recently sold properties near the same location
-    // Use city+state+zip only (not full address) for better location matching
     if (location) {
       try {
-        // Extract city, state, zip from location string — skip street address
+        // Extract "City STATE" from location — works best with the scraper API
         const parts = location.split(',').map(p => p.trim()).filter(Boolean);
-        const searchLocation = parts.length >= 3 ? parts.slice(1).join(', ') : parts.length >= 2 ? parts.slice(-2).join(', ') : location;
+        // Get city + state without zip (e.g., "Kannapolis NC")
+        let searchLocation = location;
+        if (parts.length >= 2) {
+          const stateZip = parts[parts.length - 1]; // "NC 28083" or "NC"
+          const city = parts[parts.length - 2]; // "Kannapolis"
+          const stateOnly = stateZip.replace(/\d+/g, '').trim(); // "NC"
+          searchLocation = `${city} ${stateOnly}`;
+        }
 
         const data = await this.callApi('search', {
           location: searchLocation,
@@ -984,17 +990,36 @@ export class ZillowAPI {
         });
         const listings = data?.data?.listings || data?.data?.searchResults || [];
         if (Array.isArray(listings) && listings.length > 0) {
-          return listings.slice(0, 15).map((l: any) => ({
-            address: l.address || l.streetAddress || 'Unknown',
-            price: l.price || l.soldPrice || l.lastSoldPrice || 0,
-            sqft: l.living_area_sqft || l.livingArea || l.sqft || 0,
-            pricePerSqft: l.living_area_sqft && l.price ? Math.round(l.price / l.living_area_sqft) : 0,
-            bedrooms: l.bedrooms || l.beds || 0,
-            bathrooms: l.bathrooms || l.baths || 0,
-            saleDate: l.date_sold || l.lastSoldDate || l.dateSold || null,
-            zpid: l.zpid || null,
-            distance: null
-          }));
+          // Calculate distance from subject property and sort by proximity
+
+          const mapped = listings
+            .filter((l: any) => l.price && l.price > 0)
+            .map((l: any) => {
+              const sqft = l.living_area_sqft || l.livingArea || l.sqft || 0;
+              const price = l.price || l.soldPrice || l.lastSoldPrice || 0;
+              let distance: number | null = null;
+              if (subjectLat && subjectLng && l.latitude && l.longitude) {
+                distance = this.haversineDistance(subjectLat, subjectLng, l.latitude, l.longitude);
+              }
+              return {
+                address: l.address || l.streetAddress || 'Unknown',
+                price,
+                sqft,
+                pricePerSqft: sqft > 0 ? Math.round(price / sqft) : 0,
+                bedrooms: l.bedrooms || l.beds || 0,
+                bathrooms: l.bathrooms || l.baths || 0,
+                saleDate: l.date_sold || l.lastSoldDate || l.dateSold || null,
+                zpid: l.zpid || null,
+                distance
+              };
+            })
+            // Sort by distance (closest first), then filter to reasonable radius
+            .sort((a: any, b: any) => (a.distance ?? 999) - (b.distance ?? 999))
+            // Take nearest 15, skip the subject property itself (distance ~0)
+            .filter((l: any) => l.distance === null || l.distance > 0.02)
+            .slice(0, 15);
+
+          return mapped;
         }
       } catch (fallbackError) {
         console.error('Comps fallback search also failed:', fallbackError);
@@ -1002,6 +1027,16 @@ export class ZillowAPI {
     }
 
     return [];
+  }
+
+  private haversineDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+    const R = 3959; // Earth radius in miles
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   }
 
   async getZestimate(zpid: string): Promise<any> {
