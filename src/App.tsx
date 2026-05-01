@@ -79,6 +79,8 @@ const ChecklistsPage = lazy(() => import("./pages/Checklists"));
 const ChecklistPage = lazy(() => import("./pages/ChecklistPage"));
 const SoftwareReviews = lazy(() => import("./pages/SoftwareReviews"));
 const SoftwareReviewPage = lazy(() => import("./pages/SoftwareReviewPage"));
+const PropertyTypes = lazy(() => import("./pages/PropertyTypes"));
+const PropertyTypePage = lazy(() => import("./pages/PropertyTypePage"));
 
 const queryClient = new QueryClient();
 
@@ -208,6 +210,8 @@ const App = () => (
                 <Route path="/checklists/:slug" element={<ChecklistPage />} />
                 <Route path="/reviews" element={<SoftwareReviews />} />
                 <Route path="/reviews/:slug" element={<SoftwareReviewPage />} />
+                <Route path="/property-types" element={<PropertyTypes />} />
+                <Route path="/property-types/:slug" element={<PropertyTypePage />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>

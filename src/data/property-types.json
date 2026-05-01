@@ -1,0 +1,282 @@
+[
+  {
+    "slug": "multifamily",
+    "name": "Multifamily Properties",
+    "h1": "Investing in Multifamily Real Estate",
+    "description": "Complete guide to multifamily investing — duplexes, triplexes, and apartment buildings. Learn how to analyze, finance, and profit from multi-unit properties.",
+    "keywords": "multifamily investing, duplex investment, apartment building investing, multi-unit rental property",
+    "icon": "Building2",
+    "overview": "Multifamily properties — duplexes (2 units), triplexes (3 units), fourplexes (4 units), and apartment buildings (5+ units) — are among the most popular real estate investment vehicles. Residential multifamily (2–4 units) qualifies for conventional and FHA financing, while commercial multifamily (5+ units) uses commercial lending. The key advantage is multiple income streams from a single property, which reduces vacancy risk and creates economies of scale for management and maintenance.",
+    "investmentThesis": "Multifamily is one of the strongest investment classes in real estate because it combines steady cash flow with long-term appreciation. Demand for rental housing continues to rise as homeownership rates fluctuate, and institutional capital increasingly flows into the sector. Investors benefit from the ability to force appreciation through value-add improvements — renovating units, improving management, and reducing expenses. The asset class also hedges against inflation, as rents typically rise alongside costs of living.",
+    "typicalReturns": { "capRate": "5–8%", "cashOnCash": "8–15%", "appreciation": "3–5%/year" },
+    "bestMarkets": ["indianapolis-in", "memphis-tn", "cleveland-oh", "kansas-city-mo"],
+    "financingOptions": [
+      "FHA (3.5% down for 2–4 units, owner-occupied)",
+      "Conventional (25% down for investment)",
+      "DSCR loans (qualification based on property income)",
+      "Commercial loans (5+ units, 20–30% down)",
+      "Freddie Mac / Fannie Mae small-balance loans"
+    ],
+    "prosAndCons": {
+      "pros": [
+        "Multiple income streams reduce vacancy risk",
+        "Economies of scale for maintenance and management",
+        "FHA financing available for 2–4 units (owner-occupied)",
+        "Strong demand driven by rental market growth"
+      ],
+      "cons": [
+        "Higher entry cost than single-family homes",
+        "More management complexity and tenant turnover",
+        "Commercial lending required for 5+ units",
+        "Larger capex reserves needed for shared systems"
+      ]
+    },
+    "relatedTools": ["cash-flow-calculator", "cap-rate-calculator", "mortgage-calculator", "dscr-calculator"],
+    "relatedGuides": ["rental-property-investing-guide", "real-estate-investing-financing"]
+  },
+  {
+    "slug": "single-family-homes",
+    "name": "Single-Family Homes",
+    "h1": "Investing in Single-Family Rental Properties",
+    "description": "Everything you need to know about investing in single-family homes — the most accessible entry point into real estate investing.",
+    "keywords": "single family home investing, SFR rental, buy and hold single family, house investing",
+    "icon": "Home",
+    "overview": "Single-family homes (SFRs) are standalone residential properties designed for one household. They are the most common real estate investment type, offering simplicity, broad financing options, and strong tenant demand. SFRs appeal to both beginner investors seeking their first deal and experienced operators building scattered-site portfolios. These properties are easy to buy, easy to sell, and tenants often treat them more like their own home — resulting in longer average tenancy and lower turnover costs.",
+    "investmentThesis": "Single-family rentals combine accessibility with resilience. They are the easiest property type to finance (including 0% down VA loans for eligible buyers), have the deepest resale market, and attract the most stable tenant demographic — families. Institutional investors like Invitation Homes have validated the asset class at scale. For individual investors, SFRs offer a clear path from one property to a portfolio, with each acquisition building equity and cash flow incrementally.",
+    "typicalReturns": { "capRate": "4–7%", "cashOnCash": "6–12%", "appreciation": "3–6%/year" },
+    "bestMarkets": ["indianapolis-in", "memphis-tn", "birmingham-al", "jacksonville-fl"],
+    "financingOptions": [
+      "Conventional (15–25% down)",
+      "FHA (3.5% down, owner-occupied)",
+      "VA loans (0% down for eligible veterans)",
+      "DSCR loans (no personal income verification)",
+      "Seller financing"
+    ],
+    "prosAndCons": {
+      "pros": [
+        "Easiest property type to buy and finance",
+        "Deepest resale market with strong liquidity",
+        "Lower management complexity vs. multifamily",
+        "Tenants typically stay longer and maintain better"
+      ],
+      "cons": [
+        "100% vacancy when unit is empty",
+        "Lower cash flow per property compared to multifamily",
+        "Scaling requires buying many individual properties",
+        "Property taxes and insurance per unit are higher"
+      ]
+    },
+    "relatedTools": ["mortgage-calculator", "cash-flow-calculator", "arv-calculator", "rental-roi-calculator"],
+    "relatedGuides": ["real-estate-investing-for-beginners", "rental-property-investing-guide"]
+  },
+  {
+    "slug": "land",
+    "name": "Land Investing",
+    "h1": "Investing in Vacant Land",
+    "description": "How to profit from vacant land — low entry cost, minimal management, and high-margin flipping opportunities.",
+    "keywords": "land investing, vacant land, buy land, raw land investment, land flipping",
+    "icon": "Mountain",
+    "overview": "Vacant land investing involves purchasing undeveloped parcels for resale, development, or long-term hold. Unlike improved properties, land requires no maintenance, has no tenants, no roofs to replace, and no plumbing to fix. Investors typically buy land at deep discounts from motivated sellers (often through direct mail campaigns targeting delinquent tax owners) and resell at market value for 100–300% margins. Land can also be held for appreciation in path-of-growth areas or entitled and sold to developers at a premium.",
+    "investmentThesis": "Land is the most overlooked and undervalued asset class in real estate. Most investors skip it because it doesn't produce monthly cash flow — but the margins on land flips far exceed those of traditional house flips, with significantly less risk and capital. There are no rehab costs, no contractor delays, and no carrying costs beyond property taxes. The supply of motivated land sellers (heirs, tax-delinquent owners, out-of-state owners) creates a steady pipeline of below-market acquisition opportunities.",
+    "typicalReturns": { "capRate": "N/A (no income)", "cashOnCash": "100–300% (flip)", "appreciation": "2–10%/year (location-dependent)" },
+    "bestMarkets": ["phoenix-az", "austin-tx", "orlando-fl", "boise-id"],
+    "financingOptions": [
+      "Cash purchases (most common, low entry cost)",
+      "Seller financing (common in land deals)",
+      "Land loans (higher rates, 20–50% down)",
+      "Owner-financed notes (sell with terms for passive income)",
+      "Self-directed IRA purchases"
+    ],
+    "prosAndCons": {
+      "pros": [
+        "Very low entry cost (parcels available for $500–$5,000)",
+        "No maintenance, tenants, or repairs",
+        "High flip margins (100–300% ROI common)",
+        "Can be done entirely remotely"
+      ],
+      "cons": [
+        "No monthly cash flow unless seller-financed",
+        "Zoning, wetlands, and access issues can reduce value",
+        "Harder to finance than improved properties",
+        "Requires due diligence on utilities, easements, and buildability"
+      ]
+    },
+    "relatedTools": ["wholesale-deal-calculator", "offer-price-calculator"],
+    "relatedGuides": ["how-to-analyze-real-estate-deals", "real-estate-investing-for-beginners"]
+  },
+  {
+    "slug": "mobile-homes",
+    "name": "Mobile Home Parks",
+    "h1": "Investing in Mobile Home Parks",
+    "description": "Why mobile home parks are one of the highest cash-flowing asset classes in real estate — and how to get started.",
+    "keywords": "mobile home park investing, manufactured housing, trailer park investment, MHP investing",
+    "icon": "Caravan",
+    "overview": "Mobile home parks (also called manufactured housing communities) are parcels of land subdivided into lots that tenants rent to place their own mobile homes on. The park owner typically owns the land and infrastructure (roads, water, sewer, electrical) while tenants own their homes. This model creates an extremely sticky tenant base — moving a mobile home costs $5,000–$10,000, so turnover is very low. Parks range from 10-lot communities to 500+ lot institutional-grade assets.",
+    "investmentThesis": "Mobile home parks are considered one of the most recession-resistant real estate investments. They serve the affordable housing segment, which has growing demand and shrinking supply — municipalities rarely approve new parks. Lot rent increases drop almost entirely to the bottom line since the tenant owns the home. Operating expenses are low (tenants handle their own maintenance), vacancy is minimal, and cap rate compression has been driving strong appreciation. Legendary investors like Sam Zell and Warren Buffett have made massive allocations to the space.",
+    "typicalReturns": { "capRate": "7–12%", "cashOnCash": "12–25%", "appreciation": "3–7%/year" },
+    "bestMarkets": ["indianapolis-in", "san-antonio-tx", "oklahoma-city-ok", "little-rock-ar"],
+    "financingOptions": [
+      "Seller financing (very common for parks)",
+      "Local/community bank portfolio loans",
+      "SBA 7(a) loans (up to $5M)",
+      "Freddie Mac / Fannie Mae manufactured housing loans",
+      "Private/hard money for value-add repositioning"
+    ],
+    "prosAndCons": {
+      "pros": [
+        "Extremely low tenant turnover (high moving costs)",
+        "Recession-resistant affordable housing demand",
+        "Low operating expenses (tenants maintain homes)",
+        "Supply-constrained — few new parks approved"
+      ],
+      "cons": [
+        "Stigma can make financing and zoning harder",
+        "Infrastructure capex (water/sewer) can be significant",
+        "Older parks may have environmental issues",
+        "Management-intensive during turnaround phase"
+      ]
+    },
+    "relatedTools": ["cap-rate-calculator", "cash-flow-calculator", "dscr-calculator"],
+    "relatedGuides": ["rental-property-investing-guide", "real-estate-investing-financing"]
+  },
+  {
+    "slug": "self-storage",
+    "name": "Self-Storage Facilities",
+    "h1": "Investing in Self-Storage",
+    "description": "How self-storage delivers recession-proof cash flow with low overhead — the quiet powerhouse of commercial real estate.",
+    "keywords": "self storage investing, storage unit investment, self storage facility, storage REIT",
+    "icon": "Warehouse",
+    "overview": "Self-storage facilities rent individual units (typically 5x5 to 10x30 feet) to consumers and businesses for storing belongings. The industry generates over $40 billion in annual revenue in the U.S. alone. Facilities range from small 50-unit operations to large climate-controlled complexes with 1,000+ units. The business model is attractive because units are simple to build and maintain, tenant turnover happens without unit renovation, and demand correlates with major life events (moving, downsizing, divorce, death) that occur in any economy.",
+    "investmentThesis": "Self-storage has outperformed every other real estate sector in total returns over the past 25 years, including during the 2008 recession. The asset class benefits from sticky tenants (average stay is 14 months), minimal maintenance costs, and easy scalability. Revenue management is straightforward — small incremental rate increases face little resistance. The industry is still highly fragmented, with 70%+ of facilities owned by independent operators, creating consolidation and value-add opportunities for sophisticated investors.",
+    "typicalReturns": { "capRate": "6–10%", "cashOnCash": "10–20%", "appreciation": "4–8%/year" },
+    "bestMarkets": ["phoenix-az", "dallas-tx", "charlotte-nc", "nashville-tn"],
+    "financingOptions": [
+      "SBA 7(a) loans (up to $5M, 10–25% down)",
+      "SBA 504 loans (for real estate purchase)",
+      "Commercial bank loans (25–30% down)",
+      "CMBS loans (for stabilized facilities)",
+      "Seller financing (common for mom-and-pop facilities)"
+    ],
+    "prosAndCons": {
+      "pros": [
+        "Recession-resistant — demand persists in downturns",
+        "Low operating costs and minimal maintenance",
+        "Sticky tenants with 14-month average stay",
+        "Easy to scale revenue with rate increases"
+      ],
+      "cons": [
+        "Oversupply risk in some markets",
+        "Management software and marketing required",
+        "Zoning restrictions can limit new development",
+        "Higher initial capital for climate-controlled facilities"
+      ]
+    },
+    "relatedTools": ["cap-rate-calculator", "cash-flow-calculator", "holding-cost-calculator"],
+    "relatedGuides": ["real-estate-investing-financing", "how-to-analyze-real-estate-deals"]
+  },
+  {
+    "slug": "commercial-office",
+    "name": "Commercial Office Space",
+    "h1": "Investing in Commercial Office Real Estate",
+    "description": "How to evaluate office buildings as investments — tenant quality, lease structures, and navigating the post-pandemic landscape.",
+    "keywords": "commercial office investing, office building investment, commercial real estate, office space investing",
+    "icon": "Building",
+    "overview": "Commercial office buildings house businesses, professional services, and corporate tenants. The sector ranges from small suburban office condos to Class A downtown high-rises. Office leases are typically longer (3–10 years) with built-in annual rent escalations, providing predictable cash flow. Tenant improvement (TI) allowances and free rent periods are common costs of leasing. The post-2020 landscape has shifted demand toward flexible, amenity-rich spaces in suburban and mixed-use locations, while commodity office space in some CBDs faces elevated vacancy.",
+    "investmentThesis": "Office investing offers the longest lease terms in real estate, providing cash flow visibility that few other asset classes can match. Credit tenants (government agencies, law firms, medical groups) provide near-bond-like income stability. The current market dislocation has created opportunities to acquire quality office buildings at deep discounts — cap rates have expanded significantly from 2019 levels. Investors who target well-located buildings with flexible floorplates and strong amenity packages can reposition for the evolving hybrid work environment and capture significant upside as the market normalizes.",
+    "typicalReturns": { "capRate": "6–10%", "cashOnCash": "7–14%", "appreciation": "1–4%/year" },
+    "bestMarkets": ["austin-tx", "nashville-tn", "raleigh-nc", "salt-lake-city-ut"],
+    "financingOptions": [
+      "Commercial bank loans (25–35% down)",
+      "CMBS loans (for stabilized buildings)",
+      "SBA 504 loans (for owner-occupied)",
+      "Life insurance company loans (best rates for Class A)",
+      "Bridge loans (for value-add repositioning)"
+    ],
+    "prosAndCons": {
+      "pros": [
+        "Long lease terms (3–10 years) with rent escalations",
+        "Credit tenants provide stable, predictable income",
+        "Triple-net (NNN) leases shift expenses to tenants",
+        "Current dislocation creates deep-value buying opportunities"
+      ],
+      "cons": [
+        "Remote/hybrid work has increased vacancy in some markets",
+        "Expensive tenant improvements (TI) on new leases",
+        "Long lease-up periods when units go vacant",
+        "Capital-intensive build-outs and repositioning"
+      ]
+    },
+    "relatedTools": ["cap-rate-calculator", "cash-flow-calculator", "dscr-calculator", "holding-cost-calculator"],
+    "relatedGuides": ["real-estate-investing-financing", "how-to-analyze-real-estate-deals"]
+  },
+  {
+    "slug": "retail-strip-malls",
+    "name": "Retail & Strip Malls",
+    "h1": "Investing in Retail Strip Centers",
+    "description": "How to profit from neighborhood retail centers — stable NNN tenants, recession-resistant categories, and value-add upside.",
+    "keywords": "strip mall investing, retail real estate investment, NNN retail, shopping center investing",
+    "icon": "Store",
+    "overview": "Retail strip centers (also called strip malls or neighborhood retail centers) are open-air shopping centers typically anchored by a grocery store, pharmacy, or national service tenant. They range from small 3-unit buildings to large power centers with 20+ tenants. The asset class benefits from triple-net (NNN) lease structures where tenants pay property taxes, insurance, and maintenance — leaving the landlord with a clean, predictable income stream. Successful strip center investing focuses on necessity-based tenants (grocery, medical, auto service, fast food) that are resistant to e-commerce disruption.",
+    "investmentThesis": "Strip centers anchored by necessity-based tenants have proven remarkably resilient. Unlike indoor malls, open-air retail has thrived as consumers prefer convenient, drive-up access. Rent growth is embedded in lease structures through annual escalations and percentage-rent clauses. The asset class trades at attractive cap rates relative to other commercial sectors, and value-add opportunities exist in re-tenanting vacant spaces, improving signage and facades, and adding outparcels. Smaller strip centers are often ignored by institutional buyers, creating acquisition opportunities for individual investors.",
+    "typicalReturns": { "capRate": "6–9%", "cashOnCash": "8–14%", "appreciation": "2–4%/year" },
+    "bestMarkets": ["dallas-tx", "atlanta-ga", "tampa-fl", "phoenix-az"],
+    "financingOptions": [
+      "Commercial bank loans (25–30% down)",
+      "CMBS loans (for larger stabilized centers)",
+      "SBA 7(a) or 504 loans (for owner-occupied space)",
+      "Seller financing (common for smaller centers)",
+      "Private equity partnerships"
+    ],
+    "prosAndCons": {
+      "pros": [
+        "NNN leases minimize landlord operating expenses",
+        "Necessity-based tenants resistant to e-commerce",
+        "Annual rent escalations built into lease structure",
+        "Smaller centers accessible to individual investors"
+      ],
+      "cons": [
+        "Anchor tenant loss can significantly impact value",
+        "Lease-up of vacant space can be slow and costly",
+        "CAM reconciliation and tenant disputes add complexity",
+        "Retail demand shifts require ongoing tenant mix management"
+      ]
+    },
+    "relatedTools": ["cap-rate-calculator", "cash-flow-calculator", "dscr-calculator"],
+    "relatedGuides": ["real-estate-investing-financing", "how-to-analyze-real-estate-deals"]
+  },
+  {
+    "slug": "mixed-use",
+    "name": "Mixed-Use Properties",
+    "h1": "Investing in Mixed-Use Real Estate",
+    "description": "How mixed-use properties combine residential and commercial income for diversified returns and built-in demand synergy.",
+    "keywords": "mixed use investing, mixed use property, live work space, commercial residential building",
+    "icon": "LayoutGrid",
+    "overview": "Mixed-use properties combine two or more uses — typically ground-floor commercial (retail, restaurants, offices) with upper-floor residential units. These buildings are common in urban neighborhoods, walkable downtowns, and transit-oriented locations. The dual income stream creates natural diversification: commercial tenants provide higher per-square-foot rents and longer leases, while residential units offer consistent occupancy and lower tenant improvement costs. Mixed-use is increasingly favored by municipalities in zoning and development plans, as it promotes walkability, density, and community vitality.",
+    "investmentThesis": "Mixed-use properties offer the best of both worlds — the stability of residential rental income combined with the higher yields of commercial tenants. The diversification reduces overall risk: if one commercial tenant vacates, residential rents continue to cover debt service. These properties benefit from synergistic demand — residents support the ground-floor businesses, and vibrant retail attracts quality tenants upstairs. Zoning trends strongly favor mixed-use development, which creates a long-term tailwind for values. The complexity of managing two asset classes simultaneously deters casual investors, creating less competition at acquisition.",
+    "typicalReturns": { "capRate": "5–9%", "cashOnCash": "8–16%", "appreciation": "3–6%/year" },
+    "bestMarkets": ["austin-tx", "nashville-tn", "portland-or", "denver-co"],
+    "financingOptions": [
+      "Commercial bank loans (25–30% down)",
+      "FHA 203(k) (for owner-occupied mixed-use, 2–4 residential units)",
+      "SBA 504 loans (if owner occupies commercial space)",
+      "Portfolio lender loans (flexible underwriting)",
+      "DSCR loans (for investment mixed-use)"
+    ],
+    "prosAndCons": {
+      "pros": [
+        "Diversified income stream across residential and commercial",
+        "Built-in demand synergy between tenants and residents",
+        "Favored by municipal zoning and development trends",
+        "Less competition due to management complexity"
+      ],
+      "cons": [
+        "Managing two asset classes requires broader expertise",
+        "Commercial vacancies can be longer to fill than residential",
+        "Financing can be more complex (mixed-use underwriting)",
+        "Higher due diligence requirements (zoning, code compliance)"
+      ]
+    },
+    "relatedTools": ["cap-rate-calculator", "cash-flow-calculator", "mortgage-calculator", "dscr-calculator"],
+    "relatedGuides": ["rental-property-investing-guide", "real-estate-investing-financing"]
+  }
+]
