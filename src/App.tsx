@@ -13,11 +13,11 @@ import { FacebookPixel } from "@/components/FacebookPixel";
 import { SEOHead } from "@/components/SEOHead";
 
 // Critical / small pages — keep as static imports
+import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import Pricing from "./pages/Pricing";
 
 // Lazy-loaded pages — code-split into separate chunks
-const Auth = lazy(() => import("./pages/Auth"));
 const Index = lazy(() => import("./pages/Index"));
 const RealEstateWholesaler = lazy(() => import("./pages/RealEstateWholesaler"));
 const Landing = lazy(() => import("./pages/Landing"));
@@ -81,11 +81,8 @@ const SoftwareReviews = lazy(() => import("./pages/SoftwareReviews"));
 const SoftwareReviewPage = lazy(() => import("./pages/SoftwareReviewPage"));
 const PropertyTypes = lazy(() => import("./pages/PropertyTypes"));
 const PropertyTypePage = lazy(() => import("./pages/PropertyTypePage"));
-const NeighborhoodsIndex = lazy(() => import("./pages/Neighborhoods"));
-const NeighborhoodPage = lazy(() => import("./pages/NeighborhoodPage"));
-const CityNeighborhoods = lazy(() => import("./pages/CityNeighborhoods"));
-const InvestmentComparisons = lazy(() => import("./pages/InvestmentComparisons"));
-const InvestmentComparisonPage = lazy(() => import("./pages/InvestmentComparisonPage"));
+const DealExamples = lazy(() => import("./pages/DealExamples"));
+const DealExamplePage = lazy(() => import("./pages/DealExamplePage"));
 
 const queryClient = new QueryClient();
 
@@ -110,7 +107,7 @@ const App = () => (
               <ScrollToTop />
               <GoogleAnalytics />
               <FacebookPixel />
-              <Suspense fallback={<div className="min-h-screen bg-[#08090a] flex items-center justify-center"><div className="h-8 w-8 animate-spin rounded-full border-2 border-cyan-500 border-t-transparent" /></div>}>
+              <Suspense fallback={<div className="min-h-screen bg-[#08090a]" />}>
               <Routes>
                 <Route path="/" element={<Landing />} />
                 <Route path="/pricing" element={<Pricing />} />
@@ -200,6 +197,8 @@ const App = () => (
                 <Route path="/invest/:strategy/:citySlug" element={<CityStrategyPage />} />
                 <Route path="/invest/:strategy" element={<StrategyIndex />} />
                 <Route path="/deals" element={<DealsHub />} />
+                <Route path="/deals/examples" element={<DealExamples />} />
+                <Route path="/deals/examples/:slug" element={<DealExamplePage />} />
                 <Route path="/deals/:distressType" element={<DistressIndex />} />
                 <Route path="/deals/:distressType/:citySlug" element={<DistressPage />} />
                 <Route path="/glossary" element={<Glossary />} />
@@ -217,11 +216,6 @@ const App = () => (
                 <Route path="/reviews/:slug" element={<SoftwareReviewPage />} />
                 <Route path="/property-types" element={<PropertyTypes />} />
                 <Route path="/property-types/:slug" element={<PropertyTypePage />} />
-                <Route path="/neighborhoods" element={<NeighborhoodsIndex />} />
-                <Route path="/neighborhoods/city/:citySlug" element={<CityNeighborhoods />} />
-                <Route path="/neighborhoods/:slug" element={<NeighborhoodPage />} />
-                <Route path="/compare-investments" element={<InvestmentComparisons />} />
-                <Route path="/compare-investments/:slug" element={<InvestmentComparisonPage />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
