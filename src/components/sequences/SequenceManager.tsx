@@ -26,6 +26,7 @@ export function SequenceManager() {
     createTemplate, deleteTemplate, pauseSequence, resumeSequence, cancelSequence,
   } = useSequences();
   const [showBuilder, setShowBuilder] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<SequenceTemplate | null>(null);
 
   const channelSummary = (template: SequenceTemplate) => {
     const sms = template.steps.filter(s => s.channel === 'sms').length;
@@ -40,6 +41,65 @@ export function SequenceManager() {
     if (template.steps.length === 0) return 0;
     return Math.max(...template.steps.map(s => s.dayOffset));
   };
+
+  // Show template detail view when selected
+  if (selectedTemplate) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-3">
+          <Button variant="ghost" size="sm" onClick={() => setSelectedTemplate(null)} className="gap-1">
+            <XCircle className="h-4 w-4" /> Back
+          </Button>
+          <h2 className="text-xl font-semibold">{selectedTemplate.name}</h2>
+          {selectedTemplate.isPrebuilt && (
+            <Badge variant="outline" className="text-xs">Prebuilt</Badge>
+          )}
+        </div>
+
+        {selectedTemplate.description && (
+          <p className="text-sm text-muted-foreground">{selectedTemplate.description}</p>
+        )}
+
+        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+          <span className="flex items-center gap-1"><MessageSquare className="h-4 w-4" /> {selectedTemplate.steps.length} steps</span>
+          <span className="flex items-center gap-1"><Clock className="h-4 w-4" /> {totalDays(selectedTemplate)} days</span>
+          <span>{channelSummary(selectedTemplate)}</span>
+        </div>
+
+        <Card>
+          <CardContent className="p-6">
+            <h3 className="font-medium mb-4">Sequence Steps</h3>
+            <div className="space-y-4">
+              {selectedTemplate.steps.map((step, i) => (
+                <div key={i} className="flex items-start gap-4 p-3 rounded-lg bg-muted/30 border border-border/50">
+                  <div className="flex flex-col items-center gap-1">
+                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
+                      {i + 1}
+                    </div>
+                    <span className="text-[10px] text-muted-foreground">Day {step.dayOffset}</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      {step.channel === 'sms' ? (
+                        <Badge variant="secondary" className="text-[10px]"><MessageSquare className="h-2.5 w-2.5 mr-1" /> SMS</Badge>
+                      ) : (
+                        <Badge variant="secondary" className="text-[10px]"><Mail className="h-2.5 w-2.5 mr-1" /> Email</Badge>
+                      )}
+                    </div>
+                    <p className="text-sm text-foreground">{step.messageTemplate}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        <p className="text-xs text-muted-foreground">
+          To use this sequence, assign it to a lead from the Deal Pipeline.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <Tabs defaultValue="templates" className="space-y-6">
@@ -104,7 +164,11 @@ export function SequenceManager() {
             {templates.map(template => {
               const Icon = CATEGORY_ICONS[template.category] || MessageSquare;
               return (
-                <Card key={template.id} className="hover:shadow-md transition-all border-border/50">
+                <Card
+                  key={template.id}
+                  className="hover:shadow-md hover:border-primary/30 transition-all border-border/50 cursor-pointer"
+                  onClick={() => setSelectedTemplate(template)}
+                >
                   <CardContent className="p-4 space-y-3">
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-2">
