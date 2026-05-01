@@ -51,6 +51,9 @@ import RehabEstimator from "./pages/tools/RehabEstimator";
 import BRRRRCalculator from "./pages/tools/BRRRRCalculator";
 import OfferPriceCalculator from "./pages/tools/OfferPriceCalculator";
 import CapRateCalculator from "./pages/tools/CapRateCalculator";
+import CityStrategyPage from "./pages/CityStrategyPage";
+import StrategyIndex from "./pages/StrategyIndex";
+import StatePage from "./pages/StatePage";
 
 const queryClient = new QueryClient();
 
@@ -147,6 +150,9 @@ const App = () => (
                 <Route path="/tools/offer-price-calculator" element={<OfferPriceCalculator />} />
                 <Route path="/tools/cap-rate-calculator" element={<CapRateCalculator />} />
                 <Route path="/tools" element={<ToolsIndex />} />
+                <Route path="/invest/:strategy/:citySlug" element={<CityStrategyPage />} />
+                <Route path="/invest/:strategy" element={<StrategyIndex />} />
+                <Route path="/states/:stateSlug" element={<StatePage />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
