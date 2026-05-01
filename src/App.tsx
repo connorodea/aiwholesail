@@ -81,6 +81,8 @@ const SoftwareReviews = lazy(() => import("./pages/SoftwareReviews"));
 const SoftwareReviewPage = lazy(() => import("./pages/SoftwareReviewPage"));
 const PropertyTypes = lazy(() => import("./pages/PropertyTypes"));
 const PropertyTypePage = lazy(() => import("./pages/PropertyTypePage"));
+const DealExamples = lazy(() => import("./pages/DealExamples"));
+const DealExamplePage = lazy(() => import("./pages/DealExamplePage"));
 
 const queryClient = new QueryClient();
 
@@ -195,6 +197,8 @@ const App = () => (
                 <Route path="/invest/:strategy/:citySlug" element={<CityStrategyPage />} />
                 <Route path="/invest/:strategy" element={<StrategyIndex />} />
                 <Route path="/deals" element={<DealsHub />} />
+                <Route path="/deals/examples" element={<DealExamples />} />
+                <Route path="/deals/examples/:slug" element={<DealExamplePage />} />
                 <Route path="/deals/:distressType" element={<DistressIndex />} />
                 <Route path="/deals/:distressType/:citySlug" element={<DistressPage />} />
                 <Route path="/glossary" element={<Glossary />} />
