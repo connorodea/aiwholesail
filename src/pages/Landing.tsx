@@ -13,6 +13,7 @@ import { Heading, Subheading } from "@/components/proactiv/Heading";
 import { Container } from "@/components/proactiv/Container";
 import { FeatureIconContainer } from "@/components/proactiv/FeatureIconContainer";
 import { NavbarAIWholesail } from "@/components/ui/navbar-aiwholesail";
+import { Spotlight } from "@/components/ui/spotlight";
 
 const aiWholesailLogo = "/logo-white.png";
 
@@ -65,11 +66,15 @@ const Landing = () => {
 
       {/* ===== HERO ===== */}
       <div className="relative flex flex-col min-h-[50rem] md:min-h-[60rem] pt-28 md:pt-40">
+        <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" fill="rgba(6, 182, 212, 0.15)" />
         <AmbientColor />
 
         <Container className="flex flex-col items-center justify-center relative z-10">
           <Heading as="h1" size="2xl" className="mt-6 py-6">
-            Find profitable real estate deals — before everyone else
+            Find profitable real estate deals —{" "}
+            <span className="bg-gradient-to-r from-cyan-500 via-cyan-400 to-cyan-500 bg-clip-text text-transparent">
+              before everyone else
+            </span>
           </Heading>
           <Subheading className="max-w-2xl">
             Stop spending hours searching. Our AI scans thousands of properties, calculates your profit instantly, and alerts you the moment new opportunities hit the market.

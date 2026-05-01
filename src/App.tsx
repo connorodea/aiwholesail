@@ -51,6 +51,11 @@ import RehabEstimator from "./pages/tools/RehabEstimator";
 import BRRRRCalculator from "./pages/tools/BRRRRCalculator";
 import OfferPriceCalculator from "./pages/tools/OfferPriceCalculator";
 import CapRateCalculator from "./pages/tools/CapRateCalculator";
+import WholesaleFeeCalculator from "./pages/tools/WholesaleFeeCalculator";
+import HoldingCostCalculator from "./pages/tools/HoldingCostCalculator";
+import SeventyPercentRuleCalculator from "./pages/tools/SeventyPercentRuleCalculator";
+import RentalROICalculator from "./pages/tools/RentalROICalculator";
+import DSCRCalculator from "./pages/tools/DSCRCalculator";
 import Glossary from "./pages/Glossary";
 import GlossaryPage from "./pages/GlossaryPage";
 import CityStrategyPage from "./pages/CityStrategyPage";
@@ -59,6 +64,8 @@ import StatePage from "./pages/StatePage";
 import DealsHub from "./pages/DealsHub";
 import DistressIndex from "./pages/DistressIndex";
 import DistressPage from "./pages/DistressPage";
+import StateLaws from "./pages/StateLaws";
+import StateLawPage from "./pages/StateLawPage";
 
 const queryClient = new QueryClient();
 
@@ -154,6 +161,11 @@ const App = () => (
                 <Route path="/tools/brrrr-calculator" element={<BRRRRCalculator />} />
                 <Route path="/tools/offer-price-calculator" element={<OfferPriceCalculator />} />
                 <Route path="/tools/cap-rate-calculator" element={<CapRateCalculator />} />
+                <Route path="/tools/wholesale-fee-calculator" element={<WholesaleFeeCalculator />} />
+                <Route path="/tools/holding-cost-calculator" element={<HoldingCostCalculator />} />
+                <Route path="/tools/70-percent-rule-calculator" element={<SeventyPercentRuleCalculator />} />
+                <Route path="/tools/rental-roi-calculator" element={<RentalROICalculator />} />
+                <Route path="/tools/dscr-calculator" element={<DSCRCalculator />} />
                 <Route path="/tools" element={<ToolsIndex />} />
                 <Route path="/invest/:strategy/:citySlug" element={<CityStrategyPage />} />
                 <Route path="/invest/:strategy" element={<StrategyIndex />} />
@@ -163,6 +175,8 @@ const App = () => (
                 <Route path="/glossary" element={<Glossary />} />
                 <Route path="/glossary/:slug" element={<GlossaryPage />} />
                 <Route path="/states/:stateSlug" element={<StatePage />} />
+                <Route path="/laws" element={<StateLaws />} />
+                <Route path="/laws/:stateSlug" element={<StateLawPage />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>

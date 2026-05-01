@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { SEOHead } from '@/components/SEOHead';
 import { PublicLayout } from '@/components/PublicLayout';
+import { Spotlight } from '@/components/ui/spotlight';
 import competitors from '@/data/competitors.json';
 
 interface Competitor {
@@ -71,6 +72,7 @@ export default function ComparisonPage() {
 
       {/* ===== HERO ===== */}
       <section className="relative bg-gradient-to-b from-[#0a0a0a] via-[#0f0f0f] to-[#0a0a0a] text-white overflow-hidden">
+        <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" fill="rgba(6, 182, 212, 0.15)" />
         <div className="relative container mx-auto max-w-5xl px-4 pt-28 pb-20 text-center">
           <p className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-6">COMPARISON</p>
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[0.95] text-white mb-6">

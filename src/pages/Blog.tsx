@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { SEOHead } from '@/components/SEOHead';
 import { PublicLayout } from '@/components/PublicLayout';
+import { Spotlight } from '@/components/ui/spotlight';
 import blogIndex from '@/data/blog/index.json';
 
 interface Article {
@@ -117,6 +118,7 @@ export default function Blog() {
 
       {/* ===== HERO — DARK ===== */}
       <section className="relative bg-gradient-to-b from-[#0a0a0a] via-[#0f0f0f] to-[#0a0a0a] text-white overflow-hidden">
+        <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" fill="rgba(6, 182, 212, 0.15)" />
         <div className="relative container mx-auto max-w-6xl px-4 pt-24 pb-20 text-center">
           <Badge className="mb-6 bg-white/10 text-white/80 border-white/10 backdrop-blur-sm text-xs font-medium px-4 py-1.5 rounded-full">
             <BookOpen className="h-3 w-3 mr-1.5" /> Resources & Insights

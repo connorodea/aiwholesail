@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import {
   Calculator, Home, DollarSign, TrendingUp,
   Wrench, BarChart3, Target, Repeat, Percent, ChevronRight, ArrowRight,
+  Receipt, Clock, Building2, Shield,
 } from 'lucide-react';
 import { SEOHead } from '@/components/SEOHead';
 import { PublicLayout } from '@/components/PublicLayout';
@@ -62,6 +63,41 @@ const tools = [
     description: 'Capitalization rate, NOI, and property value at different cap rates.',
     icon: Percent,
     category: 'Rental',
+  },
+  {
+    slug: 'wholesale-fee-calculator',
+    title: 'Wholesale Fee Calculator',
+    description: 'Assignment fee range, MAO at 65/70/75% rules, and wholesaler profit analysis.',
+    icon: Receipt,
+    category: 'Wholesale',
+  },
+  {
+    slug: 'holding-cost-calculator',
+    title: 'Holding Cost Calculator',
+    description: 'Total carrying costs by category with impact on profit over your hold period.',
+    icon: Clock,
+    category: 'Finance',
+  },
+  {
+    slug: '70-percent-rule-calculator',
+    title: '70% Rule Calculator',
+    description: 'Max offer at 60%, 65%, 70%, 75%, 80%, and custom percentages with profit comparison.',
+    icon: Percent,
+    category: 'Wholesale',
+  },
+  {
+    slug: 'rental-roi-calculator',
+    title: 'Rental ROI Calculator',
+    description: 'Cash-on-cash return, cap rate, GRM, monthly cash flow, and 5-year projection.',
+    icon: Building2,
+    category: 'Rental',
+  },
+  {
+    slug: 'dscr-calculator',
+    title: 'DSCR Calculator',
+    description: 'Debt service coverage ratio with lender threshold analysis and rent needed to qualify.',
+    icon: Shield,
+    category: 'Finance',
   },
 ];
 

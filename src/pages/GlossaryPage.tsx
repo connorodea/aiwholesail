@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { SEOHead } from '@/components/SEOHead';
 import { PublicLayout } from '@/components/PublicLayout';
+import { Spotlight } from '@/components/ui/spotlight';
 import glossary from '@/data/glossary.json';
 
 interface GlossaryTerm {
@@ -84,6 +85,7 @@ export default function GlossaryPage() {
 
       {/* ===== HERO ===== */}
       <section className="relative bg-gradient-to-b from-[#0a0a0a] via-[#0f0f0f] to-[#0a0a0a] text-white overflow-hidden">
+        <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" fill="rgba(6, 182, 212, 0.15)" />
         <div className="relative container mx-auto max-w-5xl px-4 pt-28 pb-20 text-center">
           <div className="flex items-center justify-center gap-2 mb-6">
             <Link to="/glossary" className="flex items-center gap-2 text-sm text-white/50 hover:text-white transition-colors">

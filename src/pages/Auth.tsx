@@ -10,12 +10,17 @@ import { Eye, EyeOff, Mail, Shield, CheckCircle, ArrowRight } from 'lucide-react
 import { stripe, auth } from '@/lib/api-client';
 import { SEOHead } from '@/components/SEOHead';
 import { PublicLayout } from '@/components/PublicLayout';
+import { Spotlight } from '@/components/ui/spotlight';
 
 export default function Auth() {
   const [searchParams] = useSearchParams();
   const [isSignUp, setIsSignUp] = useState(searchParams.get('mode') === 'signup');
+  const [isReset, setIsReset] = useState(searchParams.get('mode') === 'reset');
+  const [resetToken] = useState(searchParams.get('token') || '');
+  const [resetSuccess, setResetSuccess] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -76,6 +81,28 @@ export default function Auth() {
     }
   };
 
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password !== confirmPassword) {
+      toast.error('Passwords do not match.');
+      return;
+    }
+    setLoading(true);
+    try {
+      const response = await auth.resetPassword(resetToken, password);
+      if (response.error) {
+        toast.error(response.error);
+      } else {
+        setResetSuccess(true);
+        toast.success('Password reset successfully! You can now sign in.');
+      }
+    } catch {
+      toast.error('Failed to reset password. The link may have expired.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -122,19 +149,28 @@ export default function Auth() {
   return (
     <PublicLayout>
       <SEOHead
-        title={isSignUp ? "Create Account" : "Sign In"}
-        description={isSignUp ? "Create your AIWholesail account and start finding profitable real estate deals with our 7-day free trial." : "Sign in to your AIWholesail account to access your real estate deal-finding dashboard."}
+        title={isReset ? "Reset Password" : isSignUp ? "Create Account" : "Sign In"}
+        description={isReset ? "Reset your AIWholesail password." : isSignUp ? "Create your AIWholesail account and start finding profitable real estate deals with our 7-day free trial." : "Sign in to your AIWholesail account to access your real estate deal-finding dashboard."}
         noIndex={false}
       />
 
       {/* ===== HERO ===== */}
       <section className="relative bg-gradient-to-b from-[#0a0a0a] via-[#0f0f0f] to-[#0a0a0a] text-white overflow-hidden">
+        <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" fill="rgba(6, 182, 212, 0.15)" />
         <div className="relative container mx-auto max-w-5xl px-4 pt-28 pb-20 text-center">
           <p className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-6">
-            {isSignUp ? 'CREATE ACCOUNT' : 'SIGN IN'}
+            {isReset ? 'RESET PASSWORD' : isSignUp ? 'CREATE ACCOUNT' : 'SIGN IN'}
           </p>
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[0.95] text-white mb-6">
-            {isSignUp ? (
+            {isReset ? (
+              <>
+                Reset Your
+                <br />
+                <span className="bg-gradient-to-r from-cyan-500 via-cyan-400 to-cyan-500 bg-clip-text text-transparent">
+                  Password.
+                </span>
+              </>
+            ) : isSignUp ? (
               <>
                 Create Your
                 <br />
@@ -153,7 +189,9 @@ export default function Auth() {
             )}
           </h1>
           <p className="text-lg md:text-xl text-white/50 max-w-2xl mx-auto leading-relaxed font-light">
-            {isSignUp
+            {isReset
+              ? "Enter your new password below."
+              : isSignUp
               ? "Start finding profitable real estate deals today with a 7-day free trial."
               : "Sign in to access your dashboard and continue finding profitable deals."
             }
@@ -161,10 +199,67 @@ export default function Auth() {
         </div>
       </section>
 
-      {/* ===== AUTH FORM — LIGHT ===== */}
+      {/* ===== AUTH FORM ===== */}
       <section className="py-24 px-4 bg-[#08090a]">
         <div className="container mx-auto max-w-md">
           <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-8 md:p-10">
+
+            {/* PASSWORD RESET FORM */}
+            {isReset ? (
+              resetSuccess ? (
+                <div className="text-center space-y-4">
+                  <CheckCircle className="h-12 w-12 text-cyan-400 mx-auto" />
+                  <h3 className="text-xl font-semibold">Password Reset Successfully</h3>
+                  <p className="text-sm text-neutral-400">You can now sign in with your new password.</p>
+                  <Button
+                    onClick={() => { setIsReset(false); setResetSuccess(false); }}
+                    className="w-full h-12 rounded-full bg-cyan-500 hover:bg-cyan-400 font-semibold text-base gap-2"
+                    size="lg"
+                  >
+                    Sign In <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <form onSubmit={handleResetPassword} className="space-y-5">
+                  <div className="space-y-2">
+                    <Label htmlFor="newPassword" className="text-sm font-medium">New Password</Label>
+                    <div className="relative">
+                      <Input
+                        id="newPassword"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Enter new password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                        minLength={8}
+                        className="h-11 pl-4 pr-12 bg-white/[0.03] border-white/[0.06] focus:border-primary transition-colors"
+                      />
+                      <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-neutral-400 hover:text-white transition-colors">
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                    <p className="text-xs text-neutral-400 font-light">Min 8 characters with uppercase, lowercase, number, and special character</p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="confirmPassword" className="text-sm font-medium">Confirm Password</Label>
+                    <Input
+                      id="confirmPassword"
+                      type="password"
+                      placeholder="Confirm new password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      required
+                      minLength={8}
+                      className="h-11 pl-4 bg-white/[0.03] border-white/[0.06] focus:border-primary transition-colors"
+                    />
+                  </div>
+                  <Button type="submit" disabled={loading} className="w-full h-12 rounded-full bg-cyan-500 hover:bg-cyan-400 shadow-lg shadow-cyan-500/25 font-semibold text-base gap-2" size="lg">
+                    {loading ? 'Resetting...' : 'Reset Password'} {!loading && <ArrowRight className="h-4 w-4" />}
+                  </Button>
+                </form>
+              )
+            ) : (
+
             <form onSubmit={handleSubmit} className="space-y-5">
               {isSignUp && (
                 <div className="space-y-2">
@@ -277,6 +372,7 @@ export default function Auth() {
                 )}
               </Button>
             </form>
+            )}
 
             {/* Trust Indicators */}
             <div className="flex items-center justify-center gap-4 mt-6 pt-6 border-t border-border/30">

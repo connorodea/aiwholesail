@@ -6,6 +6,9 @@ const { query } = require('../config/database');
 const { authenticate, generateAccessToken, generateRefreshToken, verifyRefreshToken } = require('../middleware/auth');
 const { asyncHandler, AppError, logSecurityEvent } = require('../middleware/errorHandler');
 
+const { Resend } = require('resend');
+const resend = new Resend(process.env.RESEND_API_KEY);
+
 const router = express.Router();
 
 // Password validation - requires uppercase, lowercase, digit, and special character
@@ -317,9 +320,36 @@ router.post('/forgot-password', [
     [resetToken, resetExpiry, user.id]
   );
 
-  // TODO: Send password reset email via SendGrid
-  // For now, just log the token (in production, send email)
-  console.log(`[Auth] Password reset token for ${normalizedEmail}: ${resetToken}`);
+  // Send password reset email via Resend
+  const resetUrl = `${process.env.FRONTEND_URL || 'https://aiwholesail.com'}/auth?mode=reset&token=${resetToken}`;
+  try {
+    await resend.emails.send({
+      from: 'AIWholesail <noreply@aiwholesail.com>',
+      to: normalizedEmail,
+      subject: 'Reset Your Password — AIWholesail',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #08090a; color: #ffffff; padding: 40px 30px; border-radius: 12px;">
+          <img src="https://aiwholesail.com/logo-white.png" alt="AIWholesail" style="height: 48px; margin-bottom: 24px;" />
+          <h2 style="color: #06b6d4; margin-bottom: 16px;">Reset Your Password</h2>
+          <p style="color: #a3a3a3; line-height: 1.6; margin-bottom: 24px;">
+            We received a request to reset the password for your AIWholesail account. Click the button below to set a new password.
+          </p>
+          <a href="${resetUrl}" style="display: inline-block; background: #06b6d4; color: #000; font-weight: 600; padding: 12px 32px; border-radius: 6px; text-decoration: none; font-size: 16px;">
+            Reset Password
+          </a>
+          <p style="color: #737373; font-size: 13px; margin-top: 24px; line-height: 1.5;">
+            This link expires in 1 hour. If you didn't request a password reset, you can safely ignore this email.
+          </p>
+          <hr style="border: none; border-top: 1px solid #262626; margin: 24px 0;" />
+          <p style="color: #525252; font-size: 12px;">AIWholesail — Find profitable real estate deals with AI</p>
+        </div>
+      `,
+    });
+    console.log(`[Auth] Password reset email sent to ${normalizedEmail.substring(0, 3)}***`);
+  } catch (emailErr) {
+    console.error('[Auth] Failed to send password reset email:', emailErr.message);
+    // Don't fail the request — token is saved, user can retry
+  }
 
   await logSecurityEvent('password_reset_requested', { email: normalizedEmail.substring(0, 3) + '***' }, user.id, req);
 
