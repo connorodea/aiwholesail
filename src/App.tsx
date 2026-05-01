@@ -77,6 +77,8 @@ const Personas = lazy(() => import("./pages/Personas"));
 const PersonaPage = lazy(() => import("./pages/PersonaPage"));
 const ChecklistsPage = lazy(() => import("./pages/Checklists"));
 const ChecklistPage = lazy(() => import("./pages/ChecklistPage"));
+const SoftwareReviews = lazy(() => import("./pages/SoftwareReviews"));
+const SoftwareReviewPage = lazy(() => import("./pages/SoftwareReviewPage"));
 
 const queryClient = new QueryClient();
 
@@ -204,6 +206,8 @@ const App = () => (
                 <Route path="/for/:slug" element={<PersonaPage />} />
                 <Route path="/checklists" element={<ChecklistsPage />} />
                 <Route path="/checklists/:slug" element={<ChecklistPage />} />
+                <Route path="/reviews" element={<SoftwareReviews />} />
+                <Route path="/reviews/:slug" element={<SoftwareReviewPage />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
