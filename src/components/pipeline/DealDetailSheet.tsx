@@ -60,7 +60,7 @@ export function DealDetailSheet({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpen}>
-      <DialogContent className="max-w-2xl w-full p-0 bg-[#0c0d0f] border-white/[0.08] rounded-2xl overflow-hidden max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl w-full p-0 rounded-2xl overflow-hidden max-h-[90vh] overflow-y-auto" style={{ backgroundColor: '#0c0d0f', borderColor: 'rgba(255,255,255,0.08)', color: '#fff' }}>
         {/* Header */}
         <div className="relative p-6 pb-4 border-b border-white/[0.06] bg-gradient-to-b from-white/[0.03] to-transparent">
           <button onClick={onClose} className="absolute top-4 right-4 p-1.5 rounded-lg hover:bg-white/[0.06] transition-colors">
@@ -173,7 +173,8 @@ export function DealDetailSheet({
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Add notes about this deal..."
-              className="min-h-[80px] resize-none bg-white/[0.03] border-white/[0.06] text-sm"
+              className="min-h-[80px] resize-none text-sm text-white placeholder:text-neutral-500"
+              style={{ backgroundColor: 'rgba(255,255,255,0.03)', borderColor: 'rgba(255,255,255,0.06)' }}
             />
             <Button
               size="sm"

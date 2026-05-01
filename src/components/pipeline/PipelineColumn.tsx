@@ -48,7 +48,7 @@ export function PipelineColumn({ stage, deals, onDrop, onCardClick, onStageChang
 
   return (
     <div
-      className={`flex flex-col min-w-[300px] w-[300px] rounded-xl border transition-all duration-200 ${
+      className={`flex flex-col rounded-xl border transition-all duration-200 ${
         isOver
           ? 'ring-2 ring-cyan-500/50 bg-cyan-500/5 border-cyan-500/30'
           : 'bg-white/[0.015] border-white/[0.06]'

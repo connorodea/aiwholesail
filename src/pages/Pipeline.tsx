@@ -80,7 +80,7 @@ export default function Pipeline() {
   return (
     <div className="min-h-screen bg-[#08090a] text-white font-sans">
       <DashboardNav />
-      <main className="container mx-auto mobile-padding pt-24 pb-16 space-y-6">
+      <main className="px-4 sm:px-6 lg:px-8 pt-24 pb-16 space-y-6">
         {/* Header */}
         <section className="text-center space-y-4 max-w-2xl mx-auto animate-fade-in">
           <h1 className="text-3xl md:text-4xl font-medium tracking-tight text-white">Deal Pipeline</h1>
@@ -90,35 +90,35 @@ export default function Pipeline() {
         </section>
 
         {/* Stats Bar */}
-        <section className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-4xl mx-auto animate-fade-in">
-          <Card className="border-white/[0.06]">
+        <section className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-5xl mx-auto animate-fade-in">
+          <Card className="border-white/[0.06] bg-white/[0.02]">
             <CardContent className="p-4 text-center">
-              <div className="text-xs text-neutral-400 flex items-center justify-center gap-1">
-                <Layers className="h-3 w-3" /> Total Deals
+              <div className="text-[10px] uppercase tracking-wider text-neutral-500 flex items-center justify-center gap-1">
+                <Layers className="h-3 w-3 text-cyan-400" /> Total Deals
               </div>
-              <div className="text-2xl font-bold mt-1">{totalDeals}</div>
+              <div className="text-2xl font-bold mt-1 text-white">{totalDeals}</div>
             </CardContent>
           </Card>
-          <Card className="border-white/[0.06]">
+          <Card className="border-white/[0.06] bg-white/[0.02]">
             <CardContent className="p-4 text-center">
-              <div className="text-xs text-neutral-400 flex items-center justify-center gap-1">
-                <DollarSign className="h-3 w-3" /> Pipeline Value
+              <div className="text-[10px] uppercase tracking-wider text-neutral-500 flex items-center justify-center gap-1">
+                <DollarSign className="h-3 w-3 text-cyan-400" /> Pipeline Value
               </div>
-              <div className="text-2xl font-bold mt-1">{formatCompact(totalValue)}</div>
+              <div className="text-2xl font-bold mt-1 text-white">{formatCompact(totalValue)}</div>
             </CardContent>
           </Card>
-          <Card className="border-white/[0.06]">
+          <Card className="border-cyan-500/20 bg-cyan-500/5">
             <CardContent className="p-4 text-center">
-              <div className="text-xs text-neutral-400 flex items-center justify-center gap-1">
-                <TrendingUp className="h-3 w-3" /> Total Spread
+              <div className="text-[10px] uppercase tracking-wider text-cyan-400/70 flex items-center justify-center gap-1">
+                <TrendingUp className="h-3 w-3 text-cyan-400" /> Total Spread
               </div>
-              <div className="text-2xl font-bold mt-1 text-green-600">{formatCompact(totalSpread)}</div>
+              <div className="text-2xl font-bold mt-1 text-cyan-400">{formatCompact(totalSpread)}</div>
             </CardContent>
           </Card>
-          <Card className="border-white/[0.06]">
+          <Card className="border-white/[0.06] bg-white/[0.02]">
             <CardContent className="p-4 text-center">
-              <div className="text-xs text-neutral-400">Under Contract</div>
-              <div className="text-2xl font-bold mt-1 text-emerald-600">{underContract}</div>
+              <div className="text-[10px] uppercase tracking-wider text-neutral-500">Under Contract</div>
+              <div className="text-2xl font-bold mt-1 text-emerald-400">{underContract}</div>
             </CardContent>
           </Card>
         </section>
@@ -145,7 +145,7 @@ export default function Pipeline() {
         </section>
 
         {/* Kanban Board */}
-        <section className="animate-fade-in">
+        <section className="animate-fade-in overflow-x-auto -mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
           {loading && deals.length === 0 ? (
             <div className="flex gap-4 overflow-x-auto pb-4 -mx-4 px-4">
               {PIPELINE_STAGES.map((stage) => (
@@ -161,7 +161,7 @@ export default function Pipeline() {
               ))}
             </div>
           ) : (
-            <div className="flex gap-4 overflow-x-auto pb-4 -mx-4 px-4 snap-x">
+            <div className="grid grid-cols-6 gap-3 min-w-[1200px]">
               {PIPELINE_STAGES.map((stage) => (
                 <PipelineColumn
                   key={stage.id}
