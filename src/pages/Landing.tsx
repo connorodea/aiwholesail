@@ -13,7 +13,6 @@ import { Heading, Subheading } from "@/components/proactiv/Heading";
 import { Container } from "@/components/proactiv/Container";
 import { FeatureIconContainer } from "@/components/proactiv/FeatureIconContainer";
 import { NavbarAIWholesail } from "@/components/ui/navbar-aiwholesail";
-import { BackgroundRippleEffect } from "@/components/ui/background-ripple-effect";
 
 const aiWholesailLogo = "/logo-white.png";
 
@@ -66,7 +65,6 @@ const Landing = () => {
 
       {/* ===== HERO ===== */}
       <div className="relative flex flex-col min-h-[50rem] md:min-h-[60rem] pt-28 md:pt-40">
-        <BackgroundRippleEffect rows={10} cols={30} cellSize={52} />
         <AmbientColor />
 
         <Container className="flex flex-col items-center justify-center relative z-10">
