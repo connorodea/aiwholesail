@@ -266,7 +266,7 @@ export default function Auth() {
             {/* ===== LEFT: FORM ===== */}
             <div className="pt-10 md:pt-16">
               <Link to="/" className="inline-block mb-6">
-                <img src="/logo-white.png" alt="AIWholesail" className="h-6 w-auto" />
+                <img src="/logo-white.png" alt="AIWholesail" className="h-16 w-auto" />
               </Link>
 
               <h1 className="text-left text-3xl font-bold tracking-tight text-white lg:text-5xl">

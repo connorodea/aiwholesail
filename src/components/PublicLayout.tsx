@@ -51,7 +51,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
               {/* Logo + description — spans 4 cols */}
               <div className="col-span-2 md:col-span-4 space-y-5">
                 <Link to="/" className="inline-block">
-                  <img src={aiWholesailLogo} alt="AIWholesail" className="h-8 sm:h-9 w-auto" />
+                  <img src={aiWholesailLogo} alt="AIWholesail" className="h-16 sm:h-20 w-auto" />
                 </Link>
                 <p className="text-[13px] text-neutral-500 leading-relaxed max-w-xs">
                   AI-powered platform for real estate professionals to find, analyze, and close profitable deals.
