@@ -71,7 +71,7 @@ export function PropertyCard({ property, onViewDetails }: PropertyCardProps) {
         }`}>
           <span className="flex items-center gap-2">
             <TrendingUp className="h-4 w-4" />
-            {isTopDeal ? 'TOP DEAL' : isGreatDeal ? 'GREAT DEAL' : 'WHOLESALE DEAL'}
+            {isTopDeal ? 'TOP DEAL' : isGreatDeal ? 'GREAT DEAL' : 'GOOD DEAL'}
           </span>
           <span className="flex items-center gap-2">
             {formatSpread(spread)}

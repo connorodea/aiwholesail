@@ -112,7 +112,7 @@ export default function HowItWorks() {
       <SEOHead
         title="How It Works"
         description="Learn how AIWholesail helps you find profitable real estate deals in 6 simple steps. From market search to closing, powered by AI analysis and real-time data."
-        keywords="how AIWholesail works, real estate deal finding steps, AI property analysis process, wholesale real estate workflow, automated deal scoring"
+        keywords="how AIWholesail works, real estate deal finding steps, AI property analysis process, real estate deal-finding workflow, automated deal scoring"
       />
 
       {/* ===== HERO ===== */}
