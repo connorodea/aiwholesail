@@ -85,6 +85,8 @@ const DealExamples = lazy(() => import("./pages/DealExamples"));
 const DealExamplePage = lazy(() => import("./pages/DealExamplePage"));
 const ZipCodes = lazy(() => import("./pages/ZipCodes"));
 const ZipCodePage = lazy(() => import("./pages/ZipCodePage"));
+const FAQTopics = lazy(() => import("./pages/FAQTopics"));
+const FAQTopicPage = lazy(() => import("./pages/FAQTopicPage"));
 
 const queryClient = new QueryClient();
 
@@ -170,6 +172,8 @@ const App = () => (
                 <Route path="/refund" element={<Refund />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/faq" element={<FAQ />} />
+                <Route path="/faq/topics" element={<FAQTopics />} />
+                <Route path="/faq/:slug" element={<FAQTopicPage />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/how-it-works" element={<HowItWorks />} />
                 <Route path="/use-cases" element={<UseCases />} />
