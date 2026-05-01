@@ -1,17 +1,20 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Plus, Play, Pause, XCircle, Clock, MessageSquare, Mail,
-  Trash2, FileText, Repeat, Zap, RefreshCw,
+  Trash2, FileText, Repeat, Zap, RefreshCw, Users, Search, ArrowRight,
 } from 'lucide-react';
 import { useSequences } from '@/hooks/useSequences';
 import { SequenceTemplate, LeadSequence } from '@/types/sequences';
 import { SequenceBuilder } from './SequenceBuilder';
 import { SequenceStatusBadge } from './SequenceStatusBadge';
+import { leads as leadsApi } from '@/lib/api-client';
+import { toast } from 'sonner';
 
 const CATEGORY_ICONS: Record<string, typeof Zap> = {
   initial_outreach: Zap,
@@ -27,6 +30,35 @@ export function SequenceManager() {
   } = useSequences();
   const [showBuilder, setShowBuilder] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<SequenceTemplate | null>(null);
+  const [showAssign, setShowAssign] = useState(false);
+  const [availableLeads, setAvailableLeads] = useState<any[]>([]);
+  const [leadSearch, setLeadSearch] = useState('');
+  const [assigningLead, setAssigningLead] = useState<string | null>(null);
+
+  // Fetch leads when assign dialog opens
+  useEffect(() => {
+    if (showAssign) {
+      leadsApi.list('limit=50').then(res => {
+        if (!res.error && (res.data as any)?.leads) {
+          setAvailableLeads((res.data as any).leads);
+        }
+      });
+    }
+  }, [showAssign]);
+
+  const handleAssignToLead = async (leadId: string, leadName: string) => {
+    if (!selectedTemplate) return;
+    setAssigningLead(leadId);
+    const success = await assignSequence(leadId, selectedTemplate.id, {
+      seller_name: leadName,
+      your_name: 'AIWholesail User',
+    });
+    setAssigningLead(null);
+    if (success) {
+      setShowAssign(false);
+      setSelectedTemplate(null);
+    }
+  };
 
   const channelSummary = (template: SequenceTemplate) => {
     const sms = template.steps.filter(s => s.channel === 'sms').length;
@@ -94,9 +126,51 @@ export function SequenceManager() {
           </CardContent>
         </Card>
 
-        <p className="text-xs text-muted-foreground">
-          To use this sequence, assign it to a lead from the Deal Pipeline.
-        </p>
+        {/* Assign to Lead */}
+        {showAssign ? (
+          <Card>
+            <CardContent className="p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="font-medium flex items-center gap-2"><Users className="h-4 w-4 text-primary" /> Select a Lead</h3>
+                <Button variant="ghost" size="sm" onClick={() => setShowAssign(false)}>Cancel</Button>
+              </div>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input placeholder="Search leads..." value={leadSearch} onChange={e => setLeadSearch(e.target.value)} className="pl-9" />
+              </div>
+              {availableLeads.length === 0 ? (
+                <p className="text-sm text-muted-foreground py-4 text-center">No leads found. Add leads from the Deal Pipeline first.</p>
+              ) : (
+                <div className="max-h-60 overflow-y-auto space-y-1">
+                  {availableLeads
+                    .filter(l => !leadSearch || (l.property_address || l.name || '').toLowerCase().includes(leadSearch.toLowerCase()))
+                    .map(lead => (
+                      <button
+                        key={lead.id}
+                        onClick={() => handleAssignToLead(lead.id, lead.name || lead.property_address || 'Lead')}
+                        disabled={assigningLead === lead.id}
+                        className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors text-left"
+                      >
+                        <div>
+                          <div className="text-sm font-medium">{lead.property_address || lead.name || 'Unnamed Lead'}</div>
+                          <div className="text-xs text-muted-foreground">{lead.status || 'New'} {lead.phone_number ? `· ${lead.phone_number}` : ''}</div>
+                        </div>
+                        {assigningLead === lead.id ? (
+                          <RefreshCw className="h-4 w-4 animate-spin text-primary" />
+                        ) : (
+                          <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </button>
+                    ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        ) : (
+          <Button onClick={() => setShowAssign(true)} className="gap-2 w-full sm:w-auto">
+            <Play className="h-4 w-4" /> Assign to Lead
+          </Button>
+        )}
       </div>
     );
   }

@@ -26,11 +26,11 @@ export default function Favorites() {
         </section>
 
         {favorites.length > 0 ? (
-          <div className="property-grid animate-fade-in">
+          <div className="property-grid animate-fade-in items-stretch">
             {favorites.map((property, index) => (
               <div
                 key={property.id}
-                className="animate-fade-in hover-scale"
+                className="animate-fade-in hover-scale flex"
                 style={{ animationDelay: `${index * 50}ms` }}
               >
                 <PropertyCard

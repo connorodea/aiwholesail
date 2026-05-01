@@ -56,7 +56,7 @@ export function PropertyCard({ property, onViewDetails }: PropertyCardProps) {
   const isFresh = daysOnMarket !== null && daysOnMarket <= 7;
 
   return (
-    <Card className={`overflow-hidden transition-all duration-300 hover:shadow-xl ${
+    <Card className={`overflow-hidden transition-all duration-300 hover:shadow-xl h-full flex flex-col ${
       isTopDeal ? 'ring-2 ring-yellow-500 bg-gradient-to-br from-yellow-500/10 to-amber-500/5' :
       isGreatDeal ? 'ring-2 ring-emerald-500 bg-gradient-to-br from-emerald-500/10 to-green-500/5' :
       isQualifiedDeal ? 'ring-2 ring-green-500/50 bg-gradient-to-br from-green-500/5 to-emerald-500/5' :
@@ -119,7 +119,7 @@ export function PropertyCard({ property, onViewDetails }: PropertyCardProps) {
         </Button>
       </div>
 
-      <CardContent className="p-4 space-y-4">
+      <CardContent className="p-4 space-y-4 flex-1 flex flex-col">
         {/* Header: Price + Address */}
         <div>
           <div className="text-2xl font-bold tracking-tight">
