@@ -9,7 +9,7 @@ import { zillowAPI } from '@/lib/zillow-api';
 import { sortPropertiesByWholesalePotential } from '@/lib/wholesale-calculator';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { User, Download, Bell, MessageSquare } from 'lucide-react';
+import { User, Download, Bell, MessageSquare, GitCompareArrows, Check } from 'lucide-react';
 import { communications } from '@/lib/api-client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useFavorites } from '@/hooks/useFavorites';
@@ -30,6 +30,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { ArrowUpDown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { PropertyComparison } from '@/components/PropertyComparison';
 
 export default function RealEstateWholesaler() {
   const { user } = useAuth();
@@ -52,6 +53,9 @@ export default function RealEstateWholesaler() {
   const [showSmsAlert, setShowSmsAlert] = useState(false);
   const [smsPhone, setSmsPhone] = useState('');
   const [sendingSms, setSendingSms] = useState(false);
+  const [compareMode, setCompareMode] = useState(false);
+  const [compareSelected, setCompareSelected] = useState<Property[]>([]);
+  const [showComparison, setShowComparison] = useState(false);
   const searchIdRef = useRef(0);
 
   // US States lookup
@@ -478,6 +482,34 @@ export default function RealEstateWholesaler() {
                         <Download className="h-4 w-4" />
                         {exportLoading ? 'Exporting...' : 'Export CSV'}
                       </Button>
+
+                      {/* Compare Mode Toggle */}
+                      <Button
+                        onClick={() => {
+                          setCompareMode(!compareMode);
+                          if (compareMode) {
+                            setCompareSelected([]);
+                          }
+                        }}
+                        variant={compareMode ? 'default' : 'outline'}
+                        size="sm"
+                        className="gap-2 h-9 px-4 text-sm font-medium smooth-transition"
+                      >
+                        <GitCompareArrows className="h-4 w-4" />
+                        {compareMode ? 'Cancel Compare' : 'Compare'}
+                      </Button>
+
+                      {/* Compare Selected Button */}
+                      {compareMode && compareSelected.length >= 2 && (
+                        <Button
+                          onClick={() => setShowComparison(true)}
+                          size="sm"
+                          className="gap-2 h-9 px-4 text-sm font-medium bg-emerald-600 hover:bg-emerald-700 smooth-transition"
+                        >
+                          <Check className="h-4 w-4" />
+                          Compare {compareSelected.length} Selected
+                        </Button>
+                      )}
 
                       {/* SMS Alert for deals */}
                       {properties.some(p => p.price && p.zestimate && (p.zestimate - p.price) >= 30000) && (
