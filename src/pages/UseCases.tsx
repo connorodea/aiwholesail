@@ -331,7 +331,7 @@ export default function UseCases() {
             <span className="flex items-center gap-1.5"><CheckCircle className="h-3.5 w-3.5" /> Cancel Anytime</span>
           </div>
         </div>
-      </section>
+      </motion.section>
     </PublicLayout>
   );
 }
