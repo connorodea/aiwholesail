@@ -1,3 +1,5 @@
+import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import {
@@ -134,6 +136,47 @@ const audiences: UseCase[] = [
 ];
 
 export default function UseCases() {
+  // Respect prefers-reduced-motion
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  useEffect(() => {
+    const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setPrefersReducedMotion(mql.matches);
+    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
+    mql.addEventListener("change", handler);
+    return () => mql.removeEventListener("change", handler);
+  }, []);
+
+  // Hero stagger: fade-up on load
+  const heroFadeUp = (delay: number) =>
+    prefersReducedMotion
+      ? {}
+      : {
+          initial: { opacity: 0, y: 20 } as const,
+          animate: { opacity: 1, y: 0 } as const,
+          transition: { duration: 0.8, ease: "easeOut" as const, delay },
+        };
+
+  // Scroll-triggered fade-in for sections below the fold
+  const sectionFadeIn = prefersReducedMotion
+    ? {}
+    : {
+        initial: { opacity: 0, y: 30 } as const,
+        whileInView: { opacity: 1, y: 0 } as const,
+        viewport: { once: true, margin: "-100px" },
+        transition: { duration: 0.6, ease: "easeOut" as const },
+      };
+
+  // Staggered card animation
+  const cardFadeIn = (index: number) =>
+    prefersReducedMotion
+      ? {}
+      : {
+          initial: { opacity: 0, y: 30 } as const,
+          whileInView: { opacity: 1, y: 0 } as const,
+          viewport: { once: true, margin: "-100px" },
+          transition: { duration: 0.5, ease: "easeOut" as const, delay: index * 0.08 },
+        };
+
   return (
     <PublicLayout>
       <SEOHead
@@ -146,17 +189,17 @@ export default function UseCases() {
       <section className="relative bg-gradient-to-b from-[#0a0a0a] via-[#0f0f0f] to-[#0a0a0a] text-white overflow-hidden">
         <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" fill="rgba(6, 182, 212, 0.15)" />
         <div className="relative container mx-auto max-w-5xl px-4 pt-28 pb-20 text-center">
-          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-6">USE CASES</p>
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[0.95] text-white mb-6">
+          <motion.p {...heroFadeUp(0)} className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-6">USE CASES</motion.p>
+          <motion.h1 {...heroFadeUp(0.1)} className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[0.95] text-white mb-6">
             One Platform, Every
             <br />
             <span className="bg-gradient-to-r from-cyan-500 via-cyan-400 to-cyan-500 bg-clip-text text-transparent">
               Investing Strategy.
             </span>
-          </h1>
-          <p className="text-lg md:text-xl text-white/50 max-w-2xl mx-auto leading-relaxed font-light">
+          </motion.h1>
+          <motion.p {...heroFadeUp(0.2)} className="text-lg md:text-xl text-white/50 max-w-2xl mx-auto leading-relaxed font-light">
             Whether you wholesale, flip, hold, or are just getting started -- AIWholesail gives you the AI-powered tools to find, analyze, and close better deals.
-          </p>
+          </motion.p>
         </div>
       </section>
 
@@ -166,7 +209,7 @@ export default function UseCases() {
 
         return (
           <div key={item.audience}>
-            <section className={`py-24 px-4 ${isDark ? 'bg-[#0a0a0a] text-white' : ''}`}>
+            <motion.section className={`py-24 px-4 ${isDark ? 'bg-[#0a0a0a] text-white' : ''}`} {...sectionFadeIn}>
               <div className="container mx-auto max-w-7xl">
                 <div className={`grid lg:grid-cols-2 gap-8 lg:gap-16 items-center`}>
                   {/* Content Side */}
@@ -191,18 +234,18 @@ export default function UseCases() {
 
                     <ul className="space-y-4 mb-8">
                       {item.useCases.map((useCase, i) => (
-                        <li key={i} className="flex items-start gap-3">
+                        <motion.li key={i} {...cardFadeIn(i)} className="flex items-start gap-3">
                           <CheckCircle2 className="h-5 w-5 text-cyan-400 mt-0.5 flex-shrink-0" />
                           <span className={`text-sm font-light leading-relaxed ${isDark ? 'text-white/70' : ''}`}>
                             {useCase}
                           </span>
-                        </li>
+                        </motion.li>
                       ))}
                     </ul>
                   </div>
 
                   {/* Highlight Card Side */}
-                  <div className={index % 2 === 1 ? 'lg:order-1' : ''}>
+                  <motion.div {...cardFadeIn(0)} className={index % 2 === 1 ? 'lg:order-1' : ''}>
                     <div className={`rounded-xl p-8 lg:p-10 ${
                       isDark
                         ? 'bg-white/5 border border-white/10'
@@ -239,10 +282,10 @@ export default function UseCases() {
                         </>
                       )}
                     </div>
-                  </div>
+                  </motion.div>
                 </div>
               </div>
-            </section>
+            </motion.section>
 
             {/* Gradient transitions between dark/light sections */}
             {isDark && index < audiences.length - 1 && (
@@ -259,7 +302,7 @@ export default function UseCases() {
       <div className="h-24 bg-gradient-to-b from-background to-[#0a0a0a]" />
 
       {/* ===== CTA -- DARK ===== */}
-      <section className="bg-[#0a0a0a] text-white py-24 px-4">
+      <motion.section className="bg-[#0a0a0a] text-white py-24 px-4" {...sectionFadeIn}>
         <div className="container mx-auto text-center max-w-3xl">
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight leading-tight mb-6">
             No matter your strategy,

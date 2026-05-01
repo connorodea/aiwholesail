@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { analytics } from '@/lib/analytics';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -49,6 +50,47 @@ export default function Pricing() {
   const { user } = useAuth();
   const [loading, setLoading] = useState<string | null>(null);
 
+  // Respect prefers-reduced-motion
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  useEffect(() => {
+    const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setPrefersReducedMotion(mql.matches);
+    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
+    mql.addEventListener("change", handler);
+    return () => mql.removeEventListener("change", handler);
+  }, []);
+
+  // Hero stagger: fade-up on load
+  const heroFadeUp = (delay: number) =>
+    prefersReducedMotion
+      ? {}
+      : {
+          initial: { opacity: 0, y: 20 } as const,
+          animate: { opacity: 1, y: 0 } as const,
+          transition: { duration: 0.8, ease: "easeOut" as const, delay },
+        };
+
+  // Scroll-triggered fade-in for sections below the fold
+  const sectionFadeIn = prefersReducedMotion
+    ? {}
+    : {
+        initial: { opacity: 0, y: 30 } as const,
+        whileInView: { opacity: 1, y: 0 } as const,
+        viewport: { once: true, margin: "-100px" },
+        transition: { duration: 0.6, ease: "easeOut" as const },
+      };
+
+  // Staggered card animation
+  const cardFadeIn = (index: number) =>
+    prefersReducedMotion
+      ? {}
+      : {
+          initial: { opacity: 0, y: 30 } as const,
+          whileInView: { opacity: 1, y: 0 } as const,
+          viewport: { once: true, margin: "-100px" },
+          transition: { duration: 0.5, ease: "easeOut" as const, delay: index * 0.08 },
+        };
+
   const handleSelectPlan = async (plan: typeof plans[0]) => {
     // Track checkout intent
     analytics.beginCheckout(plan.name, plan.price);
@@ -94,22 +136,22 @@ export default function Pricing() {
       <section className="relative bg-gradient-to-b from-[#0a0a0a] via-[#0f0f0f] to-[#0a0a0a] text-white overflow-hidden">
         <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" fill="rgba(6, 182, 212, 0.15)" />
         <div className="relative container mx-auto max-w-5xl px-4 pt-28 pb-20 text-center">
-          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-6">PRICING</p>
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[0.95] text-white mb-6">
+          <motion.p {...heroFadeUp(0)} className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-6">PRICING</motion.p>
+          <motion.h1 {...heroFadeUp(0.1)} className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[0.95] text-white mb-6">
             Simple, Transparent
             <br />
             <span className="bg-gradient-to-r from-cyan-500 via-cyan-400 to-cyan-500 bg-clip-text text-transparent">
               Pricing.
             </span>
-          </h1>
-          <p className="text-lg md:text-xl text-white/50 max-w-2xl mx-auto leading-relaxed font-light">
+          </motion.h1>
+          <motion.p {...heroFadeUp(0.2)} className="text-lg md:text-xl text-white/50 max-w-2xl mx-auto leading-relaxed font-light">
             Start free for 7 days. No credit card required. Pick the plan that fits your business and upgrade when you are ready.
-          </p>
+          </motion.p>
         </div>
       </section>
 
       {/* ===== PLAN CARDS -- LIGHT ===== */}
-      <section className="py-24 px-4">
+      <motion.section className="py-24 px-4" {...sectionFadeIn}>
         <div className="container mx-auto max-w-7xl">
           <p className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-4 text-center">Choose Your Plan</p>
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-center mb-4">
@@ -120,9 +162,10 @@ export default function Pricing() {
           </p>
 
           <div className="grid md:grid-cols-2 gap-4 max-w-4xl mx-auto">
-            {plans.map((plan) => (
-              <div
+            {plans.map((plan, index) => (
+              <motion.div
                 key={plan.name}
+                {...cardFadeIn(index)}
                 className={`relative bg-white/[0.03] border rounded-xl p-8 md:p-10 flex flex-col justify-between group hover:border-cyan-500/20 transition-all duration-300 ${
                   plan.popular
                     ? 'border-2 border-primary/30 shadow-lg shadow-primary/5'
@@ -176,7 +219,7 @@ export default function Pricing() {
                     No credit card required
                   </p>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
 
@@ -192,10 +235,10 @@ export default function Pricing() {
             )}
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* ===== WHAT'S INCLUDED -- DARK ===== */}
-      <section className="bg-[#0a0a0a] text-white py-24 px-4">
+      <motion.section className="bg-[#0a0a0a] text-white py-24 px-4" {...sectionFadeIn}>
         <div className="container mx-auto max-w-7xl">
           <p className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-4 text-center">Every Plan Includes</p>
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-center mb-12">
@@ -210,22 +253,22 @@ export default function Pricing() {
               { label: 'Custom Alerts', desc: 'Get notified the moment a high-profit deal hits the market in your area.' },
               { label: 'Deal Pipeline', desc: 'Track every deal from first contact to closing in one organized view.' },
               { label: 'Data Export', desc: 'Export your leads, saved properties, and contact data anytime you need it.' },
-            ].map(item => (
-              <div key={item.label} className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-colors">
+            ].map((item, index) => (
+              <motion.div key={item.label} {...cardFadeIn(index)} className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-colors">
                 <CheckCircle className="h-5 w-5 text-cyan-400 mb-3" />
                 <h4 className="font-semibold text-sm mb-1">{item.label}</h4>
                 <p className="text-xs text-white/50 leading-relaxed">{item.desc}</p>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* Fade dark to white */}
       <div className="h-24 bg-gradient-to-b from-[#0a0a0a] to-[#08090a]" />
 
       {/* ===== CTA -- LIGHT ===== */}
-      <section className="py-24 px-4">
+      <motion.section className="py-24 px-4" {...sectionFadeIn}>
         <div className="container mx-auto text-center max-w-3xl">
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight leading-tight mb-6">
             Ready to find your next deal?
@@ -243,7 +286,7 @@ export default function Pricing() {
             <span className="flex items-center gap-1.5"><CheckCircle className="h-3.5 w-3.5 text-cyan-400" /> Cancel Anytime</span>
           </div>
         </div>
-      </section>
+      </motion.section>
     </PublicLayout>
   );
 }

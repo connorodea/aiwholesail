@@ -1,13 +1,55 @@
+import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Plus, Minus, ArrowRight, Shield, CheckCircle, Sparkles } from 'lucide-react';
 import { SEOHead } from '@/components/SEOHead';
 import { PublicLayout } from '@/components/PublicLayout';
 import { Spotlight } from '@/components/ui/spotlight';
-import { useState } from 'react';
 
 export default function FAQ() {
   const [openItems, setOpenItems] = useState<number[]>([0]); // First item open by default
+
+  // Respect prefers-reduced-motion
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  useEffect(() => {
+    const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setPrefersReducedMotion(mql.matches);
+    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
+    mql.addEventListener("change", handler);
+    return () => mql.removeEventListener("change", handler);
+  }, []);
+
+  // Hero stagger: fade-up on load
+  const heroFadeUp = (delay: number) =>
+    prefersReducedMotion
+      ? {}
+      : {
+          initial: { opacity: 0, y: 20 } as const,
+          animate: { opacity: 1, y: 0 } as const,
+          transition: { duration: 0.8, ease: "easeOut" as const, delay },
+        };
+
+  // Scroll-triggered fade-in for sections below the fold
+  const sectionFadeIn = prefersReducedMotion
+    ? {}
+    : {
+        initial: { opacity: 0, y: 30 } as const,
+        whileInView: { opacity: 1, y: 0 } as const,
+        viewport: { once: true, margin: "-100px" },
+        transition: { duration: 0.6, ease: "easeOut" as const },
+      };
+
+  // Staggered card animation
+  const cardFadeIn = (index: number) =>
+    prefersReducedMotion
+      ? {}
+      : {
+          initial: { opacity: 0, y: 30 } as const,
+          whileInView: { opacity: 1, y: 0 } as const,
+          viewport: { once: true, margin: "-100px" },
+          transition: { duration: 0.5, ease: "easeOut" as const, delay: index * 0.08 },
+        };
 
   const toggleItem = (index: number) => {
     setOpenItems(prev =>
@@ -92,25 +134,25 @@ export default function FAQ() {
       <section className="relative bg-gradient-to-b from-[#0a0a0a] via-[#0f0f0f] to-[#0a0a0a] text-white overflow-hidden">
         <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" fill="rgba(6, 182, 212, 0.15)" />
         <div className="relative container mx-auto max-w-5xl px-4 pt-28 pb-20 text-center">
-          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-6">FAQ</p>
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[0.95] text-white mb-6">
+          <motion.p {...heroFadeUp(0)} className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-6">FAQ</motion.p>
+          <motion.h1 {...heroFadeUp(0.1)} className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[0.95] text-white mb-6">
             Frequently Asked
             <br />
             <span className="bg-gradient-to-r from-cyan-500 via-cyan-400 to-cyan-500 bg-clip-text text-transparent">
               Questions.
             </span>
-          </h1>
-          <p className="text-lg md:text-xl text-white/50 max-w-2xl mx-auto leading-relaxed font-light">
+          </motion.h1>
+          <motion.p {...heroFadeUp(0.2)} className="text-lg md:text-xl text-white/50 max-w-2xl mx-auto leading-relaxed font-light">
             Everything you need to know about AIWholesail. Can not find your answer here?{' '}
             <Link to="/contact" className="text-cyan-400 hover:underline">
               Reach out to our support team
             </Link>.
-          </p>
+          </motion.p>
         </div>
       </section>
 
       {/* ===== FAQ ACCORDION -- LIGHT ===== */}
-      <section className="py-24 px-4">
+      <motion.section className="py-24 px-4" {...sectionFadeIn}>
         <div className="container mx-auto max-w-3xl">
           <p className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-4">Common Questions</p>
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-16">
@@ -119,8 +161,9 @@ export default function FAQ() {
 
           <div className="space-y-4">
             {faqs.map((faq, index) => (
-              <div
+              <motion.div
                 key={index}
+                {...cardFadeIn(index)}
                 className="bg-white/[0.03] border border-white/[0.06] rounded-xl overflow-hidden transition-all duration-300 hover:border-cyan-500/20"
               >
                 <button
@@ -144,14 +187,14 @@ export default function FAQ() {
                     <p className="text-neutral-400 font-light leading-relaxed">{faq.answer}</p>
                   </div>
                 )}
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* ===== STILL HAVE QUESTIONS -- DARK ===== */}
-      <section className="bg-[#0a0a0a] text-white py-24 px-4">
+      <motion.section className="bg-[#0a0a0a] text-white py-24 px-4" {...sectionFadeIn}>
         <div className="container mx-auto text-center max-w-3xl">
           <Sparkles className="h-8 w-8 text-cyan-400 mx-auto mb-6" />
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
@@ -177,7 +220,7 @@ export default function FAQ() {
             <span className="flex items-center gap-1.5"><CheckCircle className="h-3.5 w-3.5" /> Cancel Anytime</span>
           </div>
         </div>
-      </section>
+      </motion.section>
     </PublicLayout>
   );
 }

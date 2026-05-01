@@ -1,3 +1,5 @@
+import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import {
@@ -45,6 +47,47 @@ const stats = [
 ];
 
 export default function About() {
+  // Respect prefers-reduced-motion
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  useEffect(() => {
+    const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setPrefersReducedMotion(mql.matches);
+    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
+    mql.addEventListener("change", handler);
+    return () => mql.removeEventListener("change", handler);
+  }, []);
+
+  // Hero stagger: fade-up on load
+  const heroFadeUp = (delay: number) =>
+    prefersReducedMotion
+      ? {}
+      : {
+          initial: { opacity: 0, y: 20 } as const,
+          animate: { opacity: 1, y: 0 } as const,
+          transition: { duration: 0.8, ease: "easeOut" as const, delay },
+        };
+
+  // Scroll-triggered fade-in for sections below the fold
+  const sectionFadeIn = prefersReducedMotion
+    ? {}
+    : {
+        initial: { opacity: 0, y: 30 } as const,
+        whileInView: { opacity: 1, y: 0 } as const,
+        viewport: { once: true, margin: "-100px" },
+        transition: { duration: 0.6, ease: "easeOut" as const },
+      };
+
+  // Staggered card animation
+  const cardFadeIn = (index: number) =>
+    prefersReducedMotion
+      ? {}
+      : {
+          initial: { opacity: 0, y: 30 } as const,
+          whileInView: { opacity: 1, y: 0 } as const,
+          viewport: { once: true, margin: "-100px" },
+          transition: { duration: 0.5, ease: "easeOut" as const, delay: index * 0.08 },
+        };
+
   return (
     <PublicLayout>
       <SEOHead
@@ -57,22 +100,22 @@ export default function About() {
       <section className="relative bg-gradient-to-b from-[#0a0a0a] via-[#0f0f0f] to-[#0a0a0a] text-white overflow-hidden">
         <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" fill="rgba(6, 182, 212, 0.15)" />
         <div className="relative container mx-auto max-w-5xl px-4 pt-28 pb-20 text-center">
-          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-6">ABOUT</p>
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[0.95] text-white mb-6">
+          <motion.p {...heroFadeUp(0)} className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-6">ABOUT</motion.p>
+          <motion.h1 {...heroFadeUp(0.1)} className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[0.95] text-white mb-6">
             Built by Investors,
             <br />
             <span className="bg-gradient-to-r from-cyan-500 via-cyan-400 to-cyan-500 bg-clip-text text-transparent">
               For Investors.
             </span>
-          </h1>
-          <p className="text-lg md:text-xl text-white/50 max-w-2xl mx-auto leading-relaxed font-light">
+          </motion.h1>
+          <motion.p {...heroFadeUp(0.2)} className="text-lg md:text-xl text-white/50 max-w-2xl mx-auto leading-relaxed font-light">
             We believe every investor deserves the same analytical edge that top firms have. AIWholesail puts AI-powered deal finding and market intelligence in your hands -- so the best deals are never out of reach.
-          </p>
+          </motion.p>
         </div>
       </section>
 
       {/* ===== VALUES -- LIGHT (Bento) ===== */}
-      <section className="py-24 px-4">
+      <motion.section className="py-24 px-4" {...sectionFadeIn}>
         <div className="container mx-auto max-w-7xl">
           <p className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-4">What Drives Us</p>
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
@@ -83,9 +126,10 @@ export default function About() {
           </p>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {values.map((item) => (
-              <div
+            {values.map((item, index) => (
+              <motion.div
                 key={item.title}
+                {...cardFadeIn(index)}
                 className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-8 group hover:border-cyan-500/20 transition-all duration-300"
               >
                 <div className="w-12 h-12 rounded-xl bg-cyan-500/10 flex items-center justify-center mb-6 group-hover:bg-cyan-500/20 transition-colors">
@@ -95,14 +139,14 @@ export default function About() {
                 <p className="text-neutral-400 leading-relaxed font-light">
                   {item.description}
                 </p>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* ===== OUR STORY -- LIGHT (muted bg) ===== */}
-      <section className="py-24 px-4 bg-white/[0.02]">
+      <motion.section className="py-24 px-4 bg-white/[0.02]" {...sectionFadeIn}>
         <div className="container mx-auto max-w-4xl">
           <p className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-4 text-center">Our Story</p>
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-center mb-12">
@@ -137,10 +181,10 @@ export default function About() {
             </p>
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* ===== BY THE NUMBERS -- DARK ===== */}
-      <section className="bg-[#0a0a0a] text-white py-24 px-4">
+      <motion.section className="bg-[#0a0a0a] text-white py-24 px-4" {...sectionFadeIn}>
         <div className="container mx-auto max-w-7xl">
           <p className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-4 text-center">By the Numbers</p>
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-center mb-4">
@@ -151,9 +195,10 @@ export default function About() {
           </p>
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {stats.map((stat) => (
-              <div
+            {stats.map((stat, index) => (
+              <motion.div
                 key={stat.label}
+                {...cardFadeIn(index)}
                 className="bg-white/5 border border-white/10 rounded-2xl p-8 text-center hover:bg-white/10 transition-colors"
               >
                 <stat.icon className="h-6 w-6 text-cyan-400 mx-auto mb-4" />
@@ -163,17 +208,17 @@ export default function About() {
                 <p className="text-sm text-white/50 font-light">
                   {stat.label}
                 </p>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* Fade dark to white */}
       <div className="h-24 bg-gradient-to-b from-[#0a0a0a] to-[#08090a]" />
 
       {/* ===== CTA -- LIGHT ===== */}
-      <section className="py-24 px-4">
+      <motion.section className="py-24 px-4" {...sectionFadeIn}>
         <div className="container mx-auto text-center max-w-3xl">
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight leading-tight mb-6">
             Ready to find your next deal?
@@ -191,7 +236,7 @@ export default function About() {
             <span className="flex items-center gap-1.5"><CheckCircle className="h-3.5 w-3.5 text-cyan-400" /> Cancel Anytime</span>
           </div>
         </div>
-      </section>
+      </motion.section>
     </PublicLayout>
   );
 }
