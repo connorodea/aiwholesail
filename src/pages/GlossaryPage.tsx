@@ -74,6 +74,11 @@ export default function GlossaryPage() {
         title={`${term.term} — Real Estate Investing Glossary | AIWholesail`}
         description={descriptionText}
         keywords={keywords}
+        breadcrumbs={[
+          { name: 'Home', url: 'https://aiwholesail.com' },
+          { name: 'Glossary', url: 'https://aiwholesail.com/glossary' },
+          { name: term.term, url: `https://aiwholesail.com/glossary/${term.slug}` },
+        ]}
       />
 
       {/* FAQ Schema for featured snippets */}

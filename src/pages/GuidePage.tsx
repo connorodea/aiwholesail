@@ -129,6 +129,11 @@ export default function GuidePage() {
         title={guide.title}
         description={guide.description}
         keywords={guide.keywords}
+        breadcrumbs={[
+          { name: 'Home', url: 'https://aiwholesail.com' },
+          { name: 'Guides', url: 'https://aiwholesail.com/guides' },
+          { name: guide.title, url: `https://aiwholesail.com/guides/${guide.slug}` },
+        ]}
       />
 
       {/* ===== HERO ===== */}

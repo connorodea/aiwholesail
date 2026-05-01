@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import {
   Calculator, Home, DollarSign, TrendingUp,
   Wrench, BarChart3, Target, Repeat, Percent, ChevronRight, ArrowRight,
@@ -109,6 +110,28 @@ export default function ToolsIndex() {
         description="Free real estate calculators: mortgage, wholesale deal, ARV, cash flow, rehab cost, BRRRR, cap rate, and offer price calculators for investors."
         keywords="real estate calculators, free investment tools, mortgage calculator, arv calculator, wholesale calculator, rental property calculator, cap rate calculator"
       />
+
+      {/* WebApplication Schema for each calculator tool */}
+      <Helmet>
+        {tools.map((tool) => (
+          <script key={tool.slug} type="application/ld+json">
+            {JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebApplication",
+              "name": tool.title,
+              "url": `https://aiwholesail.com/tools/${tool.slug}`,
+              "applicationCategory": "FinanceApplication",
+              "operatingSystem": "Web",
+              "description": tool.description,
+              "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "USD"
+              }
+            })}
+          </script>
+        ))}
+      </Helmet>
 
       {/* Hero */}
       <section className="pt-24 pb-16 px-4">

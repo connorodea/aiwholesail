@@ -115,6 +115,11 @@ export default function MarketPage() {
         title={`${city.city}, ${city.state} Real Estate Wholesale Market`}
         description={`Find profitable wholesale real estate deals in ${city.city}, ${city.stateFull}. Median home price ${formatCurrency(city.medianHomePrice)}, ${city.priceGrowth}% growth. AI-powered deal scoring for ${city.city} investors.`}
         keywords={`${city.city} wholesale real estate, ${city.city} investment properties, ${city.city} ${city.state} real estate deals, wholesale deals ${city.city}, flip houses ${city.city}, rental properties ${city.city}`}
+        breadcrumbs={[
+          { name: 'Home', url: 'https://aiwholesail.com' },
+          { name: 'Markets', url: 'https://aiwholesail.com/markets' },
+          { name: `${city.city}, ${city.state}`, url: `https://aiwholesail.com/markets/${city.slug}` },
+        ]}
       />
 
       {/* ===== HERO ===== */}

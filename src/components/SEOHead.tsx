@@ -2,6 +2,11 @@ import React, { useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { generateCSPHeader } from '@/lib/security-enhanced';
 
+interface BreadcrumbItem {
+  name: string;
+  url: string;
+}
+
 interface SEOHeadProps {
   title?: string;
   description?: string;
@@ -9,6 +14,7 @@ interface SEOHeadProps {
   canonicalUrl?: string;
   ogImage?: string;
   noIndex?: boolean;
+  breadcrumbs?: BreadcrumbItem[];
 }
 
 export function SEOHead({ 
@@ -17,7 +23,8 @@ export function SEOHead({
   keywords = "real estate deals, property analysis, AI real estate, profitable deals, property investment, real estate analytics, real estate investing",
   canonicalUrl,
   ogImage = "https://aiwholesail.com/og-image.png",
-  noIndex = false
+  noIndex = false,
+  breadcrumbs
 }: SEOHeadProps) {
   const fullTitle = title.includes('AI Wholesail') ? title : `${title} | AI Wholesail`;
   const currentUrl = canonicalUrl || (typeof window !== 'undefined' ? window.location.href : '');
@@ -90,6 +97,34 @@ export function SEOHead({
           }
         })}
       </script>
+
+      {/* Organization Schema */}
+      <script type="application/ld+json">
+        {JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          "name": "AIWholesail",
+          "url": "https://aiwholesail.com",
+          "logo": "https://aiwholesail.com/logo-dark.png",
+          "sameAs": []
+        })}
+      </script>
+
+      {/* BreadcrumbList Schema */}
+      {breadcrumbs && breadcrumbs.length > 0 && (
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": breadcrumbs.map((crumb, index) => ({
+              "@type": "ListItem",
+              "position": index + 1,
+              "name": crumb.name,
+              "item": crumb.url
+            }))
+          })}
+        </script>
+      )}
     </Helmet>
   );
 }
