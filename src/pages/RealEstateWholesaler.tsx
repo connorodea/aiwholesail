@@ -600,20 +600,49 @@ export default function RealEstateWholesaler() {
                         // Then sort by spread (highest to lowest)
                         return bSpread - aSpread;
                     }
-                  }).map((property, index) => (
-                    <div 
-                      key={property.id}
-                      className="animate-fade-in hover-scale"
-                      style={{ animationDelay: `${index * 50}ms` }}
-                    >
-                      <PropertyCard
-                        property={property}
-                        onViewDetails={() => setSelectedProperty(property)}
-                        highlightWholesaleDeals={true}
-                        showFSBOBadge={isSearchingFSBO}
-                      />
-                    </div>
-                  ))}
+                  }).map((property, index) => {
+                    const isCompareSelected = compareSelected.some((p) => p.id === property.id);
+                    const canCompareSelect = compareSelected.length < 4 || isCompareSelected;
+                    return (
+                      <div
+                        key={property.id}
+                        className="animate-fade-in hover-scale relative"
+                        style={{ animationDelay: `${index * 50}ms` }}
+                      >
+                        {compareMode && (
+                          <div
+                            className={`absolute top-3 left-3 z-10 flex items-center justify-center w-6 h-6 rounded-md border-2 cursor-pointer transition-all ${
+                              isCompareSelected
+                                ? 'bg-emerald-500 border-emerald-500'
+                                : canCompareSelect
+                                  ? 'bg-black/60 border-neutral-500 hover:border-emerald-400'
+                                  : 'bg-black/60 border-neutral-700 opacity-50 cursor-not-allowed'
+                            }`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (isCompareSelected) {
+                                setCompareSelected((prev) =>
+                                  prev.filter((p) => p.id !== property.id)
+                                );
+                              } else if (canCompareSelect) {
+                                setCompareSelected((prev) => [...prev, property]);
+                              } else {
+                                toast.error('You can compare up to 4 properties at a time');
+                              }
+                            }}
+                          >
+                            {isCompareSelected && <Check className="h-4 w-4 text-white" />}
+                          </div>
+                        )}
+                        <PropertyCard
+                          property={property}
+                          onViewDetails={() => setSelectedProperty(property)}
+                          highlightWholesaleDeals={true}
+                          showFSBOBadge={isSearchingFSBO}
+                        />
+                      </div>
+                    );
+                  })}
                 </div>
               </section>
             )}
@@ -697,7 +726,18 @@ export default function RealEstateWholesaler() {
         isOpen={!!selectedProperty}
         onClose={() => setSelectedProperty(null)}
       />
-      
+
+      {/* Property Comparison Modal */}
+      <PropertyComparison
+        properties={compareSelected}
+        isOpen={showComparison}
+        onClose={() => {
+          setShowComparison(false);
+          setCompareMode(false);
+          setCompareSelected([]);
+        }}
+      />
+
     </div>
   );
 }
