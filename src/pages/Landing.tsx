@@ -382,7 +382,7 @@ const Landing = () => {
             <div className="grid grid-cols-2 md:grid-cols-12 gap-8 lg:gap-12">
               <div className="col-span-2 md:col-span-4 space-y-5">
                 <Link to="/" className="inline-block">
-                  <img src={aiWholesailLogo} alt="AIWholesail" className="h-16 sm:h-20 w-auto" />
+                  <img src={aiWholesailLogo} alt="AIWholesail" className="h-12 sm:h-14 w-auto" /><span className="text-xl sm:text-2xl font-bold tracking-tight text-white/80">holesail</span>
                 </Link>
                 <p className="text-[13px] text-neutral-500 leading-relaxed max-w-xs">AI-powered platform for real estate professionals to find, analyze, and close profitable deals.</p>
                 <div className="flex items-center gap-3 pt-1">
