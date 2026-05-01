@@ -211,6 +211,12 @@ export default function RealEstateWholesaler() {
 
         setProperties(enrichedSorted);
 
+        // Cache results for the AI Analyzer tab
+        try {
+          sessionStorage.setItem('aiw_search_results', JSON.stringify(enrichedSorted));
+          sessionStorage.setItem('aiw_search_location', params.location);
+        } catch {}
+
         const bigDeals = enrichedSorted.filter(p => p.price && p.zestimate && (p.zestimate - p.price) >= 30000).length;
         const allPositive = enrichedSorted.filter(p => p.price && p.zestimate && p.zestimate > p.price).length;
         const withZest = enrichedSorted.filter(p => p.zestimate).length;
