@@ -4,10 +4,9 @@ import { analytics } from '@/lib/analytics';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
-import { LogIn, UserPlus, Eye, EyeOff, Mail, Shield, CheckCircle, ArrowRight } from 'lucide-react';
+import { Eye, EyeOff, Mail, Shield, CheckCircle, ArrowRight } from 'lucide-react';
 import { stripe, auth } from '@/lib/api-client';
 import { SEOHead } from '@/components/SEOHead';
 import { PublicLayout } from '@/components/PublicLayout';
@@ -128,43 +127,38 @@ export default function Auth() {
         noIndex={false}
       />
 
-      {/* ===== HERO — DARK ===== */}
+      {/* ===== HERO ===== */}
       <section className="relative bg-gradient-to-b from-[#0a0a0a] via-[#0f0f0f] to-[#0a0a0a] text-white overflow-hidden">
-        <div className="relative container mx-auto max-w-6xl px-4 pt-24 pb-20 text-center">
-          <Badge className="mb-6 bg-white/10 text-white/80 border-white/10 backdrop-blur-sm text-xs font-medium px-4 py-1.5 rounded-full">
-            <Shield className="h-3 w-3 mr-1.5" /> Secure Authentication
-          </Badge>
-
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">
+        <div className="relative container mx-auto max-w-5xl px-4 pt-28 pb-20 text-center">
+          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-6">
+            {isSignUp ? 'CREATE ACCOUNT' : 'SIGN IN'}
+          </p>
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[0.95] text-white mb-6">
             {isSignUp ? (
               <>
-                Create your
+                Create Your
                 <br />
-                <span className="bg-gradient-to-r from-neutral-800 via-white to-white bg-clip-text text-transparent">
-                  account.
+                <span className="bg-gradient-to-r from-cyan-500 via-cyan-400 to-cyan-500 bg-clip-text text-transparent">
+                  Account.
                 </span>
               </>
             ) : (
               <>
                 Welcome to
                 <br />
-                <span className="bg-gradient-to-r from-neutral-800 via-white to-white bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-cyan-500 via-cyan-400 to-cyan-500 bg-clip-text text-transparent">
                   AIWholesail.
                 </span>
               </>
             )}
           </h1>
-
-          <p className="text-lg md:text-xl text-white/60 max-w-2xl mx-auto leading-relaxed font-light">
+          <p className="text-lg md:text-xl text-white/50 max-w-2xl mx-auto leading-relaxed font-light">
             {isSignUp
               ? "Start finding profitable real estate deals today with a 7-day free trial."
               : "Sign in to access your dashboard and continue finding profitable deals."
             }
           </p>
         </div>
-
-        {/* Fade to white */}
-        <div className="h-24 bg-gradient-to-b from-[#0a0a0a] to-[#08090a]" />
       </section>
 
       {/* ===== AUTH FORM — LIGHT ===== */}
