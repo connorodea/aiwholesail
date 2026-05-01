@@ -116,7 +116,7 @@ export default function Pricing() {
       }
 
       if ((response.data as any)?.url) {
-        window.location.href = (response.data as any).url;
+        window.open((response.data as any).url, '_blank');
       } else {
         throw new Error('No checkout URL received');
       }

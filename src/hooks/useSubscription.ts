@@ -50,6 +50,7 @@ function setCache(tier: SubscriptionTier): void {
 
 export function useSubscription(): SubscriptionState {
   const [tier, setTier] = useState<SubscriptionTier>(() => getCached() || 'none');
+  const [isTrial, setIsTrial] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -70,20 +71,29 @@ export function useSubscription(): SubscriptionState {
 
       if (!data || !data.subscribed) {
         setTier('none');
+        setIsTrial(false);
         setCache('none');
         setLoading(false);
         return;
       }
 
-      // Determine tier
+      // Determine tier — trial users keep their actual subscription tier
+      // so that feature gating (isPro / isElite) works during the trial.
       let resolvedTier: SubscriptionTier = 'none';
+      let trialActive = false;
 
       if (data.is_trial) {
         // Check if trial is still active
         if (data.trial_end && new Date(data.trial_end) < new Date()) {
           resolvedTier = 'none';
         } else {
-          resolvedTier = 'trial';
+          trialActive = true;
+          if (data.subscription_tier === 'Elite' || data.subscription_tier === 'Premium') {
+            resolvedTier = 'Elite';
+          } else {
+            // Default trial tier is Pro
+            resolvedTier = 'Pro';
+          }
         }
       } else if (data.subscription_tier === 'Elite' || data.subscription_tier === 'Premium') {
         resolvedTier = 'Elite';
@@ -92,6 +102,7 @@ export function useSubscription(): SubscriptionState {
       }
 
       setTier(resolvedTier);
+      setIsTrial(trialActive);
       setCache(resolvedTier);
     } catch (err) {
       console.error('[useSubscription] Failed to fetch subscription:', err);
@@ -110,7 +121,7 @@ export function useSubscription(): SubscriptionState {
     tier,
     isElite: tier === 'Elite',
     isPro: tier === 'Pro',
-    isTrial: tier === 'trial',
+    isTrial,
     isSubscribed: tier !== 'none',
     loading,
     error,
