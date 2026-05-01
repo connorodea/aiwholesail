@@ -46,10 +46,10 @@ export function PipelineColumn({ stage, deals, onDrop, onCardClick }: PipelineCo
 
   return (
     <div
-      className={`flex flex-col min-w-[280px] w-[280px] rounded-xl border transition-all duration-200 ${
+      className={`flex flex-col min-w-[300px] w-[300px] rounded-xl border transition-all duration-200 ${
         isOver
-          ? 'ring-2 ring-primary/50 bg-primary/5 border-primary/30'
-          : 'bg-muted/30 border-border/50'
+          ? 'ring-2 ring-cyan-500/50 bg-cyan-500/5 border-cyan-500/30'
+          : 'bg-white/[0.015] border-white/[0.06]'
       }`}
       onDragOver={handleDragOver}
       onDragEnter={handleDragEnter}
@@ -57,22 +57,22 @@ export function PipelineColumn({ stage, deals, onDrop, onCardClick }: PipelineCo
       onDrop={handleDrop}
     >
       {/* Column Header */}
-      <div className="p-3 border-b border-border/30 flex items-center justify-between">
+      <div className="p-3 border-b border-white/[0.06] flex items-center justify-between bg-white/[0.02] rounded-t-xl">
         <div className="flex items-center gap-2">
-          <div className={`w-2.5 h-2.5 rounded-full ${stage.color}`} />
-          <span className="text-sm font-medium">{stage.label}</span>
+          <div className={`w-2 h-2 rounded-full ${stage.color}`} />
+          <span className="text-xs font-semibold uppercase tracking-wider text-neutral-300">{stage.label}</span>
         </div>
-        <Badge variant="secondary" className="text-xs h-5 px-1.5">
+        <Badge variant="secondary" className="text-[10px] h-5 px-1.5 bg-white/[0.04] text-neutral-400">
           {deals.length}
         </Badge>
       </div>
 
       {/* Cards */}
-      <ScrollArea className="flex-1" style={{ maxHeight: 'calc(100vh - 300px)' }}>
+      <ScrollArea className="flex-1" style={{ maxHeight: 'calc(100vh - 320px)' }}>
         <div className="p-2 space-y-2">
           {deals.length === 0 ? (
-            <div className="text-center py-8 text-xs text-muted-foreground">
-              Drag deals here
+            <div className="text-center py-10 text-xs text-neutral-600 border border-dashed border-white/[0.06] rounded-lg m-1">
+              Drop deals here
             </div>
           ) : (
             deals.map((deal) => (
