@@ -65,19 +65,19 @@ export default function Pricing() {
     prefersReducedMotion
       ? {}
       : {
-          initial: { opacity: 0, y: 20 } as const,
+          initial: { opacity: 0, y: 8 } as const,
           animate: { opacity: 1, y: 0 } as const,
-          transition: { duration: 0.8, ease: "easeOut" as const, delay },
+          transition: { duration: 1, ease: [0.25, 0.1, 0.25, 1] as const, delay },
         };
 
   // Scroll-triggered fade-in for sections below the fold
   const sectionFadeIn = prefersReducedMotion
     ? {}
     : {
-        initial: { opacity: 0, y: 30 } as const,
-        whileInView: { opacity: 1, y: 0 } as const,
-        viewport: { once: true, margin: "-100px" },
-        transition: { duration: 0.6, ease: "easeOut" as const },
+        initial: { opacity: 0 } as const,
+        whileInView: { opacity: 1 } as const,
+        viewport: { once: true, margin: "-50px" },
+        transition: { duration: 0.8, ease: [0.25, 0.1, 0.25, 1] as const },
       };
 
   // Staggered card animation
@@ -85,10 +85,10 @@ export default function Pricing() {
     prefersReducedMotion
       ? {}
       : {
-          initial: { opacity: 0, y: 30 } as const,
-          whileInView: { opacity: 1, y: 0 } as const,
-          viewport: { once: true, margin: "-100px" },
-          transition: { duration: 0.5, ease: "easeOut" as const, delay: index * 0.08 },
+          initial: { opacity: 0 } as const,
+          whileInView: { opacity: 1 } as const,
+          viewport: { once: true, margin: "-50px" },
+          transition: { duration: 0.6, ease: [0.25, 0.1, 0.25, 1] as const, delay: index * 0.06 },
         };
 
   const handleSelectPlan = async (plan: typeof plans[0]) => {

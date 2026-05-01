@@ -81,7 +81,7 @@ export default function HowItWorks() {
     prefersReducedMotion
       ? {}
       : {
-          initial: { opacity: 0, y: 20 } as const,
+          initial: { opacity: 0, y: 8 } as const,
           animate: { opacity: 1, y: 0 } as const,
           transition: { duration: 0.8, ease: 'easeOut' as const, delay },
         };
@@ -90,8 +90,8 @@ export default function HowItWorks() {
   const sectionFadeIn = prefersReducedMotion
     ? {}
     : {
-        initial: { opacity: 0, y: 30 } as const,
-        whileInView: { opacity: 1, y: 0 } as const,
+        initial: { opacity: 0 } as const,
+        whileInView: { opacity: 1 } as const,
         viewport: { once: true, margin: '-100px' },
         transition: { duration: 0.6, ease: 'easeOut' as const },
       };
@@ -101,10 +101,10 @@ export default function HowItWorks() {
     prefersReducedMotion
       ? {}
       : {
-          initial: { opacity: 0, y: 30 } as const,
-          whileInView: { opacity: 1, y: 0 } as const,
+          initial: { opacity: 0 } as const,
+          whileInView: { opacity: 1 } as const,
           viewport: { once: true, margin: '-100px' },
-          transition: { duration: 0.5, ease: 'easeOut' as const, delay: index * 0.08 },
+          transition: { duration: 0.5, ease: 'easeOut' as const, delay: index * 0.06 },
         };
 
   return (
