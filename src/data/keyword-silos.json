@@ -546,6 +546,142 @@
         {"keyword": "exit strategy for overleveraged rental portfolio", "category": "Strategy", "difficulty": "low"},
         {"keyword": "can you do a 1031 exchange on a flip property", "category": "FAQ", "difficulty": "low"}
       ]
+    },
+    {
+      "name": "Software Reviews & Comparisons",
+      "pillar": "real-estate-software-reviews",
+      "keywords": [
+        {"keyword": "PropStream pricing 2026", "category": "Review", "difficulty": "low"},
+        {"keyword": "BatchLeads vs DealMachine 2026", "category": "Comparison", "difficulty": "low"},
+        {"keyword": "REsimpli review and pricing", "category": "Review", "difficulty": "low"},
+        {"keyword": "DealCheck app review for investors", "category": "Review", "difficulty": "low"},
+        {"keyword": "Carrot website review for investors", "category": "Review", "difficulty": "low"},
+        {"keyword": "PropStream alternatives free", "category": "Review", "difficulty": "low"},
+        {"keyword": "Privy real estate review", "category": "Review", "difficulty": "low"},
+        {"keyword": "Stessa rental property management review", "category": "Review", "difficulty": "low"},
+        {"keyword": "Rent Redi vs TurboTenant vs Stessa", "category": "Comparison", "difficulty": "low"},
+        {"keyword": "best real estate investing app 2026", "category": "Review", "difficulty": "low"},
+        {"keyword": "InvestorLift review for wholesalers", "category": "Review", "difficulty": "low"},
+        {"keyword": "DealMachine pricing plans 2026", "category": "Review", "difficulty": "low"},
+        {"keyword": "Baselane landlord banking review", "category": "Review", "difficulty": "low"}
+      ]
+    },
+    {
+      "name": "People Also Ask & Questions",
+      "pillar": "real-estate-investing-questions",
+      "keywords": [
+        {"keyword": "is real estate investing worth it in a recession", "category": "FAQ", "difficulty": "low"},
+        {"keyword": "what is the safest real estate investment", "category": "FAQ", "difficulty": "low"},
+        {"keyword": "how do real estate investors pay so little in taxes", "category": "FAQ", "difficulty": "low"},
+        {"keyword": "can I invest in real estate with 5000 dollars", "category": "FAQ", "difficulty": "low"},
+        {"keyword": "what is the average return on real estate investment", "category": "FAQ", "difficulty": "low"},
+        {"keyword": "how do I start investing in real estate at 18", "category": "FAQ", "difficulty": "low"},
+        {"keyword": "is wholesaling real estate a scam", "category": "FAQ", "difficulty": "low"},
+        {"keyword": "what happens if a tenant destroys your property", "category": "FAQ", "difficulty": "low"},
+        {"keyword": "can you lose money on rental property", "category": "FAQ", "difficulty": "low"},
+        {"keyword": "what is the 2 percent rule in real estate", "category": "FAQ", "difficulty": "low"},
+        {"keyword": "what credit score do you need to buy a rental property", "category": "FAQ", "difficulty": "low"},
+        {"keyword": "is it better to pay cash for rental property", "category": "FAQ", "difficulty": "low"},
+        {"keyword": "should I get my real estate license to invest", "category": "FAQ", "difficulty": "low"},
+        {"keyword": "real estate vs index funds comparison", "category": "Comparison", "difficulty": "low"}
+      ]
+    },
+    {
+      "name": "Calculator & Tool Keywords",
+      "pillar": "real-estate-calculators",
+      "keywords": [
+        {"keyword": "house flip profit calculator free", "category": "Calculator", "difficulty": "low"},
+        {"keyword": "Airbnb rental income calculator", "category": "Calculator", "difficulty": "low"},
+        {"keyword": "rental property depreciation calculator", "category": "Calculator", "difficulty": "low"},
+        {"keyword": "1031 exchange calculator", "category": "Calculator", "difficulty": "medium"},
+        {"keyword": "DSCR loan calculator", "category": "Calculator", "difficulty": "low"},
+        {"keyword": "cost segregation calculator", "category": "Calculator", "difficulty": "low"},
+        {"keyword": "rent vs buy calculator investment", "category": "Calculator", "difficulty": "low"},
+        {"keyword": "closing cost calculator for investors", "category": "Calculator", "difficulty": "low"},
+        {"keyword": "seller financing amortization calculator", "category": "Calculator", "difficulty": "low"},
+        {"keyword": "hard money loan calculator monthly payment", "category": "Calculator", "difficulty": "low"},
+        {"keyword": "assignment fee calculator wholesale", "category": "Calculator", "difficulty": "low"},
+        {"keyword": "property tax calculator by state", "category": "Calculator", "difficulty": "medium"}
+      ]
+    },
+    {
+      "name": "Commercial Real Estate",
+      "pillar": "commercial-real-estate-investing",
+      "keywords": [
+        {"keyword": "NNN lease investing for beginners", "category": "Strategy", "difficulty": "low"},
+        {"keyword": "how to buy a small commercial building", "category": "Beginner Guide", "difficulty": "low"},
+        {"keyword": "commercial real estate cap rate by property type", "category": "Analysis", "difficulty": "low"},
+        {"keyword": "industrial warehouse investing 2026", "category": "Strategy", "difficulty": "low"},
+        {"keyword": "how to invest in retail strip malls", "category": "Strategy", "difficulty": "low"},
+        {"keyword": "small office building investment analysis", "category": "Analysis", "difficulty": "low"},
+        {"keyword": "mixed use property investing guide", "category": "Strategy", "difficulty": "low"},
+        {"keyword": "commercial lease types explained NNN vs gross", "category": "Beginner Guide", "difficulty": "low"},
+        {"keyword": "how to underwrite a commercial real estate deal", "category": "Analysis", "difficulty": "low"},
+        {"keyword": "commercial real estate due diligence checklist", "category": "Checklist", "difficulty": "low"},
+        {"keyword": "DST 1031 exchange investment", "category": "Strategy", "difficulty": "low"}
+      ]
+    },
+    {
+      "name": "Coaching & Education Reviews",
+      "pillar": "real-estate-coaching-reviews",
+      "keywords": [
+        {"keyword": "is wholesaling coaching worth it", "category": "Review", "difficulty": "low"},
+        {"keyword": "best real estate wholesaling mentors 2026", "category": "Review", "difficulty": "low"},
+        {"keyword": "best real estate investing courses online 2026", "category": "Review", "difficulty": "low"},
+        {"keyword": "real estate investing certificate program online", "category": "Education", "difficulty": "low"},
+        {"keyword": "real estate guru scam warning signs", "category": "Review", "difficulty": "low"},
+        {"keyword": "free real estate investing mentorship programs", "category": "Review", "difficulty": "low"},
+        {"keyword": "real estate syndication training course", "category": "Education", "difficulty": "low"},
+        {"keyword": "how to find a real estate investing coach", "category": "Education", "difficulty": "low"},
+        {"keyword": "real estate mentorship free vs paid which is better", "category": "Comparison", "difficulty": "low"}
+      ]
+    },
+    {
+      "name": "Seasonal & Timing Keywords",
+      "pillar": "real-estate-timing-strategy",
+      "keywords": [
+        {"keyword": "best time to buy rental property", "category": "Strategy", "difficulty": "low"},
+        {"keyword": "end of year tax planning real estate investors", "category": "Tax Strategy", "difficulty": "low"},
+        {"keyword": "housing market crash 2026 prediction", "category": "Market Analysis", "difficulty": "medium"},
+        {"keyword": "interest rate forecast impact on real estate", "category": "Market Analysis", "difficulty": "low"},
+        {"keyword": "real estate market winter slowdown deals", "category": "Strategy", "difficulty": "low"},
+        {"keyword": "when is the best time to sell a flip", "category": "Strategy", "difficulty": "low"},
+        {"keyword": "buy investment property before year end tax benefits", "category": "Tax Strategy", "difficulty": "low"},
+        {"keyword": "cash flow vs appreciation which matters more", "category": "Strategy", "difficulty": "low"}
+      ]
+    },
+    {
+      "name": "Motivated Seller Triggers",
+      "pillar": "motivated-seller-signals",
+      "keywords": [
+        {"keyword": "sell inherited house fast", "category": "Motivation", "difficulty": "low"},
+        {"keyword": "sell house during divorce", "category": "Motivation", "difficulty": "low"},
+        {"keyword": "sell condemned house for cash", "category": "Motivation", "difficulty": "low"},
+        {"keyword": "sell fire damaged house", "category": "Motivation", "difficulty": "low"},
+        {"keyword": "sell house with foundation problems", "category": "Motivation", "difficulty": "low"},
+        {"keyword": "behind on mortgage payments options", "category": "Motivation", "difficulty": "low"},
+        {"keyword": "sell rental property with bad tenants", "category": "Motivation", "difficulty": "low"},
+        {"keyword": "sell house in probate fast", "category": "Motivation", "difficulty": "low"},
+        {"keyword": "relocating need to sell house fast", "category": "Motivation", "difficulty": "low"},
+        {"keyword": "reverse wholesaling real estate strategy", "category": "Strategy", "difficulty": "low"},
+        {"keyword": "whole-tailing real estate explained", "category": "Strategy", "difficulty": "low"},
+        {"keyword": "how to wholesale commercial property", "category": "Strategy", "difficulty": "low"}
+      ]
+    },
+    {
+      "name": "Reddit & Community Keywords",
+      "pillar": "real-estate-community-discussions",
+      "keywords": [
+        {"keyword": "best states for landlords 2026", "category": "Market Analysis", "difficulty": "low"},
+        {"keyword": "worst states for landlords", "category": "Market Analysis", "difficulty": "low"},
+        {"keyword": "real estate investing with 100k where to start", "category": "Strategy", "difficulty": "low"},
+        {"keyword": "HOA rental restrictions for investors", "category": "Legal", "difficulty": "low"},
+        {"keyword": "out of state rental property management tips", "category": "Operations", "difficulty": "low"},
+        {"keyword": "how to vet a property management company", "category": "Operations", "difficulty": "low"},
+        {"keyword": "when to sell a rental property that is not cash flowing", "category": "Strategy", "difficulty": "low"},
+        {"keyword": "real estate investing while in the military", "category": "Strategy", "difficulty": "low"},
+        {"keyword": "how much should I spend on my first investment property", "category": "Beginner Guide", "difficulty": "low"}
+      ]
     }
   ]
 }
