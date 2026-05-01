@@ -51,6 +51,9 @@ export interface Property {
   mlsName?: string;
   listingSource?: string;
   listingUrl?: string;
+  // Geolocation
+  latitude?: number;
+  longitude?: number;
   // AttomData enhanced fields
   attomData?: {
     propertyType?: string;

@@ -9,7 +9,7 @@ import { zillowAPI } from '@/lib/zillow-api';
 import { sortPropertiesByWholesalePotential } from '@/lib/wholesale-calculator';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { User, Download, Bell, MessageSquare, GitCompareArrows, Check } from 'lucide-react';
+import { User, Download, Bell, MessageSquare, GitCompareArrows, Check, LayoutGrid, Map } from 'lucide-react';
 import { communications } from '@/lib/api-client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useFavorites } from '@/hooks/useFavorites';
@@ -31,6 +31,7 @@ import {
 import { ArrowUpDown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { PropertyComparison } from '@/components/PropertyComparison';
+import { PropertyMap } from '@/components/PropertyMap';
 
 export default function RealEstateWholesaler() {
   const { user } = useAuth();
@@ -50,6 +51,7 @@ export default function RealEstateWholesaler() {
   const [sortBy, setSortBy] = useState<'price-high' | 'price-low' | 'newest' | 'oldest' | 'default'>('default');
   const [isSearchingFSBO, setIsSearchingFSBO] = useState<boolean>(false);
   const [searchMode, setSearchMode] = useState<'on-market' | 'off-market'>('on-market');
+  const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid');
   const [showSmsAlert, setShowSmsAlert] = useState(false);
   const [smsPhone, setSmsPhone] = useState('');
   const [sendingSms, setSendingSms] = useState(false);
@@ -108,6 +110,33 @@ export default function RealEstateWholesaler() {
       }
     }
     return true; // County without state
+  };
+
+  // Sort helper for properties — used by both grid and map views
+  const sortProperties = (a: Property, b: Property): number => {
+    switch (sortBy) {
+      case 'price-high':
+        return (b.price || 0) - (a.price || 0);
+      case 'price-low':
+        return (a.price || 0) - (b.price || 0);
+      case 'newest':
+        return (a.daysOnMarket || 0) - (b.daysOnMarket || 0);
+      case 'oldest':
+        return (b.daysOnMarket || 0) - (a.daysOnMarket || 0);
+      default: {
+        const getSpread = (p: Property) => {
+          if (!p.price || !p.zestimate) return -Infinity;
+          return p.zestimate - p.price;
+        };
+        const aSpread = getSpread(a);
+        const bSpread = getSpread(b);
+        const aIsHighValue = aSpread >= 30000;
+        const bIsHighValue = bSpread >= 30000;
+        if (aIsHighValue && !bIsHighValue) return -1;
+        if (!aIsHighValue && bIsHighValue) return 1;
+        return bSpread - aSpread;
+      }
+    }
   };
 
   const handleSearch = async (params: PropertySearchParams) => {
@@ -471,7 +500,33 @@ export default function RealEstateWholesaler() {
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
-                      
+
+                      {/* Grid / Map toggle */}
+                      <div className="flex items-center rounded-lg border border-white/[0.08] overflow-hidden">
+                        <button
+                          onClick={() => setViewMode('grid')}
+                          className={`flex items-center gap-1.5 h-9 px-3 text-sm font-medium transition-colors ${
+                            viewMode === 'grid'
+                              ? 'bg-white/[0.08] text-white'
+                              : 'text-neutral-400 hover:text-neutral-200'
+                          }`}
+                        >
+                          <LayoutGrid className="h-4 w-4" />
+                          Grid
+                        </button>
+                        <button
+                          onClick={() => setViewMode('map')}
+                          className={`flex items-center gap-1.5 h-9 px-3 text-sm font-medium transition-colors ${
+                            viewMode === 'map'
+                              ? 'bg-white/[0.08] text-white'
+                              : 'text-neutral-400 hover:text-neutral-200'
+                          }`}
+                        >
+                          <Map className="h-4 w-4" />
+                          Map
+                        </button>
+                      </div>
+
                       <Button
                         onClick={() => exportAllLeads(properties, lastSearchLocation)}
                         disabled={exportLoading}
@@ -565,85 +620,59 @@ export default function RealEstateWholesaler() {
                   </div>
                 )}
 
-                <div className="property-grid">
-                  {[...properties].sort((a, b) => {
-                    switch (sortBy) {
-                      case 'price-high':
-                        return (b.price || 0) - (a.price || 0);
-                      case 'price-low':
-                        return (a.price || 0) - (b.price || 0);
-                      case 'newest':
-                        return (a.daysOnMarket || 0) - (b.daysOnMarket || 0);
-                      case 'oldest':
-                        return (b.daysOnMarket || 0) - (a.daysOnMarket || 0);
-                      default:
-                        // Default sorting: highest spreads first, prioritizing High-Value Wholesale Deals
-                        const getSpread = (property: any) => {
-                          if (!property.price || !property.zestimate) return -Infinity;
-                          return property.zestimate - property.price;
-                        };
-                        
-                        const getIsHighValue = (property: any) => {
-                          const spread = getSpread(property);
-                          return spread >= 30000;
-                        };
-                        
-                        const aSpread = getSpread(a);
-                        const bSpread = getSpread(b);
-                        const aIsHighValue = getIsHighValue(a);
-                        const bIsHighValue = getIsHighValue(b);
-                        
-                        // First, prioritize High-Value Wholesale Deals
-                        if (aIsHighValue && !bIsHighValue) return -1;
-                        if (!aIsHighValue && bIsHighValue) return 1;
-                        
-                        // Then sort by spread (highest to lowest)
-                        return bSpread - aSpread;
-                    }
-                  }).map((property, index) => {
-                    const isCompareSelected = compareSelected.some((p) => p.id === property.id);
-                    const canCompareSelect = compareSelected.length < 4 || isCompareSelected;
-                    return (
-                      <div
-                        key={property.id}
-                        className="animate-fade-in hover-scale relative"
-                        style={{ animationDelay: `${index * 50}ms` }}
-                      >
-                        {compareMode && (
-                          <div
-                            className={`absolute top-3 left-3 z-10 flex items-center justify-center w-6 h-6 rounded-md border-2 cursor-pointer transition-all ${
-                              isCompareSelected
-                                ? 'bg-emerald-500 border-emerald-500'
-                                : canCompareSelect
-                                  ? 'bg-black/60 border-neutral-500 hover:border-emerald-400'
-                                  : 'bg-black/60 border-neutral-700 opacity-50 cursor-not-allowed'
-                            }`}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (isCompareSelected) {
-                                setCompareSelected((prev) =>
-                                  prev.filter((p) => p.id !== property.id)
-                                );
-                              } else if (canCompareSelect) {
-                                setCompareSelected((prev) => [...prev, property]);
-                              } else {
-                                toast.error('You can compare up to 4 properties at a time');
-                              }
-                            }}
-                          >
-                            {isCompareSelected && <Check className="h-4 w-4 text-white" />}
-                          </div>
-                        )}
-                        <PropertyCard
-                          property={property}
-                          onViewDetails={() => setSelectedProperty(property)}
-                          highlightWholesaleDeals={true}
-                          showFSBOBadge={isSearchingFSBO}
-                        />
-                      </div>
-                    );
-                  })}
-                </div>
+                {/* Map or Grid view */}
+                {viewMode === 'map' ? (
+                  <PropertyMap
+                    properties={[...properties].sort(sortProperties)}
+                    onSelectProperty={(property) => setSelectedProperty(property)}
+                  />
+                ) : (
+                  <div className="property-grid">
+                    {[...properties].sort(sortProperties).map((property, index) => {
+                      const isCompareSelected = compareSelected.some((p) => p.id === property.id);
+                      const canCompareSelect = compareSelected.length < 4 || isCompareSelected;
+                      return (
+                        <div
+                          key={property.id}
+                          className="animate-fade-in hover-scale relative"
+                          style={{ animationDelay: `${index * 50}ms` }}
+                        >
+                          {compareMode && (
+                            <div
+                              className={`absolute top-3 left-3 z-10 flex items-center justify-center w-6 h-6 rounded-md border-2 cursor-pointer transition-all ${
+                                isCompareSelected
+                                  ? 'bg-emerald-500 border-emerald-500'
+                                  : canCompareSelect
+                                    ? 'bg-black/60 border-neutral-500 hover:border-emerald-400'
+                                    : 'bg-black/60 border-neutral-700 opacity-50 cursor-not-allowed'
+                              }`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (isCompareSelected) {
+                                  setCompareSelected((prev) =>
+                                    prev.filter((p) => p.id !== property.id)
+                                  );
+                                } else if (canCompareSelect) {
+                                  setCompareSelected((prev) => [...prev, property]);
+                                } else {
+                                  toast.error('You can compare up to 4 properties at a time');
+                                }
+                              }}
+                            >
+                              {isCompareSelected && <Check className="h-4 w-4 text-white" />}
+                            </div>
+                          )}
+                          <PropertyCard
+                            property={property}
+                            onViewDetails={() => setSelectedProperty(property)}
+                            highlightWholesaleDeals={true}
+                            showFSBOBadge={isSearchingFSBO}
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </section>
             )}
 
