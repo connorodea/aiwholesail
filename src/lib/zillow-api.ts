@@ -958,14 +958,45 @@ export class ZillowAPI {
     }
   }
 
-  async getPropertyComps(zpid: string): Promise<any> {
+  async getPropertyComps(zpid: string, location?: string): Promise<any> {
+    // First try the direct comps endpoint
     try {
       const data = await this.callApi('comps', { zpid });
-      return data?.data;
+      if (data?.data?.properties?.length > 0) {
+        return data.data.properties;
+      }
     } catch (error) {
-      console.error('Property comps fetch failed:', error);
-      throw error;
+      console.warn('Direct comps failed, falling back to recently sold search:', error);
     }
+
+    // Fallback: search for recently sold properties near the same location
+    if (location) {
+      try {
+        const data = await this.callApi('search', {
+          location,
+          listing_type: 'recently_sold',
+          page: '1'
+        });
+        const listings = data?.data?.listings || data?.data?.searchResults || [];
+        if (Array.isArray(listings) && listings.length > 0) {
+          return listings.slice(0, 15).map((l: any) => ({
+            address: l.address || l.streetAddress || 'Unknown',
+            price: l.price || l.soldPrice || l.lastSoldPrice || 0,
+            sqft: l.living_area_sqft || l.livingArea || l.sqft || 0,
+            pricePerSqft: l.living_area_sqft && l.price ? Math.round(l.price / l.living_area_sqft) : 0,
+            bedrooms: l.bedrooms || l.beds || 0,
+            bathrooms: l.bathrooms || l.baths || 0,
+            saleDate: l.date_sold || l.lastSoldDate || l.dateSold || null,
+            zpid: l.zpid || null,
+            distance: null
+          }));
+        }
+      } catch (fallbackError) {
+        console.error('Comps fallback search also failed:', fallbackError);
+      }
+    }
+
+    return [];
   }
 
   async getZestimate(zpid: string): Promise<any> {

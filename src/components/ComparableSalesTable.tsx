@@ -59,7 +59,15 @@ export function ComparableSalesTable({ property }: ComparableSalesTableProps) {
       setError(null);
 
       try {
-        const data = await zillowAPI.getPropertyComps(zpid);
+        // Build location string from property data for fallback search
+        const location = [
+          property.address || property.streetAddress,
+          property.city,
+          property.state,
+          property.zipcode || property.zip
+        ].filter(Boolean).join(', ') || '';
+
+        const data = await zillowAPI.getPropertyComps(zpid, location);
 
         if (data && Array.isArray(data)) {
           const processed = data
