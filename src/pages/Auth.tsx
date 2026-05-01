@@ -428,36 +428,29 @@ export default function Auth() {
               )}
             </div>
 
-            {/* ===== RIGHT: ILLUSTRATION ===== */}
-            <div className="relative hidden min-h-[500px] flex-col items-start justify-end overflow-hidden rounded-2xl bg-black p-6 md:flex md:p-10">
-              {/* Decorative rotated squares */}
-              <div className="mask-r-from-50% absolute -top-48 -right-40 z-20 grid rotate-45 transform grid-cols-4 gap-32">
-                {[...Array(4)].map((_, i) => (
-                  <div key={i} className="size-40 shrink-0 rounded-3xl bg-neutral-900 shadow-[0px_2px_0px_0px_var(--color-neutral-600)_inset]" />
-                ))}
-              </div>
-              <div className="mask-r-from-50% absolute -top-0 -right-10 z-20 grid rotate-45 transform grid-cols-4 gap-32 opacity-50">
-                {[...Array(4)].map((_, i) => (
-                  <div key={i} className="size-40 shrink-0 rounded-3xl bg-neutral-900 shadow-[0px_2px_0px_0px_var(--color-neutral-600)_inset]" />
-                ))}
-              </div>
+            {/* ===== RIGHT: PRODUCT SCREENSHOT ===== */}
+            <div className="relative hidden min-h-[500px] flex-col items-start justify-end overflow-hidden rounded-2xl bg-black md:flex">
+              <img
+                src="/auth-preview.png"
+                alt="AIWholesail - Find profitable real estate deals"
+                className="absolute inset-0 w-full h-full object-cover object-top"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10" />
 
-              {/* Mesh gradient background */}
-              <MeshGradient className="mask-t-from-50% absolute inset-0 z-30 h-full w-[200%] blur-3xl" />
-
-              {/* Content overlay */}
-              <div className="relative z-40 mb-2 flex items-center gap-2">
-                <p className="rounded-md bg-black/50 px-2 py-1 text-xs text-white">AI-Powered</p>
-                <p className="rounded-md bg-black/50 px-2 py-1 text-xs text-white">Real Estate</p>
-              </div>
-              <div className="relative z-40 max-w-sm rounded-xl bg-black/50 p-5 backdrop-blur-sm">
-                <p className="text-white leading-relaxed">
-                  "AIWholesail completely changed how I find deals. I went from closing 1 deal a month to 5 — the AI spots opportunities I would have missed."
-                </p>
-                <p className="mt-4 text-sm text-white/50">Sarah Martinez</p>
-                <p className="mt-1 text-sm text-white/50">
-                  Real Estate Investor, <span className="font-bold">Houston, TX</span>
-                </p>
+              <div className="relative z-20 p-6 md:p-10 space-y-3">
+                <div className="flex items-center gap-2">
+                  <span className="rounded-md bg-cyan-500/20 border border-cyan-500/30 px-2.5 py-1 text-xs font-medium text-cyan-400">AI-Powered</span>
+                  <span className="rounded-md bg-white/10 border border-white/10 px-2.5 py-1 text-xs font-medium text-white/70">Real Estate</span>
+                </div>
+                <div className="max-w-sm rounded-xl bg-black/60 p-5 backdrop-blur-md border border-white/[0.06]">
+                  <p className="text-white leading-relaxed text-sm">
+                    "AIWholesail completely changed how I find deals. I went from closing 1 deal a month to 5 — the AI spots opportunities I would have missed."
+                  </p>
+                  <p className="mt-3 text-xs text-white/50">Sarah Martinez</p>
+                  <p className="text-xs text-white/50">
+                    Real Estate Investor, <span className="font-semibold text-white/70">Houston, TX</span>
+                  </p>
+                </div>
               </div>
             </div>
 
