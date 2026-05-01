@@ -43,6 +43,8 @@ import { PriceHistoryChart } from './PriceHistoryChart';
 import { ComparableSalesTable } from './ComparableSalesTable';
 import { PhotosGallery } from './PhotosGallery';
 import { TaxCarryingCosts } from './TaxCarryingCosts';
+import { ARVCalculator } from './ARVCalculator';
+import { AIPhotoAnalysis } from './AIPhotoAnalysis';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useLeads } from '@/hooks/useLeads';
 import { AddToPipelineButton } from './pipeline/AddToPipelineButton';
@@ -261,6 +263,10 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                   <Calculator className="h-3 w-3" />
                   Investment
                 </TabsTrigger>
+                <TabsTrigger value="arv" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-md rounded-lg transition-all duration-300 text-xs px-3">
+                  <TrendingUp className="h-3 w-3" />
+                  ARV
+                </TabsTrigger>
                 <TabsTrigger value="comps" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-md rounded-lg transition-all duration-300 text-xs px-3">
                   <Home className="h-3 w-3" />
                   Comps
@@ -279,6 +285,10 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                 </TabsTrigger>
                 <TabsTrigger value="details" className="data-[state=active]:bg-background data-[state=active]:shadow-md rounded-lg transition-all duration-300 text-xs px-3">
                   Details
+                </TabsTrigger>
+                <TabsTrigger value="photo-analysis" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-md rounded-lg transition-all duration-300 text-xs px-3">
+                  <Image className="h-3 w-3" />
+                  AI Vision
                 </TabsTrigger>
                 <TabsTrigger value="ai-analysis" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-md rounded-lg transition-all duration-300 text-xs px-3">
                   <Brain className="h-3 w-3" />
@@ -413,6 +423,10 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
 
             <TabsContent value="investment" className="flex-1 overflow-auto p-3 sm:p-6 mt-0">
               <InvestmentCalculator property={displayProperty} />
+            </TabsContent>
+
+            <TabsContent value="arv" className="flex-1 overflow-auto p-3 sm:p-6 mt-0">
+              <ARVCalculator property={displayProperty} />
             </TabsContent>
 
             <TabsContent value="comps" className="flex-1 overflow-auto p-3 sm:p-6 mt-0">
@@ -734,6 +748,10 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
 
             <TabsContent value="photos" className="flex-1 overflow-auto p-3 sm:p-6 mt-0">
               <PhotosGallery property={displayProperty} />
+            </TabsContent>
+
+            <TabsContent value="photo-analysis" className="flex-1 overflow-auto p-3 sm:p-6 mt-0">
+              <AIPhotoAnalysis property={displayProperty} />
             </TabsContent>
 
             <TabsContent value="ai-analysis" className="flex-1 overflow-auto p-3 sm:p-6 mt-0">

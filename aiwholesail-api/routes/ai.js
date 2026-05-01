@@ -446,6 +446,123 @@ Be helpful, concise, and provide actionable advice.`;
 }));
 
 /**
+ * POST /api/ai/photo-analysis
+ * AI-powered property photo condition analysis and rehab cost estimation
+ */
+router.post('/photo-analysis', authenticate, [
+  body('property').isObject().withMessage('Property data required'),
+  body('imageUrls').isArray({ min: 1 }).withMessage('At least one image URL required')
+], asyncHandler(async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ error: 'Validation failed', errors: errors.array() });
+  }
+
+  // Rate limit: 5 per hour
+  const rateLimit = await checkDatabaseRateLimit(req.user.id, 'ai-photo-analysis', 5, 1);
+  if (!rateLimit.allowed) {
+    return res.status(429).json({ error: 'Photo analysis rate limit exceeded. Maximum 5 per hour.' });
+  }
+
+  const { property, imageUrls } = req.body;
+
+  const propertyDetails = [
+    property.address && `Address: ${property.address}`,
+    property.sqft && `Square footage: ${property.sqft}`,
+    property.bedrooms && `Bedrooms: ${property.bedrooms}`,
+    property.bathrooms && `Bathrooms: ${property.bathrooms}`,
+    property.yearBuilt && `Year built: ${property.yearBuilt}`,
+    property.price && `List price: $${property.price.toLocaleString()}`,
+    property.propertyType && `Property type: ${property.propertyType}`,
+  ].filter(Boolean).join(', ');
+
+  const systemPrompt = `You are an expert real estate property inspector and rehab cost estimator. Analyze these property photos and provide:
+1) Overall condition assessment (excellent/good/fair/poor)
+2) Specific issues visible (roof, siding, windows, flooring, kitchen, bathrooms, etc.)
+3) Estimated rehab cost breakdown by category
+4) Total estimated rehab cost range
+5) Recommended repairs prioritized by ROI
+
+Base estimates on current 2026 contractor rates. Property details: ${propertyDetails}
+
+IMPORTANT: Respond ONLY with valid JSON in this exact structure (no markdown, no code fences):
+{
+  "overallCondition": "excellent" | "good" | "fair" | "poor",
+  "conditionScore": <number 0-100>,
+  "issues": [
+    { "category": "<string>", "severity": "minor" | "moderate" | "major", "description": "<string>", "estimatedCost": <number> }
+  ],
+  "totalRehabEstimate": { "low": <number>, "high": <number> },
+  "prioritizedRepairs": ["<string>", ...],
+  "investmentAdvice": "<string>"
+}`;
+
+  const userMessage = `Please analyze these property photos and provide a detailed condition assessment with rehab cost estimates for the property at ${property.address || 'the provided address'}.`;
+
+  // Limit to 4 images to stay within token limits
+  const limitedUrls = imageUrls.slice(0, 4);
+
+  try {
+    const response = await axios.post('https://api.openai.com/v1/chat/completions', {
+      model: 'gpt-4o',
+      max_tokens: 2000,
+      messages: [{
+        role: 'system',
+        content: systemPrompt
+      }, {
+        role: 'user',
+        content: [
+          { type: 'text', text: userMessage },
+          ...limitedUrls.map(url => ({
+            type: 'image_url',
+            image_url: { url }
+          }))
+        ]
+      }]
+    }, {
+      headers: {
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    const responseText = response.data.choices?.[0]?.message?.content || '';
+
+    // Parse JSON from response
+    let analysisData;
+    try {
+      // Strip markdown code fences if present
+      const cleaned = responseText.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
+      const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        analysisData = JSON.parse(jsonMatch[0]);
+      }
+    } catch (parseError) {
+      console.error('[AI] Failed to parse photo analysis JSON:', parseError);
+    }
+
+    await logSecurityEvent('ai_analysis_complete', {
+      userId: req.user.id,
+      type: 'photo-analysis',
+      photosAnalyzed: limitedUrls.length,
+      tokensUsed: response.data.usage?.total_tokens || 0
+    }, req.user.id, req);
+
+    res.json({
+      analysis: analysisData || null,
+      rawResponse: !analysisData ? responseText : undefined,
+      photosAnalyzed: limitedUrls.length,
+      usage: response.data.usage
+    });
+  } catch (error) {
+    console.error('[AI] Photo analysis error:', error.response?.data || error.message);
+    const status = error.response?.status || 500;
+    const message = error.response?.data?.error?.message || 'Photo analysis failed. Please try again.';
+    res.status(status).json({ error: message });
+  }
+}));
+
+/**
  * Execute tool calls for property analysis
  */
 async function executeToolCall(toolName, input) {

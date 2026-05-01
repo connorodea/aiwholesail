@@ -421,6 +421,13 @@ export const ai = {
       body: JSON.stringify({ message, context, conversationHistory }),
     });
   },
+
+  photoAnalysis: async (property: any, imageUrls: string[]) => {
+    return apiFetch('/api/ai/photo-analysis', {
+      method: 'POST',
+      body: JSON.stringify({ property, imageUrls }),
+    });
+  },
 };
 
 // ============ PROPERTY API ============
