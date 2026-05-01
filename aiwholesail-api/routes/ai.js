@@ -358,7 +358,7 @@ Based on the property age, type, and available data, provide an estimated condit
        photos_analyzed = EXCLUDED.photos_analyzed,
        detailed_assessment = EXCLUDED.detailed_assessment,
        updated_at = NOW()`,
-    [req.user.id, zpid, photos.length, JSON.stringify({ analysis: responseText }), ['claude-3.5-sonnet']]
+    [req.user.id, zpid, photos.length, JSON.stringify({ analysis: responseText }), ['claude-sonnet-4-6', 'gpt-4.1']]
   );
 
   res.json({
@@ -504,7 +504,7 @@ IMPORTANT: Respond ONLY with valid JSON in this exact structure (no markdown, no
 
   try {
     const response = await axios.post('https://api.openai.com/v1/chat/completions', {
-      model: 'gpt-4o',
+      model: 'gpt-4.1',
       max_tokens: 2000,
       messages: [{
         role: 'system',

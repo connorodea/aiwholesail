@@ -8,7 +8,7 @@ const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
  */
 async function callClaude(systemPrompt, userMessage, options = {}) {
   const {
-    model = 'claude-3-5-sonnet-20241022',
+    model = 'claude-sonnet-4-6',
     maxTokens = 4000,
     temperature = 0.7
   } = options;
@@ -38,7 +38,7 @@ async function callClaude(systemPrompt, userMessage, options = {}) {
  */
 async function callClaudeWithTools(systemPrompt, messages, tools, options = {}) {
   const {
-    model = 'claude-3-5-sonnet-20241022',
+    model = 'claude-sonnet-4-6',
     maxTokens = 4000
   } = options;
 
@@ -68,7 +68,7 @@ async function callClaudeWithTools(systemPrompt, messages, tools, options = {}) 
  */
 async function callOpenAI(messages, options = {}) {
   const {
-    model = 'gpt-4-vision-preview',
+    model = 'gpt-4.1',
     maxTokens = 4000
   } = options;
 
