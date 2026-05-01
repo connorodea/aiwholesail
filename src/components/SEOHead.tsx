@@ -66,14 +66,12 @@ export function SEOHead({
       <meta httpEquiv="X-XSS-Protection" content="1; mode=block" />
       <meta httpEquiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
       
-      {/* Preconnects for Performance */}
-      <link rel="preconnect" href="https://fonts.googleapis.com" />
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      {/* Preconnect to Supabase API (font preconnects are in index.html) */}
       <link rel="preconnect" href="https://ztgsevhzbeywytoqlsbf.supabase.co" />
       
       {/* Additional Meta */}
-      <meta name="theme-color" content="#3b82f6" />
-      <meta name="msapplication-TileColor" content="#3b82f6" />
+      <meta name="theme-color" content="#08090a" />
+      <meta name="msapplication-TileColor" content="#06b6d4" />
       <meta name="application-name" content="AI Wholesail" />
       
       {/* Structured Data for Real Estate Business */}

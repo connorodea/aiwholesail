@@ -4,7 +4,8 @@ import { NavbarAIWholesail } from '@/components/ui/navbar-aiwholesail';
 import { Container } from '@/components/proactiv/Container';
 import { ArrowRight } from 'lucide-react';
 
-const aiWholesailLogo = '/logo-white.png';
+const aiWholesailLogoWebP = '/logo-white.webp';
+const aiWholesailLogoPNG = '/logo-white.png';
 
 interface PublicLayoutProps {
   children: ReactNode;
@@ -51,7 +52,10 @@ export function PublicLayout({ children }: PublicLayoutProps) {
               {/* Logo + description — spans 4 cols */}
               <div className="col-span-2 md:col-span-4 space-y-5">
                 <Link to="/" className="inline-block">
-                  <img src={aiWholesailLogo} alt="AIWholesail" className="h-12 sm:h-14 w-auto" /><span className="text-xl sm:text-2xl font-bold tracking-tight text-white/80">holesail</span>
+                  <picture>
+                    <source srcSet={aiWholesailLogoWebP} type="image/webp" />
+                    <img src={aiWholesailLogoPNG} alt="AIWholesail" className="h-12 sm:h-14 w-auto" width="77" height="56" loading="lazy" />
+                  </picture><span className="text-xl sm:text-2xl font-bold tracking-tight text-white/80">holesail</span>
                 </Link>
                 <p className="text-[13px] text-neutral-500 leading-relaxed max-w-xs">
                   AI-powered platform for real estate professionals to find, analyze, and close profitable deals.
@@ -137,12 +141,12 @@ export function PublicLayout({ children }: PublicLayoutProps) {
         <div className="border-t border-white/[0.06]">
           <Container>
             <div className="py-5 flex flex-col sm:flex-row justify-between items-center gap-3">
-              <p className="text-[11px] text-neutral-600">
+              <p className="text-[11px] text-neutral-500">
                 &copy; {new Date().getFullYear()} AIWholesail. All rights reserved.
               </p>
               <div className="flex items-center gap-1.5">
                 <div className="h-1.5 w-1.5 bg-emerald-500 rounded-full animate-pulse" />
-                <span className="text-[11px] text-neutral-600">All systems operational</span>
+                <span className="text-[11px] text-neutral-500">All systems operational</span>
               </div>
             </div>
           </Container>

@@ -15,7 +15,8 @@ import { FeatureIconContainer } from "@/components/proactiv/FeatureIconContainer
 import { NavbarAIWholesail } from "@/components/ui/navbar-aiwholesail";
 import { Spotlight } from "@/components/ui/spotlight";
 
-const aiWholesailLogo = "/logo-white.png";
+const aiWholesailLogoWebP = "/logo-white.webp";
+const aiWholesailLogoPNG = "/logo-white.png";
 
 const navItems = [
   { title: "Features", link: "/how-it-works" },
@@ -74,7 +75,7 @@ const Landing = () => {
     <div className="relative overflow-hidden bg-[#08090a] text-white min-h-screen">
       <SEOHead />
 
-      {/* Demo Modal */}
+      {/* Demo Modal -- rendered outside main for z-index layering */}
       <AnimatePresence>
         {showDemo && (
           <motion.div
@@ -105,6 +106,7 @@ const Landing = () => {
       {/* ===== NAVBAR — Aceternity Dark Shadow ===== */}
       <NavbarAIWholesail />
 
+      <main>
       {/* ===== HERO ===== */}
       <div className="relative flex flex-col min-h-[50rem] md:min-h-[60rem] pt-28 md:pt-40">
         <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" fill="rgba(6, 182, 212, 0.15)" />
@@ -314,7 +316,7 @@ const Landing = () => {
               <p className="text-xs text-neutral-500 mb-6">For serious professionals</p>
               <ul className="space-y-2 mb-6">
                 {["Unlimited locations", "4-hour updates", "Advanced AI analysis", "Skip tracing", "Lead scoring", "Priority support"].map(f => (
-                  <li key={f} className="flex items-center gap-2 text-xs text-neutral-400"><CheckCircle className="h-3 w-3 text-neutral-600" />{f}</li>
+                  <li key={f} className="flex items-center gap-2 text-xs text-neutral-400"><CheckCircle className="h-3 w-3 text-neutral-500" />{f}</li>
                 ))}
               </ul>
               <Link to="/pricing">
@@ -362,6 +364,8 @@ const Landing = () => {
         </Container>
       </motion.section>
 
+      </main>
+
       {/* ===== FOOTER ===== */}
       <footer className="relative border-t border-white/[0.06] bg-[#060607]">
         <div className="border-b border-white/[0.06]">
@@ -382,7 +386,10 @@ const Landing = () => {
             <div className="grid grid-cols-2 md:grid-cols-12 gap-8 lg:gap-12">
               <div className="col-span-2 md:col-span-4 space-y-5">
                 <Link to="/" className="inline-block">
-                  <img src={aiWholesailLogo} alt="AIWholesail" className="h-12 sm:h-14 w-auto" /><span className="text-xl sm:text-2xl font-bold tracking-tight text-white/80">holesail</span>
+                  <picture>
+                    <source srcSet={aiWholesailLogoWebP} type="image/webp" />
+                    <img src={aiWholesailLogoPNG} alt="AIWholesail" className="h-12 sm:h-14 w-auto" width="77" height="56" loading="lazy" />
+                  </picture><span className="text-xl sm:text-2xl font-bold tracking-tight text-white/80">holesail</span>
                 </Link>
                 <p className="text-[13px] text-neutral-500 leading-relaxed max-w-xs">AI-powered platform for real estate professionals to find, analyze, and close profitable deals.</p>
                 <div className="flex items-center gap-3 pt-1">
@@ -421,10 +428,10 @@ const Landing = () => {
         <div className="border-t border-white/[0.06]">
           <Container>
             <div className="py-5 flex flex-col sm:flex-row justify-between items-center gap-3">
-              <p className="text-[11px] text-neutral-600">&copy; {new Date().getFullYear()} AIWholesail. All rights reserved.</p>
+              <p className="text-[11px] text-neutral-500">&copy; {new Date().getFullYear()} AIWholesail. All rights reserved.</p>
               <div className="flex items-center gap-1.5">
                 <div className="h-1.5 w-1.5 bg-emerald-500 rounded-full animate-pulse" />
-                <span className="text-[11px] text-neutral-600">All systems operational</span>
+                <span className="text-[11px] text-neutral-500">All systems operational</span>
               </div>
             </div>
           </Container>

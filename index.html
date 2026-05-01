@@ -2,14 +2,6 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-RDBNC7QBNB"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-RDBNC7QBNB');
-    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AIWholesail - Find Profitable Real Estate Deals with AI</title>
     <meta name="description" content="AI-powered platform for real estate professionals to find, analyze, and close profitable deals faster" />
@@ -18,11 +10,19 @@
     <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32">
     <link rel="icon" href="/favicon-16.png" type="image/png" sizes="16x16">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-    
-    <!-- Professional Fonts -->
+
+    <!-- Preconnect to critical origins -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Preload primary font (Inter 400/500/600/700) for faster FCP -->
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap">
+
+    <!-- Non-render-blocking font loading: media="print" trick with onload swap -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
+    <noscript>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap">
+    </noscript>
 
     <meta property="og:title" content="AIWholesail - Find Profitable Real Estate Deals" />
     <meta property="og:description" content="AI-powered platform for real estate professionals to find, analyze, and close profitable deals faster" />
@@ -42,5 +42,14 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+
+    <!-- Google tag (gtag.js) - deferred to not block rendering -->
+    <script defer src="https://www.googletagmanager.com/gtag/js?id=G-RDBNC7QBNB"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-RDBNC7QBNB');
+    </script>
   </body>
 </html>

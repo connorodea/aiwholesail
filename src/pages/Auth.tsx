@@ -266,7 +266,10 @@ export default function Auth() {
             {/* ===== LEFT: FORM ===== */}
             <div className="pt-10 md:pt-16">
               <Link to="/" className="inline-block mb-6">
-                <img src="/logo-white.png" alt="AIWholesail" className="h-16 w-auto" />
+                <picture>
+                  <source srcSet="/logo-white.webp" type="image/webp" />
+                  <img src="/logo-white.png" alt="AIWholesail" className="h-16 w-auto" width="88" height="64" />
+                </picture>
               </Link>
 
               <h1 className="text-left text-3xl font-bold tracking-tight text-white lg:text-5xl">
@@ -430,11 +433,17 @@ export default function Auth() {
 
             {/* ===== RIGHT: PRODUCT SCREENSHOT ===== */}
             <div className="relative hidden min-h-[500px] flex-col items-start justify-end overflow-hidden rounded-2xl bg-black md:flex">
-              <img
-                src="/auth-preview.png"
-                alt="AIWholesail - Find profitable real estate deals"
-                className="absolute inset-0 w-full h-full object-cover object-top"
-              />
+              <picture>
+                <source srcSet="/auth-preview.webp" type="image/webp" />
+                <img
+                  src="/auth-preview.png"
+                  alt="AIWholesail - Find profitable real estate deals"
+                  className="absolute inset-0 w-full h-full object-cover object-top"
+                  width="1336"
+                  height="1326"
+                  loading="lazy"
+                />
+              </picture>
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent z-10" />
 
               <div className="relative z-20 p-6 md:p-10 space-y-3">

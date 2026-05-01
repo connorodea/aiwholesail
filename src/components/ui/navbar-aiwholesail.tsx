@@ -23,7 +23,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
-const aiWholesailLogo = "/logo-white.png";
+const aiWholesailLogoWebP = "/logo-white.webp";
+const aiWholesailLogoPNG = "/logo-white.png";
 
 type LinkItem = {
   label: string;
@@ -115,7 +116,10 @@ export function NavbarAIWholesail() {
           <div className="flex h-14 items-center justify-between gap-4">
             {/* Logo */}
             <Link to="/" className="flex shrink-0 items-center">
-              <img src={aiWholesailLogo} alt="AIWholesail" className="h-10 w-auto object-contain" />
+              <picture>
+                <source srcSet={aiWholesailLogoWebP} type="image/webp" />
+                <img src={aiWholesailLogoPNG} alt="AIWholesail" className="h-10 w-auto object-contain" width="55" height="40" />
+              </picture>
             </Link>
 
             {/* Desktop Nav */}
@@ -268,7 +272,7 @@ function MobileNav({ onClose, user }: { onClose: () => void; user: any }) {
         {plainLinks.map(link => (
           <Link key={link.label} to={link.href} onClick={onClose} className="flex items-center justify-between rounded-lg px-3 py-2.5 text-sm text-neutral-300 hover:bg-white/[0.06]">
             <span>{link.label}</span>
-            <IconChevronRight className="size-4 text-neutral-600" />
+            <IconChevronRight className="size-4 text-neutral-500" />
           </Link>
         ))}
         <div className="mt-4 flex items-center justify-end gap-2 border-t border-white/[0.08] pt-4">
@@ -298,7 +302,7 @@ function MobileDropdown({ config, onClose }: { config: DropdownConfig; onClose: 
     <div>
       <button className="flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-sm text-neutral-300 hover:bg-white/[0.06]" onClick={() => setOpen(s => !s)}>
         <span>{config.label}</span>
-        <IconChevronDown className={`size-4 text-neutral-600 transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
+        <IconChevronDown className={`size-4 text-neutral-500 transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
       </button>
       <AnimatePresence initial={false}>
         {open && (
@@ -309,7 +313,7 @@ function MobileDropdown({ config, onClose }: { config: DropdownConfig; onClose: 
                   <item.icon className="size-4 shrink-0 text-neutral-500" />
                   <div className="min-w-0">
                     <p className="text-sm text-neutral-300">{item.label}</p>
-                    <p className="text-xs text-neutral-600">{item.description}</p>
+                    <p className="text-xs text-neutral-500">{item.description}</p>
                   </div>
                 </Link>
               ))}

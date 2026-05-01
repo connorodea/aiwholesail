@@ -20,11 +20,33 @@ export default defineConfig(({ mode }) => ({
     },
   },
   build: {
+    // Enable CSS code splitting so each route only loads its own CSS
+    cssCodeSplit: true,
+    // Target modern browsers for smaller bundles
+    target: 'es2020',
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-          ui: ['framer-motion', 'lucide-react'],
+          // Core React runtime — cached long-term
+          'vendor-react': ['react', 'react-dom'],
+          // Router separate so it can be cached independently
+          'vendor-router': ['react-router-dom'],
+          // Animation library — only loaded when needed
+          'vendor-motion': ['framer-motion'],
+          // Icons — large library, separate chunk
+          'vendor-icons': ['lucide-react'],
+          // Radix UI primitives
+          'vendor-radix': [
+            '@radix-ui/react-dialog',
+            '@radix-ui/react-dropdown-menu',
+            '@radix-ui/react-toast',
+            '@radix-ui/react-tooltip',
+            '@radix-ui/react-tabs',
+            '@radix-ui/react-accordion',
+            '@radix-ui/react-select',
+          ],
+          // Data fetching
+          'vendor-query': ['@tanstack/react-query'],
         },
       },
     },
