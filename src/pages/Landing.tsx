@@ -363,40 +363,63 @@ const Landing = () => {
       </motion.section>
 
       {/* ===== FOOTER ===== */}
-      <footer className="border-t border-white/5 py-12 px-4 bg-[#08090a]">
-        <Container>
-          <div className="grid lg:grid-cols-5 gap-6 sm:gap-8 lg:gap-10">
-            <div className="lg:col-span-2 space-y-3">
-              <div className="flex items-center gap-2">
-                <img src={aiWholesailLogo} alt="AIWholesail" className="h-6 sm:h-7 w-auto opacity-60" />
+      <footer className="relative border-t border-white/[0.06] bg-[#060607]">
+        <div className="border-b border-white/[0.06]">
+          <Container>
+            <div className="py-12 sm:py-16 flex flex-col md:flex-row items-center justify-between gap-6">
+              <div>
+                <h3 className="text-lg sm:text-xl font-semibold tracking-tight text-white">Ready to find your next deal?</h3>
+                <p className="text-sm text-neutral-500 mt-1">Start your 7-day free trial. No credit card required.</p>
               </div>
-              <p className="text-xs text-neutral-600 max-w-xs leading-relaxed">
-                AI-powered platform for real estate professionals to find, analyze, and close profitable deals.
-              </p>
+              <Link to="/auth?mode=signup" className="group flex items-center gap-2 bg-cyan-500 hover:bg-cyan-400 text-black text-sm font-semibold px-6 py-2.5 rounded-full transition-all hover:-translate-y-0.5 active:scale-[0.98] shadow-lg shadow-cyan-500/20">
+                Get Started Free <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+              </Link>
             </div>
-            {[
-              { title: "Product", links: [{ l: "Features", t: "/how-it-works" }, { l: "Use Cases", t: "/use-cases" }, { l: "Pricing", t: "/pricing" }] },
-              { title: "Resources", links: [{ l: "Blog", t: "/blog" }, { l: "Free Tools", t: "/tools" }, { l: "Markets", t: "/markets" }, { l: "About", t: "/about" }, { l: "FAQ", t: "/faq" }, { l: "Contact", t: "/contact" }] },
-              { title: "Legal", links: [{ l: "Privacy Policy", t: "/privacy" }, { l: "Terms of Service", t: "/terms" }, { l: "Refund Policy", t: "/refund" }] },
-            ].map(section => (
-              <div key={section.title}>
-                <h4 className="text-[11px] font-medium tracking-[0.15em] uppercase text-neutral-500 mb-4">{section.title}</h4>
-                <ul className="space-y-2">
-                  {section.links.map(link => (
-                    <li key={link.l}><Link to={link.t} className="text-xs text-neutral-600 hover:text-neutral-300 transition-colors">{link.l}</Link></li>
+          </Container>
+        </div>
+        <Container>
+          <div className="py-12 sm:py-16">
+            <div className="grid grid-cols-2 md:grid-cols-12 gap-8 lg:gap-12">
+              <div className="col-span-2 md:col-span-4 space-y-5">
+                <Link to="/" className="inline-block">
+                  <img src={aiWholesailLogo} alt="AIWholesail" className="h-8 sm:h-9 w-auto" />
+                </Link>
+                <p className="text-[13px] text-neutral-500 leading-relaxed max-w-xs">AI-powered platform for real estate professionals to find, analyze, and close profitable deals.</p>
+                <div className="flex items-center gap-4 pt-1">
+                  {["X", "Li", "YT"].map(label => (
+                    <span key={label} className="flex items-center justify-center h-8 w-8 rounded-full bg-white/[0.04] border border-white/[0.06] text-[10px] font-semibold text-neutral-500 hover:text-white hover:border-white/10 transition-colors cursor-pointer">{label}</span>
                   ))}
-                </ul>
+                </div>
               </div>
-            ))}
-          </div>
-          <div className="border-t border-white/5 mt-10 pt-6 flex flex-col md:flex-row justify-between items-center gap-3">
-            <p className="text-[11px] text-neutral-700">&copy; 2026 AIWholesail. All rights reserved.</p>
-            <div className="flex items-center gap-1.5">
-              <div className="h-1.5 w-1.5 bg-emerald-500 rounded-full animate-pulse" />
-              <span className="text-[11px] text-neutral-700">All systems operational</span>
+              {[
+                { title: "Product", links: [{ l: "Features", t: "/how-it-works" }, { l: "Use Cases", t: "/use-cases" }, { l: "Pricing", t: "/pricing" }, { l: "Calculators", t: "/tools" }] },
+                { title: "Resources", links: [{ l: "Blog", t: "/blog" }, { l: "Guides", t: "/guides" }, { l: "Markets", t: "/markets" }, { l: "Glossary", t: "/glossary" }, { l: "State Laws", t: "/laws" }] },
+                { title: "Company", links: [{ l: "About", t: "/about" }, { l: "FAQ", t: "/faq" }, { l: "Contact", t: "/contact" }] },
+                { title: "Legal", links: [{ l: "Privacy Policy", t: "/privacy" }, { l: "Terms of Service", t: "/terms" }, { l: "Refund Policy", t: "/refund" }] },
+              ].map(section => (
+                <div key={section.title} className="col-span-1 md:col-span-2">
+                  <h4 className="text-[11px] font-semibold tracking-[0.15em] uppercase text-neutral-400 mb-4">{section.title}</h4>
+                  <ul className="space-y-2.5">
+                    {section.links.map(link => (
+                      <li key={link.l}><Link to={link.t} className="text-[13px] text-neutral-500 hover:text-white transition-colors">{link.l}</Link></li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
             </div>
           </div>
         </Container>
+        <div className="border-t border-white/[0.06]">
+          <Container>
+            <div className="py-5 flex flex-col sm:flex-row justify-between items-center gap-3">
+              <p className="text-[11px] text-neutral-600">&copy; {new Date().getFullYear()} AIWholesail. All rights reserved.</p>
+              <div className="flex items-center gap-1.5">
+                <div className="h-1.5 w-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                <span className="text-[11px] text-neutral-600">All systems operational</span>
+              </div>
+            </div>
+          </Container>
+        </div>
       </footer>
     </div>
   );
