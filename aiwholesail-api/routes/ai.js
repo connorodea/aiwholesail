@@ -5,6 +5,7 @@ const { query } = require('../config/database');
 const { authenticate } = require('../middleware/auth');
 const { asyncHandler, logSecurityEvent } = require('../middleware/errorHandler');
 const { checkDatabaseRateLimit } = require('../middleware/rateLimit');
+const { attachSubscription, requireElite } = require('../middleware/subscription');
 const {
   callClaude,
   callClaudeWithTools,
@@ -20,7 +21,7 @@ const RAPIDAPI_KEY = process.env.RAPIDAPI_KEY;
  * POST /api/ai/property-analysis
  * AI-powered property analysis
  */
-router.post('/property-analysis', authenticate, [
+router.post('/property-analysis', authenticate, attachSubscription, requireElite, [
   body('property').isObject().withMessage('Property data required')
 ], asyncHandler(async (req, res) => {
   const errors = validationResult(req);
@@ -449,7 +450,7 @@ Be helpful, concise, and provide actionable advice.`;
  * POST /api/ai/photo-analysis
  * AI-powered property photo condition analysis and rehab cost estimation
  */
-router.post('/photo-analysis', authenticate, [
+router.post('/photo-analysis', authenticate, attachSubscription, requireElite, [
   body('property').isObject().withMessage('Property data required'),
   body('imageUrls').isArray({ min: 1 }).withMessage('At least one image URL required')
 ], asyncHandler(async (req, res) => {

@@ -14,6 +14,7 @@ import { communications } from '@/lib/api-client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useLeads } from '@/hooks/useLeads';
+import { useSubscription } from '@/hooks/useSubscription';
 import { toast } from 'sonner';
 import { PropertyAlertsManager } from '@/components/PropertyAlertsManager';
 import { AIWholesaleAnalyzer } from '@/components/AIWholesaleAnalyzer';
@@ -35,6 +36,7 @@ export default function RealEstateWholesaler() {
   const navigate = useNavigate();
   const { favorites } = useFavorites();
   const { exportAllLeads, loading: exportLoading } = useLeads();
+  const { tier, isElite, isSubscribed } = useSubscription();
   const [properties, setProperties] = useState<Property[]>([]);
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -234,8 +236,27 @@ export default function RealEstateWholesaler() {
     } catch (error) {
       console.error('Search failed:', error);
       const errorMessage = error instanceof Error ? error.message : "An error occurred while searching";
+
+      // Check for subscription-related errors
+      if (errorMessage.includes('search limit') || errorMessage.includes('SEARCH_LIMIT_REACHED')) {
+        toast.error('Daily search limit reached. Upgrade to Elite for unlimited searches.', {
+          action: {
+            label: 'Upgrade',
+            onClick: () => navigate('/pricing'),
+          },
+        });
+      } else if (errorMessage.includes('SUBSCRIPTION_REQUIRED') || errorMessage.includes('Subscription required')) {
+        toast.error('A subscription is required to search properties. Start your free trial today.', {
+          action: {
+            label: 'View Plans',
+            onClick: () => navigate('/pricing'),
+          },
+        });
+      } else {
+        toast.error(errorMessage);
+      }
+
       setError(errorMessage);
-      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
       setLoadingProgress(0);

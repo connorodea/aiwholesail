@@ -5,6 +5,7 @@ const { query } = require('../config/database');
 const { authenticate, optionalAuth } = require('../middleware/auth');
 const { asyncHandler } = require('../middleware/errorHandler');
 const { checkDatabaseRateLimit } = require('../middleware/rateLimit');
+const { attachSubscription, checkSearchLimit } = require('../middleware/subscription');
 
 const router = express.Router();
 const RAPIDAPI_KEY = process.env.RAPIDAPI_KEY;
@@ -13,7 +14,7 @@ const RAPIDAPI_KEY = process.env.RAPIDAPI_KEY;
  * POST /api/property/zillow/search
  * Search for properties on Zillow
  */
-router.post('/zillow/search', optionalAuth, asyncHandler(async (req, res) => {
+router.post('/zillow/search', authenticate, attachSubscription, checkSearchLimit, asyncHandler(async (req, res) => {
   const {
     location,
     page = 1,

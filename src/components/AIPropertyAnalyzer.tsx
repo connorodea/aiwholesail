@@ -4,11 +4,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { 
-  Brain, 
-  TrendingUp, 
-  AlertTriangle, 
-  CheckCircle, 
+import {
+  Brain,
+  TrendingUp,
+  AlertTriangle,
+  CheckCircle,
   DollarSign,
   Home,
   MapPin,
@@ -19,6 +19,8 @@ import {
 import { ai } from '@/lib/api-client';
 import { toast } from 'sonner';
 import ReactMarkdown from 'react-markdown';
+import { useSubscription } from '@/hooks/useSubscription';
+import { UpgradePrompt } from '@/components/UpgradePrompt';
 
 interface AIPropertyAnalyzerProps {
   property: Property;
@@ -38,8 +40,19 @@ interface AIAnalysisResult {
 }
 
 export function AIPropertyAnalyzer({ property }: AIPropertyAnalyzerProps) {
+  const { isElite, loading: subLoading } = useSubscription();
   const [analysis, setAnalysis] = useState<AIAnalysisResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Show upgrade prompt for non-Elite users
+  if (!subLoading && !isElite) {
+    return (
+      <UpgradePrompt
+        featureName="AI Property Analysis"
+        description="Get detailed AI-powered insights about deal potential, market positioning, and investment opportunities."
+      />
+    );
+  }
 
   const analyzeProperty = async () => {
     setIsLoading(true);

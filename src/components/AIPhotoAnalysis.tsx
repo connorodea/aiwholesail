@@ -20,6 +20,8 @@ import {
 import { ai } from '@/lib/api-client';
 import { zillowAPI } from '@/lib/zillow-api';
 import { toast } from 'sonner';
+import { useSubscription } from '@/hooks/useSubscription';
+import { UpgradePrompt } from '@/components/UpgradePrompt';
 
 interface AIPhotoAnalysisProps {
   property: Property;
@@ -42,6 +44,7 @@ interface PhotoAnalysisResult {
 }
 
 export function AIPhotoAnalysis({ property }: AIPhotoAnalysisProps) {
+  const { isElite, loading: subLoading } = useSubscription();
   const [photos, setPhotos] = useState<string[]>([]);
   const [isLoadingPhotos, setIsLoadingPhotos] = useState(true);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -206,6 +209,16 @@ export function AIPhotoAnalysis({ property }: AIPhotoAnalysisProps) {
         return 'bg-muted text-muted-foreground border-border';
     }
   };
+
+  // Show upgrade prompt for non-Elite users (after all hooks)
+  if (!subLoading && !isElite) {
+    return (
+      <UpgradePrompt
+        featureName="AI Photo Condition Analysis"
+        description="Analyze property photos with AI to assess condition, identify issues, and estimate rehab costs."
+      />
+    );
+  }
 
   // Loading photos state
   if (isLoadingPhotos) {

@@ -28,6 +28,7 @@ export interface AuthTokens {
 export interface ApiResponse<T = any> {
   data?: T;
   error?: string;
+  code?: string;
   errors?: Array<{ field: string; message: string }>;
 }
 
@@ -111,7 +112,7 @@ async function apiFetch<T>(
     const data = await response.json();
 
     if (!response.ok) {
-      return { error: data.error || 'Request failed', errors: data.errors };
+      return { error: data.error || 'Request failed', code: data.code, errors: data.errors };
     }
 
     return { data };
@@ -345,6 +346,11 @@ export const stripe = {
   getSubscription: async () => {
     return apiFetch('/api/stripe/subscription');
   },
+};
+
+// ============ SUBSCRIPTION API ============
+export const subscription = {
+  getStatus: async () => apiFetch('/api/stripe/subscription'),
 };
 
 // ============ AI API ============
@@ -691,6 +697,7 @@ const apiClient = {
   favorites,
   alerts,
   stripe,
+  subscription,
   ai,
   property,
   communications,

@@ -18,6 +18,8 @@ import {
   CheckCircle2,
   BarChart3,
 } from 'lucide-react';
+import { useSubscription } from '@/hooks/useSubscription';
+import { UpgradePrompt } from '@/components/UpgradePrompt';
 
 interface ARVCalculatorProps {
   property: Property;
@@ -39,6 +41,7 @@ interface FlipResults {
 }
 
 export function ARVCalculator({ property }: ARVCalculatorProps) {
+  const { isElite, loading: subLoading } = useSubscription();
   const purchasePrice = property.price || 0;
   const zestimate = property.zestimate || 0;
   const sqft = property.sqft || 0;
@@ -64,6 +67,16 @@ export function ARVCalculator({ property }: ARVCalculatorProps) {
   );
   const [interestRate, setInterestRate] = useState(10);
   const [loanPoints, setLoanPoints] = useState(2);
+
+  // Show upgrade prompt for non-Elite users (after all hooks)
+  if (!subLoading && !isElite) {
+    return (
+      <UpgradePrompt
+        featureName="ARV Calculator & Comps"
+        description="Calculate After Repair Value, Maximum Allowable Offer, and analyze comparable sales with advanced flip analysis tools."
+      />
+    );
+  }
 
   const calculateFlip = (): FlipResults => {
     // Closing costs
