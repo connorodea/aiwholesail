@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-track-real-estate-deals-and-expenses-step-by-step-guide",
+      "title": "How to Track Real Estate Deals and Expenses (Step-by-Step Guide)",
+      "excerpt": "Tracking your real estate deals and expenses is the backbone of a profitable investing business. Learn the systems, tools, and habits that top investors use to stay organized and maximize returns.",
+      "category": "Operations",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-04-30T23:50:20.303Z",
+      "readTime": 7,
+      "tags": [
+        "how to track real estate deals and expenses",
+        "real estate deal tracking",
+        "real estate expense tracking",
+        "wholesaling spreadsheet",
+        "real estate investing systems"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-build-rapport-with-fsbo-homeowners-and-win-more-deals",
       "title": "How to Build Rapport with FSBO Homeowners (And Win More Deals)",
       "excerpt": "FSBO homeowners are motivated sellers who skipped the agent — but they're also guarded. Learn how to build genuine rapport that turns cold calls into closed deals.",
@@ -15,7 +32,7 @@
         "real estate wholesaling tips",
         "motivated seller scripts"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-birmingham-al-the-investor-s-complete-guide-to-profits-in-t",
