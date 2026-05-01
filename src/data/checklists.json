@@ -1,0 +1,364 @@
+[
+  {
+    "slug": "due-diligence-checklist",
+    "title": "Real Estate Due Diligence Checklist",
+    "h1": "Complete Due Diligence Checklist for Investment Properties",
+    "description": "Free printable due diligence checklist for real estate investors. Cover every step from title search to final walkthrough before closing.",
+    "items": [
+      {
+        "category": "Title & Legal",
+        "tasks": [
+          "Order title search",
+          "Check for liens and encumbrances",
+          "Verify ownership and chain of title",
+          "Review HOA documents and restrictions",
+          "Confirm property tax status",
+          "Check for code violations or open permits"
+        ]
+      },
+      {
+        "category": "Property Inspection",
+        "tasks": [
+          "Schedule professional home inspection",
+          "Check roof condition and age",
+          "Inspect foundation for cracks or settling",
+          "Test all plumbing fixtures and water pressure",
+          "Check electrical panel and wiring",
+          "Inspect HVAC system and age",
+          "Look for water damage or mold",
+          "Check windows and doors for proper operation"
+        ]
+      },
+      {
+        "category": "Financial Analysis",
+        "tasks": [
+          "Calculate After Repair Value (ARV)",
+          "Estimate total rehab costs",
+          "Run cash flow analysis",
+          "Calculate cap rate",
+          "Verify comparable sales data",
+          "Estimate holding costs",
+          "Confirm insurance costs",
+          "Calculate expected ROI"
+        ]
+      },
+      {
+        "category": "Market Research",
+        "tasks": [
+          "Research neighborhood crime rates",
+          "Check school district ratings",
+          "Verify flood zone status",
+          "Research planned developments nearby",
+          "Check rental demand and vacancy rates",
+          "Compare median rents in the area"
+        ]
+      },
+      {
+        "category": "Final Verification",
+        "tasks": [
+          "Complete final walkthrough",
+          "Verify all repairs from inspection are completed",
+          "Confirm clear title before closing",
+          "Review closing documents with attorney",
+          "Verify insurance policy is in place",
+          "Confirm funding and wire instructions"
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "closing-checklist",
+    "title": "Real Estate Closing Day Checklist",
+    "h1": "Closing Day Checklist for Real Estate Investors",
+    "description": "Step-by-step closing day checklist to ensure a smooth real estate transaction. Never miss a critical step at the closing table.",
+    "items": [
+      {
+        "category": "Pre-Closing Preparation",
+        "tasks": [
+          "Review the HUD-1 or closing disclosure statement",
+          "Confirm closing date, time, and location",
+          "Verify purchase price and terms match the contract",
+          "Confirm earnest money credit",
+          "Review proration of taxes and HOA fees",
+          "Confirm wire transfer details with title company"
+        ]
+      },
+      {
+        "category": "Documents to Bring",
+        "tasks": [
+          "Government-issued photo ID",
+          "Proof of insurance",
+          "Cashier's check or wire confirmation",
+          "Copy of signed purchase agreement",
+          "Inspection reports",
+          "LLC operating agreement (if buying in entity)"
+        ]
+      },
+      {
+        "category": "At the Closing Table",
+        "tasks": [
+          "Review and sign the deed",
+          "Sign the promissory note (if financing)",
+          "Sign the mortgage or deed of trust",
+          "Review and sign closing disclosure",
+          "Sign affidavits and declarations",
+          "Collect keys and access codes"
+        ]
+      },
+      {
+        "category": "Post-Closing Tasks",
+        "tasks": [
+          "Record the deed with the county",
+          "Set up utility accounts in your name",
+          "Change locks on all exterior doors",
+          "Notify insurance company of closing",
+          "File documents in your records",
+          "Begin rehab or tenant placement"
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "rehab-project-checklist",
+    "title": "House Rehab Project Checklist",
+    "h1": "Complete Rehab Project Checklist for Fix-and-Flip Investors",
+    "description": "Free rehab project management checklist covering demolition, structural, mechanical, and cosmetic phases of a house flip.",
+    "items": [
+      {
+        "category": "Pre-Rehab Planning",
+        "tasks": [
+          "Create detailed scope of work",
+          "Get three contractor bids",
+          "Pull required permits",
+          "Set up project budget with contingency (10-15%)",
+          "Establish project timeline",
+          "Order dumpster for demolition"
+        ]
+      },
+      {
+        "category": "Structural & Exterior",
+        "tasks": [
+          "Repair or replace roof",
+          "Fix foundation issues",
+          "Repair or replace siding",
+          "Replace windows as needed",
+          "Repair or replace gutters and downspouts",
+          "Grade landscaping for drainage"
+        ]
+      },
+      {
+        "category": "Mechanical Systems",
+        "tasks": [
+          "Update electrical panel if needed",
+          "Rewire as needed to code",
+          "Repair or replace plumbing",
+          "Service or replace HVAC system",
+          "Install smoke and CO detectors",
+          "Test water heater and replace if needed"
+        ]
+      },
+      {
+        "category": "Interior Finishes",
+        "tasks": [
+          "Drywall repair and painting",
+          "Install or refinish flooring",
+          "Install kitchen cabinets and countertops",
+          "Install bathroom vanities and fixtures",
+          "Install interior doors and hardware",
+          "Install light fixtures and outlets"
+        ]
+      },
+      {
+        "category": "Final Touches",
+        "tasks": [
+          "Deep clean entire property",
+          "Stage or photograph for listing",
+          "Schedule final inspection",
+          "Close out permits",
+          "Complete final walkthrough with contractor",
+          "Document all work with before/after photos"
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "rental-property-checklist",
+    "title": "Rental Property Acquisition Checklist",
+    "h1": "Rental Property Acquisition Checklist for Landlords",
+    "description": "Comprehensive checklist for buying rental properties. Evaluate cash flow, tenant demand, neighborhood quality, and financing before you buy.",
+    "items": [
+      {
+        "category": "Market Analysis",
+        "tasks": [
+          "Research median rents in target area",
+          "Check vacancy rates for the neighborhood",
+          "Verify population and job growth trends",
+          "Research rent-to-price ratio (target 1% or higher)",
+          "Check Section 8 rent limits if applicable",
+          "Research landlord-tenant laws in the state"
+        ]
+      },
+      {
+        "category": "Property Evaluation",
+        "tasks": [
+          "Calculate gross rent multiplier",
+          "Run cash flow analysis (monthly and annual)",
+          "Calculate cap rate",
+          "Estimate maintenance reserves (5-10% of rent)",
+          "Estimate vacancy allowance (5-8%)",
+          "Calculate cash-on-cash return"
+        ]
+      },
+      {
+        "category": "Financing",
+        "tasks": [
+          "Get pre-approved for investment property loan",
+          "Compare conventional vs DSCR loan options",
+          "Calculate total cash needed (down payment + closing + reserves)",
+          "Verify loan terms and interest rate",
+          "Confirm property qualifies for chosen loan type",
+          "Set aside 6 months of reserves"
+        ]
+      },
+      {
+        "category": "Tenant Readiness",
+        "tasks": [
+          "Set up landlord insurance policy",
+          "Create lease agreement",
+          "Set up tenant screening process",
+          "Establish rent collection system",
+          "Create move-in checklist for tenants",
+          "Set up maintenance request system"
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "wholesaling-deal-checklist",
+    "title": "Wholesale Deal Checklist",
+    "h1": "Step-by-Step Wholesale Deal Checklist",
+    "description": "Complete checklist for closing a wholesale real estate deal from finding the property to collecting your assignment fee.",
+    "items": [
+      {
+        "category": "Deal Finding",
+        "tasks": [
+          "Set up property alerts on AIWholesail",
+          "Identify motivated seller indicators",
+          "Run skip trace on property owner",
+          "Verify property is not in active listing or under contract",
+          "Check property tax and ownership records",
+          "Drive by property for visual inspection"
+        ]
+      },
+      {
+        "category": "Deal Analysis",
+        "tasks": [
+          "Calculate ARV using comparable sales",
+          "Estimate repair costs",
+          "Apply 70% rule for maximum offer",
+          "Determine your target assignment fee",
+          "Calculate Maximum Allowable Offer (MAO)",
+          "Verify deal meets buyer criteria"
+        ]
+      },
+      {
+        "category": "Contract Phase",
+        "tasks": [
+          "Contact seller and present offer",
+          "Negotiate purchase price",
+          "Execute purchase agreement with assignment clause",
+          "Submit earnest money deposit",
+          "Open escrow with title company",
+          "Order preliminary title report"
+        ]
+      },
+      {
+        "category": "Assignment Phase",
+        "tasks": [
+          "Send deal to cash buyer list",
+          "Show property to interested buyers",
+          "Negotiate assignment fee with buyer",
+          "Execute assignment agreement",
+          "Collect assignment deposit from buyer",
+          "Notify title company of assignment"
+        ]
+      },
+      {
+        "category": "Closing",
+        "tasks": [
+          "Coordinate closing date with all parties",
+          "Review closing statement",
+          "Verify assignment fee on HUD-1",
+          "Attend closing or sign remotely",
+          "Collect your assignment fee",
+          "Follow up with buyer and seller for referrals"
+        ]
+      }
+    ]
+  },
+  {
+    "slug": "property-analysis-checklist",
+    "title": "Property Analysis Checklist",
+    "h1": "Investment Property Analysis Checklist",
+    "description": "Systematic checklist for analyzing any investment property. Cover financials, physical condition, market factors, and exit strategy.",
+    "items": [
+      {
+        "category": "Basic Property Info",
+        "tasks": [
+          "Record property address and parcel number",
+          "Verify square footage and lot size",
+          "Confirm bedroom and bathroom count",
+          "Check year built and major renovation dates",
+          "Identify property type (SFR, duplex, multi-family)",
+          "Note zoning classification"
+        ]
+      },
+      {
+        "category": "Comparable Sales Analysis",
+        "tasks": [
+          "Pull 3-5 comparable sales within 0.5 miles",
+          "Verify comps are within last 6 months",
+          "Adjust for differences in size, condition, and features",
+          "Calculate price per square foot",
+          "Determine After Repair Value (ARV)",
+          "Cross-reference with Zillow, Redfin, and MLS"
+        ]
+      },
+      {
+        "category": "Income & Expense Analysis",
+        "tasks": [
+          "Determine market rent (check rentometer and local listings)",
+          "Estimate annual gross rental income",
+          "Calculate property taxes",
+          "Estimate insurance premiums",
+          "Budget for maintenance and repairs (5-10% of rent)",
+          "Account for vacancy rate (5-8%)",
+          "Calculate property management fee (8-10%)",
+          "Determine Net Operating Income (NOI)"
+        ]
+      },
+      {
+        "category": "Return Metrics",
+        "tasks": [
+          "Calculate cap rate (NOI / purchase price)",
+          "Calculate cash-on-cash return",
+          "Calculate gross rent multiplier",
+          "Run DSCR analysis if financing",
+          "Project 5-year and 10-year total returns",
+          "Compare returns to alternative investments"
+        ]
+      },
+      {
+        "category": "Risk Assessment",
+        "tasks": [
+          "Identify major repair needs and costs",
+          "Assess neighborhood trajectory (improving or declining)",
+          "Check for environmental hazards (flood, lead, asbestos)",
+          "Evaluate tenant quality and demand",
+          "Consider exit strategy (hold, flip, refinance)",
+          "Determine worst-case scenario and breakeven point"
+        ]
+      }
+    ]
+  }
+]

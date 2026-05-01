@@ -73,6 +73,10 @@ const StateLaws = lazy(() => import("./pages/StateLaws"));
 const StateLawPage = lazy(() => import("./pages/StateLawPage"));
 const CityComparisons = lazy(() => import("./pages/CityComparisons"));
 const CityComparisonPage = lazy(() => import("./pages/CityComparisonPage"));
+const Personas = lazy(() => import("./pages/Personas"));
+const PersonaPage = lazy(() => import("./pages/PersonaPage"));
+const ChecklistsPage = lazy(() => import("./pages/Checklists"));
+const ChecklistPage = lazy(() => import("./pages/ChecklistPage"));
 
 const queryClient = new QueryClient();
 
@@ -196,6 +200,10 @@ const App = () => (
                 <Route path="/laws/:stateSlug" element={<StateLawPage />} />
                 <Route path="/compare" element={<CityComparisons />} />
                 <Route path="/compare/:slug" element={<CityComparisonPage />} />
+                <Route path="/for" element={<Personas />} />
+                <Route path="/for/:slug" element={<PersonaPage />} />
+                <Route path="/checklists" element={<ChecklistsPage />} />
+                <Route path="/checklists/:slug" element={<ChecklistPage />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>

@@ -1,0 +1,202 @@
+[
+  {
+    "slug": "first-time-investors",
+    "title": "AIWholesail for First-Time Real Estate Investors",
+    "h1": "First-Time Real Estate Investor? Start Here.",
+    "description": "How first-time investors use AIWholesail to find, analyze, and close their first profitable deal.",
+    "persona": "First-Time Investor",
+    "painPoints": [
+      "Don't know where to start",
+      "Afraid of losing money",
+      "No experience analyzing deals"
+    ],
+    "solutions": [
+      "AI scores every deal 0-100 so you know which ones are worth pursuing",
+      "Free calculators (ARV, cash flow, cap rate) show exact numbers",
+      "Step-by-step guides teach you the fundamentals"
+    ],
+    "features": ["Deal scoring", "ARV Calculator", "Market intelligence", "Educational guides"],
+    "testimonial": {
+      "quote": "I closed my first deal within 60 days of signing up.",
+      "name": "Mike R.",
+      "role": "New Investor, Phoenix AZ"
+    },
+    "relatedGuides": ["real-estate-investing-for-beginners", "real-estate-investing-101"],
+    "relatedTools": ["arv-calculator", "wholesale-deal-calculator"]
+  },
+  {
+    "slug": "wholesalers",
+    "title": "AIWholesail for Real Estate Wholesalers",
+    "h1": "Built for Wholesalers. Close More Deals, Faster.",
+    "description": "How wholesalers use AIWholesail to find motivated sellers, analyze deals instantly, and build a reliable buyer pipeline.",
+    "persona": "Wholesaler",
+    "painPoints": [
+      "Spending too much time finding motivated sellers",
+      "Deals fall through because of bad numbers",
+      "No organized buyer list or pipeline tracking"
+    ],
+    "solutions": [
+      "AI scans thousands of properties daily and surfaces the most motivated sellers",
+      "Instant deal scoring and MAO calculator ensure your numbers are right every time",
+      "Built-in CRM and buyer matching connect you with cash buyers in minutes"
+    ],
+    "features": ["Deal scoring", "Skip tracing", "Buyer matching", "Contract generator", "Deal pipeline"],
+    "testimonial": {
+      "quote": "I went from 2 deals a month to 6 after switching to AIWholesail. The deal scoring alone is worth it.",
+      "name": "Sarah T.",
+      "role": "Full-Time Wholesaler, Atlanta GA"
+    },
+    "relatedGuides": ["wholesaling-real-estate-for-beginners", "how-to-analyze-real-estate-deals"],
+    "relatedTools": ["wholesale-deal-calculator", "wholesale-fee-calculator", "offer-price-calculator"]
+  },
+  {
+    "slug": "house-flippers",
+    "title": "AIWholesail for House Flippers",
+    "h1": "Flip Houses Smarter with AI-Powered Deal Finding.",
+    "description": "How house flippers use AIWholesail to find undervalued properties, estimate rehab costs, and maximize flip profits.",
+    "persona": "House Flipper",
+    "painPoints": [
+      "Overpaying for properties and killing margins",
+      "Underestimating rehab costs",
+      "Can't find enough quality deals to keep flipping consistently"
+    ],
+    "solutions": [
+      "AI comps and ARV analysis ensure you never overpay for a property",
+      "Rehab estimator breaks down costs by category so there are no surprises",
+      "Automated property alerts deliver new flip candidates to your inbox daily"
+    ],
+    "features": ["ARV Calculator", "Rehab estimator", "Deal scoring", "Property alerts", "Comparable sales"],
+    "testimonial": {
+      "quote": "The ARV calculator alone saved me from a $40K mistake on my last flip.",
+      "name": "James K.",
+      "role": "House Flipper, Dallas TX"
+    },
+    "relatedGuides": ["how-to-analyze-real-estate-deals", "real-estate-investing-for-beginners"],
+    "relatedTools": ["arv-calculator", "rehab-estimator", "70-percent-rule-calculator"]
+  },
+  {
+    "slug": "landlords",
+    "title": "AIWholesail for Landlords",
+    "h1": "Find Cash-Flowing Rentals with AI Analysis.",
+    "description": "How landlords use AIWholesail to find high-yield rental properties, calculate cash flow, and grow their portfolio.",
+    "persona": "Landlord",
+    "painPoints": [
+      "Hard to find properties that actually cash flow",
+      "Difficult to compare rental yields across markets",
+      "Spending hours on manual property analysis"
+    ],
+    "solutions": [
+      "Cash flow calculator and DSCR analysis show exact monthly returns before you buy",
+      "Market intelligence compares rent-to-price ratios across 200+ US markets",
+      "AI analyzes every listing in seconds so you only look at winners"
+    ],
+    "features": ["Cash flow calculator", "DSCR Calculator", "Cap rate calculator", "Market intelligence", "Rental ROI calculator"],
+    "testimonial": {
+      "quote": "I added three cash-flowing properties to my portfolio in six months using AIWholesail's market data.",
+      "name": "Linda P.",
+      "role": "Landlord, Charlotte NC"
+    },
+    "relatedGuides": ["brrrr-method-explained", "real-estate-investing-for-beginners"],
+    "relatedTools": ["cash-flow-calculator", "cap-rate-calculator", "rental-roi-calculator", "dscr-calculator"]
+  },
+  {
+    "slug": "buy-and-hold-investors",
+    "title": "AIWholesail for Buy-and-Hold Investors",
+    "h1": "Build Long-Term Wealth with Data-Driven Investing.",
+    "description": "How buy-and-hold investors use AIWholesail to identify appreciating markets, analyze rental yields, and scale their portfolios.",
+    "persona": "Buy-and-Hold Investor",
+    "painPoints": [
+      "Choosing the wrong market kills long-term returns",
+      "No way to quickly compare deals across multiple cities",
+      "Missing good deals because analysis takes too long"
+    ],
+    "solutions": [
+      "Market intelligence tracks population growth, job trends, and appreciation rates across 200+ cities",
+      "Side-by-side deal comparison lets you evaluate properties across markets in minutes",
+      "Automated alerts notify you the moment a property matching your criteria hits the market"
+    ],
+    "features": ["Market intelligence", "Cash flow calculator", "Cap rate calculator", "Property alerts", "BRRRR calculator"],
+    "testimonial": {
+      "quote": "AIWholesail helped me find a market I never would have considered. My portfolio is up 30% in two years.",
+      "name": "David M.",
+      "role": "Buy-and-Hold Investor, Tampa FL"
+    },
+    "relatedGuides": ["brrrr-method-explained", "how-to-analyze-real-estate-deals"],
+    "relatedTools": ["cash-flow-calculator", "brrrr-calculator", "cap-rate-calculator"]
+  },
+  {
+    "slug": "real-estate-agents",
+    "title": "AIWholesail for Real Estate Agents",
+    "h1": "Give Your Investor Clients an Unfair Advantage.",
+    "description": "How real estate agents use AIWholesail to serve investor clients better, close more deals, and earn more commissions.",
+    "persona": "Real Estate Agent",
+    "painPoints": [
+      "Investor clients want data agents don't have",
+      "Losing investor clients to platforms with better analytics",
+      "Spending too much time pulling comps and running numbers"
+    ],
+    "solutions": [
+      "Provide clients with AI-powered deal scores, ARV estimates, and cash flow projections",
+      "White-label reports and branded analysis make you the go-to investor agent in your market",
+      "Automated deal alerts keep your investor clients engaged and buying through you"
+    ],
+    "features": ["Deal scoring", "ARV Calculator", "Market reports", "Property alerts", "Comparable sales"],
+    "testimonial": {
+      "quote": "My investor clients love the deal reports. I closed 12 investor transactions last quarter.",
+      "name": "Angela W.",
+      "role": "Real Estate Agent, Houston TX"
+    },
+    "relatedGuides": ["how-to-analyze-real-estate-deals", "real-estate-investing-for-beginners"],
+    "relatedTools": ["arv-calculator", "cash-flow-calculator", "cap-rate-calculator"]
+  },
+  {
+    "slug": "property-managers",
+    "title": "AIWholesail for Property Managers",
+    "h1": "Help Your Clients Acquire Better Properties.",
+    "description": "How property managers use AIWholesail to help portfolio owners identify acquisition targets and optimize rental yields.",
+    "persona": "Property Manager",
+    "painPoints": [
+      "Clients want help growing their portfolio but you lack acquisition tools",
+      "Difficult to evaluate whether a new property will cash flow",
+      "No easy way to compare rental yields across your managed properties"
+    ],
+    "solutions": [
+      "Run cash flow and DSCR analysis on potential acquisitions to advise clients confidently",
+      "Market intelligence shows which neighborhoods are trending for rental demand",
+      "Portfolio-level analytics help you benchmark performance across all managed properties"
+    ],
+    "features": ["Cash flow calculator", "DSCR Calculator", "Market intelligence", "Rental ROI calculator"],
+    "testimonial": {
+      "quote": "I helped my biggest client acquire four new units last year using AIWholesail's analysis tools.",
+      "name": "Robert C.",
+      "role": "Property Manager, Orlando FL"
+    },
+    "relatedGuides": ["brrrr-method-explained", "real-estate-investing-for-beginners"],
+    "relatedTools": ["cash-flow-calculator", "dscr-calculator", "rental-roi-calculator"]
+  },
+  {
+    "slug": "out-of-state-investors",
+    "title": "AIWholesail for Out-of-State Investors",
+    "h1": "Invest Anywhere. Analyze Everything Remotely.",
+    "description": "How out-of-state investors use AIWholesail to find, analyze, and invest in markets hundreds of miles away with confidence.",
+    "persona": "Out-of-State Investor",
+    "painPoints": [
+      "Can't physically visit every property or market",
+      "Don't know which remote markets are worth investing in",
+      "Hard to trust deals you can't see in person"
+    ],
+    "solutions": [
+      "AI deal scoring removes guesswork — every property gets an objective score based on real data",
+      "Market intelligence covers 200+ US cities so you can compare markets from your laptop",
+      "Detailed comparable sales, neighborhood data, and property history replace the need for in-person visits"
+    ],
+    "features": ["Market intelligence", "Deal scoring", "Comparable sales", "Property alerts", "ARV Calculator"],
+    "testimonial": {
+      "quote": "I live in California and invest in the Midwest. AIWholesail is how I find and vet every deal.",
+      "name": "Kevin L.",
+      "role": "Out-of-State Investor, San Francisco CA"
+    },
+    "relatedGuides": ["real-estate-investing-for-beginners", "how-to-analyze-real-estate-deals"],
+    "relatedTools": ["arv-calculator", "cash-flow-calculator", "cap-rate-calculator"]
+  }
+]
