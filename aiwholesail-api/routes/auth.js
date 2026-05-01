@@ -101,6 +101,37 @@ router.post('/signup', [
     [normalizedEmail, userId, trialEnd]
   );
 
+  // Send verification email via Resend
+  const verifyUrl = `${process.env.API_URL || 'https://api.aiwholesail.com'}/api/auth/verify-email/${verificationToken}`;
+  try {
+    await resend.emails.send({
+      from: 'AIWholesail <noreply@aiwholesail.com>',
+      to: normalizedEmail,
+      subject: 'Verify Your Email — AIWholesail',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #08090a; color: #ffffff; padding: 40px 30px; border-radius: 12px;">
+          <img src="https://aiwholesail.com/logo-white.png" alt="AIWholesail" style="height: 48px; margin-bottom: 24px;" />
+          <h2 style="color: #06b6d4; margin-bottom: 16px;">Verify Your Email</h2>
+          <p style="color: #a3a3a3; line-height: 1.6; margin-bottom: 24px;">
+            Thanks for signing up for AIWholesail! Please verify your email address by clicking the button below.
+          </p>
+          <a href="${verifyUrl}" style="display: inline-block; background: #06b6d4; color: #000; font-weight: 600; padding: 12px 32px; border-radius: 6px; text-decoration: none; font-size: 16px;">
+            Verify Email
+          </a>
+          <p style="color: #737373; font-size: 13px; margin-top: 24px; line-height: 1.5;">
+            If you didn't create an account, you can safely ignore this email.
+          </p>
+          <hr style="border: none; border-top: 1px solid #262626; margin: 24px 0;" />
+          <p style="color: #525252; font-size: 12px;">AIWholesail — Find profitable real estate deals with AI</p>
+        </div>
+      `,
+    });
+    console.log(`[Auth] Verification email sent to ${normalizedEmail.substring(0, 3)}***`);
+  } catch (emailErr) {
+    console.error('[Auth] Failed to send verification email:', emailErr.message);
+    // Don't fail signup — user can request resend later
+  }
+
   await logSecurityEvent('signup_success', { email: normalizedEmail.substring(0, 3) + '***' }, userId, req);
 
   res.status(201).json({
@@ -401,6 +432,45 @@ router.post('/reset-password', [
   await logSecurityEvent('password_reset_success', {}, user.id, req);
 
   res.json({ message: 'Password reset successfully' });
+}));
+
+/**
+ * GET /api/auth/verify-email/:token
+ * Verify user's email address using the token sent via email
+ */
+router.get('/verify-email/:token', asyncHandler(async (req, res) => {
+  const { token } = req.params;
+
+  if (!token) {
+    return res.status(400).json({ error: 'Verification token is required' });
+  }
+
+  // Find user with this verification token
+  const result = await query(
+    'SELECT id, email FROM users WHERE email_verification_token = $1',
+    [token]
+  );
+
+  if (result.rows.length === 0) {
+    await logSecurityEvent('email_verify_invalid_token', { token: token.substring(0, 8) + '***' }, null, req);
+    // Redirect to auth page with error
+    const frontendUrl = process.env.FRONTEND_URL || 'https://aiwholesail.com';
+    return res.redirect(`${frontendUrl}/auth?verified=false&error=invalid_token`);
+  }
+
+  const user = result.rows[0];
+
+  // Mark email as verified and clear the token
+  await query(
+    'UPDATE users SET email_verified = true, email_verification_token = NULL, updated_at = NOW() WHERE id = $1',
+    [user.id]
+  );
+
+  await logSecurityEvent('email_verified', { email: user.email.substring(0, 3) + '***' }, user.id, req);
+
+  // Redirect to frontend auth page with verified=true
+  const frontendUrl = process.env.FRONTEND_URL || 'https://aiwholesail.com';
+  res.redirect(`${frontendUrl}/auth?verified=true`);
 }));
 
 module.exports = router;

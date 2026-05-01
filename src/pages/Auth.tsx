@@ -167,11 +167,15 @@ export default function Auth() {
   const navigate = useNavigate();
 
   const isVerified = searchParams.get('verified') === 'true';
+  const isVerificationFailed = searchParams.get('verified') === 'false';
   const redirectTo = searchParams.get('redirect');
 
   useEffect(() => {
     if (isVerified && !user) {
       toast.success('Email verified successfully! Please wait while we redirect you...');
+    }
+    if (isVerificationFailed) {
+      toast.error('Email verification failed. The link may be invalid or expired.');
     }
     if (user) {
       const storedPlan = localStorage.getItem('selectedPlan');

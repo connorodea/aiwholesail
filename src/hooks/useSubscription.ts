@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { stripe as stripeApi } from '@/lib/api-client';
 
-export type SubscriptionTier = 'Pro' | 'Elite' | 'trial' | 'none';
+export type SubscriptionTier = 'Pro' | 'Elite' | 'none';
 
 interface SubscriptionState {
   tier: SubscriptionTier;
