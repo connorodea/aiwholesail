@@ -105,6 +105,11 @@ function getEndpointLimits(endpoint, subscriptionTier) {
     return { max: 5, windowMs: 300000 };
   }
 
+  // Contact form — 3 per hour (same for all, no auth required)
+  if (endpoint.includes('/contact')) {
+    return { max: 3, windowMs: 3600000 };
+  }
+
   // AI endpoints — Pro: 10/min, Elite: 100/min
   if (endpoint.includes('/ai/')) {
     return isElite ? { max: 100, windowMs: 60000 } : { max: 10, windowMs: 60000 };

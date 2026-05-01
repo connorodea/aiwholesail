@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Mail, Phone, MapPin, Send, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
+import { contact } from '@/lib/api-client';
 import { SEOHead } from '@/components/SEOHead';
 import { PublicLayout } from '@/components/PublicLayout';
 import { Spotlight } from '@/components/ui/spotlight';
@@ -66,11 +67,14 @@ export default function Contact() {
     setLoading(true);
 
     try {
-      // TODO: Implement actual form submission logic
-      // This could send to a Supabase edge function or email service
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
+      const response = await contact.submit(formData);
 
-      toast.success('Message sent successfully! We\'ll get back to you within 24 hours.');
+      if (response.error) {
+        toast.error(response.error);
+        return;
+      }
+
+      toast.success(response.data?.message || 'Message sent successfully! We\'ll get back to you within 24 hours.');
       setFormData({ name: '', email: '', subject: '', message: '' });
     } catch (error) {
       toast.error('Failed to send message. Please try again or email us directly.');

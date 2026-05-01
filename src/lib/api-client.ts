@@ -657,6 +657,16 @@ export const contracts = {
   },
 };
 
+// ============ CONTACT API ============
+export const contact = {
+  submit: async (data: { name: string; email: string; subject: string; message: string }): Promise<ApiResponse<{ message: string }>> => {
+    return apiFetch('/api/contact', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+};
+
 // ============ UTILITY API ============
 export const utility = {
   geocode: async (address: string) => {
@@ -687,6 +697,7 @@ const apiClient = {
   buyers,
   sequences,
   contracts,
+  contact,
   utility,
   onAuthStateChange,
 };
