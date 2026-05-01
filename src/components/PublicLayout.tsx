@@ -34,7 +34,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
               </p>
             </div>
             {[
-              { title: 'Product', links: [{ l: 'Features', t: '/how-it-works' }, { l: 'Use Cases', t: '/use-cases' }, { l: 'Pricing', t: '/pricing' }, { l: 'Developers', t: '/developers' }] },
+              { title: 'Product', links: [{ l: 'Features', t: '/how-it-works' }, { l: 'Use Cases', t: '/use-cases' }, { l: 'Pricing', t: '/pricing' }] },
               { title: 'Resources', links: [{ l: 'Blog', t: '/blog' }, { l: 'Free Tools', t: '/tools' }, { l: 'Markets', t: '/markets' }, { l: 'About', t: '/about' }, { l: 'FAQ', t: '/faq' }, { l: 'Contact', t: '/contact' }] },
               { title: 'Legal', links: [{ l: 'Privacy Policy', t: '/privacy' }, { l: 'Terms of Service', t: '/terms' }, { l: 'Refund Policy', t: '/refund' }] },
             ].map(section => (

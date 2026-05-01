@@ -369,14 +369,13 @@ const Landing = () => {
             <div className="lg:col-span-2 space-y-3">
               <div className="flex items-center gap-2">
                 <img src={aiWholesailLogo} alt="AIWholesail" className="h-6 sm:h-7 w-auto opacity-60" />
-                <span className="text-sm font-semibold tracking-tight text-neutral-400">AIWholesail</span>
               </div>
               <p className="text-xs text-neutral-600 max-w-xs leading-relaxed">
                 AI-powered platform for real estate professionals to find, analyze, and close profitable deals.
               </p>
             </div>
             {[
-              { title: "Product", links: [{ l: "Features", t: "/how-it-works" }, { l: "Use Cases", t: "/use-cases" }, { l: "Pricing", t: "/pricing" }, { l: "Developers", t: "/developers" }] },
+              { title: "Product", links: [{ l: "Features", t: "/how-it-works" }, { l: "Use Cases", t: "/use-cases" }, { l: "Pricing", t: "/pricing" }] },
               { title: "Resources", links: [{ l: "Blog", t: "/blog" }, { l: "Free Tools", t: "/tools" }, { l: "Markets", t: "/markets" }, { l: "About", t: "/about" }, { l: "FAQ", t: "/faq" }, { l: "Contact", t: "/contact" }] },
               { title: "Legal", links: [{ l: "Privacy Policy", t: "/privacy" }, { l: "Terms of Service", t: "/terms" }, { l: "Refund Policy", t: "/refund" }] },
             ].map(section => (
