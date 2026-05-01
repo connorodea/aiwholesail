@@ -295,69 +295,96 @@ export default function RealEstateWholesaler() {
 
             {/* Loading Animation — visible during search AND enrichment */}
             {(isLoading || loadingProgress > 0) && (
-              <section className="max-w-2xl mx-auto animate-fade-in">
-                <div className="feature-card p-10 backdrop-blur-sm rounded-2xl border border-primary/20 bg-gradient-to-br from-background via-primary/5 to-background">
-                  <div className="space-y-6">
-                    {/* Animated icon row */}
-                    <div className="flex justify-center gap-3">
-                      {[0, 1, 2, 3, 4].map(i => (
-                        <div
-                          key={i}
-                          className="w-3 h-3 rounded-full bg-primary"
-                          style={{
-                            animation: 'pulse 1.4s ease-in-out infinite',
-                            animationDelay: `${i * 0.2}s`,
-                            opacity: 0.3,
-                          }}
-                        />
-                      ))}
+              <section className="max-w-xl mx-auto animate-fade-in">
+                <div className="relative overflow-hidden rounded-3xl border border-cyan-500/20 bg-[#0c0d0f] p-8 sm:p-12">
+                  {/* Animated gradient background */}
+                  <div className="absolute inset-0 opacity-30">
+                    <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/20 via-transparent to-cyan-500/10" style={{ animation: 'loadingGlow 3s ease-in-out infinite alternate' }} />
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[200%] h-px bg-gradient-to-r from-transparent via-cyan-400/60 to-transparent" style={{ animation: 'scanLine 2s ease-in-out infinite' }} />
+                  </div>
+
+                  <div className="relative z-10 space-y-8">
+                    {/* Animated house icon */}
+                    <div className="flex justify-center">
+                      <div className="relative">
+                        <div className="w-20 h-20 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center" style={{ animation: 'breathe 2s ease-in-out infinite' }}>
+                          <svg className="w-10 h-10 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+                          </svg>
+                        </div>
+                        {/* Orbiting dots */}
+                        {[0, 1, 2].map(i => (
+                          <div key={i} className="absolute w-2 h-2 rounded-full bg-cyan-400" style={{
+                            animation: `orbit 2.5s linear infinite`,
+                            animationDelay: `${i * 0.83}s`,
+                            top: '50%', left: '50%',
+                            transformOrigin: '0 0',
+                          }} />
+                        ))}
+                      </div>
                     </div>
 
-                    {/* Main status */}
+                    {/* Status text */}
                     <div className="text-center space-y-2">
-                      <p className="text-lg font-semibold text-foreground">
-                        {loadingProgress <= 20 ? 'Scanning the market...' :
-                         loadingProgress <= 50 ? 'Pulling property data...' :
-                         loadingProgress <= 80 ? 'Analyzing hundreds of listings...' :
-                         loadingProgress < 95 ? 'Calculating Zestimate spreads...' :
-                         'Finalizing results...'}
-                      </p>
-                      <p className="text-sm text-neutral-400">
+                      <h3 className="text-xl font-semibold text-white tracking-tight">
+                        {loadingProgress <= 20 ? 'Scanning the market' :
+                         loadingProgress <= 50 ? 'Pulling property data' :
+                         loadingProgress <= 80 ? 'Analyzing listings' :
+                         loadingProgress < 95 ? 'Calculating spreads' :
+                         'Finalizing results'}
+                      </h3>
+                      <p className="text-sm text-neutral-400 min-h-[20px]">
                         {loadingStatus}
                       </p>
                     </div>
 
                     {/* Progress bar */}
-                    <div className="space-y-2">
-                      <div className="w-full bg-white/[0.03] rounded-full h-3 overflow-hidden">
+                    <div className="space-y-3">
+                      <div className="relative w-full h-2 bg-white/[0.04] rounded-full overflow-hidden">
                         <div
-                          className="h-full rounded-full transition-all duration-700 ease-out"
+                          className="absolute inset-y-0 left-0 rounded-full transition-all duration-700 ease-out"
                           style={{
                             width: `${loadingProgress}%`,
-                            background: 'linear-gradient(90deg, hsl(var(--primary)) 0%, hsl(var(--primary) / 0.7) 50%, hsl(var(--primary)) 100%)',
+                            background: 'linear-gradient(90deg, #06b6d4, #22d3ee, #06b6d4)',
                             backgroundSize: '200% 100%',
-                            animation: 'shimmer 2s ease-in-out infinite',
+                            animation: 'shimmer 1.5s linear infinite',
+                            boxShadow: '0 0 20px rgba(6, 182, 212, 0.4)',
                           }}
                         />
                       </div>
-                      <div className="flex justify-between text-xs text-neutral-400">
-                        <span>{Math.round(loadingProgress)}%</span>
-                        <span>
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs font-mono text-cyan-400/80">{Math.round(loadingProgress)}%</span>
+                        <span className="text-xs text-neutral-500">
                           {loadingProgress <= 80 ? 'Searching properties' : 'Calculating spreads'}
                         </span>
                       </div>
                     </div>
 
-                    {/* Tip message */}
-                    <div className="text-center pt-2 border-t border-border/30">
-                      <p className="text-xs text-neutral-400 italic">
-                        {loadingProgress <= 50
-                          ? 'Large searches (states, counties) pull hundreds of listings. Please be patient!'
-                          : loadingProgress <= 80
-                          ? 'Properties will appear as they load. Deals with +$30K spreads will sort to the top.'
-                          : 'Comparing each listing price against its Zestimate to find profitable spreads...'}
-                      </p>
+                    {/* Animated step indicators */}
+                    <div className="grid grid-cols-4 gap-2">
+                      {[
+                        { label: 'Search', threshold: 0 },
+                        { label: 'Fetch', threshold: 25 },
+                        { label: 'Analyze', threshold: 60 },
+                        { label: 'Score', threshold: 85 },
+                      ].map((step, i) => (
+                        <div key={i} className="text-center">
+                          <div className={`w-full h-1 rounded-full mb-1.5 transition-all duration-500 ${
+                            loadingProgress >= step.threshold ? 'bg-cyan-400' : 'bg-white/[0.06]'
+                          }`} />
+                          <span className={`text-[10px] font-medium transition-colors duration-300 ${
+                            loadingProgress >= step.threshold ? 'text-cyan-400' : 'text-neutral-600'
+                          }`}>{step.label}</span>
+                        </div>
+                      ))}
                     </div>
+
+                    {/* Tip */}
+                    <p className="text-[11px] text-neutral-500 text-center leading-relaxed">
+                      {loadingProgress <= 50
+                        ? 'Properties will appear as they load. Deals with +$30K spreads sort to the top.'
+                        : 'Comparing each listing price against its Zestimate to find profitable spreads.'}
+                    </p>
                   </div>
                 </div>
 
@@ -365,6 +392,24 @@ export default function RealEstateWholesaler() {
                   @keyframes shimmer {
                     0% { background-position: 200% 0; }
                     100% { background-position: -200% 0; }
+                  }
+                  @keyframes breathe {
+                    0%, 100% { transform: scale(1); }
+                    50% { transform: scale(1.05); }
+                  }
+                  @keyframes orbit {
+                    0% { transform: rotate(0deg) translateX(44px) rotate(0deg); opacity: 0.8; }
+                    50% { opacity: 0.3; }
+                    100% { transform: rotate(360deg) translateX(44px) rotate(-360deg); opacity: 0.8; }
+                  }
+                  @keyframes loadingGlow {
+                    0% { opacity: 0.15; }
+                    100% { opacity: 0.35; }
+                  }
+                  @keyframes scanLine {
+                    0% { transform: translateX(-50%) translateY(0); opacity: 0; }
+                    50% { opacity: 1; }
+                    100% { transform: translateX(-50%) translateY(400px); opacity: 0; }
                   }
                 `}</style>
               </section>
