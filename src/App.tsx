@@ -71,6 +71,8 @@ const DistressIndex = lazy(() => import("./pages/DistressIndex"));
 const DistressPage = lazy(() => import("./pages/DistressPage"));
 const StateLaws = lazy(() => import("./pages/StateLaws"));
 const StateLawPage = lazy(() => import("./pages/StateLawPage"));
+const CityComparisons = lazy(() => import("./pages/CityComparisons"));
+const CityComparisonPage = lazy(() => import("./pages/CityComparisonPage"));
 
 const queryClient = new QueryClient();
 
@@ -192,6 +194,8 @@ const App = () => (
                 <Route path="/states/:stateSlug" element={<StatePage />} />
                 <Route path="/laws" element={<StateLaws />} />
                 <Route path="/laws/:stateSlug" element={<StateLawPage />} />
+                <Route path="/compare" element={<CityComparisons />} />
+                <Route path="/compare/:slug" element={<CityComparisonPage />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
