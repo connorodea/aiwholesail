@@ -14,9 +14,11 @@ interface PipelineColumnProps {
   deals: Deal[];
   onDrop: (dealId: string, targetStage: PipelineStage) => void;
   onCardClick: (deal: Deal) => void;
+  onStageChange?: (dealId: string, stage: PipelineStage) => void;
+  onRemove?: (dealId: string) => void;
 }
 
-export function PipelineColumn({ stage, deals, onDrop, onCardClick }: PipelineColumnProps) {
+export function PipelineColumn({ stage, deals, onDrop, onCardClick, onStageChange, onRemove }: PipelineColumnProps) {
   const [isOver, setIsOver] = useState(false);
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -76,7 +78,13 @@ export function PipelineColumn({ stage, deals, onDrop, onCardClick }: PipelineCo
             </div>
           ) : (
             deals.map((deal) => (
-              <DealCard key={deal.id} deal={deal} onClick={onCardClick} />
+              <DealCard
+                key={deal.id}
+                deal={deal}
+                onClick={onCardClick}
+                onStageChange={onStageChange}
+                onRemove={onRemove}
+              />
             ))
           )}
         </div>

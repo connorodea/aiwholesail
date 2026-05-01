@@ -169,6 +169,8 @@ export default function Pipeline() {
                   deals={filteredDealsByStage[stage.id as PipelineStage] || []}
                   onDrop={handleDrop}
                   onCardClick={handleCardClick}
+                  onStageChange={handleStageChange}
+                  onRemove={removeDeal}
                 />
               ))}
             </div>
