@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import {
   ArrowRight,
   Repeat,
@@ -14,7 +13,6 @@ import {
   Bell,
   Brain,
   CheckCircle2,
-  Sparkles,
   Shield,
   CheckCircle,
 } from 'lucide-react';
@@ -143,28 +141,21 @@ export default function UseCases() {
         keywords="real estate use cases, wholesaling, fix and flip, rental investing, real estate agents, new investors, AI property analysis"
       />
 
-      {/* ===== HERO -- DARK ===== */}
+      {/* ===== HERO ===== */}
       <section className="relative bg-gradient-to-b from-[#0a0a0a] via-[#0f0f0f] to-[#0a0a0a] text-white overflow-hidden">
-        <div className="relative container mx-auto max-w-6xl px-4 pt-28 pb-20 text-center">
-          <Badge className="mb-6 bg-white/10 text-white/80 border-white/10 backdrop-blur-sm text-xs font-medium px-4 py-1.5 rounded-full">
-            <Sparkles className="h-3 w-3 mr-1.5" /> Built for Every Strategy
-          </Badge>
-
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-[0.95] mb-6">
-            One platform, every
+        <div className="relative container mx-auto max-w-5xl px-4 pt-28 pb-20 text-center">
+          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-6">USE CASES</p>
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[0.95] text-white mb-6">
+            One Platform, Every
             <br />
-            <span className="bg-gradient-to-r from-neutral-800 via-white to-white bg-clip-text text-transparent">
-              investing strategy.
+            <span className="bg-gradient-to-r from-cyan-500 via-cyan-400 to-cyan-500 bg-clip-text text-transparent">
+              Investing Strategy.
             </span>
           </h1>
-
-          <p className="text-lg md:text-xl text-white/60 max-w-2xl mx-auto leading-relaxed font-light">
+          <p className="text-lg md:text-xl text-white/50 max-w-2xl mx-auto leading-relaxed font-light">
             Whether you wholesale, flip, hold, or are just getting started -- AIWholesail gives you the AI-powered tools to find, analyze, and close better deals.
           </p>
         </div>
-
-        {/* Fade to white */}
-        <div className="h-24 bg-gradient-to-b from-[#0a0a0a] to-[#08090a]" />
       </section>
 
       {/* ===== AUDIENCE SECTIONS -- ALTERNATING LIGHT/DARK ===== */}

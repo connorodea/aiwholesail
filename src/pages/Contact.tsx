@@ -4,8 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
-import { Mail, MessageCircle, Phone, MapPin, Send, ArrowRight } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { SEOHead } from '@/components/SEOHead';
 import { PublicLayout } from '@/components/PublicLayout';
@@ -52,25 +51,22 @@ export default function Contact() {
         noIndex={false}
       />
 
-      {/* ===== HERO — DARK ===== */}
+      {/* ===== HERO ===== */}
       <section className="relative bg-gradient-to-b from-[#0a0a0a] via-[#0f0f0f] to-[#0a0a0a] text-white overflow-hidden">
-        <div className="relative container mx-auto max-w-6xl px-4 pt-24 pb-20 text-center">
-          <Badge className="mb-6 bg-white/10 text-white/80 border-white/10 backdrop-blur-sm text-xs font-medium px-4 py-1.5 rounded-full">
-            <MessageCircle className="h-3 w-3 mr-1.5" /> We're Here to Help
-          </Badge>
-
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">
-            Get in touch.
+        <div className="relative container mx-auto max-w-5xl px-4 pt-28 pb-20 text-center">
+          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-6">CONTACT</p>
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[0.95] text-white mb-6">
+            Get In
+            <br />
+            <span className="bg-gradient-to-r from-cyan-500 via-cyan-400 to-cyan-500 bg-clip-text text-transparent">
+              Touch.
+            </span>
           </h1>
-
-          <p className="text-lg md:text-xl text-white/60 max-w-2xl mx-auto leading-relaxed font-light">
+          <p className="text-lg md:text-xl text-white/50 max-w-2xl mx-auto leading-relaxed font-light">
             Have questions about AIWholesail? Our team is ready to help you
             get started and make the most of the platform.
           </p>
         </div>
-
-        {/* Fade to white */}
-        <div className="h-24 bg-gradient-to-b from-[#0a0a0a] to-[#08090a]" />
       </section>
 
       {/* ===== CONTACT FORM + INFO — LIGHT ===== */}

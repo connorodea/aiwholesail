@@ -1,5 +1,4 @@
 import { useParams, Link } from 'react-router-dom';
-import { Badge } from '@/components/ui/badge';
 import {
   ArrowRight, Check, X, ChevronRight,
   Calculator, BookOpen, Search, Shield, Star, Zap,
@@ -73,10 +72,8 @@ export default function ComparisonPage() {
       {/* ===== HERO ===== */}
       <section className="relative bg-gradient-to-b from-[#0a0a0a] via-[#0f0f0f] to-[#0a0a0a] text-white overflow-hidden">
         <div className="relative container mx-auto max-w-5xl px-4 pt-28 pb-20 text-center">
-          <Badge variant="outline" className="mb-6 text-xs border-white/20 text-white/60">
-            Comparison
-          </Badge>
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[0.95] text-white mb-6">
+          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-6">COMPARISON</p>
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[0.95] text-white mb-6">
             AIWholesail vs
             <br />
             <span className="bg-gradient-to-r from-cyan-500 via-cyan-400 to-cyan-500 bg-clip-text text-transparent">

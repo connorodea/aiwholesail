@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import {
   ArrowRight,
   Search,
@@ -9,7 +8,6 @@ import {
   LineChart,
   Phone,
   FileSignature,
-  Sparkles,
   CheckCircle,
   Shield,
   Zap,
@@ -73,28 +71,21 @@ export default function HowItWorks() {
         keywords="how AIWholesail works, real estate deal finding steps, AI property analysis process, wholesale real estate workflow, automated deal scoring"
       />
 
-      {/* ===== HERO -- DARK ===== */}
+      {/* ===== HERO ===== */}
       <section className="relative bg-gradient-to-b from-[#0a0a0a] via-[#0f0f0f] to-[#0a0a0a] text-white overflow-hidden">
-        <div className="relative container mx-auto max-w-6xl px-4 pt-28 pb-20 text-center">
-          <Badge className="mb-6 bg-white/10 text-white/80 border-white/10 backdrop-blur-sm text-xs font-medium px-4 py-1.5 rounded-full">
-            <Sparkles className="h-3 w-3 mr-1.5" /> From Search to Close in Minutes
-          </Badge>
-
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-[0.95] mb-6">
+        <div className="relative container mx-auto max-w-5xl px-4 pt-28 pb-20 text-center">
+          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-6">HOW IT WORKS</p>
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[0.95] text-white mb-6">
             How
             <br />
-            <span className="bg-gradient-to-r from-neutral-800 via-white to-white bg-clip-text text-transparent">
-              AIWholesail works.
+            <span className="bg-gradient-to-r from-cyan-500 via-cyan-400 to-cyan-500 bg-clip-text text-transparent">
+              AIWholesail Works.
             </span>
           </h1>
-
-          <p className="text-lg md:text-xl text-white/60 max-w-2xl mx-auto leading-relaxed font-light">
+          <p className="text-lg md:text-xl text-white/50 max-w-2xl mx-auto leading-relaxed font-light">
             Six straightforward steps between you and your next profitable deal. No learning curve, no complicated setup -- just results.
           </p>
         </div>
-
-        {/* Fade to white */}
-        <div className="h-24 bg-gradient-to-b from-[#0a0a0a] to-[#08090a]" />
       </section>
 
       {/* ===== 6 STEPS -- LIGHT ===== */}
