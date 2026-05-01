@@ -5,7 +5,8 @@ import {
   ArrowRight, MapPin, ChevronRight, Search,
   Building2, Repeat, Hammer, ThermometerSun, RefreshCw,
   BookOpen, Calculator,
-  Shield, CheckCircle,
+  Shield, CheckCircle, FileKey, Handshake, Gavel,
+  AlertTriangle, Receipt, Scale, UserX, Wrench,
 } from 'lucide-react';
 import { SEOHead } from '@/components/SEOHead';
 import { PublicLayout } from '@/components/PublicLayout';
@@ -25,7 +26,11 @@ interface City {
   marketTemp: string;
 }
 
-const STRATEGIES = ['wholesale', 'flip', 'rental', 'brrrr'] as const;
+const STRATEGIES = [
+  'wholesale', 'flip', 'rental', 'brrrr',
+  'subject-to', 'seller-financing', 'foreclosure', 'pre-foreclosure',
+  'tax-lien', 'probate', 'absentee-owner', 'distressed',
+] as const;
 type Strategy = (typeof STRATEGIES)[number];
 
 interface StrategyMeta {
@@ -80,6 +85,86 @@ const strategyMeta: Record<Strategy, StrategyMeta> = {
     toolPath: '/tools/brrrr-calculator',
     toolLabel: 'BRRRR Calculator',
   },
+  'subject-to': {
+    label: 'Subject-To',
+    fullLabel: 'Subject-To Deals',
+    icon: <FileKey className="h-5 w-5" />,
+    description: 'Acquire property subject to the existing mortgage. No bank qualifying, instant equity.',
+    longDescription: 'Subject-to deals let you take over a property while leaving the existing mortgage in place. You gain ownership and equity without needing to qualify for a new loan. This strategy works best with motivated sellers who need a fast exit and have low-interest mortgages worth preserving.',
+    guideSlug: 'wholesale-real-estate-beginners-guide',
+    toolPath: '/tools/wholesale-deal-calculator',
+    toolLabel: 'Deal Calculator',
+  },
+  'seller-financing': {
+    label: 'Seller Financing',
+    fullLabel: 'Seller Financing',
+    icon: <Handshake className="h-5 w-5" />,
+    description: 'Buy with the seller as your lender. Flexible terms, no bank red tape.',
+    longDescription: 'Seller financing lets you negotiate purchase terms directly with the property owner. The seller acts as the bank, often accepting lower down payments, offering flexible interest rates, and closing faster than traditional lenders. Ideal for investors who want creative deal structures or cannot qualify through conventional channels.',
+    guideSlug: 'wholesale-real-estate-beginners-guide',
+    toolPath: '/tools/mortgage-calculator',
+    toolLabel: 'Mortgage Calculator',
+  },
+  foreclosure: {
+    label: 'Foreclosure',
+    fullLabel: 'Foreclosure Investing',
+    icon: <Gavel className="h-5 w-5" />,
+    description: 'Buy bank-owned and auction properties at steep discounts for maximum margins.',
+    longDescription: 'Foreclosure investing targets properties being sold by lenders or at public auction after the homeowner defaults. These properties typically sell 20-40% below market value, creating significant profit margins for investors willing to navigate the auction process, deal with title issues, and handle necessary repairs.',
+    guideSlug: 'how-to-analyze-real-estate-deals',
+    toolPath: '/tools/arv-calculator',
+    toolLabel: 'ARV Calculator',
+  },
+  'pre-foreclosure': {
+    label: 'Pre-Foreclosure',
+    fullLabel: 'Pre-Foreclosure Deals',
+    icon: <AlertTriangle className="h-5 w-5" />,
+    description: 'Reach homeowners before auction. Negotiate directly with motivated sellers.',
+    longDescription: 'Pre-foreclosure investing means contacting homeowners who have received a notice of default but have not yet gone to auction. These sellers are highly motivated and often willing to accept below-market offers to avoid the credit damage and public embarrassment of a full foreclosure. Timing and empathy are critical.',
+    guideSlug: 'wholesale-real-estate-beginners-guide',
+    toolPath: '/tools/wholesale-deal-calculator',
+    toolLabel: 'Deal Calculator',
+  },
+  'tax-lien': {
+    label: 'Tax Lien',
+    fullLabel: 'Tax Lien Investing',
+    icon: <Receipt className="h-5 w-5" />,
+    description: 'Buy tax lien certificates for guaranteed interest or tax deed properties at deep discounts.',
+    longDescription: 'Tax lien investing lets you purchase certificates on properties with unpaid taxes. If the homeowner redeems (pays back), you earn statutory interest rates of 8-18% depending on the state. If they do not redeem, you may acquire the property for the cost of the lien. Tax deed sales offer direct property acquisition at steep discounts.',
+    guideSlug: 'how-to-analyze-real-estate-deals',
+    toolPath: '/tools/offer-price-calculator',
+    toolLabel: 'Offer Price Calculator',
+  },
+  probate: {
+    label: 'Probate',
+    fullLabel: 'Probate Real Estate',
+    icon: <Scale className="h-5 w-5" />,
+    description: 'Acquire inherited properties from motivated heirs at below-market prices.',
+    longDescription: 'Probate real estate targets properties that have been inherited through the estate settlement process. Heirs often live out of state, have no interest in managing the property, and face ongoing holding costs. This creates strong motivation to sell quickly at a discount, making probate a reliable source of off-market deals.',
+    guideSlug: 'wholesale-real-estate-beginners-guide',
+    toolPath: '/tools/wholesale-deal-calculator',
+    toolLabel: 'Deal Calculator',
+  },
+  'absentee-owner': {
+    label: 'Absentee Owner',
+    fullLabel: 'Absentee Owner Properties',
+    icon: <UserX className="h-5 w-5" />,
+    description: 'Target out-of-area landlords who are tired and ready to sell at a discount.',
+    longDescription: 'Absentee owners are landlords who live outside the area where they own property. Managing from a distance leads to deferred maintenance, tenant issues, and frustration. These owners are often willing to sell below market to eliminate the headache. Direct mail, skip tracing, and targeted outreach are key acquisition channels.',
+    guideSlug: 'wholesale-real-estate-beginners-guide',
+    toolPath: '/tools/wholesale-deal-calculator',
+    toolLabel: 'Deal Calculator',
+  },
+  distressed: {
+    label: 'Distressed',
+    fullLabel: 'Distressed Properties',
+    icon: <Wrench className="h-5 w-5" />,
+    description: 'Buy damaged or neglected properties at 30-50% discounts for maximum upside.',
+    longDescription: 'Distressed property investing focuses on homes that are physically damaged, code-violated, or severely neglected. These properties scare away retail buyers, creating deep discounts for investors. Success requires accurate rehab estimation, reliable contractors, and the ability to see value where others see problems.',
+    guideSlug: 'how-to-analyze-real-estate-deals',
+    toolPath: '/tools/rehab-estimator',
+    toolLabel: 'Rehab Estimator',
+  },
 };
 
 const tempColors: Record<string, string> = {
@@ -126,7 +211,7 @@ export default function StrategyIndex() {
         <div className="flex flex-col items-center justify-center py-40 px-4">
           <h1 className="text-3xl font-bold tracking-tight text-white mb-4">Strategy Not Found</h1>
           <p className="text-neutral-400 mb-6">
-            Invalid investment strategy. Choose wholesale, flip, rental, or brrrr.
+            Invalid investment strategy. Browse our available strategies.
           </p>
           <Link to="/markets">
             <button className="inline-flex items-center gap-2 px-6 py-3 border border-white/[0.08] rounded-md text-sm text-white hover:bg-white/[0.04] transition-colors">

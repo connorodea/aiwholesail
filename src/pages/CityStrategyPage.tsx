@@ -4,7 +4,8 @@ import {
   ArrowRight, MapPin, DollarSign, TrendingUp, Users,
   Home, Building2, Repeat, Hammer, ChevronRight, Calculator,
   BookOpen, ThermometerSun, Zap, Target, BarChart3,
-  Shield, CheckCircle, RefreshCw,
+  Shield, CheckCircle, RefreshCw, FileKey, Handshake,
+  Gavel, AlertTriangle, Receipt, Scale, UserX, Wrench,
 } from 'lucide-react';
 import { SEOHead } from '@/components/SEOHead';
 import { PublicLayout } from '@/components/PublicLayout';
@@ -24,7 +25,11 @@ interface City {
   marketTemp: string;
 }
 
-const STRATEGIES = ['wholesale', 'flip', 'rental', 'brrrr'] as const;
+const STRATEGIES = [
+  'wholesale', 'flip', 'rental', 'brrrr',
+  'subject-to', 'seller-financing', 'foreclosure', 'pre-foreclosure',
+  'tax-lien', 'probate', 'absentee-owner', 'distressed',
+] as const;
 type Strategy = (typeof STRATEGIES)[number];
 
 interface StrategyMeta {
@@ -94,6 +99,128 @@ const strategyMeta: Record<Strategy, StrategyMeta> = {
       const refiValue = c.medianHomePrice;
       const cashRecouped = ((refiValue * 0.75 - allIn) / allIn * 100).toFixed(0);
       return `An all-in cost around $${allIn.toLocaleString()} against a refi value of $${refiValue.toLocaleString()} positions ${c.city} for BRRRR investors to recoup an estimated ${cashRecouped}% of capital on refinance. Average rent of $${c.avgRent.toLocaleString()}/mo supports holding costs while you stabilize and refinance. ${c.priceGrowth}% appreciation adds equity on top of forced appreciation from rehab.`;
+    },
+  },
+  'subject-to': {
+    label: 'Subject-To Deals',
+    heroTitle: (city) => `Subject-To Deals in ${city}`,
+    icon: <FileKey className="h-5 w-5" />,
+    description: 'Acquire property subject to the existing mortgage. No bank qualifying, instant equity, and low cash to close.',
+    guideSlug: 'wholesale-real-estate-beginners-guide',
+    toolPath: '/tools/wholesale-deal-calculator',
+    toolLabel: 'Deal Calculator',
+    whyItWorks: (c) => {
+      const mortgageBalance = c.medianHomePrice * 0.6;
+      const equity = c.medianHomePrice - mortgageBalance;
+      const monthlyPayment = (mortgageBalance * 0.065 / 12).toFixed(0);
+      return `In ${c.city}, with a median home price of $${c.medianHomePrice.toLocaleString()}, subject-to deals offer an estimated mortgage takeover balance of $${mortgageBalance.toLocaleString()} and roughly $${equity.toLocaleString()} in instant equity. Estimated monthly payments around $${monthlyPayment} based on typical rates make carrying costs manageable. ${c.marketTemp === 'hot' ? 'Rising prices amplify equity gains quickly.' : c.marketTemp === 'warm' ? 'Stable appreciation protects your equity position.' : 'Lower prices mean smaller mortgages to take over, reducing risk.'} With ${c.priceGrowth}% annual growth, the equity spread widens over time.`;
+    },
+  },
+  'seller-financing': {
+    label: 'Seller Financing',
+    heroTitle: (city) => `Seller Financing in ${city}`,
+    icon: <Handshake className="h-5 w-5" />,
+    description: 'Buy with the seller as your lender. Negotiate terms, skip bank red tape, and close faster with creative financing.',
+    guideSlug: 'wholesale-real-estate-beginners-guide',
+    toolPath: '/tools/mortgage-calculator',
+    toolLabel: 'Mortgage Calculator',
+    whyItWorks: (c) => {
+      const downPayment = c.medianHomePrice * 0.1;
+      const financed = c.medianHomePrice * 0.9;
+      const monthlyPayment = (financed * 0.06 / 12).toFixed(0);
+      const hardMoneyMonthly = (financed * 0.12 / 12).toFixed(0);
+      return `At a median price of $${c.medianHomePrice.toLocaleString()} in ${c.city}, seller financing typically requires just $${downPayment.toLocaleString()} down (10%). Estimated monthly payments of $${monthlyPayment} compare favorably to hard money payments of $${hardMoneyMonthly}, saving investors significantly each month. ${c.marketTemp === 'hot' ? 'Motivated sellers in hot markets may offer favorable terms to close quickly.' : c.marketTemp === 'warm' ? 'Balanced market conditions give both sides negotiation room.' : 'Cool markets create more motivated sellers willing to carry paper.'} Population of ${(c.population / 1000).toFixed(0)}K provides a strong base of potential seller-financed opportunities.`;
+    },
+  },
+  foreclosure: {
+    label: 'Foreclosure Investing',
+    heroTitle: (city) => `Foreclosure Investing in ${city}`,
+    icon: <Gavel className="h-5 w-5" />,
+    description: 'Purchase bank-owned and auction properties at steep discounts. High margins for investors who understand the process.',
+    guideSlug: 'how-to-analyze-real-estate-deals',
+    toolPath: '/tools/arv-calculator',
+    toolLabel: 'ARV Calculator',
+    whyItWorks: (c) => {
+      const discountLow = c.medianHomePrice * 0.6;
+      const discountHigh = c.medianHomePrice * 0.8;
+      const rehab = c.medianHomePrice * 0.15;
+      const profit = c.medianHomePrice - discountLow - rehab;
+      return `Foreclosed properties in ${c.city} typically sell 20-40% below market value, putting auction prices in the $${discountLow.toLocaleString()} to $${discountHigh.toLocaleString()} range against a median of $${c.medianHomePrice.toLocaleString()}. With estimated rehab costs of $${rehab.toLocaleString()}, investors can target profits of $${profit.toLocaleString()} or more per deal. ${c.marketTemp === 'hot' ? 'Strong demand means rehabbed foreclosures sell fast.' : c.marketTemp === 'warm' ? 'Steady markets provide reliable exit timelines.' : 'Higher foreclosure inventory in cool markets means more opportunities.'} ${c.priceGrowth}% annual appreciation adds upside to every acquisition.`;
+    },
+  },
+  'pre-foreclosure': {
+    label: 'Pre-Foreclosure Deals',
+    heroTitle: (city) => `Pre-Foreclosure Deals in ${city}`,
+    icon: <AlertTriangle className="h-5 w-5" />,
+    description: 'Reach homeowners before auction. Negotiate directly with motivated sellers facing foreclosure for the best discounts.',
+    guideSlug: 'wholesale-real-estate-beginners-guide',
+    toolPath: '/tools/wholesale-deal-calculator',
+    toolLabel: 'Deal Calculator',
+    whyItWorks: (c) => {
+      const avgEquity = c.medianHomePrice * 0.35;
+      const typicalDiscount = c.medianHomePrice * 0.15;
+      const purchasePrice = c.medianHomePrice - typicalDiscount;
+      return `In ${c.city}, pre-foreclosure homeowners typically have an average of $${avgEquity.toLocaleString()} in equity. By purchasing at an estimated 15% discount ($${purchasePrice.toLocaleString()} vs $${c.medianHomePrice.toLocaleString()} market value), investors save $${typicalDiscount.toLocaleString()} per deal. The typical timeline from notice of default to auction is 90-120 days, giving investors time to negotiate. ${c.marketTemp === 'hot' ? 'Hot market conditions mean acquired properties appreciate quickly.' : c.marketTemp === 'warm' ? 'Warm markets balance seller motivation with resale potential.' : 'Cool markets often have higher distress rates, expanding the deal pipeline.'} A population of ${(c.population / 1000).toFixed(0)}K ensures consistent deal flow.`;
+    },
+  },
+  'tax-lien': {
+    label: 'Tax Lien Investing',
+    heroTitle: (city) => `Tax Lien Investing in ${city}`,
+    icon: <Receipt className="h-5 w-5" />,
+    description: 'Purchase tax lien certificates or tax deed properties for guaranteed interest returns or deeply discounted real estate.',
+    guideSlug: 'how-to-analyze-real-estate-deals',
+    toolPath: '/tools/offer-price-calculator',
+    toolLabel: 'Offer Price Calculator',
+    whyItWorks: (c) => {
+      const avgLien = c.medianHomePrice * 0.02;
+      const redemptionRate = 95;
+      const interestRate = 12;
+      return `In ${c.city}, average tax lien amounts run approximately $${avgLien.toLocaleString()} against properties valued at $${c.medianHomePrice.toLocaleString()}. With redemption rates around ${redemptionRate}%, most liens pay out at statutory interest rates averaging ${interestRate}% annually -- a strong passive return. For the ${100 - redemptionRate}% that do not redeem, investors may acquire properties worth $${c.medianHomePrice.toLocaleString()} for pennies on the dollar. ${c.marketTemp === 'hot' ? 'High property values mean larger equity positions on unredeemed liens.' : c.marketTemp === 'warm' ? 'Moderate values balance risk and return effectively.' : 'Cool markets often have more tax-delinquent properties, expanding opportunity.'} The ${c.stateFull} market offers unique tax lien advantages.`;
+    },
+  },
+  probate: {
+    label: 'Probate Real Estate',
+    heroTitle: (city) => `Probate Real Estate in ${city}`,
+    icon: <Scale className="h-5 w-5" />,
+    description: 'Acquire inherited properties from motivated heirs. These sellers prioritize speed and simplicity over top dollar.',
+    guideSlug: 'wholesale-real-estate-beginners-guide',
+    toolPath: '/tools/wholesale-deal-calculator',
+    toolLabel: 'Deal Calculator',
+    whyItWorks: (c) => {
+      const typicalDiscount = c.medianHomePrice * 0.15;
+      const purchasePrice = c.medianHomePrice - typicalDiscount;
+      return `Probate properties in ${c.city} typically sell at 10-20% below market value, with an estimated purchase price around $${purchasePrice.toLocaleString()} vs the median of $${c.medianHomePrice.toLocaleString()}. Heirs are often motivated by the cost of holding inherited property -- taxes, insurance, and maintenance add up quickly. The average probate timeline in ${c.stateFull} is 6-12 months, giving investors a window to negotiate. ${c.marketTemp === 'hot' ? 'High demand means acquired probate properties resell quickly.' : c.marketTemp === 'warm' ? 'Balanced markets support multiple exit strategies.' : 'Cool markets mean more time to negotiate and less competition.'} With ${(c.population / 1000).toFixed(0)}K residents, ${c.city} generates a steady stream of probate filings each year.`;
+    },
+  },
+  'absentee-owner': {
+    label: 'Absentee Owner Properties',
+    heroTitle: (city) => `Absentee Owner Properties in ${city}`,
+    icon: <UserX className="h-5 w-5" />,
+    description: 'Target out-of-area landlords who are often tired, burned out, and ready to sell at a discount to avoid management headaches.',
+    guideSlug: 'wholesale-real-estate-beginners-guide',
+    toolPath: '/tools/wholesale-deal-calculator',
+    toolLabel: 'Deal Calculator',
+    whyItWorks: (c) => {
+      const absenteePercent = c.marketTemp === 'hot' ? 20 : c.marketTemp === 'warm' ? 22 : 25;
+      const estAbsentee = Math.round(c.population * 0.4 * absenteePercent / 100);
+      const avgDiscount = c.medianHomePrice * 0.1;
+      return `An estimated ${absenteePercent}% of rental properties in ${c.city} are absentee-owned, representing roughly ${estAbsentee.toLocaleString()} properties. These out-of-area landlords often sell at 8-12% below market, creating an average discount of $${avgDiscount.toLocaleString()} per property. Motivation is high -- remote landlords face management challenges, deferred maintenance, and tax burdens. ${c.marketTemp === 'hot' ? 'Hot market conditions mean these sellers can be reached before their properties appreciate further.' : c.marketTemp === 'warm' ? 'Warm markets have a healthy mix of tired and transitioning landlords.' : 'Cool markets amplify landlord frustration, increasing motivation to sell.'} Average rents of $${c.avgRent.toLocaleString()}/mo make acquired properties attractive for hold or flip.`;
+    },
+  },
+  distressed: {
+    label: 'Distressed Properties',
+    heroTitle: (city) => `Distressed Properties in ${city}`,
+    icon: <Wrench className="h-5 w-5" />,
+    description: 'Buy damaged, neglected, or code-violation properties at 30-50% discounts. Maximum upside for hands-on investors.',
+    guideSlug: 'how-to-analyze-real-estate-deals',
+    toolPath: '/tools/rehab-estimator',
+    toolLabel: 'Rehab Estimator',
+    whyItWorks: (c) => {
+      const discountLow = c.medianHomePrice * 0.5;
+      const discountHigh = c.medianHomePrice * 0.7;
+      const avgRehab = c.medianHomePrice * 0.2;
+      const profitPotential = c.medianHomePrice - discountLow - avgRehab;
+      return `Distressed properties in ${c.city} can be acquired for $${discountLow.toLocaleString()} to $${discountHigh.toLocaleString()}, representing 30-50% discounts from the $${c.medianHomePrice.toLocaleString()} median. With average rehab costs of $${avgRehab.toLocaleString()}, profit potential reaches $${profitPotential.toLocaleString()} per deal. ${c.marketTemp === 'hot' ? 'Strong buyer demand ensures rehabbed distressed properties sell at or above ARV.' : c.marketTemp === 'warm' ? 'Steady appreciation creates reliable returns on distressed acquisitions.' : 'Lower base prices in cool markets mean smaller absolute rehab budgets.'} ${c.priceGrowth}% annual price growth adds built-in margin expansion. Population of ${(c.population / 1000).toFixed(0)}K supports a deep contractor and buyer network.`;
     },
   },
 };
@@ -169,6 +296,93 @@ function getStrategyMetrics(strategy: Strategy, city: City) {
         { label: 'Capital Recouped', value: `${cashRecouped}%`, icon: Target },
       ];
     }
+    case 'subject-to': {
+      const mortgageBalance = city.medianHomePrice * 0.6;
+      const monthlyPayment = mortgageBalance * 0.065 / 12;
+      const equitySpread = city.medianHomePrice - mortgageBalance;
+      return [
+        { label: 'Est. Mortgage Balance', value: formatCurrency(mortgageBalance), icon: FileKey },
+        { label: 'Monthly Payment Est.', value: `$${monthlyPayment.toFixed(0)}/mo`, icon: DollarSign },
+        { label: 'Equity Spread', value: formatCurrency(equitySpread), icon: TrendingUp },
+        { label: 'Median Home Price', value: formatCurrency(city.medianHomePrice), icon: Home },
+      ];
+    }
+    case 'seller-financing': {
+      const downPayment = city.medianHomePrice * 0.1;
+      const financed = city.medianHomePrice * 0.9;
+      const monthlyPayment = financed * 0.06 / 12;
+      const hardMoneyMonthly = financed * 0.12 / 12;
+      const savings = hardMoneyMonthly - monthlyPayment;
+      return [
+        { label: 'Typical Down Payment (10%)', value: formatCurrency(downPayment), icon: DollarSign },
+        { label: 'Est. Monthly Payment', value: `$${monthlyPayment.toFixed(0)}/mo`, icon: Home },
+        { label: 'Hard Money Payment', value: `$${hardMoneyMonthly.toFixed(0)}/mo`, icon: BarChart3 },
+        { label: 'Monthly Savings vs HM', value: `$${savings.toFixed(0)}/mo`, icon: TrendingUp },
+      ];
+    }
+    case 'foreclosure': {
+      const auctionLow = city.medianHomePrice * 0.6;
+      const auctionHigh = city.medianHomePrice * 0.8;
+      const rehab = city.medianHomePrice * 0.15;
+      const profit = city.medianHomePrice - auctionLow - rehab;
+      return [
+        { label: 'Auction Price Range', value: `${formatCurrency(auctionLow)}-${formatCurrency(auctionHigh)}`, icon: Gavel },
+        { label: 'Typical Discount', value: '20-40%', icon: Target },
+        { label: 'Est. Rehab Needed', value: formatCurrency(rehab), icon: Hammer },
+        { label: 'Profit Potential', value: formatCurrency(profit), icon: TrendingUp },
+      ];
+    }
+    case 'pre-foreclosure': {
+      const avgEquity = city.medianHomePrice * 0.35;
+      const typicalDiscount = city.medianHomePrice * 0.15;
+      return [
+        { label: 'Avg Equity Available', value: formatCurrency(avgEquity), icon: DollarSign },
+        { label: 'Typical Discount', value: formatCurrency(typicalDiscount), icon: Target },
+        { label: 'Timeline to Auction', value: '90-120 days', icon: AlertTriangle },
+        { label: 'Median Home Price', value: formatCurrency(city.medianHomePrice), icon: Home },
+      ];
+    }
+    case 'tax-lien': {
+      const avgLien = city.medianHomePrice * 0.02;
+      return [
+        { label: 'Avg Tax Lien Amount', value: formatCurrency(avgLien), icon: Receipt },
+        { label: 'Redemption Rate', value: '~95%', icon: BarChart3 },
+        { label: 'Statutory Interest Rate', value: '8-18%', icon: TrendingUp },
+        { label: 'Property Value', value: formatCurrency(city.medianHomePrice), icon: Home },
+      ];
+    }
+    case 'probate': {
+      const typicalDiscount = city.medianHomePrice * 0.15;
+      const purchasePrice = city.medianHomePrice - typicalDiscount;
+      return [
+        { label: 'Typical Discount', value: formatCurrency(typicalDiscount), icon: Target },
+        { label: 'Est. Purchase Price', value: formatCurrency(purchasePrice), icon: DollarSign },
+        { label: 'Avg Timeline', value: '6-12 months', icon: Scale },
+        { label: 'Median Home Price', value: formatCurrency(city.medianHomePrice), icon: Home },
+      ];
+    }
+    case 'absentee-owner': {
+      const absenteePercent = city.marketTemp === 'hot' ? 20 : city.marketTemp === 'warm' ? 22 : 25;
+      const avgDiscount = city.medianHomePrice * 0.1;
+      const estCount = Math.round(city.population * 0.4 * absenteePercent / 100);
+      return [
+        { label: '% Absentee Owned (Est.)', value: `${absenteePercent}%`, icon: UserX },
+        { label: 'Avg Discount', value: formatCurrency(avgDiscount), icon: Target },
+        { label: 'Est. Absentee Properties', value: formatNumber(estCount), icon: Building2 },
+        { label: 'Motivation Level', value: city.marketTemp === 'cool' ? 'Very High' : 'High', icon: TrendingUp },
+      ];
+    }
+    case 'distressed': {
+      const discountLow = city.medianHomePrice * 0.5;
+      const avgRehab = city.medianHomePrice * 0.2;
+      const profitPotential = city.medianHomePrice - discountLow - avgRehab;
+      return [
+        { label: 'Typical Discount', value: '30-50%', icon: Target },
+        { label: 'Avg Rehab Cost', value: formatCurrency(avgRehab), icon: Wrench },
+        { label: 'Profit Potential', value: formatCurrency(profitPotential), icon: TrendingUp },
+        { label: 'Median Home Price', value: formatCurrency(city.medianHomePrice), icon: Home },
+      ];
+    }
   }
 }
 
@@ -200,7 +414,7 @@ export default function CityStrategyPage() {
           <h1 className="text-3xl font-bold tracking-tight text-white mb-4">Page Not Found</h1>
           <p className="text-neutral-400 mb-6">
             {!validStrategy
-              ? 'Invalid investment strategy. Choose wholesale, flip, rental, or brrrr.'
+              ? 'Invalid investment strategy. Browse our available strategies.'
               : 'We could not find data for this market.'}
           </p>
           <Link to="/markets">

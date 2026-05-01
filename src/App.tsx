@@ -56,6 +56,9 @@ import GlossaryPage from "./pages/GlossaryPage";
 import CityStrategyPage from "./pages/CityStrategyPage";
 import StrategyIndex from "./pages/StrategyIndex";
 import StatePage from "./pages/StatePage";
+import DealsHub from "./pages/DealsHub";
+import DistressIndex from "./pages/DistressIndex";
+import DistressPage from "./pages/DistressPage";
 
 const queryClient = new QueryClient();
 
@@ -154,6 +157,9 @@ const App = () => (
                 <Route path="/tools" element={<ToolsIndex />} />
                 <Route path="/invest/:strategy/:citySlug" element={<CityStrategyPage />} />
                 <Route path="/invest/:strategy" element={<StrategyIndex />} />
+                <Route path="/deals" element={<DealsHub />} />
+                <Route path="/deals/:distressType" element={<DistressIndex />} />
+                <Route path="/deals/:distressType/:citySlug" element={<DistressPage />} />
                 <Route path="/glossary" element={<Glossary />} />
                 <Route path="/glossary/:slug" element={<GlossaryPage />} />
                 <Route path="/states/:stateSlug" element={<StatePage />} />
