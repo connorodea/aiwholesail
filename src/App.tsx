@@ -3,7 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, lazy, Suspense } from "react";
 import { HelmetProvider } from 'react-helmet-async';
 import { AuthProvider } from "@/contexts/AuthContext";
 import { SecurityProvider } from "@/components/SecurityProvider";
@@ -11,62 +11,66 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { FacebookPixel } from "@/components/FacebookPixel";
 import { SEOHead } from "@/components/SEOHead";
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
-import RealEstateWholesaler from "./pages/RealEstateWholesaler";
+
+// Critical / small pages — keep as static imports
 import Auth from "./pages/Auth";
-import Landing from "./pages/Landing";
+import NotFound from "./pages/NotFound";
 import Pricing from "./pages/Pricing";
-import Success from "./pages/Success";
-import Terms from "./pages/Terms";
-import Privacy from "./pages/Privacy";
-import Refund from "./pages/Refund";
-import Contact from "./pages/Contact";
-import FAQ from "./pages/FAQ";
-import About from "./pages/About";
-import HowItWorks from "./pages/HowItWorks";
-import UseCases from "./pages/UseCases";
-import Blog from "./pages/Blog";
-import BlogPost from "./pages/BlogPost";
-import Developers from "./pages/Developers";
-import Markets from "./pages/Markets";
-import MarketPage from "./pages/MarketPage";
-import ComparisonPage from "./pages/ComparisonPage";
-import Guides from "./pages/Guides";
-import GuidePage from "./pages/GuidePage";
-import OffMarket from "./pages/OffMarket";
-import Analyzer from "./pages/Analyzer";
-import Favorites from "./pages/Favorites";
-import Alerts from "./pages/Alerts";
-import Pipeline from "./pages/Pipeline";
-import Buyers from "./pages/Buyers";
-import Sequences from "./pages/Sequences";
-import Contracts from "./pages/Contracts";
-import Account from "./pages/Account";
-import ToolsIndex from "./pages/tools/ToolsIndex";
-import MortgageCalculator from "./pages/tools/MortgageCalculator";
-import WholesaleDealCalculator from "./pages/tools/WholesaleDealCalculator";
-import ARVCalculator from "./pages/tools/ARVCalculator";
-import CashFlowCalculator from "./pages/tools/CashFlowCalculator";
-import RehabEstimator from "./pages/tools/RehabEstimator";
-import BRRRRCalculator from "./pages/tools/BRRRRCalculator";
-import OfferPriceCalculator from "./pages/tools/OfferPriceCalculator";
-import CapRateCalculator from "./pages/tools/CapRateCalculator";
-import WholesaleFeeCalculator from "./pages/tools/WholesaleFeeCalculator";
-import HoldingCostCalculator from "./pages/tools/HoldingCostCalculator";
-import SeventyPercentRuleCalculator from "./pages/tools/SeventyPercentRuleCalculator";
-import RentalROICalculator from "./pages/tools/RentalROICalculator";
-import DSCRCalculator from "./pages/tools/DSCRCalculator";
-import Glossary from "./pages/Glossary";
-import GlossaryPage from "./pages/GlossaryPage";
-import CityStrategyPage from "./pages/CityStrategyPage";
-import StrategyIndex from "./pages/StrategyIndex";
-import StatePage from "./pages/StatePage";
-import DealsHub from "./pages/DealsHub";
-import DistressIndex from "./pages/DistressIndex";
-import DistressPage from "./pages/DistressPage";
-import StateLaws from "./pages/StateLaws";
-import StateLawPage from "./pages/StateLawPage";
+
+// Lazy-loaded pages — code-split into separate chunks
+const Index = lazy(() => import("./pages/Index"));
+const RealEstateWholesaler = lazy(() => import("./pages/RealEstateWholesaler"));
+const Landing = lazy(() => import("./pages/Landing"));
+const Success = lazy(() => import("./pages/Success"));
+const Terms = lazy(() => import("./pages/Terms"));
+const Privacy = lazy(() => import("./pages/Privacy"));
+const Refund = lazy(() => import("./pages/Refund"));
+const Contact = lazy(() => import("./pages/Contact"));
+const FAQ = lazy(() => import("./pages/FAQ"));
+const About = lazy(() => import("./pages/About"));
+const HowItWorks = lazy(() => import("./pages/HowItWorks"));
+const UseCases = lazy(() => import("./pages/UseCases"));
+const Blog = lazy(() => import("./pages/Blog"));
+const BlogPost = lazy(() => import("./pages/BlogPost"));
+const Developers = lazy(() => import("./pages/Developers"));
+const Markets = lazy(() => import("./pages/Markets"));
+const MarketPage = lazy(() => import("./pages/MarketPage"));
+const ComparisonPage = lazy(() => import("./pages/ComparisonPage"));
+const Guides = lazy(() => import("./pages/Guides"));
+const GuidePage = lazy(() => import("./pages/GuidePage"));
+const OffMarket = lazy(() => import("./pages/OffMarket"));
+const Analyzer = lazy(() => import("./pages/Analyzer"));
+const Favorites = lazy(() => import("./pages/Favorites"));
+const Alerts = lazy(() => import("./pages/Alerts"));
+const Pipeline = lazy(() => import("./pages/Pipeline"));
+const Buyers = lazy(() => import("./pages/Buyers"));
+const Sequences = lazy(() => import("./pages/Sequences"));
+const Contracts = lazy(() => import("./pages/Contracts"));
+const Account = lazy(() => import("./pages/Account"));
+const ToolsIndex = lazy(() => import("./pages/tools/ToolsIndex"));
+const MortgageCalculator = lazy(() => import("./pages/tools/MortgageCalculator"));
+const WholesaleDealCalculator = lazy(() => import("./pages/tools/WholesaleDealCalculator"));
+const ARVCalculator = lazy(() => import("./pages/tools/ARVCalculator"));
+const CashFlowCalculator = lazy(() => import("./pages/tools/CashFlowCalculator"));
+const RehabEstimator = lazy(() => import("./pages/tools/RehabEstimator"));
+const BRRRRCalculator = lazy(() => import("./pages/tools/BRRRRCalculator"));
+const OfferPriceCalculator = lazy(() => import("./pages/tools/OfferPriceCalculator"));
+const CapRateCalculator = lazy(() => import("./pages/tools/CapRateCalculator"));
+const WholesaleFeeCalculator = lazy(() => import("./pages/tools/WholesaleFeeCalculator"));
+const HoldingCostCalculator = lazy(() => import("./pages/tools/HoldingCostCalculator"));
+const SeventyPercentRuleCalculator = lazy(() => import("./pages/tools/SeventyPercentRuleCalculator"));
+const RentalROICalculator = lazy(() => import("./pages/tools/RentalROICalculator"));
+const DSCRCalculator = lazy(() => import("./pages/tools/DSCRCalculator"));
+const Glossary = lazy(() => import("./pages/Glossary"));
+const GlossaryPage = lazy(() => import("./pages/GlossaryPage"));
+const CityStrategyPage = lazy(() => import("./pages/CityStrategyPage"));
+const StrategyIndex = lazy(() => import("./pages/StrategyIndex"));
+const StatePage = lazy(() => import("./pages/StatePage"));
+const DealsHub = lazy(() => import("./pages/DealsHub"));
+const DistressIndex = lazy(() => import("./pages/DistressIndex"));
+const DistressPage = lazy(() => import("./pages/DistressPage"));
+const StateLaws = lazy(() => import("./pages/StateLaws"));
+const StateLawPage = lazy(() => import("./pages/StateLawPage"));
 
 const queryClient = new QueryClient();
 
@@ -91,6 +95,7 @@ const App = () => (
               <ScrollToTop />
               <GoogleAnalytics />
               <FacebookPixel />
+              <Suspense fallback={<div className="min-h-screen bg-[#08090a]" />}>
               <Routes>
                 <Route path="/" element={<Landing />} />
                 <Route path="/pricing" element={<Pricing />} />
@@ -190,6 +195,7 @@ const App = () => (
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
+              </Suspense>
             </BrowserRouter>
           </TooltipProvider>
         </SecurityProvider>

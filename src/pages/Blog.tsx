@@ -27,6 +27,7 @@ interface Article {
 
 const articles: Article[] = [
   {
+    slug: 'complete-guide-finding-profitable-real-estate-deals-2026',
     title:
       'The Complete Guide to Finding Profitable Real Estate Deals in 2026',
     excerpt:
@@ -36,6 +37,7 @@ const articles: Article[] = [
     featured: true,
   },
   {
+    slug: 'how-ai-is-changing-real-estate-investing',
     title: 'How AI is Changing Real Estate Investing',
     excerpt:
       'From automated property analysis to predictive market modeling, artificial intelligence is reshaping how investors find and evaluate deals. Here is what you need to know.',
@@ -43,6 +45,7 @@ const articles: Article[] = [
     readTime: '8 min read',
   },
   {
+    slug: '5-metrics-every-real-estate-investor-should-track',
     title: '5 Metrics Every Real Estate Investor Should Track',
     excerpt:
       'Cash-on-cash return, cap rate, and GRM are just the beginning. These five metrics separate profitable investors from those who leave money on the table.',
@@ -50,6 +53,7 @@ const articles: Article[] = [
     readTime: '6 min read',
   },
   {
+    slug: 'fsbo-properties-hidden-gold-mine-for-investors',
     title: 'FSBO Properties: The Hidden Gold Mine for Investors',
     excerpt:
       'For-sale-by-owner listings are often overlooked by institutional buyers. Learn how to find them, approach sellers, and negotiate deals that work for both sides.',
@@ -57,6 +61,7 @@ const articles: Article[] = [
     readTime: '7 min read',
   },
   {
+    slug: 'how-to-calculate-arv-like-a-pro',
     title: 'How to Calculate ARV Like a Pro',
     excerpt:
       'After-repair value is the foundation of every flip and wholesale deal. Master the comparable sales method and avoid the common mistakes that sink profit margins.',
@@ -64,6 +69,7 @@ const articles: Article[] = [
     readTime: '9 min read',
   },
   {
+    slug: 'building-your-cash-buyer-list-step-by-step-guide',
     title: 'Building Your Cash Buyer List: A Step-by-Step Guide',
     excerpt:
       'A strong buyer list is the most valuable asset in wholesaling. This guide walks you through sourcing, qualifying, and maintaining a list that closes deals.',
@@ -71,6 +77,7 @@ const articles: Article[] = [
     readTime: '10 min read',
   },
   {
+    slug: 'understanding-spread-key-metric-deal-analysis',
     title: 'Understanding Spread: The Key Metric for Deal Analysis',
     excerpt:
       'Spread determines whether a deal is worth pursuing. Learn how to calculate it accurately, what margins to target, and when to walk away from a property.',
@@ -84,6 +91,8 @@ const categoryColors: Record<string, string> = {
   'AI & Tech': 'bg-violet-500/10 text-violet-600 dark:text-violet-400',
   'Market Insights': 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
   'Beginner Guide': 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
+  Operations: 'bg-rose-500/10 text-rose-600 dark:text-rose-400',
+  'Approaching Sellers': 'bg-orange-500/10 text-orange-600 dark:text-orange-400',
 };
 
 export default function Blog() {
