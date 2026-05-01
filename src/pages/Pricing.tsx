@@ -137,7 +137,7 @@ export default function Pricing() {
         <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" fill="rgba(6, 182, 212, 0.15)" />
         <div className="relative container mx-auto max-w-5xl px-4 pt-28 pb-20 text-center">
           <motion.p {...heroFadeUp(0)} className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-6">PRICING</motion.p>
-          <motion.h1 {...heroFadeUp(0.1)} className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[0.95] text-white mb-6">
+          <motion.h1 {...heroFadeUp(0.1)} className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[0.95] text-white mb-6">
             Simple, Transparent
             <br />
             <span className="bg-gradient-to-r from-cyan-500 via-cyan-400 to-cyan-500 bg-clip-text text-transparent">
@@ -166,7 +166,7 @@ export default function Pricing() {
               <motion.div
                 key={plan.name}
                 {...cardFadeIn(index)}
-                className={`relative bg-white/[0.03] border rounded-xl p-8 md:p-10 flex flex-col justify-between group hover:border-cyan-500/20 transition-all duration-300 ${
+                className={`relative bg-white/[0.03] border rounded-xl p-5 sm:p-8 md:p-10 flex flex-col justify-between group hover:border-cyan-500/20 transition-all duration-300 ${
                   plan.popular
                     ? 'border-2 border-primary/30 shadow-lg shadow-primary/5'
                     : 'border-white/[0.06]'
@@ -254,7 +254,7 @@ export default function Pricing() {
               { label: 'Deal Pipeline', desc: 'Track every deal from first contact to closing in one organized view.' },
               { label: 'Data Export', desc: 'Export your leads, saved properties, and contact data anytime you need it.' },
             ].map((item, index) => (
-              <motion.div key={item.label} {...cardFadeIn(index)} className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-colors">
+              <motion.div key={item.label} {...cardFadeIn(index)} className="bg-white/5 border border-white/10 rounded-2xl p-4 sm:p-6 hover:bg-white/10 transition-colors">
                 <CheckCircle className="h-5 w-5 text-cyan-400 mb-3" />
                 <h4 className="font-semibold text-sm mb-1">{item.label}</h4>
                 <p className="text-xs text-white/50 leading-relaxed">{item.desc}</p>

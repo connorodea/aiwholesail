@@ -181,7 +181,7 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-7xl max-h-[95vh] overflow-hidden p-0 bg-gradient-to-br from-background via-background to-muted/5 border-2 border-border/50 shadow-2xl rounded-2xl">
+      <DialogContent className="w-full max-w-7xl h-[100dvh] sm:h-auto sm:max-h-[95vh] overflow-hidden p-0 bg-gradient-to-br from-background via-background to-muted/5 border-2 border-border/50 shadow-2xl rounded-2xl">
         {/* Header */}
         <DialogHeader className="p-8 pb-6 border-b border-border/30 bg-gradient-to-r from-background via-muted/5 to-background backdrop-blur-sm">
           <div className="flex items-start justify-between">
@@ -206,7 +206,7 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                   </div>
                 )}
               </div>
-              <DialogTitle className="text-4xl font-bold mb-4 leading-tight bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text">
+              <DialogTitle className="text-xl sm:text-2xl md:text-4xl font-bold mb-4 leading-tight bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text">
                 {displayProperty.address}
               </DialogTitle>
               <div className="flex items-center gap-2 text-muted-foreground">
@@ -252,7 +252,7 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
         {/* Content */}
         <div className="flex-1 overflow-hidden">
           <Tabs defaultValue="overview" className="w-full h-full flex flex-col">
-            <div className="px-8 pt-6 pb-4 border-b border-border/30 bg-gradient-to-r from-muted/5 to-transparent overflow-x-auto">
+            <div className="px-3 sm:px-8 pt-4 sm:pt-6 pb-3 sm:pb-4 border-b border-border/30 bg-gradient-to-r from-muted/5 to-transparent overflow-x-auto">
               <TabsList className="inline-flex w-auto min-w-full bg-muted/30 rounded-xl p-1 backdrop-blur-sm gap-1">
                 <TabsTrigger value="overview" className="data-[state=active]:bg-background data-[state=active]:shadow-md rounded-lg transition-all duration-300 text-xs px-3">
                   Overview
@@ -288,9 +288,9 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
             </div>
 
             <TabsContent value="overview" className="flex-1 overflow-auto mt-0">
-              <div className="p-6 space-y-8">
+              <div className="p-3 sm:p-6 space-y-8">
                 {/* Key Stats */}
-                <div className="grid grid-cols-4 gap-6">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                   <Card className="border-border hover:shadow-md transition-shadow">
                     <CardContent className="p-6 text-center">
                       <div className="flex items-center justify-center gap-2 mb-3">
@@ -356,7 +356,7 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid grid-cols-2 gap-10">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-10">
                       <div className="space-y-6">
                         <div className="flex justify-between items-center py-3 border-b border-border">
                           <span className="text-sm font-medium text-muted-foreground">Deal Score</span>
@@ -411,24 +411,24 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
               </div>
             </TabsContent>
 
-            <TabsContent value="investment" className="flex-1 overflow-auto p-6 mt-0">
+            <TabsContent value="investment" className="flex-1 overflow-auto p-3 sm:p-6 mt-0">
               <InvestmentCalculator property={displayProperty} />
             </TabsContent>
 
-            <TabsContent value="comps" className="flex-1 overflow-auto p-6 mt-0">
+            <TabsContent value="comps" className="flex-1 overflow-auto p-3 sm:p-6 mt-0">
               <ComparableSalesTable property={displayProperty} />
             </TabsContent>
 
-            <TabsContent value="price-history" className="flex-1 overflow-auto p-6 mt-0">
+            <TabsContent value="price-history" className="flex-1 overflow-auto p-3 sm:p-6 mt-0">
               <PriceHistoryChart property={displayProperty} />
             </TabsContent>
 
-            <TabsContent value="taxes" className="flex-1 overflow-auto p-6 mt-0">
+            <TabsContent value="taxes" className="flex-1 overflow-auto p-3 sm:p-6 mt-0">
               <TaxCarryingCosts property={displayProperty} />
             </TabsContent>
 
-            <TabsContent value="details" className="flex-1 overflow-auto p-6 mt-0">
-              <div className="grid grid-cols-2 gap-6">
+            <TabsContent value="details" className="flex-1 overflow-auto p-3 sm:p-6 mt-0">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <Card className="border-border hover:shadow-md transition-shadow">
                   <CardHeader className="pb-4">
                     <CardTitle className="flex items-center gap-2 text-lg">
@@ -507,7 +507,7 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-2 gap-8">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8">
                     {/* Agent Info */}
                     <div className="space-y-4">
                       <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide flex items-center gap-2">
@@ -732,11 +732,11 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
               )}
             </TabsContent>
 
-            <TabsContent value="photos" className="flex-1 overflow-auto p-6 mt-0">
+            <TabsContent value="photos" className="flex-1 overflow-auto p-3 sm:p-6 mt-0">
               <PhotosGallery property={displayProperty} />
             </TabsContent>
 
-            <TabsContent value="ai-analysis" className="flex-1 overflow-auto p-6 mt-0">
+            <TabsContent value="ai-analysis" className="flex-1 overflow-auto p-3 sm:p-6 mt-0">
               <AIPropertyAnalyzer property={displayProperty} />
             </TabsContent>
           </Tabs>

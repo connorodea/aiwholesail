@@ -192,7 +192,7 @@ const Landing = () => {
               <motion.div
                 key={feature.title}
                 {...cardFadeIn(index)}
-                className="relative group p-6 rounded-xl border border-white/[0.05] bg-gradient-to-b from-neutral-900/50 to-transparent hover:border-cyan-500/20 transition-all duration-300"
+                className="relative group p-4 sm:p-6 rounded-xl border border-white/[0.05] bg-gradient-to-b from-neutral-900/50 to-transparent hover:border-cyan-500/20 transition-all duration-300"
               >
                 {/* Grid pattern background */}
                 <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
@@ -231,7 +231,7 @@ const Landing = () => {
               { icon: BarChart3, title: "Landlords", desc: "Analyze rental income, calculate returns, and find properties below market value" },
               { icon: Users, title: "Agents", desc: "Impress clients with instant market data and professional property analysis" },
             ].map((item, index) => (
-              <motion.div key={item.title} {...cardFadeIn(index)} className="p-6 rounded-xl border border-white/[0.05] bg-neutral-900/30 hover:border-cyan-500/20 transition-all duration-300 text-center group">
+              <motion.div key={item.title} {...cardFadeIn(index)} className="p-4 sm:p-6 rounded-xl border border-white/[0.05] bg-neutral-900/30 hover:border-cyan-500/20 transition-all duration-300 text-center group">
                 <div className="w-12 h-12 mx-auto rounded-xl bg-cyan-500/10 flex items-center justify-center mb-4 group-hover:bg-cyan-500/20 transition-colors">
                   <item.icon className="h-5 w-5 text-cyan-500" />
                 </div>
@@ -244,7 +244,7 @@ const Landing = () => {
       </motion.section>
 
       {/* ===== TESTIMONIALS ===== */}
-      <section className="relative py-20">
+      <motion.section className="relative py-20" {...sectionFadeIn}>
         <div className="absolute inset-0 h-px top-0 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
         <Container>
           <FeatureIconContainer className="flex justify-center items-center mx-auto mb-4">
@@ -260,7 +260,7 @@ const Landing = () => {
               { name: "Jennifer Davis", role: "Property Flipper", content: "The profit calculations are spot-on every time. I understand market trends in seconds instead of spending days on research.", profit: "$95K" },
               { name: "Robert Martinez", role: "Investment Advisor", content: "We're closing 40% more transactions since implementing AIWholesail for our deal sourcing. My clients love the speed.", profit: "$150K" },
             ].map((t, i) => (
-              <div key={i} className="p-6 rounded-xl border border-white/[0.05] bg-neutral-900/30">
+              <motion.div key={i} {...cardFadeIn(i)} className="p-4 sm:p-6 rounded-xl border border-white/[0.05] bg-neutral-900/30">
                 <div className="flex gap-0.5 mb-4">
                   {[...Array(5)].map((_, j) => <Star key={j} className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />)}
                 </div>
@@ -275,14 +275,14 @@ const Landing = () => {
                     <p className="text-sm font-bold text-cyan-400">{t.profit}</p>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </Container>
-      </section>
+      </motion.section>
 
       {/* ===== PRICING ===== */}
-      <section className="relative py-20 sm:py-32">
+      <motion.section className="relative py-20 sm:py-32" {...sectionFadeIn}>
         <div className="absolute inset-0 h-px top-0 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
         <Container className="text-center">
           <FeatureIconContainer className="flex justify-center items-center mx-auto mb-4">
@@ -292,7 +292,7 @@ const Landing = () => {
           <Subheading>Start free. Upgrade when you're ready. No credit card required.</Subheading>
 
           <div className="grid md:grid-cols-2 gap-4 max-w-2xl mx-auto mt-12 text-left">
-            <div className="p-6 rounded-xl border border-cyan-500/30 bg-gradient-to-b from-cyan-500/5 to-transparent relative">
+            <div className="p-4 sm:p-6 rounded-xl border border-cyan-500/30 bg-gradient-to-b from-cyan-500/5 to-transparent relative">
               <span className="absolute -top-3 left-6 bg-cyan-500 text-black text-[10px] font-semibold px-3 py-0.5 rounded-full">Most Popular</span>
               <h3 className="text-lg font-semibold mb-1">Pro</h3>
               <div className="text-3xl font-bold mb-1">$29<span className="text-sm font-normal text-neutral-500">/mo</span></div>
@@ -308,7 +308,7 @@ const Landing = () => {
                 </button>
               </Link>
             </div>
-            <div className="p-6 rounded-xl border border-white/[0.05] bg-neutral-900/30">
+            <div className="p-4 sm:p-6 rounded-xl border border-white/[0.05] bg-neutral-900/30">
               <h3 className="text-lg font-semibold mb-1">Elite</h3>
               <div className="text-3xl font-bold mb-1">$99<span className="text-sm font-normal text-neutral-500">/mo</span></div>
               <p className="text-xs text-neutral-500 mb-6">For serious professionals</p>
@@ -325,10 +325,10 @@ const Landing = () => {
             </div>
           </div>
         </Container>
-      </section>
+      </motion.section>
 
       {/* ===== CTA ===== */}
-      <section className="relative py-20 sm:py-32">
+      <motion.section className="relative py-20 sm:py-32" {...sectionFadeIn}>
         <AmbientColor />
         <div className="absolute inset-0 h-px top-0 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
         <Container className="flex flex-col md:flex-row justify-between items-center gap-12">
@@ -360,15 +360,15 @@ const Landing = () => {
             </button>
           </Link>
         </Container>
-      </section>
+      </motion.section>
 
       {/* ===== FOOTER ===== */}
       <footer className="border-t border-white/5 py-12 px-4 bg-[#08090a]">
         <Container>
-          <div className="grid lg:grid-cols-5 gap-10">
+          <div className="grid lg:grid-cols-5 gap-6 sm:gap-8 lg:gap-10">
             <div className="lg:col-span-2 space-y-3">
               <div className="flex items-center gap-2">
-                <img src={aiWholesailLogo} alt="AIWholesail" className="h-18 w-auto opacity-60" />
+                <img src={aiWholesailLogo} alt="AIWholesail" className="h-12 sm:h-16 lg:h-18 w-auto opacity-60" />
                 <span className="text-sm font-semibold tracking-tight text-neutral-400">AIWholesail</span>
               </div>
               <p className="text-xs text-neutral-600 max-w-xs leading-relaxed">

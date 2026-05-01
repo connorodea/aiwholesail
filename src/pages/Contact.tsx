@@ -99,7 +99,7 @@ export default function Contact() {
         <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" fill="rgba(6, 182, 212, 0.15)" />
         <div className="relative container mx-auto max-w-5xl px-4 pt-28 pb-20 text-center">
           <motion.p {...heroFadeUp(0)} className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-6">CONTACT</motion.p>
-          <motion.h1 {...heroFadeUp(0.1)} className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[0.95] text-white mb-6">
+          <motion.h1 {...heroFadeUp(0.1)} className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[0.95] text-white mb-6">
             Get In
             <br />
             <span className="bg-gradient-to-r from-cyan-500 via-cyan-400 to-cyan-500 bg-clip-text text-transparent">
@@ -118,7 +118,7 @@ export default function Contact() {
         <div className="container mx-auto max-w-6xl">
           <div className="grid lg:grid-cols-2 gap-8">
             {/* Contact Form */}
-            <motion.div {...cardFadeIn(0)} className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-8 md:p-10">
+            <motion.div {...cardFadeIn(0)} className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-5 sm:p-8 md:p-10">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center">
                   <Send className="h-5 w-5 text-cyan-400" />
@@ -204,7 +204,7 @@ export default function Contact() {
 
             {/* Contact Information */}
             <div className="space-y-4">
-              <motion.div {...cardFadeIn(1)} className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-8">
+              <motion.div {...cardFadeIn(1)} className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-5 sm:p-8">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center">
                     <Mail className="h-5 w-5 text-cyan-400" />
@@ -222,7 +222,7 @@ export default function Contact() {
                 </p>
               </motion.div>
 
-              <motion.div {...cardFadeIn(2)} className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-8">
+              <motion.div {...cardFadeIn(2)} className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-5 sm:p-8">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center">
                     <Phone className="h-5 w-5 text-cyan-400" />
@@ -240,7 +240,7 @@ export default function Contact() {
                 </p>
               </motion.div>
 
-              <motion.div {...cardFadeIn(3)} className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-8">
+              <motion.div {...cardFadeIn(3)} className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-5 sm:p-8">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center">
                     <MapPin className="h-5 w-5 text-cyan-400" />
@@ -257,7 +257,7 @@ export default function Contact() {
                 </p>
               </motion.div>
 
-              <motion.div {...cardFadeIn(4)} className="bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/20 rounded-xl p-8 text-center">
+              <motion.div {...cardFadeIn(4)} className="bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/20 rounded-xl p-5 sm:p-8 text-center">
                 <h3 className="text-lg font-bold tracking-tight mb-2">Need quick answers?</h3>
                 <p className="text-neutral-400 font-light mb-5">
                   Check our FAQ section for common questions and instant solutions.

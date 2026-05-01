@@ -186,7 +186,7 @@ export function InvestmentCalculator({ property }: InvestmentCalculatorProps) {
     <div className="space-y-6">
       {/* Key Metrics Summary */}
       {results && (
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
             <CardContent className="p-4 text-center">
               <div className="flex items-center justify-center gap-2 mb-2">
@@ -284,7 +284,7 @@ export function InvestmentCalculator({ property }: InvestmentCalculatorProps) {
         </Card>
       )}
 
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Input Parameters */}
         <Card>
           <CardHeader className="pb-4">
@@ -422,7 +422,7 @@ export function InvestmentCalculator({ property }: InvestmentCalculatorProps) {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Insurance/mo</Label>
                   <Input

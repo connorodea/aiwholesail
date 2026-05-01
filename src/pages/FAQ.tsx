@@ -135,7 +135,7 @@ export default function FAQ() {
         <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" fill="rgba(6, 182, 212, 0.15)" />
         <div className="relative container mx-auto max-w-5xl px-4 pt-28 pb-20 text-center">
           <motion.p {...heroFadeUp(0)} className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-6">FAQ</motion.p>
-          <motion.h1 {...heroFadeUp(0.1)} className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[0.95] text-white mb-6">
+          <motion.h1 {...heroFadeUp(0.1)} className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[0.95] text-white mb-6">
             Frequently Asked
             <br />
             <span className="bg-gradient-to-r from-cyan-500 via-cyan-400 to-cyan-500 bg-clip-text text-transparent">
@@ -168,7 +168,7 @@ export default function FAQ() {
               >
                 <button
                   onClick={() => toggleItem(index)}
-                  className="w-full px-8 py-6 text-left flex items-center justify-between gap-4"
+                  className="w-full px-4 sm:px-8 py-4 sm:py-6 text-left flex items-center justify-between gap-4"
                 >
                   <h3 className="text-base font-semibold tracking-tight pr-4">{faq.question}</h3>
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-colors ${
@@ -183,7 +183,7 @@ export default function FAQ() {
                 </button>
 
                 {openItems.includes(index) && (
-                  <div className="px-8 pb-6">
+                  <div className="px-4 sm:px-8 pb-4 sm:pb-6">
                     <p className="text-neutral-400 font-light leading-relaxed">{faq.answer}</p>
                   </div>
                 )}

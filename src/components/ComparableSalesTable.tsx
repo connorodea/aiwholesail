@@ -198,7 +198,7 @@ export function ComparableSalesTable({ property }: ComparableSalesTableProps) {
   return (
     <div className="space-y-6">
       {/* ARV Summary */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
           <CardContent className="p-4 text-center">
             <div className="flex items-center justify-center gap-2 mb-2">
@@ -258,7 +258,7 @@ export function ComparableSalesTable({ property }: ComparableSalesTableProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-5 gap-4 text-center">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 text-center">
             <div>
               <div className="text-sm text-muted-foreground">Price</div>
               <div className="text-xl font-bold">{formatPrice(property.price || 0)}</div>
@@ -292,7 +292,7 @@ export function ComparableSalesTable({ property }: ComparableSalesTableProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="rounded-lg border">
+          <div className="overflow-x-auto rounded-lg border">
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/50">
