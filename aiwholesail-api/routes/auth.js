@@ -43,7 +43,7 @@ router.post('/signup', [
     return res.status(400).json({ error: 'Validation failed', errors: errors.array() });
   }
 
-  const { email, password, fullName } = req.body;
+  const { email, password, fullName, phoneNumber } = req.body;
   const normalizedEmail = email.toLowerCase().trim();
 
   // Validate password strength
@@ -102,6 +102,37 @@ router.post('/signup', [
        updated_at = NOW()`,
     [normalizedEmail, userId, trialEnd]
   );
+
+  // Store phone number in profile (profile auto-created by DB trigger)
+  if (phoneNumber) {
+    await query(
+      'UPDATE profiles SET phone_number = $1 WHERE user_id = $2',
+      [phoneNumber.trim(), userId]
+    );
+  }
+
+  // Send notification to Quinton about new signup
+  try {
+    await resend.emails.send({
+      from: 'AIWholesail <noreply@aiwholesail.com>',
+      to: ['quintonw500@gmail.com', 'cpodea5@gmail.com'],
+      subject: `New Signup: ${fullName || normalizedEmail}${phoneNumber ? ' — ' + phoneNumber : ''}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #08090a; color: #ffffff; padding: 30px; border-radius: 12px;">
+          <h2 style="color: #06b6d4;">New AIWholesail Signup</h2>
+          <p style="color: #a3a3a3;"><strong style="color: #fff;">Name:</strong> ${fullName || 'Not provided'}</p>
+          <p style="color: #a3a3a3;"><strong style="color: #fff;">Email:</strong> ${normalizedEmail}</p>
+          <p style="color: #a3a3a3;"><strong style="color: #fff;">Phone:</strong> ${phoneNumber || 'Not provided'}</p>
+          <p style="color: #a3a3a3;"><strong style="color: #fff;">Plan:</strong> Pro (7-day free trial)</p>
+          <p style="color: #a3a3a3;"><strong style="color: #fff;">Time:</strong> ${new Date().toLocaleString()}</p>
+          <hr style="border: none; border-top: 1px solid #262626; margin: 20px 0;" />
+          <p style="color: #525252; font-size: 12px;">Call them to say hello and see if they need help getting started.</p>
+        </div>
+      `,
+    });
+  } catch (notifyErr) {
+    console.error('[Auth] Failed to send signup notification:', notifyErr.message);
+  }
 
   // Send verification email via Resend
   const verifyUrl = `${process.env.API_URL || 'https://api.aiwholesail.com'}/api/auth/verify-email/${verificationToken}`;

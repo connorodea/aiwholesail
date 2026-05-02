@@ -161,6 +161,7 @@ export default function Auth() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [fullName, setFullName] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const { signIn, signUp, user } = useAuth();
@@ -223,7 +224,7 @@ export default function Auth() {
     setLoading(true);
     try {
       if (isSignUp) {
-        const { error } = await signUp(email, password, fullName);
+        const { error } = await signUp(email, password, fullName, phoneNumber);
         if (error) {
           if (error.message.includes('already') || error.message.includes('registered') || error.message.includes('Email already')) {
             toast.error('An account with this email already exists. Please sign in instead.');
@@ -333,17 +334,29 @@ export default function Auth() {
               ) : (
                 <form className="mt-8 flex flex-col gap-5" onSubmit={handleSubmit}>
                   {isSignUp && (
-                    <div>
-                      <GradientLabel>Full Name</GradientLabel>
-                      <GradientInput
-                        className="mt-2"
-                        type="text"
-                        placeholder="Enter your full name"
-                        value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
-                        required
-                      />
-                    </div>
+                    <>
+                      <div>
+                        <GradientLabel>Full Name</GradientLabel>
+                        <GradientInput
+                          className="mt-2"
+                          type="text"
+                          placeholder="Enter your full name"
+                          value={fullName}
+                          onChange={(e) => setFullName(e.target.value)}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <GradientLabel>Phone Number <span className="text-neutral-500 font-normal">(optional)</span></GradientLabel>
+                        <GradientInput
+                          className="mt-2"
+                          type="tel"
+                          placeholder="(555) 123-4567"
+                          value={phoneNumber}
+                          onChange={(e) => setPhoneNumber(e.target.value)}
+                        />
+                      </div>
+                    </>
                   )}
                   <div>
                     <GradientLabel>Email</GradientLabel>

@@ -7,7 +7,7 @@ interface AuthContextType {
   user: User | null;
   session: { access_token: string } | null;
   loading: boolean;
-  signUp: (email: string, password: string, fullName?: string) => Promise<{ error: any }>;
+  signUp: (email: string, password: string, fullName?: string, phoneNumber?: string) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
 }
@@ -37,7 +37,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => unsubscribe();
   }, []);
 
-  const signUp = async (email: string, password: string, fullName?: string) => {
+  const signUp = async (email: string, password: string, fullName?: string, phoneNumber?: string) => {
     // Enhanced input validation for security
     const emailValidation = validateEmail(email);
     if (!emailValidation.isValid) {
@@ -52,7 +52,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     try {
-      const response = await auth.signUp(email.trim().toLowerCase(), password, fullName?.trim());
+      const response = await auth.signUp(email.trim().toLowerCase(), password, fullName?.trim(), phoneNumber?.trim());
 
       if (response.error) {
         logSecurityEvent('signup_failed', { reason: response.error, email: email.substring(0, 3) + '***' });
