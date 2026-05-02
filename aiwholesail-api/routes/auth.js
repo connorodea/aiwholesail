@@ -113,53 +113,129 @@ router.post('/signup', [
 
   // Send notification to Quinton about new signup
   try {
+    const signupTime = new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
     await resend.emails.send({
       from: 'AIWholesail <noreply@aiwholesail.com>',
       to: ['quintonw500@gmail.com', 'cpodea5@gmail.com'],
+      replyTo: normalizedEmail,
       subject: `New Signup: ${fullName || normalizedEmail}${phoneNumber ? ' — ' + phoneNumber : ''}`,
       html: `
-        <div style="font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #08090a; border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.06);">
-          <!--[if mso]><table width="600" cellpadding="0" cellspacing="0" border="0"><tr><td><![endif]-->
-          <div style="padding: 32px 32px 24px; border-bottom: 1px solid rgba(255,255,255,0.06);">
-            <img src="https://aiwholesail.com/logo-white.png" alt="AIWholesail" style="height: 36px; width: auto;" />
-          </div>
-          <div style="padding: 32px;">
-            <h1 style="color: #ffffff; font-size: 24px; font-weight: 600; margin: 0 0 8px; letter-spacing: -0.5px;">New Signup</h1>
-            <p style="color: #a3a3a3; font-size: 15px; line-height: 1.6; margin: 0 0 24px;">A new user just signed up for AIWholesail. Here are their details:</p>
-            <div style="border-left: 3px solid #06b6d4; background-color: rgba(6,182,212,0.05); border-radius: 0 8px 8px 0; padding: 20px 24px; margin: 0 0 24px;">
-              <table style="width: 100%; border-collapse: collapse;">
-                <tr>
-                  <td style="color: #737373; font-size: 13px; padding: 6px 16px 6px 0; vertical-align: top; white-space: nowrap;">Name</td>
-                  <td style="color: #ffffff; font-size: 15px; padding: 6px 0; font-weight: 500;">${fullName || 'Not provided'}</td>
-                </tr>
-                <tr>
-                  <td style="color: #737373; font-size: 13px; padding: 6px 16px 6px 0; vertical-align: top; white-space: nowrap;">Email</td>
-                  <td style="color: #ffffff; font-size: 15px; padding: 6px 0; font-weight: 500;">${normalizedEmail}</td>
-                </tr>
-                <tr>
-                  <td style="color: #737373; font-size: 13px; padding: 6px 16px 6px 0; vertical-align: top; white-space: nowrap;">Phone</td>
-                  <td style="color: #ffffff; font-size: 15px; padding: 6px 0; font-weight: 500;">${phoneNumber || 'Not provided'}</td>
-                </tr>
-                <tr>
-                  <td style="color: #737373; font-size: 13px; padding: 6px 16px 6px 0; vertical-align: top; white-space: nowrap;">Plan</td>
-                  <td style="color: #ffffff; font-size: 15px; padding: 6px 0; font-weight: 500;">Pro (7-day free trial)</td>
-                </tr>
-                <tr>
-                  <td style="color: #737373; font-size: 13px; padding: 6px 16px 6px 0; vertical-align: top; white-space: nowrap;">Time</td>
-                  <td style="color: #ffffff; font-size: 15px; padding: 6px 0; font-weight: 500;">${new Date().toLocaleString()}</td>
-                </tr>
-              </table>
-            </div>
-            <p style="color: #a3a3a3; font-size: 14px; line-height: 1.6; margin: 0;">Call them to say hello and see if they need help getting started.</p>
-          </div>
-          <div style="padding: 24px 32px; border-top: 1px solid rgba(255,255,255,0.06); background-color: rgba(255,255,255,0.02);">
-            <p style="color: #525252; font-size: 12px; margin: 0; line-height: 1.5;">
-              AIWholesail &mdash; Find profitable real estate deals with AI<br/>
-              <a href="https://aiwholesail.com" style="color: #06b6d4; text-decoration: none;">aiwholesail.com</a>
-            </p>
-          </div>
-          <!--[if mso]></td></tr></table><![endif]-->
-        </div>
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #000000; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+          <tr><td align="center" style="padding: 40px 20px;">
+            <!--[if mso]><table width="600" cellpadding="0" cellspacing="0" border="0"><tr><td><![endif]-->
+            <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width: 600px; width: 100%; background-color: #0a0a0b; border-radius: 12px; overflow: hidden; border: 1px solid #1a1a1a;">
+
+              <!-- Logo header -->
+              <tr><td style="padding: 28px 32px 20px; border-bottom: 1px solid #1a1a1a;">
+                <img src="https://aiwholesail.com/logo-white.png" alt="AIWholesail" height="32" style="height: 32px; width: auto; display: block;" />
+              </td></tr>
+
+              <!-- Gradient accent bar -->
+              <tr><td style="height: 3px; background: linear-gradient(90deg, #06b6d4, #0891b2, #06b6d4); font-size: 0; line-height: 0;">&nbsp;</td></tr>
+
+              <!-- Content -->
+              <tr><td style="padding: 36px 32px 32px;">
+
+                <!-- Status badge -->
+                <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 20px;">
+                  <tr>
+                    <td style="width: 10px; height: 10px; background-color: #22c55e; border-radius: 50%; font-size: 0; line-height: 0;">&nbsp;</td>
+                    <td style="padding-left: 10px; color: #22c55e; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em;">New Signup</td>
+                  </tr>
+                </table>
+
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 28px;">
+                  <tr>
+                    <td style="color: #ffffff; font-size: 26px; font-weight: 700; letter-spacing: -0.5px; line-height: 1.2; padding-bottom: 8px;">${fullName || normalizedEmail}</td>
+                  </tr>
+                  <tr>
+                    <td style="color: #737373; font-size: 14px; line-height: 1.5;">A new user just signed up and started a 7-day Pro trial. Reply to this email to reach them directly.</td>
+                  </tr>
+                </table>
+
+                <!-- User details table -->
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 28px;">
+                  <tr>
+                    <td style="padding: 14px 0; border-bottom: 1px solid #1a1a1a;">
+                      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                        <tr>
+                          <td width="110" style="color: #525252; font-size: 13px; font-weight: 500;">Name</td>
+                          <td style="color: #e5e5e5; font-size: 15px; font-weight: 500;">${fullName || 'Not provided'}</td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 14px 0; border-bottom: 1px solid #1a1a1a;">
+                      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                        <tr>
+                          <td width="110" style="color: #525252; font-size: 13px; font-weight: 500;">Email</td>
+                          <td style="color: #e5e5e5; font-size: 15px; font-weight: 500;"><a href="mailto:${normalizedEmail}" style="color: #06b6d4; text-decoration: none;">${normalizedEmail}</a></td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 14px 0; border-bottom: 1px solid #1a1a1a;">
+                      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                        <tr>
+                          <td width="110" style="color: #525252; font-size: 13px; font-weight: 500;">Phone</td>
+                          <td style="color: #e5e5e5; font-size: 15px; font-weight: 500;">${phoneNumber ? '<a href="tel:' + phoneNumber.trim() + '" style="color: #06b6d4; text-decoration: none;">' + phoneNumber.trim() + '</a>' : '<span style="color: #525252;">Not provided</span>'}</td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 14px 0; border-bottom: 1px solid #1a1a1a;">
+                      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                        <tr>
+                          <td width="110" style="color: #525252; font-size: 13px; font-weight: 500;">Plan</td>
+                          <td style="font-size: 15px; font-weight: 500;">
+                            <span style="color: #06b6d4;">Pro</span>
+                            <span style="color: #525252;"> &middot; </span>
+                            <span style="color: #737373; font-size: 13px;">7-day free trial</span>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 14px 0;">
+                      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                        <tr>
+                          <td width="110" style="color: #525252; font-size: 13px; font-weight: 500;">Signed up</td>
+                          <td style="color: #737373; font-size: 14px;">${signupTime}</td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+
+                <!-- Action buttons -->
+                <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 8px;">
+                  <tr>
+                    ${phoneNumber ? '<td style="padding-right: 12px;"><table cellpadding="0" cellspacing="0" border="0"><tr><td style="background-color: #06b6d4; border-radius: 8px; padding: 12px 24px;"><a href="tel:' + phoneNumber.trim() + '" style="color: #000000; font-weight: 600; font-size: 14px; text-decoration: none; display: inline-block;">Call Now</a></td></tr></table></td>' : ''}
+                    <td><table cellpadding="0" cellspacing="0" border="0"><tr><td style="background-color: #171717; border: 1px solid #262626; border-radius: 8px; padding: 12px 24px;"><a href="mailto:${normalizedEmail}" style="color: #e5e5e5; font-weight: 600; font-size: 14px; text-decoration: none; display: inline-block;">Send Email</a></td></tr></table></td>
+                  </tr>
+                </table>
+
+              </td></tr>
+
+              <!-- Footer -->
+              <tr><td style="padding: 20px 32px 24px; border-top: 1px solid #1a1a1a;">
+                <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                  <tr>
+                    <td style="color: #404040; font-size: 11px; line-height: 1.5;">
+                      &copy; 2026 AIWholesail &middot; <a href="https://aiwholesail.com" style="color: #06b6d4; text-decoration: none;">aiwholesail.com</a>
+                    </td>
+                  </tr>
+                </table>
+              </td></tr>
+
+            </table>
+            <!--[if mso]></td></tr></table><![endif]-->
+          </td></tr>
+        </table>
       `,
     });
   } catch (notifyErr) {
@@ -168,37 +244,116 @@ router.post('/signup', [
 
   // Send verification email via Resend
   const verifyUrl = `${process.env.API_URL || 'https://api.aiwholesail.com'}/api/auth/verify-email/${verificationToken}`;
+  const firstName = fullName ? fullName.split(' ')[0] : '';
   try {
     await resend.emails.send({
       from: 'AIWholesail <noreply@aiwholesail.com>',
       to: normalizedEmail,
       subject: 'Verify Your Email — AIWholesail',
       html: `
-        <div style="font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #08090a; border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.06);">
-          <!--[if mso]><table width="600" cellpadding="0" cellspacing="0" border="0"><tr><td><![endif]-->
-          <div style="padding: 32px 32px 24px; border-bottom: 1px solid rgba(255,255,255,0.06);">
-            <img src="https://aiwholesail.com/logo-white.png" alt="AIWholesail" style="height: 36px; width: auto;" />
-          </div>
-          <div style="padding: 32px;">
-            <h1 style="color: #ffffff; font-size: 24px; font-weight: 600; margin: 0 0 8px; letter-spacing: -0.5px;">Verify Your Email</h1>
-            <p style="color: #a3a3a3; font-size: 15px; line-height: 1.6; margin: 0 0 24px;">
-              Thanks for joining AIWholesail! Click below to verify your email and start finding profitable deals.
-            </p>
-            <a href="${verifyUrl}" style="display: inline-block; background-color: #06b6d4; color: #000000; font-weight: 600; font-size: 15px; padding: 12px 28px; border-radius: 8px; text-decoration: none;">
-              Verify Email Address
-            </a>
-            <p style="color: #737373; font-size: 13px; margin: 20px 0 0; line-height: 1.5;">
-              This link expires in 24 hours.
-            </p>
-          </div>
-          <div style="padding: 24px 32px; border-top: 1px solid rgba(255,255,255,0.06); background-color: rgba(255,255,255,0.02);">
-            <p style="color: #525252; font-size: 12px; margin: 0; line-height: 1.5;">
-              AIWholesail &mdash; Find profitable real estate deals with AI<br/>
-              <a href="https://aiwholesail.com" style="color: #06b6d4; text-decoration: none;">aiwholesail.com</a>
-            </p>
-          </div>
-          <!--[if mso]></td></tr></table><![endif]-->
-        </div>
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #000000; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+          <tr><td align="center" style="padding: 40px 20px;">
+            <!--[if mso]><table width="600" cellpadding="0" cellspacing="0" border="0"><tr><td><![endif]-->
+            <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width: 600px; width: 100%; background-color: #0a0a0b; border-radius: 12px; overflow: hidden; border: 1px solid #1a1a1a;">
+
+              <!-- Logo header -->
+              <tr><td style="padding: 28px 32px 20px; border-bottom: 1px solid #1a1a1a;">
+                <img src="https://aiwholesail.com/logo-white.png" alt="AIWholesail" height="32" style="height: 32px; width: auto; display: block;" />
+              </td></tr>
+
+              <!-- Gradient accent bar -->
+              <tr><td style="height: 3px; background: linear-gradient(90deg, #06b6d4, #0891b2, #06b6d4); font-size: 0; line-height: 0;">&nbsp;</td></tr>
+
+              <!-- Content -->
+              <tr><td style="padding: 40px 32px 36px;">
+
+                <!-- Welcome heading -->
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 24px;">
+                  <tr><td style="color: #ffffff; font-size: 28px; font-weight: 700; letter-spacing: -0.5px; line-height: 1.2; padding-bottom: 4px;">
+                    Welcome to AIWholesail${firstName ? ', ' + firstName : ''}!
+                  </td></tr>
+                </table>
+
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 32px;">
+                  <tr><td style="color: #a3a3a3; font-size: 16px; line-height: 1.7;">
+                    You're one step away from finding profitable real estate deals with AI. Verify your email to activate your account and start your 7-day Pro trial.
+                  </td></tr>
+                </table>
+
+                <!-- CTA Button -->
+                <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 32px;">
+                  <tr><td style="background-color: #06b6d4; border-radius: 8px; padding: 16px 36px; box-shadow: 0 2px 8px rgba(6,182,212,0.25);">
+                    <a href="${verifyUrl}" style="color: #000000; font-weight: 600; font-size: 16px; text-decoration: none; display: inline-block;">Verify Email Address</a>
+                  </td></tr>
+                </table>
+
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 36px;">
+                  <tr><td style="color: #525252; font-size: 13px; line-height: 1.5;">
+                    This link expires in 24 hours. If the button doesn't work, copy and paste this URL into your browser:
+                  </td></tr>
+                  <tr><td style="padding-top: 8px;">
+                    <a href="${verifyUrl}" style="color: #06b6d4; font-size: 12px; text-decoration: none; word-break: break-all;">${verifyUrl}</a>
+                  </td></tr>
+                </table>
+
+                <!-- Divider -->
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 28px;">
+                  <tr><td style="border-top: 1px solid #1a1a1a; font-size: 0; line-height: 0;">&nbsp;</td></tr>
+                </table>
+
+                <!-- Feature highlights -->
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 8px;">
+                  <tr><td style="color: #525252; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; padding-bottom: 16px;">
+                    What you get with AIWholesail
+                  </td></tr>
+                </table>
+
+                <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                  <tr>
+                    <td width="33%" valign="top" style="padding-right: 12px;">
+                      <table cellpadding="0" cellspacing="0" border="0">
+                        <tr><td style="font-size: 22px; padding-bottom: 8px;">&#128269;</td></tr>
+                        <tr><td style="color: #e5e5e5; font-size: 13px; font-weight: 600; padding-bottom: 4px;">AI Deal Scoring</td></tr>
+                        <tr><td style="color: #525252; font-size: 12px; line-height: 1.4;">Instant spread analysis on every property</td></tr>
+                      </table>
+                    </td>
+                    <td width="33%" valign="top" style="padding: 0 6px;">
+                      <table cellpadding="0" cellspacing="0" border="0">
+                        <tr><td style="font-size: 22px; padding-bottom: 8px;">&#128200;</td></tr>
+                        <tr><td style="color: #e5e5e5; font-size: 13px; font-weight: 600; padding-bottom: 4px;">Market Analytics</td></tr>
+                        <tr><td style="color: #525252; font-size: 12px; line-height: 1.4;">Real-time comps and market trends</td></tr>
+                      </table>
+                    </td>
+                    <td width="33%" valign="top" style="padding-left: 12px;">
+                      <table cellpadding="0" cellspacing="0" border="0">
+                        <tr><td style="font-size: 22px; padding-bottom: 8px;">&#127968;</td></tr>
+                        <tr><td style="color: #e5e5e5; font-size: 13px; font-weight: 600; padding-bottom: 4px;">264 Markets</td></tr>
+                        <tr><td style="color: #525252; font-size: 12px; line-height: 1.4;">Coverage across all major U.S. metros</td></tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+
+              </td></tr>
+
+              <!-- Footer -->
+              <tr><td style="padding: 20px 32px 24px; border-top: 1px solid #1a1a1a;">
+                <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                  <tr>
+                    <td style="color: #404040; font-size: 11px; line-height: 1.5;">
+                      &copy; 2026 AIWholesail &middot; <a href="https://aiwholesail.com" style="color: #06b6d4; text-decoration: none;">aiwholesail.com</a>
+                    </td>
+                    <td align="right" style="color: #404040; font-size: 11px;">
+                      <a href="https://aiwholesail.com/app/account" style="color: #404040; text-decoration: none;">Manage preferences</a>
+                    </td>
+                  </tr>
+                </table>
+              </td></tr>
+
+            </table>
+            <!--[if mso]></td></tr></table><![endif]-->
+          </td></tr>
+        </table>
       `,
     });
     console.log(`[Auth] Verification email sent to ${normalizedEmail.substring(0, 3)}***`);
@@ -434,31 +589,90 @@ router.post('/forgot-password', [
       to: normalizedEmail,
       subject: 'Reset Your Password — AIWholesail',
       html: `
-        <div style="font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #08090a; border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.06);">
-          <!--[if mso]><table width="600" cellpadding="0" cellspacing="0" border="0"><tr><td><![endif]-->
-          <div style="padding: 32px 32px 24px; border-bottom: 1px solid rgba(255,255,255,0.06);">
-            <img src="https://aiwholesail.com/logo-white.png" alt="AIWholesail" style="height: 36px; width: auto;" />
-          </div>
-          <div style="padding: 32px;">
-            <h1 style="color: #ffffff; font-size: 24px; font-weight: 600; margin: 0 0 8px; letter-spacing: -0.5px;">Reset Your Password</h1>
-            <p style="color: #a3a3a3; font-size: 15px; line-height: 1.6; margin: 0 0 24px;">
-              We received a request to reset your password. Click below to set a new one.
-            </p>
-            <a href="${resetUrl}" style="display: inline-block; background-color: #06b6d4; color: #000000; font-weight: 600; font-size: 15px; padding: 12px 28px; border-radius: 8px; text-decoration: none;">
-              Reset Password
-            </a>
-            <p style="color: #737373; font-size: 13px; margin: 20px 0 0; line-height: 1.5;">
-              This link expires in 1 hour. If you didn't request this, ignore this email.
-            </p>
-          </div>
-          <div style="padding: 24px 32px; border-top: 1px solid rgba(255,255,255,0.06); background-color: rgba(255,255,255,0.02);">
-            <p style="color: #525252; font-size: 12px; margin: 0; line-height: 1.5;">
-              AIWholesail &mdash; Find profitable real estate deals with AI<br/>
-              <a href="https://aiwholesail.com" style="color: #06b6d4; text-decoration: none;">aiwholesail.com</a>
-            </p>
-          </div>
-          <!--[if mso]></td></tr></table><![endif]-->
-        </div>
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #000000; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+          <tr><td align="center" style="padding: 40px 20px;">
+            <!--[if mso]><table width="600" cellpadding="0" cellspacing="0" border="0"><tr><td><![endif]-->
+            <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width: 600px; width: 100%; background-color: #0a0a0b; border-radius: 12px; overflow: hidden; border: 1px solid #1a1a1a;">
+
+              <!-- Logo header -->
+              <tr><td style="padding: 28px 32px 20px; border-bottom: 1px solid #1a1a1a;">
+                <img src="https://aiwholesail.com/logo-white.png" alt="AIWholesail" height="32" style="height: 32px; width: auto; display: block;" />
+              </td></tr>
+
+              <!-- Content -->
+              <tr><td style="padding: 40px 32px 36px;">
+
+                <!-- Lock icon -->
+                <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 24px;">
+                  <tr>
+                    <td style="width: 48px; height: 48px; background-color: #171717; border: 1px solid #262626; border-radius: 12px; text-align: center; vertical-align: middle; font-size: 22px;">&#128274;</td>
+                  </tr>
+                </table>
+
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 12px;">
+                  <tr><td style="color: #ffffff; font-size: 26px; font-weight: 700; letter-spacing: -0.5px; line-height: 1.2;">
+                    Reset Your Password
+                  </td></tr>
+                </table>
+
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 32px;">
+                  <tr><td style="color: #a3a3a3; font-size: 16px; line-height: 1.7;">
+                    We received a request to reset the password for your AIWholesail account. Click below to choose a new one.
+                  </td></tr>
+                </table>
+
+                <!-- CTA Button -->
+                <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 32px;">
+                  <tr><td style="background-color: #06b6d4; border-radius: 8px; padding: 16px 36px; box-shadow: 0 2px 8px rgba(6,182,212,0.25);">
+                    <a href="${resetUrl}" style="color: #000000; font-weight: 600; font-size: 16px; text-decoration: none; display: inline-block;">Reset Password</a>
+                  </td></tr>
+                </table>
+
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 28px;">
+                  <tr><td style="color: #525252; font-size: 13px; line-height: 1.5;">
+                    This link expires in 1 hour. If the button doesn't work, copy and paste this URL:
+                  </td></tr>
+                  <tr><td style="padding-top: 8px;">
+                    <a href="${resetUrl}" style="color: #06b6d4; font-size: 12px; text-decoration: none; word-break: break-all;">${resetUrl}</a>
+                  </td></tr>
+                </table>
+
+                <!-- Security notice -->
+                <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                  <tr>
+                    <td style="background-color: #171717; border: 1px solid #1a1a1a; border-radius: 8px; padding: 16px 20px;">
+                      <table cellpadding="0" cellspacing="0" border="0">
+                        <tr>
+                          <td valign="top" style="padding-right: 12px; font-size: 16px;">&#128737;</td>
+                          <td style="color: #737373; font-size: 13px; line-height: 1.6;">
+                            <strong style="color: #a3a3a3;">Didn't request this?</strong> Your account is still secure. You can safely ignore this email &mdash; no changes have been made to your account.
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+
+              </td></tr>
+
+              <!-- Footer -->
+              <tr><td style="padding: 20px 32px 24px; border-top: 1px solid #1a1a1a;">
+                <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                  <tr>
+                    <td style="color: #404040; font-size: 11px; line-height: 1.5;">
+                      &copy; 2026 AIWholesail &middot; <a href="https://aiwholesail.com" style="color: #06b6d4; text-decoration: none;">aiwholesail.com</a>
+                    </td>
+                    <td align="right" style="color: #404040; font-size: 11px;">
+                      <a href="https://aiwholesail.com/app/account" style="color: #404040; text-decoration: none;">Manage preferences</a>
+                    </td>
+                  </tr>
+                </table>
+              </td></tr>
+
+            </table>
+            <!--[if mso]></td></tr></table><![endif]-->
+          </td></tr>
+        </table>
       `,
     });
     console.log(`[Auth] Password reset email sent to ${normalizedEmail.substring(0, 3)}***`);

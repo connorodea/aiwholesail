@@ -65,6 +65,7 @@ router.post('/', [
   const { name, email, subject, message } = req.body;
 
   // Send email via Resend
+  const submittedAt = new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
   try {
     await resend.emails.send({
       from: 'AIWholesail Contact <noreply@aiwholesail.com>',
@@ -72,46 +73,106 @@ router.post('/', [
       replyTo: email,
       subject: `[Contact Form] ${subject}`,
       html: `
-        <div style="font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #08090a; border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.06);">
-          <!--[if mso]><table width="600" cellpadding="0" cellspacing="0" border="0"><tr><td><![endif]-->
-          <div style="padding: 32px 32px 24px; border-bottom: 1px solid rgba(255,255,255,0.06);">
-            <img src="https://aiwholesail.com/logo-white.png" alt="AIWholesail" style="height: 36px; width: auto;" />
-          </div>
-          <div style="padding: 32px;">
-            <h1 style="color: #ffffff; font-size: 24px; font-weight: 600; margin: 0 0 8px; letter-spacing: -0.5px;">New Contact Form Submission</h1>
-            <p style="color: #a3a3a3; font-size: 15px; line-height: 1.6; margin: 0 0 24px;">
-              Someone submitted the contact form on AIWholesail.com. Details below:
-            </p>
-            <div style="border-left: 3px solid #06b6d4; background-color: rgba(6,182,212,0.05); border-radius: 0 8px 8px 0; padding: 20px 24px; margin: 0 0 24px;">
-              <table style="width: 100%; border-collapse: collapse;">
-                <tr>
-                  <td style="color: #737373; font-size: 13px; padding: 6px 16px 6px 0; vertical-align: top; white-space: nowrap;">Name</td>
-                  <td style="color: #ffffff; font-size: 15px; padding: 6px 0; font-weight: 500;">${escapeHtml(name)}</td>
-                </tr>
-                <tr>
-                  <td style="color: #737373; font-size: 13px; padding: 6px 16px 6px 0; vertical-align: top; white-space: nowrap;">Email</td>
-                  <td style="color: #ffffff; font-size: 15px; padding: 6px 0; font-weight: 500;"><a href="mailto:${escapeHtml(email)}" style="color: #06b6d4; text-decoration: none;">${escapeHtml(email)}</a></td>
-                </tr>
-                <tr>
-                  <td style="color: #737373; font-size: 13px; padding: 6px 16px 6px 0; vertical-align: top; white-space: nowrap;">Subject</td>
-                  <td style="color: #ffffff; font-size: 15px; padding: 6px 0; font-weight: 500;">${escapeHtml(subject)}</td>
-                </tr>
-              </table>
-            </div>
-            <div style="background-color: #111111; border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 20px 24px; margin: 0 0 24px;">
-              <p style="color: #737373; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; margin: 0 0 10px; font-weight: 600;">Message</p>
-              <p style="color: #d4d4d4; font-size: 15px; line-height: 1.7; margin: 0; white-space: pre-wrap;">${escapeHtml(message)}</p>
-            </div>
-          </div>
-          <div style="padding: 24px 32px; border-top: 1px solid rgba(255,255,255,0.06); background-color: rgba(255,255,255,0.02);">
-            <p style="color: #525252; font-size: 12px; margin: 0; line-height: 1.5;">
-              Submitted from AIWholesail.com contact form &middot; IP: ${escapeHtml(ip)}<br/>
-              AIWholesail &mdash; Find profitable real estate deals with AI<br/>
-              <a href="https://aiwholesail.com" style="color: #06b6d4; text-decoration: none;">aiwholesail.com</a>
-            </p>
-          </div>
-          <!--[if mso]></td></tr></table><![endif]-->
-        </div>
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #000000; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+          <tr><td align="center" style="padding: 40px 20px;">
+            <!--[if mso]><table width="600" cellpadding="0" cellspacing="0" border="0"><tr><td><![endif]-->
+            <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width: 600px; width: 100%; background-color: #0a0a0b; border-radius: 12px; overflow: hidden; border: 1px solid #1a1a1a;">
+
+              <!-- Logo header -->
+              <tr><td style="padding: 28px 32px 20px; border-bottom: 1px solid #1a1a1a;">
+                <img src="https://aiwholesail.com/logo-white.png" alt="AIWholesail" height="32" style="height: 32px; width: auto; display: block;" />
+              </td></tr>
+
+              <!-- Gradient accent bar -->
+              <tr><td style="height: 3px; background: linear-gradient(90deg, #06b6d4, #0891b2, #06b6d4); font-size: 0; line-height: 0;">&nbsp;</td></tr>
+
+              <!-- Content -->
+              <tr><td style="padding: 36px 32px 32px;">
+
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 8px;">
+                  <tr><td style="color: #ffffff; font-size: 26px; font-weight: 700; letter-spacing: -0.5px; line-height: 1.2;">
+                    New Contact Form Message
+                  </td></tr>
+                </table>
+
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 28px;">
+                  <tr><td style="color: #737373; font-size: 13px; line-height: 1.5;">
+                    ${submittedAt} &middot; Reply directly to respond to <strong style="color: #a3a3a3;">${escapeHtml(name)}</strong>
+                  </td></tr>
+                </table>
+
+                <!-- Sender details -->
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 24px;">
+                  <tr>
+                    <td style="padding: 14px 0; border-bottom: 1px solid #1a1a1a;">
+                      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                        <tr>
+                          <td width="90" style="color: #525252; font-size: 13px; font-weight: 500;">From</td>
+                          <td style="color: #e5e5e5; font-size: 15px; font-weight: 500;">${escapeHtml(name)}</td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 14px 0; border-bottom: 1px solid #1a1a1a;">
+                      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                        <tr>
+                          <td width="90" style="color: #525252; font-size: 13px; font-weight: 500;">Email</td>
+                          <td style="font-size: 15px; font-weight: 500;"><a href="mailto:${escapeHtml(email)}" style="color: #06b6d4; text-decoration: none;">${escapeHtml(email)}</a></td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 14px 0;">
+                      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                        <tr>
+                          <td width="90" style="color: #525252; font-size: 13px; font-weight: 500;">Subject</td>
+                          <td style="color: #e5e5e5; font-size: 15px; font-weight: 500;">${escapeHtml(subject)}</td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+
+                <!-- Message in quote-style block -->
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 28px;">
+                  <tr>
+                    <td width="3" style="background-color: #262626; border-radius: 2px;">&nbsp;</td>
+                    <td style="padding: 20px 24px; background-color: #111111; border-radius: 0 8px 8px 0;">
+                      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                        <tr><td style="color: #525252; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; padding-bottom: 12px;">Message</td></tr>
+                        <tr><td style="color: #d4d4d4; font-size: 15px; line-height: 1.75; white-space: pre-wrap;">${escapeHtml(message)}</td></tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+
+                <!-- Reply CTA -->
+                <table cellpadding="0" cellspacing="0" border="0">
+                  <tr><td style="background-color: #06b6d4; border-radius: 8px; padding: 14px 32px; box-shadow: 0 2px 8px rgba(6,182,212,0.25);">
+                    <a href="mailto:${escapeHtml(email)}" style="color: #000000; font-weight: 600; font-size: 15px; text-decoration: none; display: inline-block;">Reply to ${escapeHtml(name.split(' ')[0])}</a>
+                  </td></tr>
+                </table>
+
+              </td></tr>
+
+              <!-- Footer -->
+              <tr><td style="padding: 20px 32px 24px; border-top: 1px solid #1a1a1a;">
+                <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                  <tr>
+                    <td style="color: #404040; font-size: 11px; line-height: 1.5;">
+                      &copy; 2026 AIWholesail &middot; <a href="https://aiwholesail.com" style="color: #06b6d4; text-decoration: none;">aiwholesail.com</a>
+                      &middot; IP: ${escapeHtml(ip)}
+                    </td>
+                  </tr>
+                </table>
+              </td></tr>
+
+            </table>
+            <!--[if mso]></td></tr></table><![endif]-->
+          </td></tr>
+        </table>
       `,
     });
 

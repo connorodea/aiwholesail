@@ -149,61 +149,159 @@ async function sendSMS(to, message) {
 // ---------- Resend Email ----------
 
 async function sendAlertEmail(userEmail, location, deals) {
-  const dealRows = deals.map(d => {
+  // Calculate total spread across all deals
+  const totalSpread = deals.reduce((sum, d) => {
+    return sum + ((d.zestimate && d.price) ? (d.zestimate - d.price) : 0);
+  }, 0);
+  const totalSpreadFormatted = `$${Math.round(totalSpread / 1000)}K`;
+
+  // Time since deals were found
+  const minutesAgo = Math.max(1, Math.round((Date.now() - new Date(deals[0].last_seen_at || Date.now()).getTime()) / 60000));
+  const timeAgoText = minutesAgo < 60 ? `${minutesAgo} minute${minutesAgo > 1 ? 's' : ''} ago` : `${Math.round(minutesAgo / 60)} hour${Math.round(minutesAgo / 60) > 1 ? 's' : ''} ago`;
+
+  const dealRows = deals.map((d, idx) => {
     const addr = d.address || 'Unknown';
     const listPrice = d.price ? `$${Number(d.price).toLocaleString()}` : 'N/A';
     const zestimate = d.zestimate ? `$${Number(d.zestimate).toLocaleString()}` : 'N/A';
-    const spread = (d.zestimate && d.price) ? `+$${Number(d.zestimate - d.price).toLocaleString()}` : 'N/A';
+    const spreadVal = (d.zestimate && d.price) ? (d.zestimate - d.price) : 0;
+    const spreadText = spreadVal > 0 ? `+$${Number(spreadVal).toLocaleString()}` : 'N/A';
+    const rowBg = idx % 2 === 0 ? '#0f0f10' : '#0a0a0b';
+
+    // Property specs if available
+    const specs = [];
+    if (d.bedrooms) specs.push(`${d.bedrooms}bd`);
+    if (d.bathrooms) specs.push(`${d.bathrooms}ba`);
+    if (d.sqft) specs.push(`${Number(d.sqft).toLocaleString()} sqft`);
+    const specsText = specs.length > 0 ? specs.join(' / ') : '';
+
     return `
-      <tr>
-        <td style="padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.06); color: #e5e5e5; font-size: 14px;">${addr}</td>
-        <td style="padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.06); color: #a3a3a3; text-align: right; font-size: 14px;">${listPrice}</td>
-        <td style="padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.06); color: #a3a3a3; text-align: right; font-size: 14px;">${zestimate}</td>
-        <td style="padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.06); color: #22c55e; font-weight: 600; text-align: right; font-size: 14px;">${spread}</td>
+      <tr style="background-color: ${rowBg};">
+        <td style="padding: 16px 12px; border-bottom: 1px solid #1a1a1a; vertical-align: top;">
+          <table cellpadding="0" cellspacing="0" border="0">
+            <tr><td style="color: #e5e5e5; font-size: 14px; font-weight: 500; line-height: 1.4;">${addr}</td></tr>
+            ${specsText ? '<tr><td style="color: #525252; font-size: 12px; padding-top: 4px;">' + specsText + '</td></tr>' : ''}
+          </table>
+        </td>
+        <td style="padding: 16px 10px; border-bottom: 1px solid #1a1a1a; color: #a3a3a3; text-align: right; font-size: 14px; vertical-align: top; white-space: nowrap;">${listPrice}</td>
+        <td style="padding: 16px 10px; border-bottom: 1px solid #1a1a1a; color: #a3a3a3; text-align: right; font-size: 14px; vertical-align: top; white-space: nowrap;">${zestimate}</td>
+        <td style="padding: 16px 12px; border-bottom: 1px solid #1a1a1a; text-align: right; vertical-align: top; white-space: nowrap;">
+          <table cellpadding="0" cellspacing="0" border="0" style="margin-left: auto;">
+            <tr><td style="background-color: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.2); border-radius: 6px; padding: 4px 10px; color: #22c55e; font-weight: 700; font-size: 14px;">${spreadText}</td></tr>
+          </table>
+        </td>
       </tr>
     `;
   }).join('');
 
   const subject = `${deals.length} New Deal${deals.length > 1 ? 's' : ''} in ${location} — AIWholesail`;
   const html = `
-    <div style="font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #08090a; border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.06);">
-      <!--[if mso]><table width="600" cellpadding="0" cellspacing="0" border="0"><tr><td><![endif]-->
-      <div style="padding: 32px 32px 24px; border-bottom: 1px solid rgba(255,255,255,0.06);">
-        <img src="https://aiwholesail.com/logo-white.png" alt="AIWholesail" style="height: 36px; width: auto;" />
-      </div>
-      <div style="padding: 32px;">
-        <h1 style="color: #ffffff; font-size: 24px; font-weight: 600; margin: 0 0 8px; letter-spacing: -0.5px;">${deals.length} New Deal${deals.length > 1 ? 's' : ''} in ${location}</h1>
-        <p style="color: #a3a3a3; font-size: 15px; line-height: 1.6; margin: 0 0 24px;">
-          We found <strong style="color: #ffffff;">${deals.length}</strong> propert${deals.length > 1 ? 'ies' : 'y'} with +$30K spread in <strong style="color: #ffffff;">${location}</strong>. Here are the top deals:
-        </p>
-        <table style="width: 100%; border-collapse: collapse; margin: 0 0 24px;">
-          <thead>
-            <tr style="border-bottom: 2px solid #06b6d4;">
-              <th style="padding: 10px 10px; text-align: left; color: #06b6d4; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em;">Address</th>
-              <th style="padding: 10px 10px; text-align: right; color: #06b6d4; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em;">List Price</th>
-              <th style="padding: 10px 10px; text-align: right; color: #06b6d4; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em;">Zestimate</th>
-              <th style="padding: 10px 10px; text-align: right; color: #06b6d4; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em;">Spread</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${dealRows}
-          </tbody>
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #000000; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+      <tr><td align="center" style="padding: 40px 20px;">
+        <!--[if mso]><table width="600" cellpadding="0" cellspacing="0" border="0"><tr><td><![endif]-->
+        <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width: 600px; width: 100%; background-color: #0a0a0b; border-radius: 12px; overflow: hidden; border: 1px solid #1a1a1a;">
+
+          <!-- Logo header -->
+          <tr><td style="padding: 28px 32px 20px; border-bottom: 1px solid #1a1a1a;">
+            <table width="100%" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td><img src="https://aiwholesail.com/logo-white.png" alt="AIWholesail" height="32" style="height: 32px; width: auto; display: block;" /></td>
+                <td align="right" style="color: #525252; font-size: 12px;">Deals found ${timeAgoText}</td>
+              </tr>
+            </table>
+          </td></tr>
+
+          <!-- Gradient accent bar -->
+          <tr><td style="height: 3px; background: linear-gradient(90deg, #22c55e, #06b6d4, #22c55e); font-size: 0; line-height: 0;">&nbsp;</td></tr>
+
+          <!-- Hero stat -->
+          <tr><td style="padding: 32px 32px 0;">
+            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #111111; border: 1px solid #1a1a1a; border-radius: 10px; overflow: hidden;">
+              <tr><td style="padding: 24px 28px;">
+                <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                  <tr>
+                    <td>
+                      <table cellpadding="0" cellspacing="0" border="0">
+                        <tr><td style="color: #525252; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; padding-bottom: 6px;">Total Potential Spread</td></tr>
+                        <tr><td style="color: #22c55e; font-size: 32px; font-weight: 800; letter-spacing: -1px; line-height: 1;">${totalSpreadFormatted}</td></tr>
+                      </table>
+                    </td>
+                    <td align="right" valign="bottom">
+                      <table cellpadding="0" cellspacing="0" border="0">
+                        <tr><td style="color: #737373; font-size: 13px; text-align: right;">across <strong style="color: #e5e5e5;">${deals.length} deal${deals.length > 1 ? 's' : ''}</strong></td></tr>
+                        <tr><td style="color: #737373; font-size: 13px; text-align: right; padding-top: 2px;">in <strong style="color: #e5e5e5;">${location}</strong></td></tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td></tr>
+            </table>
+          </td></tr>
+
+          <!-- Content -->
+          <tr><td style="padding: 28px 32px 36px;">
+
+            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 8px;">
+              <tr><td style="color: #ffffff; font-size: 22px; font-weight: 700; letter-spacing: -0.5px; line-height: 1.2; padding-bottom: 8px;">
+                ${deals.length} New Deal${deals.length > 1 ? 's' : ''} Found
+              </td></tr>
+              <tr><td style="color: #a3a3a3; font-size: 15px; line-height: 1.6; padding-bottom: 24px;">
+                Properties with <strong style="color: #ffffff;">+$30K spread</strong> between list price and Zestimate in <strong style="color: #ffffff;">${location}</strong>.
+              </td></tr>
+            </table>
+
+            <!-- Deals table -->
+            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 28px; border: 1px solid #1a1a1a; border-radius: 8px; overflow: hidden;">
+              <thead>
+                <tr style="background-color: #111111;">
+                  <th style="padding: 12px 12px; text-align: left; color: #737373; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; border-bottom: 1px solid #1a1a1a;">Address</th>
+                  <th style="padding: 12px 10px; text-align: right; color: #737373; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; border-bottom: 1px solid #1a1a1a;">List</th>
+                  <th style="padding: 12px 10px; text-align: right; color: #737373; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; border-bottom: 1px solid #1a1a1a;">Zestimate</th>
+                  <th style="padding: 12px 12px; text-align: right; color: #737373; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; border-bottom: 1px solid #1a1a1a;">Spread</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${dealRows}
+              </tbody>
+            </table>
+
+            <!-- CTA Button -->
+            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 28px;">
+              <tr><td align="center">
+                <table cellpadding="0" cellspacing="0" border="0">
+                  <tr><td style="background-color: #06b6d4; border-radius: 8px; padding: 16px 44px; box-shadow: 0 2px 8px rgba(6,182,212,0.25);">
+                    <a href="https://aiwholesail.com/app" style="color: #000000; font-weight: 700; font-size: 16px; text-decoration: none; display: inline-block;">View All Deals in ${location}</a>
+                  </td></tr>
+                </table>
+              </td></tr>
+            </table>
+
+            <table width="100%" cellpadding="0" cellspacing="0" border="0">
+              <tr><td style="color: #525252; font-size: 13px; line-height: 1.5; text-align: center;">
+                You're receiving this because you have an alert set for ${location}.<br/>
+                <a href="https://aiwholesail.com/app/account" style="color: #525252; text-decoration: underline;">Manage alert preferences</a>
+              </td></tr>
+            </table>
+
+          </td></tr>
+
+          <!-- Footer -->
+          <tr><td style="padding: 20px 32px 24px; border-top: 1px solid #1a1a1a;">
+            <table width="100%" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td style="color: #404040; font-size: 11px; line-height: 1.5;">
+                  &copy; 2026 AIWholesail &middot; <a href="https://aiwholesail.com" style="color: #06b6d4; text-decoration: none;">aiwholesail.com</a>
+                </td>
+                <td align="right" style="color: #404040; font-size: 11px;">
+                  <a href="https://aiwholesail.com/app/account" style="color: #404040; text-decoration: none;">Unsubscribe</a>
+                </td>
+              </tr>
+            </table>
+          </td></tr>
+
         </table>
-        <a href="https://aiwholesail.com/app" style="display: inline-block; background-color: #06b6d4; color: #000000; font-weight: 600; font-size: 15px; padding: 12px 28px; border-radius: 8px; text-decoration: none;">
-          View All Deals
-        </a>
-        <p style="color: #737373; font-size: 13px; margin: 20px 0 0; line-height: 1.5;">
-          You're receiving this because you have an alert set for ${location}.
-        </p>
-      </div>
-      <div style="padding: 24px 32px; border-top: 1px solid rgba(255,255,255,0.06); background-color: rgba(255,255,255,0.02);">
-        <p style="color: #525252; font-size: 12px; margin: 0; line-height: 1.5;">
-          AIWholesail &mdash; Find profitable real estate deals with AI<br/>
-          <a href="https://aiwholesail.com" style="color: #06b6d4; text-decoration: none;">aiwholesail.com</a>
-        </p>
-      </div>
-      <!--[if mso]></td></tr></table><![endif]-->
-    </div>
+        <!--[if mso]></td></tr></table><![endif]-->
+      </td></tr>
+    </table>
   `;
 
   if (DRY_RUN) {
