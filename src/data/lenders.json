@@ -1,0 +1,2402 @@
+[
+  {
+    "slug": "hard-money-lenders-atlanta-ga",
+    "citySlug": "atlanta-ga",
+    "city": "Atlanta",
+    "state": "GA",
+    "lenderType": "hard-money",
+    "lenderTypeLabel": "Hard Money Lenders",
+    "lenders": [
+      { "name": "Lima One Capital", "rate": "9.5-12%", "ltv": "up to 90%", "minLoan": 75000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "Kiavi", "rate": "9-11%", "ltv": "up to 90%", "minLoan": 100000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Bridge"] },
+      { "name": "RCN Capital", "rate": "9-12%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Rental", "Commercial"] }
+    ],
+    "avgRate": "10-12%",
+    "avgClosing": "10-15 days",
+    "tips": ["Georgia has no usury cap for commercial loans", "Atlanta market supports higher LTVs due to strong appreciation"]
+  },
+  {
+    "slug": "private-money-lenders-atlanta-ga",
+    "citySlug": "atlanta-ga",
+    "city": "Atlanta",
+    "state": "GA",
+    "lenderType": "private-money",
+    "lenderTypeLabel": "Private Money Lenders",
+    "lenders": [
+      { "name": "Lending One", "rate": "8-11%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "7-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "Visio Lending", "rate": "7-10%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "14-21", "specialties": ["Rental", "Portfolio"] },
+      { "name": "Fund That Flip", "rate": "8.5-11%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge"] }
+    ],
+    "avgRate": "8-11%",
+    "avgClosing": "10-18 days",
+    "tips": ["Atlanta has a strong private lending network through local REI groups", "Private lenders here often fund within 7 days for repeat borrowers"]
+  },
+  {
+    "slug": "dscr-lenders-atlanta-ga",
+    "citySlug": "atlanta-ga",
+    "city": "Atlanta",
+    "state": "GA",
+    "lenderType": "dscr",
+    "lenderTypeLabel": "DSCR Lenders",
+    "lenders": [
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "21-30", "specialties": ["Rental", "DSCR", "Portfolio"] },
+      { "name": "Kiavi", "rate": "7-8.5%", "ltv": "up to 80%", "minLoan": 100000, "closingDays": "21-30", "specialties": ["DSCR", "Rental"] },
+      { "name": "Easy Street Capital", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "14-21", "specialties": ["DSCR", "Rental", "Short-Term Rental"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "21-30 days",
+    "tips": ["Atlanta rents support strong DSCR ratios in most neighborhoods", "Midtown and Buckhead properties often qualify easily for DSCR loans"]
+  },
+  {
+    "slug": "portfolio-lenders-atlanta-ga",
+    "citySlug": "atlanta-ga",
+    "city": "Atlanta",
+    "state": "GA",
+    "lenderType": "portfolio",
+    "lenderTypeLabel": "Portfolio Lenders",
+    "lenders": [
+      { "name": "Blanket Mortgages Inc", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 250000, "closingDays": "21-45", "specialties": ["Portfolio", "Blanket Loans", "Rental"] },
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 150000, "closingDays": "21-30", "specialties": ["Portfolio", "DSCR", "Rental"] },
+      { "name": "CoreVest Finance", "rate": "7-9.5%", "ltv": "up to 75%", "minLoan": 500000, "closingDays": "30-45", "specialties": ["Portfolio", "Rental", "Build-to-Rent"] }
+    ],
+    "avgRate": "7-9.5%",
+    "avgClosing": "21-45 days",
+    "tips": ["Atlanta portfolio lenders often want 5+ properties in the same metro", "Consider blanket loans for scattered-site portfolios in DeKalb and Fulton counties"]
+  },
+  {
+    "slug": "commercial-lenders-atlanta-ga",
+    "citySlug": "atlanta-ga",
+    "city": "Atlanta",
+    "state": "GA",
+    "lenderType": "commercial",
+    "lenderTypeLabel": "Commercial Lenders",
+    "lenders": [
+      { "name": "Arbor Realty Trust", "rate": "6.5-9%", "ltv": "up to 80%", "minLoan": 500000, "closingDays": "30-60", "specialties": ["Multifamily", "Commercial", "Bridge"] },
+      { "name": "Ready Capital", "rate": "7-10%", "ltv": "up to 80%", "minLoan": 250000, "closingDays": "30-45", "specialties": ["Commercial", "SBA", "Mixed-Use"] },
+      { "name": "Lument", "rate": "6-8%", "ltv": "up to 80%", "minLoan": 1000000, "closingDays": "45-60", "specialties": ["Multifamily", "Agency", "Commercial"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "30-60 days",
+    "tips": ["Atlanta is a top-5 multifamily market nationally", "BeltLine corridor properties command premium valuations from commercial lenders"]
+  },
+  {
+    "slug": "hard-money-lenders-houston-tx",
+    "citySlug": "houston-tx",
+    "city": "Houston",
+    "state": "TX",
+    "lenderType": "hard-money",
+    "lenderTypeLabel": "Hard Money Lenders",
+    "lenders": [
+      { "name": "Lima One Capital", "rate": "9-12%", "ltv": "up to 90%", "minLoan": 75000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "Kiavi", "rate": "9-11%", "ltv": "up to 90%", "minLoan": 100000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Bridge"] },
+      { "name": "RCN Capital", "rate": "9-12%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Rental", "Commercial"] }
+    ],
+    "avgRate": "9-12%",
+    "avgClosing": "10-15 days",
+    "tips": ["Texas has no state income tax, increasing investor returns", "Houston's sprawling market means neighborhood-level analysis is critical for LTV"]
+  },
+  {
+    "slug": "private-money-lenders-houston-tx",
+    "citySlug": "houston-tx",
+    "city": "Houston",
+    "state": "TX",
+    "lenderType": "private-money",
+    "lenderTypeLabel": "Private Money Lenders",
+    "lenders": [
+      { "name": "Lending One", "rate": "8-11%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "7-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "Fund That Flip", "rate": "8.5-11%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge"] },
+      { "name": "Groundfloor", "rate": "9-12%", "ltv": "up to 75%", "minLoan": 50000, "closingDays": "14-21", "specialties": ["Fix & Flip", "Residential"] }
+    ],
+    "avgRate": "8-12%",
+    "avgClosing": "10-18 days",
+    "tips": ["Houston's REI community is one of the most active in the South", "Private lenders favor properties inside the 610 Loop and in The Woodlands"]
+  },
+  {
+    "slug": "dscr-lenders-houston-tx",
+    "citySlug": "houston-tx",
+    "city": "Houston",
+    "state": "TX",
+    "lenderType": "dscr",
+    "lenderTypeLabel": "DSCR Lenders",
+    "lenders": [
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "21-30", "specialties": ["Rental", "DSCR", "Portfolio"] },
+      { "name": "Easy Street Capital", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "14-21", "specialties": ["DSCR", "Rental", "Short-Term Rental"] },
+      { "name": "Kiavi", "rate": "7-8.5%", "ltv": "up to 80%", "minLoan": 100000, "closingDays": "21-30", "specialties": ["DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "21-30 days",
+    "tips": ["Houston rents have been rising steadily, supporting strong DSCR ratios", "No state income tax makes Houston rental properties more profitable"]
+  },
+  {
+    "slug": "portfolio-lenders-houston-tx",
+    "citySlug": "houston-tx",
+    "city": "Houston",
+    "state": "TX",
+    "lenderType": "portfolio",
+    "lenderTypeLabel": "Portfolio Lenders",
+    "lenders": [
+      { "name": "CoreVest Finance", "rate": "7-9.5%", "ltv": "up to 75%", "minLoan": 500000, "closingDays": "30-45", "specialties": ["Portfolio", "Rental", "Build-to-Rent"] },
+      { "name": "Blanket Mortgages Inc", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 250000, "closingDays": "21-45", "specialties": ["Portfolio", "Blanket Loans", "Rental"] },
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 150000, "closingDays": "21-30", "specialties": ["Portfolio", "DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9.5%",
+    "avgClosing": "21-45 days",
+    "tips": ["Houston has strong build-to-rent activity making portfolio loans popular", "Lenders like geographically concentrated portfolios in Harris County"]
+  },
+  {
+    "slug": "commercial-lenders-houston-tx",
+    "citySlug": "houston-tx",
+    "city": "Houston",
+    "state": "TX",
+    "lenderType": "commercial",
+    "lenderTypeLabel": "Commercial Lenders",
+    "lenders": [
+      { "name": "Arbor Realty Trust", "rate": "6.5-9%", "ltv": "up to 80%", "minLoan": 500000, "closingDays": "30-60", "specialties": ["Multifamily", "Commercial", "Bridge"] },
+      { "name": "Ready Capital", "rate": "7-10%", "ltv": "up to 80%", "minLoan": 250000, "closingDays": "30-45", "specialties": ["Commercial", "SBA", "Mixed-Use"] },
+      { "name": "Lument", "rate": "6-8%", "ltv": "up to 80%", "minLoan": 1000000, "closingDays": "45-60", "specialties": ["Multifamily", "Agency", "Commercial"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "30-60 days",
+    "tips": ["Houston is a top multifamily market with strong population growth", "Energy corridor properties attract specialized commercial lenders"]
+  },
+  {
+    "slug": "hard-money-lenders-dallas-tx",
+    "citySlug": "dallas-tx",
+    "city": "Dallas",
+    "state": "TX",
+    "lenderType": "hard-money",
+    "lenderTypeLabel": "Hard Money Lenders",
+    "lenders": [
+      { "name": "Lima One Capital", "rate": "9-12%", "ltv": "up to 90%", "minLoan": 75000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "RCN Capital", "rate": "9-12%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Rental", "Commercial"] },
+      { "name": "Kiavi", "rate": "9-11%", "ltv": "up to 90%", "minLoan": 100000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Bridge"] }
+    ],
+    "avgRate": "9-12%",
+    "avgClosing": "10-15 days",
+    "tips": ["DFW is one of the most competitive fix-and-flip markets in the country", "Texas property taxes are high -- factor them into your hold cost calculations"]
+  },
+  {
+    "slug": "private-money-lenders-dallas-tx",
+    "citySlug": "dallas-tx",
+    "city": "Dallas",
+    "state": "TX",
+    "lenderType": "private-money",
+    "lenderTypeLabel": "Private Money Lenders",
+    "lenders": [
+      { "name": "Lending One", "rate": "8-11%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "7-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "Fund That Flip", "rate": "8.5-11%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge"] },
+      { "name": "Groundfloor", "rate": "9-12%", "ltv": "up to 75%", "minLoan": 50000, "closingDays": "14-21", "specialties": ["Fix & Flip", "Residential"] }
+    ],
+    "avgRate": "8-12%",
+    "avgClosing": "10-18 days",
+    "tips": ["Dallas has a massive network of private lenders at local REI meetups", "Uptown and Oak Lawn projects attract private lender interest quickly"]
+  },
+  {
+    "slug": "dscr-lenders-dallas-tx",
+    "citySlug": "dallas-tx",
+    "city": "Dallas",
+    "state": "TX",
+    "lenderType": "dscr",
+    "lenderTypeLabel": "DSCR Lenders",
+    "lenders": [
+      { "name": "Easy Street Capital", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "14-21", "specialties": ["DSCR", "Rental", "Short-Term Rental"] },
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "21-30", "specialties": ["Rental", "DSCR", "Portfolio"] },
+      { "name": "Kiavi", "rate": "7-8.5%", "ltv": "up to 80%", "minLoan": 100000, "closingDays": "21-30", "specialties": ["DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "21-30 days",
+    "tips": ["DFW rental demand is driven by corporate relocations", "Suburbs like Frisco and McKinney have strong DSCR qualifying ratios"]
+  },
+  {
+    "slug": "portfolio-lenders-dallas-tx",
+    "citySlug": "dallas-tx",
+    "city": "Dallas",
+    "state": "TX",
+    "lenderType": "portfolio",
+    "lenderTypeLabel": "Portfolio Lenders",
+    "lenders": [
+      { "name": "CoreVest Finance", "rate": "7-9.5%", "ltv": "up to 75%", "minLoan": 500000, "closingDays": "30-45", "specialties": ["Portfolio", "Rental", "Build-to-Rent"] },
+      { "name": "Blanket Mortgages Inc", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 250000, "closingDays": "21-45", "specialties": ["Portfolio", "Blanket Loans", "Rental"] },
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 150000, "closingDays": "21-30", "specialties": ["Portfolio", "DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9.5%",
+    "avgClosing": "21-45 days",
+    "tips": ["DFW build-to-rent communities are attracting portfolio lenders", "Consider bundling DFW suburb properties for better portfolio terms"]
+  },
+  {
+    "slug": "commercial-lenders-dallas-tx",
+    "citySlug": "dallas-tx",
+    "city": "Dallas",
+    "state": "TX",
+    "lenderType": "commercial",
+    "lenderTypeLabel": "Commercial Lenders",
+    "lenders": [
+      { "name": "Arbor Realty Trust", "rate": "6.5-9%", "ltv": "up to 80%", "minLoan": 500000, "closingDays": "30-60", "specialties": ["Multifamily", "Commercial", "Bridge"] },
+      { "name": "Ready Capital", "rate": "7-10%", "ltv": "up to 80%", "minLoan": 250000, "closingDays": "30-45", "specialties": ["Commercial", "SBA", "Mixed-Use"] },
+      { "name": "Lument", "rate": "6-8%", "ltv": "up to 80%", "minLoan": 1000000, "closingDays": "45-60", "specialties": ["Multifamily", "Agency", "Commercial"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "30-60 days",
+    "tips": ["Dallas is a top-3 market for commercial real estate investment", "Deep Ellum and Bishop Arts are hot mixed-use lending zones"]
+  },
+  {
+    "slug": "hard-money-lenders-phoenix-az",
+    "citySlug": "phoenix-az",
+    "city": "Phoenix",
+    "state": "AZ",
+    "lenderType": "hard-money",
+    "lenderTypeLabel": "Hard Money Lenders",
+    "lenders": [
+      { "name": "Kiavi", "rate": "9-11%", "ltv": "up to 90%", "minLoan": 100000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Bridge"] },
+      { "name": "Lima One Capital", "rate": "9.5-12%", "ltv": "up to 90%", "minLoan": 75000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "RCN Capital", "rate": "9-12%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Rental", "Commercial"] }
+    ],
+    "avgRate": "9-12%",
+    "avgClosing": "10-15 days",
+    "tips": ["Arizona deed of trust state allows fast foreclosure -- lenders like this", "Phoenix fix-and-flip margins remain strong in the East Valley"]
+  },
+  {
+    "slug": "private-money-lenders-phoenix-az",
+    "citySlug": "phoenix-az",
+    "city": "Phoenix",
+    "state": "AZ",
+    "lenderType": "private-money",
+    "lenderTypeLabel": "Private Money Lenders",
+    "lenders": [
+      { "name": "Lending One", "rate": "8-11%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "7-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "Fund That Flip", "rate": "8.5-11%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge"] },
+      { "name": "Groundfloor", "rate": "9-12%", "ltv": "up to 75%", "minLoan": 50000, "closingDays": "14-21", "specialties": ["Fix & Flip", "Residential"] }
+    ],
+    "avgRate": "8-11%",
+    "avgClosing": "10-18 days",
+    "tips": ["Phoenix private lenders are plentiful -- many retirees fund deals here", "Scottsdale and Tempe projects attract private money quickly"]
+  },
+  {
+    "slug": "dscr-lenders-phoenix-az",
+    "citySlug": "phoenix-az",
+    "city": "Phoenix",
+    "state": "AZ",
+    "lenderType": "dscr",
+    "lenderTypeLabel": "DSCR Lenders",
+    "lenders": [
+      { "name": "Easy Street Capital", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "14-21", "specialties": ["DSCR", "Rental", "Short-Term Rental"] },
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "21-30", "specialties": ["Rental", "DSCR", "Portfolio"] },
+      { "name": "Kiavi", "rate": "7-8.5%", "ltv": "up to 80%", "minLoan": 100000, "closingDays": "21-30", "specialties": ["DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "21-30 days",
+    "tips": ["Phoenix short-term rentals perform well for DSCR qualification", "Mesa and Gilbert rentals have strong rent-to-price ratios"]
+  },
+  {
+    "slug": "portfolio-lenders-phoenix-az",
+    "citySlug": "phoenix-az",
+    "city": "Phoenix",
+    "state": "AZ",
+    "lenderType": "portfolio",
+    "lenderTypeLabel": "Portfolio Lenders",
+    "lenders": [
+      { "name": "CoreVest Finance", "rate": "7-9.5%", "ltv": "up to 75%", "minLoan": 500000, "closingDays": "30-45", "specialties": ["Portfolio", "Rental", "Build-to-Rent"] },
+      { "name": "Blanket Mortgages Inc", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 250000, "closingDays": "21-45", "specialties": ["Portfolio", "Blanket Loans", "Rental"] },
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 150000, "closingDays": "21-30", "specialties": ["Portfolio", "DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9.5%",
+    "avgClosing": "21-45 days",
+    "tips": ["Phoenix metro build-to-rent is booming -- great for portfolio loans", "East Valley and West Valley portfolios attract competitive terms"]
+  },
+  {
+    "slug": "commercial-lenders-phoenix-az",
+    "citySlug": "phoenix-az",
+    "city": "Phoenix",
+    "state": "AZ",
+    "lenderType": "commercial",
+    "lenderTypeLabel": "Commercial Lenders",
+    "lenders": [
+      { "name": "Arbor Realty Trust", "rate": "6.5-9%", "ltv": "up to 80%", "minLoan": 500000, "closingDays": "30-60", "specialties": ["Multifamily", "Commercial", "Bridge"] },
+      { "name": "Ready Capital", "rate": "7-10%", "ltv": "up to 80%", "minLoan": 250000, "closingDays": "30-45", "specialties": ["Commercial", "SBA", "Mixed-Use"] },
+      { "name": "Lument", "rate": "6-8%", "ltv": "up to 80%", "minLoan": 1000000, "closingDays": "45-60", "specialties": ["Multifamily", "Agency", "Commercial"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "30-60 days",
+    "tips": ["Phoenix multifamily cap rates are compressing, still attractive to lenders", "Industrial and data center projects are driving commercial lending activity"]
+  },
+  {
+    "slug": "hard-money-lenders-miami-fl",
+    "citySlug": "miami-fl",
+    "city": "Miami",
+    "state": "FL",
+    "lenderType": "hard-money",
+    "lenderTypeLabel": "Hard Money Lenders",
+    "lenders": [
+      { "name": "Lima One Capital", "rate": "9.5-12%", "ltv": "up to 85%", "minLoan": 100000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "Kiavi", "rate": "9-11%", "ltv": "up to 90%", "minLoan": 100000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Bridge"] },
+      { "name": "RCN Capital", "rate": "9-12%", "ltv": "up to 85%", "minLoan": 75000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Rental", "Commercial"] }
+    ],
+    "avgRate": "10-12%",
+    "avgClosing": "10-15 days",
+    "tips": ["Florida is a judicial foreclosure state -- lenders factor this into risk", "Miami-Dade property values support larger loan amounts"]
+  },
+  {
+    "slug": "private-money-lenders-miami-fl",
+    "citySlug": "miami-fl",
+    "city": "Miami",
+    "state": "FL",
+    "lenderType": "private-money",
+    "lenderTypeLabel": "Private Money Lenders",
+    "lenders": [
+      { "name": "Lending One", "rate": "8-11%", "ltv": "up to 80%", "minLoan": 100000, "closingDays": "7-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "Fund That Flip", "rate": "8.5-11%", "ltv": "up to 85%", "minLoan": 75000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge"] },
+      { "name": "Groundfloor", "rate": "9-12%", "ltv": "up to 75%", "minLoan": 50000, "closingDays": "14-21", "specialties": ["Fix & Flip", "Residential"] }
+    ],
+    "avgRate": "8-12%",
+    "avgClosing": "10-18 days",
+    "tips": ["Miami has strong international private capital looking for yield", "Condo projects in Miami require specialized private lenders due to HOA rules"]
+  },
+  {
+    "slug": "dscr-lenders-miami-fl",
+    "citySlug": "miami-fl",
+    "city": "Miami",
+    "state": "FL",
+    "lenderType": "dscr",
+    "lenderTypeLabel": "DSCR Lenders",
+    "lenders": [
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 100000, "closingDays": "21-30", "specialties": ["Rental", "DSCR", "Portfolio"] },
+      { "name": "Easy Street Capital", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "14-21", "specialties": ["DSCR", "Rental", "Short-Term Rental"] },
+      { "name": "Kiavi", "rate": "7-8.5%", "ltv": "up to 80%", "minLoan": 100000, "closingDays": "21-30", "specialties": ["DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "21-30 days",
+    "tips": ["Miami short-term rentals can produce exceptional DSCR ratios", "Broward and Palm Beach counties also qualify well for DSCR loans"]
+  },
+  {
+    "slug": "portfolio-lenders-miami-fl",
+    "citySlug": "miami-fl",
+    "city": "Miami",
+    "state": "FL",
+    "lenderType": "portfolio",
+    "lenderTypeLabel": "Portfolio Lenders",
+    "lenders": [
+      { "name": "CoreVest Finance", "rate": "7-9.5%", "ltv": "up to 75%", "minLoan": 500000, "closingDays": "30-45", "specialties": ["Portfolio", "Rental", "Build-to-Rent"] },
+      { "name": "Blanket Mortgages Inc", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 250000, "closingDays": "21-45", "specialties": ["Portfolio", "Blanket Loans", "Rental"] },
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 150000, "closingDays": "21-30", "specialties": ["Portfolio", "DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9.5%",
+    "avgClosing": "21-45 days",
+    "tips": ["Miami portfolio lenders want diversification across Dade, Broward, and Palm Beach", "Condo portfolios require warrantable status for best terms"]
+  },
+  {
+    "slug": "commercial-lenders-miami-fl",
+    "citySlug": "miami-fl",
+    "city": "Miami",
+    "state": "FL",
+    "lenderType": "commercial",
+    "lenderTypeLabel": "Commercial Lenders",
+    "lenders": [
+      { "name": "Arbor Realty Trust", "rate": "6.5-9%", "ltv": "up to 80%", "minLoan": 500000, "closingDays": "30-60", "specialties": ["Multifamily", "Commercial", "Bridge"] },
+      { "name": "Ready Capital", "rate": "7-10%", "ltv": "up to 80%", "minLoan": 250000, "closingDays": "30-45", "specialties": ["Commercial", "SBA", "Mixed-Use"] },
+      { "name": "Lument", "rate": "6-8%", "ltv": "up to 80%", "minLoan": 1000000, "closingDays": "45-60", "specialties": ["Multifamily", "Agency", "Commercial"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "30-60 days",
+    "tips": ["Miami is the gateway to Latin American capital for commercial real estate", "Brickell and Wynwood attract premium commercial lending interest"]
+  },
+  {
+    "slug": "hard-money-lenders-chicago-il",
+    "citySlug": "chicago-il",
+    "city": "Chicago",
+    "state": "IL",
+    "lenderType": "hard-money",
+    "lenderTypeLabel": "Hard Money Lenders",
+    "lenders": [
+      { "name": "Lima One Capital", "rate": "9.5-12%", "ltv": "up to 85%", "minLoan": 75000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "RCN Capital", "rate": "9-12%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Rental", "Commercial"] },
+      { "name": "Kiavi", "rate": "9-11%", "ltv": "up to 90%", "minLoan": 100000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Bridge"] }
+    ],
+    "avgRate": "10-12%",
+    "avgClosing": "10-15 days",
+    "tips": ["Illinois property taxes are among the highest -- budget carefully", "South Side and West Side flips have strong margins but higher risk"]
+  },
+  {
+    "slug": "private-money-lenders-chicago-il",
+    "citySlug": "chicago-il",
+    "city": "Chicago",
+    "state": "IL",
+    "lenderType": "private-money",
+    "lenderTypeLabel": "Private Money Lenders",
+    "lenders": [
+      { "name": "Lending One", "rate": "8-11%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "7-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "Fund That Flip", "rate": "8.5-11%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge"] },
+      { "name": "Groundfloor", "rate": "9-12%", "ltv": "up to 75%", "minLoan": 50000, "closingDays": "14-21", "specialties": ["Fix & Flip", "Residential"] }
+    ],
+    "avgRate": "8-12%",
+    "avgClosing": "10-18 days",
+    "tips": ["Chicago private lenders are active in the two-flat and three-flat market", "Lincoln Park and Logan Square projects get funded quickly"]
+  },
+  {
+    "slug": "dscr-lenders-chicago-il",
+    "citySlug": "chicago-il",
+    "city": "Chicago",
+    "state": "IL",
+    "lenderType": "dscr",
+    "lenderTypeLabel": "DSCR Lenders",
+    "lenders": [
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "21-30", "specialties": ["Rental", "DSCR", "Portfolio"] },
+      { "name": "Easy Street Capital", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "14-21", "specialties": ["DSCR", "Rental", "Short-Term Rental"] },
+      { "name": "Kiavi", "rate": "7-8.5%", "ltv": "up to 80%", "minLoan": 100000, "closingDays": "21-30", "specialties": ["DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "21-30 days",
+    "tips": ["Chicago multi-units qualify well for DSCR with strong rent-to-price ratios", "High property taxes reduce DSCR -- factor them into your analysis"]
+  },
+  {
+    "slug": "portfolio-lenders-chicago-il",
+    "citySlug": "chicago-il",
+    "city": "Chicago",
+    "state": "IL",
+    "lenderType": "portfolio",
+    "lenderTypeLabel": "Portfolio Lenders",
+    "lenders": [
+      { "name": "CoreVest Finance", "rate": "7-9.5%", "ltv": "up to 75%", "minLoan": 500000, "closingDays": "30-45", "specialties": ["Portfolio", "Rental", "Build-to-Rent"] },
+      { "name": "Blanket Mortgages Inc", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 250000, "closingDays": "21-45", "specialties": ["Portfolio", "Blanket Loans", "Rental"] },
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 150000, "closingDays": "21-30", "specialties": ["Portfolio", "DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9.5%",
+    "avgClosing": "21-45 days",
+    "tips": ["Chicago two-flat and three-flat portfolios are ideal for blanket loans", "Cook County tax reassessments can affect portfolio valuations"]
+  },
+  {
+    "slug": "commercial-lenders-chicago-il",
+    "citySlug": "chicago-il",
+    "city": "Chicago",
+    "state": "IL",
+    "lenderType": "commercial",
+    "lenderTypeLabel": "Commercial Lenders",
+    "lenders": [
+      { "name": "Arbor Realty Trust", "rate": "6.5-9%", "ltv": "up to 80%", "minLoan": 500000, "closingDays": "30-60", "specialties": ["Multifamily", "Commercial", "Bridge"] },
+      { "name": "Ready Capital", "rate": "7-10%", "ltv": "up to 80%", "minLoan": 250000, "closingDays": "30-45", "specialties": ["Commercial", "SBA", "Mixed-Use"] },
+      { "name": "Lument", "rate": "6-8%", "ltv": "up to 80%", "minLoan": 1000000, "closingDays": "45-60", "specialties": ["Multifamily", "Agency", "Commercial"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "30-60 days",
+    "tips": ["Chicago Loop and River North attract institutional commercial lenders", "Opportunity Zones on the South and West Sides provide tax incentives"]
+  },
+  {
+    "slug": "hard-money-lenders-denver-co",
+    "citySlug": "denver-co",
+    "city": "Denver",
+    "state": "CO",
+    "lenderType": "hard-money",
+    "lenderTypeLabel": "Hard Money Lenders",
+    "lenders": [
+      { "name": "Kiavi", "rate": "9-11%", "ltv": "up to 90%", "minLoan": 100000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Bridge"] },
+      { "name": "Lima One Capital", "rate": "9.5-12%", "ltv": "up to 90%", "minLoan": 75000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "RCN Capital", "rate": "9-12%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Rental", "Commercial"] }
+    ],
+    "avgRate": "9-12%",
+    "avgClosing": "10-15 days",
+    "tips": ["Denver's appreciation has been strong -- ARVs support higher LTVs", "Colorado is a deed of trust state with fast foreclosure timelines"]
+  },
+  {
+    "slug": "private-money-lenders-denver-co",
+    "citySlug": "denver-co",
+    "city": "Denver",
+    "state": "CO",
+    "lenderType": "private-money",
+    "lenderTypeLabel": "Private Money Lenders",
+    "lenders": [
+      { "name": "Lending One", "rate": "8-11%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "7-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "Fund That Flip", "rate": "8.5-11%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge"] },
+      { "name": "Groundfloor", "rate": "9-12%", "ltv": "up to 75%", "minLoan": 50000, "closingDays": "14-21", "specialties": ["Fix & Flip", "Residential"] }
+    ],
+    "avgRate": "8-12%",
+    "avgClosing": "10-18 days",
+    "tips": ["Denver private lenders are active in the Highlands and RiNo neighborhoods", "Colorado REI groups hold regular events where private lenders network"]
+  },
+  {
+    "slug": "dscr-lenders-denver-co",
+    "citySlug": "denver-co",
+    "city": "Denver",
+    "state": "CO",
+    "lenderType": "dscr",
+    "lenderTypeLabel": "DSCR Lenders",
+    "lenders": [
+      { "name": "Easy Street Capital", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "14-21", "specialties": ["DSCR", "Rental", "Short-Term Rental"] },
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "21-30", "specialties": ["Rental", "DSCR", "Portfolio"] },
+      { "name": "Kiavi", "rate": "7-8.5%", "ltv": "up to 80%", "minLoan": 100000, "closingDays": "21-30", "specialties": ["DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "21-30 days",
+    "tips": ["Denver rents are high but so are prices -- DSCR ratios can be tight", "Mountain-area short-term rentals can boost DSCR significantly"]
+  },
+  {
+    "slug": "portfolio-lenders-denver-co",
+    "citySlug": "denver-co",
+    "city": "Denver",
+    "state": "CO",
+    "lenderType": "portfolio",
+    "lenderTypeLabel": "Portfolio Lenders",
+    "lenders": [
+      { "name": "CoreVest Finance", "rate": "7-9.5%", "ltv": "up to 75%", "minLoan": 500000, "closingDays": "30-45", "specialties": ["Portfolio", "Rental", "Build-to-Rent"] },
+      { "name": "Blanket Mortgages Inc", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 250000, "closingDays": "21-45", "specialties": ["Portfolio", "Blanket Loans", "Rental"] },
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 150000, "closingDays": "21-30", "specialties": ["Portfolio", "DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9.5%",
+    "avgClosing": "21-45 days",
+    "tips": ["Denver metro portfolios in Aurora and Lakewood attract competitive terms", "Colorado mountain town rentals can be included in portfolio loans"]
+  },
+  {
+    "slug": "commercial-lenders-denver-co",
+    "citySlug": "denver-co",
+    "city": "Denver",
+    "state": "CO",
+    "lenderType": "commercial",
+    "lenderTypeLabel": "Commercial Lenders",
+    "lenders": [
+      { "name": "Arbor Realty Trust", "rate": "6.5-9%", "ltv": "up to 80%", "minLoan": 500000, "closingDays": "30-60", "specialties": ["Multifamily", "Commercial", "Bridge"] },
+      { "name": "Ready Capital", "rate": "7-10%", "ltv": "up to 80%", "minLoan": 250000, "closingDays": "30-45", "specialties": ["Commercial", "SBA", "Mixed-Use"] },
+      { "name": "Lument", "rate": "6-8%", "ltv": "up to 80%", "minLoan": 1000000, "closingDays": "45-60", "specialties": ["Multifamily", "Agency", "Commercial"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "30-60 days",
+    "tips": ["Denver is experiencing a multifamily construction boom", "LoDo and Cherry Creek are premium commercial lending areas"]
+  },
+  {
+    "slug": "hard-money-lenders-charlotte-nc",
+    "citySlug": "charlotte-nc",
+    "city": "Charlotte",
+    "state": "NC",
+    "lenderType": "hard-money",
+    "lenderTypeLabel": "Hard Money Lenders",
+    "lenders": [
+      { "name": "Lima One Capital", "rate": "9-12%", "ltv": "up to 90%", "minLoan": 75000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "Kiavi", "rate": "9-11%", "ltv": "up to 90%", "minLoan": 100000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Bridge"] },
+      { "name": "RCN Capital", "rate": "9-12%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Rental", "Commercial"] }
+    ],
+    "avgRate": "9-12%",
+    "avgClosing": "10-15 days",
+    "tips": ["North Carolina is a deed of trust state with favorable foreclosure timelines", "Charlotte's growth rate makes it attractive to national hard money lenders"]
+  },
+  {
+    "slug": "private-money-lenders-charlotte-nc",
+    "citySlug": "charlotte-nc",
+    "city": "Charlotte",
+    "state": "NC",
+    "lenderType": "private-money",
+    "lenderTypeLabel": "Private Money Lenders",
+    "lenders": [
+      { "name": "Lending One", "rate": "8-11%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "7-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "Fund That Flip", "rate": "8.5-11%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge"] },
+      { "name": "Groundfloor", "rate": "9-12%", "ltv": "up to 75%", "minLoan": 50000, "closingDays": "14-21", "specialties": ["Fix & Flip", "Residential"] }
+    ],
+    "avgRate": "8-12%",
+    "avgClosing": "10-18 days",
+    "tips": ["Charlotte REI community is growing rapidly with new private lenders entering", "NoDa and South End projects attract private capital quickly"]
+  },
+  {
+    "slug": "dscr-lenders-charlotte-nc",
+    "citySlug": "charlotte-nc",
+    "city": "Charlotte",
+    "state": "NC",
+    "lenderType": "dscr",
+    "lenderTypeLabel": "DSCR Lenders",
+    "lenders": [
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "21-30", "specialties": ["Rental", "DSCR", "Portfolio"] },
+      { "name": "Easy Street Capital", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "14-21", "specialties": ["DSCR", "Rental", "Short-Term Rental"] },
+      { "name": "Kiavi", "rate": "7-8.5%", "ltv": "up to 80%", "minLoan": 100000, "closingDays": "21-30", "specialties": ["DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "21-30 days",
+    "tips": ["Charlotte rent growth has been consistent, supporting strong DSCR ratios", "University City and Steele Creek have excellent rent-to-price ratios"]
+  },
+  {
+    "slug": "portfolio-lenders-charlotte-nc",
+    "citySlug": "charlotte-nc",
+    "city": "Charlotte",
+    "state": "NC",
+    "lenderType": "portfolio",
+    "lenderTypeLabel": "Portfolio Lenders",
+    "lenders": [
+      { "name": "CoreVest Finance", "rate": "7-9.5%", "ltv": "up to 75%", "minLoan": 500000, "closingDays": "30-45", "specialties": ["Portfolio", "Rental", "Build-to-Rent"] },
+      { "name": "Blanket Mortgages Inc", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 250000, "closingDays": "21-45", "specialties": ["Portfolio", "Blanket Loans", "Rental"] },
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 150000, "closingDays": "21-30", "specialties": ["Portfolio", "DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9.5%",
+    "avgClosing": "21-45 days",
+    "tips": ["Charlotte suburban build-to-rent is attracting portfolio lender interest", "Mecklenburg County portfolios get competitive terms from national lenders"]
+  },
+  {
+    "slug": "commercial-lenders-charlotte-nc",
+    "citySlug": "charlotte-nc",
+    "city": "Charlotte",
+    "state": "NC",
+    "lenderType": "commercial",
+    "lenderTypeLabel": "Commercial Lenders",
+    "lenders": [
+      { "name": "Arbor Realty Trust", "rate": "6.5-9%", "ltv": "up to 80%", "minLoan": 500000, "closingDays": "30-60", "specialties": ["Multifamily", "Commercial", "Bridge"] },
+      { "name": "Ready Capital", "rate": "7-10%", "ltv": "up to 80%", "minLoan": 250000, "closingDays": "30-45", "specialties": ["Commercial", "SBA", "Mixed-Use"] },
+      { "name": "Lument", "rate": "6-8%", "ltv": "up to 80%", "minLoan": 1000000, "closingDays": "45-60", "specialties": ["Multifamily", "Agency", "Commercial"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "30-60 days",
+    "tips": ["Charlotte is a top-10 banking hub which benefits commercial lending", "Uptown mixed-use developments attract competitive commercial terms"]
+  },
+  {
+    "slug": "hard-money-lenders-nashville-tn",
+    "citySlug": "nashville-tn",
+    "city": "Nashville",
+    "state": "TN",
+    "lenderType": "hard-money",
+    "lenderTypeLabel": "Hard Money Lenders",
+    "lenders": [
+      { "name": "Lima One Capital", "rate": "9.5-12%", "ltv": "up to 90%", "minLoan": 75000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "Kiavi", "rate": "9-11%", "ltv": "up to 90%", "minLoan": 100000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Bridge"] },
+      { "name": "RCN Capital", "rate": "9-12%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Rental", "Commercial"] }
+    ],
+    "avgRate": "9-12%",
+    "avgClosing": "10-15 days",
+    "tips": ["Tennessee has no state income tax, boosting investor returns", "Nashville's rapid appreciation supports aggressive ARV-based lending"]
+  },
+  {
+    "slug": "private-money-lenders-nashville-tn",
+    "citySlug": "nashville-tn",
+    "city": "Nashville",
+    "state": "TN",
+    "lenderType": "private-money",
+    "lenderTypeLabel": "Private Money Lenders",
+    "lenders": [
+      { "name": "Lending One", "rate": "8-11%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "7-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "Fund That Flip", "rate": "8.5-11%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge"] },
+      { "name": "Groundfloor", "rate": "9-12%", "ltv": "up to 75%", "minLoan": 50000, "closingDays": "14-21", "specialties": ["Fix & Flip", "Residential"] }
+    ],
+    "avgRate": "8-12%",
+    "avgClosing": "10-18 days",
+    "tips": ["Nashville private lenders love short-term rental deals in tourist areas", "East Nashville and Germantown flip projects get funded quickly"]
+  },
+  {
+    "slug": "dscr-lenders-nashville-tn",
+    "citySlug": "nashville-tn",
+    "city": "Nashville",
+    "state": "TN",
+    "lenderType": "dscr",
+    "lenderTypeLabel": "DSCR Lenders",
+    "lenders": [
+      { "name": "Easy Street Capital", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "14-21", "specialties": ["DSCR", "Rental", "Short-Term Rental"] },
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "21-30", "specialties": ["Rental", "DSCR", "Portfolio"] },
+      { "name": "Kiavi", "rate": "7-8.5%", "ltv": "up to 80%", "minLoan": 100000, "closingDays": "21-30", "specialties": ["DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "21-30 days",
+    "tips": ["Nashville STR income can significantly boost DSCR ratios", "No state income tax means higher net rental income for DSCR qualification"]
+  },
+  {
+    "slug": "portfolio-lenders-nashville-tn",
+    "citySlug": "nashville-tn",
+    "city": "Nashville",
+    "state": "TN",
+    "lenderType": "portfolio",
+    "lenderTypeLabel": "Portfolio Lenders",
+    "lenders": [
+      { "name": "CoreVest Finance", "rate": "7-9.5%", "ltv": "up to 75%", "minLoan": 500000, "closingDays": "30-45", "specialties": ["Portfolio", "Rental", "Build-to-Rent"] },
+      { "name": "Blanket Mortgages Inc", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 250000, "closingDays": "21-45", "specialties": ["Portfolio", "Blanket Loans", "Rental"] },
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 150000, "closingDays": "21-30", "specialties": ["Portfolio", "DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9.5%",
+    "avgClosing": "21-45 days",
+    "tips": ["Nashville suburban portfolios in Murfreesboro and Franklin perform well", "Short-term rental portfolios near downtown are increasingly popular"]
+  },
+  {
+    "slug": "commercial-lenders-nashville-tn",
+    "citySlug": "nashville-tn",
+    "city": "Nashville",
+    "state": "TN",
+    "lenderType": "commercial",
+    "lenderTypeLabel": "Commercial Lenders",
+    "lenders": [
+      { "name": "Arbor Realty Trust", "rate": "6.5-9%", "ltv": "up to 80%", "minLoan": 500000, "closingDays": "30-60", "specialties": ["Multifamily", "Commercial", "Bridge"] },
+      { "name": "Ready Capital", "rate": "7-10%", "ltv": "up to 80%", "minLoan": 250000, "closingDays": "30-45", "specialties": ["Commercial", "SBA", "Mixed-Use"] },
+      { "name": "Lument", "rate": "6-8%", "ltv": "up to 80%", "minLoan": 1000000, "closingDays": "45-60", "specialties": ["Multifamily", "Agency", "Commercial"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "30-60 days",
+    "tips": ["Nashville is one of the fastest-growing commercial markets in the Southeast", "The Gulch and SoBro are premium areas for commercial lending"]
+  },
+  {
+    "slug": "hard-money-lenders-tampa-fl",
+    "citySlug": "tampa-fl",
+    "city": "Tampa",
+    "state": "FL",
+    "lenderType": "hard-money",
+    "lenderTypeLabel": "Hard Money Lenders",
+    "lenders": [
+      { "name": "Lima One Capital", "rate": "9.5-12%", "ltv": "up to 90%", "minLoan": 75000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "Kiavi", "rate": "9-11%", "ltv": "up to 90%", "minLoan": 100000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Bridge"] },
+      { "name": "RCN Capital", "rate": "9-12%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Rental", "Commercial"] }
+    ],
+    "avgRate": "9-12%",
+    "avgClosing": "10-15 days",
+    "tips": ["Florida is a judicial foreclosure state which affects lender risk assessment", "Tampa Bay appreciation has made it a hot market for fix-and-flip lenders"]
+  },
+  {
+    "slug": "private-money-lenders-tampa-fl",
+    "citySlug": "tampa-fl",
+    "city": "Tampa",
+    "state": "FL",
+    "lenderType": "private-money",
+    "lenderTypeLabel": "Private Money Lenders",
+    "lenders": [
+      { "name": "Lending One", "rate": "8-11%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "7-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "Fund That Flip", "rate": "8.5-11%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge"] },
+      { "name": "Groundfloor", "rate": "9-12%", "ltv": "up to 75%", "minLoan": 50000, "closingDays": "14-21", "specialties": ["Fix & Flip", "Residential"] }
+    ],
+    "avgRate": "8-12%",
+    "avgClosing": "10-18 days",
+    "tips": ["Tampa's retiree population includes many active private lenders", "Seminole Heights and Ybor City attract private lender interest"]
+  },
+  {
+    "slug": "dscr-lenders-tampa-fl",
+    "citySlug": "tampa-fl",
+    "city": "Tampa",
+    "state": "FL",
+    "lenderType": "dscr",
+    "lenderTypeLabel": "DSCR Lenders",
+    "lenders": [
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "21-30", "specialties": ["Rental", "DSCR", "Portfolio"] },
+      { "name": "Easy Street Capital", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "14-21", "specialties": ["DSCR", "Rental", "Short-Term Rental"] },
+      { "name": "Kiavi", "rate": "7-8.5%", "ltv": "up to 80%", "minLoan": 100000, "closingDays": "21-30", "specialties": ["DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "21-30 days",
+    "tips": ["Tampa no state income tax boosts net rental income for DSCR", "Beach-area short-term rentals produce excellent DSCR ratios"]
+  },
+  {
+    "slug": "portfolio-lenders-tampa-fl",
+    "citySlug": "tampa-fl",
+    "city": "Tampa",
+    "state": "FL",
+    "lenderType": "portfolio",
+    "lenderTypeLabel": "Portfolio Lenders",
+    "lenders": [
+      { "name": "CoreVest Finance", "rate": "7-9.5%", "ltv": "up to 75%", "minLoan": 500000, "closingDays": "30-45", "specialties": ["Portfolio", "Rental", "Build-to-Rent"] },
+      { "name": "Blanket Mortgages Inc", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 250000, "closingDays": "21-45", "specialties": ["Portfolio", "Blanket Loans", "Rental"] },
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 150000, "closingDays": "21-30", "specialties": ["Portfolio", "DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9.5%",
+    "avgClosing": "21-45 days",
+    "tips": ["Tampa Bay area portfolios spanning Hillsborough and Pinellas counties are popular", "Flood insurance costs should be factored into portfolio underwriting"]
+  },
+  {
+    "slug": "commercial-lenders-tampa-fl",
+    "citySlug": "tampa-fl",
+    "city": "Tampa",
+    "state": "FL",
+    "lenderType": "commercial",
+    "lenderTypeLabel": "Commercial Lenders",
+    "lenders": [
+      { "name": "Arbor Realty Trust", "rate": "6.5-9%", "ltv": "up to 80%", "minLoan": 500000, "closingDays": "30-60", "specialties": ["Multifamily", "Commercial", "Bridge"] },
+      { "name": "Ready Capital", "rate": "7-10%", "ltv": "up to 80%", "minLoan": 250000, "closingDays": "30-45", "specialties": ["Commercial", "SBA", "Mixed-Use"] },
+      { "name": "Lument", "rate": "6-8%", "ltv": "up to 80%", "minLoan": 1000000, "closingDays": "45-60", "specialties": ["Multifamily", "Agency", "Commercial"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "30-60 days",
+    "tips": ["Tampa's Water Street development has attracted major commercial capital", "Channelside and Westshore are prime commercial lending zones"]
+  },
+  {
+    "slug": "hard-money-lenders-san-antonio-tx",
+    "citySlug": "san-antonio-tx",
+    "city": "San Antonio",
+    "state": "TX",
+    "lenderType": "hard-money",
+    "lenderTypeLabel": "Hard Money Lenders",
+    "lenders": [
+      { "name": "Lima One Capital", "rate": "9-12%", "ltv": "up to 90%", "minLoan": 75000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "RCN Capital", "rate": "9-12%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Rental", "Commercial"] },
+      { "name": "Kiavi", "rate": "9-11%", "ltv": "up to 90%", "minLoan": 100000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Bridge"] }
+    ],
+    "avgRate": "9-12%",
+    "avgClosing": "10-15 days",
+    "tips": ["San Antonio has lower entry prices than DFW making hard money more accessible", "Military base proximity creates steady demand for rental conversions"]
+  },
+  {
+    "slug": "private-money-lenders-san-antonio-tx",
+    "citySlug": "san-antonio-tx",
+    "city": "San Antonio",
+    "state": "TX",
+    "lenderType": "private-money",
+    "lenderTypeLabel": "Private Money Lenders",
+    "lenders": [
+      { "name": "Lending One", "rate": "8-11%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "7-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "Fund That Flip", "rate": "8.5-11%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge"] },
+      { "name": "Groundfloor", "rate": "9-12%", "ltv": "up to 75%", "minLoan": 50000, "closingDays": "14-21", "specialties": ["Fix & Flip", "Residential"] }
+    ],
+    "avgRate": "8-12%",
+    "avgClosing": "10-18 days",
+    "tips": ["San Antonio private lenders are active in the growing Alamo Heights area", "No state income tax increases investor returns on private money deals"]
+  },
+  {
+    "slug": "dscr-lenders-san-antonio-tx",
+    "citySlug": "san-antonio-tx",
+    "city": "San Antonio",
+    "state": "TX",
+    "lenderType": "dscr",
+    "lenderTypeLabel": "DSCR Lenders",
+    "lenders": [
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "21-30", "specialties": ["Rental", "DSCR", "Portfolio"] },
+      { "name": "Easy Street Capital", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "14-21", "specialties": ["DSCR", "Rental", "Short-Term Rental"] },
+      { "name": "Kiavi", "rate": "7-8.5%", "ltv": "up to 80%", "minLoan": 100000, "closingDays": "21-30", "specialties": ["DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "21-30 days",
+    "tips": ["San Antonio's affordable prices create strong rent-to-price ratios for DSCR", "Military housing demand provides consistent DSCR qualifying income"]
+  },
+  {
+    "slug": "portfolio-lenders-san-antonio-tx",
+    "citySlug": "san-antonio-tx",
+    "city": "San Antonio",
+    "state": "TX",
+    "lenderType": "portfolio",
+    "lenderTypeLabel": "Portfolio Lenders",
+    "lenders": [
+      { "name": "CoreVest Finance", "rate": "7-9.5%", "ltv": "up to 75%", "minLoan": 500000, "closingDays": "30-45", "specialties": ["Portfolio", "Rental", "Build-to-Rent"] },
+      { "name": "Blanket Mortgages Inc", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 250000, "closingDays": "21-45", "specialties": ["Portfolio", "Blanket Loans", "Rental"] },
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 150000, "closingDays": "21-30", "specialties": ["Portfolio", "DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9.5%",
+    "avgClosing": "21-45 days",
+    "tips": ["San Antonio portfolio lending is growing with the build-to-rent trend", "Bexar County portfolios of affordable rentals attract portfolio lenders"]
+  },
+  {
+    "slug": "commercial-lenders-san-antonio-tx",
+    "citySlug": "san-antonio-tx",
+    "city": "San Antonio",
+    "state": "TX",
+    "lenderType": "commercial",
+    "lenderTypeLabel": "Commercial Lenders",
+    "lenders": [
+      { "name": "Arbor Realty Trust", "rate": "6.5-9%", "ltv": "up to 80%", "minLoan": 500000, "closingDays": "30-60", "specialties": ["Multifamily", "Commercial", "Bridge"] },
+      { "name": "Ready Capital", "rate": "7-10%", "ltv": "up to 80%", "minLoan": 250000, "closingDays": "30-45", "specialties": ["Commercial", "SBA", "Mixed-Use"] },
+      { "name": "Lument", "rate": "6-8%", "ltv": "up to 80%", "minLoan": 1000000, "closingDays": "45-60", "specialties": ["Multifamily", "Agency", "Commercial"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "30-60 days",
+    "tips": ["San Antonio commercial market is driven by military and healthcare sectors", "Pearl District and Southtown are attracting mixed-use commercial investment"]
+  },
+  {
+    "slug": "hard-money-lenders-las-vegas-nv",
+    "citySlug": "las-vegas-nv",
+    "city": "Las Vegas",
+    "state": "NV",
+    "lenderType": "hard-money",
+    "lenderTypeLabel": "Hard Money Lenders",
+    "lenders": [
+      { "name": "Kiavi", "rate": "9-11%", "ltv": "up to 90%", "minLoan": 100000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Bridge"] },
+      { "name": "Lima One Capital", "rate": "9.5-12%", "ltv": "up to 90%", "minLoan": 75000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "RCN Capital", "rate": "9-12%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Rental", "Commercial"] }
+    ],
+    "avgRate": "9-12%",
+    "avgClosing": "10-15 days",
+    "tips": ["Nevada has no state income tax, increasing investor returns", "Las Vegas fix-and-flip volumes are among the highest in the West"]
+  },
+  {
+    "slug": "private-money-lenders-las-vegas-nv",
+    "citySlug": "las-vegas-nv",
+    "city": "Las Vegas",
+    "state": "NV",
+    "lenderType": "private-money",
+    "lenderTypeLabel": "Private Money Lenders",
+    "lenders": [
+      { "name": "Lending One", "rate": "8-11%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "7-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "Fund That Flip", "rate": "8.5-11%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge"] },
+      { "name": "Groundfloor", "rate": "9-12%", "ltv": "up to 75%", "minLoan": 50000, "closingDays": "14-21", "specialties": ["Fix & Flip", "Residential"] }
+    ],
+    "avgRate": "8-12%",
+    "avgClosing": "10-18 days",
+    "tips": ["Las Vegas has a large private lending community at local REI meetups", "Henderson and Summerlin projects are popular with private lenders"]
+  },
+  {
+    "slug": "dscr-lenders-las-vegas-nv",
+    "citySlug": "las-vegas-nv",
+    "city": "Las Vegas",
+    "state": "NV",
+    "lenderType": "dscr",
+    "lenderTypeLabel": "DSCR Lenders",
+    "lenders": [
+      { "name": "Easy Street Capital", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "14-21", "specialties": ["DSCR", "Rental", "Short-Term Rental"] },
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "21-30", "specialties": ["Rental", "DSCR", "Portfolio"] },
+      { "name": "Kiavi", "rate": "7-8.5%", "ltv": "up to 80%", "minLoan": 100000, "closingDays": "21-30", "specialties": ["DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "21-30 days",
+    "tips": ["Las Vegas short-term rental income can boost DSCR significantly", "No state income tax means higher net income for DSCR qualification"]
+  },
+  {
+    "slug": "portfolio-lenders-las-vegas-nv",
+    "citySlug": "las-vegas-nv",
+    "city": "Las Vegas",
+    "state": "NV",
+    "lenderType": "portfolio",
+    "lenderTypeLabel": "Portfolio Lenders",
+    "lenders": [
+      { "name": "CoreVest Finance", "rate": "7-9.5%", "ltv": "up to 75%", "minLoan": 500000, "closingDays": "30-45", "specialties": ["Portfolio", "Rental", "Build-to-Rent"] },
+      { "name": "Blanket Mortgages Inc", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 250000, "closingDays": "21-45", "specialties": ["Portfolio", "Blanket Loans", "Rental"] },
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 150000, "closingDays": "21-30", "specialties": ["Portfolio", "DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9.5%",
+    "avgClosing": "21-45 days",
+    "tips": ["Las Vegas build-to-rent is booming in the southwest valley", "Clark County portfolios attract competitive terms from national lenders"]
+  },
+  {
+    "slug": "commercial-lenders-las-vegas-nv",
+    "citySlug": "las-vegas-nv",
+    "city": "Las Vegas",
+    "state": "NV",
+    "lenderType": "commercial",
+    "lenderTypeLabel": "Commercial Lenders",
+    "lenders": [
+      { "name": "Arbor Realty Trust", "rate": "6.5-9%", "ltv": "up to 80%", "minLoan": 500000, "closingDays": "30-60", "specialties": ["Multifamily", "Commercial", "Bridge"] },
+      { "name": "Ready Capital", "rate": "7-10%", "ltv": "up to 80%", "minLoan": 250000, "closingDays": "30-45", "specialties": ["Commercial", "SBA", "Mixed-Use"] },
+      { "name": "Lument", "rate": "6-8%", "ltv": "up to 80%", "minLoan": 1000000, "closingDays": "45-60", "specialties": ["Multifamily", "Agency", "Commercial"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "30-60 days",
+    "tips": ["Las Vegas commercial market is driven by hospitality and entertainment", "The Strip corridor and downtown redevelopment attract institutional capital"]
+  },
+  {
+    "slug": "hard-money-lenders-orlando-fl",
+    "citySlug": "orlando-fl",
+    "city": "Orlando",
+    "state": "FL",
+    "lenderType": "hard-money",
+    "lenderTypeLabel": "Hard Money Lenders",
+    "lenders": [
+      { "name": "Lima One Capital", "rate": "9.5-12%", "ltv": "up to 90%", "minLoan": 75000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "Kiavi", "rate": "9-11%", "ltv": "up to 90%", "minLoan": 100000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Bridge"] },
+      { "name": "RCN Capital", "rate": "9-12%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Rental", "Commercial"] }
+    ],
+    "avgRate": "9-12%",
+    "avgClosing": "10-15 days",
+    "tips": ["Orlando's tourism economy creates strong demand for short-term rental flips", "Orange and Osceola counties have different flip dynamics -- know your market"]
+  },
+  {
+    "slug": "private-money-lenders-orlando-fl",
+    "citySlug": "orlando-fl",
+    "city": "Orlando",
+    "state": "FL",
+    "lenderType": "private-money",
+    "lenderTypeLabel": "Private Money Lenders",
+    "lenders": [
+      { "name": "Lending One", "rate": "8-11%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "7-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "Fund That Flip", "rate": "8.5-11%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge"] },
+      { "name": "Groundfloor", "rate": "9-12%", "ltv": "up to 75%", "minLoan": 50000, "closingDays": "14-21", "specialties": ["Fix & Flip", "Residential"] }
+    ],
+    "avgRate": "8-12%",
+    "avgClosing": "10-18 days",
+    "tips": ["Orlando private lenders are familiar with vacation rental conversions", "Winter Park and College Park projects attract private capital"]
+  },
+  {
+    "slug": "dscr-lenders-orlando-fl",
+    "citySlug": "orlando-fl",
+    "city": "Orlando",
+    "state": "FL",
+    "lenderType": "dscr",
+    "lenderTypeLabel": "DSCR Lenders",
+    "lenders": [
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "21-30", "specialties": ["Rental", "DSCR", "Portfolio"] },
+      { "name": "Easy Street Capital", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "14-21", "specialties": ["DSCR", "Rental", "Short-Term Rental"] },
+      { "name": "Kiavi", "rate": "7-8.5%", "ltv": "up to 80%", "minLoan": 100000, "closingDays": "21-30", "specialties": ["DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "21-30 days",
+    "tips": ["Orlando vacation rentals near Disney produce exceptional DSCR ratios", "Kissimmee and Davenport are hotspots for DSCR-qualified short-term rentals"]
+  },
+  {
+    "slug": "portfolio-lenders-orlando-fl",
+    "citySlug": "orlando-fl",
+    "city": "Orlando",
+    "state": "FL",
+    "lenderType": "portfolio",
+    "lenderTypeLabel": "Portfolio Lenders",
+    "lenders": [
+      { "name": "CoreVest Finance", "rate": "7-9.5%", "ltv": "up to 75%", "minLoan": 500000, "closingDays": "30-45", "specialties": ["Portfolio", "Rental", "Build-to-Rent"] },
+      { "name": "Blanket Mortgages Inc", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 250000, "closingDays": "21-45", "specialties": ["Portfolio", "Blanket Loans", "Rental"] },
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 150000, "closingDays": "21-30", "specialties": ["Portfolio", "DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9.5%",
+    "avgClosing": "21-45 days",
+    "tips": ["Orlando vacation rental portfolios are popular with portfolio lenders", "Diversify across Orange, Seminole, and Osceola counties for better terms"]
+  },
+  {
+    "slug": "commercial-lenders-orlando-fl",
+    "citySlug": "orlando-fl",
+    "city": "Orlando",
+    "state": "FL",
+    "lenderType": "commercial",
+    "lenderTypeLabel": "Commercial Lenders",
+    "lenders": [
+      { "name": "Arbor Realty Trust", "rate": "6.5-9%", "ltv": "up to 80%", "minLoan": 500000, "closingDays": "30-60", "specialties": ["Multifamily", "Commercial", "Bridge"] },
+      { "name": "Ready Capital", "rate": "7-10%", "ltv": "up to 80%", "minLoan": 250000, "closingDays": "30-45", "specialties": ["Commercial", "SBA", "Mixed-Use"] },
+      { "name": "Lument", "rate": "6-8%", "ltv": "up to 80%", "minLoan": 1000000, "closingDays": "45-60", "specialties": ["Multifamily", "Agency", "Commercial"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "30-60 days",
+    "tips": ["Orlando multifamily demand is driven by tourism and tech sector growth", "Lake Nona and Medical City areas attract premium commercial investment"]
+  },
+  {
+    "slug": "hard-money-lenders-jacksonville-fl",
+    "citySlug": "jacksonville-fl",
+    "city": "Jacksonville",
+    "state": "FL",
+    "lenderType": "hard-money",
+    "lenderTypeLabel": "Hard Money Lenders",
+    "lenders": [
+      { "name": "Lima One Capital", "rate": "9.5-12%", "ltv": "up to 90%", "minLoan": 75000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "RCN Capital", "rate": "9-12%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Rental", "Commercial"] },
+      { "name": "Kiavi", "rate": "9-11%", "ltv": "up to 90%", "minLoan": 100000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Bridge"] }
+    ],
+    "avgRate": "9-12%",
+    "avgClosing": "10-15 days",
+    "tips": ["Jacksonville is the largest city by area in the continental US -- location matters", "Duval County fix-and-flip margins are strong in emerging neighborhoods"]
+  },
+  {
+    "slug": "private-money-lenders-jacksonville-fl",
+    "citySlug": "jacksonville-fl",
+    "city": "Jacksonville",
+    "state": "FL",
+    "lenderType": "private-money",
+    "lenderTypeLabel": "Private Money Lenders",
+    "lenders": [
+      { "name": "Lending One", "rate": "8-11%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "7-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "Fund That Flip", "rate": "8.5-11%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge"] },
+      { "name": "Groundfloor", "rate": "9-12%", "ltv": "up to 75%", "minLoan": 50000, "closingDays": "14-21", "specialties": ["Fix & Flip", "Residential"] }
+    ],
+    "avgRate": "8-12%",
+    "avgClosing": "10-18 days",
+    "tips": ["Jacksonville's growing tech and finance sector attracts private lender capital", "Riverside and San Marco neighborhoods get funded quickly by private lenders"]
+  },
+  {
+    "slug": "dscr-lenders-jacksonville-fl",
+    "citySlug": "jacksonville-fl",
+    "city": "Jacksonville",
+    "state": "FL",
+    "lenderType": "dscr",
+    "lenderTypeLabel": "DSCR Lenders",
+    "lenders": [
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "21-30", "specialties": ["Rental", "DSCR", "Portfolio"] },
+      { "name": "Easy Street Capital", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "14-21", "specialties": ["DSCR", "Rental", "Short-Term Rental"] },
+      { "name": "Kiavi", "rate": "7-8.5%", "ltv": "up to 80%", "minLoan": 100000, "closingDays": "21-30", "specialties": ["DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "21-30 days",
+    "tips": ["Jacksonville rents are rising fast with strong population growth", "No state income tax helps DSCR ratios across all Jacksonville submarkets"]
+  },
+  {
+    "slug": "portfolio-lenders-jacksonville-fl",
+    "citySlug": "jacksonville-fl",
+    "city": "Jacksonville",
+    "state": "FL",
+    "lenderType": "portfolio",
+    "lenderTypeLabel": "Portfolio Lenders",
+    "lenders": [
+      { "name": "CoreVest Finance", "rate": "7-9.5%", "ltv": "up to 75%", "minLoan": 500000, "closingDays": "30-45", "specialties": ["Portfolio", "Rental", "Build-to-Rent"] },
+      { "name": "Blanket Mortgages Inc", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 250000, "closingDays": "21-45", "specialties": ["Portfolio", "Blanket Loans", "Rental"] },
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 150000, "closingDays": "21-30", "specialties": ["Portfolio", "DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9.5%",
+    "avgClosing": "21-45 days",
+    "tips": ["Jacksonville's affordable prices make it easy to build large portfolios", "Duval County portfolios of single-family rentals are popular with portfolio lenders"]
+  },
+  {
+    "slug": "commercial-lenders-jacksonville-fl",
+    "citySlug": "jacksonville-fl",
+    "city": "Jacksonville",
+    "state": "FL",
+    "lenderType": "commercial",
+    "lenderTypeLabel": "Commercial Lenders",
+    "lenders": [
+      { "name": "Arbor Realty Trust", "rate": "6.5-9%", "ltv": "up to 80%", "minLoan": 500000, "closingDays": "30-60", "specialties": ["Multifamily", "Commercial", "Bridge"] },
+      { "name": "Ready Capital", "rate": "7-10%", "ltv": "up to 80%", "minLoan": 250000, "closingDays": "30-45", "specialties": ["Commercial", "SBA", "Mixed-Use"] },
+      { "name": "Lument", "rate": "6-8%", "ltv": "up to 80%", "minLoan": 1000000, "closingDays": "45-60", "specialties": ["Multifamily", "Agency", "Commercial"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "30-60 days",
+    "tips": ["Jacksonville's port and logistics sector drives commercial lending interest", "Downtown riverfront redevelopment is attracting major commercial capital"]
+  },
+  {
+    "slug": "hard-money-lenders-indianapolis-in",
+    "citySlug": "indianapolis-in",
+    "city": "Indianapolis",
+    "state": "IN",
+    "lenderType": "hard-money",
+    "lenderTypeLabel": "Hard Money Lenders",
+    "lenders": [
+      { "name": "Lima One Capital", "rate": "9.5-12%", "ltv": "up to 90%", "minLoan": 75000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "RCN Capital", "rate": "9-12%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Rental", "Commercial"] },
+      { "name": "Kiavi", "rate": "9-11%", "ltv": "up to 90%", "minLoan": 100000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Bridge"] }
+    ],
+    "avgRate": "9-12%",
+    "avgClosing": "10-15 days",
+    "tips": ["Indianapolis is one of the most affordable top-20 markets for fix-and-flip", "Marion County has strong demand for renovated single-family homes"]
+  },
+  {
+    "slug": "private-money-lenders-indianapolis-in",
+    "citySlug": "indianapolis-in",
+    "city": "Indianapolis",
+    "state": "IN",
+    "lenderType": "private-money",
+    "lenderTypeLabel": "Private Money Lenders",
+    "lenders": [
+      { "name": "Lending One", "rate": "8-11%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "7-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "Fund That Flip", "rate": "8.5-11%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge"] },
+      { "name": "Groundfloor", "rate": "9-12%", "ltv": "up to 75%", "minLoan": 50000, "closingDays": "14-21", "specialties": ["Fix & Flip", "Residential"] }
+    ],
+    "avgRate": "8-12%",
+    "avgClosing": "10-18 days",
+    "tips": ["Indianapolis has an active private lending community at local REI meetups", "Fountain Square and Irvington are hot neighborhoods for private money deals"]
+  },
+  {
+    "slug": "dscr-lenders-indianapolis-in",
+    "citySlug": "indianapolis-in",
+    "city": "Indianapolis",
+    "state": "IN",
+    "lenderType": "dscr",
+    "lenderTypeLabel": "DSCR Lenders",
+    "lenders": [
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "21-30", "specialties": ["Rental", "DSCR", "Portfolio"] },
+      { "name": "Easy Street Capital", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "14-21", "specialties": ["DSCR", "Rental", "Short-Term Rental"] },
+      { "name": "Kiavi", "rate": "7-8.5%", "ltv": "up to 80%", "minLoan": 100000, "closingDays": "21-30", "specialties": ["DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "21-30 days",
+    "tips": ["Indianapolis has some of the strongest rent-to-price ratios nationally for DSCR", "Carmel and Fishers suburbs provide consistent DSCR qualifying income"]
+  },
+  {
+    "slug": "portfolio-lenders-indianapolis-in",
+    "citySlug": "indianapolis-in",
+    "city": "Indianapolis",
+    "state": "IN",
+    "lenderType": "portfolio",
+    "lenderTypeLabel": "Portfolio Lenders",
+    "lenders": [
+      { "name": "CoreVest Finance", "rate": "7-9.5%", "ltv": "up to 75%", "minLoan": 500000, "closingDays": "30-45", "specialties": ["Portfolio", "Rental", "Build-to-Rent"] },
+      { "name": "Blanket Mortgages Inc", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 250000, "closingDays": "21-45", "specialties": ["Portfolio", "Blanket Loans", "Rental"] },
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 150000, "closingDays": "21-30", "specialties": ["Portfolio", "DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9.5%",
+    "avgClosing": "21-45 days",
+    "tips": ["Indianapolis is a top market for building affordable rental portfolios", "Marion County single-family portfolios attract competitive blanket loan terms"]
+  },
+  {
+    "slug": "commercial-lenders-indianapolis-in",
+    "citySlug": "indianapolis-in",
+    "city": "Indianapolis",
+    "state": "IN",
+    "lenderType": "commercial",
+    "lenderTypeLabel": "Commercial Lenders",
+    "lenders": [
+      { "name": "Arbor Realty Trust", "rate": "6.5-9%", "ltv": "up to 80%", "minLoan": 500000, "closingDays": "30-60", "specialties": ["Multifamily", "Commercial", "Bridge"] },
+      { "name": "Ready Capital", "rate": "7-10%", "ltv": "up to 80%", "minLoan": 250000, "closingDays": "30-45", "specialties": ["Commercial", "SBA", "Mixed-Use"] },
+      { "name": "Lument", "rate": "6-8%", "ltv": "up to 80%", "minLoan": 1000000, "closingDays": "45-60", "specialties": ["Multifamily", "Agency", "Commercial"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "30-60 days",
+    "tips": ["Indianapolis commercial market benefits from strong logistics and healthcare sectors", "Mass Ave and Broad Ripple are attracting mixed-use commercial investment"]
+  },
+  {
+    "slug": "hard-money-lenders-columbus-oh",
+    "citySlug": "columbus-oh",
+    "city": "Columbus",
+    "state": "OH",
+    "lenderType": "hard-money",
+    "lenderTypeLabel": "Hard Money Lenders",
+    "lenders": [
+      { "name": "Lima One Capital", "rate": "9.5-12%", "ltv": "up to 90%", "minLoan": 75000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "RCN Capital", "rate": "9-12%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Rental", "Commercial"] },
+      { "name": "Kiavi", "rate": "9-11%", "ltv": "up to 90%", "minLoan": 100000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Bridge"] }
+    ],
+    "avgRate": "9-12%",
+    "avgClosing": "10-15 days",
+    "tips": ["Columbus is one of the fastest-growing Midwest cities for real estate investment", "Ohio is a judicial foreclosure state -- factor this into risk assessment"]
+  },
+  {
+    "slug": "private-money-lenders-columbus-oh",
+    "citySlug": "columbus-oh",
+    "city": "Columbus",
+    "state": "OH",
+    "lenderType": "private-money",
+    "lenderTypeLabel": "Private Money Lenders",
+    "lenders": [
+      { "name": "Lending One", "rate": "8-11%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "7-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "Fund That Flip", "rate": "8.5-11%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge"] },
+      { "name": "Groundfloor", "rate": "9-12%", "ltv": "up to 75%", "minLoan": 50000, "closingDays": "14-21", "specialties": ["Fix & Flip", "Residential"] }
+    ],
+    "avgRate": "8-12%",
+    "avgClosing": "10-18 days",
+    "tips": ["Columbus private lenders are active near Ohio State campus properties", "German Village and Short North projects attract private lender interest"]
+  },
+  {
+    "slug": "dscr-lenders-columbus-oh",
+    "citySlug": "columbus-oh",
+    "city": "Columbus",
+    "state": "OH",
+    "lenderType": "dscr",
+    "lenderTypeLabel": "DSCR Lenders",
+    "lenders": [
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "21-30", "specialties": ["Rental", "DSCR", "Portfolio"] },
+      { "name": "Easy Street Capital", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "14-21", "specialties": ["DSCR", "Rental", "Short-Term Rental"] },
+      { "name": "Kiavi", "rate": "7-8.5%", "ltv": "up to 80%", "minLoan": 100000, "closingDays": "21-30", "specialties": ["DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "21-30 days",
+    "tips": ["Columbus tech sector growth is driving rental demand and strong DSCR ratios", "Dublin and Westerville suburbs have excellent rent-to-price ratios"]
+  },
+  {
+    "slug": "portfolio-lenders-columbus-oh",
+    "citySlug": "columbus-oh",
+    "city": "Columbus",
+    "state": "OH",
+    "lenderType": "portfolio",
+    "lenderTypeLabel": "Portfolio Lenders",
+    "lenders": [
+      { "name": "CoreVest Finance", "rate": "7-9.5%", "ltv": "up to 75%", "minLoan": 500000, "closingDays": "30-45", "specialties": ["Portfolio", "Rental", "Build-to-Rent"] },
+      { "name": "Blanket Mortgages Inc", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 250000, "closingDays": "21-45", "specialties": ["Portfolio", "Blanket Loans", "Rental"] },
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 150000, "closingDays": "21-30", "specialties": ["Portfolio", "DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9.5%",
+    "avgClosing": "21-45 days",
+    "tips": ["Columbus affordable housing stock is ideal for building rental portfolios", "Franklin County portfolios get competitive terms from national lenders"]
+  },
+  {
+    "slug": "commercial-lenders-columbus-oh",
+    "citySlug": "columbus-oh",
+    "city": "Columbus",
+    "state": "OH",
+    "lenderType": "commercial",
+    "lenderTypeLabel": "Commercial Lenders",
+    "lenders": [
+      { "name": "Arbor Realty Trust", "rate": "6.5-9%", "ltv": "up to 80%", "minLoan": 500000, "closingDays": "30-60", "specialties": ["Multifamily", "Commercial", "Bridge"] },
+      { "name": "Ready Capital", "rate": "7-10%", "ltv": "up to 80%", "minLoan": 250000, "closingDays": "30-45", "specialties": ["Commercial", "SBA", "Mixed-Use"] },
+      { "name": "Lument", "rate": "6-8%", "ltv": "up to 80%", "minLoan": 1000000, "closingDays": "45-60", "specialties": ["Multifamily", "Agency", "Commercial"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "30-60 days",
+    "tips": ["Columbus is growing faster than any other Ohio city for commercial investment", "Intel chip plant construction is driving massive commercial lending activity"]
+  },
+  {
+    "slug": "hard-money-lenders-raleigh-nc",
+    "citySlug": "raleigh-nc",
+    "city": "Raleigh",
+    "state": "NC",
+    "lenderType": "hard-money",
+    "lenderTypeLabel": "Hard Money Lenders",
+    "lenders": [
+      { "name": "Lima One Capital", "rate": "9-12%", "ltv": "up to 90%", "minLoan": 75000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "Kiavi", "rate": "9-11%", "ltv": "up to 90%", "minLoan": 100000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Bridge"] },
+      { "name": "RCN Capital", "rate": "9-12%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Rental", "Commercial"] }
+    ],
+    "avgRate": "9-12%",
+    "avgClosing": "10-15 days",
+    "tips": ["Research Triangle growth makes Raleigh a top market for hard money lending", "North Carolina deed of trust state with fast foreclosure -- lenders approve"]
+  },
+  {
+    "slug": "private-money-lenders-raleigh-nc",
+    "citySlug": "raleigh-nc",
+    "city": "Raleigh",
+    "state": "NC",
+    "lenderType": "private-money",
+    "lenderTypeLabel": "Private Money Lenders",
+    "lenders": [
+      { "name": "Lending One", "rate": "8-11%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "7-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "Fund That Flip", "rate": "8.5-11%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge"] },
+      { "name": "Groundfloor", "rate": "9-12%", "ltv": "up to 75%", "minLoan": 50000, "closingDays": "14-21", "specialties": ["Fix & Flip", "Residential"] }
+    ],
+    "avgRate": "8-12%",
+    "avgClosing": "10-18 days",
+    "tips": ["Raleigh tech workers provide a strong private lender base", "Downtown Raleigh and North Hills projects attract private capital"]
+  },
+  {
+    "slug": "dscr-lenders-raleigh-nc",
+    "citySlug": "raleigh-nc",
+    "city": "Raleigh",
+    "state": "NC",
+    "lenderType": "dscr",
+    "lenderTypeLabel": "DSCR Lenders",
+    "lenders": [
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "21-30", "specialties": ["Rental", "DSCR", "Portfolio"] },
+      { "name": "Easy Street Capital", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "14-21", "specialties": ["DSCR", "Rental", "Short-Term Rental"] },
+      { "name": "Kiavi", "rate": "7-8.5%", "ltv": "up to 80%", "minLoan": 100000, "closingDays": "21-30", "specialties": ["DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "21-30 days",
+    "tips": ["Raleigh rental demand from tech workers supports strong DSCR ratios", "Cary and Apex have excellent rent-to-price ratios for DSCR qualification"]
+  },
+  {
+    "slug": "portfolio-lenders-raleigh-nc",
+    "citySlug": "raleigh-nc",
+    "city": "Raleigh",
+    "state": "NC",
+    "lenderType": "portfolio",
+    "lenderTypeLabel": "Portfolio Lenders",
+    "lenders": [
+      { "name": "CoreVest Finance", "rate": "7-9.5%", "ltv": "up to 75%", "minLoan": 500000, "closingDays": "30-45", "specialties": ["Portfolio", "Rental", "Build-to-Rent"] },
+      { "name": "Blanket Mortgages Inc", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 250000, "closingDays": "21-45", "specialties": ["Portfolio", "Blanket Loans", "Rental"] },
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 150000, "closingDays": "21-30", "specialties": ["Portfolio", "DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9.5%",
+    "avgClosing": "21-45 days",
+    "tips": ["Raleigh-Durham build-to-rent is growing rapidly", "Wake County portfolios attract competitive terms from national lenders"]
+  },
+  {
+    "slug": "commercial-lenders-raleigh-nc",
+    "citySlug": "raleigh-nc",
+    "city": "Raleigh",
+    "state": "NC",
+    "lenderType": "commercial",
+    "lenderTypeLabel": "Commercial Lenders",
+    "lenders": [
+      { "name": "Arbor Realty Trust", "rate": "6.5-9%", "ltv": "up to 80%", "minLoan": 500000, "closingDays": "30-60", "specialties": ["Multifamily", "Commercial", "Bridge"] },
+      { "name": "Ready Capital", "rate": "7-10%", "ltv": "up to 80%", "minLoan": 250000, "closingDays": "30-45", "specialties": ["Commercial", "SBA", "Mixed-Use"] },
+      { "name": "Lument", "rate": "6-8%", "ltv": "up to 80%", "minLoan": 1000000, "closingDays": "45-60", "specialties": ["Multifamily", "Agency", "Commercial"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "30-60 days",
+    "tips": ["Research Triangle is a top-tier market for commercial real estate investment", "Life sciences and tech campuses are driving premium commercial lending"]
+  },
+  {
+    "slug": "hard-money-lenders-austin-tx",
+    "citySlug": "austin-tx",
+    "city": "Austin",
+    "state": "TX",
+    "lenderType": "hard-money",
+    "lenderTypeLabel": "Hard Money Lenders",
+    "lenders": [
+      { "name": "Kiavi", "rate": "9-11%", "ltv": "up to 90%", "minLoan": 100000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Bridge"] },
+      { "name": "Lima One Capital", "rate": "9.5-12%", "ltv": "up to 90%", "minLoan": 75000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "RCN Capital", "rate": "9-12%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Rental", "Commercial"] }
+    ],
+    "avgRate": "9-12%",
+    "avgClosing": "10-15 days",
+    "tips": ["Austin prices have moderated from 2022 peaks creating flip opportunities", "No state income tax in Texas boosts investor returns"]
+  },
+  {
+    "slug": "private-money-lenders-austin-tx",
+    "citySlug": "austin-tx",
+    "city": "Austin",
+    "state": "TX",
+    "lenderType": "private-money",
+    "lenderTypeLabel": "Private Money Lenders",
+    "lenders": [
+      { "name": "Lending One", "rate": "8-11%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "7-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "Fund That Flip", "rate": "8.5-11%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge"] },
+      { "name": "Groundfloor", "rate": "9-12%", "ltv": "up to 75%", "minLoan": 50000, "closingDays": "14-21", "specialties": ["Fix & Flip", "Residential"] }
+    ],
+    "avgRate": "8-12%",
+    "avgClosing": "10-18 days",
+    "tips": ["Austin tech wealth creates a strong private lender base", "East Austin and Bouldin Creek projects attract private capital quickly"]
+  },
+  {
+    "slug": "dscr-lenders-austin-tx",
+    "citySlug": "austin-tx",
+    "city": "Austin",
+    "state": "TX",
+    "lenderType": "dscr",
+    "lenderTypeLabel": "DSCR Lenders",
+    "lenders": [
+      { "name": "Easy Street Capital", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "14-21", "specialties": ["DSCR", "Rental", "Short-Term Rental"] },
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "21-30", "specialties": ["Rental", "DSCR", "Portfolio"] },
+      { "name": "Kiavi", "rate": "7-8.5%", "ltv": "up to 80%", "minLoan": 100000, "closingDays": "21-30", "specialties": ["DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "21-30 days",
+    "tips": ["Austin rents are moderating -- run DSCR calculations carefully", "Easy Street Capital is headquartered in Austin and knows the market"]
+  },
+  {
+    "slug": "portfolio-lenders-austin-tx",
+    "citySlug": "austin-tx",
+    "city": "Austin",
+    "state": "TX",
+    "lenderType": "portfolio",
+    "lenderTypeLabel": "Portfolio Lenders",
+    "lenders": [
+      { "name": "CoreVest Finance", "rate": "7-9.5%", "ltv": "up to 75%", "minLoan": 500000, "closingDays": "30-45", "specialties": ["Portfolio", "Rental", "Build-to-Rent"] },
+      { "name": "Blanket Mortgages Inc", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 250000, "closingDays": "21-45", "specialties": ["Portfolio", "Blanket Loans", "Rental"] },
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 150000, "closingDays": "21-30", "specialties": ["Portfolio", "DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9.5%",
+    "avgClosing": "21-45 days",
+    "tips": ["Austin suburban portfolios in Round Rock and Cedar Park are popular", "Build-to-rent communities in Austin suburbs attract portfolio lender interest"]
+  },
+  {
+    "slug": "commercial-lenders-austin-tx",
+    "citySlug": "austin-tx",
+    "city": "Austin",
+    "state": "TX",
+    "lenderType": "commercial",
+    "lenderTypeLabel": "Commercial Lenders",
+    "lenders": [
+      { "name": "Arbor Realty Trust", "rate": "6.5-9%", "ltv": "up to 80%", "minLoan": 500000, "closingDays": "30-60", "specialties": ["Multifamily", "Commercial", "Bridge"] },
+      { "name": "Ready Capital", "rate": "7-10%", "ltv": "up to 80%", "minLoan": 250000, "closingDays": "30-45", "specialties": ["Commercial", "SBA", "Mixed-Use"] },
+      { "name": "Lument", "rate": "6-8%", "ltv": "up to 80%", "minLoan": 1000000, "closingDays": "45-60", "specialties": ["Multifamily", "Agency", "Commercial"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "30-60 days",
+    "tips": ["Austin's tech-driven economy attracts institutional commercial capital", "Domain and East Riverside are premium commercial lending corridors"]
+  },
+  {
+    "slug": "hard-money-lenders-kansas-city-mo",
+    "citySlug": "kansas-city-mo",
+    "city": "Kansas City",
+    "state": "MO",
+    "lenderType": "hard-money",
+    "lenderTypeLabel": "Hard Money Lenders",
+    "lenders": [
+      { "name": "Lima One Capital", "rate": "9.5-12%", "ltv": "up to 90%", "minLoan": 75000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "RCN Capital", "rate": "9-12%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Rental", "Commercial"] },
+      { "name": "Kiavi", "rate": "9-11%", "ltv": "up to 90%", "minLoan": 100000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Bridge"] }
+    ],
+    "avgRate": "9-12%",
+    "avgClosing": "10-15 days",
+    "tips": ["Kansas City straddles two states -- understand MO vs KS lending rules", "Affordable entry points make hard money deals accessible for new investors"]
+  },
+  {
+    "slug": "private-money-lenders-kansas-city-mo",
+    "citySlug": "kansas-city-mo",
+    "city": "Kansas City",
+    "state": "MO",
+    "lenderType": "private-money",
+    "lenderTypeLabel": "Private Money Lenders",
+    "lenders": [
+      { "name": "Lending One", "rate": "8-11%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "7-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "Fund That Flip", "rate": "8.5-11%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge"] },
+      { "name": "Groundfloor", "rate": "9-12%", "ltv": "up to 75%", "minLoan": 50000, "closingDays": "14-21", "specialties": ["Fix & Flip", "Residential"] }
+    ],
+    "avgRate": "8-12%",
+    "avgClosing": "10-18 days",
+    "tips": ["Kansas City has a tight-knit private lending community", "Westport and Brookside projects attract local private money"]
+  },
+  {
+    "slug": "dscr-lenders-kansas-city-mo",
+    "citySlug": "kansas-city-mo",
+    "city": "Kansas City",
+    "state": "MO",
+    "lenderType": "dscr",
+    "lenderTypeLabel": "DSCR Lenders",
+    "lenders": [
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "21-30", "specialties": ["Rental", "DSCR", "Portfolio"] },
+      { "name": "Easy Street Capital", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "14-21", "specialties": ["DSCR", "Rental", "Short-Term Rental"] },
+      { "name": "Kiavi", "rate": "7-8.5%", "ltv": "up to 80%", "minLoan": 100000, "closingDays": "21-30", "specialties": ["DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "21-30 days",
+    "tips": ["Kansas City has strong rent-to-price ratios making DSCR loans easy to qualify", "Overland Park and Lee's Summit rentals have consistent DSCR qualifying income"]
+  },
+  {
+    "slug": "portfolio-lenders-kansas-city-mo",
+    "citySlug": "kansas-city-mo",
+    "city": "Kansas City",
+    "state": "MO",
+    "lenderType": "portfolio",
+    "lenderTypeLabel": "Portfolio Lenders",
+    "lenders": [
+      { "name": "CoreVest Finance", "rate": "7-9.5%", "ltv": "up to 75%", "minLoan": 500000, "closingDays": "30-45", "specialties": ["Portfolio", "Rental", "Build-to-Rent"] },
+      { "name": "Blanket Mortgages Inc", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 250000, "closingDays": "21-45", "specialties": ["Portfolio", "Blanket Loans", "Rental"] },
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 150000, "closingDays": "21-30", "specialties": ["Portfolio", "DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9.5%",
+    "avgClosing": "21-45 days",
+    "tips": ["Kansas City portfolios spanning both MO and KS sides can be complex -- work with experienced lenders", "Affordable housing portfolios in KC attract competitive blanket loan terms"]
+  },
+  {
+    "slug": "commercial-lenders-kansas-city-mo",
+    "citySlug": "kansas-city-mo",
+    "city": "Kansas City",
+    "state": "MO",
+    "lenderType": "commercial",
+    "lenderTypeLabel": "Commercial Lenders",
+    "lenders": [
+      { "name": "Arbor Realty Trust", "rate": "6.5-9%", "ltv": "up to 80%", "minLoan": 500000, "closingDays": "30-60", "specialties": ["Multifamily", "Commercial", "Bridge"] },
+      { "name": "Ready Capital", "rate": "7-10%", "ltv": "up to 80%", "minLoan": 250000, "closingDays": "30-45", "specialties": ["Commercial", "SBA", "Mixed-Use"] },
+      { "name": "Lument", "rate": "6-8%", "ltv": "up to 80%", "minLoan": 1000000, "closingDays": "45-60", "specialties": ["Multifamily", "Agency", "Commercial"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "30-60 days",
+    "tips": ["Kansas City Crossroads district is a prime commercial lending area", "Sports complex area redevelopment is creating new commercial lending opportunities"]
+  },
+  {
+    "slug": "hard-money-lenders-memphis-tn",
+    "citySlug": "memphis-tn",
+    "city": "Memphis",
+    "state": "TN",
+    "lenderType": "hard-money",
+    "lenderTypeLabel": "Hard Money Lenders",
+    "lenders": [
+      { "name": "Lima One Capital", "rate": "9.5-12%", "ltv": "up to 85%", "minLoan": 75000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "RCN Capital", "rate": "9-12%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Rental", "Commercial"] },
+      { "name": "Kiavi", "rate": "9-11%", "ltv": "up to 90%", "minLoan": 100000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Bridge"] }
+    ],
+    "avgRate": "9-12%",
+    "avgClosing": "10-15 days",
+    "tips": ["Memphis is a top turnkey rental market nationally", "Tennessee has no state income tax, boosting investor returns"]
+  },
+  {
+    "slug": "private-money-lenders-memphis-tn",
+    "citySlug": "memphis-tn",
+    "city": "Memphis",
+    "state": "TN",
+    "lenderType": "private-money",
+    "lenderTypeLabel": "Private Money Lenders",
+    "lenders": [
+      { "name": "Lending One", "rate": "8-11%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "7-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "Fund That Flip", "rate": "8.5-11%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge"] },
+      { "name": "Groundfloor", "rate": "9-12%", "ltv": "up to 75%", "minLoan": 50000, "closingDays": "14-21", "specialties": ["Fix & Flip", "Residential"] }
+    ],
+    "avgRate": "8-12%",
+    "avgClosing": "10-18 days",
+    "tips": ["Memphis turnkey providers often work with private lenders", "Midtown and Cooper-Young attract private lender interest"]
+  },
+  {
+    "slug": "dscr-lenders-memphis-tn",
+    "citySlug": "memphis-tn",
+    "city": "Memphis",
+    "state": "TN",
+    "lenderType": "dscr",
+    "lenderTypeLabel": "DSCR Lenders",
+    "lenders": [
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "21-30", "specialties": ["Rental", "DSCR", "Portfolio"] },
+      { "name": "Easy Street Capital", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "14-21", "specialties": ["DSCR", "Rental", "Short-Term Rental"] },
+      { "name": "Kiavi", "rate": "7-8.5%", "ltv": "up to 80%", "minLoan": 100000, "closingDays": "21-30", "specialties": ["DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "21-30 days",
+    "tips": ["Memphis has some of the best rent-to-price ratios in the country for DSCR", "No state income tax means higher net rental income for DSCR qualification"]
+  },
+  {
+    "slug": "portfolio-lenders-memphis-tn",
+    "citySlug": "memphis-tn",
+    "city": "Memphis",
+    "state": "TN",
+    "lenderType": "portfolio",
+    "lenderTypeLabel": "Portfolio Lenders",
+    "lenders": [
+      { "name": "CoreVest Finance", "rate": "7-9.5%", "ltv": "up to 75%", "minLoan": 500000, "closingDays": "30-45", "specialties": ["Portfolio", "Rental", "Build-to-Rent"] },
+      { "name": "Blanket Mortgages Inc", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 250000, "closingDays": "21-45", "specialties": ["Portfolio", "Blanket Loans", "Rental"] },
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 150000, "closingDays": "21-30", "specialties": ["Portfolio", "DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9.5%",
+    "avgClosing": "21-45 days",
+    "tips": ["Memphis is a prime market for building large affordable rental portfolios", "Shelby County portfolios of turnkey rentals are popular with portfolio lenders"]
+  },
+  {
+    "slug": "commercial-lenders-memphis-tn",
+    "citySlug": "memphis-tn",
+    "city": "Memphis",
+    "state": "TN",
+    "lenderType": "commercial",
+    "lenderTypeLabel": "Commercial Lenders",
+    "lenders": [
+      { "name": "Arbor Realty Trust", "rate": "6.5-9%", "ltv": "up to 80%", "minLoan": 500000, "closingDays": "30-60", "specialties": ["Multifamily", "Commercial", "Bridge"] },
+      { "name": "Ready Capital", "rate": "7-10%", "ltv": "up to 80%", "minLoan": 250000, "closingDays": "30-45", "specialties": ["Commercial", "SBA", "Mixed-Use"] },
+      { "name": "Lument", "rate": "6-8%", "ltv": "up to 80%", "minLoan": 1000000, "closingDays": "45-60", "specialties": ["Multifamily", "Agency", "Commercial"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "30-60 days",
+    "tips": ["Memphis logistics sector (FedEx hub) drives commercial real estate demand", "Downtown Memphis revitalization is attracting new commercial lending activity"]
+  },
+  {
+    "slug": "hard-money-lenders-cleveland-oh",
+    "citySlug": "cleveland-oh",
+    "city": "Cleveland",
+    "state": "OH",
+    "lenderType": "hard-money",
+    "lenderTypeLabel": "Hard Money Lenders",
+    "lenders": [
+      { "name": "Lima One Capital", "rate": "9.5-12%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "RCN Capital", "rate": "9-12%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Rental", "Commercial"] },
+      { "name": "Kiavi", "rate": "9-11%", "ltv": "up to 85%", "minLoan": 75000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Bridge"] }
+    ],
+    "avgRate": "10-12%",
+    "avgClosing": "10-15 days",
+    "tips": ["Cleveland entry prices are low, making hard money deals very accessible", "Ohio is a judicial foreclosure state -- lenders price this into rates"]
+  },
+  {
+    "slug": "private-money-lenders-cleveland-oh",
+    "citySlug": "cleveland-oh",
+    "city": "Cleveland",
+    "state": "OH",
+    "lenderType": "private-money",
+    "lenderTypeLabel": "Private Money Lenders",
+    "lenders": [
+      { "name": "Lending One", "rate": "8-11%", "ltv": "up to 80%", "minLoan": 50000, "closingDays": "7-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "Fund That Flip", "rate": "8.5-11%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge"] },
+      { "name": "Groundfloor", "rate": "9-12%", "ltv": "up to 75%", "minLoan": 50000, "closingDays": "14-21", "specialties": ["Fix & Flip", "Residential"] }
+    ],
+    "avgRate": "8-12%",
+    "avgClosing": "10-18 days",
+    "tips": ["Cleveland private lenders know the market well -- leverage their local knowledge", "Tremont and Ohio City projects attract private capital"]
+  },
+  {
+    "slug": "dscr-lenders-cleveland-oh",
+    "citySlug": "cleveland-oh",
+    "city": "Cleveland",
+    "state": "OH",
+    "lenderType": "dscr",
+    "lenderTypeLabel": "DSCR Lenders",
+    "lenders": [
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "21-30", "specialties": ["Rental", "DSCR", "Portfolio"] },
+      { "name": "Easy Street Capital", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "14-21", "specialties": ["DSCR", "Rental", "Short-Term Rental"] },
+      { "name": "Kiavi", "rate": "7-8.5%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "21-30", "specialties": ["DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "21-30 days",
+    "tips": ["Cleveland has excellent rent-to-price ratios for DSCR qualification", "West side and Lakewood properties have strong DSCR performance"]
+  },
+  {
+    "slug": "portfolio-lenders-cleveland-oh",
+    "citySlug": "cleveland-oh",
+    "city": "Cleveland",
+    "state": "OH",
+    "lenderType": "portfolio",
+    "lenderTypeLabel": "Portfolio Lenders",
+    "lenders": [
+      { "name": "CoreVest Finance", "rate": "7-9.5%", "ltv": "up to 75%", "minLoan": 500000, "closingDays": "30-45", "specialties": ["Portfolio", "Rental", "Build-to-Rent"] },
+      { "name": "Blanket Mortgages Inc", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 250000, "closingDays": "21-45", "specialties": ["Portfolio", "Blanket Loans", "Rental"] },
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 150000, "closingDays": "21-30", "specialties": ["Portfolio", "DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9.5%",
+    "avgClosing": "21-45 days",
+    "tips": ["Cleveland is ideal for building large cash-flowing portfolios at low entry costs", "Cuyahoga County portfolios of affordable rentals attract portfolio lenders"]
+  },
+  {
+    "slug": "commercial-lenders-cleveland-oh",
+    "citySlug": "cleveland-oh",
+    "city": "Cleveland",
+    "state": "OH",
+    "lenderType": "commercial",
+    "lenderTypeLabel": "Commercial Lenders",
+    "lenders": [
+      { "name": "Arbor Realty Trust", "rate": "6.5-9%", "ltv": "up to 80%", "minLoan": 500000, "closingDays": "30-60", "specialties": ["Multifamily", "Commercial", "Bridge"] },
+      { "name": "Ready Capital", "rate": "7-10%", "ltv": "up to 80%", "minLoan": 250000, "closingDays": "30-45", "specialties": ["Commercial", "SBA", "Mixed-Use"] },
+      { "name": "Lument", "rate": "6-8%", "ltv": "up to 80%", "minLoan": 1000000, "closingDays": "45-60", "specialties": ["Multifamily", "Agency", "Commercial"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "30-60 days",
+    "tips": ["Cleveland healthcare sector drives commercial real estate demand", "Downtown and University Circle areas attract institutional commercial capital"]
+  },
+  {
+    "slug": "hard-money-lenders-birmingham-al",
+    "citySlug": "birmingham-al",
+    "city": "Birmingham",
+    "state": "AL",
+    "lenderType": "hard-money",
+    "lenderTypeLabel": "Hard Money Lenders",
+    "lenders": [
+      { "name": "Lima One Capital", "rate": "9.5-12%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "RCN Capital", "rate": "9-12%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Rental", "Commercial"] },
+      { "name": "Kiavi", "rate": "9-11%", "ltv": "up to 85%", "minLoan": 75000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Bridge"] }
+    ],
+    "avgRate": "10-12%",
+    "avgClosing": "10-15 days",
+    "tips": ["Birmingham entry prices are among the lowest in the Southeast", "Alabama is a non-judicial foreclosure state -- fast foreclosure protects lenders"]
+  },
+  {
+    "slug": "private-money-lenders-birmingham-al",
+    "citySlug": "birmingham-al",
+    "city": "Birmingham",
+    "state": "AL",
+    "lenderType": "private-money",
+    "lenderTypeLabel": "Private Money Lenders",
+    "lenders": [
+      { "name": "Lending One", "rate": "8-11%", "ltv": "up to 80%", "minLoan": 50000, "closingDays": "7-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "Fund That Flip", "rate": "8.5-11%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge"] },
+      { "name": "Groundfloor", "rate": "9-12%", "ltv": "up to 75%", "minLoan": 50000, "closingDays": "14-21", "specialties": ["Fix & Flip", "Residential"] }
+    ],
+    "avgRate": "8-12%",
+    "avgClosing": "10-18 days",
+    "tips": ["Birmingham's growing startup scene is attracting new private lender capital", "Avondale and Crestwood projects attract local private money"]
+  },
+  {
+    "slug": "dscr-lenders-birmingham-al",
+    "citySlug": "birmingham-al",
+    "city": "Birmingham",
+    "state": "AL",
+    "lenderType": "dscr",
+    "lenderTypeLabel": "DSCR Lenders",
+    "lenders": [
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "21-30", "specialties": ["Rental", "DSCR", "Portfolio"] },
+      { "name": "Easy Street Capital", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "14-21", "specialties": ["DSCR", "Rental", "Short-Term Rental"] },
+      { "name": "Kiavi", "rate": "7-8.5%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "21-30", "specialties": ["DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "21-30 days",
+    "tips": ["Birmingham has outstanding rent-to-price ratios for DSCR loans", "Hoover and Vestavia Hills rentals qualify easily for DSCR financing"]
+  },
+  {
+    "slug": "portfolio-lenders-birmingham-al",
+    "citySlug": "birmingham-al",
+    "city": "Birmingham",
+    "state": "AL",
+    "lenderType": "portfolio",
+    "lenderTypeLabel": "Portfolio Lenders",
+    "lenders": [
+      { "name": "CoreVest Finance", "rate": "7-9.5%", "ltv": "up to 75%", "minLoan": 500000, "closingDays": "30-45", "specialties": ["Portfolio", "Rental", "Build-to-Rent"] },
+      { "name": "Blanket Mortgages Inc", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 250000, "closingDays": "21-45", "specialties": ["Portfolio", "Blanket Loans", "Rental"] },
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 150000, "closingDays": "21-30", "specialties": ["Portfolio", "DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9.5%",
+    "avgClosing": "21-45 days",
+    "tips": ["Birmingham is a top cash flow market for building large portfolios", "Jefferson County portfolios of affordable rentals are popular with blanket lenders"]
+  },
+  {
+    "slug": "commercial-lenders-birmingham-al",
+    "citySlug": "birmingham-al",
+    "city": "Birmingham",
+    "state": "AL",
+    "lenderType": "commercial",
+    "lenderTypeLabel": "Commercial Lenders",
+    "lenders": [
+      { "name": "Arbor Realty Trust", "rate": "6.5-9%", "ltv": "up to 80%", "minLoan": 500000, "closingDays": "30-60", "specialties": ["Multifamily", "Commercial", "Bridge"] },
+      { "name": "Ready Capital", "rate": "7-10%", "ltv": "up to 80%", "minLoan": 250000, "closingDays": "30-45", "specialties": ["Commercial", "SBA", "Mixed-Use"] },
+      { "name": "Lument", "rate": "6-8%", "ltv": "up to 80%", "minLoan": 1000000, "closingDays": "45-60", "specialties": ["Multifamily", "Agency", "Commercial"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "30-60 days",
+    "tips": ["Birmingham healthcare and university sectors drive commercial demand", "Lakeview and Five Points South attract mixed-use commercial investment"]
+  },
+  {
+    "slug": "hard-money-lenders-milwaukee-wi",
+    "citySlug": "milwaukee-wi",
+    "city": "Milwaukee",
+    "state": "WI",
+    "lenderType": "hard-money",
+    "lenderTypeLabel": "Hard Money Lenders",
+    "lenders": [
+      { "name": "Lima One Capital", "rate": "9.5-12%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "RCN Capital", "rate": "9-12%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Rental", "Commercial"] },
+      { "name": "Kiavi", "rate": "9-11%", "ltv": "up to 85%", "minLoan": 75000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Bridge"] }
+    ],
+    "avgRate": "10-12%",
+    "avgClosing": "10-15 days",
+    "tips": ["Milwaukee offers strong fix-and-flip margins with affordable entry prices", "Wisconsin is a judicial foreclosure state -- factor into lender selection"]
+  },
+  {
+    "slug": "private-money-lenders-milwaukee-wi",
+    "citySlug": "milwaukee-wi",
+    "city": "Milwaukee",
+    "state": "WI",
+    "lenderType": "private-money",
+    "lenderTypeLabel": "Private Money Lenders",
+    "lenders": [
+      { "name": "Lending One", "rate": "8-11%", "ltv": "up to 80%", "minLoan": 50000, "closingDays": "7-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "Fund That Flip", "rate": "8.5-11%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge"] },
+      { "name": "Groundfloor", "rate": "9-12%", "ltv": "up to 75%", "minLoan": 50000, "closingDays": "14-21", "specialties": ["Fix & Flip", "Residential"] }
+    ],
+    "avgRate": "8-12%",
+    "avgClosing": "10-18 days",
+    "tips": ["Milwaukee private lenders are active in the duplex and multi-unit market", "Bay View and Walker's Point projects attract local private capital"]
+  },
+  {
+    "slug": "dscr-lenders-milwaukee-wi",
+    "citySlug": "milwaukee-wi",
+    "city": "Milwaukee",
+    "state": "WI",
+    "lenderType": "dscr",
+    "lenderTypeLabel": "DSCR Lenders",
+    "lenders": [
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "21-30", "specialties": ["Rental", "DSCR", "Portfolio"] },
+      { "name": "Easy Street Capital", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "14-21", "specialties": ["DSCR", "Rental", "Short-Term Rental"] },
+      { "name": "Kiavi", "rate": "7-8.5%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "21-30", "specialties": ["DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "21-30 days",
+    "tips": ["Milwaukee multi-unit properties have excellent rent-to-price ratios for DSCR", "Wauwatosa and Shorewood rentals qualify well for DSCR financing"]
+  },
+  {
+    "slug": "portfolio-lenders-milwaukee-wi",
+    "citySlug": "milwaukee-wi",
+    "city": "Milwaukee",
+    "state": "WI",
+    "lenderType": "portfolio",
+    "lenderTypeLabel": "Portfolio Lenders",
+    "lenders": [
+      { "name": "CoreVest Finance", "rate": "7-9.5%", "ltv": "up to 75%", "minLoan": 500000, "closingDays": "30-45", "specialties": ["Portfolio", "Rental", "Build-to-Rent"] },
+      { "name": "Blanket Mortgages Inc", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 250000, "closingDays": "21-45", "specialties": ["Portfolio", "Blanket Loans", "Rental"] },
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 150000, "closingDays": "21-30", "specialties": ["Portfolio", "DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9.5%",
+    "avgClosing": "21-45 days",
+    "tips": ["Milwaukee duplex and fourplex portfolios are popular with blanket lenders", "Milwaukee County affordable rental portfolios attract competitive terms"]
+  },
+  {
+    "slug": "commercial-lenders-milwaukee-wi",
+    "citySlug": "milwaukee-wi",
+    "city": "Milwaukee",
+    "state": "WI",
+    "lenderType": "commercial",
+    "lenderTypeLabel": "Commercial Lenders",
+    "lenders": [
+      { "name": "Arbor Realty Trust", "rate": "6.5-9%", "ltv": "up to 80%", "minLoan": 500000, "closingDays": "30-60", "specialties": ["Multifamily", "Commercial", "Bridge"] },
+      { "name": "Ready Capital", "rate": "7-10%", "ltv": "up to 80%", "minLoan": 250000, "closingDays": "30-45", "specialties": ["Commercial", "SBA", "Mixed-Use"] },
+      { "name": "Lument", "rate": "6-8%", "ltv": "up to 80%", "minLoan": 1000000, "closingDays": "45-60", "specialties": ["Multifamily", "Agency", "Commercial"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "30-60 days",
+    "tips": ["Milwaukee Third Ward revitalization is attracting commercial lending interest", "Harbor District redevelopment is creating new commercial investment opportunities"]
+  },
+  {
+    "slug": "hard-money-lenders-richmond-va",
+    "citySlug": "richmond-va",
+    "city": "Richmond",
+    "state": "VA",
+    "lenderType": "hard-money",
+    "lenderTypeLabel": "Hard Money Lenders",
+    "lenders": [
+      { "name": "Lima One Capital", "rate": "9-12%", "ltv": "up to 90%", "minLoan": 75000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "Kiavi", "rate": "9-11%", "ltv": "up to 90%", "minLoan": 100000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Bridge"] },
+      { "name": "RCN Capital", "rate": "9-12%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Rental", "Commercial"] }
+    ],
+    "avgRate": "9-12%",
+    "avgClosing": "10-15 days",
+    "tips": ["Virginia is a deed of trust state with relatively fast foreclosure", "Richmond's historic housing stock creates strong renovation opportunities"]
+  },
+  {
+    "slug": "private-money-lenders-richmond-va",
+    "citySlug": "richmond-va",
+    "city": "Richmond",
+    "state": "VA",
+    "lenderType": "private-money",
+    "lenderTypeLabel": "Private Money Lenders",
+    "lenders": [
+      { "name": "Lending One", "rate": "8-11%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "7-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "Fund That Flip", "rate": "8.5-11%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge"] },
+      { "name": "Groundfloor", "rate": "9-12%", "ltv": "up to 75%", "minLoan": 50000, "closingDays": "14-21", "specialties": ["Fix & Flip", "Residential"] }
+    ],
+    "avgRate": "8-12%",
+    "avgClosing": "10-18 days",
+    "tips": ["Richmond private lenders are active in the Church Hill and Fan District markets", "Groundfloor (RCN) is headquartered in the region and knows the market well"]
+  },
+  {
+    "slug": "dscr-lenders-richmond-va",
+    "citySlug": "richmond-va",
+    "city": "Richmond",
+    "state": "VA",
+    "lenderType": "dscr",
+    "lenderTypeLabel": "DSCR Lenders",
+    "lenders": [
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "21-30", "specialties": ["Rental", "DSCR", "Portfolio"] },
+      { "name": "Easy Street Capital", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "14-21", "specialties": ["DSCR", "Rental", "Short-Term Rental"] },
+      { "name": "Kiavi", "rate": "7-8.5%", "ltv": "up to 80%", "minLoan": 100000, "closingDays": "21-30", "specialties": ["DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "21-30 days",
+    "tips": ["Richmond rents have been growing steadily, supporting DSCR qualification", "Short Pump and Midlothian suburbs have strong rent-to-price ratios"]
+  },
+  {
+    "slug": "portfolio-lenders-richmond-va",
+    "citySlug": "richmond-va",
+    "city": "Richmond",
+    "state": "VA",
+    "lenderType": "portfolio",
+    "lenderTypeLabel": "Portfolio Lenders",
+    "lenders": [
+      { "name": "CoreVest Finance", "rate": "7-9.5%", "ltv": "up to 75%", "minLoan": 500000, "closingDays": "30-45", "specialties": ["Portfolio", "Rental", "Build-to-Rent"] },
+      { "name": "Blanket Mortgages Inc", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 250000, "closingDays": "21-45", "specialties": ["Portfolio", "Blanket Loans", "Rental"] },
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 150000, "closingDays": "21-30", "specialties": ["Portfolio", "DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9.5%",
+    "avgClosing": "21-45 days",
+    "tips": ["Richmond metro portfolios in Henrico and Chesterfield attract competitive terms", "Virginia regulatory environment is favorable for portfolio lending"]
+  },
+  {
+    "slug": "commercial-lenders-richmond-va",
+    "citySlug": "richmond-va",
+    "city": "Richmond",
+    "state": "VA",
+    "lenderType": "commercial",
+    "lenderTypeLabel": "Commercial Lenders",
+    "lenders": [
+      { "name": "Arbor Realty Trust", "rate": "6.5-9%", "ltv": "up to 80%", "minLoan": 500000, "closingDays": "30-60", "specialties": ["Multifamily", "Commercial", "Bridge"] },
+      { "name": "Ready Capital", "rate": "7-10%", "ltv": "up to 80%", "minLoan": 250000, "closingDays": "30-45", "specialties": ["Commercial", "SBA", "Mixed-Use"] },
+      { "name": "Lument", "rate": "6-8%", "ltv": "up to 80%", "minLoan": 1000000, "closingDays": "45-60", "specialties": ["Multifamily", "Agency", "Commercial"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "30-60 days",
+    "tips": ["Richmond's proximity to DC creates spillover commercial investment interest", "Scott's Addition and Manchester areas are attracting mixed-use commercial capital"]
+  },
+  {
+    "slug": "hard-money-lenders-st-louis-mo",
+    "citySlug": "st-louis-mo",
+    "city": "St. Louis",
+    "state": "MO",
+    "lenderType": "hard-money",
+    "lenderTypeLabel": "Hard Money Lenders",
+    "lenders": [
+      { "name": "Lima One Capital", "rate": "9.5-12%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "RCN Capital", "rate": "9-12%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Rental", "Commercial"] },
+      { "name": "Kiavi", "rate": "9-11%", "ltv": "up to 85%", "minLoan": 75000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Bridge"] }
+    ],
+    "avgRate": "10-12%",
+    "avgClosing": "10-15 days",
+    "tips": ["St. Louis has very affordable entry points for fix-and-flip investors", "Missouri deed of trust state allows fast non-judicial foreclosure"]
+  },
+  {
+    "slug": "private-money-lenders-st-louis-mo",
+    "citySlug": "st-louis-mo",
+    "city": "St. Louis",
+    "state": "MO",
+    "lenderType": "private-money",
+    "lenderTypeLabel": "Private Money Lenders",
+    "lenders": [
+      { "name": "Lending One", "rate": "8-11%", "ltv": "up to 80%", "minLoan": 50000, "closingDays": "7-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "Fund That Flip", "rate": "8.5-11%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge"] },
+      { "name": "Groundfloor", "rate": "9-12%", "ltv": "up to 75%", "minLoan": 50000, "closingDays": "14-21", "specialties": ["Fix & Flip", "Residential"] }
+    ],
+    "avgRate": "8-12%",
+    "avgClosing": "10-18 days",
+    "tips": ["St. Louis has a dedicated community of private real estate lenders", "Tower Grove and Shaw neighborhoods attract private lender interest"]
+  },
+  {
+    "slug": "dscr-lenders-st-louis-mo",
+    "citySlug": "st-louis-mo",
+    "city": "St. Louis",
+    "state": "MO",
+    "lenderType": "dscr",
+    "lenderTypeLabel": "DSCR Lenders",
+    "lenders": [
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "21-30", "specialties": ["Rental", "DSCR", "Portfolio"] },
+      { "name": "Easy Street Capital", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "14-21", "specialties": ["DSCR", "Rental", "Short-Term Rental"] },
+      { "name": "Kiavi", "rate": "7-8.5%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "21-30", "specialties": ["DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "21-30 days",
+    "tips": ["St. Louis has excellent rent-to-price ratios for DSCR qualification", "Clayton and Webster Groves suburbs have strong DSCR performance"]
+  },
+  {
+    "slug": "portfolio-lenders-st-louis-mo",
+    "citySlug": "st-louis-mo",
+    "city": "St. Louis",
+    "state": "MO",
+    "lenderType": "portfolio",
+    "lenderTypeLabel": "Portfolio Lenders",
+    "lenders": [
+      { "name": "CoreVest Finance", "rate": "7-9.5%", "ltv": "up to 75%", "minLoan": 500000, "closingDays": "30-45", "specialties": ["Portfolio", "Rental", "Build-to-Rent"] },
+      { "name": "Blanket Mortgages Inc", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 250000, "closingDays": "21-45", "specialties": ["Portfolio", "Blanket Loans", "Rental"] },
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 150000, "closingDays": "21-30", "specialties": ["Portfolio", "DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9.5%",
+    "avgClosing": "21-45 days",
+    "tips": ["St. Louis metro portfolios spanning MO and IL sides can be complex", "City of St. Louis multi-family portfolios attract cash flow focused lenders"]
+  },
+  {
+    "slug": "commercial-lenders-st-louis-mo",
+    "citySlug": "st-louis-mo",
+    "city": "St. Louis",
+    "state": "MO",
+    "lenderType": "commercial",
+    "lenderTypeLabel": "Commercial Lenders",
+    "lenders": [
+      { "name": "Arbor Realty Trust", "rate": "6.5-9%", "ltv": "up to 80%", "minLoan": 500000, "closingDays": "30-60", "specialties": ["Multifamily", "Commercial", "Bridge"] },
+      { "name": "Ready Capital", "rate": "7-10%", "ltv": "up to 80%", "minLoan": 250000, "closingDays": "30-45", "specialties": ["Commercial", "SBA", "Mixed-Use"] },
+      { "name": "Lument", "rate": "6-8%", "ltv": "up to 80%", "minLoan": 1000000, "closingDays": "45-60", "specialties": ["Multifamily", "Agency", "Commercial"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "30-60 days",
+    "tips": ["St. Louis NGA West campus is driving surrounding commercial investment", "Cortex Innovation District attracts mixed-use commercial lending"]
+  },
+  {
+    "slug": "hard-money-lenders-pittsburgh-pa",
+    "citySlug": "pittsburgh-pa",
+    "city": "Pittsburgh",
+    "state": "PA",
+    "lenderType": "hard-money",
+    "lenderTypeLabel": "Hard Money Lenders",
+    "lenders": [
+      { "name": "Lima One Capital", "rate": "9.5-12%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "RCN Capital", "rate": "9-12%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Rental", "Commercial"] },
+      { "name": "Kiavi", "rate": "9-11%", "ltv": "up to 85%", "minLoan": 75000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Bridge"] }
+    ],
+    "avgRate": "10-12%",
+    "avgClosing": "10-15 days",
+    "tips": ["Pittsburgh has affordable entry points for fix-and-flip projects", "Pennsylvania is a judicial foreclosure state -- factor into lender risk"]
+  },
+  {
+    "slug": "private-money-lenders-pittsburgh-pa",
+    "citySlug": "pittsburgh-pa",
+    "city": "Pittsburgh",
+    "state": "PA",
+    "lenderType": "private-money",
+    "lenderTypeLabel": "Private Money Lenders",
+    "lenders": [
+      { "name": "Lending One", "rate": "8-11%", "ltv": "up to 80%", "minLoan": 50000, "closingDays": "7-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "Fund That Flip", "rate": "8.5-11%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge"] },
+      { "name": "Groundfloor", "rate": "9-12%", "ltv": "up to 75%", "minLoan": 50000, "closingDays": "14-21", "specialties": ["Fix & Flip", "Residential"] }
+    ],
+    "avgRate": "8-12%",
+    "avgClosing": "10-18 days",
+    "tips": ["Pittsburgh tech boom is attracting new private lender capital", "Lawrenceville and East Liberty projects attract private lender interest"]
+  },
+  {
+    "slug": "dscr-lenders-pittsburgh-pa",
+    "citySlug": "pittsburgh-pa",
+    "city": "Pittsburgh",
+    "state": "PA",
+    "lenderType": "dscr",
+    "lenderTypeLabel": "DSCR Lenders",
+    "lenders": [
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "21-30", "specialties": ["Rental", "DSCR", "Portfolio"] },
+      { "name": "Easy Street Capital", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "14-21", "specialties": ["DSCR", "Rental", "Short-Term Rental"] },
+      { "name": "Kiavi", "rate": "7-8.5%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "21-30", "specialties": ["DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "21-30 days",
+    "tips": ["Pittsburgh has strong rent-to-price ratios for DSCR qualification", "Squirrel Hill and Shadyside rentals qualify well for DSCR financing"]
+  },
+  {
+    "slug": "portfolio-lenders-pittsburgh-pa",
+    "citySlug": "pittsburgh-pa",
+    "city": "Pittsburgh",
+    "state": "PA",
+    "lenderType": "portfolio",
+    "lenderTypeLabel": "Portfolio Lenders",
+    "lenders": [
+      { "name": "CoreVest Finance", "rate": "7-9.5%", "ltv": "up to 75%", "minLoan": 500000, "closingDays": "30-45", "specialties": ["Portfolio", "Rental", "Build-to-Rent"] },
+      { "name": "Blanket Mortgages Inc", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 250000, "closingDays": "21-45", "specialties": ["Portfolio", "Blanket Loans", "Rental"] },
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 150000, "closingDays": "21-30", "specialties": ["Portfolio", "DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9.5%",
+    "avgClosing": "21-45 days",
+    "tips": ["Pittsburgh is ideal for building cash-flowing portfolios at low entry costs", "Allegheny County portfolios of affordable rentals attract portfolio lenders"]
+  },
+  {
+    "slug": "commercial-lenders-pittsburgh-pa",
+    "citySlug": "pittsburgh-pa",
+    "city": "Pittsburgh",
+    "state": "PA",
+    "lenderType": "commercial",
+    "lenderTypeLabel": "Commercial Lenders",
+    "lenders": [
+      { "name": "Arbor Realty Trust", "rate": "6.5-9%", "ltv": "up to 80%", "minLoan": 500000, "closingDays": "30-60", "specialties": ["Multifamily", "Commercial", "Bridge"] },
+      { "name": "Ready Capital", "rate": "7-10%", "ltv": "up to 80%", "minLoan": 250000, "closingDays": "30-45", "specialties": ["Commercial", "SBA", "Mixed-Use"] },
+      { "name": "Lument", "rate": "6-8%", "ltv": "up to 80%", "minLoan": 1000000, "closingDays": "45-60", "specialties": ["Multifamily", "Agency", "Commercial"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "30-60 days",
+    "tips": ["Pittsburgh's eds and meds economy drives steady commercial real estate demand", "Strip District and Oakland attract mixed-use commercial investment"]
+  },
+  {
+    "slug": "hard-money-lenders-san-diego-ca",
+    "citySlug": "san-diego-ca",
+    "city": "San Diego",
+    "state": "CA",
+    "lenderType": "hard-money",
+    "lenderTypeLabel": "Hard Money Lenders",
+    "lenders": [
+      { "name": "Kiavi", "rate": "9-12%", "ltv": "up to 85%", "minLoan": 150000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Bridge"] },
+      { "name": "Lima One Capital", "rate": "9.5-12%", "ltv": "up to 85%", "minLoan": 100000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "RCN Capital", "rate": "9-12%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Rental", "Commercial"] }
+    ],
+    "avgRate": "10-12%",
+    "avgClosing": "10-15 days",
+    "tips": ["California deed of trust state allows non-judicial foreclosure", "San Diego home prices are high -- hard money loans tend to be larger here"]
+  },
+  {
+    "slug": "private-money-lenders-san-diego-ca",
+    "citySlug": "san-diego-ca",
+    "city": "San Diego",
+    "state": "CA",
+    "lenderType": "private-money",
+    "lenderTypeLabel": "Private Money Lenders",
+    "lenders": [
+      { "name": "Lending One", "rate": "8-11%", "ltv": "up to 75%", "minLoan": 100000, "closingDays": "7-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "Fund That Flip", "rate": "8.5-11%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge"] },
+      { "name": "Groundfloor", "rate": "9-12%", "ltv": "up to 70%", "minLoan": 75000, "closingDays": "14-21", "specialties": ["Fix & Flip", "Residential"] }
+    ],
+    "avgRate": "8-12%",
+    "avgClosing": "10-18 days",
+    "tips": ["San Diego private lenders are experienced with high-value coastal properties", "North Park and Normal Heights projects attract local private money"]
+  },
+  {
+    "slug": "dscr-lenders-san-diego-ca",
+    "citySlug": "san-diego-ca",
+    "city": "San Diego",
+    "state": "CA",
+    "lenderType": "dscr",
+    "lenderTypeLabel": "DSCR Lenders",
+    "lenders": [
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 100000, "closingDays": "21-30", "specialties": ["Rental", "DSCR", "Portfolio"] },
+      { "name": "Easy Street Capital", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 100000, "closingDays": "14-21", "specialties": ["DSCR", "Rental", "Short-Term Rental"] },
+      { "name": "Kiavi", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 150000, "closingDays": "21-30", "specialties": ["DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "21-30 days",
+    "tips": ["San Diego DSCR ratios can be tight due to high prices -- analyze carefully", "Short-term rentals near the beach can boost DSCR significantly"]
+  },
+  {
+    "slug": "portfolio-lenders-san-diego-ca",
+    "citySlug": "san-diego-ca",
+    "city": "San Diego",
+    "state": "CA",
+    "lenderType": "portfolio",
+    "lenderTypeLabel": "Portfolio Lenders",
+    "lenders": [
+      { "name": "CoreVest Finance", "rate": "7-9.5%", "ltv": "up to 70%", "minLoan": 750000, "closingDays": "30-45", "specialties": ["Portfolio", "Rental", "Build-to-Rent"] },
+      { "name": "Blanket Mortgages Inc", "rate": "7-9%", "ltv": "up to 70%", "minLoan": 500000, "closingDays": "21-45", "specialties": ["Portfolio", "Blanket Loans", "Rental"] },
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 200000, "closingDays": "21-30", "specialties": ["Portfolio", "DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9.5%",
+    "avgClosing": "21-45 days",
+    "tips": ["San Diego portfolio loan minimums tend to be higher due to property values", "ADU conversions are popular for portfolio value-adds in San Diego"]
+  },
+  {
+    "slug": "commercial-lenders-san-diego-ca",
+    "citySlug": "san-diego-ca",
+    "city": "San Diego",
+    "state": "CA",
+    "lenderType": "commercial",
+    "lenderTypeLabel": "Commercial Lenders",
+    "lenders": [
+      { "name": "Arbor Realty Trust", "rate": "6.5-9%", "ltv": "up to 75%", "minLoan": 750000, "closingDays": "30-60", "specialties": ["Multifamily", "Commercial", "Bridge"] },
+      { "name": "Ready Capital", "rate": "7-10%", "ltv": "up to 75%", "minLoan": 500000, "closingDays": "30-45", "specialties": ["Commercial", "SBA", "Mixed-Use"] },
+      { "name": "Lument", "rate": "6-8%", "ltv": "up to 75%", "minLoan": 1500000, "closingDays": "45-60", "specialties": ["Multifamily", "Agency", "Commercial"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "30-60 days",
+    "tips": ["San Diego biotech and defense sectors drive commercial real estate demand", "East Village and Little Italy attract premium mixed-use commercial investment"]
+  },
+  {
+    "slug": "hard-money-lenders-minneapolis-mn",
+    "citySlug": "minneapolis-mn",
+    "city": "Minneapolis",
+    "state": "MN",
+    "lenderType": "hard-money",
+    "lenderTypeLabel": "Hard Money Lenders",
+    "lenders": [
+      { "name": "Lima One Capital", "rate": "9.5-12%", "ltv": "up to 85%", "minLoan": 75000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "RCN Capital", "rate": "9-12%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Rental", "Commercial"] },
+      { "name": "Kiavi", "rate": "9-11%", "ltv": "up to 85%", "minLoan": 100000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Bridge"] }
+    ],
+    "avgRate": "10-12%",
+    "avgClosing": "10-15 days",
+    "tips": ["Minnesota is a non-judicial foreclosure state with 6-month redemption period", "Twin Cities fix-and-flip market is active year-round despite harsh winters"]
+  },
+  {
+    "slug": "private-money-lenders-minneapolis-mn",
+    "citySlug": "minneapolis-mn",
+    "city": "Minneapolis",
+    "state": "MN",
+    "lenderType": "private-money",
+    "lenderTypeLabel": "Private Money Lenders",
+    "lenders": [
+      { "name": "Lending One", "rate": "8-11%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "7-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "Fund That Flip", "rate": "8.5-11%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge"] },
+      { "name": "Groundfloor", "rate": "9-12%", "ltv": "up to 75%", "minLoan": 50000, "closingDays": "14-21", "specialties": ["Fix & Flip", "Residential"] }
+    ],
+    "avgRate": "8-12%",
+    "avgClosing": "10-18 days",
+    "tips": ["Minneapolis private lenders are active in the duplex and fourplex market", "Northeast Minneapolis and Uptown projects attract private capital"]
+  },
+  {
+    "slug": "dscr-lenders-minneapolis-mn",
+    "citySlug": "minneapolis-mn",
+    "city": "Minneapolis",
+    "state": "MN",
+    "lenderType": "dscr",
+    "lenderTypeLabel": "DSCR Lenders",
+    "lenders": [
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "21-30", "specialties": ["Rental", "DSCR", "Portfolio"] },
+      { "name": "Easy Street Capital", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "14-21", "specialties": ["DSCR", "Rental", "Short-Term Rental"] },
+      { "name": "Kiavi", "rate": "7-8.5%", "ltv": "up to 80%", "minLoan": 100000, "closingDays": "21-30", "specialties": ["DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "21-30 days",
+    "tips": ["Minneapolis rental demand is strong with major corporate employers", "St. Paul side of the metro often has better rent-to-price ratios for DSCR"]
+  },
+  {
+    "slug": "portfolio-lenders-minneapolis-mn",
+    "citySlug": "minneapolis-mn",
+    "city": "Minneapolis",
+    "state": "MN",
+    "lenderType": "portfolio",
+    "lenderTypeLabel": "Portfolio Lenders",
+    "lenders": [
+      { "name": "CoreVest Finance", "rate": "7-9.5%", "ltv": "up to 75%", "minLoan": 500000, "closingDays": "30-45", "specialties": ["Portfolio", "Rental", "Build-to-Rent"] },
+      { "name": "Blanket Mortgages Inc", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 250000, "closingDays": "21-45", "specialties": ["Portfolio", "Blanket Loans", "Rental"] },
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 150000, "closingDays": "21-30", "specialties": ["Portfolio", "DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9.5%",
+    "avgClosing": "21-45 days",
+    "tips": ["Twin Cities duplex and fourplex portfolios are popular with blanket lenders", "Hennepin and Ramsey County portfolios attract competitive portfolio terms"]
+  },
+  {
+    "slug": "commercial-lenders-minneapolis-mn",
+    "citySlug": "minneapolis-mn",
+    "city": "Minneapolis",
+    "state": "MN",
+    "lenderType": "commercial",
+    "lenderTypeLabel": "Commercial Lenders",
+    "lenders": [
+      { "name": "Arbor Realty Trust", "rate": "6.5-9%", "ltv": "up to 80%", "minLoan": 500000, "closingDays": "30-60", "specialties": ["Multifamily", "Commercial", "Bridge"] },
+      { "name": "Ready Capital", "rate": "7-10%", "ltv": "up to 80%", "minLoan": 250000, "closingDays": "30-45", "specialties": ["Commercial", "SBA", "Mixed-Use"] },
+      { "name": "Lument", "rate": "6-8%", "ltv": "up to 80%", "minLoan": 1000000, "closingDays": "45-60", "specialties": ["Multifamily", "Agency", "Commercial"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "30-60 days",
+    "tips": ["Minneapolis Fortune 500 concentration drives strong commercial demand", "North Loop and Northeast areas attract premium commercial lending interest"]
+  },
+  {
+    "slug": "hard-money-lenders-baltimore-md",
+    "citySlug": "baltimore-md",
+    "city": "Baltimore",
+    "state": "MD",
+    "lenderType": "hard-money",
+    "lenderTypeLabel": "Hard Money Lenders",
+    "lenders": [
+      { "name": "Lima One Capital", "rate": "9.5-12%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "RCN Capital", "rate": "9-12%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Rental", "Commercial"] },
+      { "name": "Kiavi", "rate": "9-11%", "ltv": "up to 85%", "minLoan": 75000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Bridge"] }
+    ],
+    "avgRate": "10-12%",
+    "avgClosing": "10-15 days",
+    "tips": ["Baltimore has strong fix-and-flip margins with affordable entry prices", "Maryland is a judicial foreclosure state -- factor into lender risk assessment"]
+  },
+  {
+    "slug": "private-money-lenders-baltimore-md",
+    "citySlug": "baltimore-md",
+    "city": "Baltimore",
+    "state": "MD",
+    "lenderType": "private-money",
+    "lenderTypeLabel": "Private Money Lenders",
+    "lenders": [
+      { "name": "Lending One", "rate": "8-11%", "ltv": "up to 80%", "minLoan": 50000, "closingDays": "7-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "Fund That Flip", "rate": "8.5-11%", "ltv": "up to 85%", "minLoan": 50000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge"] },
+      { "name": "Groundfloor", "rate": "9-12%", "ltv": "up to 75%", "minLoan": 50000, "closingDays": "14-21", "specialties": ["Fix & Flip", "Residential"] }
+    ],
+    "avgRate": "8-12%",
+    "avgClosing": "10-18 days",
+    "tips": ["Baltimore private lenders are experienced with rowhome renovations", "Federal Hill and Canton projects attract local private lender capital"]
+  },
+  {
+    "slug": "dscr-lenders-baltimore-md",
+    "citySlug": "baltimore-md",
+    "city": "Baltimore",
+    "state": "MD",
+    "lenderType": "dscr",
+    "lenderTypeLabel": "DSCR Lenders",
+    "lenders": [
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "21-30", "specialties": ["Rental", "DSCR", "Portfolio"] },
+      { "name": "Easy Street Capital", "rate": "7-9%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "14-21", "specialties": ["DSCR", "Rental", "Short-Term Rental"] },
+      { "name": "Kiavi", "rate": "7-8.5%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "21-30", "specialties": ["DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "21-30 days",
+    "tips": ["Baltimore has strong rent-to-price ratios for DSCR qualification", "Columbia and Towson suburbs have excellent DSCR performance"]
+  },
+  {
+    "slug": "portfolio-lenders-baltimore-md",
+    "citySlug": "baltimore-md",
+    "city": "Baltimore",
+    "state": "MD",
+    "lenderType": "portfolio",
+    "lenderTypeLabel": "Portfolio Lenders",
+    "lenders": [
+      { "name": "CoreVest Finance", "rate": "7-9.5%", "ltv": "up to 75%", "minLoan": 500000, "closingDays": "30-45", "specialties": ["Portfolio", "Rental", "Build-to-Rent"] },
+      { "name": "Blanket Mortgages Inc", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 250000, "closingDays": "21-45", "specialties": ["Portfolio", "Blanket Loans", "Rental"] },
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 150000, "closingDays": "21-30", "specialties": ["Portfolio", "DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9.5%",
+    "avgClosing": "21-45 days",
+    "tips": ["Baltimore rowhome portfolios are popular with cash flow focused portfolio lenders", "Baltimore County portfolios often get better terms than city-only portfolios"]
+  },
+  {
+    "slug": "commercial-lenders-baltimore-md",
+    "citySlug": "baltimore-md",
+    "city": "Baltimore",
+    "state": "MD",
+    "lenderType": "commercial",
+    "lenderTypeLabel": "Commercial Lenders",
+    "lenders": [
+      { "name": "Arbor Realty Trust", "rate": "6.5-9%", "ltv": "up to 80%", "minLoan": 500000, "closingDays": "30-60", "specialties": ["Multifamily", "Commercial", "Bridge"] },
+      { "name": "Ready Capital", "rate": "7-10%", "ltv": "up to 80%", "minLoan": 250000, "closingDays": "30-45", "specialties": ["Commercial", "SBA", "Mixed-Use"] },
+      { "name": "Lument", "rate": "6-8%", "ltv": "up to 80%", "minLoan": 1000000, "closingDays": "45-60", "specialties": ["Multifamily", "Agency", "Commercial"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "30-60 days",
+    "tips": ["Baltimore's proximity to DC and federal agencies drives commercial demand", "Harbor East and Port Covington attract institutional commercial capital"]
+  },
+  {
+    "slug": "hard-money-lenders-detroit-mi",
+    "citySlug": "detroit-mi",
+    "city": "Detroit",
+    "state": "MI",
+    "lenderType": "hard-money",
+    "lenderTypeLabel": "Hard Money Lenders",
+    "lenders": [
+      { "name": "Lima One Capital", "rate": "10-13%", "ltv": "up to 80%", "minLoan": 50000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "RCN Capital", "rate": "9-12%", "ltv": "up to 80%", "minLoan": 50000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Rental", "Commercial"] },
+      { "name": "Kiavi", "rate": "9-12%", "ltv": "up to 80%", "minLoan": 75000, "closingDays": "10-15", "specialties": ["Fix & Flip", "Bridge"] }
+    ],
+    "avgRate": "10-13%",
+    "avgClosing": "10-15 days",
+    "tips": ["Detroit entry prices are among the lowest in any major metro", "Michigan is a non-judicial foreclosure state with fast timelines"]
+  },
+  {
+    "slug": "private-money-lenders-detroit-mi",
+    "citySlug": "detroit-mi",
+    "city": "Detroit",
+    "state": "MI",
+    "lenderType": "private-money",
+    "lenderTypeLabel": "Private Money Lenders",
+    "lenders": [
+      { "name": "Lending One", "rate": "8-12%", "ltv": "up to 75%", "minLoan": 50000, "closingDays": "7-14", "specialties": ["Fix & Flip", "Bridge", "Rental"] },
+      { "name": "Fund That Flip", "rate": "9-12%", "ltv": "up to 80%", "minLoan": 50000, "closingDays": "10-14", "specialties": ["Fix & Flip", "Bridge"] },
+      { "name": "Groundfloor", "rate": "9-12%", "ltv": "up to 70%", "minLoan": 50000, "closingDays": "14-21", "specialties": ["Fix & Flip", "Residential"] }
+    ],
+    "avgRate": "8-12%",
+    "avgClosing": "10-18 days",
+    "tips": ["Detroit's revitalization is attracting new private lender interest", "Corktown and Midtown projects attract private capital from local investors"]
+  },
+  {
+    "slug": "dscr-lenders-detroit-mi",
+    "citySlug": "detroit-mi",
+    "city": "Detroit",
+    "state": "MI",
+    "lenderType": "dscr",
+    "lenderTypeLabel": "DSCR Lenders",
+    "lenders": [
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 75000, "closingDays": "21-30", "specialties": ["Rental", "DSCR", "Portfolio"] },
+      { "name": "Easy Street Capital", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 75000, "closingDays": "14-21", "specialties": ["DSCR", "Rental", "Short-Term Rental"] },
+      { "name": "Kiavi", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 75000, "closingDays": "21-30", "specialties": ["DSCR", "Rental"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "21-30 days",
+    "tips": ["Detroit has some of the highest rent-to-price ratios in the country", "Suburbs like Royal Oak and Ferndale have more consistent DSCR performance"]
+  },
+  {
+    "slug": "portfolio-lenders-detroit-mi",
+    "citySlug": "detroit-mi",
+    "city": "Detroit",
+    "state": "MI",
+    "lenderType": "portfolio",
+    "lenderTypeLabel": "Portfolio Lenders",
+    "lenders": [
+      { "name": "CoreVest Finance", "rate": "7-10%", "ltv": "up to 70%", "minLoan": 500000, "closingDays": "30-45", "specialties": ["Portfolio", "Rental", "Build-to-Rent"] },
+      { "name": "Blanket Mortgages Inc", "rate": "7-9.5%", "ltv": "up to 70%", "minLoan": 250000, "closingDays": "21-45", "specialties": ["Portfolio", "Blanket Loans", "Rental"] },
+      { "name": "Visio Lending", "rate": "7-9%", "ltv": "up to 75%", "minLoan": 150000, "closingDays": "21-30", "specialties": ["Portfolio", "DSCR", "Rental"] }
+    ],
+    "avgRate": "7-10%",
+    "avgClosing": "21-45 days",
+    "tips": ["Detroit affordable housing portfolios can generate strong cash flow returns", "Wayne County portfolios require careful property-level analysis for lenders"]
+  },
+  {
+    "slug": "commercial-lenders-detroit-mi",
+    "citySlug": "detroit-mi",
+    "city": "Detroit",
+    "state": "MI",
+    "lenderType": "commercial",
+    "lenderTypeLabel": "Commercial Lenders",
+    "lenders": [
+      { "name": "Arbor Realty Trust", "rate": "6.5-9%", "ltv": "up to 75%", "minLoan": 500000, "closingDays": "30-60", "specialties": ["Multifamily", "Commercial", "Bridge"] },
+      { "name": "Ready Capital", "rate": "7-10%", "ltv": "up to 75%", "minLoan": 250000, "closingDays": "30-45", "specialties": ["Commercial", "SBA", "Mixed-Use"] },
+      { "name": "Lument", "rate": "6-8%", "ltv": "up to 75%", "minLoan": 1000000, "closingDays": "45-60", "specialties": ["Multifamily", "Agency", "Commercial"] }
+    ],
+    "avgRate": "7-9%",
+    "avgClosing": "30-60 days",
+    "tips": ["Detroit's downtown renaissance is attracting institutional commercial capital", "District Detroit and Capitol Park areas are prime commercial lending zones"]
+  }
+]

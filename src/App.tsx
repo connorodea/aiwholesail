@@ -101,6 +101,8 @@ const InvestorGroups = lazy(() => import("./pages/InvestorGroups"));
 const InvestorGroupPage = lazy(() => import("./pages/InvestorGroupPage"));
 const StrategyStates = lazy(() => import("./pages/StrategyStates"));
 const StrategyStatePage = lazy(() => import("./pages/StrategyStatePage"));
+const Lenders = lazy(() => import("./pages/Lenders"));
+const LenderPage = lazy(() => import("./pages/LenderPage"));
 
 const queryClient = new QueryClient();
 
@@ -252,6 +254,8 @@ const App = () => (
                 <Route path="/investor-groups/:slug" element={<InvestorGroupPage />} />
                 <Route path="/strategies" element={<StrategyStates />} />
                 <Route path="/strategies/:slug" element={<StrategyStatePage />} />
+                <Route path="/lenders" element={<Lenders />} />
+                <Route path="/lenders/:slug" element={<LenderPage />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
