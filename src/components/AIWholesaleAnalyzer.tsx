@@ -175,10 +175,61 @@ export function AIWholesaleAnalyzer({ properties, market }: AIWholesaleAnalyzerP
         return;
       }
 
-      setAnalysisResult(response.data as any);
+      // Parse the AI response — it returns { response: "JSON string", type: "batch" }
+      const data = response.data as any;
+      let parsed = data;
+      if (data?.response && typeof data.response === 'string') {
+        try {
+          // Extract JSON from markdown code blocks if present
+          let jsonStr = data.response;
+          if (jsonStr.includes('```')) {
+            jsonStr = jsonStr.replace(/```json\n?/g, '').replace(/```\n?/g, '');
+          }
+          parsed = JSON.parse(jsonStr.trim());
+        } catch {
+          // If can't parse as JSON, show the raw text
+          parsed = { raw_analysis: data.response, deals: [], ranked_opportunities: [] };
+        }
+      }
+
+      // Transform new Claude format (deals[]) to old format (ranked_opportunities[]) if needed
+      if (parsed.deals && !parsed.ranked_opportunities) {
+        parsed.ranked_opportunities = parsed.deals.map((deal: any, i: number) => ({
+          rank: deal.rank || i + 1,
+          zpid: deal.address || `deal-${i}`,
+          address: deal.address || deal.property_details?.address || 'Unknown',
+          list_price: deal.property_details?.list_price || deal.list_price || 0,
+          zestimate: deal.property_details?.zestimate || deal.zestimate || 0,
+          estimated_arv: deal.arv_calculation?.estimated_arv || deal.estimated_arv || 0,
+          estimated_repairs: deal.repair_estimate?.total_repair_estimate || deal.estimated_repairs || 0,
+          mao: deal.mao_calculation?.mao_rounded || deal.mao_calculation?.mao || deal.mao || 0,
+          wholesale_fee: deal.profit_analysis?.if_purchased_at_mao?.recommended_assignment_fee || 10000,
+          deal_score: deal.deal_score || deal.summary?.deal_score || 50,
+          recommendation: deal.recommendation || deal.summary?.recommendation || 'Review',
+          notes: deal.summary?.one_liner || deal.one_liner || '',
+        }));
+        parsed.market = parsed.market || market;
+        parsed.generated_at_utc = parsed.analysis_timestamp || new Date().toISOString();
+        parsed.assumptions = parsed.assumptions || {
+          target_fee: analysisParams.targetFee || 10000,
+          min_spread_pct: analysisParams.minSpread || 0.2,
+          mao_rule_pct_of_arv: 0.7,
+        };
+      }
+
+      // Handle raw text response (no JSON parsed)
+      if (parsed.raw_analysis && (!parsed.ranked_opportunities || parsed.ranked_opportunities.length === 0)) {
+        parsed.ranked_opportunities = [];
+        parsed.market = market;
+        parsed.generated_at_utc = new Date().toISOString();
+        parsed.assumptions = { target_fee: analysisParams.targetFee || 10000, min_spread_pct: analysisParams.minSpread || 0.2, mao_rule_pct_of_arv: 0.7 };
+      }
+
+      setAnalysisResult(parsed);
+      const dealCount = parsed?.ranked_opportunities?.length || parsed?.deals?.length || data?.count || 0;
       toast({
         title: "Analysis Complete",
-        description: `Found ${(response.data as any).ranked_opportunities.length} actionable investment opportunities.`,
+        description: `Analyzed ${dealCount} investment opportunities.`,
       });
 
     } catch (error) {
