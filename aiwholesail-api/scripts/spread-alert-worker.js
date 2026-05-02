@@ -156,43 +156,53 @@ async function sendAlertEmail(userEmail, location, deals) {
     const spread = (d.zestimate && d.price) ? `+$${Number(d.zestimate - d.price).toLocaleString()}` : 'N/A';
     return `
       <tr>
-        <td style="padding: 10px 12px; border-bottom: 1px solid #262626; color: #e5e5e5;">${addr}</td>
-        <td style="padding: 10px 12px; border-bottom: 1px solid #262626; color: #a3a3a3; text-align: right;">${listPrice}</td>
-        <td style="padding: 10px 12px; border-bottom: 1px solid #262626; color: #a3a3a3; text-align: right;">${zestimate}</td>
-        <td style="padding: 10px 12px; border-bottom: 1px solid #262626; color: #06b6d4; font-weight: 600; text-align: right;">${spread}</td>
+        <td style="padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.06); color: #e5e5e5; font-size: 14px;">${addr}</td>
+        <td style="padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.06); color: #a3a3a3; text-align: right; font-size: 14px;">${listPrice}</td>
+        <td style="padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.06); color: #a3a3a3; text-align: right; font-size: 14px;">${zestimate}</td>
+        <td style="padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.06); color: #22c55e; font-weight: 600; text-align: right; font-size: 14px;">${spread}</td>
       </tr>
     `;
   }).join('');
 
-  const subject = `${deals.length} New +$30K Deal${deals.length > 1 ? 's' : ''} in ${location} — AIWholesail`;
+  const subject = `${deals.length} New Deal${deals.length > 1 ? 's' : ''} in ${location} — AIWholesail`;
   const html = `
-    <div style="font-family: Arial, sans-serif; max-width: 700px; margin: 0 auto; background: #08090a; color: #ffffff; padding: 40px 30px; border-radius: 12px;">
-      <img src="https://aiwholesail.com/logo-white.png" alt="AIWholesail" style="height: 48px; margin-bottom: 24px;" />
-      <h2 style="color: #06b6d4; margin-bottom: 8px;">New Deals Found in ${location}</h2>
-      <p style="color: #a3a3a3; line-height: 1.6; margin-bottom: 24px;">
-        We found <strong style="color: #ffffff;">${deals.length}</strong> propert${deals.length > 1 ? 'ies' : 'y'} with +$30K spread in <strong style="color: #ffffff;">${location}</strong>. Here are the top deals:
-      </p>
-      <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px; font-size: 14px;">
-        <thead>
-          <tr style="border-bottom: 2px solid #06b6d4;">
-            <th style="padding: 10px 12px; text-align: left; color: #06b6d4; font-weight: 600;">Address</th>
-            <th style="padding: 10px 12px; text-align: right; color: #06b6d4; font-weight: 600;">List Price</th>
-            <th style="padding: 10px 12px; text-align: right; color: #06b6d4; font-weight: 600;">Zestimate</th>
-            <th style="padding: 10px 12px; text-align: right; color: #06b6d4; font-weight: 600;">Spread</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${dealRows}
-        </tbody>
-      </table>
-      <a href="https://aiwholesail.com/app" style="display: inline-block; background: #06b6d4; color: #000; font-weight: 600; padding: 12px 32px; border-radius: 6px; text-decoration: none; font-size: 16px;">
-        View Deals on AIWholesail
-      </a>
-      <p style="color: #737373; font-size: 13px; margin-top: 24px; line-height: 1.5;">
-        You're receiving this because you set up a property alert for ${location}. Manage your alerts at aiwholesail.com/app.
-      </p>
-      <hr style="border: none; border-top: 1px solid #262626; margin: 24px 0;" />
-      <p style="color: #525252; font-size: 12px;">AIWholesail — Find profitable real estate deals with AI</p>
+    <div style="font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #08090a; border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.06);">
+      <!--[if mso]><table width="600" cellpadding="0" cellspacing="0" border="0"><tr><td><![endif]-->
+      <div style="padding: 32px 32px 24px; border-bottom: 1px solid rgba(255,255,255,0.06);">
+        <img src="https://aiwholesail.com/logo-white.png" alt="AIWholesail" style="height: 36px; width: auto;" />
+      </div>
+      <div style="padding: 32px;">
+        <h1 style="color: #ffffff; font-size: 24px; font-weight: 600; margin: 0 0 8px; letter-spacing: -0.5px;">${deals.length} New Deal${deals.length > 1 ? 's' : ''} in ${location}</h1>
+        <p style="color: #a3a3a3; font-size: 15px; line-height: 1.6; margin: 0 0 24px;">
+          We found <strong style="color: #ffffff;">${deals.length}</strong> propert${deals.length > 1 ? 'ies' : 'y'} with +$30K spread in <strong style="color: #ffffff;">${location}</strong>. Here are the top deals:
+        </p>
+        <table style="width: 100%; border-collapse: collapse; margin: 0 0 24px;">
+          <thead>
+            <tr style="border-bottom: 2px solid #06b6d4;">
+              <th style="padding: 10px 10px; text-align: left; color: #06b6d4; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em;">Address</th>
+              <th style="padding: 10px 10px; text-align: right; color: #06b6d4; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em;">List Price</th>
+              <th style="padding: 10px 10px; text-align: right; color: #06b6d4; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em;">Zestimate</th>
+              <th style="padding: 10px 10px; text-align: right; color: #06b6d4; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em;">Spread</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${dealRows}
+          </tbody>
+        </table>
+        <a href="https://aiwholesail.com/app" style="display: inline-block; background-color: #06b6d4; color: #000000; font-weight: 600; font-size: 15px; padding: 12px 28px; border-radius: 8px; text-decoration: none;">
+          View All Deals
+        </a>
+        <p style="color: #737373; font-size: 13px; margin: 20px 0 0; line-height: 1.5;">
+          You're receiving this because you have an alert set for ${location}.
+        </p>
+      </div>
+      <div style="padding: 24px 32px; border-top: 1px solid rgba(255,255,255,0.06); background-color: rgba(255,255,255,0.02);">
+        <p style="color: #525252; font-size: 12px; margin: 0; line-height: 1.5;">
+          AIWholesail &mdash; Find profitable real estate deals with AI<br/>
+          <a href="https://aiwholesail.com" style="color: #06b6d4; text-decoration: none;">aiwholesail.com</a>
+        </p>
+      </div>
+      <!--[if mso]></td></tr></table><![endif]-->
     </div>
   `;
 

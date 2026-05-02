@@ -118,15 +118,47 @@ router.post('/signup', [
       to: ['quintonw500@gmail.com', 'cpodea5@gmail.com'],
       subject: `New Signup: ${fullName || normalizedEmail}${phoneNumber ? ' — ' + phoneNumber : ''}`,
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #08090a; color: #ffffff; padding: 30px; border-radius: 12px;">
-          <h2 style="color: #06b6d4;">New AIWholesail Signup</h2>
-          <p style="color: #a3a3a3;"><strong style="color: #fff;">Name:</strong> ${fullName || 'Not provided'}</p>
-          <p style="color: #a3a3a3;"><strong style="color: #fff;">Email:</strong> ${normalizedEmail}</p>
-          <p style="color: #a3a3a3;"><strong style="color: #fff;">Phone:</strong> ${phoneNumber || 'Not provided'}</p>
-          <p style="color: #a3a3a3;"><strong style="color: #fff;">Plan:</strong> Pro (7-day free trial)</p>
-          <p style="color: #a3a3a3;"><strong style="color: #fff;">Time:</strong> ${new Date().toLocaleString()}</p>
-          <hr style="border: none; border-top: 1px solid #262626; margin: 20px 0;" />
-          <p style="color: #525252; font-size: 12px;">Call them to say hello and see if they need help getting started.</p>
+        <div style="font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #08090a; border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.06);">
+          <!--[if mso]><table width="600" cellpadding="0" cellspacing="0" border="0"><tr><td><![endif]-->
+          <div style="padding: 32px 32px 24px; border-bottom: 1px solid rgba(255,255,255,0.06);">
+            <img src="https://aiwholesail.com/logo-white.png" alt="AIWholesail" style="height: 36px; width: auto;" />
+          </div>
+          <div style="padding: 32px;">
+            <h1 style="color: #ffffff; font-size: 24px; font-weight: 600; margin: 0 0 8px; letter-spacing: -0.5px;">New Signup</h1>
+            <p style="color: #a3a3a3; font-size: 15px; line-height: 1.6; margin: 0 0 24px;">A new user just signed up for AIWholesail. Here are their details:</p>
+            <div style="border-left: 3px solid #06b6d4; background-color: rgba(6,182,212,0.05); border-radius: 0 8px 8px 0; padding: 20px 24px; margin: 0 0 24px;">
+              <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                  <td style="color: #737373; font-size: 13px; padding: 6px 16px 6px 0; vertical-align: top; white-space: nowrap;">Name</td>
+                  <td style="color: #ffffff; font-size: 15px; padding: 6px 0; font-weight: 500;">${fullName || 'Not provided'}</td>
+                </tr>
+                <tr>
+                  <td style="color: #737373; font-size: 13px; padding: 6px 16px 6px 0; vertical-align: top; white-space: nowrap;">Email</td>
+                  <td style="color: #ffffff; font-size: 15px; padding: 6px 0; font-weight: 500;">${normalizedEmail}</td>
+                </tr>
+                <tr>
+                  <td style="color: #737373; font-size: 13px; padding: 6px 16px 6px 0; vertical-align: top; white-space: nowrap;">Phone</td>
+                  <td style="color: #ffffff; font-size: 15px; padding: 6px 0; font-weight: 500;">${phoneNumber || 'Not provided'}</td>
+                </tr>
+                <tr>
+                  <td style="color: #737373; font-size: 13px; padding: 6px 16px 6px 0; vertical-align: top; white-space: nowrap;">Plan</td>
+                  <td style="color: #ffffff; font-size: 15px; padding: 6px 0; font-weight: 500;">Pro (7-day free trial)</td>
+                </tr>
+                <tr>
+                  <td style="color: #737373; font-size: 13px; padding: 6px 16px 6px 0; vertical-align: top; white-space: nowrap;">Time</td>
+                  <td style="color: #ffffff; font-size: 15px; padding: 6px 0; font-weight: 500;">${new Date().toLocaleString()}</td>
+                </tr>
+              </table>
+            </div>
+            <p style="color: #a3a3a3; font-size: 14px; line-height: 1.6; margin: 0;">Call them to say hello and see if they need help getting started.</p>
+          </div>
+          <div style="padding: 24px 32px; border-top: 1px solid rgba(255,255,255,0.06); background-color: rgba(255,255,255,0.02);">
+            <p style="color: #525252; font-size: 12px; margin: 0; line-height: 1.5;">
+              AIWholesail &mdash; Find profitable real estate deals with AI<br/>
+              <a href="https://aiwholesail.com" style="color: #06b6d4; text-decoration: none;">aiwholesail.com</a>
+            </p>
+          </div>
+          <!--[if mso]></td></tr></table><![endif]-->
         </div>
       `,
     });
@@ -142,20 +174,30 @@ router.post('/signup', [
       to: normalizedEmail,
       subject: 'Verify Your Email — AIWholesail',
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #08090a; color: #ffffff; padding: 40px 30px; border-radius: 12px;">
-          <img src="https://aiwholesail.com/logo-white.png" alt="AIWholesail" style="height: 48px; margin-bottom: 24px;" />
-          <h2 style="color: #06b6d4; margin-bottom: 16px;">Verify Your Email</h2>
-          <p style="color: #a3a3a3; line-height: 1.6; margin-bottom: 24px;">
-            Thanks for signing up for AIWholesail! Please verify your email address by clicking the button below.
-          </p>
-          <a href="${verifyUrl}" style="display: inline-block; background: #06b6d4; color: #000; font-weight: 600; padding: 12px 32px; border-radius: 6px; text-decoration: none; font-size: 16px;">
-            Verify Email
-          </a>
-          <p style="color: #737373; font-size: 13px; margin-top: 24px; line-height: 1.5;">
-            If you didn't create an account, you can safely ignore this email.
-          </p>
-          <hr style="border: none; border-top: 1px solid #262626; margin: 24px 0;" />
-          <p style="color: #525252; font-size: 12px;">AIWholesail — Find profitable real estate deals with AI</p>
+        <div style="font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #08090a; border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.06);">
+          <!--[if mso]><table width="600" cellpadding="0" cellspacing="0" border="0"><tr><td><![endif]-->
+          <div style="padding: 32px 32px 24px; border-bottom: 1px solid rgba(255,255,255,0.06);">
+            <img src="https://aiwholesail.com/logo-white.png" alt="AIWholesail" style="height: 36px; width: auto;" />
+          </div>
+          <div style="padding: 32px;">
+            <h1 style="color: #ffffff; font-size: 24px; font-weight: 600; margin: 0 0 8px; letter-spacing: -0.5px;">Verify Your Email</h1>
+            <p style="color: #a3a3a3; font-size: 15px; line-height: 1.6; margin: 0 0 24px;">
+              Thanks for joining AIWholesail! Click below to verify your email and start finding profitable deals.
+            </p>
+            <a href="${verifyUrl}" style="display: inline-block; background-color: #06b6d4; color: #000000; font-weight: 600; font-size: 15px; padding: 12px 28px; border-radius: 8px; text-decoration: none;">
+              Verify Email Address
+            </a>
+            <p style="color: #737373; font-size: 13px; margin: 20px 0 0; line-height: 1.5;">
+              This link expires in 24 hours.
+            </p>
+          </div>
+          <div style="padding: 24px 32px; border-top: 1px solid rgba(255,255,255,0.06); background-color: rgba(255,255,255,0.02);">
+            <p style="color: #525252; font-size: 12px; margin: 0; line-height: 1.5;">
+              AIWholesail &mdash; Find profitable real estate deals with AI<br/>
+              <a href="https://aiwholesail.com" style="color: #06b6d4; text-decoration: none;">aiwholesail.com</a>
+            </p>
+          </div>
+          <!--[if mso]></td></tr></table><![endif]-->
         </div>
       `,
     });
@@ -392,20 +434,30 @@ router.post('/forgot-password', [
       to: normalizedEmail,
       subject: 'Reset Your Password — AIWholesail',
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #08090a; color: #ffffff; padding: 40px 30px; border-radius: 12px;">
-          <img src="https://aiwholesail.com/logo-white.png" alt="AIWholesail" style="height: 48px; margin-bottom: 24px;" />
-          <h2 style="color: #06b6d4; margin-bottom: 16px;">Reset Your Password</h2>
-          <p style="color: #a3a3a3; line-height: 1.6; margin-bottom: 24px;">
-            We received a request to reset the password for your AIWholesail account. Click the button below to set a new password.
-          </p>
-          <a href="${resetUrl}" style="display: inline-block; background: #06b6d4; color: #000; font-weight: 600; padding: 12px 32px; border-radius: 6px; text-decoration: none; font-size: 16px;">
-            Reset Password
-          </a>
-          <p style="color: #737373; font-size: 13px; margin-top: 24px; line-height: 1.5;">
-            This link expires in 1 hour. If you didn't request a password reset, you can safely ignore this email.
-          </p>
-          <hr style="border: none; border-top: 1px solid #262626; margin: 24px 0;" />
-          <p style="color: #525252; font-size: 12px;">AIWholesail — Find profitable real estate deals with AI</p>
+        <div style="font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #08090a; border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.06);">
+          <!--[if mso]><table width="600" cellpadding="0" cellspacing="0" border="0"><tr><td><![endif]-->
+          <div style="padding: 32px 32px 24px; border-bottom: 1px solid rgba(255,255,255,0.06);">
+            <img src="https://aiwholesail.com/logo-white.png" alt="AIWholesail" style="height: 36px; width: auto;" />
+          </div>
+          <div style="padding: 32px;">
+            <h1 style="color: #ffffff; font-size: 24px; font-weight: 600; margin: 0 0 8px; letter-spacing: -0.5px;">Reset Your Password</h1>
+            <p style="color: #a3a3a3; font-size: 15px; line-height: 1.6; margin: 0 0 24px;">
+              We received a request to reset your password. Click below to set a new one.
+            </p>
+            <a href="${resetUrl}" style="display: inline-block; background-color: #06b6d4; color: #000000; font-weight: 600; font-size: 15px; padding: 12px 28px; border-radius: 8px; text-decoration: none;">
+              Reset Password
+            </a>
+            <p style="color: #737373; font-size: 13px; margin: 20px 0 0; line-height: 1.5;">
+              This link expires in 1 hour. If you didn't request this, ignore this email.
+            </p>
+          </div>
+          <div style="padding: 24px 32px; border-top: 1px solid rgba(255,255,255,0.06); background-color: rgba(255,255,255,0.02);">
+            <p style="color: #525252; font-size: 12px; margin: 0; line-height: 1.5;">
+              AIWholesail &mdash; Find profitable real estate deals with AI<br/>
+              <a href="https://aiwholesail.com" style="color: #06b6d4; text-decoration: none;">aiwholesail.com</a>
+            </p>
+          </div>
+          <!--[if mso]></td></tr></table><![endif]-->
         </div>
       `,
     });
