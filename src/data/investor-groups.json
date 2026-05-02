@@ -1,0 +1,530 @@
+[
+  {
+    "slug": "investor-groups-atlanta-ga",
+    "citySlug": "atlanta-ga",
+    "city": "Atlanta",
+    "state": "GA",
+    "groups": [
+      { "name": "Atlanta REIA", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "500+", "focus": ["Wholesaling", "Flipping", "Rentals"], "website": null },
+      { "name": "Georgia Real Estate Investors Association", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "300+", "focus": ["Education", "Networking"] },
+      { "name": "BiggerPockets Atlanta Meetup", "type": "Meetup", "meetingFrequency": "Monthly", "memberCount": "1,000+", "focus": ["All strategies", "Networking"] },
+      { "name": "Atlanta Wholesale Real Estate Club", "type": "Club", "meetingFrequency": "Bi-weekly", "memberCount": "200+", "focus": ["Wholesaling", "Deal analysis"] }
+    ],
+    "onlineGroups": ["BiggerPockets Forum - Atlanta", "Facebook: Atlanta Real Estate Investors"],
+    "tips": ["Atlanta has one of the most active REIA scenes in the Southeast", "Look for sub-groups focused on your specific strategy"]
+  },
+  {
+    "slug": "investor-groups-houston-tx",
+    "citySlug": "houston-tx",
+    "city": "Houston",
+    "state": "TX",
+    "groups": [
+      { "name": "Houston REIA", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "600+", "focus": ["Wholesaling", "Rentals", "Commercial"], "website": null },
+      { "name": "Lone Star Real Estate Investor Association", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "400+", "focus": ["Education", "Networking", "Flipping"] },
+      { "name": "Houston Real Estate Investors Meetup", "type": "Meetup", "meetingFrequency": "Weekly", "memberCount": "2,000+", "focus": ["All strategies", "Networking"] },
+      { "name": "Gulf Coast Wholesalers Network", "type": "Club", "meetingFrequency": "Bi-weekly", "memberCount": "150+", "focus": ["Wholesaling", "Assignments"] }
+    ],
+    "onlineGroups": ["BiggerPockets Forum - Houston", "Facebook: Houston Real Estate Investing Network"],
+    "tips": ["Houston is one of the largest wholesaling markets in the country", "Many groups meet in the Galleria and Katy areas"]
+  },
+  {
+    "slug": "investor-groups-dallas-tx",
+    "citySlug": "dallas-tx",
+    "city": "Dallas",
+    "state": "TX",
+    "groups": [
+      { "name": "Dallas REIA", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "450+", "focus": ["Wholesaling", "Flipping", "Buy & Hold"], "website": null },
+      { "name": "DFW Real Estate Investors Club", "type": "Club", "meetingFrequency": "Monthly", "memberCount": "350+", "focus": ["Education", "Deal analysis"] },
+      { "name": "North Texas Real Estate Investors Association", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "500+", "focus": ["Networking", "Commercial", "Residential"] },
+      { "name": "Dallas Wholesaling Meetup", "type": "Meetup", "meetingFrequency": "Bi-weekly", "memberCount": "800+", "focus": ["Wholesaling", "Marketing"] }
+    ],
+    "onlineGroups": ["BiggerPockets Forum - Dallas", "Facebook: DFW Real Estate Investors"],
+    "tips": ["The DFW metroplex has dozens of sub-groups across different niches", "Check meetup.com for neighborhood-specific groups"]
+  },
+  {
+    "slug": "investor-groups-phoenix-az",
+    "citySlug": "phoenix-az",
+    "city": "Phoenix",
+    "state": "AZ",
+    "groups": [
+      { "name": "Arizona Real Estate Investors Association", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "500+", "focus": ["Wholesaling", "Flipping", "Rentals"], "website": null },
+      { "name": "Phoenix REIA", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "400+", "focus": ["Education", "Networking"] },
+      { "name": "Valley of the Sun Investors Meetup", "type": "Meetup", "meetingFrequency": "Monthly", "memberCount": "1,200+", "focus": ["All strategies", "Networking"] }
+    ],
+    "onlineGroups": ["BiggerPockets Forum - Phoenix", "Facebook: Phoenix Real Estate Investors Group"],
+    "tips": ["Phoenix is a top market for fix-and-flip investors", "Summer meetings often have lower attendance -- great for networking"]
+  },
+  {
+    "slug": "investor-groups-chicago-il",
+    "citySlug": "chicago-il",
+    "city": "Chicago",
+    "state": "IL",
+    "groups": [
+      { "name": "Chicago REIA", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "600+", "focus": ["Wholesaling", "Flipping", "Multi-family"], "website": null },
+      { "name": "Chicagoland Real Estate Investors Association", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "350+", "focus": ["Education", "Networking", "Tax liens"] },
+      { "name": "Chicago Real Estate Meetup", "type": "Meetup", "meetingFrequency": "Weekly", "memberCount": "1,500+", "focus": ["All strategies", "Networking"] },
+      { "name": "South Side Investment Club", "type": "Club", "meetingFrequency": "Bi-weekly", "memberCount": "100+", "focus": ["Buy & Hold", "Section 8"] }
+    ],
+    "onlineGroups": ["BiggerPockets Forum - Chicago", "Facebook: Chicago Real Estate Investors"],
+    "tips": ["Chicago offers incredible variety from South Side value plays to North Side appreciation", "Many groups focus on specific neighborhoods"]
+  },
+  {
+    "slug": "investor-groups-los-angeles-ca",
+    "citySlug": "los-angeles-ca",
+    "city": "Los Angeles",
+    "state": "CA",
+    "groups": [
+      { "name": "Los Angeles REIA", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "700+", "focus": ["Wholesaling", "Flipping", "Development"], "website": null },
+      { "name": "SoCal Real Estate Investors Association", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "500+", "focus": ["Education", "Networking", "Creative finance"] },
+      { "name": "LA Real Estate Investors Meetup", "type": "Meetup", "meetingFrequency": "Monthly", "memberCount": "2,500+", "focus": ["All strategies", "Networking"] }
+    ],
+    "onlineGroups": ["BiggerPockets Forum - Los Angeles", "Facebook: LA Real Estate Investors Network"],
+    "tips": ["LA groups tend to focus heavily on creative finance due to high property prices", "Many investors also look at out-of-state deals"]
+  },
+  {
+    "slug": "investor-groups-miami-fl",
+    "citySlug": "miami-fl",
+    "city": "Miami",
+    "state": "FL",
+    "groups": [
+      { "name": "Miami REIA", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "400+", "focus": ["Wholesaling", "Flipping", "Rentals"], "website": null },
+      { "name": "South Florida Real Estate Investors Association", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "350+", "focus": ["Education", "International investing"] },
+      { "name": "Miami Real Estate Investor Meetup", "type": "Meetup", "meetingFrequency": "Bi-weekly", "memberCount": "1,800+", "focus": ["All strategies", "Networking"] },
+      { "name": "Dade County Wholesalers Club", "type": "Club", "meetingFrequency": "Monthly", "memberCount": "150+", "focus": ["Wholesaling", "Assignments"] }
+    ],
+    "onlineGroups": ["BiggerPockets Forum - Miami", "Facebook: Miami Real Estate Investors"],
+    "tips": ["Miami attracts both domestic and international investors", "Spanish-language groups are also very active in the area"]
+  },
+  {
+    "slug": "investor-groups-denver-co",
+    "citySlug": "denver-co",
+    "city": "Denver",
+    "state": "CO",
+    "groups": [
+      { "name": "Colorado REIA", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "400+", "focus": ["Wholesaling", "Flipping", "Rentals"], "website": null },
+      { "name": "Denver Real Estate Investing Club", "type": "Club", "meetingFrequency": "Monthly", "memberCount": "300+", "focus": ["Education", "Networking"] },
+      { "name": "Mile High Real Estate Investors Meetup", "type": "Meetup", "meetingFrequency": "Monthly", "memberCount": "900+", "focus": ["All strategies", "Networking"] }
+    ],
+    "onlineGroups": ["BiggerPockets Forum - Denver", "Facebook: Denver Real Estate Investors"],
+    "tips": ["Denver is the BiggerPockets headquarters city with a very educated investor community", "Focus on cash flow can be tough -- many look at surrounding suburbs"]
+  },
+  {
+    "slug": "investor-groups-san-antonio-tx",
+    "citySlug": "san-antonio-tx",
+    "city": "San Antonio",
+    "state": "TX",
+    "groups": [
+      { "name": "San Antonio REIA", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "350+", "focus": ["Wholesaling", "Flipping", "Rentals"], "website": null },
+      { "name": "Alamo City Investors Association", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "250+", "focus": ["Education", "Networking"] },
+      { "name": "San Antonio Real Estate Meetup", "type": "Meetup", "meetingFrequency": "Monthly", "memberCount": "600+", "focus": ["All strategies", "Networking"] }
+    ],
+    "onlineGroups": ["BiggerPockets Forum - San Antonio", "Facebook: San Antonio Real Estate Investors"],
+    "tips": ["San Antonio is one of the best Texas markets for wholesaling due to affordable inventory", "Military base proximity creates strong rental demand"]
+  },
+  {
+    "slug": "investor-groups-tampa-fl",
+    "citySlug": "tampa-fl",
+    "city": "Tampa",
+    "state": "FL",
+    "groups": [
+      { "name": "Tampa REIA", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "450+", "focus": ["Wholesaling", "Flipping", "Rentals"], "website": null },
+      { "name": "Tampa Bay Real Estate Investors Association", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "300+", "focus": ["Education", "Networking", "Creative finance"] },
+      { "name": "Tampa Investors Meetup", "type": "Meetup", "meetingFrequency": "Bi-weekly", "memberCount": "1,000+", "focus": ["All strategies", "Networking"] }
+    ],
+    "onlineGroups": ["BiggerPockets Forum - Tampa", "Facebook: Tampa Bay Real Estate Investors"],
+    "tips": ["Tampa Bay has a very active wholesaling scene", "Look for groups in both Tampa and St. Petersburg for more options"]
+  },
+  {
+    "slug": "investor-groups-charlotte-nc",
+    "citySlug": "charlotte-nc",
+    "city": "Charlotte",
+    "state": "NC",
+    "groups": [
+      { "name": "Charlotte REIA", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "400+", "focus": ["Wholesaling", "Flipping", "Buy & Hold"], "website": null },
+      { "name": "Metrolina Real Estate Investors Association", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "300+", "focus": ["Education", "Networking"] },
+      { "name": "Queen City Real Estate Investors Meetup", "type": "Meetup", "meetingFrequency": "Monthly", "memberCount": "700+", "focus": ["All strategies", "Networking"] }
+    ],
+    "onlineGroups": ["BiggerPockets Forum - Charlotte", "Facebook: Charlotte Real Estate Investors"],
+    "tips": ["Charlotte is one of the fastest-growing investor markets in the Southeast", "The surrounding counties offer better cash flow opportunities"]
+  },
+  {
+    "slug": "investor-groups-nashville-tn",
+    "citySlug": "nashville-tn",
+    "city": "Nashville",
+    "state": "TN",
+    "groups": [
+      { "name": "Nashville REIA", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "350+", "focus": ["Wholesaling", "Flipping", "Short-term rentals"], "website": null },
+      { "name": "Middle Tennessee Real Estate Investors", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "250+", "focus": ["Education", "Networking"] },
+      { "name": "Nashville Real Estate Investing Meetup", "type": "Meetup", "meetingFrequency": "Monthly", "memberCount": "800+", "focus": ["All strategies", "Networking"] }
+    ],
+    "onlineGroups": ["BiggerPockets Forum - Nashville", "Facebook: Nashville Real Estate Investors"],
+    "tips": ["Nashville STR regulations have pushed many investors toward traditional rentals", "Many groups discuss both Nashville and surrounding counties"]
+  },
+  {
+    "slug": "investor-groups-columbus-oh",
+    "citySlug": "columbus-oh",
+    "city": "Columbus",
+    "state": "OH",
+    "groups": [
+      { "name": "Columbus REIA", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "400+", "focus": ["Wholesaling", "Flipping", "Rentals"], "website": null },
+      { "name": "Central Ohio Real Estate Investors Association", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "300+", "focus": ["Education", "Networking", "Section 8"] },
+      { "name": "Columbus Real Estate Meetup", "type": "Meetup", "meetingFrequency": "Monthly", "memberCount": "600+", "focus": ["All strategies", "Networking"] }
+    ],
+    "onlineGroups": ["BiggerPockets Forum - Columbus", "Facebook: Columbus OH Real Estate Investors"],
+    "tips": ["Columbus is a top Midwest market for cash flow investing", "Ohio State University creates strong rental demand"]
+  },
+  {
+    "slug": "investor-groups-indianapolis-in",
+    "citySlug": "indianapolis-in",
+    "city": "Indianapolis",
+    "state": "IN",
+    "groups": [
+      { "name": "Indianapolis REIA", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "350+", "focus": ["Wholesaling", "Flipping", "Rentals"], "website": null },
+      { "name": "Indiana Real Estate Investors Association", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "300+", "focus": ["Education", "Networking"] },
+      { "name": "Indy Real Estate Investors Meetup", "type": "Meetup", "meetingFrequency": "Bi-weekly", "memberCount": "700+", "focus": ["All strategies", "Networking"] },
+      { "name": "Circle City Wholesalers", "type": "Club", "meetingFrequency": "Monthly", "memberCount": "100+", "focus": ["Wholesaling", "Assignments"] }
+    ],
+    "onlineGroups": ["BiggerPockets Forum - Indianapolis", "Facebook: Indianapolis Real Estate Investors"],
+    "tips": ["Indianapolis is a favorite for out-of-state buy-and-hold investors", "Low price points make it ideal for beginning wholesalers"]
+  },
+  {
+    "slug": "investor-groups-jacksonville-fl",
+    "citySlug": "jacksonville-fl",
+    "city": "Jacksonville",
+    "state": "FL",
+    "groups": [
+      { "name": "Jacksonville REIA", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "300+", "focus": ["Wholesaling", "Flipping", "Rentals"], "website": null },
+      { "name": "First Coast Real Estate Investors", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "200+", "focus": ["Education", "Networking"] },
+      { "name": "Jacksonville Real Estate Meetup", "type": "Meetup", "meetingFrequency": "Monthly", "memberCount": "500+", "focus": ["All strategies", "Networking"] }
+    ],
+    "onlineGroups": ["BiggerPockets Forum - Jacksonville", "Facebook: Jacksonville Real Estate Investors"],
+    "tips": ["Jacksonville is the largest city by land area in the US -- market knowledge varies by area", "Navy base creates consistent rental demand"]
+  },
+  {
+    "slug": "investor-groups-las-vegas-nv",
+    "citySlug": "las-vegas-nv",
+    "city": "Las Vegas",
+    "state": "NV",
+    "groups": [
+      { "name": "Las Vegas REIA", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "350+", "focus": ["Wholesaling", "Flipping", "Rentals"], "website": null },
+      { "name": "Nevada Real Estate Investors Association", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "250+", "focus": ["Education", "Networking"] },
+      { "name": "Vegas Real Estate Investor Meetup", "type": "Meetup", "meetingFrequency": "Monthly", "memberCount": "800+", "focus": ["All strategies", "Networking"] }
+    ],
+    "onlineGroups": ["BiggerPockets Forum - Las Vegas", "Facebook: Las Vegas Real Estate Investors"],
+    "tips": ["Las Vegas investors learned hard lessons in 2008 -- groups focus heavily on risk management", "Short-term rental regulations are a hot topic"]
+  },
+  {
+    "slug": "investor-groups-austin-tx",
+    "citySlug": "austin-tx",
+    "city": "Austin",
+    "state": "TX",
+    "groups": [
+      { "name": "Austin REIA", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "400+", "focus": ["Wholesaling", "Flipping", "Rentals"], "website": null },
+      { "name": "Central Texas Real Estate Investors Association", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "300+", "focus": ["Education", "Networking", "Development"] },
+      { "name": "Austin Real Estate Investing Meetup", "type": "Meetup", "meetingFrequency": "Monthly", "memberCount": "1,200+", "focus": ["All strategies", "Networking"] }
+    ],
+    "onlineGroups": ["BiggerPockets Forum - Austin", "Facebook: Austin Real Estate Investors"],
+    "tips": ["Austin prices have come down from 2022 peaks -- great time to network", "Tech industry layoffs created more wholesaling opportunities"]
+  },
+  {
+    "slug": "investor-groups-san-diego-ca",
+    "citySlug": "san-diego-ca",
+    "city": "San Diego",
+    "state": "CA",
+    "groups": [
+      { "name": "San Diego REIA", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "350+", "focus": ["Wholesaling", "Creative finance", "Rentals"], "website": null },
+      { "name": "SoCal Real Estate Club - San Diego", "type": "Club", "meetingFrequency": "Monthly", "memberCount": "250+", "focus": ["Education", "Networking"] },
+      { "name": "San Diego Real Estate Investing Meetup", "type": "Meetup", "meetingFrequency": "Monthly", "memberCount": "900+", "focus": ["All strategies", "Networking"] }
+    ],
+    "onlineGroups": ["BiggerPockets Forum - San Diego", "Facebook: San Diego Real Estate Investors"],
+    "tips": ["High prices make creative finance strategies popular at San Diego REIAs", "Cross-border investing in Tijuana is sometimes discussed"]
+  },
+  {
+    "slug": "investor-groups-seattle-wa",
+    "citySlug": "seattle-wa",
+    "city": "Seattle",
+    "state": "WA",
+    "groups": [
+      { "name": "Seattle REIA", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "350+", "focus": ["Wholesaling", "Flipping", "Rentals"], "website": null },
+      { "name": "Washington Real Estate Investors Association", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "300+", "focus": ["Education", "Networking"] },
+      { "name": "Puget Sound Real Estate Investors Meetup", "type": "Meetup", "meetingFrequency": "Monthly", "memberCount": "700+", "focus": ["All strategies", "Networking"] }
+    ],
+    "onlineGroups": ["BiggerPockets Forum - Seattle", "Facebook: Seattle Real Estate Investors"],
+    "tips": ["Seattle investors often look at Tacoma and Everett for better cash flow", "Landlord-tenant laws are complex in Washington -- groups help navigate them"]
+  },
+  {
+    "slug": "investor-groups-philadelphia-pa",
+    "citySlug": "philadelphia-pa",
+    "city": "Philadelphia",
+    "state": "PA",
+    "groups": [
+      { "name": "Philadelphia REIA", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "500+", "focus": ["Wholesaling", "Flipping", "Rentals"], "website": null },
+      { "name": "Tri-State Real Estate Investors Association", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "400+", "focus": ["Education", "Networking", "Tax liens"] },
+      { "name": "Philly Real Estate Investor Meetup", "type": "Meetup", "meetingFrequency": "Bi-weekly", "memberCount": "1,000+", "focus": ["All strategies", "Networking"] },
+      { "name": "Kensington Investors Club", "type": "Club", "meetingFrequency": "Monthly", "memberCount": "100+", "focus": ["Buy & Hold", "Section 8"] }
+    ],
+    "onlineGroups": ["BiggerPockets Forum - Philadelphia", "Facebook: Philly Real Estate Investors"],
+    "tips": ["Philadelphia wholesaling is extremely active with many experienced operators", "Tax lien investing is a popular topic at local REIAs"]
+  },
+  {
+    "slug": "investor-groups-detroit-mi",
+    "citySlug": "detroit-mi",
+    "city": "Detroit",
+    "state": "MI",
+    "groups": [
+      { "name": "Detroit REIA", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "400+", "focus": ["Wholesaling", "Flipping", "Section 8"], "website": null },
+      { "name": "Michigan Real Estate Investors Association", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "300+", "focus": ["Education", "Networking"] },
+      { "name": "Motor City Real Estate Meetup", "type": "Meetup", "meetingFrequency": "Monthly", "memberCount": "600+", "focus": ["All strategies", "Networking"] }
+    ],
+    "onlineGroups": ["BiggerPockets Forum - Detroit", "Facebook: Detroit Real Estate Investors"],
+    "tips": ["Detroit offers some of the lowest entry points in the country", "Tax auction investing is frequently discussed at local groups"]
+  },
+  {
+    "slug": "investor-groups-baltimore-md",
+    "citySlug": "baltimore-md",
+    "city": "Baltimore",
+    "state": "MD",
+    "groups": [
+      { "name": "Baltimore REIA", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "350+", "focus": ["Wholesaling", "Flipping", "Rentals"], "website": null },
+      { "name": "Maryland Real Estate Investors Association", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "300+", "focus": ["Education", "Networking", "Tax liens"] },
+      { "name": "Baltimore Real Estate Investor Meetup", "type": "Meetup", "meetingFrequency": "Monthly", "memberCount": "500+", "focus": ["All strategies", "Networking"] }
+    ],
+    "onlineGroups": ["BiggerPockets Forum - Baltimore", "Facebook: Baltimore Real Estate Investors"],
+    "tips": ["Baltimore is a major wholesaling hub on the East Coast", "Vacant property tax and liens are popular discussion topics"]
+  },
+  {
+    "slug": "investor-groups-memphis-tn",
+    "citySlug": "memphis-tn",
+    "city": "Memphis",
+    "state": "TN",
+    "groups": [
+      { "name": "Memphis REIA", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "300+", "focus": ["Wholesaling", "Buy & Hold", "Section 8"], "website": null },
+      { "name": "Memphis Investors Group", "type": "Club", "meetingFrequency": "Monthly", "memberCount": "250+", "focus": ["Education", "Networking", "Turnkey rentals"] },
+      { "name": "Memphis Real Estate Meetup", "type": "Meetup", "meetingFrequency": "Monthly", "memberCount": "400+", "focus": ["All strategies", "Networking"] }
+    ],
+    "onlineGroups": ["BiggerPockets Forum - Memphis", "Facebook: Memphis Real Estate Investors"],
+    "tips": ["Memphis is the turnkey rental capital of the US -- groups reflect this focus", "Many out-of-state investors attend these groups virtually"]
+  },
+  {
+    "slug": "investor-groups-portland-or",
+    "citySlug": "portland-or",
+    "city": "Portland",
+    "state": "OR",
+    "groups": [
+      { "name": "Portland REIA", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "300+", "focus": ["Wholesaling", "Flipping", "Rentals"], "website": null },
+      { "name": "Oregon Real Estate Investors Association", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "250+", "focus": ["Education", "Networking"] },
+      { "name": "PDX Real Estate Investors Meetup", "type": "Meetup", "meetingFrequency": "Monthly", "memberCount": "600+", "focus": ["All strategies", "Networking"] }
+    ],
+    "onlineGroups": ["BiggerPockets Forum - Portland", "Facebook: Portland Real Estate Investors"],
+    "tips": ["Oregon landlord-tenant laws are very tenant-friendly -- groups help navigate regulations", "Many Portland investors also explore SW Washington markets"]
+  },
+  {
+    "slug": "investor-groups-minneapolis-mn",
+    "citySlug": "minneapolis-mn",
+    "city": "Minneapolis",
+    "state": "MN",
+    "groups": [
+      { "name": "Minneapolis REIA", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "350+", "focus": ["Wholesaling", "Flipping", "Rentals"], "website": null },
+      { "name": "Minnesota Real Estate Investors Association", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "300+", "focus": ["Education", "Networking"] },
+      { "name": "Twin Cities Real Estate Meetup", "type": "Meetup", "meetingFrequency": "Monthly", "memberCount": "500+", "focus": ["All strategies", "Networking"] }
+    ],
+    "onlineGroups": ["BiggerPockets Forum - Minneapolis", "Facebook: Twin Cities Real Estate Investors"],
+    "tips": ["Minneapolis has a strong multi-family investment scene", "Rent control discussions are a hot topic at local meetups"]
+  },
+  {
+    "slug": "investor-groups-raleigh-nc",
+    "citySlug": "raleigh-nc",
+    "city": "Raleigh",
+    "state": "NC",
+    "groups": [
+      { "name": "Raleigh REIA", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "300+", "focus": ["Wholesaling", "Flipping", "Rentals"], "website": null },
+      { "name": "Triangle Real Estate Investors Association", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "250+", "focus": ["Education", "Networking", "New construction"] },
+      { "name": "Raleigh-Durham Real Estate Meetup", "type": "Meetup", "meetingFrequency": "Monthly", "memberCount": "600+", "focus": ["All strategies", "Networking"] }
+    ],
+    "onlineGroups": ["BiggerPockets Forum - Raleigh", "Facebook: Triangle Real Estate Investors"],
+    "tips": ["The Research Triangle is one of the hottest growth markets in the US", "Many tech workers are also part-time investors -- great networking"]
+  },
+  {
+    "slug": "investor-groups-kansas-city-mo",
+    "citySlug": "kansas-city-mo",
+    "city": "Kansas City",
+    "state": "MO",
+    "groups": [
+      { "name": "Kansas City REIA", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "350+", "focus": ["Wholesaling", "Flipping", "Rentals"], "website": null },
+      { "name": "KC Real Estate Investors Club", "type": "Club", "meetingFrequency": "Monthly", "memberCount": "250+", "focus": ["Education", "Networking", "Turnkey rentals"] },
+      { "name": "Kansas City Real Estate Meetup", "type": "Meetup", "meetingFrequency": "Monthly", "memberCount": "500+", "focus": ["All strategies", "Networking"] }
+    ],
+    "onlineGroups": ["BiggerPockets Forum - Kansas City", "Facebook: KC Real Estate Investors"],
+    "tips": ["KC straddles two states -- know which side of the state line your deals are on", "Affordable prices attract many out-of-state investors"]
+  },
+  {
+    "slug": "investor-groups-cleveland-oh",
+    "citySlug": "cleveland-oh",
+    "city": "Cleveland",
+    "state": "OH",
+    "groups": [
+      { "name": "Cleveland REIA", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "350+", "focus": ["Wholesaling", "Flipping", "Section 8"], "website": null },
+      { "name": "Northeast Ohio Real Estate Investors", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "250+", "focus": ["Education", "Networking", "Tax liens"] },
+      { "name": "Cleveland Real Estate Meetup", "type": "Meetup", "meetingFrequency": "Monthly", "memberCount": "400+", "focus": ["All strategies", "Networking"] }
+    ],
+    "onlineGroups": ["BiggerPockets Forum - Cleveland", "Facebook: Cleveland Real Estate Investors"],
+    "tips": ["Cleveland is a top cash flow market with very low entry prices", "Section 8 investing is a major focus of local groups"]
+  },
+  {
+    "slug": "investor-groups-st-louis-mo",
+    "citySlug": "st-louis-mo",
+    "city": "St. Louis",
+    "state": "MO",
+    "groups": [
+      { "name": "St. Louis REIA", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "300+", "focus": ["Wholesaling", "Flipping", "Rentals"], "website": null },
+      { "name": "Gateway Real Estate Investors Association", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "250+", "focus": ["Education", "Networking"] },
+      { "name": "STL Real Estate Meetup", "type": "Meetup", "meetingFrequency": "Monthly", "memberCount": "400+", "focus": ["All strategies", "Networking"] }
+    ],
+    "onlineGroups": ["BiggerPockets Forum - St. Louis", "Facebook: St. Louis Real Estate Investors"],
+    "tips": ["St. Louis city vs county dynamics matter for investing strategy", "Very affordable market with strong cash flow potential"]
+  },
+  {
+    "slug": "investor-groups-san-francisco-ca",
+    "citySlug": "san-francisco-ca",
+    "city": "San Francisco",
+    "state": "CA",
+    "groups": [
+      { "name": "San Francisco REIA", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "300+", "focus": ["Creative finance", "Development", "Multi-family"], "website": null },
+      { "name": "Bay Area Real Estate Investors Association", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "400+", "focus": ["Education", "Networking", "Syndications"] },
+      { "name": "SF Real Estate Investors Meetup", "type": "Meetup", "meetingFrequency": "Monthly", "memberCount": "1,000+", "focus": ["All strategies", "Networking"] }
+    ],
+    "onlineGroups": ["BiggerPockets Forum - San Francisco", "Facebook: Bay Area Real Estate Investors"],
+    "tips": ["SF groups focus heavily on creative finance and out-of-state investing due to high prices", "ADU and house-hacking strategies are popular topics"]
+  },
+  {
+    "slug": "investor-groups-new-york-ny",
+    "citySlug": "new-york-ny",
+    "city": "New York",
+    "state": "NY",
+    "groups": [
+      { "name": "New York REIA", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "600+", "focus": ["Wholesaling", "Flipping", "Multi-family"], "website": null },
+      { "name": "NYC Real Estate Investors Association", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "500+", "focus": ["Education", "Networking", "Commercial"] },
+      { "name": "New York Real Estate Investing Meetup", "type": "Meetup", "meetingFrequency": "Weekly", "memberCount": "3,000+", "focus": ["All strategies", "Networking"] },
+      { "name": "Brooklyn Investors Club", "type": "Club", "meetingFrequency": "Monthly", "memberCount": "200+", "focus": ["Buy & Hold", "Multi-family"] }
+    ],
+    "onlineGroups": ["BiggerPockets Forum - NYC", "Facebook: NYC Real Estate Investors"],
+    "tips": ["NYC has the largest investor meetup scene in the country", "Many investors focus on upstate NY or NJ for better price points"]
+  },
+  {
+    "slug": "investor-groups-orlando-fl",
+    "citySlug": "orlando-fl",
+    "city": "Orlando",
+    "state": "FL",
+    "groups": [
+      { "name": "Orlando REIA", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "400+", "focus": ["Wholesaling", "Flipping", "Short-term rentals"], "website": null },
+      { "name": "Central Florida Real Estate Investors", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "300+", "focus": ["Education", "Networking"] },
+      { "name": "Orlando Real Estate Meetup", "type": "Meetup", "meetingFrequency": "Monthly", "memberCount": "800+", "focus": ["All strategies", "Networking"] }
+    ],
+    "onlineGroups": ["BiggerPockets Forum - Orlando", "Facebook: Orlando Real Estate Investors"],
+    "tips": ["Orlando short-term rental investing is a major topic at local groups", "Tourism-driven demand creates unique investment opportunities"]
+  },
+  {
+    "slug": "investor-groups-pittsburgh-pa",
+    "citySlug": "pittsburgh-pa",
+    "city": "Pittsburgh",
+    "state": "PA",
+    "groups": [
+      { "name": "Pittsburgh REIA", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "300+", "focus": ["Wholesaling", "Flipping", "Rentals"], "website": null },
+      { "name": "Western PA Real Estate Investors", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "200+", "focus": ["Education", "Networking"] },
+      { "name": "Pittsburgh Real Estate Meetup", "type": "Meetup", "meetingFrequency": "Monthly", "memberCount": "400+", "focus": ["All strategies", "Networking"] }
+    ],
+    "onlineGroups": ["BiggerPockets Forum - Pittsburgh", "Facebook: Pittsburgh Real Estate Investors"],
+    "tips": ["Pittsburgh offers strong cash flow with relatively low entry prices", "University neighborhoods provide consistent rental demand"]
+  },
+  {
+    "slug": "investor-groups-sacramento-ca",
+    "citySlug": "sacramento-ca",
+    "city": "Sacramento",
+    "state": "CA",
+    "groups": [
+      { "name": "Sacramento REIA", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "300+", "focus": ["Wholesaling", "Flipping", "Rentals"], "website": null },
+      { "name": "NorCal Real Estate Investors Association", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "250+", "focus": ["Education", "Networking"] },
+      { "name": "Sacramento Real Estate Investors Meetup", "type": "Meetup", "meetingFrequency": "Monthly", "memberCount": "500+", "focus": ["All strategies", "Networking"] }
+    ],
+    "onlineGroups": ["BiggerPockets Forum - Sacramento", "Facebook: Sacramento Real Estate Investors"],
+    "tips": ["Sacramento is the most affordable major California metro for investors", "State capital employment provides stable rental demand"]
+  },
+  {
+    "slug": "investor-groups-cincinnati-oh",
+    "citySlug": "cincinnati-oh",
+    "city": "Cincinnati",
+    "state": "OH",
+    "groups": [
+      { "name": "Cincinnati REIA", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "300+", "focus": ["Wholesaling", "Flipping", "Rentals"], "website": null },
+      { "name": "Greater Cincinnati Investors Association", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "250+", "focus": ["Education", "Networking", "Buy & Hold"] },
+      { "name": "Cincinnati Real Estate Meetup", "type": "Meetup", "meetingFrequency": "Monthly", "memberCount": "400+", "focus": ["All strategies", "Networking"] }
+    ],
+    "onlineGroups": ["BiggerPockets Forum - Cincinnati", "Facebook: Cincinnati Real Estate Investors"],
+    "tips": ["Cincinnati straddles Ohio and Kentucky -- both sides offer opportunities", "Over-the-Rhine neighborhood revitalization is a popular topic"]
+  },
+  {
+    "slug": "investor-groups-birmingham-al",
+    "citySlug": "birmingham-al",
+    "city": "Birmingham",
+    "state": "AL",
+    "groups": [
+      { "name": "Birmingham REIA", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "250+", "focus": ["Wholesaling", "Flipping", "Rentals"], "website": null },
+      { "name": "Alabama Real Estate Investors Association", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "200+", "focus": ["Education", "Networking"] },
+      { "name": "Birmingham Real Estate Meetup", "type": "Meetup", "meetingFrequency": "Monthly", "memberCount": "300+", "focus": ["All strategies", "Networking"] }
+    ],
+    "onlineGroups": ["BiggerPockets Forum - Birmingham", "Facebook: Birmingham AL Real Estate Investors"],
+    "tips": ["Birmingham is a hidden gem for cash flow investors", "Very affordable entry prices attract many beginning investors"]
+  },
+  {
+    "slug": "investor-groups-richmond-va",
+    "citySlug": "richmond-va",
+    "city": "Richmond",
+    "state": "VA",
+    "groups": [
+      { "name": "Richmond REIA", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "300+", "focus": ["Wholesaling", "Flipping", "Rentals"], "website": null },
+      { "name": "Virginia Real Estate Investors Association", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "250+", "focus": ["Education", "Networking"] },
+      { "name": "RVA Real Estate Investors Meetup", "type": "Meetup", "meetingFrequency": "Monthly", "memberCount": "400+", "focus": ["All strategies", "Networking"] }
+    ],
+    "onlineGroups": ["BiggerPockets Forum - Richmond", "Facebook: Richmond VA Real Estate Investors"],
+    "tips": ["Richmond is growing rapidly as DC-area investors seek better deals", "Historic property renovation is a popular niche"]
+  },
+  {
+    "slug": "investor-groups-oklahoma-city-ok",
+    "citySlug": "oklahoma-city-ok",
+    "city": "Oklahoma City",
+    "state": "OK",
+    "groups": [
+      { "name": "Oklahoma City REIA", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "250+", "focus": ["Wholesaling", "Flipping", "Rentals"], "website": null },
+      { "name": "Oklahoma Real Estate Investors Association", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "200+", "focus": ["Education", "Networking"] },
+      { "name": "OKC Real Estate Meetup", "type": "Meetup", "meetingFrequency": "Monthly", "memberCount": "400+", "focus": ["All strategies", "Networking"] }
+    ],
+    "onlineGroups": ["BiggerPockets Forum - Oklahoma City", "Facebook: OKC Real Estate Investors"],
+    "tips": ["OKC offers some of the best rent-to-price ratios in the country", "Oil and gas industry cycles affect the local real estate market"]
+  },
+  {
+    "slug": "investor-groups-louisville-ky",
+    "citySlug": "louisville-ky",
+    "city": "Louisville",
+    "state": "KY",
+    "groups": [
+      { "name": "Louisville REIA", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "250+", "focus": ["Wholesaling", "Flipping", "Rentals"], "website": null },
+      { "name": "Kentuckiana Real Estate Investors", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "200+", "focus": ["Education", "Networking"] },
+      { "name": "Louisville Real Estate Meetup", "type": "Meetup", "meetingFrequency": "Monthly", "memberCount": "350+", "focus": ["All strategies", "Networking"] }
+    ],
+    "onlineGroups": ["BiggerPockets Forum - Louisville", "Facebook: Louisville Real Estate Investors"],
+    "tips": ["Louisville has a solid wholesaling scene with affordable inventory", "Many groups also cover southern Indiana markets"]
+  },
+  {
+    "slug": "investor-groups-milwaukee-wi",
+    "citySlug": "milwaukee-wi",
+    "city": "Milwaukee",
+    "state": "WI",
+    "groups": [
+      { "name": "Milwaukee REIA", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "300+", "focus": ["Wholesaling", "Flipping", "Rentals"], "website": null },
+      { "name": "Wisconsin Real Estate Investors Association", "type": "REIA", "meetingFrequency": "Monthly", "memberCount": "250+", "focus": ["Education", "Networking"] },
+      { "name": "Milwaukee Real Estate Meetup", "type": "Meetup", "meetingFrequency": "Monthly", "memberCount": "400+", "focus": ["All strategies", "Networking"] }
+    ],
+    "onlineGroups": ["BiggerPockets Forum - Milwaukee", "Facebook: Milwaukee Real Estate Investors"],
+    "tips": ["Milwaukee is a strong cash flow market often overlooked by out-of-state investors", "Lead paint disclosure is a major topic for pre-1978 properties"]
+  }
+]
