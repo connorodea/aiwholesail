@@ -95,6 +95,10 @@ const FinancingGuides = lazy(() => import("./pages/FinancingGuides"));
 const FinancingGuidePage = lazy(() => import("./pages/FinancingGuidePage"));
 const RehabCosts = lazy(() => import("./pages/RehabCosts"));
 const RehabCostPage = lazy(() => import("./pages/RehabCostPage"));
+const CityPropertyTypePage = lazy(() => import("./pages/CityPropertyTypePage"));
+const CityPropertyTypes = lazy(() => import("./pages/CityPropertyTypes"));
+const InvestorGroups = lazy(() => import("./pages/InvestorGroups"));
+const InvestorGroupPage = lazy(() => import("./pages/InvestorGroupPage"));
 
 const queryClient = new QueryClient();
 
@@ -240,6 +244,10 @@ const App = () => (
                 <Route path="/rehab-costs/:slug" element={<RehabCostPage />} />
                 <Route path="/counties" element={<Counties />} />
                 <Route path="/counties/:slug" element={<CountyPage />} />
+                <Route path="/invest-in/:typeSlug/:citySlug" element={<CityPropertyTypePage />} />
+                <Route path="/invest-in/:typeSlug" element={<CityPropertyTypes />} />
+                <Route path="/investor-groups" element={<InvestorGroups />} />
+                <Route path="/investor-groups/:slug" element={<InvestorGroupPage />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
