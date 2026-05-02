@@ -158,18 +158,45 @@ router.get('/subscription', authenticate, asyncHandler(async (req, res) => {
     [user.id, user.email]
   );
 
-  // If Stripe is not configured, return DB state only
-  if (!stripe) {
-    if (dbSub.rows.length > 0) {
-      const sub = dbSub.rows[0];
+  // Helper: return DB subscription state, auto-downgrading if expired
+  const returnDbState = async (sub) => {
+    if (!sub) return res.json({ subscribed: false });
+
+    // Check if trial or subscription has expired
+    const now = new Date();
+    const trialExpired = sub.is_trial && sub.trial_end && new Date(sub.trial_end) < now;
+    const subExpired = sub.subscription_end && new Date(sub.subscription_end) < now;
+
+    if (trialExpired || subExpired) {
+      // Downgrade in database
+      await query(
+        `UPDATE subscribers SET subscribed = false, is_trial = false, updated_at = NOW() WHERE email = $1`,
+        [sub.email]
+      );
       return res.json({
-        subscribed: sub.subscribed,
-        subscription_tier: sub.subscription_tier,
+        subscribed: false,
+        subscription_tier: null,
         subscription_end: sub.subscription_end,
-        is_trial: sub.is_trial,
+        is_trial: false,
         trial_start: sub.trial_start,
         trial_end: sub.trial_end,
       });
+    }
+
+    return res.json({
+      subscribed: sub.subscribed,
+      subscription_tier: sub.subscription_tier,
+      subscription_end: sub.subscription_end,
+      is_trial: sub.is_trial,
+      trial_start: sub.trial_start,
+      trial_end: sub.trial_end,
+    });
+  };
+
+  // If Stripe is not configured, return DB state only
+  if (!stripe) {
+    if (dbSub.rows.length > 0) {
+      return returnDbState(dbSub.rows[0]);
     }
     return res.json({ subscribed: false });
   }
@@ -179,15 +206,7 @@ router.get('/subscription', authenticate, asyncHandler(async (req, res) => {
   if (customers.data.length === 0) {
     // No Stripe customer — return DB trial state if it exists
     if (dbSub.rows.length > 0) {
-      const sub = dbSub.rows[0];
-      return res.json({
-        subscribed: sub.subscribed,
-        subscription_tier: sub.subscription_tier,
-        subscription_end: sub.subscription_end,
-        is_trial: sub.is_trial,
-        trial_start: sub.trial_start,
-        trial_end: sub.trial_end,
-      });
+      return returnDbState(dbSub.rows[0]);
     }
     return res.json({ subscribed: false });
   }

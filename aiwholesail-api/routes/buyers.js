@@ -402,20 +402,33 @@ router.post('/:id/outreach', authenticate, [
     try {
       const { Resend } = require('resend');
       const resend = new Resend(process.env.RESEND_API_KEY);
+      const senderName = req.user.fullName || 'AIWholesail';
       await resend.emails.send({
-        from: process.env.RESEND_FROM_EMAIL || 'deals@aiwholesail.com',
+        from: `${senderName} via AIWholesail <noreply@aiwholesail.com>`,
+        replyTo: req.user.email,
         to: buyer.email,
         subject: `New Wholesale Deal: ${address}`,
         html: `
-          <h2>New Wholesale Deal Available</h2>
-          <p>Hi ${buyer.first_name},</p>
-          <p>I have a new deal that matches your criteria:</p>
-          <ul>
-            <li><strong>Address:</strong> ${address}</li>
-            <li><strong>Price:</strong> ${priceStr}</li>
-          </ul>
-          <p>Let me know if you'd like more details or want to schedule a viewing.</p>
-          <p>Best regards,<br/>${req.user.fullName || req.user.email}</p>
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #08090a; color: #ffffff; padding: 40px 30px; border-radius: 12px;">
+            <img src="https://aiwholesail.com/logo-white.png" alt="AIWholesail" style="height: 48px; margin-bottom: 24px;" />
+            <h2 style="color: #06b6d4; margin-bottom: 16px;">New Wholesale Deal Available</h2>
+            <p style="color: #a3a3a3; line-height: 1.6;">Hi ${buyer.first_name},</p>
+            <p style="color: #a3a3a3; line-height: 1.6; margin-bottom: 24px;">
+              I have a new deal that matches your criteria:
+            </p>
+            <div style="background: #111; border: 1px solid #262626; border-radius: 8px; padding: 20px; margin-bottom: 24px;">
+              <p style="color: #e5e5e5; margin: 0 0 8px;"><strong>Address:</strong> ${address}</p>
+              <p style="color: #e5e5e5; margin: 0;"><strong>Price:</strong> ${priceStr}</p>
+            </div>
+            <p style="color: #a3a3a3; line-height: 1.6; margin-bottom: 24px;">
+              Let me know if you'd like more details or want to schedule a viewing.
+            </p>
+            <p style="color: #a3a3a3; line-height: 1.6;">
+              Best regards,<br/>${senderName}
+            </p>
+            <hr style="border: none; border-top: 1px solid #262626; margin: 24px 0;" />
+            <p style="color: #525252; font-size: 12px;">Sent via AIWholesail.com</p>
+          </div>
         `,
       });
       results.push({ channel: 'email', status: 'sent' });

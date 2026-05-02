@@ -145,7 +145,7 @@ router.post('/signup', [
     },
     accessToken,
     refreshToken,
-    expiresIn: process.env.JWT_EXPIRES_IN || '7d'
+    expiresIn: process.env.JWT_EXPIRES_IN || '1h'
   });
 }));
 
@@ -210,7 +210,7 @@ router.post('/signin', [
     },
     accessToken,
     refreshToken,
-    expiresIn: process.env.JWT_EXPIRES_IN || '7d'
+    expiresIn: process.env.JWT_EXPIRES_IN || '1h'
   });
 }));
 

@@ -52,6 +52,11 @@ const attachSubscription = async (req, res, next) => {
 
     // Check if subscription has expired
     if (sub.subscription_end && new Date(sub.subscription_end) < new Date()) {
+      // Downgrade in database so stale data is corrected
+      query(
+        `UPDATE subscribers SET subscribed = false, subscription_tier = NULL, is_trial = false, updated_at = NOW() WHERE user_id = $1 AND subscribed = true`,
+        [req.user.id]
+      ).catch(err => console.error('[Subscription] Failed to downgrade expired subscription:', err));
       req.subscription = { tier: TIERS.NONE, searchesUsed: 0 };
       return next();
     }
@@ -61,6 +66,11 @@ const attachSubscription = async (req, res, next) => {
     if (sub.is_trial) {
       // Check if trial has expired
       if (sub.trial_end && new Date(sub.trial_end) < new Date()) {
+        // Downgrade expired trial in database
+        query(
+          `UPDATE subscribers SET subscribed = false, is_trial = false, updated_at = NOW() WHERE user_id = $1 AND is_trial = true`,
+          [req.user.id]
+        ).catch(err => console.error('[Subscription] Failed to downgrade expired trial:', err));
         req.subscription = { tier: TIERS.NONE, searchesUsed: 0 };
         return next();
       }

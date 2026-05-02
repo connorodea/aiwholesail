@@ -72,7 +72,7 @@ router.post('/email/send', authenticate, [
 
   try {
     const { data, error } = await resend.emails.send({
-      from: from || 'AI Wholesail <noreply@aiwholesail.com>',
+      from: from || 'AIWholesail <noreply@aiwholesail.com>',
       to: [to],
       subject: subject,
       html: html
