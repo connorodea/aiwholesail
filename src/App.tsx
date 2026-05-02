@@ -85,8 +85,16 @@ const DealExamples = lazy(() => import("./pages/DealExamples"));
 const DealExamplePage = lazy(() => import("./pages/DealExamplePage"));
 const ZipCodes = lazy(() => import("./pages/ZipCodes"));
 const ZipCodePage = lazy(() => import("./pages/ZipCodePage"));
+const Counties = lazy(() => import("./pages/Counties"));
+const CountyPage = lazy(() => import("./pages/CountyPage"));
 const FAQTopics = lazy(() => import("./pages/FAQTopics"));
 const FAQTopicPage = lazy(() => import("./pages/FAQTopicPage"));
+const RentalMarkets = lazy(() => import("./pages/RentalMarkets"));
+const RentalMarketPage = lazy(() => import("./pages/RentalMarketPage"));
+const FinancingGuides = lazy(() => import("./pages/FinancingGuides"));
+const FinancingGuidePage = lazy(() => import("./pages/FinancingGuidePage"));
+const RehabCosts = lazy(() => import("./pages/RehabCosts"));
+const RehabCostPage = lazy(() => import("./pages/RehabCostPage"));
 
 const queryClient = new QueryClient();
 
@@ -224,6 +232,14 @@ const App = () => (
                 <Route path="/property-types/:slug" element={<PropertyTypePage />} />
                 <Route path="/zip" element={<ZipCodes />} />
                 <Route path="/zip/:slug" element={<ZipCodePage />} />
+                <Route path="/rental-markets" element={<RentalMarkets />} />
+                <Route path="/rental-markets/:slug" element={<RentalMarketPage />} />
+                <Route path="/financing" element={<FinancingGuides />} />
+                <Route path="/financing/:slug" element={<FinancingGuidePage />} />
+                <Route path="/rehab-costs" element={<RehabCosts />} />
+                <Route path="/rehab-costs/:slug" element={<RehabCostPage />} />
+                <Route path="/counties" element={<Counties />} />
+                <Route path="/counties/:slug" element={<CountyPage />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>

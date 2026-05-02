@@ -1,0 +1,530 @@
+[
+  {
+    "slug": "hard-money-loans",
+    "name": "Hard Money Loans",
+    "h1": "Hard Money Loans for Real Estate Investors -- Complete Guide",
+    "description": "Everything you need to know about hard money loans for real estate investing. Rates, terms, qualifications, top lenders, and how to apply.",
+    "keywords": "hard money loans, hard money lender, fix and flip financing, hard money loan rates, hard money real estate, asset based lending",
+    "category": "Short-Term",
+    "icon": "Banknote",
+    "overview": "Hard money loans are short-term, asset-based loans secured by real estate. Unlike conventional mortgages that evaluate your income and credit history, hard money lenders focus primarily on the property's value and potential. They are most commonly used by fix-and-flip investors, developers, and wholesalers who need fast capital to close deals. Funding can happen in as little as 7 days, making them ideal for competitive markets where speed is everything. The trade-off is higher interest rates and origination fees compared to traditional financing.",
+    "bestFor": ["Fix and flip projects", "Bridge financing between sales", "Properties needing fast closing", "Auction purchases", "Distressed property acquisitions"],
+    "notGoodFor": ["Long-term buy-and-hold rentals", "Owner-occupied primary residences", "Tight-margin deals with thin spreads", "Borrowers who need low monthly payments"],
+    "typicalTerms": {
+      "interestRate": "10-14%",
+      "loanToValue": "65-75% of ARV",
+      "term": "6-18 months",
+      "points": "2-4 origination points",
+      "downPayment": "10-25%",
+      "closingTime": "7-14 days",
+      "prepaymentPenalty": "Varies -- some have none"
+    },
+    "qualificationRequirements": [
+      "Property as collateral (primary qualification factor)",
+      "10-25% down payment or equity",
+      "Detailed rehab budget and scope of work",
+      "Clear exit strategy (sell or refinance)",
+      "Experience preferred but not always required",
+      "Proof of funds for down payment and reserves"
+    ],
+    "prosAndCons": {
+      "pros": ["Fast closing in 7-14 days", "Based on property value, not borrower credit", "Flexible and negotiable terms", "No income verification typically needed", "Can finance properties in poor condition"],
+      "cons": ["High interest rates (10-14%)", "Origination points add 2-4% upfront cost", "Short term only -- must refinance or sell quickly", "Higher risk of foreclosure if project stalls", "Monthly payments can be substantial"]
+    },
+    "howToApply": [
+      "Identify 3-5 hard money lenders in your target market and compare terms",
+      "Prepare your deal package: property details, purchase price, ARV, rehab budget, and exit strategy",
+      "Submit applications to multiple lenders for competitive term sheets",
+      "Review and negotiate terms -- focus on rate, points, LTV, and prepayment penalties",
+      "Get pre-approval letter and finalize your term sheet",
+      "Close at a title company with standard real estate closing procedures"
+    ],
+    "topLenders": ["Lima One Capital", "Kiavi (formerly LendingHome)", "RCN Capital", "Fund That Flip", "Groundfloor"],
+    "calculatorLink": "/tools/mortgage-calculator",
+    "relatedGuides": ["bridge-loans", "private-money-lending", "transactional-funding"]
+  },
+  {
+    "slug": "private-money-lending",
+    "name": "Private Money Lending",
+    "h1": "Private Money Lending for Real Estate -- How to Find & Structure Deals",
+    "description": "Complete guide to private money lending for real estate investors. Learn how to find private lenders, structure deals, and negotiate terms.",
+    "keywords": "private money lending, private lender real estate, private money loans, private real estate financing, private investor loans",
+    "category": "Relationship-Based",
+    "icon": "Users",
+    "overview": "Private money lending involves borrowing from individuals rather than institutions. These are typically high-net-worth individuals, family members, friends, or business associates who want to earn returns on their capital by lending it secured against real estate. Unlike hard money lenders who operate as businesses with standardized terms, private money deals are fully negotiable and relationship-driven. Private money is often the most flexible financing available to real estate investors, but it requires strong networking skills and the ability to build trust.",
+    "bestFor": ["Investors with strong personal networks", "Creative deal structures", "Projects that don't fit institutional criteria", "Repeat investors building long-term lending relationships", "Deals requiring customized terms"],
+    "notGoodFor": ["New investors with no track record", "Those uncomfortable with personal financial relationships", "Deals requiring institutional-grade documentation", "Borrowers who need standardized, repeatable processes"],
+    "typicalTerms": {
+      "interestRate": "8-12%",
+      "loanToValue": "60-80%",
+      "term": "6-24 months (fully negotiable)",
+      "points": "0-2 points (negotiable)",
+      "downPayment": "0-20% (negotiable)",
+      "closingTime": "3-14 days",
+      "prepaymentPenalty": "Usually none"
+    },
+    "qualificationRequirements": [
+      "Strong personal relationship or referral to lender",
+      "Clear and compelling deal presentation",
+      "Documented exit strategy",
+      "Willingness to secure loan with property deed of trust",
+      "Track record of successful deals (preferred)",
+      "Transparent communication about risks"
+    ],
+    "prosAndCons": {
+      "pros": ["Fully negotiable terms -- rate, points, LTV, term", "Can close faster than any other lending type", "No credit score requirements", "Flexible on property condition and type", "Can structure interest-only or deferred payments"],
+      "cons": ["Requires strong networking and relationship skills", "Limited scalability -- depends on individual lenders", "Can strain personal relationships if deal goes wrong", "Less legal structure than institutional loans", "Finding reliable private lenders takes time"]
+    },
+    "howToApply": [
+      "Build your network: attend REI meetups, join investor groups, and connect with high-net-worth individuals",
+      "Prepare a professional deal presentation with property details, financials, and exit strategy",
+      "Present the opportunity clearly, emphasizing the security (real estate collateral) and returns",
+      "Negotiate terms that work for both parties -- be fair and transparent",
+      "Use a real estate attorney to draft a proper promissory note and deed of trust",
+      "Close through a title company to protect both parties"
+    ],
+    "topLenders": ["Your local REI network", "Self-directed IRA holders", "High-net-worth professionals", "Retired investors", "Local business owners"],
+    "calculatorLink": "/tools/mortgage-calculator",
+    "relatedGuides": ["hard-money-loans", "seller-financing", "subject-to-financing"]
+  },
+  {
+    "slug": "dscr-loans",
+    "name": "DSCR Loans",
+    "h1": "DSCR Loans Explained -- Qualify Based on Rental Income, Not Your W-2",
+    "description": "Complete guide to DSCR loans for rental property investors. Learn DSCR requirements, how to qualify, top lenders, and when DSCR loans make sense.",
+    "keywords": "DSCR loans, DSCR loan requirements, debt service coverage ratio loan, DSCR rental property, DSCR mortgage, no income verification loan",
+    "category": "Rental / Long-Term",
+    "icon": "TrendingUp",
+    "overview": "DSCR (Debt Service Coverage Ratio) loans allow real estate investors to qualify based on the property's rental income rather than their personal income. The lender evaluates whether the property's rental revenue covers the mortgage payment, taxes, insurance, and HOA fees. A DSCR of 1.0 means the property breaks even; most lenders require 1.0-1.25. DSCR loans are perfect for self-employed investors, those with complex tax returns, or anyone building a portfolio who doesn't want to use personal income documentation. They have become the go-to loan product for buy-and-hold investors since 2020.",
+    "bestFor": ["Buy-and-hold rental investors", "Self-employed borrowers", "Portfolio builders scaling past 4-10 conventional loans", "Investors with complex tax returns", "LLC and entity-based investing"],
+    "notGoodFor": ["Fix and flip projects (no rental income)", "Properties with negative cash flow", "Vacant properties with no rental history", "Primary residence purchases"],
+    "typicalTerms": {
+      "interestRate": "7-9%",
+      "loanToValue": "70-80%",
+      "term": "30-year fixed or 5/1 ARM",
+      "points": "0.5-2 origination points",
+      "downPayment": "20-25%",
+      "closingTime": "21-30 days",
+      "prepaymentPenalty": "3-5 year step-down (common)"
+    },
+    "qualificationRequirements": [
+      "Property DSCR of 1.0-1.25 minimum (rental income / PITIA)",
+      "20-25% down payment",
+      "Credit score of 660+ (680+ for best rates)",
+      "6+ months cash reserves",
+      "Appraisal with rental income analysis (Form 1007 or rent schedule)",
+      "Property must be investment (non-owner-occupied)"
+    ],
+    "prosAndCons": {
+      "pros": ["No personal income verification required", "No DTI ratio calculation", "Can close in LLC or entity name", "30-year fixed terms available", "Scalable -- no limit on number of DSCR loans", "Faster approval than conventional"],
+      "cons": ["Higher rates than conventional (7-9% vs 6-7%)", "Requires 20-25% down payment", "Prepayment penalties are common (3-5 years)", "Property must cash flow at or above breakeven", "Higher credit score requirements than hard money"]
+    },
+    "howToApply": [
+      "Run your numbers: calculate the property's DSCR (monthly rent / monthly PITIA)",
+      "Get a rent estimate or appraisal with rental analysis for the target property",
+      "Shop 3-5 DSCR lenders and compare rates, LTV, prepayment penalties, and reserve requirements",
+      "Submit your application with property details, rent projections, and entity documentation",
+      "Complete appraisal and underwriting (typically 2-3 weeks)",
+      "Close at title company -- fund through your entity if desired"
+    ],
+    "topLenders": ["Kiavi", "Lima One Capital", "Visio Lending", "New Silver", "Easy Street Capital"],
+    "calculatorLink": "/tools/dscr-calculator",
+    "relatedGuides": ["conventional-investment-loans", "portfolio-loans", "commercial-loans"]
+  },
+  {
+    "slug": "conventional-investment-loans",
+    "name": "Conventional Investment Loans",
+    "h1": "Conventional Investment Loans -- Best Rates for Rental Properties",
+    "description": "Guide to conventional investment property loans. Requirements, rates, down payments, and how to qualify for Fannie Mae and Freddie Mac financing.",
+    "keywords": "conventional investment loan, investment property mortgage, rental property loan, Fannie Mae investment, Freddie Mac rental, conventional mortgage investment property",
+    "category": "Rental / Long-Term",
+    "icon": "Building2",
+    "overview": "Conventional investment loans are standard mortgages backed by Fannie Mae or Freddie Mac, adapted for non-owner-occupied properties. They offer the lowest interest rates available for investment properties, but come with strict qualification requirements including full income documentation, debt-to-income ratio limits, and a cap of 10 financed properties per borrower. For investors with strong W-2 income, good credit, and sufficient reserves, conventional loans provide the best long-term financing terms in the market.",
+    "bestFor": ["W-2 employees with strong documented income", "Investors with excellent credit (720+)", "First 1-4 investment properties", "Long-term buy-and-hold strategy", "Maximizing cash flow with lowest rate"],
+    "notGoodFor": ["Self-employed with complex tax returns", "Investors with 10+ financed properties", "Properties needing major rehab", "Fast closings (under 21 days)", "LLC or entity purchases"],
+    "typicalTerms": {
+      "interestRate": "6.5-7.5%",
+      "loanToValue": "75-80%",
+      "term": "15 or 30-year fixed",
+      "points": "0-1 origination points",
+      "downPayment": "15-25%",
+      "closingTime": "30-45 days",
+      "prepaymentPenalty": "None"
+    },
+    "qualificationRequirements": [
+      "DTI ratio under 45% (including new property)",
+      "Credit score 620+ (720+ for best rates and terms)",
+      "2 years tax returns and W-2s or full income documentation",
+      "6 months reserves per property (PITIA)",
+      "15-25% down payment (25% for best rates)",
+      "Maximum 10 financed properties (Fannie Mae)"
+    ],
+    "prosAndCons": {
+      "pros": ["Lowest interest rates for investment properties", "No prepayment penalties", "30-year fixed terms for predictable payments", "No seasoning requirements for refinance", "Widely available from any mortgage lender"],
+      "cons": ["Strict income documentation requirements", "DTI limits can be restrictive", "Cap of 10 financed properties per borrower", "Cannot close in LLC name (personal guarantee required)", "Slow closing (30-45 days)", "Higher down payment than primary residence (15-25%)"]
+    },
+    "howToApply": [
+      "Check your credit score and DTI ratio before applying",
+      "Gather 2 years of tax returns, W-2s, pay stubs, and bank statements",
+      "Calculate reserves needed: 6 months PITIA per financed property",
+      "Shop rates with 3-5 lenders including local banks, credit unions, and online lenders",
+      "Get pre-approved and lock your rate when you find a property",
+      "Complete full underwriting, appraisal, and close at title company"
+    ],
+    "topLenders": ["Better.com", "Rocket Mortgage", "Local credit unions", "Chase", "Wells Fargo"],
+    "calculatorLink": "/tools/mortgage-calculator",
+    "relatedGuides": ["dscr-loans", "fha-house-hacking", "portfolio-loans"]
+  },
+  {
+    "slug": "fha-house-hacking",
+    "name": "FHA House Hacking",
+    "h1": "FHA House Hacking -- Start Investing with 3.5% Down",
+    "description": "How to use FHA loans for house hacking. Buy a multi-unit property with 3.5% down, live in one unit, and rent the others to cover your mortgage.",
+    "keywords": "FHA house hacking, house hacking FHA loan, FHA multi unit, FHA 3.5 down investment, house hack strategy, FHA duplex financing",
+    "category": "Owner-Occupied",
+    "icon": "Home",
+    "overview": "FHA house hacking is the strategy of using an FHA loan (3.5% down payment) to purchase a multi-unit property (2-4 units), living in one unit as your primary residence, and renting out the remaining units. The rental income from the other units can partially or fully cover your mortgage payment, effectively allowing you to live for free while building equity and cash flow. This is widely considered the single best strategy for new investors to get started in real estate with minimal capital. FHA allows you to count 75% of projected rental income toward your qualifying income.",
+    "bestFor": ["First-time real estate investors", "Buyers with limited capital (3.5% down)", "Those willing to live in their investment", "Investors in markets with affordable multi-units", "Building a rental portfolio starting from zero"],
+    "notGoodFor": ["Investors who don't want to live on-site", "Markets where multi-units are too expensive", "Those needing more than 4 units", "Investors wanting to close in an LLC", "Properties that need major rehab before occupancy"],
+    "typicalTerms": {
+      "interestRate": "6-7%",
+      "loanToValue": "96.5%",
+      "term": "30-year fixed",
+      "points": "0-1 points",
+      "downPayment": "3.5% (with 580+ credit)",
+      "closingTime": "30-45 days",
+      "prepaymentPenalty": "None"
+    },
+    "qualificationRequirements": [
+      "Credit score 580+ (3.5% down) or 500-579 (10% down)",
+      "Must live in one unit as primary residence for 12 months",
+      "Property must be 1-4 units",
+      "DTI ratio under 43% (can go to 50% with compensating factors)",
+      "Stable employment history (2 years)",
+      "FHA mortgage insurance premium (MIP) required"
+    ],
+    "prosAndCons": {
+      "pros": ["Only 3.5% down payment -- lowest in the market", "Can count 75% of rental income for qualification", "Lower credit score requirements than conventional", "30-year fixed rate locks in predictable costs", "Builds equity and cash flow simultaneously", "Rental income can cover entire mortgage"],
+      "cons": ["Must live in the property for at least 12 months", "FHA mortgage insurance adds to monthly cost", "Property condition requirements (FHA appraisal standards)", "Loan limits vary by county -- may not cover expensive markets", "Only one FHA loan at a time (generally)", "Multi-unit properties can be harder to find"]
+    },
+    "howToApply": [
+      "Check FHA loan limits in your target county (varies by area and unit count)",
+      "Get pre-approved with an FHA-approved lender",
+      "Search for 2-4 unit properties in your target market",
+      "Analyze the deal: calculate rental income vs. PITIA to ensure positive cash flow",
+      "Make an offer, complete FHA appraisal (property must meet FHA minimum standards)",
+      "Close and move into one unit within 60 days -- rent remaining units"
+    ],
+    "topLenders": ["Carrington Mortgage", "Freedom Mortgage", "Caliber Home Loans", "New American Funding", "Local credit unions"],
+    "calculatorLink": "/tools/mortgage-calculator",
+    "relatedGuides": ["conventional-investment-loans", "dscr-loans", "heloc-investing"]
+  },
+  {
+    "slug": "seller-financing",
+    "name": "Seller Financing",
+    "h1": "Seller Financing for Real Estate -- How to Buy Properties Without Banks",
+    "description": "Complete guide to seller financing in real estate. Learn how to negotiate, structure, and close seller-financed deals without bank involvement.",
+    "keywords": "seller financing, owner financing, seller carry back, seller financing real estate, owner financed homes, creative financing real estate",
+    "category": "Creative",
+    "icon": "Handshake",
+    "overview": "Seller financing (also called owner financing or seller carry-back) is when the property seller acts as the lender instead of a bank. The buyer makes payments directly to the seller based on negotiated terms -- interest rate, down payment, loan term, and balloon date. No bank or institutional lender is involved. This strategy is powerful for investors because the terms are fully negotiable, closings can happen quickly, and properties that can't qualify for traditional financing can still be purchased. Seller financing is one of the most underused and powerful creative financing strategies in real estate.",
+    "bestFor": ["Properties that can't qualify for bank financing", "Motivated sellers who want monthly income", "Investors with limited credit or documentation", "Deals where speed and flexibility matter", "Building a portfolio without bank limits"],
+    "notGoodFor": ["Sellers who need full cash at closing", "Properties with existing mortgage (unless subject-to)", "Buyers who want the lowest possible interest rate", "Deals requiring title insurance complications"],
+    "typicalTerms": {
+      "interestRate": "5-10% (fully negotiable)",
+      "loanToValue": "70-90% (negotiable)",
+      "term": "3-30 years (with balloon common at 3-7 years)",
+      "points": "None typically",
+      "downPayment": "5-20% (negotiable)",
+      "closingTime": "7-21 days",
+      "prepaymentPenalty": "Usually none (negotiable)"
+    },
+    "qualificationRequirements": [
+      "Willing seller who owns property free and clear (or with low balance)",
+      "Negotiated down payment (typically 5-20%)",
+      "Mutually agreed terms documented in promissory note",
+      "Title search to confirm clear title",
+      "Real estate attorney to draft documents",
+      "No bank qualification required"
+    ],
+    "prosAndCons": {
+      "pros": ["No bank qualification needed", "Terms are 100% negotiable", "Can close in 7-14 days", "Lower closing costs than bank loans", "Can buy properties in any condition", "No limit on number of seller-financed deals"],
+      "cons": ["Hard to find willing sellers", "Balloon payments create refinance pressure", "Sellers may charge above-market rates", "Less legal protection than institutional loans", "Due-on-sale clause risk on existing mortgages", "Requires strong negotiation skills"]
+    },
+    "howToApply": [
+      "Target motivated sellers: tired landlords, inherited properties, free-and-clear owners",
+      "Present seller financing as a win-win: monthly income for seller, flexible terms for buyer",
+      "Negotiate key terms: purchase price, down payment, interest rate, term, and balloon date",
+      "Hire a real estate attorney to draft the promissory note and deed of trust/mortgage",
+      "Complete title search and obtain title insurance",
+      "Close at title company -- deed transfers to buyer, seller holds note"
+    ],
+    "topLenders": ["The property seller (no institutional lender involved)", "Real estate attorneys for document preparation", "Title companies for closing services"],
+    "calculatorLink": "/tools/mortgage-calculator",
+    "relatedGuides": ["subject-to-financing", "private-money-lending", "hard-money-loans"]
+  },
+  {
+    "slug": "subject-to-financing",
+    "name": "Subject-To Financing",
+    "h1": "Subject-To Financing -- Take Over Existing Mortgages for Real Estate Deals",
+    "description": "Learn how subject-to financing works in real estate. Buy properties by taking over the seller's existing mortgage without qualifying for a new loan.",
+    "keywords": "subject to financing, subject to real estate, subject to mortgage, buying subject to, sub to deals, creative real estate financing",
+    "category": "Creative",
+    "icon": "ArrowLeftRight",
+    "overview": "Subject-to financing means purchasing a property 'subject to' the existing mortgage remaining in place. The deed transfers to the buyer, but the seller's mortgage stays in the seller's name and the buyer makes the payments. This allows investors to acquire properties with little to no money down while benefiting from the seller's existing loan terms -- which may have a lower interest rate than anything available today. Subject-to is one of the most powerful creative financing strategies, but it requires understanding the due-on-sale clause risk and proper legal documentation.",
+    "bestFor": ["Distressed sellers behind on payments", "Sellers needing quick relief from mortgage", "Low-rate loan assumptions (locked-in rates)", "Minimal cash to close deals", "Investors focused on cash flow from day one"],
+    "notGoodFor": ["Risk-averse investors (due-on-sale clause)", "Properties with little or no equity", "Sellers who need cash at closing", "Markets with declining values", "Investors unfamiliar with creative finance legal requirements"],
+    "typicalTerms": {
+      "interestRate": "Seller's existing rate (often 3-5% from 2020-2022 era)",
+      "loanToValue": "Existing loan balance (varies)",
+      "term": "Remaining term on existing loan",
+      "points": "None",
+      "downPayment": "$0-10,000 typical (to seller for equity or arrears)",
+      "closingTime": "7-14 days",
+      "prepaymentPenalty": "Per original loan terms"
+    },
+    "qualificationRequirements": [
+      "No bank qualification required -- you take over existing loan",
+      "Seller agreement to leave mortgage in their name",
+      "Enough cash to cover seller's equity position or back payments",
+      "Real estate attorney for proper documentation",
+      "Understanding of due-on-sale clause risks",
+      "Plan to service the existing mortgage payments reliably"
+    ],
+    "prosAndCons": {
+      "pros": ["No bank qualification or credit check", "Assume potentially low interest rates from prior era", "Little to no money down in many cases", "Fast closing in 7-14 days", "No origination fees or points", "Immediate cash flow from existing low-rate debt"],
+      "cons": ["Due-on-sale clause risk (bank can call loan due)", "Legal complexity requires experienced attorney", "Seller's credit is tied to your payment performance", "Insurance and title considerations are complex", "Not widely understood by sellers or agents", "Must manage payments on loan in someone else's name"]
+    },
+    "howToApply": [
+      "Find motivated sellers: pre-foreclosure, divorce, relocation, inherited properties",
+      "Verify existing loan details: balance, rate, payment, term remaining, lender",
+      "Negotiate terms: purchase price, cash to seller, who pays arrears if any",
+      "Hire a real estate attorney experienced in subject-to transactions",
+      "Execute proper documentation: purchase agreement, deed, authorization to release information",
+      "Record deed at county recorder, set up loan payment servicing, insure the property"
+    ],
+    "topLenders": ["No institutional lender involved -- existing mortgage is assumed", "Real estate attorneys for transaction structuring", "Title companies for deed recording and closing"],
+    "calculatorLink": "/tools/mortgage-calculator",
+    "relatedGuides": ["seller-financing", "hard-money-loans", "private-money-lending"]
+  },
+  {
+    "slug": "transactional-funding",
+    "name": "Transactional Funding",
+    "h1": "Transactional Funding for Wholesalers -- Close Double Closes Same Day",
+    "description": "How transactional funding works for real estate wholesalers. Close double-close deals with short-term capital, same-day or next-day funding.",
+    "keywords": "transactional funding, double close funding, wholesale real estate funding, same day close, transactional lending, wholesale deal funding",
+    "category": "Short-Term",
+    "icon": "Repeat",
+    "overview": "Transactional funding is ultra-short-term financing (typically 1-3 days) used by wholesalers to complete double-close transactions. In a double close, the wholesaler buys the property from the seller (A-to-B transaction) and immediately resells it to the end buyer (B-to-C transaction). Transactional funding provides the capital for the A-to-B side, and the funds from the B-to-C sale repay the loan -- often within the same day. This allows wholesalers to complete deals where assignment contracts aren't possible or where they want to keep their profit margin private.",
+    "bestFor": ["Real estate wholesalers doing double closes", "Deals where assignment isn't allowed or preferred", "Wholesalers who want to keep margins private", "Same-day or next-day close transactions", "High-volume wholesale operations"],
+    "notGoodFor": ["Deals without a confirmed end buyer", "Long-term holds of any kind", "Fix and flip projects", "Deals where B-to-C closing is uncertain or delayed", "Investors who only do assignments"],
+    "typicalTerms": {
+      "interestRate": "1-2% flat fee (not annualized)",
+      "loanToValue": "100% of A-to-B purchase price",
+      "term": "1-3 days",
+      "points": "Included in flat fee",
+      "downPayment": "$0 -- lender funds entire A-to-B transaction",
+      "closingTime": "Same day",
+      "prepaymentPenalty": "None"
+    },
+    "qualificationRequirements": [
+      "Signed A-to-B purchase agreement (with seller)",
+      "Signed B-to-C purchase agreement (with end buyer)",
+      "Proof of end buyer's funds or financing approval",
+      "Title company willing to facilitate double close",
+      "Clear title on the property",
+      "End buyer closing must be confirmed and imminent"
+    ],
+    "prosAndCons": {
+      "pros": ["100% financing -- no money out of pocket", "Close in the same day as end buyer", "Keep profit margins completely private", "No credit check or income verification", "Simple and fast process once set up", "Unlimited deal volume possible"],
+      "cons": ["Only works for double-close transactions", "Requires confirmed end buyer before funding", "Fees of 1-2% reduce profit margin", "Title company must agree to double close", "Very short window -- timing is critical", "Not all markets or title companies support this"]
+    },
+    "howToApply": [
+      "Secure your deal: get the A-to-B contract signed with the seller",
+      "Find and confirm your end buyer: get the B-to-C contract signed with proof of funds",
+      "Contact a transactional funding provider and submit both contracts",
+      "Coordinate with a title company experienced in double closes",
+      "Fund A-to-B close with transactional lender's capital",
+      "Complete B-to-C close (same day or next day) -- transactional lender is repaid from proceeds"
+    ],
+    "topLenders": ["Best Transaction Funding", "Coastal Funding Group", "Net Funding", "DoubleClose.com", "Express Transaction Funding"],
+    "calculatorLink": "/tools/wholesale-deal-calculator",
+    "relatedGuides": ["hard-money-loans", "private-money-lending", "bridge-loans"]
+  },
+  {
+    "slug": "heloc-investing",
+    "name": "HELOC for Real Estate Investing",
+    "h1": "Using a HELOC for Real Estate Investing -- Tap Your Home Equity",
+    "description": "How to use a home equity line of credit (HELOC) for real estate investing. Strategy, risks, rates, and when it makes sense to invest with HELOC funds.",
+    "keywords": "HELOC real estate investing, home equity line of credit investing, HELOC for down payment, HELOC investment property, HELOC strategy real estate",
+    "category": "Equity-Based",
+    "icon": "Landmark",
+    "overview": "A Home Equity Line of Credit (HELOC) allows homeowners to borrow against the equity in their primary residence or existing investment property. For real estate investors, a HELOC provides a revolving line of credit that can be used as a down payment on investment properties, to fund renovations, or even to purchase properties outright in lower-priced markets. The key advantage is that you only pay interest on the amount drawn, and you can reuse the line as you pay it down -- making it a powerful tool for recycling capital across multiple deals.",
+    "bestFor": ["Homeowners with significant equity (40%+)", "Funding down payments on investment properties", "Rehab and renovation costs", "Bridge financing while waiting for refinance", "Recycling capital across multiple deals"],
+    "notGoodFor": ["Those with little home equity", "Risk-averse homeowners (your home is collateral)", "High-interest-rate environments", "Funding deals with thin margins", "Borrowers already at high DTI ratios"],
+    "typicalTerms": {
+      "interestRate": "7-9% variable (prime + 1-2%)",
+      "loanToValue": "Up to 80-90% CLTV on primary residence",
+      "term": "10-year draw period, 20-year repayment",
+      "points": "0-1 points",
+      "downPayment": "N/A -- draws from existing equity",
+      "closingTime": "14-30 days to open",
+      "prepaymentPenalty": "Rarely"
+    },
+    "qualificationRequirements": [
+      "Sufficient home equity (typically need 20%+ remaining after HELOC)",
+      "Credit score 680+ for best terms",
+      "DTI ratio under 43% including HELOC payment",
+      "Stable income documentation",
+      "Property appraisal to confirm current value",
+      "Primary residence or qualifying investment property as collateral"
+    ],
+    "prosAndCons": {
+      "pros": ["Only pay interest on what you draw", "Revolving line -- reuse as you pay down", "Can fund down payments, rehab, or full purchases", "Interest may be tax deductible (consult CPA)", "No usage restrictions on investment type", "Relatively low closing costs to open"],
+      "cons": ["Variable rate -- payments can increase", "Your home is collateral -- risk of foreclosure", "Adds to your DTI which can limit future financing", "Draw period eventually ends (forced repayment)", "Lenders can freeze or reduce lines in downturns", "Interest rate is higher than primary mortgage rate"]
+    },
+    "howToApply": [
+      "Calculate your available equity: current home value minus mortgage balance",
+      "Check your credit score and DTI ratio -- aim for 680+ and sub-43% DTI",
+      "Shop HELOC rates with 3-5 lenders: local banks, credit unions, and online lenders",
+      "Apply with documentation: income, tax returns, mortgage statements, home insurance",
+      "Complete home appraisal and underwriting",
+      "Open the line -- draw funds as needed for investment deals"
+    ],
+    "topLenders": ["Figure (online)", "Spring EQ", "Local credit unions", "Bank of America", "TD Bank"],
+    "calculatorLink": "/tools/mortgage-calculator",
+    "relatedGuides": ["conventional-investment-loans", "fha-house-hacking", "hard-money-loans"]
+  },
+  {
+    "slug": "portfolio-loans",
+    "name": "Portfolio Loans",
+    "h1": "Portfolio Loans for Real Estate Investors -- Beyond Conventional Limits",
+    "description": "Complete guide to portfolio loans for real estate investors. How portfolio lenders work, qualification requirements, and when to use them over conventional.",
+    "keywords": "portfolio loans, portfolio lender real estate, portfolio mortgage, non-conforming loan, local bank investment loan, community bank real estate loan",
+    "category": "Rental / Long-Term",
+    "icon": "Library",
+    "overview": "Portfolio loans are mortgages that the lender keeps on their own books rather than selling to Fannie Mae or Freddie Mac. Because the lender retains the loan, they set their own underwriting criteria -- meaning they can be more flexible on credit scores, DTI ratios, number of properties, and property types. Portfolio lenders are typically local banks, community banks, and credit unions. For real estate investors who have exceeded the 10-property conventional loan limit or who don't fit standard underwriting boxes, portfolio loans are often the best path to continued growth.",
+    "bestFor": ["Investors with 10+ financed properties", "Borrowers who don't fit conventional guidelines", "Unique property types (mixed-use, commercial-residential)", "Investors wanting local banking relationships", "Experienced investors with strong net worth"],
+    "notGoodFor": ["Rate shoppers seeking the absolute lowest rate", "Those who want standardized, predictable terms", "National or remote investing (portfolio lenders prefer local)", "New investors with no portfolio or net worth", "Properties outside the lender's geographic area"],
+    "typicalTerms": {
+      "interestRate": "7-9%",
+      "loanToValue": "70-80%",
+      "term": "5-25 years (shorter amortization common)",
+      "points": "0-1.5 points",
+      "downPayment": "20-30%",
+      "closingTime": "21-45 days",
+      "prepaymentPenalty": "1-3 years (common)"
+    },
+    "qualificationRequirements": [
+      "Strong relationship with local bank or credit union",
+      "Solid net worth and liquidity demonstration",
+      "Portfolio of existing performing properties (track record)",
+      "20-30% down payment",
+      "Credit score 660+ (varies by lender)",
+      "Personal financial statement and tax returns"
+    ],
+    "prosAndCons": {
+      "pros": ["No limit on number of financed properties", "Flexible underwriting beyond Fannie/Freddie rules", "Relationship-based -- can negotiate terms", "Can finance unique property types", "Local decision-making (not corporate underwriting)", "Potential for cross-collateralization and portfolio discounts"],
+      "cons": ["Higher rates than conventional loans", "Shorter terms and balloon payments common", "Prepayment penalties often apply", "Availability depends on local market and lender", "May require larger down payments (25-30%)", "Less standardized -- each lender is different"]
+    },
+    "howToApply": [
+      "Identify local and community banks and credit unions that portfolio their loans",
+      "Prepare a personal financial statement with complete asset and liability schedule",
+      "Document your real estate portfolio: properties owned, values, rents, and performance",
+      "Schedule meetings with commercial loan officers (relationship matters)",
+      "Present your deal or portfolio refinance opportunity",
+      "Negotiate terms, complete underwriting, and close"
+    ],
+    "topLenders": ["Local community banks", "Credit unions with commercial lending", "Small regional banks", "Farm credit lenders (rural areas)", "Private banking divisions"],
+    "calculatorLink": "/tools/mortgage-calculator",
+    "relatedGuides": ["dscr-loans", "conventional-investment-loans", "commercial-loans"]
+  },
+  {
+    "slug": "commercial-loans",
+    "name": "Commercial Real Estate Loans",
+    "h1": "Commercial Real Estate Loans -- Financing 5+ Unit Properties & Mixed-Use",
+    "description": "Guide to commercial real estate loans for investors. Financing for 5+ unit multifamily, mixed-use, office, retail, and industrial properties.",
+    "keywords": "commercial real estate loans, commercial mortgage, multifamily loan, 5 unit loan, commercial property financing, CRE loans",
+    "category": "Commercial",
+    "icon": "Building",
+    "overview": "Commercial real estate loans finance properties with 5 or more residential units, or any property used for commercial purposes (office, retail, industrial, mixed-use). Unlike residential loans that focus on the borrower's personal income, commercial loans underwrite primarily based on the property's Net Operating Income (NOI) and Debt Service Coverage Ratio (DSCR). These loans are structured differently from residential mortgages -- they typically have shorter terms, balloon payments, and recourse provisions. For investors scaling beyond the 4-unit residential threshold, understanding commercial lending is essential.",
+    "bestFor": ["5+ unit multifamily apartment buildings", "Mixed-use properties (retail + residential)", "Office, retail, and industrial properties", "Experienced investors scaling their portfolio", "Value-add commercial projects"],
+    "notGoodFor": ["1-4 unit residential properties (use residential loans)", "New investors with no commercial experience", "Properties with vacancy or unstable income", "Quick closings (commercial underwriting is thorough)", "Small loan amounts under $250K (overhead too high)"],
+    "typicalTerms": {
+      "interestRate": "6.5-9%",
+      "loanToValue": "65-80%",
+      "term": "5-25 years with balloon (amortized over 20-30 years)",
+      "points": "0.5-2 points",
+      "downPayment": "20-35%",
+      "closingTime": "30-60 days",
+      "prepaymentPenalty": "Defeasance, yield maintenance, or step-down"
+    },
+    "qualificationRequirements": [
+      "Property DSCR of 1.20-1.35 minimum",
+      "20-35% down payment (varies by property type and lender)",
+      "Borrower net worth equal to or exceeding loan amount",
+      "Commercial real estate experience (preferred)",
+      "Environmental phase 1 assessment",
+      "Full property financials: rent roll, P&L, operating statements"
+    ],
+    "prosAndCons": {
+      "pros": ["Finance larger and more profitable properties", "Income-based underwriting (property cash flow focused)", "Higher leverage potential on performing assets", "Can structure as non-recourse on larger deals", "SBA loans available for owner-occupied commercial", "Significant tax advantages (depreciation, cost segregation)"],
+      "cons": ["More complex underwriting and documentation", "Higher closing costs and legal fees", "Shorter terms with balloon payments", "Prepayment penalties can be expensive", "Personal guarantees often required on smaller deals", "Requires commercial lending experience to navigate"]
+    },
+    "howToApply": [
+      "Prepare a full property analysis: rent roll, operating expenses, NOI, DSCR",
+      "Create a borrower package: personal financial statement, net worth, liquidity, experience resume",
+      "Identify appropriate lenders: CMBS, life insurance, banks, SBA, credit unions",
+      "Submit loan applications to 3-5 lenders with your property and borrower packages",
+      "Review and negotiate term sheets -- focus on rate, term, prepayment, and recourse",
+      "Complete due diligence: appraisal, environmental, survey, title, and close"
+    ],
+    "topLenders": ["Arbor Realty Trust", "Walker & Dunlop", "CBRE Lending", "Lument", "Ready Capital"],
+    "calculatorLink": "/tools/dscr-calculator",
+    "relatedGuides": ["dscr-loans", "portfolio-loans", "bridge-loans"]
+  },
+  {
+    "slug": "bridge-loans",
+    "name": "Bridge Loans",
+    "h1": "Bridge Loans for Real Estate Investors -- Short-Term Capital Solutions",
+    "description": "How bridge loans work for real estate investors. Rates, terms, use cases, and how to use bridge financing for acquisitions and value-add projects.",
+    "keywords": "bridge loans real estate, bridge financing, bridge loan rates, short term real estate loan, bridge lender, gap financing real estate",
+    "category": "Short-Term",
+    "icon": "ArrowRightLeft",
+    "overview": "Bridge loans are short-term financing designed to 'bridge' the gap between buying a property and securing permanent financing or selling it. They are commonly used by investors who need to close quickly on an acquisition while arranging long-term debt, or who are completing a value-add project (renovations, lease-up) before refinancing into permanent financing. Bridge loans are similar to hard money loans but are often available at slightly better terms for stabilized or near-stabilized properties. They are essential for investors who need speed and flexibility.",
+    "bestFor": ["Gap financing between purchase and permanent loan", "Value-add projects (renovate then refinance)", "Quick closings on time-sensitive deals", "Properties in transition (lease-up period)", "Investors waiting to season a property for DSCR refinance"],
+    "notGoodFor": ["Stabilized buy-and-hold (use DSCR or conventional)", "Borrowers with no clear exit strategy", "Properties with no path to permanent financing", "Tight-margin deals where bridge costs erode profit", "Long-term holds exceeding 24 months"],
+    "typicalTerms": {
+      "interestRate": "8-12%",
+      "loanToValue": "65-80% of as-is or after-repair value",
+      "term": "6-24 months",
+      "points": "1-3 origination points",
+      "downPayment": "10-25%",
+      "closingTime": "7-21 days",
+      "prepaymentPenalty": "Varies -- many have none after 6 months"
+    },
+    "qualificationRequirements": [
+      "Property as primary collateral",
+      "Clear exit strategy (refinance into permanent debt or sell)",
+      "10-25% down payment or equity position",
+      "Basic borrower financials (net worth, liquidity)",
+      "Property appraisal or valuation",
+      "Real estate investing experience (preferred for larger deals)"
+    ],
+    "prosAndCons": {
+      "pros": ["Fast closing in 7-21 days", "Flexible on property condition and type", "Can finance value-add and transitional properties", "Bridge to permanent financing at better terms", "Less borrower-focused underwriting than conventional", "Interest-only payments keep carrying costs manageable"],
+      "cons": ["Higher interest rates than permanent financing", "Origination points add upfront cost", "Short term creates refinance or sale pressure", "Must have a viable exit strategy", "Can be expensive if project timeline extends", "Variable terms across lenders -- shop carefully"]
+    },
+    "howToApply": [
+      "Define your exit strategy clearly: will you refinance into DSCR/conventional or sell?",
+      "Prepare property analysis: current value, projected value after improvements, timeline",
+      "Contact 3-5 bridge lenders and request term sheets",
+      "Compare terms: rate, points, LTV (as-is vs. ARV), term, extension options, prepayment",
+      "Select lender and submit full application with property and borrower documentation",
+      "Complete appraisal, underwriting, and close at title company"
+    ],
+    "topLenders": ["Lima One Capital", "Kiavi", "CoreVest", "Roc Capital", "Tidal Loans"],
+    "calculatorLink": "/tools/mortgage-calculator",
+    "relatedGuides": ["hard-money-loans", "dscr-loans", "commercial-loans"]
+  }
+]

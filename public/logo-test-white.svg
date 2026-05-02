@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 100">
+  <!-- A - elegant serif -->
+  <path d="M5 85 L35 12 L38 12 L68 85 L61 85 L52 62 L21 62 L12 85 Z M24 56 L49 56 L36.5 22 Z" fill="#ffffff"/>
+  <!-- I - clean serif -->
+  <rect x="82" y="12" width="7" height="73" fill="#ffffff"/>
+  <rect x="76" y="12" width="19" height="5" fill="#ffffff"/>
+  <rect x="76" y="80" width="19" height="5" fill="#ffffff"/>
+  <!-- W - refined -->
+  <path d="M108 12 L111 12 L127 68 L143 12 L147 12 L163 68 L179 12 L182 12 L162 85 L158 85 L143 32 L128 85 L124 85 Z" fill="#ffffff"/>
+  <!-- Cyan dot accent -->
+  <circle cx="196" cy="80" r="5.5" fill="#06b6d4"/>
+</svg>
