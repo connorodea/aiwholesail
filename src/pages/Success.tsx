@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { CheckCircle, UserPlus } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -6,6 +6,7 @@ import { useSubscription } from "@/contexts/SubscriptionContext";
 import { toast } from "@/hooks/use-toast";
 import { SEOHead } from '@/components/SEOHead';
 import { PublicLayout } from '@/components/PublicLayout';
+import { analytics } from '@/lib/analytics';
 
 const Success = () => {
   const { user } = useAuth();
@@ -13,12 +14,33 @@ const Success = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [isGuest, setIsGuest] = useState(false);
+  const hasFiredPurchase = useRef(false);
 
   // Check if this was a guest checkout
   const sessionId = searchParams.get('session_id');
   const pendingCheckout = localStorage.getItem('pendingCheckout');
 
   useEffect(() => {
+    // Fire Purchase analytics event once per page mount.
+    // Reaching /success?session_id=... means Stripe confirmed payment, so this is safe
+    // to fire regardless of auth state (guest checkout vs logged-in upgrade).
+    // Plan + price come from localStorage.selectedPlan, set in Pricing.tsx at checkout time.
+    if (sessionId && !hasFiredPurchase.current) {
+      try {
+        const raw = localStorage.getItem('selectedPlan');
+        if (raw) {
+          const plan = JSON.parse(raw) as { name?: string; price?: number };
+          if (plan && typeof plan.price === 'number' && plan.name) {
+            analytics.purchase(sessionId, plan.name, plan.price);
+            hasFiredPurchase.current = true;
+            localStorage.removeItem('selectedPlan');
+          }
+        }
+      } catch (err) {
+        console.error('Purchase tracking failed:', err);
+      }
+    }
+
     // Check if this is a guest checkout completion
     if (sessionId && pendingCheckout && !user) {
       setIsGuest(true);

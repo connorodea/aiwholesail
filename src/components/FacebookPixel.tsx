@@ -8,8 +8,10 @@ declare global {
   }
 }
 
-// Facebook Pixel ID — configurable via env var, fallback to hardcoded ID
+// Facebook Pixel IDs — both initialize and receive every fbq('track', ...) call.
+// PIXEL_ID is the original/legacy pixel; PIXEL_ID_2 is the current owner-of-record pixel.
 const PIXEL_ID = import.meta.env.VITE_FB_PIXEL_ID || '733914336084655';
+const PIXEL_ID_2 = '1671707893974290';
 
 export function FacebookPixel() {
   const location = useLocation();
@@ -27,13 +29,16 @@ export function FacebookPixel() {
       s.parentNode.insertBefore(t,s)}(window, document,'script',
       'https://connect.facebook.net/en_US/fbevents.js');
       fbq('init', '${PIXEL_ID}');
+      fbq('init', '${PIXEL_ID_2}');
       fbq('track', 'PageView');
     `;
     document.head.appendChild(script);
 
-    // Add noscript fallback
+    // Add noscript fallback (one img per pixel)
     const noscript = document.createElement('noscript');
-    noscript.innerHTML = `<img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=${PIXEL_ID}&ev=PageView&noscript=1" />`;
+    noscript.innerHTML =
+      `<img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=${PIXEL_ID}&ev=PageView&noscript=1" />` +
+      `<img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=${PIXEL_ID_2}&ev=PageView&noscript=1" />`;
     document.body.insertBefore(noscript, document.body.firstChild);
 
     return () => {
