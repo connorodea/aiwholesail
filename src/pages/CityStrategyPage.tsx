@@ -11,6 +11,7 @@ import { SEOHead } from '@/components/SEOHead';
 import { PublicLayout } from '@/components/PublicLayout';
 import { Spotlight } from '@/components/ui/spotlight';
 import cities from '@/data/cities.json';
+import { getPseoCopy } from '@/lib/pseoCopy';
 
 interface City {
   slug: string;
@@ -432,6 +433,7 @@ export default function CityStrategyPage() {
   const metrics = getStrategyMetrics(validStrategy, city);
   const relatedCities = getRelatedCities(city);
   const otherStrategies = STRATEGIES.filter((s) => s !== validStrategy);
+  const pseoCopy = getPseoCopy(`/invest/${validStrategy}/${city.slug}`);
 
   const stats = [
     { label: 'Median Home Price', value: formatCurrency(city.medianHomePrice), icon: DollarSign },
@@ -527,11 +529,39 @@ export default function CityStrategyPage() {
               <h3 className="text-xl font-bold tracking-tight text-white">{meta.label}</h3>
             </div>
             <p className="text-neutral-300 font-light leading-relaxed max-w-3xl">
-              {meta.whyItWorks(city)}
+              {pseoCopy?.intro ?? meta.whyItWorks(city)}
             </p>
           </div>
         </div>
       </section>
+
+      {pseoCopy && (
+        <section className="py-16 px-4">
+          <div className="container mx-auto max-w-7xl">
+            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-4">Local Market Insights</p>
+            <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-white mb-10 max-w-lg">
+              What investors should know about {city.city}.
+            </h2>
+            <div className="grid md:grid-cols-3 gap-4">
+              {pseoCopy.insights.map((insight, i) => (
+                <div
+                  key={i}
+                  className="border border-white/[0.05] bg-gradient-to-b from-neutral-900/50 to-transparent rounded-xl p-6"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-cyan-500/10 flex items-center justify-center text-cyan-400 mb-4 text-sm font-semibold">
+                    {i + 1}
+                  </div>
+                  <p className="text-neutral-300 font-light leading-relaxed text-sm">{insight}</p>
+                </div>
+              ))}
+            </div>
+            <div className="mt-8 border border-cyan-500/20 bg-cyan-500/5 rounded-xl p-6">
+              <p className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-2">Market Snapshot</p>
+              <p className="text-neutral-200 font-light leading-relaxed max-w-3xl">{pseoCopy.callout}</p>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ===== KEY NUMBERS ===== */}
       <section className="py-16 px-4">
