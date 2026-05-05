@@ -52,6 +52,88 @@ router.get('/', authenticate, asyncHandler(async (req, res) => {
   });
 }));
 
+// ==================== NOTIFICATION PREFERENCES ====================
+// Must be defined BEFORE /:id routes to avoid Express matching "notification-preferences" as a UUID
+
+const NOTIFICATION_DEFAULTS = {
+  deal_alerts_enabled: true,
+  deal_alerts_frequency: 'daily',
+  favorites_updates_enabled: true,
+  favorites_updates_frequency: 'daily',
+  favorites_update_types: 'all',
+  price_drops_enabled: true,
+  price_drops_frequency: 'instant',
+  weekly_digest_enabled: true,
+  ai_recommendations_enabled: false,
+  ai_recommendations_max_price: null,
+  ai_recommendations_locations: null,
+  comp_sales_enabled: false,
+  product_updates_enabled: true,
+};
+
+/**
+ * GET /api/alerts/notification-preferences
+ * Get notification preferences for the authenticated user.
+ * Returns defaults if no preferences have been saved yet.
+ */
+router.get('/notification-preferences', authenticate, asyncHandler(async (req, res) => {
+  const result = await query(
+    'SELECT * FROM notification_preferences WHERE user_id = $1',
+    [req.user.id]
+  );
+
+  if (result.rows.length === 0) {
+    return res.json({ ...NOTIFICATION_DEFAULTS, user_id: req.user.id, _isDefault: true });
+  }
+
+  res.json(result.rows[0]);
+}));
+
+/**
+ * PUT /api/alerts/notification-preferences
+ * Update notification preferences. Creates the row on first save (upsert).
+ * Accepts any subset of preference fields.
+ */
+router.put('/notification-preferences', authenticate, asyncHandler(async (req, res) => {
+  const allowedFields = [
+    'deal_alerts_enabled', 'deal_alerts_frequency',
+    'favorites_updates_enabled', 'favorites_updates_frequency', 'favorites_update_types',
+    'price_drops_enabled', 'price_drops_frequency',
+    'weekly_digest_enabled',
+    'ai_recommendations_enabled', 'ai_recommendations_max_price', 'ai_recommendations_locations',
+    'comp_sales_enabled',
+    'product_updates_enabled',
+  ];
+
+  const updates = {};
+  for (const field of allowedFields) {
+    if (req.body[field] !== undefined) {
+      updates[field] = req.body[field];
+    }
+  }
+
+  if (Object.keys(updates).length === 0) {
+    return res.status(400).json({ error: 'No valid preference fields provided' });
+  }
+
+  const setClauses = Object.keys(updates).map((key, i) => `${key} = $${i + 2}`);
+  const values = Object.values(updates);
+
+  const result = await query(
+    `INSERT INTO notification_preferences (user_id, ${Object.keys(updates).join(', ')})
+     VALUES ($1, ${values.map((_, i) => `$${i + 2}`).join(', ')})
+     ON CONFLICT (user_id) DO UPDATE SET
+       ${setClauses.join(', ')},
+       updated_at = NOW()
+     RETURNING *`,
+    [req.user.id, ...values]
+  );
+
+  res.json(result.rows[0]);
+}));
+
+// ==================== ALERT CRUD ====================
+
 /**
  * GET /api/alerts/:id
  * Get a specific alert by ID
