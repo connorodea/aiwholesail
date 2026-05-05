@@ -1,0 +1,90 @@
+{
+  "/invest/wholesale/los-angeles-ca": {
+    "intro": "Los Angeles wholesaling operates in a constrained market where median prices exceed $925,000 and inventory moves fast. The 4.5% YoY appreciation signals sustained investor demand across the flip and rental segments, creating opportunities for wholesalers who can identify off-market deals before they hit the public listings.",
+    "insights": [
+      "High median prices force most flippers and landlords to hunt for wholesale contracts below market to preserve deal margins and cash-on-cash returns.",
+      "Zip codes like 90001 and 90048 attract volume-focused flippers, while 90012 and 90036 draw long-term rental buyers seeking neighborhoods with $2,850+ monthly rent potential.",
+      "Rising market temperature compresses holding periods; wholesalers with rapid due diligence and closing timelines win assignments before other wholesalers or end-buyers counter."
+    ],
+    "callout": "At $925,000 median price and 4.5% annual growth, LA wholesalers who close in 30 days or less gain a structural advantage in a hot market where end-buyers compete aggressively for off-market contracts.",
+    "generatedAt": "2026-05-05T18:56:11.579Z",
+    "model": "claude-haiku-4-5"
+  },
+  "/invest/wholesale/new-york-ny": {
+    "intro": "New York's wholesale market moves on tight margins and faster closings than most metros. With median prices at $785K and inventory rotating in hot-market conditions, the competitive edge comes from knowing which neighborhoods still offer sub-market acquisition windows before institutional money moves in.",
+    "insights": [
+      "Manhattan's wholesale spread depends on finding off-market pocket listings in transitional blocks where holdout sellers haven't caught wind of 3.1% YoY appreciation yet.",
+      "Rental comps at $3,450/month across the five primary zip codes create a cash-flow floor that anchors your exit strategy and negotiation leverage with end buyers.",
+      "High buyer density in 10001–10019 means deal flow velocity rewards speed, but also creates competition on every listed opportunity, forcing wholesalers toward pocket networks and direct-to-owner sourcing."
+    ],
+    "callout": "At $785K median and 3.1% YoY growth, the spread threshold is narrower than secondary markets—meaning assignment fees and quick closings are non-negotiable. Rent at $3,450/month gives you a concrete rehab-hold valuation baseline when buyer appetite shifts.",
+    "generatedAt": "2026-05-05T18:56:12.094Z",
+    "model": "claude-haiku-4-5"
+  },
+  "/invest/wholesale/chicago-il": {
+    "intro": "Chicago's 2.7M-person market sits at a warm 3.8% YoY price growth—steady enough to support consistent wholesale margins without the volatility that kills deal flow. With median prices at $335K and top zips spanning from downtown 60601 to residential 60657, the city offers multiple buyer pools: flippers chasing rehabs in 60622, landlords hunting rentals near the $1,850/mo rent line, and owner-occupants across gentrifying corridors.",
+    "insights": [
+      "Wholesalers find the widest exit strategies in neighborhoods where rent-to-price ratios exceed 0.6%, unlocking both flip and rental buyer demand.",
+      "Chicago's cold winters and aging housing stock create predictable renovation scopes—investors can quote jobs confidently and close quickly on contracts.",
+      "Top zip codes like 60614 and 60657 see institutional rental buyers (REITs, larger portfolios), raising assignment fees for deals that check cash-flow boxes."
+    ],
+    "callout": "At $335K median price and $1,850 average rent, Chicago rental deals yielding 6-7% cap rates are still achievable in secondary zips—a margin floor that attracts serious buyer lists and reduces holding risk for wholesalers.",
+    "generatedAt": "2026-05-05T18:56:12.574Z",
+    "model": "claude-haiku-4-5"
+  },
+  "/invest/wholesale/san-antonio-tx": {
+    "intro": "San Antonio's 1.53M population and steady 3.9% YoY price growth create a reliable wholesale pipeline across established neighborhoods. With a $285K median and $1,400 rents, deal flow favors investors targeting owner-occupied conversions and small-portfolio flips in zip codes 78201–78215.",
+    "insights": [
+      "Warm market conditions mean less inventory pressure on wholesalers; buyers actively compete for deals, supporting consistent assignment fees.",
+      "78201 and 78204 attract owner-occupants and first-time flippers willing to pay for proven corridors, making off-market pocket listings high-velocity.",
+      "Rent-to-price ratio of 4.9% supports rental exit strategies when wholesale deals don't close to flippers, reducing carry time risk."
+    ],
+    "callout": "At $285K median price and 3.9% annual appreciation, San Antonio wholesalers can build repeatable buyer lists across 78207–78215 where cash-on-cash returns remain attractive without competing in coastal-tier markets.",
+    "generatedAt": "2026-05-05T18:56:30.521Z",
+    "model": "claude-haiku-4-5"
+  },
+  "/invest/wholesale/philadelphia-pa": {
+    "intro": "Philadelphia's wholesale market is fueled by a steady 3.4% YoY price climb and a median home value of $265,000 that leaves room for margin-friendly buys. Warm market conditions and active flipper demand across Center City and Northeast neighborhoods create consistent exit opportunities for wholesalers.",
+    "insights": [
+      "The $1,550 monthly rent-to-price ratio (1:171) signals properties priced below replacement cost, attracting both buy-and-hold investors and fix-and-flip operators seeking profitable rehabs.",
+      "Zip codes 19102, 19103, and 19106 see concentrated investor activity; wholesalers moving deals through these corridors benefit from established contractor networks and predictable buyer pools.",
+      "At 1.58M population, Philadelphia supports continuous housing demand, but wholesale velocity depends on sourcing off-market deals before the MLS—competition from other wholesalers is real, not theoretical."
+    ],
+    "callout": "A $265,000 median paired with $1,550 rents creates the spread that fuels Philadelphia wholesale deals. With 3.4% annual appreciation, your locked-in contracts gain equity before closing.",
+    "generatedAt": "2026-05-05T18:56:30.731Z",
+    "model": "claude-haiku-4-5"
+  },
+  "/invest/wholesale/phoenix-az": {
+    "intro": "Phoenix's 1.65M population and 5.1% YoY price growth create tight wholesale windows—but volume still beats velocity here. The market's hot status means cash buyers move fast, and the median price floor of $425K filters out the bottom-feeder competition. This is where wholesale margins stay healthy if you're sourcing off-market.",
+    "insights": [
+      "Phoenix's rental-heavy investor base (avg rent $1,750/mo) means cash buyers flood motivated-seller deals—your buyer list fills instantly if you find the right pocket listings.",
+      "Zip codes 85001–85008 concentrate the deals; wholesale success depends on hyperlocal sourcing rather than broad MLS scraping.",
+      "Rising market temperature compresses hold times and exit windows, so underwriting and due diligence speed matter more than price negotiation leverage."
+    ],
+    "callout": "At $425K median price and 5.1% annual growth, Phoenix wholesalers capture $8K–$15K per deal margin by moving properties 30–45 days. The investor ecosystem here (flip, rental, and wholesale) ensures consistent end-buyer demand.",
+    "generatedAt": "2026-05-05T18:56:31.064Z",
+    "model": "claude-haiku-4-5"
+  },
+  "/invest/wholesale/houston-tx": {
+    "intro": "Houston's 2.3M-person metro is moving. With median home prices at $315K and YoY growth hitting 4.2%, wholesale deals hinge on finding off-market inventory before competition does—especially in core zips like 77002 and 77006 where investor activity is densest.",
+    "insights": [
+      "Houston's hot market rewards speed over negotiation: properties move fast enough that pre-listing sourcing beats auction-floor hunting.",
+      "Rental comps at $1,650/mo create a floor for fix-and-hold buyers, meaning your wholesale buyers have clearer exit strategies than in slower metros.",
+      "Competition clusters in five zip codes; deals in adjacent neighborhoods often carry lower assignment fees due to reduced buyer density."
+    ],
+    "callout": "A hot market and 4.2% YoY appreciation attract institutional capital—which means higher buyer demand for your contracts, but also tighter margins if you're late to property discovery. The $315K median price point supports both fix-and-flip and buy-and-hold economics, widening your buyer pool.",
+    "generatedAt": "2026-05-05T18:56:31.116Z",
+    "model": "claude-haiku-4-5"
+  },
+  "/invest/wholesale/san-diego-ca": {
+    "intro": "San Diego's 1.42M population and $875K median home price create tight inventory margins—perfect for wholesale deals. With 4.8% annual appreciation and flippers actively competing in 92101-92116, finding off-market leads before they hit MLS is the only edge.",
+    "insights": [
+      "Coastal California markets compress deal timelines; wholesalers closing in 14-21 days capture contracts that retail agents lose to contingencies.",
+      "92101-92104 zip codes see heavy flip activity, meaning cash buyers cluster there—route assignments accordingly to maximize assignment fees.",
+      "Rental investors chasing $2,750 monthly rents will overpay for foundation issues; structural defects are your negotiation leverage."
+    ],
+    "callout": "San Diego's hot market temperature and 4.8% YoY growth are accelerating investor competition. At $875K median price, wholesalers who skip the MLS capture 10-15% below-market contracts before the listing cascade begins.",
+    "generatedAt": "2026-05-05T18:56:31.133Z",
+    "model": "claude-haiku-4-5"
+  }
+}
