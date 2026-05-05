@@ -10,25 +10,35 @@
  * Output: src/data/generated/pseo-copy.json
  *   { "<route>": { intro, insights[3], callout, generatedAt, model } }
  *
+ * Modes:
+ *  - Default (BATCH): submits all routes via Anthropic Message Batches API.
+ *    50% off standard pricing. Sub-1-hour typical turnaround, 24h SLA.
+ *    Full 5,500-route run costs ~$6.46 vs ~$13 sync.
+ *  - --sync: classic concurrent calls. Use for small samples where you want
+ *    immediate output (e.g. --limit 5 to spot-check quality).
+ *
+ * Output: src/data/generated/pseo-copy.json
+ *   { "<route>": { intro, insights[3], callout, generatedAt, model } }
+ *
  * Cost & safety guardrails:
  *  - Model: claude-haiku-4-5 (cheap, fast for 250-word intros)
- *  - Hard $200 budget cap (defensive — actual full-run cost is ~$10-15)
+ *  - Hard $200 budget cap (defensive — actual batch cost ~$6.50, sync ~$13)
  *  - Output caching: skip routes already in pseo-copy.json (zero-cost re-runs)
- *  - Concurrency: 5 parallel requests max
- *  - Rate limit: exponential backoff on 429
+ *  - Sync mode: 5-way concurrency, exponential backoff on 429
+ *  - Batch mode: single batch up to 100k requests, polls every 60s
  *  - Note: prompt-prefix caching (cache_control marker on system block) is set
  *    but inactive because the prompt is below Haiku 4.5's 4096-token minimum.
  *    The marker is harmless and activates automatically if the system prompt
- *    grows past the threshold (e.g. by adding worked style examples).
+ *    grows past the threshold.
  *
  * Usage:
- *   node scripts/generate-pseo-content.js                         # full run
- *   node scripts/generate-pseo-content.js --limit 10              # 10 routes only
- *   node scripts/generate-pseo-content.js --dry-run               # no API calls
- *   node scripts/generate-pseo-content.js --target invest         # only /invest/* routes
- *   node scripts/generate-pseo-content.js --target deals          # only /deals/* routes
- *   node scripts/generate-pseo-content.js --regenerate            # ignore cache
- *   node scripts/generate-pseo-content.js --budget 50             # override $ cap
+ *   node scripts/generate-pseo-content.js                  # full run via batch
+ *   node scripts/generate-pseo-content.js --sync --limit 5 # 5 sync calls (testing)
+ *   node scripts/generate-pseo-content.js --dry-run        # no API calls
+ *   node scripts/generate-pseo-content.js --target invest  # only /invest/* routes
+ *   node scripts/generate-pseo-content.js --regenerate     # ignore cache
+ *   node scripts/generate-pseo-content.js --budget 50      # override $ cap
+ *   node scripts/generate-pseo-content.js --resume <id>    # resume an existing batch
  *
  * Requires: ANTHROPIC_API_KEY env var.
  */
@@ -58,14 +68,20 @@ const REGENERATE = flag('regenerate');
 const TARGET = arg('target', 'all'); // 'invest' | 'deals' | 'all'
 const BUDGET_USD = parseFloat(arg('budget', '200'));
 const CONCURRENCY = parseInt(arg('concurrency', '5'), 10);
+const SYNC_MODE = flag('sync'); // default is batch
+const RESUME_BATCH_ID = arg('resume', null);
+const POLL_INTERVAL_MS = parseInt(arg('poll', '60000'), 10);
 
 // --------------------------------------------------------------------------
 // Constants
 // --------------------------------------------------------------------------
 const MODEL = 'claude-haiku-4-5';
 // Pricing per 1M tokens (haiku 4.5)
-const INPUT_COST_PER_M = 1.0;
-const OUTPUT_COST_PER_M = 5.0;
+const INPUT_COST_PER_M_SYNC = 1.0;
+const OUTPUT_COST_PER_M_SYNC = 5.0;
+// Batch tier: 50% off both directions
+const INPUT_COST_PER_M_BATCH = 0.5;
+const OUTPUT_COST_PER_M_BATCH = 2.5;
 const CACHE_WRITE_MULT = 1.25;
 const CACHE_READ_MULT = 0.1;
 
@@ -226,10 +242,10 @@ async function callClaude(route, attempt = 0) {
     if (cacheWriteTokens > 0) cacheWrites++;
 
     const cost =
-      (inTokens / 1e6) * INPUT_COST_PER_M +
-      (outTokens / 1e6) * OUTPUT_COST_PER_M +
-      (cacheReadTokens / 1e6) * INPUT_COST_PER_M * CACHE_READ_MULT +
-      (cacheWriteTokens / 1e6) * INPUT_COST_PER_M * CACHE_WRITE_MULT;
+      (inTokens / 1e6) * INPUT_COST_PER_M_SYNC +
+      (outTokens / 1e6) * OUTPUT_COST_PER_M_SYNC +
+      (cacheReadTokens / 1e6) * INPUT_COST_PER_M_SYNC * CACHE_READ_MULT +
+      (cacheWriteTokens / 1e6) * INPUT_COST_PER_M_SYNC * CACHE_WRITE_MULT;
     totalCost += cost;
 
     // Extract text (response.content is an array of content blocks)
@@ -322,6 +338,165 @@ async function runWorkers(toGenerate) {
 }
 
 // --------------------------------------------------------------------------
+// Batch mode helpers
+// --------------------------------------------------------------------------
+
+// Anthropic Batches API uses route.key as custom_id. They accept letters,
+// digits, underscores, and hyphens — so we replace `/` with `__`.
+function routeKeyToCustomId(key) {
+  return key.replace(/^\//, '').replace(/\//g, '__');
+}
+function customIdToRouteKey(id) {
+  return '/' + id.replace(/__/g, '/');
+}
+
+function buildBatchRequest(route) {
+  return {
+    custom_id: routeKeyToCustomId(route.key),
+    params: {
+      model: MODEL,
+      max_tokens: 800,
+      system: [
+        { type: 'text', text: SYSTEM_PROMPT, cache_control: { type: 'ephemeral' } },
+      ],
+      messages: [{ role: 'user', content: buildUserPrompt(route) }],
+    },
+  };
+}
+
+function parseAndValidate(messageContent, routeKey) {
+  const textBlock = messageContent.find((b) => b.type === 'text');
+  if (!textBlock) throw new Error('No text block in response');
+  let raw = textBlock.text.trim();
+  raw = raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
+  let parsed;
+  try {
+    parsed = JSON.parse(raw);
+  } catch (e) {
+    throw new Error(`JSON parse failed for ${routeKey}: ${e.message}\nRaw: ${raw.slice(0, 200)}`);
+  }
+  if (typeof parsed.intro !== 'string' || !Array.isArray(parsed.insights) || typeof parsed.callout !== 'string') {
+    throw new Error(`Bad schema for ${routeKey}: ${JSON.stringify(parsed).slice(0, 200)}`);
+  }
+  if (parsed.insights.length !== 3) {
+    if (parsed.insights.length > 3) parsed.insights = parsed.insights.slice(0, 3);
+    else while (parsed.insights.length < 3) parsed.insights.push('');
+  }
+  return {
+    intro: parsed.intro,
+    insights: parsed.insights,
+    callout: parsed.callout,
+    generatedAt: new Date().toISOString(),
+    model: MODEL,
+  };
+}
+
+async function runBatch(toGenerate) {
+  let batchId = RESUME_BATCH_ID;
+
+  // Project cost up-front (rough — assumes 600 input + 350 output per request)
+  const projectedInputTokens = toGenerate.length * 600;
+  const projectedOutputTokens = toGenerate.length * 350;
+  const projectedCost =
+    (projectedInputTokens / 1e6) * INPUT_COST_PER_M_BATCH +
+    (projectedOutputTokens / 1e6) * OUTPUT_COST_PER_M_BATCH;
+  console.log(`Projected cost (batch): ~$${projectedCost.toFixed(2)} (50% off sync)`);
+
+  if (projectedCost > BUDGET_USD) {
+    console.error(`Projected cost $${projectedCost.toFixed(2)} exceeds budget $${BUDGET_USD}. Use --budget to override.`);
+    process.exit(1);
+  }
+
+  if (!batchId) {
+    console.log(`Submitting batch of ${toGenerate.length} requests...`);
+    const requests = toGenerate.map(buildBatchRequest);
+    const batch = await client.messages.batches.create({ requests });
+    batchId = batch.id;
+    console.log(`Batch ID: ${batchId}`);
+    console.log(`Status:   ${batch.processing_status}`);
+    console.log(`(Resume later with: --resume ${batchId})`);
+  } else {
+    console.log(`Resuming batch: ${batchId}`);
+  }
+
+  // Poll
+  let batch;
+  while (true) {
+    batch = await client.messages.batches.retrieve(batchId);
+    const c = batch.request_counts;
+    const elapsedMin = batch.created_at
+      ? ((Date.now() - new Date(batch.created_at).getTime()) / 60000).toFixed(1)
+      : '?';
+    process.stdout.write(
+      `  [${batch.processing_status}] processing=${c.processing} succeeded=${c.succeeded} errored=${c.errored} expired=${c.expired || 0} (${elapsedMin}m)\n`,
+    );
+    if (batch.processing_status === 'ended') break;
+    await new Promise((r) => setTimeout(r, POLL_INTERVAL_MS));
+  }
+
+  console.log('Batch ended. Streaming results...');
+
+  // Stream results back. The SDK returns a JSONL parser-iterable.
+  const routeMap = new Map(toGenerate.map((r) => [routeKeyToCustomId(r.key), r.key]));
+  let succeeded = 0;
+  let failed = 0;
+  let actualInputTokens = 0;
+  let actualOutputTokens = 0;
+  const failures = [];
+
+  for await (const result of await client.messages.batches.results(batchId)) {
+    const routeKey = customIdToRouteKey(result.custom_id);
+    const r = result.result;
+    if (r.type === 'succeeded') {
+      try {
+        const enriched = parseAndValidate(r.message.content, routeKey);
+        existing[routeKey] = enriched;
+        succeeded++;
+        const u = r.message.usage || {};
+        actualInputTokens += (u.input_tokens || 0) + (u.cache_read_input_tokens || 0) + (u.cache_creation_input_tokens || 0);
+        actualOutputTokens += u.output_tokens || 0;
+      } catch (err) {
+        failed++;
+        failures.push({ key: routeKey, error: err.message });
+      }
+    } else if (r.type === 'errored') {
+      failed++;
+      failures.push({ key: routeKey, error: `${r.error?.type || 'errored'}: ${r.error?.message || 'unknown'}` });
+    } else if (r.type === 'expired') {
+      failed++;
+      failures.push({ key: routeKey, error: 'expired (24h SLA exceeded)' });
+    } else if (r.type === 'canceled' || r.type === 'cancelled') {
+      failed++;
+      failures.push({ key: routeKey, error: 'canceled' });
+    }
+
+    // Persist every 100 results
+    if ((succeeded + failed) % 100 === 0) {
+      fs.writeFileSync(OUT_PATH, JSON.stringify(existing, null, 2) + '\n');
+    }
+  }
+
+  const actualCost =
+    (actualInputTokens / 1e6) * INPUT_COST_PER_M_BATCH +
+    (actualOutputTokens / 1e6) * OUTPUT_COST_PER_M_BATCH;
+  totalCost = actualCost;
+
+  console.log('\n--- Batch done ---');
+  console.log(`Succeeded:        ${succeeded}`);
+  console.log(`Failed/expired:   ${failed}`);
+  console.log(`Input tokens:     ${actualInputTokens.toLocaleString()}`);
+  console.log(`Output tokens:    ${actualOutputTokens.toLocaleString()}`);
+  console.log(`Actual cost:      $${actualCost.toFixed(3)}`);
+  if (failures.length > 0) {
+    console.log('\nFailures:');
+    for (const f of failures.slice(0, 20)) console.log(`  ${f.key}: ${f.error}`);
+    if (failures.length > 20) console.log(`  ... ${failures.length - 20} more`);
+  }
+
+  return { succeeded, failed, failures };
+}
+
+// --------------------------------------------------------------------------
 // Main
 // --------------------------------------------------------------------------
 async function main() {
@@ -332,9 +507,11 @@ async function main() {
   let toGenerate = REGENERATE ? routes : routes.filter((r) => !existing[r.key]);
   if (LIMIT > 0) toGenerate = toGenerate.slice(0, LIMIT);
 
+  const mode = SYNC_MODE ? 'SYNC' : 'BATCH';
+  console.log(`Mode:             ${mode}${RESUME_BATCH_ID ? ' (resume ' + RESUME_BATCH_ID + ')' : ''}`);
   console.log(`To generate:      ${toGenerate.length}`);
   console.log(`Model:            ${MODEL}`);
-  console.log(`Concurrency:      ${CONCURRENCY}`);
+  if (SYNC_MODE) console.log(`Concurrency:      ${CONCURRENCY}`);
   console.log(`Budget cap:       $${BUDGET_USD.toFixed(2)}`);
   console.log(`Output:           ${OUT_PATH}`);
 
@@ -348,30 +525,26 @@ async function main() {
     return;
   }
 
-  if (toGenerate.length === 0) {
+  if (toGenerate.length === 0 && !RESUME_BATCH_ID) {
     console.log('Nothing to generate. Use --regenerate to overwrite.');
     return;
   }
 
   const start = Date.now();
-  const { processed, succeeded, failed, failures } = await runWorkers(toGenerate);
+
+  if (SYNC_MODE) {
+    await runWorkers(toGenerate);
+  } else {
+    await runBatch(toGenerate);
+  }
+
   const elapsed = ((Date.now() - start) / 1000).toFixed(1);
 
   // Final flush
   fs.writeFileSync(OUT_PATH, JSON.stringify(existing, null, 2) + '\n');
 
-  console.log('\n--- Done ---');
-  console.log(`Processed: ${processed}`);
-  console.log(`Succeeded: ${succeeded}`);
-  console.log(`Failed:    ${failed}`);
-  console.log(`Cache hits: ${cacheHits} / writes: ${cacheWrites}`);
-  console.log(`Total cost: $${totalCost.toFixed(3)}`);
+  console.log(`\nTotal cost: $${totalCost.toFixed(3)}`);
   console.log(`Elapsed:    ${elapsed}s`);
-  if (failures.length > 0) {
-    console.log('\nFailures:');
-    for (const f of failures.slice(0, 20)) console.log(`  ${f.key}: ${f.error}`);
-    if (failures.length > 20) console.log(`  ... ${failures.length - 20} more`);
-  }
 }
 
 main().catch((err) => {

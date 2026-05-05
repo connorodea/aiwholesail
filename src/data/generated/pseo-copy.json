@@ -86,5 +86,60 @@
     "callout": "San Diego's hot market temperature and 4.8% YoY growth are accelerating investor competition. At $875K median price, wholesalers who skip the MLS capture 10-15% below-market contracts before the listing cascade begins.",
     "generatedAt": "2026-05-05T18:56:31.133Z",
     "model": "claude-haiku-4-5"
+  },
+  "/invest/wholesale/san-jose-ca": {
+    "intro": "San Jose wholesaling operates in a market where $1.35M median prices and steady 3.5% YoY growth create compressed margins that reward speed and local intel. The rental investor base here is active but capital-constrained—deals that close in 14 days move faster than those requiring 45-day contingencies.",
+    "insights": [
+      "High entry prices mean wholesale spreads compress unless you control off-market sourcing in 95110–95116 where rental demand remains consistent.",
+      "Turnover velocity matters: with median prices above $1.3M, cash buyers filter aggressively on inspection windows and proof of funds.",
+      "95113 and 95126 show rental concentration; properties here attract investor bids but competition from other wholesalers intensifies when deals hit public channels."
+    ],
+    "callout": "At $1.35M median and $3,200 average rent, the rent-to-price ratio remains tight enough that only off-market deals generate wholesale spreads. Direct-to-landlord acquisition in the top five zips captures investors before listing portals do.",
+    "generatedAt": "2026-05-05T19:03:02.431Z",
+    "model": "claude-haiku-4-5"
+  },
+  "/invest/wholesale/dallas-tx": {
+    "intro": "Dallas wholesaling operates in a supply-constrained market where median prices hit $385k and inventory moves fast. With 4.6% year-over-year growth and consistent investor demand, finding off-market deals before they hit the MLS is the only edge that matters.",
+    "insights": [
+      "Tight inventory across Dallas zips forces wholesale deals into competitive bidding wars unless sourced directly from sellers facing time pressure or distress.",
+      "Zip codes 75201, 75204, and 75206 concentrate institutional capital; profitable wholesale assignments depend on targeting neighborhoods one tier out where assignment spreads remain viable.",
+      "Rising rents ($1,750 monthly baseline) attract buy-and-hold competition for your deals; locking in contracts before investor groups discover them determines margin survival."
+    ],
+    "callout": "Dallas's hot market temperature and 4.6% YoY growth compress deal windows—wholesalers who source properties off-market capture 30-45 day assignment opportunities before retail competition narrows spreads to single digits.",
+    "generatedAt": "2026-05-05T19:03:02.768Z",
+    "model": "claude-haiku-4-5"
+  },
+  "/invest/wholesale/jacksonville-fl": {
+    "intro": "Jacksonville's nearly 1 million residents and 4.1% annual price growth create consistent wholesale opportunities across multiple neighborhoods. The gap between median home value ($320k) and rental income ($1,550/mo) attracts both fix-and-flip operators and buy-and-hold investors—two buyer segments that fuel wholesale deal flow. Warm market conditions mean assignment fees compress faster than in cooler markets, but velocity compensates.",
+    "insights": [
+      "Rental yield on $320k median homes exceeds 5.8% annually, making Jacksonville attractive to out-of-state portfolios looking for cash flow alongside appreciation.",
+      "32202, 32204, and 32205 zips cluster downtown and near employment centers where lease rates remain stable even during seasonal tourism dips.",
+      "Wholesalers capturing deals under $240k in these hot zips face tighter margins against flip budgets, but can move them to landlords willing to rent rather than renovate."
+    ],
+    "callout": "With 980k residents and median prices at $320k, Jacksonville sits in the sweet spot—large enough for consistent buyer demand, small enough that wholesalers still find sub-market deals before MLS saturation. Price growth at 4.1% YoY keeps investor confidence steady.",
+    "generatedAt": "2026-05-05T19:06:38.437Z",
+    "model": "claude-haiku-4-5"
+  },
+  "/invest/wholesale/fort-worth-tx": {
+    "intro": "Fort Worth's wholesale market runs on velocity: 960k residents, 4.3% YoY price growth, and a median home price of $345k create constant churn in neighborhoods like 76102 and 76109. The city's hot market temperature means off-market deals move faster than MLS inventory, rewarding wholesalers who lock contracts before retail competition surfaces.",
+    "insights": [
+      "Rental demand at $1,600/mo anchors buyer pools—cash investors and landlords compete fiercely for discounted single-family contracts in workforce neighborhoods.",
+      "Price appreciation signals rising floor prices; wholesalers need assignment spreads of 8-12% to clear in secondary zips where comps move weekly.",
+      "Fort Worth's top zips cluster near downtown and transit corridors, concentrating buyer networks but fragmenting deal flow across neighborhoods with different risk profiles."
+    ],
+    "callout": "At $345k median and 4.3% annual growth, Fort Worth's market tightens assignment margins faster than slower markets—wholesalers here win on volume and speed, not spread size. Rental yields at $1,600/mo keep cash buyers aggressive.",
+    "generatedAt": "2026-05-05T19:06:38.438Z",
+    "model": "claude-haiku-4-5"
+  },
+  "/invest/wholesale/austin-tx": {
+    "intro": "Austin's wholesale market has shifted into a buyer's window as price growth slowed to 2.8% YoY and inventory began clearing more slowly. With a $475K median and $1,900 rents supporting 4.8% cap rates on rentals, off-market deals now compete primarily on terms, not speed—the exact environment where wholesalers who source directly gain leverage.",
+    "insights": [
+      "Cool market temperature means less competition from retail flippers, allowing wholesalers to negotiate tighter spreads with cash buyers who dominate Austin's investor base.",
+      "Zip codes 78701, 78702, and 78704 remain price-resilient due to downtown proximity; 78745 and 78748 show softer velocity, creating assignment opportunities in emerging rental markets.",
+      "Slowed price appreciation means exit strategies hinge on cash-flow fundamentals, not appreciation—wholesale buyers here are screened harder for ability to hold or rent, reducing default risk."
+    ],
+    "callout": "Austin's population crossed 1M residents while median prices held steady at $475K. Wholesalers sourcing off-market deals in transition zones now find rental-focused buyers willing to close faster than traditional flippers, compressing hold times even as market temperature cools.",
+    "generatedAt": "2026-05-05T19:06:38.438Z",
+    "model": "claude-haiku-4-5"
   }
 }
