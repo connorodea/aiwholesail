@@ -10,7 +10,10 @@ echo "AIWholesail API Deployment Script"
 echo "========================================="
 
 # Configuration
-API_DIR="/root/aiwholesail-api"
+# Note: this is the legacy interactive bootstrap script for first-time VPS setup.
+# Routine deploys are now handled by systemd + the GitHub Actions workflow at
+# .github/workflows/deploy.yml — do NOT use this script for ongoing deploys.
+API_DIR="/var/www/aiwholesail-api"
 DB_NAME="aiwholesail"
 DB_USER="aiwholesail"
 
