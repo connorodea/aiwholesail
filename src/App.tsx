@@ -89,8 +89,6 @@ const Counties = lazy(() => import("./pages/Counties"));
 const CountyPage = lazy(() => import("./pages/CountyPage"));
 const FAQTopics = lazy(() => import("./pages/FAQTopics"));
 const FAQTopicPage = lazy(() => import("./pages/FAQTopicPage"));
-const RentalMarkets = lazy(() => import("./pages/RentalMarkets"));
-const RentalMarketPage = lazy(() => import("./pages/RentalMarketPage"));
 const FinancingGuides = lazy(() => import("./pages/FinancingGuides"));
 const FinancingGuidePage = lazy(() => import("./pages/FinancingGuidePage"));
 const RehabCosts = lazy(() => import("./pages/RehabCosts"));
@@ -240,8 +238,6 @@ const App = () => (
                 <Route path="/property-types/:slug" element={<PropertyTypePage />} />
                 <Route path="/zip" element={<ZipCodes />} />
                 <Route path="/zip/:slug" element={<ZipCodePage />} />
-                <Route path="/rental-markets" element={<RentalMarkets />} />
-                <Route path="/rental-markets/:slug" element={<RentalMarketPage />} />
                 <Route path="/financing" element={<FinancingGuides />} />
                 <Route path="/financing/:slug" element={<FinancingGuidePage />} />
                 <Route path="/rehab-costs" element={<RehabCosts />} />
