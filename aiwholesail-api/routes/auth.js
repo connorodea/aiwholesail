@@ -560,6 +560,12 @@ router.get('/me', authenticate, asyncHandler(async (req, res) => {
 router.post('/forgot-password', [
   body('email').isEmail().normalizeEmail()
 ], asyncHandler(async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    await logSecurityEvent('password_reset_validation_failed', { errors: errors.array() }, null, req);
+    return res.status(400).json({ error: 'Validation failed', errors: errors.array() });
+  }
+
   const { email } = req.body;
   const normalizedEmail = email.toLowerCase().trim();
 
@@ -694,6 +700,12 @@ router.post('/reset-password', [
   body('token').notEmpty(),
   body('password').isLength({ min: 8 })
 ], asyncHandler(async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    await logSecurityEvent('password_reset_confirm_validation_failed', { errors: errors.array() }, null, req);
+    return res.status(400).json({ error: 'Validation failed', errors: errors.array() });
+  }
+
   const { token, password } = req.body;
 
   // Validate password strength
