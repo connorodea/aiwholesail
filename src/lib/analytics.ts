@@ -17,10 +17,10 @@
  * - contact_form_submit
  */
 
+// gtag/dataLayer are declared in src/components/GoogleAnalytics.tsx;
+// duplicating with a wider signature triggers TS2717. Only add fbq here.
 declare global {
   interface Window {
-    gtag: (...args: any[]) => void;
-    dataLayer: any[];
     fbq: (command: string, ...args: any[]) => void;
   }
 }

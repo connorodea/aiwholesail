@@ -211,8 +211,8 @@ export function AIWholesaleAnalyzer({ properties, market }: AIWholesaleAnalyzerP
         parsed.market = parsed.market || market;
         parsed.generated_at_utc = parsed.analysis_timestamp || new Date().toISOString();
         parsed.assumptions = parsed.assumptions || {
-          target_fee: analysisParams.targetFee || 10000,
-          min_spread_pct: analysisParams.minSpread || 0.2,
+          target_fee: analysisParams.target_fee || 10000,
+          min_spread_pct: analysisParams.min_spread_pct || 0.2,
           mao_rule_pct_of_arv: 0.7,
         };
       }
@@ -222,7 +222,7 @@ export function AIWholesaleAnalyzer({ properties, market }: AIWholesaleAnalyzerP
         parsed.ranked_opportunities = [];
         parsed.market = market;
         parsed.generated_at_utc = new Date().toISOString();
-        parsed.assumptions = { target_fee: analysisParams.targetFee || 10000, min_spread_pct: analysisParams.minSpread || 0.2, mao_rule_pct_of_arv: 0.7 };
+        parsed.assumptions = { target_fee: analysisParams.target_fee || 10000, min_spread_pct: analysisParams.min_spread_pct || 0.2, mao_rule_pct_of_arv: 0.7 };
       }
 
       setAnalysisResult(parsed);

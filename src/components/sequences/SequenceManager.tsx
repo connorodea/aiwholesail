@@ -27,6 +27,7 @@ export function SequenceManager() {
   const {
     templates, activeSequences, loading, fetchAll,
     createTemplate, deleteTemplate, pauseSequence, resumeSequence, cancelSequence,
+    assignSequence,
   } = useSequences();
   const [showBuilder, setShowBuilder] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<SequenceTemplate | null>(null);
@@ -38,7 +39,7 @@ export function SequenceManager() {
   // Fetch leads when assign dialog opens
   useEffect(() => {
     if (showAssign) {
-      leadsApi.list('limit=50').then(res => {
+      leadsApi.list({ limit: 50 }).then(res => {
         if (!res.error && (res.data as any)?.leads) {
           setAvailableLeads((res.data as any).leads);
         }
