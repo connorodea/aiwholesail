@@ -93,6 +93,11 @@ Make examples:
   aiwholesail-clip make --source ./demo.mp4 --start 0:00 --end 0:30 \\
     --caption "Stop comping deals by hand."
 
+  # Brand with logo watermark + master-transcript subtitles
+  aiwholesail-clip make --source ./demo.mp4 --start 1:30 --end 2:00 \\
+    --watermark ./public/logos/aiw-mark.png --watermark-position bottom-right \\
+    --subtitles ./demo.srt
+
 Publish:
   aiwholesail-clip publish --run 20260505-203011-demo-1 --platforms youtube,tiktok
   aiwholesail-clip publish --run <runId> --dry-run
@@ -104,6 +109,13 @@ Common flags:
   --segments-file <path>   JSON file with segment objects
   --aspect <preset>        vertical (default) | square | horizontal | source
   --caption <text>         Burn caption + use as social caption fallback
+  --burn-caption=false     Skip burn-in (caption still flows to social copy)
+  --watermark <path>       PNG/SVG/JPG to overlay (logo)
+  --watermark-position     bottom-right (default) | bottom-left | top-right |
+                           top-left | top-center | bottom-center | center
+  --watermark-opacity      0–1 (default 0.85)
+  --watermark-scale        Logo width as fraction of video width (default 0.18)
+  --subtitles <path.srt>   Burn subtitles; cues are auto-shifted to clip start
   --hashtags "#a,#b"       Override hashtags
   --topic <slug>           Pull copy from social-short-campaign.json
   --config <path>          Campaign config file (default: ${path.relative(process.cwd(), DEFAULT_CONFIG_PATH)})
@@ -199,6 +211,11 @@ async function handleMake(parsed) {
     dryRun: boolFlag(parsed.flags['dry-run']),
     skipRender: boolFlag(parsed.flags['skip-render']),
     burnCaption: parsed.flags['burn-caption'] === 'false' || parsed.flags['burn-caption'] === false ? false : true,
+    watermark: parsed.flags.watermark ? String(parsed.flags.watermark) : null,
+    watermarkPosition: parsed.flags['watermark-position'] ? String(parsed.flags['watermark-position']) : undefined,
+    watermarkOpacity: parsed.flags['watermark-opacity'] != null ? Number(parsed.flags['watermark-opacity']) : undefined,
+    watermarkScale: parsed.flags['watermark-scale'] != null ? Number(parsed.flags['watermark-scale']) : undefined,
+    subtitlesPath: parsed.flags.subtitles ? path.resolve(String(parsed.flags.subtitles)) : null,
     platforms: parsePlatforms(parsed.flags.platforms, DEFAULT_PLATFORMS),
     runIdPrefix: parsed.flags['run-prefix'] ? String(parsed.flags['run-prefix']) : null,
     baseDir: resolveBaseDir(parsed.flags),

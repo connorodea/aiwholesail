@@ -162,16 +162,41 @@ function buildAspectFilter(presetKey) {
   ].join(',');
 }
 
-let cachedDrawTextSupport = null;
-function ffmpegSupportsDrawText() {
-  if (cachedDrawTextSupport !== null) return cachedDrawTextSupport;
+let cachedFilters = null;
+function ffmpegFilters() {
+  if (cachedFilters !== null) return cachedFilters;
   try {
-    const out = execFileSync('ffmpeg', ['-hide_banner', '-filters'], { stdio: ['ignore', 'pipe', 'pipe'] }).toString();
-    cachedDrawTextSupport = /\bdrawtext\b/.test(out);
+    cachedFilters = execFileSync('ffmpeg', ['-hide_banner', '-filters'], { stdio: ['ignore', 'pipe', 'pipe'] }).toString();
   } catch (error) {
-    cachedDrawTextSupport = false;
+    cachedFilters = '';
   }
-  return cachedDrawTextSupport;
+  return cachedFilters;
+}
+
+function ffmpegSupportsFilter(name) {
+  return new RegExp(`\\b${name}\\b`).test(ffmpegFilters());
+}
+
+function ffmpegSupportsDrawText() {
+  return ffmpegSupportsFilter('drawtext');
+}
+
+const WATERMARK_POSITIONS = {
+  'top-left': { x: 'main_w*0.04', y: 'main_h*0.04' },
+  'top-right': { x: 'main_w-overlay_w-main_w*0.04', y: 'main_h*0.04' },
+  'bottom-left': { x: 'main_w*0.04', y: 'main_h-overlay_h-main_h*0.04' },
+  'bottom-right': { x: 'main_w-overlay_w-main_w*0.04', y: 'main_h-overlay_h-main_h*0.04' },
+  'top-center': { x: '(main_w-overlay_w)/2', y: 'main_h*0.04' },
+  'bottom-center': { x: '(main_w-overlay_w)/2', y: 'main_h-overlay_h-main_h*0.04' },
+  'center': { x: '(main_w-overlay_w)/2', y: '(main_h-overlay_h)/2' },
+};
+
+function resolveWatermarkPosition(position) {
+  const key = String(position || 'bottom-right').toLowerCase();
+  if (!WATERMARK_POSITIONS[key]) {
+    throw new Error(`Unknown watermark position "${position}". Use one of: ${Object.keys(WATERMARK_POSITIONS).join(', ')}.`);
+  }
+  return WATERMARK_POSITIONS[key];
 }
 
 function escapeDrawText(value) {
@@ -196,6 +221,62 @@ function buildCaptionFilter(caption) {
   ].join(':');
 }
 
+function parseSrtTimestamp(value) {
+  const match = String(value).trim().match(/^(\d{1,2}):(\d{2}):(\d{2})[,.](\d{1,3})$/);
+  if (!match) throw new Error(`Invalid SRT timestamp "${value}"`);
+  const [, hh, mm, ss, ms] = match;
+  return Number(hh) * 3600 + Number(mm) * 60 + Number(ss) + Number(ms.padEnd(3, '0')) / 1000;
+}
+
+function formatSrtTimestamp(seconds) {
+  const total = Math.max(0, seconds);
+  const hh = Math.floor(total / 3600);
+  const mm = Math.floor((total % 3600) / 60);
+  const ss = Math.floor(total % 60);
+  const ms = Math.round((total - Math.floor(total)) * 1000);
+  const pad = (value, width = 2) => String(value).padStart(width, '0');
+  return `${pad(hh)}:${pad(mm)}:${pad(ss)},${pad(ms, 3)}`;
+}
+
+function shiftSrtForSegment(srtPath, segmentStart, segmentDuration) {
+  const raw = fs.readFileSync(srtPath, 'utf8');
+  const blocks = raw.replace(/\r\n/g, '\n').split(/\n\n+/);
+  const segmentEnd = segmentStart + segmentDuration;
+  const shifted = [];
+  let counter = 1;
+
+  blocks.forEach((block) => {
+    const lines = block.split('\n').filter((line) => line.length > 0);
+    if (lines.length < 2) return;
+    const headerIndex = lines.findIndex((line) => line.includes('-->'));
+    if (headerIndex === -1) return;
+
+    const [startStr, endStr] = lines[headerIndex].split('-->').map((part) => part.trim());
+    const start = parseSrtTimestamp(startStr);
+    const end = parseSrtTimestamp(endStr);
+    if (end <= segmentStart || start >= segmentEnd) return;
+
+    const newStart = Math.max(0, start - segmentStart);
+    const newEnd = Math.min(segmentEnd - segmentStart, end - segmentStart);
+    if (newEnd <= newStart) return;
+
+    const text = lines.slice(headerIndex + 1).join('\n');
+    shifted.push(
+      `${counter}\n${formatSrtTimestamp(newStart)} --> ${formatSrtTimestamp(newEnd)}\n${text}`
+    );
+    counter += 1;
+  });
+
+  return shifted.join('\n\n') + (shifted.length > 0 ? '\n' : '');
+}
+
+function escapeSubtitlePath(value) {
+  return String(value)
+    .replace(/\\/g, '\\\\')
+    .replace(/'/g, "\\'")
+    .replace(/:/g, '\\:');
+}
+
 function runFfmpeg(args) {
   return new Promise((resolve, reject) => {
     const child = execFile('ffmpeg', args, { maxBuffer: 1024 * 1024 * 32 }, (error, stdout, stderr) => {
@@ -211,34 +292,88 @@ function runFfmpeg(args) {
   });
 }
 
-async function clipSegment({ source, start, duration, outputPath, aspect, caption, burnCaption = true }) {
+async function clipSegment({
+  source,
+  start,
+  duration,
+  outputPath,
+  aspect,
+  caption,
+  burnCaption = true,
+  watermark,
+  watermarkPosition = 'bottom-right',
+  watermarkOpacity = 0.85,
+  watermarkScale = 0.18,
+  subtitlesPath,
+}) {
   ensureDir(path.dirname(outputPath));
 
-  const filters = [];
+  const videoChain = [];
   const aspectFilter = buildAspectFilter(aspect);
-  if (aspectFilter) filters.push(aspectFilter);
+  if (aspectFilter) videoChain.push(aspectFilter);
+
   let captionBurned = false;
   if (caption && burnCaption) {
     if (ffmpegSupportsDrawText()) {
-      filters.push(buildCaptionFilter(caption));
+      videoChain.push(buildCaptionFilter(caption));
       captionBurned = true;
     } else {
       console.warn('[videoClipper] ffmpeg drawtext filter unavailable — skipping caption burn-in. Reinstall ffmpeg with libfreetype to enable.');
     }
   }
 
+  let subtitlesBurned = false;
+  let tempSrtPath = null;
+  if (subtitlesPath) {
+    if (!ffmpegSupportsFilter('subtitles')) {
+      console.warn('[videoClipper] ffmpeg subtitles filter unavailable — skipping subtitle burn-in.');
+    } else if (!fs.existsSync(subtitlesPath)) {
+      throw new Error(`Subtitles file not found: ${subtitlesPath}`);
+    } else {
+      tempSrtPath = path.join(path.dirname(outputPath), `.subs-${path.basename(outputPath, path.extname(outputPath))}.srt`);
+      fs.writeFileSync(tempSrtPath, shiftSrtForSegment(subtitlesPath, start, duration));
+      videoChain.push(`subtitles=filename='${escapeSubtitlePath(tempSrtPath)}':force_style='Fontsize=22,Outline=2,Shadow=0'`);
+      subtitlesBurned = true;
+    }
+  }
+
+  let watermarkApplied = false;
+  let watermarkResolved = null;
+  if (watermark) {
+    watermarkResolved = path.resolve(watermark);
+    if (!fs.existsSync(watermarkResolved)) {
+      throw new Error(`Watermark file not found: ${watermarkResolved}`);
+    }
+    watermarkApplied = true;
+  }
+
   const args = [
     '-y',
     '-ss', String(start),
     '-i', source,
-    '-t', String(duration),
   ];
 
-  if (filters.length > 0) {
-    args.push('-vf', filters.join(','));
+  if (watermarkApplied) {
+    args.push('-loop', '1', '-i', watermarkResolved);
+
+    const baseChain = videoChain.length > 0 ? videoChain.join(',') : 'null';
+    const pos = resolveWatermarkPosition(watermarkPosition);
+    const opacity = Math.max(0, Math.min(1, Number(watermarkOpacity)));
+    const scale = Math.max(0.02, Math.min(1, Number(watermarkScale)));
+
+    const filterComplex = [
+      `[0:v]${baseChain}[base]`,
+      `[1:v]format=rgba,colorchannelmixer=aa=${opacity},scale=iw*${scale}:-1[wm]`,
+      `[base][wm]overlay=${pos.x}:${pos.y}:format=auto:shortest=1[v]`,
+    ].join(';');
+
+    args.push('-filter_complex', filterComplex, '-map', '[v]', '-map', '0:a?');
+  } else if (videoChain.length > 0) {
+    args.push('-vf', videoChain.join(','));
   }
 
   args.push(
+    '-t', String(duration),
     '-c:v', 'libx264',
     '-preset', 'medium',
     '-crf', '20',
@@ -249,8 +384,15 @@ async function clipSegment({ source, start, duration, outputPath, aspect, captio
     outputPath
   );
 
-  await runFfmpeg(args);
-  return { outputPath, captionBurned };
+  try {
+    await runFfmpeg(args);
+  } finally {
+    if (tempSrtPath && fs.existsSync(tempSrtPath)) {
+      try { fs.unlinkSync(tempSrtPath); } catch (error) { /* ignore */ }
+    }
+  }
+
+  return { outputPath, captionBurned, subtitlesBurned, watermarkApplied };
 }
 
 function buildBrief({ config, topic, caption, hashtags }) {
@@ -366,6 +508,11 @@ async function runClipPipeline(options = {}) {
     dryRun = false,
     skipRender = false,
     burnCaption = true,
+    watermark,
+    watermarkPosition,
+    watermarkOpacity,
+    watermarkScale,
+    subtitlesPath,
     platforms,
     runIdPrefix,
     baseDir = GENERATED_CLIP_DIR,
@@ -431,6 +578,8 @@ async function runClipPipeline(options = {}) {
       || null;
 
     let captionBurned = false;
+    let subtitlesBurned = false;
+    let watermarkApplied = false;
     if (!skipRender) {
       const result = await clipSegment({
         source: sourcePath,
@@ -440,8 +589,15 @@ async function runClipPipeline(options = {}) {
         aspect,
         caption: segmentCaption,
         burnCaption,
+        watermark,
+        watermarkPosition,
+        watermarkOpacity,
+        watermarkScale,
+        subtitlesPath,
       });
       captionBurned = result.captionBurned;
+      subtitlesBurned = result.subtitlesBurned;
+      watermarkApplied = result.watermarkApplied;
     }
 
     const brief = buildBrief({ config, topic, caption: segmentCaption, hashtags });
@@ -495,6 +651,9 @@ async function runClipPipeline(options = {}) {
       },
       aspect,
       captionBurned,
+      subtitlesBurned,
+      watermarkApplied,
+      watermark: watermarkApplied ? path.resolve(watermark) : null,
       configPath: resolvedConfigPath,
       topicSlug: topic?.slug || null,
       theme: brief.theme,
