@@ -27,6 +27,13 @@ const { DEFAULT_CONFIG_PATH, DEFAULT_PLATFORMS, loadCampaignConfig, parsePlatfor
 
 const { proposeSegmentsFromSilence } = require('../services/silenceDetect');
 
+const {
+  enqueue: enqueueClip,
+  listQueue,
+  removeFromQueue,
+  processDueItems,
+} = require('../services/clipScheduler');
+
 function parseArgs(argv) {
   const args = { positionals: [], flags: {} };
 
@@ -80,6 +87,10 @@ Commands:
   transcribe          Generate an SRT from a source via OpenAI Whisper
   suggest             Propose clip segments from a transcript via GPT
   silence-suggest     Propose clip segments from audio silence (no API)
+  queue add           Enqueue an existing run for deferred publish
+  queue list          List queued items (optionally --status pending)
+  queue remove        Remove an item by --id
+  queue run           Process due items once (worker is in scripts/)
   make                Clip a source into one or more shorts
   thumbnail           Extract a single frame as a YT/IG cover image
   runs                List clip runs
@@ -201,6 +212,82 @@ async function handleDoctor(parsed) {
   checks.forEach((check) => {
     console.log(`${check.ok ? 'OK  ' : 'FAIL'} ${check.name}: ${check.detail}`);
   });
+}
+
+async function handleQueue(parsed) {
+  const sub = parsed.positionals[1] || 'list';
+  const baseDir = resolveBaseDir(parsed.flags);
+
+  if (sub === 'add') {
+    const runId = parsed.flags.run || parsed.positionals[2];
+    if (!runId) throw new Error('queue add requires --run <runId>.');
+    const item = enqueueClip({
+      runId,
+      scheduledFor: parsed.flags.at ? String(parsed.flags.at) : null,
+      platforms: parsePlatforms(parsed.flags.platforms, DEFAULT_PLATFORMS),
+      baseDir,
+    });
+    if (boolFlag(parsed.flags.json)) {
+      console.log(JSON.stringify(item, null, 2));
+    } else {
+      console.log(`Queued ${item.runId} for ${item.scheduledFor} (id ${item.id})`);
+    }
+    return;
+  }
+
+  if (sub === 'list') {
+    const items = listQueue({
+      baseDir,
+      status: parsed.flags.status ? String(parsed.flags.status) : null,
+    });
+    if (boolFlag(parsed.flags.json)) {
+      console.log(JSON.stringify({ items }, null, 2));
+      return;
+    }
+    if (items.length === 0) {
+      console.log('Queue is empty.');
+      return;
+    }
+    items.forEach((item) => {
+      const platforms = (item.platforms || []).join(',') || '(default)';
+      console.log(`${item.id}`);
+      console.log(`  Run:        ${item.runId}`);
+      console.log(`  When:       ${item.scheduledFor}`);
+      console.log(`  Platforms:  ${platforms}`);
+      console.log(`  Status:     ${item.status}${item.error ? ` (${item.error})` : ''}`);
+    });
+    return;
+  }
+
+  if (sub === 'remove') {
+    const id = parsed.flags.id || parsed.positionals[2];
+    if (!id) throw new Error('queue remove requires --id <id>.');
+    const removed = removeFromQueue(id, baseDir);
+    console.log(removed ? `Removed ${id}` : `No item with id ${id}`);
+    return;
+  }
+
+  if (sub === 'run') {
+    const results = await processDueItems({
+      baseDir,
+      dryRun: boolFlag(parsed.flags['dry-run']),
+      max: parsed.flags.max != null ? Number(parsed.flags.max) : 25,
+    });
+    if (boolFlag(parsed.flags.json)) {
+      console.log(JSON.stringify({ results }, null, 2));
+      return;
+    }
+    if (results.length === 0) {
+      console.log('No due items.');
+      return;
+    }
+    results.forEach((entry) => {
+      console.log(`${entry.runId} -> ${entry.status}${entry.error ? ` (${entry.error})` : ''}`);
+    });
+    return;
+  }
+
+  throw new Error(`Unknown queue subcommand "${sub}". Use add, list, remove, or run.`);
 }
 
 async function handleSilenceSuggest(parsed) {
@@ -545,6 +632,9 @@ async function main(argv = process.argv.slice(2)) {
       return;
     case 'silence-suggest':
       await handleSilenceSuggest(parsed);
+      return;
+    case 'queue':
+      await handleQueue(parsed);
       return;
     case 'thumbnail':
       await handleThumbnail(parsed);
