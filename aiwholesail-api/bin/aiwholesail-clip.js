@@ -7,6 +7,7 @@ const fs = require('fs');
 
 const {
   GENERATED_CLIP_DIR,
+  formatTimestamp,
   inspectClipperEnvironment,
   listClipRuns,
   loadClipRunManifest,
@@ -16,9 +17,11 @@ const {
   probeMedia,
   publishExistingClipRun,
   runClipPipeline,
+  suggestClipsFromTranscript,
+  transcribeAudio,
 } = require('../services/videoClipper');
 
-const { DEFAULT_CONFIG_PATH, DEFAULT_PLATFORMS, parsePlatforms } = require('../services/socialAutomation');
+const { DEFAULT_CONFIG_PATH, DEFAULT_PLATFORMS, loadCampaignConfig, parsePlatforms, pickTopic } = require('../services/socialAutomation');
 
 function parseArgs(argv) {
   const args = { positionals: [], flags: {} };
@@ -69,6 +72,8 @@ Commands:
   help                Show this help text
   doctor              Check ffmpeg / publish env
   probe               Print ffprobe info for a source file
+  transcribe          Generate an SRT from a source via OpenAI Whisper
+  suggest             Propose clip segments from a transcript via GPT
   make                Clip a source into one or more shorts
   runs                List clip runs
   show                Show a clip run manifest
@@ -97,6 +102,19 @@ Make examples:
   aiwholesail-clip make --source ./demo.mp4 --start 1:30 --end 2:00 \\
     --watermark ./public/logos/aiw-mark.png --watermark-position bottom-right \\
     --subtitles ./demo.srt
+
+End-to-end auto pipeline:
+  # 1. Transcribe a long-form recording
+  aiwholesail-clip transcribe --source ./webinar.mp4 --out ./webinar.srt
+
+  # 2. Get GPT to propose clip segments + captions
+  aiwholesail-clip suggest --srt ./webinar.srt --topic instant-deal-alerts \\
+    --count 3 --out ./suggestions.json
+
+  # 3. Cut and publish
+  aiwholesail-clip make --source ./webinar.mp4 \\
+    --segments-file ./suggestions.json --subtitles ./webinar.srt \\
+    --watermark ./public/logo-white.png --topic instant-deal-alerts --publish
 
 Publish:
   aiwholesail-clip publish --run 20260505-203011-demo-1 --platforms youtube,tiktok
@@ -176,6 +194,88 @@ async function handleDoctor(parsed) {
   checks.forEach((check) => {
     console.log(`${check.ok ? 'OK  ' : 'FAIL'} ${check.name}: ${check.detail}`);
   });
+}
+
+async function handleTranscribe(parsed) {
+  const source = parsed.flags.source || parsed.positionals[1];
+  if (!source) throw new Error('transcribe requires --source <path>.');
+
+  const result = await transcribeAudio({
+    source: path.resolve(String(source)),
+    outputPath: parsed.flags.out ? path.resolve(String(parsed.flags.out)) : null,
+    language: parsed.flags.language ? String(parsed.flags.language) : null,
+    model: parsed.flags.model ? String(parsed.flags.model) : null,
+    prompt: parsed.flags.prompt ? String(parsed.flags.prompt) : null,
+  });
+
+  if (boolFlag(parsed.flags.json)) {
+    console.log(JSON.stringify({ srtPath: result.srtPath }, null, 2));
+    return;
+  }
+
+  console.log(`Transcript written: ${result.srtPath}`);
+}
+
+async function handleSuggest(parsed) {
+  const srt = parsed.flags.srt || parsed.flags.subtitles;
+  if (!srt) throw new Error('suggest requires --srt <path>.');
+
+  const configPath = resolveConfigPath(parsed.flags);
+  let config = {};
+  let topic = null;
+  if (configPath) {
+    const loaded = loadCampaignConfig(configPath);
+    config = loaded.config;
+    if (parsed.flags.topic) {
+      topic = pickTopic(config, String(parsed.flags.topic));
+    }
+  }
+
+  const count = parsed.flags.count != null ? Number(parsed.flags.count) : 3;
+  const minDuration = parsed.flags['min-duration'] != null ? Number(parsed.flags['min-duration']) : 18;
+  const maxDuration = parsed.flags['max-duration'] != null ? Number(parsed.flags['max-duration']) : 35;
+
+  const suggestions = await suggestClipsFromTranscript({
+    srtPath: path.resolve(String(srt)),
+    config,
+    topic,
+    count,
+    durationRange: [minDuration, maxDuration],
+    model: parsed.flags.model ? String(parsed.flags.model) : null,
+  });
+
+  const serializable = suggestions.map((entry) => ({
+    label: entry.label,
+    start: formatTimestamp(entry.start),
+    end: formatTimestamp(entry.end),
+    duration: entry.duration,
+    caption: entry.caption,
+    hook: entry.hook,
+    reason: entry.reason,
+  }));
+
+  if (parsed.flags.out) {
+    const outPath = path.resolve(String(parsed.flags.out));
+    fs.writeFileSync(outPath, JSON.stringify({ segments: serializable }, null, 2));
+    if (!boolFlag(parsed.flags.json)) {
+      console.log(`Suggestions written: ${outPath}`);
+    }
+  }
+
+  if (boolFlag(parsed.flags.json)) {
+    console.log(JSON.stringify({ segments: serializable }, null, 2));
+    return;
+  }
+
+  if (!parsed.flags.out) {
+    console.log(`\n=== ${serializable.length} clip suggestion(s) ===`);
+    serializable.forEach((entry, index) => {
+      console.log(`\n${index + 1}. ${entry.label}  (${entry.start} → ${entry.end}, ${entry.duration.toFixed(1)}s)`);
+      if (entry.hook) console.log(`   Hook:    ${entry.hook}`);
+      if (entry.caption) console.log(`   Caption: ${entry.caption}`);
+      if (entry.reason) console.log(`   Why:     ${entry.reason}`);
+    });
+  }
 }
 
 async function handleProbe(parsed) {
@@ -349,6 +449,12 @@ async function main(argv = process.argv.slice(2)) {
       return;
     case 'probe':
       await handleProbe(parsed);
+      return;
+    case 'transcribe':
+      await handleTranscribe(parsed);
+      return;
+    case 'suggest':
+      await handleSuggest(parsed);
       return;
     case 'make':
       await handleMake(parsed);

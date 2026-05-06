@@ -1,6 +1,8 @@
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 const { execFile, execFileSync } = require('child_process');
+const axios = require('axios');
 
 const {
   DEFAULT_PLATFORMS,
@@ -13,6 +15,8 @@ const {
   writeJson,
   ensureDir,
 } = require('./socialAutomation');
+
+const { callOpenAI } = require('./openai');
 
 const API_DIR = path.join(__dirname, '..');
 const GENERATED_CLIP_DIR = path.join(API_DIR, 'generated-clips');
@@ -749,6 +753,181 @@ function inspectClipperEnvironment() {
   return checks;
 }
 
+async function extractAudioToMp3(sourcePath, outputPath) {
+  ensureDir(path.dirname(outputPath));
+  await runFfmpeg([
+    '-y',
+    '-i', sourcePath,
+    '-vn',
+    '-ac', '1',
+    '-ar', '16000',
+    '-c:a', 'libmp3lame',
+    '-b:a', '64k',
+    outputPath,
+  ]);
+  return outputPath;
+}
+
+function buildMultipart(fields, fileField) {
+  const boundary = `----aiwhsl-${Date.now().toString(16)}-${Math.random().toString(16).slice(2)}`;
+  const chunks = [];
+  const push = (value) => chunks.push(typeof value === 'string' ? Buffer.from(value, 'utf8') : value);
+
+  Object.entries(fields).forEach(([key, value]) => {
+    if (value == null) return;
+    push(`--${boundary}\r\n`);
+    push(`Content-Disposition: form-data; name="${key}"\r\n\r\n`);
+    push(`${value}\r\n`);
+  });
+
+  push(`--${boundary}\r\n`);
+  push(`Content-Disposition: form-data; name="${fileField.name}"; filename="${fileField.filename}"\r\n`);
+  push(`Content-Type: ${fileField.contentType}\r\n\r\n`);
+  push(fileField.buffer);
+  push('\r\n');
+  push(`--${boundary}--\r\n`);
+
+  return { boundary, body: Buffer.concat(chunks) };
+}
+
+async function transcribeAudio({ source, outputPath, language, model, prompt }) {
+  if (!process.env.OPENAI_API_KEY) {
+    throw new Error('OPENAI_API_KEY is required for transcription.');
+  }
+
+  const sourcePath = path.resolve(source);
+  if (!fs.existsSync(sourcePath)) {
+    throw new Error(`Source file not found: ${sourcePath}`);
+  }
+
+  const tempAudio = path.join(os.tmpdir(), `aiwhsl-transcribe-${Date.now()}.mp3`);
+  let resolvedSrt = outputPath
+    ? path.resolve(outputPath)
+    : path.join(path.dirname(sourcePath), `${path.basename(sourcePath, path.extname(sourcePath))}.srt`);
+
+  try {
+    await extractAudioToMp3(sourcePath, tempAudio);
+    const audioBuffer = fs.readFileSync(tempAudio);
+
+    const fields = {
+      model: model || process.env.WHISPER_MODEL || 'whisper-1',
+      response_format: 'srt',
+    };
+    if (language) fields.language = language;
+    if (prompt) fields.prompt = prompt;
+
+    const { boundary, body } = buildMultipart(fields, {
+      name: 'file',
+      filename: 'audio.mp3',
+      contentType: 'audio/mpeg',
+      buffer: audioBuffer,
+    });
+
+    const response = await axios.post('https://api.openai.com/v1/audio/transcriptions', body, {
+      headers: {
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+        'Content-Type': `multipart/form-data; boundary=${boundary}`,
+        'Content-Length': body.length,
+      },
+      maxBodyLength: Infinity,
+      maxContentLength: Infinity,
+      responseType: 'text',
+      transformResponse: [(value) => value],
+    });
+
+    ensureDir(path.dirname(resolvedSrt));
+    fs.writeFileSync(resolvedSrt, response.data);
+
+    return { srtPath: resolvedSrt, audioPath: null };
+  } finally {
+    if (fs.existsSync(tempAudio)) {
+      try { fs.unlinkSync(tempAudio); } catch (error) { /* ignore */ }
+    }
+  }
+}
+
+async function suggestClipsFromTranscript({
+  srtPath,
+  config,
+  topic,
+  count = 3,
+  durationRange = [18, 35],
+  model,
+}) {
+  if (!process.env.OPENAI_API_KEY) {
+    throw new Error('OPENAI_API_KEY is required for suggestions.');
+  }
+  if (!fs.existsSync(srtPath)) {
+    throw new Error(`SRT file not found: ${srtPath}`);
+  }
+
+  const transcript = fs.readFileSync(srtPath, 'utf8');
+  const brand = config?.brandName || 'AIWholesail';
+  const cta = config?.primaryCta || 'Start your 7-day free trial';
+  const audience = config?.primaryAudience || 'Real estate investors';
+
+  const systemPrompt = [
+    'You pick the highest-performing short-form clips out of a long-form recording.',
+    'Each clip should stand alone, hook in the first second, and pay off before it ends.',
+    'Return JSON only — no prose, no code fences.',
+  ].join(' ');
+
+  const schema = {
+    clips: [{
+      label: 'short-slug',
+      start: 'mm:ss or hh:mm:ss',
+      end: 'mm:ss or hh:mm:ss',
+      hook: 'first-line hook (max 90 chars)',
+      caption: 'social caption (max 220 chars)',
+      reason: 'why this clip will perform',
+    }],
+  };
+
+  const userMessage = [
+    `Brand: ${brand}. Audience: ${audience}. CTA to weave in: ${cta}.`,
+    topic ? `Topic angle: ${topic.title || topic.slug}. Hook style: ${topic.hook || ''}` : null,
+    `Pick ${count} clips, each ${durationRange[0]}-${durationRange[1]} seconds, with timestamps that fall on the SRT cues below. Use clip-relative captions, not raw transcript copy.`,
+    `Response schema: ${JSON.stringify(schema)}`,
+    'Transcript (SRT):',
+    transcript.length > 18000 ? `${transcript.slice(0, 18000)}\n... [truncated]` : transcript,
+  ].filter(Boolean).join('\n\n');
+
+  const response = await callOpenAI([
+    { role: 'system', content: systemPrompt },
+    { role: 'user', content: userMessage },
+  ], {
+    model: model || process.env.CLIP_SUGGEST_MODEL || 'gpt-4.1',
+    maxTokens: 1500,
+  });
+
+  const content = response?.choices?.[0]?.message?.content || '';
+  const cleaned = content.trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
+  const firstBrace = cleaned.indexOf('{');
+  const lastBrace = cleaned.lastIndexOf('}');
+  if (firstBrace === -1 || lastBrace === -1) {
+    throw new Error('Model did not return JSON.');
+  }
+  const parsed = JSON.parse(cleaned.slice(firstBrace, lastBrace + 1));
+  const clips = Array.isArray(parsed.clips) ? parsed.clips : [];
+
+  return clips.map((entry, index) => {
+    const start = parseTimestamp(entry.start);
+    const end = parseTimestamp(entry.end);
+    if (!Number.isFinite(start) || !Number.isFinite(end) || end <= start) {
+      throw new Error(`Suggestion ${index + 1} has invalid timestamps.`);
+    }
+    return {
+      label: entry.label || `clip-${index + 1}`,
+      start,
+      end,
+      duration: end - start,
+      caption: entry.caption || entry.hook || null,
+      hook: entry.hook || null,
+      reason: entry.reason || null,
+    };
+  });
+}
+
 module.exports = {
   ASPECT_PRESETS,
   GENERATED_CLIP_DIR,
@@ -756,6 +935,7 @@ module.exports = {
   buildBrief,
   buildClipRunPaths,
   clipSegment,
+  extractAudioToMp3,
   formatTimestamp,
   inspectClipperEnvironment,
   listClipRuns,
@@ -766,4 +946,6 @@ module.exports = {
   probeMedia,
   publishExistingClipRun,
   runClipPipeline,
+  suggestClipsFromTranscript,
+  transcribeAudio,
 };
