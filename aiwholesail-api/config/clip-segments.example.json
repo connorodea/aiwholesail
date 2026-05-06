@@ -1,0 +1,28 @@
+{
+  "segments": [
+    {
+      "start": "02:15",
+      "end": "02:43",
+      "label": "manual-comping-pain",
+      "caption": "If you are still comping deals across ten Zillow tabs and a spreadsheet, you are losing the deal before you even open the calculator."
+    },
+    {
+      "start": "08:50",
+      "end": "09:25",
+      "label": "ai-deal-scoring",
+      "caption": "Most listings in your market are not worth underwriting. AI scoring kills the weak ones in seconds so your time goes to the deals with real spread."
+    },
+    {
+      "start": "14:10",
+      "end": "14:34",
+      "label": "instant-deal-alerts",
+      "caption": "The cleanest deal in your market should not depend on you refreshing a search at the right minute. Set your buy box and let the alerts find you."
+    },
+    {
+      "start": "21:40",
+      "end": "22:12",
+      "label": "market-expansion",
+      "caption": "Pulling spread on a new city used to take a weekend. Search any ZIP, see scored deals on day one, and expand into a new market without hiring an analyst."
+    }
+  ]
+}

@@ -25,6 +25,8 @@ const {
 
 const { DEFAULT_CONFIG_PATH, DEFAULT_PLATFORMS, loadCampaignConfig, parsePlatforms, pickTopic } = require('../services/socialAutomation');
 
+const { proposeSegmentsFromSilence } = require('../services/silenceDetect');
+
 function parseArgs(argv) {
   const args = { positionals: [], flags: {} };
 
@@ -77,6 +79,7 @@ Commands:
   probe               Print ffprobe info for a source file
   transcribe          Generate an SRT from a source via OpenAI Whisper
   suggest             Propose clip segments from a transcript via GPT
+  silence-suggest     Propose clip segments from audio silence (no API)
   make                Clip a source into one or more shorts
   thumbnail           Extract a single frame as a YT/IG cover image
   runs                List clip runs
@@ -198,6 +201,47 @@ async function handleDoctor(parsed) {
   checks.forEach((check) => {
     console.log(`${check.ok ? 'OK  ' : 'FAIL'} ${check.name}: ${check.detail}`);
   });
+}
+
+async function handleSilenceSuggest(parsed) {
+  const source = parsed.flags.source || parsed.positionals[1];
+  if (!source) throw new Error('silence-suggest requires --source <path>.');
+
+  const segments = await proposeSegmentsFromSilence(path.resolve(String(source)), {
+    noiseDb: parsed.flags['noise-db'] != null ? Number(parsed.flags['noise-db']) : -30,
+    minSilenceSeconds: parsed.flags['min-silence'] != null ? Number(parsed.flags['min-silence']) : 0.6,
+    minClipSeconds: parsed.flags['min-duration'] != null ? Number(parsed.flags['min-duration']) : 12,
+    maxClipSeconds: parsed.flags['max-duration'] != null ? Number(parsed.flags['max-duration']) : 60,
+    targetSeconds: parsed.flags['target-duration'] != null ? Number(parsed.flags['target-duration']) : 28,
+    maxClips: parsed.flags['max-clips'] != null ? Number(parsed.flags['max-clips']) : 5,
+    labelPrefix: parsed.flags['label-prefix'] ? String(parsed.flags['label-prefix']) : 'silent-cut',
+  });
+
+  const serializable = segments.map((entry) => ({
+    label: entry.label,
+    start: formatTimestamp(entry.start),
+    end: formatTimestamp(entry.end),
+    duration: entry.duration,
+  }));
+
+  if (parsed.flags.out) {
+    fs.writeFileSync(path.resolve(String(parsed.flags.out)), JSON.stringify({ segments: serializable }, null, 2));
+    if (!boolFlag(parsed.flags.json)) {
+      console.log(`Suggestions written: ${path.resolve(String(parsed.flags.out))}`);
+    }
+  }
+
+  if (boolFlag(parsed.flags.json)) {
+    console.log(JSON.stringify({ segments: serializable }, null, 2));
+    return;
+  }
+
+  if (!parsed.flags.out) {
+    console.log(`\n=== ${serializable.length} silence-cut segment(s) ===`);
+    serializable.forEach((entry, index) => {
+      console.log(`${index + 1}. ${entry.label}  ${entry.start} → ${entry.end}  (${entry.duration.toFixed(1)}s)`);
+    });
+  }
 }
 
 async function handleFetch(parsed) {
@@ -498,6 +542,9 @@ async function main(argv = process.argv.slice(2)) {
       return;
     case 'fetch':
       await handleFetch(parsed);
+      return;
+    case 'silence-suggest':
+      await handleSilenceSuggest(parsed);
       return;
     case 'thumbnail':
       await handleThumbnail(parsed);
