@@ -7,6 +7,8 @@ const fs = require('fs');
 
 const {
   GENERATED_CLIP_DIR,
+  extractThumbnail,
+  fetchSource,
   formatTimestamp,
   inspectClipperEnvironment,
   listClipRuns,
@@ -70,11 +72,13 @@ Usage:
 
 Commands:
   help                Show this help text
-  doctor              Check ffmpeg / publish env
+  doctor              Check ffmpeg / yt-dlp / publish env
+  fetch               Download a source from a URL via yt-dlp
   probe               Print ffprobe info for a source file
   transcribe          Generate an SRT from a source via OpenAI Whisper
   suggest             Propose clip segments from a transcript via GPT
   make                Clip a source into one or more shorts
+  thumbnail           Extract a single frame as a YT/IG cover image
   runs                List clip runs
   show                Show a clip run manifest
   publish             Publish an existing clip run
@@ -194,6 +198,48 @@ async function handleDoctor(parsed) {
   checks.forEach((check) => {
     console.log(`${check.ok ? 'OK  ' : 'FAIL'} ${check.name}: ${check.detail}`);
   });
+}
+
+async function handleFetch(parsed) {
+  const url = parsed.flags.url || parsed.positionals[1];
+  if (!url) throw new Error('fetch requires --url <url>.');
+
+  const result = await fetchSource({
+    url: String(url),
+    outputPath: parsed.flags.out ? String(parsed.flags.out) : null,
+    audioOnly: boolFlag(parsed.flags['audio-only']),
+    maxHeight: parsed.flags['max-height'] != null ? Number(parsed.flags['max-height']) : null,
+    format: parsed.flags.format ? String(parsed.flags.format) : null,
+    cookiesFile: parsed.flags.cookies ? String(parsed.flags.cookies) : null,
+  });
+
+  if (boolFlag(parsed.flags.json)) {
+    console.log(JSON.stringify(result, null, 2));
+    return;
+  }
+  console.log(`Downloaded: ${result.downloadedPath}`);
+}
+
+async function handleThumbnail(parsed) {
+  const source = parsed.flags.source || parsed.positionals[1];
+  if (!source) throw new Error('thumbnail requires --source <path>.');
+
+  const result = await extractThumbnail({
+    source: path.resolve(String(source)),
+    timestamp: parsed.flags.at != null ? parsed.flags.at : (parsed.flags.timestamp != null ? parsed.flags.timestamp : 0),
+    outputPath: parsed.flags.out ? path.resolve(String(parsed.flags.out)) : null,
+    watermark: parsed.flags.watermark ? String(parsed.flags.watermark) : null,
+    watermarkPosition: parsed.flags['watermark-position'] ? String(parsed.flags['watermark-position']) : undefined,
+    watermarkOpacity: parsed.flags['watermark-opacity'] != null ? Number(parsed.flags['watermark-opacity']) : undefined,
+    watermarkScale: parsed.flags['watermark-scale'] != null ? Number(parsed.flags['watermark-scale']) : undefined,
+    hook: parsed.flags.hook ? String(parsed.flags.hook) : null,
+  });
+
+  if (boolFlag(parsed.flags.json)) {
+    console.log(JSON.stringify(result, null, 2));
+    return;
+  }
+  console.log(`Thumbnail: ${result.thumbnailPath}  (frame at ${formatTimestamp(result.timestamp)})`);
 }
 
 async function handleTranscribe(parsed) {
@@ -449,6 +495,12 @@ async function main(argv = process.argv.slice(2)) {
       return;
     case 'probe':
       await handleProbe(parsed);
+      return;
+    case 'fetch':
+      await handleFetch(parsed);
+      return;
+    case 'thumbnail':
+      await handleThumbnail(parsed);
       return;
     case 'transcribe':
       await handleTranscribe(parsed);

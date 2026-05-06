@@ -730,8 +730,17 @@ function inspectClipperEnvironment() {
 
   const ffmpegOk = probe('ffmpeg');
   const ffprobeOk = probe('ffprobe');
+  const ytdlpOk = (() => {
+    try {
+      execFileSync('yt-dlp', ['--version'], { stdio: 'pipe' });
+      return true;
+    } catch (error) {
+      return false;
+    }
+  })();
 
   checks.push({ name: 'ffmpeg', ok: ffmpegOk, detail: ffmpegOk ? 'Installed' : 'Missing from PATH' });
+  checks.push({ name: 'yt-dlp', ok: ytdlpOk, detail: ytdlpOk ? 'Installed (optional, for fetch)' : 'Not installed (fetch disabled)' });
   checks.push({ name: 'ffprobe', ok: ffprobeOk, detail: ffprobeOk ? 'Installed' : 'Missing from PATH' });
 
   const groups = [
@@ -751,6 +760,122 @@ function inspectClipperEnvironment() {
   });
 
   return checks;
+}
+
+function ytdlpAvailable() {
+  try {
+    execFileSync('yt-dlp', ['--version'], { stdio: 'pipe' });
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
+function runYtdlp(args) {
+  return new Promise((resolve, reject) => {
+    const child = execFile('yt-dlp', args, { maxBuffer: 1024 * 1024 * 32 }, (error, stdout, stderr) => {
+      if (error) {
+        const reason = stderr ? stderr.toString().split('\n').slice(-15).join('\n') : error.message;
+        reject(new Error(`yt-dlp failed: ${reason}`));
+        return;
+      }
+      resolve({ stdout: stdout.toString(), stderr: stderr.toString() });
+    });
+    child.on('error', reject);
+  });
+}
+
+async function fetchSource({ url, outputPath, audioOnly = false, maxHeight, format, cookiesFile }) {
+  if (!url) throw new Error('fetch requires a url.');
+  if (!ytdlpAvailable()) {
+    throw new Error('yt-dlp is not installed. Install via "pip install yt-dlp" or "brew install yt-dlp".');
+  }
+
+  const resolved = path.resolve(outputPath || path.join(process.cwd(), '%(title).80s-%(id)s.%(ext)s'));
+  ensureDir(path.dirname(resolved));
+
+  const args = [url, '-o', resolved, '--no-playlist', '--no-progress', '--print', 'after_move:filepath'];
+
+  if (audioOnly) {
+    args.push('-f', 'bestaudio', '--extract-audio', '--audio-format', 'mp3');
+  } else if (format) {
+    args.push('-f', format);
+  } else if (maxHeight) {
+    args.push('-f', `bestvideo[height<=${maxHeight}]+bestaudio/best[height<=${maxHeight}]`, '--merge-output-format', 'mp4');
+  } else {
+    args.push('-f', 'bestvideo+bestaudio/best', '--merge-output-format', 'mp4');
+  }
+
+  if (cookiesFile) args.push('--cookies', cookiesFile);
+
+  const { stdout } = await runYtdlp(args);
+  const lines = stdout.split('\n').map((line) => line.trim()).filter(Boolean);
+  const downloadedPath = lines[lines.length - 1];
+  if (!downloadedPath || !fs.existsSync(downloadedPath)) {
+    throw new Error('yt-dlp did not report a final filepath.');
+  }
+  return { url, downloadedPath };
+}
+
+async function extractThumbnail({
+  source,
+  timestamp = 0,
+  outputPath,
+  watermark,
+  watermarkPosition,
+  watermarkOpacity,
+  watermarkScale,
+  hook,
+}) {
+  const sourcePath = path.resolve(source);
+  if (!fs.existsSync(sourcePath)) {
+    throw new Error(`Source file not found: ${sourcePath}`);
+  }
+
+  const resolvedTs = parseTimestamp(timestamp) || 0;
+  const target = outputPath
+    ? path.resolve(outputPath)
+    : path.join(path.dirname(sourcePath), `${path.basename(sourcePath, path.extname(sourcePath))}-thumb-${Math.floor(resolvedTs)}s.jpg`);
+
+  ensureDir(path.dirname(target));
+
+  const videoChain = [];
+  if (hook && ffmpegSupportsDrawText()) {
+    videoChain.push(buildCaptionFilter(hook));
+  } else if (hook) {
+    console.warn('[videoClipper] drawtext unavailable — skipping hook overlay on thumbnail.');
+  }
+
+  const args = ['-y', '-ss', String(resolvedTs), '-i', sourcePath];
+  let watermarkApplied = false;
+
+  if (watermark) {
+    const watermarkResolved = path.resolve(watermark);
+    if (!fs.existsSync(watermarkResolved)) {
+      throw new Error(`Watermark file not found: ${watermarkResolved}`);
+    }
+    watermarkApplied = true;
+    args.push('-i', watermarkResolved);
+
+    const baseChain = videoChain.length > 0 ? videoChain.join(',') : 'null';
+    const pos = resolveWatermarkPosition(watermarkPosition);
+    const opacity = Math.max(0, Math.min(1, Number(watermarkOpacity != null ? watermarkOpacity : 0.85)));
+    const scale = Math.max(0.02, Math.min(1, Number(watermarkScale != null ? watermarkScale : 0.18)));
+
+    const filterComplex = [
+      `[0:v]${baseChain}[base]`,
+      `[1:v]format=rgba,colorchannelmixer=aa=${opacity},scale=iw*${scale}:-1[wm]`,
+      `[base][wm]overlay=${pos.x}:${pos.y}:format=auto[v]`,
+    ].join(';');
+
+    args.push('-filter_complex', filterComplex, '-map', '[v]');
+  } else if (videoChain.length > 0) {
+    args.push('-vf', videoChain.join(','));
+  }
+
+  args.push('-frames:v', '1', '-q:v', '2', target);
+  await runFfmpeg(args);
+  return { thumbnailPath: target, timestamp: resolvedTs, watermarkApplied };
 }
 
 async function extractAudioToMp3(sourcePath, outputPath) {
@@ -936,6 +1061,8 @@ module.exports = {
   buildClipRunPaths,
   clipSegment,
   extractAudioToMp3,
+  extractThumbnail,
+  fetchSource,
   formatTimestamp,
   inspectClipperEnvironment,
   listClipRuns,
