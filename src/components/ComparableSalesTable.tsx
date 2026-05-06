@@ -84,7 +84,10 @@ export function ComparableSalesTable({ property }: ComparableSalesTableProps) {
         // Pass lat/lng so comps can be sorted by distance from subject
         const subjectLat = (property as any).latitude || (property as any).lat;
         const subjectLng = (property as any).longitude || (property as any).lng || (property as any).long;
-        const data = await zillowAPI.getPropertyComps(zpid, location, subjectLat, subjectLng);
+        const data = await zillowAPI.getPropertyComps(zpid, location, subjectLat, subjectLng, {
+          beds: property.bedrooms,
+          sqft: property.sqft,
+        });
 
         if (data && Array.isArray(data)) {
           const processed = data
