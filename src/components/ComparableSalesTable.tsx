@@ -179,6 +179,15 @@ export function ComparableSalesTable({ property }: ComparableSalesTableProps) {
   const potentialProfit = estimatedARV - (property.price || 0);
   const spreadFromComps = property.price && estimatedARV ? estimatedARV - property.price : 0;
 
+  // Detect foreclosure-auction subjects so we don't show a misleading
+  // "Great Deal +$X" against an opening-bid price. Any one signal is enough.
+  const description = (property as any).description || '';
+  const subjectPpsf = property.price && property.sqft ? property.price / property.sqft : null;
+  const isAuctionLike =
+    /foreclosure auction|opening bid|trustee'?s sale|sheriff'?s sale|federa home/i.test(description) ||
+    (subjectPpsf !== null && subjectPpsf < 10) ||
+    ((property.price ?? 0) > 0 && (property.price ?? 0) < 25000 && (property.sqft ?? 0) > 800);
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -226,17 +235,36 @@ export function ComparableSalesTable({ property }: ComparableSalesTableProps) {
           </CardContent>
         </Card>
 
-        <Card className={`bg-gradient-to-br ${spreadFromComps > 30000 ? 'from-green-500/10 to-green-500/5 border-green-500/20' : 'from-muted/50 to-muted/30 border-border'}`}>
+        <Card className={`bg-gradient-to-br ${
+          isAuctionLike
+            ? 'from-amber-500/10 to-amber-500/5 border-amber-500/20'
+            : spreadFromComps > 30000
+              ? 'from-green-500/10 to-green-500/5 border-green-500/20'
+              : 'from-muted/50 to-muted/30 border-border'
+        }`}>
           <CardContent className="p-4 text-center">
             <div className="flex items-center justify-center gap-2 mb-2">
-              <CheckCircle2 className={`h-4 w-4 ${spreadFromComps > 30000 ? 'text-green-500' : 'text-muted-foreground'}`} />
+              <CheckCircle2 className={`h-4 w-4 ${
+                isAuctionLike ? 'text-amber-500' : spreadFromComps > 30000 ? 'text-green-500' : 'text-muted-foreground'
+              }`} />
               <span className="text-xs font-medium text-muted-foreground uppercase">Spread vs ARV</span>
             </div>
-            <div className={`text-xl font-bold ${spreadFromComps > 30000 ? 'text-green-500' : spreadFromComps > 0 ? 'text-foreground' : 'text-red-500'}`}>
-              {spreadFromComps >= 0 ? '+' : ''}{formatPrice(spreadFromComps)}
-            </div>
-            {spreadFromComps > 50000 && (
-              <Badge className="mt-1 bg-green-500">Great Deal</Badge>
+            {isAuctionLike ? (
+              <>
+                <div className="text-base font-semibold text-amber-600">Auction subject</div>
+                <div className="text-xs text-muted-foreground mt-1">
+                  Listed price is an opening bid; spread isn't comparable.
+                </div>
+              </>
+            ) : (
+              <>
+                <div className={`text-xl font-bold ${spreadFromComps > 30000 ? 'text-green-500' : spreadFromComps > 0 ? 'text-foreground' : 'text-red-500'}`}>
+                  {spreadFromComps >= 0 ? '+' : ''}{formatPrice(spreadFromComps)}
+                </div>
+                {spreadFromComps > 50000 && (
+                  <Badge className="mt-1 bg-green-500">Great Deal</Badge>
+                )}
+              </>
             )}
           </CardContent>
         </Card>
@@ -366,7 +394,24 @@ export function ComparableSalesTable({ property }: ComparableSalesTableProps) {
       </Card>
 
       {/* Analysis Note */}
-      {comparables.length > 0 && spreadFromComps > 30000 && (
+      {comparables.length > 0 && isAuctionLike && (
+        <Card className="border-amber-500/30 bg-amber-500/5">
+          <CardContent className="p-4">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="h-6 w-6 text-amber-500 flex-shrink-0 mt-0.5" />
+              <div>
+                <div className="font-semibold text-amber-600">Auction or opening-bid listing</div>
+                <div className="text-sm text-muted-foreground mt-1">
+                  The listed price looks like an auction opening bid, not market value. Estimated ARV ({formatPrice(estimatedARV)})
+                  and the {comparables.length} comparable sales are still useful for valuation, but the spread vs. list price
+                  is not a meaningful deal indicator here. Verify auction terms, reserve, and required repairs before bidding.
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+      {comparables.length > 0 && !isAuctionLike && spreadFromComps > 30000 && (
         <Card className="border-green-500/30 bg-green-500/5">
           <CardContent className="p-4">
             <div className="flex items-start gap-3">
