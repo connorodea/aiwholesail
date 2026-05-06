@@ -958,7 +958,13 @@ export class ZillowAPI {
     }
   }
 
-  async getPropertyComps(zpid: string, location?: string, subjectLat?: number, subjectLng?: number): Promise<any> {
+  async getPropertyComps(
+    zpid: string,
+    location?: string,
+    subjectLat?: number,
+    subjectLng?: number,
+    subject?: { beds?: number; sqft?: number }
+  ): Promise<any> {
     // First try the direct comps endpoint
     try {
       const data = await this.callApi('comps', { zpid });
@@ -1020,13 +1026,52 @@ export class ZillowAPI {
                 distance
               };
             })
-            // Sort by distance (closest first), then filter to reasonable radius
             .sort((a: any, b: any) => (a.distance ?? 999) - (b.distance ?? 999))
-            // Take nearest 15, skip the subject property itself (distance ~0)
-            .filter((l: any) => l.distance === null || l.distance > 0.02)
-            .slice(0, 15);
+            // Drop the subject itself (haversine ~0 to self)
+            .filter((l: any) => l.distance === null || l.distance > 0.02);
 
-          return mapped;
+          // Tiered filtering: pick the tightest tier with at least MIN_USEFUL
+          // matches. Fall through only when the current tier is too sparse.
+          // Bias toward fewer-but-better comps over more-but-noisier ones.
+          const MIN_USEFUL = 3;
+          const MAX_COMPS = 10;
+          const MAX_RADIUS_MI = 10;
+          const subjBeds = subject?.beds ?? 0;
+          const subjSqft = subject?.sqft ?? 0;
+
+          const tiers: Array<{ label: string; pred: (c: any) => boolean }> = [
+            {
+              label: 'radius+beds+sqft',
+              pred: (c) =>
+                (c.distance === null || c.distance <= MAX_RADIUS_MI) &&
+                (!subjBeds || Math.abs((c.bedrooms || 0) - subjBeds) <= 1) &&
+                (!subjSqft || (c.sqft > 0 && c.sqft >= subjSqft * 0.7 && c.sqft <= subjSqft * 1.3)),
+            },
+            {
+              label: 'radius+beds',
+              pred: (c) =>
+                (c.distance === null || c.distance <= MAX_RADIUS_MI) &&
+                (!subjBeds || Math.abs((c.bedrooms || 0) - subjBeds) <= 1),
+            },
+            {
+              label: 'radius',
+              pred: (c) => c.distance === null || c.distance <= MAX_RADIUS_MI,
+            },
+            { label: 'all', pred: () => true },
+          ];
+
+          let chosen: any[] = [];
+          for (const tier of tiers) {
+            const filtered = mapped.filter(tier.pred);
+            if (filtered.length >= MIN_USEFUL) {
+              chosen = filtered;
+              break;
+            }
+            // Remember the loosest non-empty tier in case nothing hits MIN_USEFUL
+            if (filtered.length > chosen.length) chosen = filtered;
+          }
+
+          return chosen.slice(0, MAX_COMPS);
         }
       } catch (fallbackError) {
         console.error('Comps fallback search also failed:', fallbackError);
