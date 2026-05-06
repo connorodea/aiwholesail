@@ -972,15 +972,22 @@ export class ZillowAPI {
     // Fallback: search for recently sold properties near the same location
     if (location) {
       try {
-        // Extract "City STATE" from location — works best with the scraper API
+        // Build "City STATE ZIP" from the inbound location, tolerating both
+        // 2-part ("Kannapolis, NC 28083") and 3-part ("Saint Augustine, FL, 32092")
+        // formats. The 3-part form is what ComparableSalesTable produces when it
+        // joins city/state/zip from separate fields, and the old parser collapsed
+        // it to "FL " — causing a state-wide search.
         const parts = location.split(',').map(p => p.trim()).filter(Boolean);
-        // Get city + state without zip (e.g., "Kannapolis NC")
         let searchLocation = location;
         if (parts.length >= 2) {
-          const stateZip = parts[parts.length - 1]; // "NC 28083" or "NC"
-          const city = parts[parts.length - 2]; // "Kannapolis"
-          const stateOnly = stateZip.replace(/\d+/g, '').trim(); // "NC"
-          searchLocation = `${city} ${stateOnly}`;
+          const last = parts[parts.length - 1];
+          const lastIsZip = /^\d{5}(-\d{4})?$/.test(last);
+          const zip = lastIsZip ? last : (last.match(/\d{5}(-\d{4})?/)?.[0] ?? '');
+          const stateRaw = lastIsZip ? parts[parts.length - 2] : last;
+          const state = stateRaw.replace(/\d+/g, '').trim();
+          const cityIdx = lastIsZip ? parts.length - 3 : parts.length - 2;
+          const city = cityIdx >= 0 ? parts[cityIdx] : '';
+          searchLocation = [city, state, zip].filter(Boolean).join(' ').trim() || location;
         }
 
         const data = await this.callApi('search', {
