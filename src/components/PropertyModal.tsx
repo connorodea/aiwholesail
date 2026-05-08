@@ -232,7 +232,7 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="w-full max-w-7xl h-[100dvh] sm:h-auto sm:max-h-[95vh] overflow-hidden p-0 bg-gradient-to-br from-background via-background to-muted/5 border-0 sm:border-2 border-border/50 shadow-2xl rounded-none sm:rounded-2xl">
         {/* Header */}
-        <DialogHeader className="relative p-4 sm:p-8 pb-4 sm:pb-6 border-b border-border/30 backdrop-blur-sm overflow-hidden">
+        <DialogHeader className="relative p-4 sm:p-5 lg:p-6 pb-3 sm:pb-4 border-b border-border/30 backdrop-blur-sm overflow-hidden flex-shrink-0">
           {/* Optional hero image with darkening gradient */}
           {propertyImage && (
             <>
@@ -249,38 +249,44 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
             <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-background via-muted/5 to-background" />
           )}
 
-          <div className="relative flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
-            <div className="flex-1 lg:pr-6 min-w-0">
-              <div className="flex items-center gap-2 mb-3 sm:mb-6 flex-wrap">
-                <Badge variant="outline" className="text-[10px] sm:text-xs font-medium border-border/50 bg-muted/30 rounded-full px-2.5 sm:px-3 py-1 sm:py-1.5">
+          <div className="relative flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 lg:gap-6">
+            <div className="flex-1 lg:pr-4 min-w-0">
+              {/* Single-line badge row */}
+              <div className="flex items-center gap-2 mb-2 sm:mb-3 flex-wrap">
+                <Badge variant="outline" className="text-[10px] font-medium border-border/50 bg-muted/30 rounded-full px-2.5 py-0.5">
                   {humanize(displayProperty.status) || 'For Sale'}
                 </Badge>
                 {displayProperty.isFSBO && (
-                  <Badge variant="secondary" className="text-[10px] sm:text-xs rounded-full px-2.5 sm:px-3 py-1 sm:py-1.5 bg-info/10 text-info border-info/20">FSBO</Badge>
+                  <Badge variant="secondary" className="text-[10px] rounded-full px-2.5 py-0.5 bg-info/10 text-info border-info/20">FSBO</Badge>
                 )}
-                <Badge
-                  className={`text-[10px] sm:text-xs rounded-full px-2.5 sm:px-3 py-1 sm:py-1.5 border-0 font-semibold ${tierTheme.chip}`}
-                >
+                <Badge className={`text-[10px] rounded-full px-2.5 py-0.5 border-0 font-semibold ${tierTheme.chip}`}>
                   {tierTheme.label}
                 </Badge>
+                {displayProperty.propertyType && (
+                  <span className="hidden sm:inline-flex items-center gap-1 text-[11px] text-muted-foreground">
+                    <MapPin className="h-3 w-3" />
+                    {humanize(displayProperty.propertyType)}
+                  </span>
+                )}
                 {isLoadingDetails && (
-                  <div className="flex items-center gap-1.5 text-[10px] sm:text-xs text-muted-foreground">
+                  <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
                     <Loader2 className="h-3 w-3 animate-spin" />
-                    Loading details...
+                    Loading...
                   </div>
                 )}
               </div>
-              <DialogTitle className="text-lg sm:text-2xl md:text-4xl font-bold mb-2 sm:mb-4 leading-tight bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text pr-8 lg:pr-0">
+
+              {/* Address — single line, truncated, with title attr for full text */}
+              <DialogTitle
+                title={displayProperty.address}
+                className="text-base sm:text-lg lg:text-2xl font-bold leading-tight bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text pr-8 lg:pr-0 truncate"
+              >
                 {displayProperty.address}
               </DialogTitle>
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0" />
-                <span className="text-xs sm:text-sm font-medium truncate">{humanize(displayProperty.propertyType) || 'Property'}</span>
-              </div>
 
-              {/* Mobile-only price (shown inline below address) */}
-              <div className="mt-3 lg:hidden flex items-baseline gap-2">
-                <div className="text-2xl sm:text-3xl font-bold text-foreground">
+              {/* Mobile-only inline price */}
+              <div className="mt-2 lg:hidden flex items-baseline gap-2">
+                <div className="text-xl sm:text-2xl font-bold text-foreground">
                   {displayProperty.price ? formatPrice(displayProperty.price) : 'Price N/A'}
                 </div>
                 {displayProperty.pricePerSqft && (
@@ -288,78 +294,56 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                     ${Math.round(displayProperty.pricePerSqft)}/sqft
                   </div>
                 )}
+                {/* mobile property type — only shows here when sm hidden */}
+                {displayProperty.propertyType && (
+                  <span className="sm:hidden text-[11px] text-muted-foreground ml-auto">
+                    {humanize(displayProperty.propertyType)}
+                  </span>
+                )}
               </div>
             </div>
 
-            {/* Desktop price column */}
-            <div className="hidden lg:block text-right">
-              <div className="text-3xl font-bold mb-2 text-foreground">
-                {displayProperty.price ? formatPrice(displayProperty.price) : 'Price N/A'}
-              </div>
-              {displayProperty.pricePerSqft && (
-                <div className="text-sm text-muted-foreground font-medium mb-4">
-                  ${Math.round(displayProperty.pricePerSqft)}/sqft
+            {/* Desktop right cluster — price + actions inline */}
+            <div className="hidden lg:flex items-center gap-4 flex-shrink-0">
+              <div className="text-right border-r border-border/40 pr-4">
+                <div className="text-2xl xl:text-3xl font-bold text-foreground leading-none">
+                  {displayProperty.price ? formatPrice(displayProperty.price) : 'Price N/A'}
                 </div>
-              )}
-              <div className="flex gap-3 justify-end">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleToggleFavorite}
-                  className="gap-2 hover:bg-muted rounded-xl border-border/50 transition-all duration-300 hover:shadow-md"
-                >
+                {displayProperty.pricePerSqft && (
+                  <div className="text-xs text-muted-foreground font-medium mt-1">
+                    ${Math.round(displayProperty.pricePerSqft)}/sqft
+                  </div>
+                )}
+              </div>
+              <div className="flex gap-1.5">
+                <Button variant="outline" size="sm" onClick={handleToggleFavorite} className="gap-1.5 h-9 rounded-lg border-border/50">
                   <Heart className={`h-4 w-4 ${isPropertyFavorite ? 'fill-current text-red-500' : ''}`} />
-                  {isPropertyFavorite ? 'Saved' : 'Save'}
+                  <span className="hidden xl:inline">{isPropertyFavorite ? 'Saved' : 'Save'}</span>
                 </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleConvertToLead}
-                  className="gap-2 hover:bg-muted rounded-xl border-border/50 transition-all duration-300 hover:shadow-md"
-                >
+                <Button variant="outline" size="sm" onClick={handleConvertToLead} className="gap-1.5 h-9 rounded-lg border-border/50">
                   <Phone className="h-4 w-4" />
-                  Convert to Lead
+                  <span className="hidden xl:inline">Lead</span>
                 </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => generateDealReport(displayProperty)}
-                  className="gap-2 hover:bg-muted rounded-xl border-border/50 transition-all duration-300 hover:shadow-md"
-                >
+                <Button variant="outline" size="sm" onClick={() => generateDealReport(displayProperty)} className="gap-1.5 h-9 rounded-lg border-border/50">
                   <FileText className="h-4 w-4" />
-                  Export PDF
+                  <span className="hidden xl:inline">PDF</span>
                 </Button>
                 <AddToPipelineButton property={displayProperty} variant="full" size="sm" />
               </div>
             </div>
 
             {/* Mobile action row — horizontally scrollable */}
-            <div className="lg:hidden -mx-4 px-4 sm:-mx-8 sm:px-8 overflow-x-auto scrollbar-none">
+            <div className="lg:hidden -mx-4 px-4 overflow-x-auto scrollbar-none">
               <div className="flex gap-2 min-w-max pb-1">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleToggleFavorite}
-                  className="gap-1.5 h-10 rounded-xl border-border/50 flex-shrink-0"
-                >
+                <Button variant="outline" size="sm" onClick={handleToggleFavorite} className="gap-1.5 h-9 rounded-lg border-border/50 flex-shrink-0">
                   <Heart className={`h-4 w-4 ${isPropertyFavorite ? 'fill-current text-red-500' : ''}`} />
                   {isPropertyFavorite ? 'Saved' : 'Save'}
                 </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleConvertToLead}
-                  className="gap-1.5 h-10 rounded-xl border-border/50 flex-shrink-0"
-                >
+                <Button variant="outline" size="sm" onClick={handleConvertToLead} className="gap-1.5 h-9 rounded-lg border-border/50 flex-shrink-0">
                   <Phone className="h-4 w-4" />
                   Lead
                 </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => generateDealReport(displayProperty)}
-                  className="gap-1.5 h-10 rounded-xl border-border/50 flex-shrink-0"
-                >
+                <Button variant="outline" size="sm" onClick={() => generateDealReport(displayProperty)} className="gap-1.5 h-9 rounded-lg border-border/50 flex-shrink-0">
                   <FileText className="h-4 w-4" />
                   PDF
                 </Button>

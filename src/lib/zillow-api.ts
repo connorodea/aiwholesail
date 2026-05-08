@@ -962,6 +962,9 @@ export class ZillowAPI {
   }
 
   async getPropertyComps(zpid: string, location?: string, subjectLat?: number, subjectLng?: number): Promise<any> {
+    // Cap comps to a reasonable radius — anything farther isn't a real comparable
+    const MAX_COMP_DISTANCE_MI = 10;
+
     // First try the direct comps endpoint
     try {
       const data = await this.callApi('comps', { zpid });
@@ -972,28 +975,34 @@ export class ZillowAPI {
       console.warn('Direct comps failed, falling back to recently sold search:', error);
     }
 
-    // Fallback: search for recently sold properties near the same location
+    // Fallback: search for recently sold properties near the same location.
+    // ZIP is the strongest signal — for small towns, "City STATE" makes the
+    // scraper expand to a 50+ mile metro, so we prefer ZIP when present.
     if (location) {
-      try {
-        // Extract "City STATE" from location — works best with the scraper API
-        const parts = location.split(',').map(p => p.trim()).filter(Boolean);
-        // Get city + state without zip (e.g., "Kannapolis NC")
-        let searchLocation = location;
-        if (parts.length >= 2) {
-          const stateZip = parts[parts.length - 1]; // "NC 28083" or "NC"
-          const city = parts[parts.length - 2]; // "Kannapolis"
-          const stateOnly = stateZip.replace(/\d+/g, '').trim(); // "NC"
-          searchLocation = `${city} ${stateOnly}`;
-        }
+      const parts = location.split(',').map(p => p.trim()).filter(Boolean);
+      // Pull a 5-digit zip from any segment (handles "NC 28083", "28083", etc.)
+      const zipMatch = location.match(/\b(\d{5})\b/);
+      const zip = zipMatch ? zipMatch[1] : null;
+      let cityState: string | null = null;
+      if (parts.length >= 2) {
+        const stateZip = parts[parts.length - 1];
+        const city = parts[parts.length - 2];
+        const stateOnly = stateZip.replace(/\d+/g, '').trim();
+        cityState = `${city} ${stateOnly}`.trim();
+      }
 
-        const data = await this.callApi('search', {
-          location: searchLocation,
-          listing_type: 'recently_sold',
-          page: '1'
-        });
-        const listings = data?.data?.listings || data?.data?.searchResults || [];
-        if (Array.isArray(listings) && listings.length > 0) {
-          // Calculate distance from subject property and sort by proximity
+      // Try ZIP first (tightest radius), then City STATE as fallback
+      const queries = [zip, cityState, location].filter(Boolean) as string[];
+
+      for (const searchLocation of queries) {
+        try {
+          const data = await this.callApi('search', {
+            location: searchLocation,
+            listing_type: 'recently_sold',
+            page: '1',
+          });
+          const listings = data?.data?.listings || data?.data?.searchResults || [];
+          if (!Array.isArray(listings) || listings.length === 0) continue;
 
           const mapped = listings
             .filter((l: any) => l.price && l.price > 0)
@@ -1011,21 +1020,42 @@ export class ZillowAPI {
                 pricePerSqft: sqft > 0 ? Math.round(price / sqft) : 0,
                 bedrooms: l.bedrooms || l.beds || 0,
                 bathrooms: l.bathrooms || l.baths || 0,
-                saleDate: l.date_sold || l.lastSoldDate || l.dateSold || null,
+                // Cover every saleDate key the scraper has been observed to return
+                saleDate:
+                  l.date_sold ||
+                  l.lastSoldDate ||
+                  l.dateSold ||
+                  l.last_sold_date ||
+                  l.sold_date ||
+                  l.soldDate ||
+                  l.lastSoldAt ||
+                  l.sold_at ||
+                  l.closingDate ||
+                  null,
                 zpid: l.zpid || null,
-                distance
+                distance,
               };
             })
-            // Sort by distance (closest first), then filter to reasonable radius
             .sort((a: any, b: any) => (a.distance ?? 999) - (b.distance ?? 999))
-            // Take nearest 15, skip the subject property itself (distance ~0)
-            .filter((l: any) => l.distance === null || l.distance > 0.02)
+            // Drop the subject itself (distance ~0) and anything beyond the radius cap
+            .filter((l: any) => {
+              if (l.distance === null) return true; // keep when we can't measure
+              if (l.distance <= 0.02) return false; // subject self-match
+              return l.distance <= MAX_COMP_DISTANCE_MI;
+            })
             .slice(0, 15);
 
-          return mapped;
+          // Only return if at least 3 valid comps survived the radius filter —
+          // otherwise try the next (looser) query
+          if (mapped.length >= 3) return mapped;
+          // If first attempt returned <3 within radius, keep what we have as
+          // a fallback in case all later queries fail
+          if (mapped.length > 0 && searchLocation === queries[queries.length - 1]) {
+            return mapped;
+          }
+        } catch (fallbackError) {
+          console.warn(`Comps query "${searchLocation}" failed:`, fallbackError);
         }
-      } catch (fallbackError) {
-        console.error('Comps fallback search also failed:', fallbackError);
       }
     }
 

@@ -195,6 +195,20 @@ export function ComparableSalesTable({ property }: ComparableSalesTableProps) {
     );
   }
 
+  // No comps within reasonable radius — surface this clearly instead of showing
+  // garbage 50+mi-away listings (the previous behavior).
+  if (!isLoading && comparables.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 text-center max-w-md mx-auto">
+        <AlertCircle className="h-12 w-12 text-amber-400 mb-4" />
+        <h3 className="text-lg font-semibold text-foreground mb-1">No nearby comps available</h3>
+        <p className="text-sm text-muted-foreground">
+          We couldn't find recently-sold properties within 10 miles of this address. Rural and small-town listings often have sparse comp data — try the ARV tab for an estimate based on Zestimate trends instead.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* ARV Summary */}
