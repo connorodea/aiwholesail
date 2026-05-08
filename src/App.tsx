@@ -21,6 +21,7 @@ import Pricing from "./pages/Pricing";
 const Index = lazy(() => import("./pages/Index"));
 const RealEstateWholesaler = lazy(() => import("./pages/RealEstateWholesaler"));
 const Landing = lazy(() => import("./pages/Landing"));
+const LpFindDeals = lazy(() => import("./pages/LpFindDeals"));
 const Success = lazy(() => import("./pages/Success"));
 const Terms = lazy(() => import("./pages/Terms"));
 const Privacy = lazy(() => import("./pages/Privacy"));
@@ -128,6 +129,7 @@ const App = () => (
               <Suspense fallback={<div className="min-h-screen bg-[#08090a]" />}>
               <Routes>
                 <Route path="/" element={<Landing />} />
+                <Route path="/lp/find-deals" element={<LpFindDeals />} />
                 <Route path="/pricing" element={<Pricing />} />
                 <Route path="/app" element={
                   <ProtectedRoute>

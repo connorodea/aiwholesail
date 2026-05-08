@@ -129,6 +129,21 @@ export const analytics = {
     });
   },
 
+  /** User views a paid-traffic landing page (cold traffic) */
+  viewLandingPage(landingPageId: string) {
+    fire('view_landing_page', { landing_page_id: landingPageId });
+    fireFbq('ViewContent', {
+      content_name: landingPageId,
+      content_category: 'landing_page',
+    });
+  },
+
+  /** User submits email on a cold-traffic LP (top-of-funnel lead) */
+  leadCaptured(email: string, source: string) {
+    fire('lead_captured', { source, email_domain: email.split('@')[1] || '' });
+    fireFbq('Lead', { content_name: source, content_category: 'lp_email_capture' });
+  },
+
   // ============ PROPERTY SEARCH EVENTS ============
 
   /** User performs a property search */
