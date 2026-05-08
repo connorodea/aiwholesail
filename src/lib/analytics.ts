@@ -53,6 +53,13 @@ export const analytics = {
   /** User creates a new account */
   signUp(method: string = 'email') {
     fire('sign_up', { method });
+    // CompleteRegistration is Meta's canonical signup event; Lead kept for
+    // back-compat with existing custom audiences/conversion configs.
+    fireFbq('CompleteRegistration', {
+      content_name: 'sign_up',
+      status: 'completed',
+      method,
+    });
     fireFbq('Lead', { content_name: 'sign_up', method });
   },
 
@@ -64,7 +71,12 @@ export const analytics = {
   /** User starts free trial */
   beginTrial(plan: string) {
     fire('begin_trial', { plan, value: 0, currency: 'USD' });
-    fireFbq('StartTrial', { content_name: plan, currency: 'USD', value: 0 });
+    fireFbq('StartTrial', {
+      content_name: plan,
+      predicted_ltv: plan === 'Elite' ? 99 : 29,
+      currency: 'USD',
+      value: 0,
+    });
   },
 
   // ============ CHECKOUT EVENTS ============
@@ -83,7 +95,7 @@ export const analytics = {
     });
   },
 
-  /** User completes subscription purchase */
+  /** User completes subscription purchase (paid conversion) */
   purchase(transactionId: string, plan: string, price: number) {
     fire('purchase', {
       transaction_id: transactionId,
@@ -93,8 +105,27 @@ export const analytics = {
     });
     fireFbq('Purchase', {
       content_name: plan,
+      content_type: 'subscription',
       currency: 'USD',
       value: price,
+    });
+    // Subscribe is Meta's dedicated SaaS subscription event — fires
+    // alongside Purchase so either can be used as the optimization event.
+    fireFbq('Subscribe', {
+      content_name: plan,
+      currency: 'USD',
+      value: price,
+      predicted_ltv: price * 12,
+    });
+  },
+
+  /** User reaches the pricing page (high-intent ViewContent for FB optimization) */
+  viewPricing() {
+    fire('view_pricing');
+    fireFbq('ViewContent', {
+      content_name: 'Pricing',
+      content_category: 'pricing',
+      content_type: 'product_group',
     });
   },
 
@@ -126,9 +157,18 @@ export const analytics = {
   },
 
   /** User adds property to favorites */
-  addToFavorites(propertyId: string, address: string) {
+  addToFavorites(propertyId: string, address: string, price?: number) {
     fire('add_to_wishlist', {
-      items: [{ item_id: propertyId, item_name: address }],
+      currency: 'USD',
+      value: price || 0,
+      items: [{ item_id: propertyId, item_name: address, price }],
+    });
+    fireFbq('AddToWishlist', {
+      content_name: address,
+      content_ids: [propertyId],
+      content_type: 'property',
+      currency: 'USD',
+      value: price || 0,
     });
   },
 

@@ -54,6 +54,11 @@ export default function Pricing() {
   const { user } = useAuth();
   const [loading, setLoading] = useState<string | null>(null);
 
+  // Fire ViewContent for the pricing page — high-intent signal for FB/GA optimization
+  useEffect(() => {
+    analytics.viewPricing();
+  }, []);
+
   // Respect prefers-reduced-motion
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   useEffect(() => {

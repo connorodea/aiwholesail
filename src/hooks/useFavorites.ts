@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Property } from '@/types/zillow';
 import { toast } from 'sonner';
 import { zillowAPI } from '@/lib/zillow-api';
+import { analytics } from '@/lib/analytics';
 
 export function useFavorites() {
   const [favorites, setFavorites] = useState<Property[]>([]);
@@ -79,6 +80,11 @@ export function useFavorites() {
       }
 
       setFavorites(prev => [{ ...property, favoriteId: (response.data as any)?.id }, ...prev]);
+      analytics.addToFavorites(
+        String(property.id),
+        property.address || 'Unknown',
+        property.price || undefined,
+      );
       toast.success('Added to favorites');
       return true;
     } catch (error) {

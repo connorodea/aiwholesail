@@ -11,6 +11,7 @@ import { contact } from '@/lib/api-client';
 import { SEOHead } from '@/components/SEOHead';
 import { PublicLayout } from '@/components/PublicLayout';
 import { Spotlight } from '@/components/ui/spotlight';
+import { analytics } from '@/lib/analytics';
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -74,6 +75,7 @@ export default function Contact() {
         return;
       }
 
+      analytics.contactFormSubmit();
       toast.success(response.data?.message || 'Message sent successfully! We\'ll get back to you within 24 hours.');
       setFormData({ name: '', email: '', subject: '', message: '' });
     } catch (error) {

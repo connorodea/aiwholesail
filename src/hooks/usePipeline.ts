@@ -4,6 +4,7 @@ import { leads } from '@/lib/api-client';
 import { Property } from '@/types/zillow';
 import { Deal, PipelineStage, PIPELINE_STAGES } from '@/types/pipeline';
 import { toast } from 'sonner';
+import { analytics } from '@/lib/analytics';
 
 function mapLeadToDeal(lead: any): Deal {
   const propertyData = lead.property_data || {};
@@ -92,6 +93,7 @@ export function usePipeline() {
         property_data: property,
       });
       setDeals(prev => [newDeal, ...prev]);
+      analytics.addToPipeline(String(propertyId), property.address || 'Unknown');
       toast.success('Added to pipeline');
       return true;
     } catch (error) {

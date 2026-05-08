@@ -9,7 +9,7 @@ declare global {
 }
 
 // Facebook Pixel ID — configurable via env var, fallback to hardcoded ID
-const PIXEL_ID = import.meta.env.VITE_FB_PIXEL_ID || '733914336084655';
+const PIXEL_ID = import.meta.env.VITE_FB_PIXEL_ID || '1671707893974290';
 
 export function FacebookPixel() {
   const location = useLocation();

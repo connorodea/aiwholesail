@@ -6,6 +6,7 @@ import { useSubscription } from "@/contexts/SubscriptionContext";
 import { toast } from "@/hooks/use-toast";
 import { SEOHead } from '@/components/SEOHead';
 import { PublicLayout } from '@/components/PublicLayout';
+import { analytics } from '@/lib/analytics';
 
 const Success = () => {
   const { user } = useAuth();
@@ -19,11 +20,31 @@ const Success = () => {
   const pendingCheckout = localStorage.getItem('pendingCheckout');
 
   useEffect(() => {
+    // Fire conversion events ONCE per session_id so refreshes don't double-count.
+    const firedKey = sessionId ? `purchase_fired_${sessionId}` : null;
+    const alreadyFired = firedKey ? sessionStorage.getItem(firedKey) === '1' : false;
+
+    // Recover the plan/price the user selected on /pricing for accurate event values.
+    let plan = 'Pro';
+    let price = 29;
+    try {
+      const stored = localStorage.getItem('selectedPlan');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed?.name) plan = parsed.name;
+        if (typeof parsed?.price === 'number') price = parsed.price;
+      }
+    } catch {}
+
     // Check if this is a guest checkout completion
     if (sessionId && pendingCheckout && !user) {
       setIsGuest(true);
       // Clear the pending checkout flag
       localStorage.removeItem('pendingCheckout');
+      if (!alreadyFired) {
+        analytics.purchase(sessionId, plan, price);
+        if (firedKey) sessionStorage.setItem(firedKey, '1');
+      }
       toast({
         title: "Payment Successful!",
         description: "Your subscription is ready! Create your account now to access your trial.",
@@ -37,6 +58,11 @@ const Success = () => {
 
       try {
         await refreshSubscription();
+
+        if (sessionId && !alreadyFired) {
+          analytics.purchase(sessionId, plan, price);
+          if (firedKey) sessionStorage.setItem(firedKey, '1');
+        }
 
         // Show appropriate success message based on trial status
         const message = isTrialActive
@@ -53,7 +79,7 @@ const Success = () => {
     };
 
     checkSubscription();
-  }, [user, refreshSubscription, sessionId, pendingCheckout]);
+  }, [user, refreshSubscription, sessionId, pendingCheckout, isTrialActive, trialDaysRemaining]);
 
   // If guest user after payment, show account creation prompt
   if (isGuest && !user) {

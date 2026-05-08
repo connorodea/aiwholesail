@@ -48,6 +48,7 @@ import { AIPhotoAnalysis } from './AIPhotoAnalysis';
 import { generateDealReport } from './DealReportPDF';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useLeads } from '@/hooks/useLeads';
+import { analytics } from '@/lib/analytics';
 import { AddToPipelineButton } from './pipeline/AddToPipelineButton';
 import { toast } from 'sonner';
 
@@ -63,6 +64,17 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
   const [copiedField, setCopiedField] = React.useState<string | null>(null);
   const [enrichedProperty, setEnrichedProperty] = useState<Property | null>(null);
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
+
+  // Fire ViewContent for FB/GA when a property modal opens
+  useEffect(() => {
+    if (isOpen && property?.id) {
+      analytics.viewProperty(
+        String(property.id),
+        property.address || 'Unknown',
+        property.price || undefined,
+      );
+    }
+  }, [isOpen, property?.id, property?.address, property?.price]);
 
   // Auto-fetch full property details when modal opens
   useEffect(() => {
