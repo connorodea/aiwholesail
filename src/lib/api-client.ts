@@ -335,8 +335,14 @@ export const alerts = {
     propertyTypes?: string[];
     minBedrooms?: number;
     maxBedrooms?: number;
+    minBathrooms?: number;
+    maxBathrooms?: number;
     maxPrice?: number;
+    minSqft?: number;
+    maxSqft?: number;
     alertFrequency?: string;
+    phoneNumber?: string;
+    minSpread?: number;
   }) => {
     return apiFetch('/api/alerts', {
       method: 'POST',

@@ -342,8 +342,8 @@ async function run() {
         AND (
           last_alert_sent IS NULL
           OR (alert_frequency = 'daily' AND last_alert_sent < NOW() - INTERVAL '24 hours')
-          OR (alert_frequency = 'instant' AND last_alert_sent < NOW() - INTERVAL '6 hours')
-          OR (alert_frequency = 'immediate' AND last_alert_sent < NOW() - INTERVAL '6 hours')
+          OR (alert_frequency = 'instant' AND last_alert_sent < NOW() - INTERVAL '50 minutes')
+          OR (alert_frequency = 'immediate' AND last_alert_sent < NOW() - INTERVAL '50 minutes')
           OR (alert_frequency = 'weekly' AND last_alert_sent < NOW() - INTERVAL '7 days')
         )
     `);

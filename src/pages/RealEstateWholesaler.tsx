@@ -32,6 +32,8 @@ import { ArrowUpDown, Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { PropertyComparison } from '@/components/PropertyComparison';
 import { AITopPicksSection } from '@/components/AITopPicksSection';
+import { SaveSearchAsAlertDialog } from '@/components/SaveSearchAsAlertDialog';
+import { AlertOnboardingBanner } from '@/components/AlertOnboardingBanner';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 
@@ -59,6 +61,7 @@ export default function RealEstateWholesaler() {
   const [compareMode, setCompareMode] = useState(false);
   const [compareSelected, setCompareSelected] = useState<Property[]>([]);
   const [showComparison, setShowComparison] = useState(false);
+  const [saveAlertOpen, setSaveAlertOpen] = useState(false);
   // Default: show ALL properties so users know the search is working while
   // zestimates are still being calculated. Toggle ON to hide non-deals.
   const [hideNegativeSpreads, setHideNegativeSpreads] = useState(false);
@@ -317,6 +320,11 @@ export default function RealEstateWholesaler() {
               <div className="feature-card p-8 backdrop-blur-sm">
                 <PropertySearch onSearch={handleSearch} isLoading={isLoading} />
               </div>
+
+              {/* Onboarding nudge — only renders if user has 0 alerts */}
+              <div className="text-left">
+                <AlertOnboardingBanner suggestedLocation={lastSearchLocation} />
+              </div>
             </section>
 
             {/* Loading Animation — visible during search AND enrichment */}
@@ -534,6 +542,16 @@ export default function RealEstateWholesaler() {
                       >
                         <Download className="h-4 w-4" />
                         {exportLoading ? 'Exporting...' : 'Export CSV'}
+                      </Button>
+
+                      {/* Save Search as Alert */}
+                      <Button
+                        onClick={() => setSaveAlertOpen(true)}
+                        size="sm"
+                        className="gap-2 h-9 px-4 text-sm font-semibold smooth-transition bg-cyan-500 hover:bg-cyan-400 text-black shadow-lg shadow-cyan-500/20"
+                      >
+                        <Bell className="h-4 w-4" />
+                        Save as alert
                       </Button>
 
                       {/* Compare Mode Toggle */}
@@ -795,6 +813,13 @@ export default function RealEstateWholesaler() {
           setCompareMode(false);
           setCompareSelected([]);
         }}
+      />
+
+      {/* Save Search as Alert */}
+      <SaveSearchAsAlertDialog
+        open={saveAlertOpen}
+        onOpenChange={setSaveAlertOpen}
+        defaultLocation={lastSearchLocation}
       />
 
     </div>
