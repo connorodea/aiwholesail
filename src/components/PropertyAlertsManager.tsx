@@ -234,7 +234,7 @@ export const PropertyAlertsManager = () => {
   const getMaxAlerts = () => {
     if (!subscription?.subscribed) return 1; // Free tier: 1 alert
     if (subscription?.subscription_tier === 'Premium') return 999; // $99 plan: unlimited
-    return 5; // $29 plan: 5 alerts
+    return 5; // $49 plan: 5 alerts
   };
 
   const getUpdateFrequency = () => {
@@ -267,7 +267,7 @@ export const PropertyAlertsManager = () => {
           <div className="flex items-center gap-4 mt-2 text-sm">
             <span className="text-muted-foreground">
               Plan: {subscription?.subscribed ? 
-                (subscription?.subscription_tier === 'Premium' ? 'Premium ($99/month)' : 'Basic ($29/month)') : 
+                (subscription?.subscription_tier === 'Premium' ? 'Premium ($99/month)' : 'Basic ($49/month)') :
                 'Free'
               }
             </span>

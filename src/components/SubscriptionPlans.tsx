@@ -41,7 +41,7 @@ const plans: SubscriptionPlan[] = [
   },
   {
     name: 'Pro',
-    price: 29,
+    price: 49,
     priceId: 'price_1QjrSuCwWnuOPtC4Bfwu6IEs',
     description: 'Perfect for individual investors - 7-day free trial',
     features: [
@@ -181,7 +181,7 @@ export const SubscriptionPlans: React.FC<SubscriptionPlansProps> = ({
       <div className="grid md:grid-cols-3 gap-6">
         {plans.map((plan) => {
           const isCurrent = plan.name === currentPlanName;
-          const isDowngrade = plan.price < (currentSubscription?.subscribed ? (currentSubscription?.subscription_tier === 'Premium' ? 99 : 29) : 0);
+          const isDowngrade = plan.price < (currentSubscription?.subscribed ? (currentSubscription?.subscription_tier === 'Premium' ? 99 : 49) : 0);
           
           return (
             <Card 

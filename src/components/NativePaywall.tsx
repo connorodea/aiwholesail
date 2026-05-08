@@ -123,7 +123,7 @@ export function NativePaywall({ onSubscribed }: NativePaywallProps) {
                   Pro
                 </CardTitle>
                 <div className="text-right">
-                  <span className="text-2xl font-bold">$29.99</span>
+                  <span className="text-2xl font-bold">$49.99</span>
                   <span className="text-muted-foreground text-sm">/mo</span>
                 </div>
               </div>
