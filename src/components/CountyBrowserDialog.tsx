@@ -1,8 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { MapPin, Search, ArrowRight } from 'lucide-react';
+import { MapPin, Search, ArrowRight, X } from 'lucide-react';
 import allCountiesRaw from '@/data/all-us-counties.json';
 
 interface County {
@@ -40,11 +40,28 @@ interface CountyBrowserDialogProps {
 
 export function CountyBrowserDialog({ open, onOpenChange, onSelectCounty }: CountyBrowserDialogProps) {
   const [query, setQuery] = useState('');
+  const [selectedState, setSelectedState] = useState<string | null>(null);
+  const stateChipRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+
+  // Reset filters whenever the dialog reopens.
+  useEffect(() => {
+    if (!open) {
+      setQuery('');
+      setSelectedState(null);
+    }
+  }, [open]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return COUNTIES_BY_STATE;
-    return COUNTIES_BY_STATE
+    let groups = COUNTIES_BY_STATE;
+
+    if (selectedState) {
+      groups = groups.filter((g) => g.state === selectedState);
+    }
+
+    if (!q) return groups;
+
+    return groups
       .map((group) => {
         const stateMatch =
           group.stateFull.toLowerCase().includes(q) ||
@@ -56,12 +73,26 @@ export function CountyBrowserDialog({ open, onOpenChange, onSelectCounty }: Coun
         return { ...group, counties: matchedCounties };
       })
       .filter((g) => g.counties.length > 0);
-  }, [query]);
+  }, [query, selectedState]);
 
   const handleSelect = (county: County) => {
     onSelectCounty(`${county.name}, ${county.state}`);
     onOpenChange(false);
+  };
+
+  const handleStateClick = (stateAbbr: string) => {
+    if (selectedState === stateAbbr) {
+      // Toggle off
+      setSelectedState(null);
+      return;
+    }
+    setSelectedState(stateAbbr);
     setQuery('');
+    // Center the chip in the strip
+    const chip = stateChipRefs.current[stateAbbr];
+    if (chip) {
+      chip.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    }
   };
 
   const totalShown = filtered.reduce((sum, g) => sum + g.counties.length, 0);
@@ -76,7 +107,7 @@ export function CountyBrowserDialog({ open, onOpenChange, onSelectCounty }: Coun
           </DialogDescription>
         </DialogHeader>
 
-        <div className="px-6 py-3 border-b border-neutral-800/60">
+        <div className="px-6 py-3 border-b border-neutral-800/60 space-y-3">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-500 pointer-events-none" />
             <Input
@@ -87,9 +118,54 @@ export function CountyBrowserDialog({ open, onOpenChange, onSelectCounty }: Coun
               className="pl-10 h-10 bg-white/[0.03] border-white/[0.08] text-white placeholder:text-neutral-500"
             />
           </div>
-          <p className="mt-2 text-xs text-neutral-500">
-            {totalShown.toLocaleString()} {totalShown === 1 ? 'county' : 'counties'} {query ? 'match' : 'available'}
-            {query ? ` across ${filtered.length} ${filtered.length === 1 ? 'state' : 'states'}` : ''}
+
+          {/* Horizontal state picker — scroll or click to filter */}
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between">
+              <p className="text-[10px] uppercase tracking-[0.18em] font-semibold text-neutral-500">
+                {selectedState ? `Filtering · ${selectedState}` : 'Scroll to pick a state'}
+              </p>
+              {selectedState && (
+                <button
+                  type="button"
+                  onClick={() => setSelectedState(null)}
+                  className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wider text-neutral-500 hover:text-cyan-400 transition-colors"
+                >
+                  <X className="h-3 w-3" />
+                  Clear
+                </button>
+              )}
+            </div>
+            <div
+              className="flex gap-1.5 overflow-x-auto pb-2 -mx-1 px-1 scroll-smooth snap-x snap-mandatory"
+              style={{ scrollbarWidth: 'thin' }}
+            >
+              {COUNTIES_BY_STATE.map((g) => {
+                const isActive = selectedState === g.state;
+                return (
+                  <button
+                    key={g.state}
+                    ref={(el) => { stateChipRefs.current[g.state] = el; }}
+                    type="button"
+                    onClick={() => handleStateClick(g.state)}
+                    title={`${g.stateFull} · ${g.counties.length} counties`}
+                    className={`flex-shrink-0 snap-start min-w-[56px] h-12 rounded-lg px-3 flex flex-col items-center justify-center gap-0 border transition-all ${
+                      isActive
+                        ? 'bg-cyan-500/15 border-cyan-500/40 text-cyan-300 shadow-[0_0_12px_rgba(6,182,212,0.2)]'
+                        : 'bg-white/[0.02] border-white/[0.06] text-neutral-300 hover:bg-white/[0.05] hover:border-white/[0.12] hover:text-white'
+                    }`}
+                  >
+                    <span className="text-sm font-bold tabular-nums leading-none">{g.state}</span>
+                    <span className="text-[9px] text-neutral-500 leading-none mt-0.5 tabular-nums">{g.counties.length}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <p className="text-xs text-neutral-500">
+            {totalShown.toLocaleString()} {totalShown === 1 ? 'county' : 'counties'} {query || selectedState ? 'match' : 'available'}
+            {query && !selectedState ? ` across ${filtered.length} ${filtered.length === 1 ? 'state' : 'states'}` : ''}
           </p>
         </div>
 
