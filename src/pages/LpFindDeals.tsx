@@ -1,17 +1,16 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight, Check, Zap, BarChart3, Bell, TrendingUp, Star } from 'lucide-react';
+import { ArrowRight, Check, Zap, BarChart3, Bell, TrendingUp, Star, Activity, MapPin } from 'lucide-react';
 import { SEOHead } from '@/components/SEOHead';
 import { analytics } from '@/lib/analytics';
 import { validateEmail } from '@/lib/security';
 
-const SOCIAL_LOGOS = [
-  { src: '/logos/biggerpockets.png', alt: 'BiggerPockets' },
-  { src: '/logos/forbes-white.png', alt: 'Forbes' },
-  { src: '/logos/disruptors-white.png', alt: 'Disruptors' },
-  { src: '/logos/investor-fuel.png', alt: 'Investor Fuel' },
-  { src: '/logos/rei-ink-white.png', alt: 'REI Ink' },
+const CAPABILITY_STATS = [
+  { icon: MapPin, value: 'All 50 states', label: 'Properties scanned nationwide' },
+  { icon: Activity, value: 'Real-time', label: 'New listings flagged the moment they go live' },
+  { icon: BarChart3, value: 'AI-powered', label: 'Spread + ARV + repair estimates on every deal' },
+  { icon: Zap, value: '7-day free trial', label: 'No credit card · Cancel anytime' },
 ];
 
 const DEAL_PREVIEWS = [
@@ -271,21 +270,36 @@ export default function LpFindDeals() {
         </div>
       </section>
 
-      <section className="relative z-10 px-6 sm:px-10 pb-12">
-        <div className="max-w-5xl mx-auto">
-          <p className="text-xs font-semibold tracking-[0.18em] uppercase text-neutral-500 text-center mb-8">
-            As featured in
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-12 opacity-70">
-            {SOCIAL_LOGOS.map((logo) => (
-              <img
-                key={logo.alt}
-                src={logo.src}
-                alt={logo.alt}
-                className="h-6 sm:h-7 w-auto object-contain grayscale hover:grayscale-0 transition-all"
-                loading="lazy"
-              />
-            ))}
+      <section className="relative z-10 px-6 sm:px-10 pb-4 sm:pb-8">
+        <div className="max-w-6xl mx-auto">
+          <div className="rounded-2xl border border-white/[0.06] bg-gradient-to-b from-white/[0.03] to-white/[0.01] backdrop-blur-sm overflow-hidden">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 lg:divide-x divide-white/[0.05]">
+              {CAPABILITY_STATS.map((stat, i) => {
+                const Icon = stat.icon;
+                return (
+                  <motion.div
+                    key={stat.label}
+                    initial={{ opacity: 0, y: 6 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: '-50px' }}
+                    transition={{ duration: 0.5, delay: i * 0.06, ease: [0.25, 0.1, 0.25, 1] }}
+                    className="px-5 py-6 sm:px-6 sm:py-7 flex items-start gap-4"
+                  >
+                    <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center flex-shrink-0">
+                      <Icon className="h-5 w-5 text-cyan-400" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-base font-semibold text-white leading-tight mb-1.5">
+                        {stat.value}
+                      </p>
+                      <p className="text-xs text-neutral-400 leading-snug">
+                        {stat.label}
+                      </p>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
           </div>
         </div>
       </section>
