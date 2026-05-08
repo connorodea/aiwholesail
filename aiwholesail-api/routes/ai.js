@@ -9,6 +9,7 @@ const { attachSubscription, requireElite } = require('../middleware/subscription
 const {
   callClaude,
   callClaudeWithTools,
+  callOpenAI,
   PROPERTY_ANALYSIS_PROMPT,
   LEAD_SCORING_PROMPT,
   WHOLESALE_ANALYSIS_PROMPT
