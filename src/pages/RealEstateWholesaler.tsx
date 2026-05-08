@@ -28,9 +28,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { ArrowUpDown } from 'lucide-react';
+import { ArrowUpDown, Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { PropertyComparison } from '@/components/PropertyComparison';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 
 export default function RealEstateWholesaler() {
   const { user } = useAuth();
@@ -56,7 +58,14 @@ export default function RealEstateWholesaler() {
   const [compareMode, setCompareMode] = useState(false);
   const [compareSelected, setCompareSelected] = useState<Property[]>([]);
   const [showComparison, setShowComparison] = useState(false);
+  const [showNegativeSpreads, setShowNegativeSpreads] = useState(false);
   const searchIdRef = useRef(0);
+
+  // A property has a "negative spread" when its list price meets or exceeds
+  // its zestimate (i.e. it is not a wholesale deal). Properties without a
+  // zestimate are treated as negative-spread for visibility purposes.
+  const isNegativeSpread = (p: Property) =>
+    !!p.price && (!p.zestimate || p.price >= p.zestimate);
 
   // US States lookup
   const US_STATES: Record<string, string> = {
@@ -206,12 +215,12 @@ export default function RealEstateWholesaler() {
           return;
         }
 
-        let enrichedSorted = sortPropertiesByWholesalePotential(enriched);
+        const enrichedSorted = sortPropertiesByWholesalePotential(enriched);
 
-        if (params.wholesaleOnly) {
-          const deals = enrichedSorted.filter(p => p.price && p.zestimate && p.price < p.zestimate);
-          if (deals.length > 0) enrichedSorted = deals;
-        }
+        // Default the negative-spread toggle from the user's wholesaleOnly
+        // search preference so deals stay highlighted unless they explicitly
+        // turned off the wholesale filter.
+        setShowNegativeSpreads(!params.wholesaleOnly);
 
         setProperties(enrichedSorted);
 
@@ -426,22 +435,59 @@ export default function RealEstateWholesaler() {
             )}
 
             {/* Results Section */}
-            {!isLoading && properties.length > 0 && (
+            {!isLoading && properties.length > 0 && (() => {
+              const visibleProperties = showNegativeSpreads
+                ? properties
+                : properties.filter(p => !isNegativeSpread(p));
+              const hiddenNegativeCount = properties.length - visibleProperties.length;
+              return (
               <section className="space-y-10 animate-fade-in">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div className="space-y-2">
                     <h2 className="text-2xl font-medium tracking-tight">
-                      {properties.some(p => p.price && p.zestimate && p.price < p.zestimate) 
+                      {visibleProperties.some(p => p.price && p.zestimate && p.price < p.zestimate)
                         ? 'Best deals found'
                         : 'Search results'}
                     </h2>
                     <p className="text-neutral-400 font-light">
-                      {properties.length} {properties.length === 1 ? 'property' : 'properties'} found
+                      {visibleProperties.length} {visibleProperties.length === 1 ? 'property' : 'properties'} shown
+                      {!showNegativeSpreads && hiddenNegativeCount > 0 && (
+                        <span className="text-neutral-500"> · {hiddenNegativeCount} hidden</span>
+                      )}
                     </p>
                   </div>
-                  
+
                   {user && properties.length > 0 && (
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <div
+                        className={`flex items-center gap-2 h-9 px-3 rounded-md border text-sm font-medium smooth-transition ${
+                          showNegativeSpreads
+                            ? 'bg-orange-500/10 border-orange-500/30 text-orange-400'
+                            : 'bg-transparent border-border text-neutral-300'
+                        }`}
+                        title={showNegativeSpreads
+                          ? 'Hide properties priced at or above their Zestimate'
+                          : 'Include properties priced at or above their Zestimate'}
+                      >
+                        {showNegativeSpreads ? (
+                          <Eye className="h-4 w-4" />
+                        ) : (
+                          <EyeOff className="h-4 w-4" />
+                        )}
+                        <Label
+                          htmlFor="show-negative-spreads"
+                          className="cursor-pointer text-sm font-medium select-none"
+                        >
+                          {showNegativeSpreads ? 'Showing negative spreads' : 'Show negative spreads'}
+                        </Label>
+                        <Switch
+                          id="show-negative-spreads"
+                          checked={showNegativeSpreads}
+                          onCheckedChange={setShowNegativeSpreads}
+                          className="ml-1"
+                        />
+                      </div>
+
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button
@@ -566,7 +612,7 @@ export default function RealEstateWholesaler() {
                 )}
 
                 <div className="property-grid">
-                  {[...properties].sort((a, b) => {
+                  {[...visibleProperties].sort((a, b) => {
                     switch (sortBy) {
                       case 'price-high':
                         return (b.price || 0) - (a.price || 0);
@@ -645,7 +691,8 @@ export default function RealEstateWholesaler() {
                   })}
                 </div>
               </section>
-            )}
+              );
+            })()}
 
             {/* Enhanced Error States */}
             {error && (
