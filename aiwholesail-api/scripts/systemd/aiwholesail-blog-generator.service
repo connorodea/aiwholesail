@@ -1,0 +1,36 @@
+[Unit]
+Description=AIWholesail blog generator (3x/day SEO articles via Claude)
+After=network-online.target aiwholesail-api.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+WorkingDirectory=/var/www/aiwholesail-api
+EnvironmentFile=/var/www/aiwholesail-api/.env
+# Frontend repo path is deployment-specific — script writes blog files here
+# and pushes commits to origin main from this working tree.
+Environment=FRONTEND_REPO_DIR=/var/www/aiwholesail-repo
+# Cap the run at 5 min — Claude calls + git ops should finish in ~60s normally.
+TimeoutStartSec=300
+ExecStart=/usr/bin/node scripts/blog-generator.js --type=both
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=aiwholesail-blog-generator
+Nice=10
+
+# Hardening (matches main API unit, with ProtectHome relaxed to read-only so
+# git push can read /root/.ssh/aiwholesail_deploy and /root/.ssh/config)
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateTmp=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictNamespaces=true
+LockPersonality=true
+RestrictRealtime=true
+SystemCallArchitectures=native
+# Frontend repo + log dir need write access. /tmp is auto-private via PrivateTmp.
+ReadWritePaths=/var/www/aiwholesail-api /var/www/aiwholesail-repo /var/log
