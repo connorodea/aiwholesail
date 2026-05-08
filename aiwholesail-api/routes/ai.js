@@ -723,4 +723,162 @@ function calculateWholesaleMetrics(input) {
   };
 }
 
+// ============================================================================
+// POST /api/ai/rank-deals
+// Filter the top spread candidates from a search through GPT-5.4-mini and
+// return a structured ranked list with AI scores, deal labels, and red flags.
+// Designed to surface true deals from spread-only noise (teardowns, condemned,
+// title issues, etc.).
+// ============================================================================
+
+const RANK_DEALS_SYSTEM_PROMPT = `You are an expert real estate wholesale deal evaluator. Given a list of property candidates that already passed a basic spread filter (list price < Zestimate), your job is to score each property on whether it is a GENUINE wholesale opportunity vs. a false-positive spread.
+
+GENUINE signals (raise score):
+- Description contains motivated-seller language: "must sell", "estate sale", "AS-IS", "investor special", "cash only", "needs TLC", "fixer-upper", "relocation", "motivated"
+- High days-on-market (>60) with no sale = motivated
+- FSBO listings = direct seller access
+- Recent price reductions
+- Description mentions cosmetic/light rehab needs (paintable, cosmetic, surface)
+
+FALSE-POSITIVE signals (lower score, flag):
+- "fire damage", "uninhabitable", "boarded up", "structural", "foundation issue", "tear down", "land value only", "condemned", "mold remediation", "asbestos"
+- Title/legal red flags: "subject to back taxes", "probate pending", "lien", "title issues", "auction"
+- Suspicious price (e.g. $1, $100) — likely data error
+- Brand-new construction with high spread = Zestimate is wrong, not a deal
+- Property type mismatch (e.g. land, mobile home — not wholesale-friendly)
+
+Output exactly the structured JSON requested. Be concise. Be honest — if a property looks risky, flag it.`;
+
+const RANK_DEALS_SCHEMA = {
+  type: 'object',
+  properties: {
+    ranked_deals: {
+      type: 'array',
+      description: 'Properties ranked by genuine deal quality, best first. Include ALL input properties.',
+      items: {
+        type: 'object',
+        properties: {
+          id: { type: 'string', description: 'Property id from input' },
+          ai_score: { type: 'integer', description: 'Genuine-deal score 0-100' },
+          label: {
+            type: 'string',
+            enum: ['strong_buy', 'solid', 'caution', 'avoid'],
+            description: 'Categorical recommendation'
+          },
+          rationale: {
+            type: 'string',
+            description: 'One sentence explaining the score, max 120 chars'
+          },
+          red_flags: {
+            type: 'array',
+            items: { type: 'string' },
+            description: 'Specific red-flag phrases from listing (max 3, empty array if none)'
+          },
+          motivated_signals: {
+            type: 'array',
+            items: { type: 'string' },
+            description: 'Specific motivated-seller phrases detected (max 3, empty array if none)'
+          },
+        },
+        required: ['id', 'ai_score', 'label', 'rationale', 'red_flags', 'motivated_signals'],
+        additionalProperties: false,
+      },
+    },
+  },
+  required: ['ranked_deals'],
+  additionalProperties: false,
+};
+
+router.post('/rank-deals', authenticate, [
+  body('properties').isArray({ min: 1 }).withMessage('properties array required (1-25 entries)'),
+], asyncHandler(async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ error: 'Validation failed', errors: errors.array() });
+  }
+
+  // Rate limit: 20 calls/hour/user
+  const rateLimit = await checkDatabaseRateLimit(req.user.id, 'ai-rank-deals', 20, 1);
+  if (!rateLimit.allowed) {
+    return res.status(429).json({ error: 'Rate limit exceeded. Try again in an hour.' });
+  }
+
+  const { properties } = req.body;
+
+  // Cap at 25 to control cost + token budget. Caller is responsible for picking
+  // the top-spread 25 from a larger result set.
+  const candidates = properties
+    .filter(p => p && p.id && p.price > 0 && p.zestimate > 0 && p.zestimate > p.price)
+    .slice(0, 25);
+
+  if (candidates.length === 0) {
+    return res.json({ ranked_deals: [], note: 'No valid spread candidates in input.' });
+  }
+
+  // Compact each property to only the signals the LLM needs (saves tokens).
+  const compact = candidates.map(p => ({
+    id: String(p.id),
+    address: p.address || '',
+    price: p.price,
+    zestimate: p.zestimate,
+    spread: Math.round((p.zestimate - p.price)),
+    spread_pct: Math.round(((p.zestimate - p.price) / p.zestimate) * 100),
+    bedrooms: p.bedrooms || null,
+    bathrooms: p.bathrooms || null,
+    sqft: p.sqft || null,
+    yearBuilt: p.yearBuilt || null,
+    daysOnMarket: p.daysOnMarket || null,
+    propertyType: p.propertyType || null,
+    isFSBO: !!p.isFSBO,
+    description: (p.description || '').slice(0, 600), // trim long descriptions
+  }));
+
+  const userMessage = `Score these ${compact.length} candidates:\n\n${JSON.stringify(compact, null, 2)}`;
+
+  try {
+    const aiResponse = await callOpenAI(
+      [
+        { role: 'system', content: RANK_DEALS_SYSTEM_PROMPT },
+        { role: 'user', content: userMessage },
+      ],
+      {
+        model: 'gpt-5.4-mini',
+        maxTokens: 4000,
+        temperature: 0.3,
+        responseFormat: {
+          type: 'json_schema',
+          json_schema: {
+            name: 'ranked_deals',
+            schema: RANK_DEALS_SCHEMA,
+            strict: true,
+          },
+        },
+      }
+    );
+
+    const choice = aiResponse?.choices?.[0]?.message?.content;
+    if (!choice) {
+      throw new Error('Empty response from OpenAI');
+    }
+
+    let parsed;
+    try {
+      parsed = JSON.parse(choice);
+    } catch (parseErr) {
+      console.error('[rank-deals] JSON parse failed:', parseErr, 'Raw:', choice.slice(0, 500));
+      return res.status(502).json({ error: 'AI returned malformed response' });
+    }
+
+    res.json({
+      ranked_deals: parsed.ranked_deals || [],
+      candidates_evaluated: candidates.length,
+      model: 'gpt-5.4-mini',
+      usage: aiResponse.usage,
+    });
+  } catch (err) {
+    console.error('[rank-deals] OpenAI call failed:', err.response?.data || err.message);
+    res.status(502).json({ error: 'AI service unavailable. Try again in a moment.' });
+  }
+}));
+
 module.exports = router;

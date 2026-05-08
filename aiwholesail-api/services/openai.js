@@ -69,21 +69,24 @@ async function callClaudeWithTools(systemPrompt, messages, tools, options = {}) 
 async function callOpenAI(messages, options = {}) {
   const {
     model = 'gpt-4.1',
-    maxTokens = 4000
+    maxTokens = 4000,
+    responseFormat,
+    temperature,
   } = options;
+
+  const body = { model, messages, max_tokens: maxTokens };
+  if (responseFormat) body.response_format = responseFormat;
+  if (typeof temperature === 'number') body.temperature = temperature;
 
   const response = await axios.post(
     'https://api.openai.com/v1/chat/completions',
-    {
-      model,
-      messages,
-      max_tokens: maxTokens
-    },
+    body,
     {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${OPENAI_API_KEY}`
-      }
+      },
+      timeout: 60000,
     }
   );
 
