@@ -146,12 +146,14 @@ export default function RealEstateWholesaler() {
       setLastSearchLocation(params.location);
       setIsSearchingFSBO(params.fsboOnly || false);
 
-      // Step 1: Fetch pages — more for state-wide searches to find deals
+      // Step 1: Fetch every page Zillow has for this query. We pass a high
+      // ceiling (100 pages ≈ 4,000+ properties) so the search isn't artificially
+      // truncated — Zillow's own totalPages stops the loop at the real end.
       const isStateSearch = isStateOnlyLocation(params.location);
-      const maxPages = isStateSearch ? 10 : 5;
+      const maxPages = 100;
 
       if (isStateSearch) {
-        setLoadingStatus(`State-wide search: fetching properties across ${params.location}... This may take a minute.`);
+        setLoadingStatus(`State-wide search: fetching every listing across ${params.location}... This may take a minute or two.`);
       }
 
       const searchResults = await zillowAPI.searchProperties(params, maxPages, (loaded, total, count) => {
