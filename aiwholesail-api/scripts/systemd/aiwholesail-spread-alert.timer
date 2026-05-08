@@ -1,0 +1,11 @@
+[Unit]
+Description=Run aiwholesail spread-alert worker every hour at :05
+
+[Timer]
+OnCalendar=*-*-* *:05:00
+Persistent=true
+AccuracySec=1m
+RandomizedDelaySec=30s
+
+[Install]
+WantedBy=timers.target

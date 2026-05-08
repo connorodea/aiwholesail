@@ -1,0 +1,29 @@
+[Unit]
+Description=AIWholesail spread-alert worker (scans property alerts, finds matches)
+After=network-online.target postgresql.service aiwholesail-api.service
+Wants=network-online.target postgresql.service
+
+[Service]
+Type=oneshot
+User=root
+WorkingDirectory=/var/www/aiwholesail-api
+EnvironmentFile=/var/www/aiwholesail-api/.env
+ExecStart=/usr/bin/node scripts/spread-alert-worker.js
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=aiwholesail-spread-alert
+Nice=10
+
+# Hardening (matches main API unit)
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictNamespaces=true
+LockPersonality=true
+RestrictRealtime=true
+SystemCallArchitectures=native
+ReadWritePaths=/var/www/aiwholesail-api /var/log
