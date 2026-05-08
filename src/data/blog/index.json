@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-columbia-sc-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Columbia SC: The Investor's Complete Guide for 2024",
+      "excerpt": "Columbia, South Carolina is quietly becoming one of the Southeast's best markets for real estate investors. This guide breaks down the best neighborhoods, deal types, and strategies to find profitable real estate deals in Columbia SC.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-08T23:32:26.956Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Columbia SC",
+        "Columbia SC real estate investing",
+        "wholesale deals Columbia SC",
+        "flip houses Columbia SC",
+        "rental properties Columbia SC"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-track-real-estate-deals-and-expenses-step-by-step-guide",
       "title": "How to Track Real Estate Deals and Expenses (Step-by-Step Guide)",
       "excerpt": "Tracking your real estate deals and expenses is the backbone of a profitable investing business. Learn the systems, tools, and habits that top investors use to stay organized and maximize returns.",
@@ -15,7 +32,7 @@
         "wholesaling spreadsheet",
         "real estate investing systems"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-build-rapport-with-fsbo-homeowners-and-win-more-deals",
