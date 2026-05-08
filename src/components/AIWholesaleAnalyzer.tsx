@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -98,7 +98,20 @@ interface AIWholesaleAnalyzerProps {
 
 export function AIWholesaleAnalyzer({ properties, market }: AIWholesaleAnalyzerProps) {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [elapsed, setElapsed] = useState(0);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
+
+  // Tick elapsed seconds while analysis is running so the loading button
+  // shows real progress instead of an opaque spinner.
+  useEffect(() => {
+    if (!isAnalyzing) {
+      setElapsed(0);
+      return;
+    }
+    const start = Date.now();
+    const id = setInterval(() => setElapsed(Math.floor((Date.now() - start) / 1000)), 1000);
+    return () => clearInterval(id);
+  }, [isAnalyzing]);
   const [analysisParams, setAnalysisParams] = useState<AnalysisParams>({
     target_fee: 10000,
     repair_cost_psf_low: 25,
@@ -234,9 +247,10 @@ export function AIWholesaleAnalyzer({ properties, market }: AIWholesaleAnalyzerP
 
     } catch (error) {
       console.error('Analysis error:', error);
+      const msg = error instanceof Error ? error.message : 'An error occurred during analysis. Please try again.';
       toast({
         title: "Analysis Failed",
-        description: "An error occurred during analysis. Please try again.",
+        description: msg,
         variant: "destructive"
       });
     } finally {
@@ -378,24 +392,34 @@ export function AIWholesaleAnalyzer({ properties, market }: AIWholesaleAnalyzerP
         </div>
 
         {/* Analyze Button */}
-        <Button
-          onClick={handleAnalyze}
-          disabled={isAnalyzing || properties.length === 0}
-          size="lg"
-          className="w-full h-12"
-        >
-          {isAnalyzing ? (
-            <>
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary-foreground mr-3" />
-              Analyzing {properties.length} Properties...
-            </>
-          ) : (
-            <>
-              <Brain className="h-5 w-5 mr-3" />
-              Analyze {properties.length} Properties
-            </>
+        <div className="space-y-2">
+          <Button
+            onClick={handleAnalyze}
+            disabled={isAnalyzing || properties.length === 0}
+            size="lg"
+            className="w-full h-12"
+          >
+            {isAnalyzing ? (
+              <>
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary-foreground mr-3" />
+                Analyzing {properties.length} {properties.length === 1 ? 'Property' : 'Properties'}…
+                <span className="ml-3 font-mono text-xs opacity-80 tabular-nums">
+                  {Math.floor(elapsed / 60) > 0 ? `${Math.floor(elapsed / 60)}m ${(elapsed % 60).toString().padStart(2, '0')}s` : `${elapsed}s`}
+                </span>
+              </>
+            ) : (
+              <>
+                <Brain className="h-5 w-5 mr-3" />
+                Analyze {properties.length} Properties
+              </>
+            )}
+          </Button>
+          {isAnalyzing && (
+            <p className="text-xs text-muted-foreground text-center leading-relaxed">
+              Claude is working through each property — ARV, repair, MAO, and deal score. This usually takes <span className="text-cyan-400">60–120 seconds</span> for {properties.length} properties. Hang tight.
+            </p>
           )}
-        </Button>
+        </div>
 
         {/* Analysis Results */}
         {analysisResult && (
