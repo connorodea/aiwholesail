@@ -457,25 +457,23 @@ function saveArticle(article) {
 /**
  * Sync the repo to origin/main BEFORE any local writes.
  *
- * Why before, not at commit-time: saveArticle() updates index.json (a tracked
- * file). If we pull --rebase after that write, the dirty working tree blocks
- * the rebase. So sync first, write second, commit third. Any pre-existing
- * stray staged/untracked files get reset/cleaned so we start from a known
- * clean state matching origin.
+ * The bot owns this checkout — any stray local changes (modified tracked
+ * files, leftover staging, orphaned commits from a previous broken push) are
+ * the result of a failed prior run and should be discarded. Hard-reset to
+ * origin/main is idempotent and bulletproof: always lands on the exact tip
+ * of remote main, no merge conflicts possible, no rebase failures from a
+ * dirty working tree.
+ *
+ * Untracked files in src/data/blog/ are intentionally NOT cleaned — the
+ * gitCommitAndPush() function uses selective `git add <articlePath>` so
+ * stray untracked files won't get committed anyway.
  */
 function syncRepo() {
   const { execSync } = require('child_process');
   process.chdir(REPO_DIR);
 
   execSync('git fetch origin main', { stdio: 'pipe' });
-  // Reset any leftover staged state from previous failed runs (non-destructive
-  // for tracked files — just unstages; for untracked, nothing changes).
-  try { execSync('git reset HEAD src/data/blog/', { stdio: 'pipe' }); } catch {}
-  // Bring local main fast-forward to origin/main. If there are local commits
-  // on main (e.g. orphaned by a previous broken push), --rebase replays them
-  // on top, but we'd rather discard than carry forward — handled by checking
-  // ahead-count and resetting hard if non-empty AND env says ok.
-  execSync('git pull --rebase origin main', { stdio: 'pipe' });
+  execSync('git reset --hard origin/main', { stdio: 'pipe' });
 }
 
 async function gitCommitAndPush(article, articlePath) {
