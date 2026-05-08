@@ -196,41 +196,54 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-full max-w-7xl h-[100dvh] sm:h-auto sm:max-h-[95vh] overflow-hidden p-0 bg-gradient-to-br from-background via-background to-muted/5 border-2 border-border/50 shadow-2xl rounded-2xl">
+      <DialogContent className="w-full max-w-7xl h-[100dvh] sm:h-auto sm:max-h-[95vh] overflow-hidden p-0 bg-gradient-to-br from-background via-background to-muted/5 border-0 sm:border-2 border-border/50 shadow-2xl rounded-none sm:rounded-2xl">
         {/* Header */}
-        <DialogHeader className="p-8 pb-6 border-b border-border/30 bg-gradient-to-r from-background via-muted/5 to-background backdrop-blur-sm">
-          <div className="flex items-start justify-between">
-            <div className="flex-1 pr-6">
-              <div className="flex items-center gap-3 mb-6">
-                <Badge variant="outline" className="text-xs font-medium border-border/50 bg-muted/30 rounded-full px-3 py-1.5">
+        <DialogHeader className="p-4 sm:p-8 pb-4 sm:pb-6 border-b border-border/30 bg-gradient-to-r from-background via-muted/5 to-background backdrop-blur-sm">
+          <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+            <div className="flex-1 lg:pr-6 min-w-0">
+              <div className="flex items-center gap-2 mb-3 sm:mb-6 flex-wrap">
+                <Badge variant="outline" className="text-[10px] sm:text-xs font-medium border-border/50 bg-muted/30 rounded-full px-2.5 sm:px-3 py-1 sm:py-1.5">
                   {displayProperty.status}
                 </Badge>
                 {displayProperty.isFSBO && (
-                  <Badge variant="secondary" className="text-xs rounded-full px-3 py-1.5 bg-info/10 text-info border-info/20">FSBO</Badge>
+                  <Badge variant="secondary" className="text-[10px] sm:text-xs rounded-full px-2.5 sm:px-3 py-1 sm:py-1.5 bg-info/10 text-info border-info/20">FSBO</Badge>
                 )}
                 <Badge
                   variant={wholesalePotential.tier === 'excellent' || wholesalePotential.tier === 'great' ? 'default' : 'secondary'}
-                  className="text-xs rounded-full px-3 py-1.5"
+                  className="text-[10px] sm:text-xs rounded-full px-2.5 sm:px-3 py-1 sm:py-1.5"
                 >
                   {wholesalePotential.tier} potential
                 </Badge>
                 {isLoadingDetails && (
-                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <div className="flex items-center gap-1.5 text-[10px] sm:text-xs text-muted-foreground">
                     <Loader2 className="h-3 w-3 animate-spin" />
                     Loading details...
                   </div>
                 )}
               </div>
-              <DialogTitle className="text-xl sm:text-2xl md:text-4xl font-bold mb-4 leading-tight bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text">
+              <DialogTitle className="text-lg sm:text-2xl md:text-4xl font-bold mb-2 sm:mb-4 leading-tight bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text pr-8 lg:pr-0">
                 {displayProperty.address}
               </DialogTitle>
               <div className="flex items-center gap-2 text-muted-foreground">
-                <MapPin className="h-4 w-4" />
-                <span className="text-sm font-medium">{displayProperty.propertyType || 'Property'}</span>
+                <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0" />
+                <span className="text-xs sm:text-sm font-medium truncate">{displayProperty.propertyType || 'Property'}</span>
+              </div>
+
+              {/* Mobile-only price (shown inline below address) */}
+              <div className="mt-3 lg:hidden flex items-baseline gap-2">
+                <div className="text-2xl sm:text-3xl font-bold text-foreground">
+                  {displayProperty.price ? formatPrice(displayProperty.price) : 'Price N/A'}
+                </div>
+                {displayProperty.pricePerSqft && (
+                  <div className="text-xs text-muted-foreground font-medium">
+                    ${Math.round(displayProperty.pricePerSqft)}/sqft
+                  </div>
+                )}
               </div>
             </div>
-            
-            <div className="text-right">
+
+            {/* Desktop price column */}
+            <div className="hidden lg:block text-right">
               <div className="text-3xl font-bold mb-2 text-foreground">
                 {displayProperty.price ? formatPrice(displayProperty.price) : 'Price N/A'}
               </div>
@@ -239,7 +252,7 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                   ${Math.round(displayProperty.pricePerSqft)}/sqft
                 </div>
               )}
-              <div className="flex gap-3">
+              <div className="flex gap-3 justify-end">
                 <Button
                   variant="outline"
                   size="sm"
@@ -266,6 +279,40 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                 >
                   <FileText className="h-4 w-4" />
                   Export PDF
+                </Button>
+                <AddToPipelineButton property={displayProperty} variant="full" size="sm" />
+              </div>
+            </div>
+
+            {/* Mobile action row — horizontally scrollable */}
+            <div className="lg:hidden -mx-4 px-4 sm:-mx-8 sm:px-8 overflow-x-auto scrollbar-none">
+              <div className="flex gap-2 min-w-max pb-1">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleToggleFavorite}
+                  className="gap-1.5 h-10 rounded-xl border-border/50 flex-shrink-0"
+                >
+                  <Heart className={`h-4 w-4 ${isPropertyFavorite ? 'fill-current text-red-500' : ''}`} />
+                  {isPropertyFavorite ? 'Saved' : 'Save'}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleConvertToLead}
+                  className="gap-1.5 h-10 rounded-xl border-border/50 flex-shrink-0"
+                >
+                  <Phone className="h-4 w-4" />
+                  Lead
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => generateDealReport(displayProperty)}
+                  className="gap-1.5 h-10 rounded-xl border-border/50 flex-shrink-0"
+                >
+                  <FileText className="h-4 w-4" />
+                  PDF
                 </Button>
                 <AddToPipelineButton property={displayProperty} variant="full" size="sm" />
               </div>
@@ -320,51 +367,51 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
             </div>
 
             <TabsContent value="overview" className="flex-1 overflow-auto mt-0">
-              <div className="p-3 sm:p-6 space-y-8">
+              <div className="p-3 sm:p-6 space-y-5 sm:space-y-8">
                 {/* Key Stats */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
                   <Card className="border-border hover:shadow-md transition-shadow">
-                    <CardContent className="p-6 text-center">
-                      <div className="flex items-center justify-center gap-2 mb-3">
-                        <div className="p-2 rounded-lg bg-primary/10">
-                          <Bed className="h-4 w-4 text-primary" />
+                    <CardContent className="p-3 sm:p-6 text-center">
+                      <div className="flex items-center justify-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                        <div className="p-1.5 sm:p-2 rounded-lg bg-primary/10">
+                          <Bed className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
                         </div>
-                        <span className="text-sm font-medium text-muted-foreground">Bedrooms</span>
+                        <span className="text-[11px] sm:text-sm font-medium text-muted-foreground">Bedrooms</span>
                       </div>
-                      <div className="text-3xl font-bold text-foreground">{displayProperty.bedrooms || '—'}</div>
+                      <div className="text-xl sm:text-3xl font-bold text-foreground">{displayProperty.bedrooms || '—'}</div>
                     </CardContent>
                   </Card>
                   <Card className="border-border hover:shadow-md transition-shadow">
-                    <CardContent className="p-6 text-center">
-                      <div className="flex items-center justify-center gap-2 mb-3">
-                        <div className="p-2 rounded-lg bg-primary/10">
-                          <Bath className="h-4 w-4 text-primary" />
+                    <CardContent className="p-3 sm:p-6 text-center">
+                      <div className="flex items-center justify-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                        <div className="p-1.5 sm:p-2 rounded-lg bg-primary/10">
+                          <Bath className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
                         </div>
-                        <span className="text-sm font-medium text-muted-foreground">Bathrooms</span>
+                        <span className="text-[11px] sm:text-sm font-medium text-muted-foreground">Bathrooms</span>
                       </div>
-                      <div className="text-3xl font-bold text-foreground">{displayProperty.bathrooms || '—'}</div>
+                      <div className="text-xl sm:text-3xl font-bold text-foreground">{displayProperty.bathrooms || '—'}</div>
                     </CardContent>
                   </Card>
                   <Card className="border-border hover:shadow-md transition-shadow">
-                    <CardContent className="p-6 text-center">
-                      <div className="flex items-center justify-center gap-2 mb-3">
-                        <div className="p-2 rounded-lg bg-primary/10">
-                          <Square className="h-4 w-4 text-primary" />
+                    <CardContent className="p-3 sm:p-6 text-center">
+                      <div className="flex items-center justify-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                        <div className="p-1.5 sm:p-2 rounded-lg bg-primary/10">
+                          <Square className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
                         </div>
-                        <span className="text-sm font-medium text-muted-foreground">Square Feet</span>
+                        <span className="text-[11px] sm:text-sm font-medium text-muted-foreground">Sq Ft</span>
                       </div>
-                      <div className="text-3xl font-bold text-foreground">{displayProperty.sqft ? formatNumber(displayProperty.sqft) : '—'}</div>
+                      <div className="text-xl sm:text-3xl font-bold text-foreground">{displayProperty.sqft ? formatNumber(displayProperty.sqft) : '—'}</div>
                     </CardContent>
                   </Card>
                   <Card className="border-border hover:shadow-md transition-shadow">
-                    <CardContent className="p-6 text-center">
-                      <div className="flex items-center justify-center gap-2 mb-3">
-                        <div className="p-2 rounded-lg bg-primary/10">
-                          <Calendar className="h-4 w-4 text-primary" />
+                    <CardContent className="p-3 sm:p-6 text-center">
+                      <div className="flex items-center justify-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                        <div className="p-1.5 sm:p-2 rounded-lg bg-primary/10">
+                          <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
                         </div>
-                        <span className="text-sm font-medium text-muted-foreground">Days on Market</span>
+                        <span className="text-[11px] sm:text-sm font-medium text-muted-foreground">Days</span>
                       </div>
-                      <div className="text-3xl font-bold text-foreground">{displayProperty.daysOnMarket || '—'}</div>
+                      <div className="text-xl sm:text-3xl font-bold text-foreground">{displayProperty.daysOnMarket || '—'}</div>
                     </CardContent>
                   </Card>
                 </div>

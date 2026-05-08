@@ -34,6 +34,8 @@ import { PropertyComparison } from '@/components/PropertyComparison';
 import { AITopPicksSection } from '@/components/AITopPicksSection';
 import { SaveSearchAsAlertDialog } from '@/components/SaveSearchAsAlertDialog';
 import { AlertOnboardingBanner } from '@/components/AlertOnboardingBanner';
+import { TrialCountdownBanner } from '@/components/TrialCountdownBanner';
+import { SearchLoadingState } from '@/components/SearchLoadingState';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 
@@ -298,7 +300,7 @@ export default function RealEstateWholesaler() {
       <DashboardNav />
 
       {/* Main Content */}
-      <main className="container mx-auto mobile-padding pt-24 pb-16 space-y-20">
+      <main className="container mx-auto mobile-padding pt-20 sm:pt-24 pb-12 sm:pb-16 space-y-12 sm:space-y-16 lg:space-y-20">
         {showAlerts ? (
           <section className="animate-fade-in">
             <PropertyAlertsManager />
@@ -306,12 +308,12 @@ export default function RealEstateWholesaler() {
         ) : !showFavorites ? (
           <>
             {/* Hero Search Section */}
-            <section className="text-center space-y-10 max-w-6xl mx-auto animate-fade-in">
-              <div className="space-y-6">
-                <h1 className="text-4xl md:text-5xl font-medium tracking-tight leading-tight">
+            <section className="text-center space-y-6 sm:space-y-10 max-w-6xl mx-auto animate-fade-in">
+              <div className="space-y-3 sm:space-y-6">
+                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-medium tracking-tight leading-tight">
                   Find profitable real estate deals
                 </h1>
-                <p className="text-xl text-neutral-400 font-light max-w-2xl mx-auto leading-relaxed">
+                <p className="text-base sm:text-lg md:text-xl text-neutral-400 font-light max-w-2xl mx-auto leading-relaxed">
                   Discover undervalued properties with AI-powered analysis and comprehensive market data
                 </p>
               </div>
@@ -319,6 +321,11 @@ export default function RealEstateWholesaler() {
               {/* Property Search */}
               <div className="feature-card p-8 backdrop-blur-sm">
                 <PropertySearch onSearch={handleSearch} isLoading={isLoading} />
+              </div>
+
+              {/* Trial countdown banner — only renders for trial users with ≤3 days remaining */}
+              <div className="text-left">
+                <TrialCountdownBanner />
               </div>
 
               {/* Onboarding nudge — only renders if user has 0 alerts */}
@@ -329,124 +336,7 @@ export default function RealEstateWholesaler() {
 
             {/* Loading Animation — visible during search AND enrichment */}
             {(isLoading || loadingProgress > 0) && (
-              <section className="max-w-xl mx-auto animate-fade-in">
-                <div className="relative overflow-hidden rounded-3xl border border-cyan-500/20 bg-[#0c0d0f] p-8 sm:p-12">
-                  {/* Animated gradient background */}
-                  <div className="absolute inset-0 opacity-30">
-                    <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/20 via-transparent to-cyan-500/10" style={{ animation: 'loadingGlow 3s ease-in-out infinite alternate' }} />
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[200%] h-px bg-gradient-to-r from-transparent via-cyan-400/60 to-transparent" style={{ animation: 'scanLine 2s ease-in-out infinite' }} />
-                  </div>
-
-                  <div className="relative z-10 space-y-8">
-                    {/* Animated house icon */}
-                    <div className="flex justify-center">
-                      <div className="relative">
-                        <div className="w-20 h-20 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center" style={{ animation: 'breathe 2s ease-in-out infinite' }}>
-                          <svg className="w-10 h-10 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
-                          </svg>
-                        </div>
-                        {/* Orbiting dots */}
-                        {[0, 1, 2].map(i => (
-                          <div key={i} className="absolute w-2 h-2 rounded-full bg-cyan-400" style={{
-                            animation: `orbit 2.5s linear infinite`,
-                            animationDelay: `${i * 0.83}s`,
-                            top: '50%', left: '50%',
-                            transformOrigin: '0 0',
-                          }} />
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Status text */}
-                    <div className="text-center space-y-2">
-                      <h3 className="text-xl font-semibold text-white tracking-tight">
-                        {loadingProgress <= 20 ? 'Scanning the market' :
-                         loadingProgress <= 50 ? 'Pulling property data' :
-                         loadingProgress <= 80 ? 'Analyzing listings' :
-                         loadingProgress < 95 ? 'Calculating spreads' :
-                         'Finalizing results'}
-                      </h3>
-                      <p className="text-sm text-neutral-400 min-h-[20px]">
-                        {loadingStatus}
-                      </p>
-                    </div>
-
-                    {/* Progress bar */}
-                    <div className="space-y-3">
-                      <div className="relative w-full h-2 bg-white/[0.04] rounded-full overflow-hidden">
-                        <div
-                          className="absolute inset-y-0 left-0 rounded-full transition-all duration-700 ease-out"
-                          style={{
-                            width: `${loadingProgress}%`,
-                            background: 'linear-gradient(90deg, #06b6d4, #22d3ee, #06b6d4)',
-                            backgroundSize: '200% 100%',
-                            animation: 'shimmer 1.5s linear infinite',
-                            boxShadow: '0 0 20px rgba(6, 182, 212, 0.4)',
-                          }}
-                        />
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-xs font-mono text-cyan-400/80">{Math.round(loadingProgress)}%</span>
-                        <span className="text-xs text-neutral-500">
-                          {loadingProgress <= 80 ? 'Searching properties' : 'Calculating spreads'}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Animated step indicators */}
-                    <div className="grid grid-cols-4 gap-2">
-                      {[
-                        { label: 'Search', threshold: 0 },
-                        { label: 'Fetch', threshold: 25 },
-                        { label: 'Analyze', threshold: 60 },
-                        { label: 'Score', threshold: 85 },
-                      ].map((step, i) => (
-                        <div key={i} className="text-center">
-                          <div className={`w-full h-1 rounded-full mb-1.5 transition-all duration-500 ${
-                            loadingProgress >= step.threshold ? 'bg-cyan-400' : 'bg-white/[0.06]'
-                          }`} />
-                          <span className={`text-[10px] font-medium transition-colors duration-300 ${
-                            loadingProgress >= step.threshold ? 'text-cyan-400' : 'text-neutral-600'
-                          }`}>{step.label}</span>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Tip */}
-                    <p className="text-[11px] text-neutral-500 text-center leading-relaxed">
-                      {loadingProgress <= 50
-                        ? 'Properties will appear as they load. Deals with +$30K spreads sort to the top.'
-                        : 'Comparing each listing price against its Zestimate to find profitable spreads.'}
-                    </p>
-                  </div>
-                </div>
-
-                <style>{`
-                  @keyframes shimmer {
-                    0% { background-position: 200% 0; }
-                    100% { background-position: -200% 0; }
-                  }
-                  @keyframes breathe {
-                    0%, 100% { transform: scale(1); }
-                    50% { transform: scale(1.05); }
-                  }
-                  @keyframes orbit {
-                    0% { transform: rotate(0deg) translateX(44px) rotate(0deg); opacity: 0.8; }
-                    50% { opacity: 0.3; }
-                    100% { transform: rotate(360deg) translateX(44px) rotate(-360deg); opacity: 0.8; }
-                  }
-                  @keyframes loadingGlow {
-                    0% { opacity: 0.15; }
-                    100% { opacity: 0.35; }
-                  }
-                  @keyframes scanLine {
-                    0% { transform: translateX(-50%) translateY(0); opacity: 0; }
-                    50% { opacity: 1; }
-                    100% { transform: translateX(-50%) translateY(400px); opacity: 0; }
-                  }
-                `}</style>
-              </section>
+              <SearchLoadingState progress={loadingProgress} status={loadingStatus} />
             )}
 
             {/* Results Section */}
@@ -456,15 +346,15 @@ export default function RealEstateWholesaler() {
                 : properties;
               const hiddenNegativeCount = properties.length - visibleProperties.length;
               return (
-              <section className="space-y-10 animate-fade-in">
+              <section className="space-y-6 sm:space-y-10 animate-fade-in">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                  <div className="space-y-2">
-                    <h2 className="text-2xl font-medium tracking-tight">
+                  <div className="space-y-1 sm:space-y-2">
+                    <h2 className="text-xl sm:text-2xl font-medium tracking-tight">
                       {visibleProperties.some(p => p.price && p.zestimate && p.price < p.zestimate)
                         ? 'Best deals found'
                         : 'Search results'}
                     </h2>
-                    <p className="text-neutral-400 font-light">
+                    <p className="text-sm sm:text-base text-neutral-400 font-light">
                       {visibleProperties.length} {visibleProperties.length === 1 ? 'property' : 'properties'} shown
                       {hideNegativeSpreads && hiddenNegativeCount > 0 && (
                         <span className="text-neutral-500"> · {hiddenNegativeCount} hidden</span>
@@ -473,7 +363,7 @@ export default function RealEstateWholesaler() {
                   </div>
 
                   {user && properties.length > 0 && (
-                    <div className="flex items-center gap-2 flex-wrap">
+                    <div className="flex items-center gap-2 flex-wrap -mx-4 px-4 sm:mx-0 sm:px-0 overflow-x-auto sm:overflow-visible scrollbar-none">
                       <div
                         className={`flex items-center gap-2 h-9 px-3 rounded-md border text-sm font-medium smooth-transition ${
                           hideNegativeSpreads
@@ -600,16 +490,19 @@ export default function RealEstateWholesaler() {
 
                 {/* SMS Alert Input */}
                 {showSmsAlert && (
-                  <div className="flex items-center gap-3 p-4 bg-white/[0.02] rounded-xl border border-border">
-                    <MessageSquare className="h-5 w-5 text-primary flex-shrink-0" />
-                    <Input
-                      placeholder="Your phone number (e.g., +1234567890)"
-                      value={smsPhone}
-                      onChange={(e) => setSmsPhone(e.target.value)}
-                      className="max-w-xs bg-background"
-                    />
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3 p-4 bg-white/[0.02] rounded-xl border border-border">
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <MessageSquare className="h-5 w-5 text-primary flex-shrink-0" />
+                      <Input
+                        placeholder="Your phone number (e.g., +1234567890)"
+                        value={smsPhone}
+                        onChange={(e) => setSmsPhone(e.target.value)}
+                        className="flex-1 sm:max-w-xs bg-background h-11 sm:h-10"
+                      />
+                    </div>
                     <Button
                       size="sm"
+                      className="w-full sm:w-auto h-11 sm:h-9"
                       disabled={sendingSms || !smsPhone.trim()}
                       onClick={async () => {
                         const deals = properties.filter(p => p.price && p.zestimate && (p.zestimate - p.price) >= 30000);

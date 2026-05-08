@@ -250,14 +250,16 @@ router.post('/signup', [
     console.error('[Auth] Failed to send signup notification:', notifyErr.message);
   }
 
-  // Send verification email via Resend
+  // Send welcome + verification email via Resend
   const verifyUrl = `${process.env.API_URL || 'https://api.aiwholesail.com'}/api/auth/verify-email/${verificationToken}`;
+  const appUrl = process.env.APP_URL || 'https://aiwholesail.com';
   const firstName = fullName ? fullName.split(' ')[0] : '';
+  const trialEndDisplay = trialEnd.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
   try {
     const verifyResult = await resend.emails.send({
       from: 'AIWholesail <noreply@aiwholesail.com>',
       to: normalizedEmail,
-      subject: 'Verify Your Email — AIWholesail',
+      subject: `Welcome to AIWholesail${firstName ? ', ' + firstName : ''} — your 7-day Pro trial is live`,
       html: `
         <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #000000; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
           <tr><td align="center" style="padding: 40px 20px;">
@@ -273,70 +275,142 @@ router.post('/signup', [
               <tr><td style="height: 3px; background: linear-gradient(90deg, #06b6d4, #0891b2, #06b6d4); font-size: 0; line-height: 0;">&nbsp;</td></tr>
 
               <!-- Content -->
-              <tr><td style="padding: 40px 32px 36px;">
+              <tr><td style="padding: 40px 32px 12px;">
 
                 <!-- Welcome heading -->
-                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 24px;">
-                  <tr><td style="color: #ffffff; font-size: 28px; font-weight: 700; letter-spacing: -0.5px; line-height: 1.2; padding-bottom: 4px;">
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 16px;">
+                  <tr><td style="color: #ffffff; font-size: 28px; font-weight: 700; letter-spacing: -0.5px; line-height: 1.2;">
                     Welcome to AIWholesail${firstName ? ', ' + firstName : ''}!
                   </td></tr>
                 </table>
 
-                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 32px;">
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 28px;">
                   <tr><td style="color: #a3a3a3; font-size: 16px; line-height: 1.7;">
-                    You're one step away from finding profitable real estate deals with AI. Verify your email to activate your account and start your 7-day Pro trial.
+                    Your 7-day Pro trial is live. Verify your email below to unlock full access — no credit card required.
                   </td></tr>
                 </table>
 
-                <!-- CTA Button -->
-                <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 32px;">
+                <!-- Verify CTA -->
+                <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 14px;">
                   <tr><td style="background-color: #06b6d4; border-radius: 8px; padding: 16px 36px; box-shadow: 0 2px 8px rgba(6,182,212,0.25);">
-                    <a href="${verifyUrl}" style="color: #000000; font-weight: 600; font-size: 16px; text-decoration: none; display: inline-block;">Verify Email Address</a>
+                    <a href="${verifyUrl}" style="color: #000000; font-weight: 600; font-size: 16px; text-decoration: none; display: inline-block;">Verify email & start exploring</a>
                   </td></tr>
                 </table>
 
-                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 36px;">
-                  <tr><td style="color: #525252; font-size: 13px; line-height: 1.5;">
-                    This link expires in 24 hours. If the button doesn't work, copy and paste this URL into your browser:
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 28px;">
+                  <tr><td style="color: #525252; font-size: 12px; line-height: 1.5;">
+                    Verification link expires in 24 hours. Trouble with the button? <a href="${verifyUrl}" style="color: #06b6d4; text-decoration: none;">Open in browser</a>.
                   </td></tr>
-                  <tr><td style="padding-top: 8px;">
-                    <a href="${verifyUrl}" style="color: #06b6d4; font-size: 12px; text-decoration: none; word-break: break-all;">${verifyUrl}</a>
+                </table>
+
+                <!-- Trial-end callout -->
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 32px; background-color: rgba(6,182,212,0.06); border: 1px solid rgba(6,182,212,0.20); border-radius: 10px;">
+                  <tr><td style="padding: 16px 20px;">
+                    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td style="color: #06b6d4; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; padding-bottom: 4px;">
+                          Trial ends
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="color: #ffffff; font-size: 18px; font-weight: 600; letter-spacing: -0.2px;">
+                          ${trialEndDisplay}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="color: #a3a3a3; font-size: 13px; line-height: 1.5; padding-top: 6px;">
+                          You'll get a heads-up before it ends. Keep Pro for $49/mo — cancel anytime.
+                        </td>
+                      </tr>
+                    </table>
+                  </td></tr>
+                </table>
+
+                <!-- What's included -->
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 14px;">
+                  <tr><td style="color: #525252; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em;">
+                    What's included in your Pro trial
+                  </td></tr>
+                </table>
+
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 32px;">
+                  <tr><td style="padding-bottom: 12px;">
+                    <table cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td valign="top" style="color: #06b6d4; font-size: 14px; padding-right: 10px; padding-top: 1px;">&#9679;</td>
+                        <td style="color: #e5e5e5; font-size: 14px; line-height: 1.5;">
+                          <strong style="color: #ffffff;">AI deal scoring</strong> — every listing scored against its Zestimate, top spreads sorted to the top
+                        </td>
+                      </tr>
+                    </table>
+                  </td></tr>
+                  <tr><td style="padding-bottom: 12px;">
+                    <table cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td valign="top" style="color: #06b6d4; font-size: 14px; padding-right: 10px; padding-top: 1px;">&#9679;</td>
+                        <td style="color: #e5e5e5; font-size: 14px; line-height: 1.5;">
+                          <strong style="color: #ffffff;">Real-time alerts</strong> — get pinged the moment a +$30K spread hits your markets
+                        </td>
+                      </tr>
+                    </table>
+                  </td></tr>
+                  <tr><td>
+                    <table cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td valign="top" style="color: #06b6d4; font-size: 14px; padding-right: 10px; padding-top: 1px;">&#9679;</td>
+                        <td style="color: #e5e5e5; font-size: 14px; line-height: 1.5;">
+                          <strong style="color: #ffffff;">Deal pipeline + buyer matching</strong> — track properties end-to-end and match them to your buyer list
+                        </td>
+                      </tr>
+                    </table>
                   </td></tr>
                 </table>
 
                 <!-- Divider -->
-                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 28px;">
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 22px;">
                   <tr><td style="border-top: 1px solid #1a1a1a; font-size: 0; line-height: 0;">&nbsp;</td></tr>
                 </table>
 
-                <!-- Feature highlights -->
-                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 8px;">
-                  <tr><td style="color: #525252; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; padding-bottom: 16px;">
-                    What you get with AIWholesail
+                <!-- Quick-start actions -->
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 14px;">
+                  <tr><td style="color: #525252; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em;">
+                    Three things to try first
                   </td></tr>
                 </table>
 
                 <table width="100%" cellpadding="0" cellspacing="0" border="0">
                   <tr>
-                    <td width="33%" valign="top" style="padding-right: 12px;">
-                      <table cellpadding="0" cellspacing="0" border="0">
-                        <tr><td style="font-size: 22px; padding-bottom: 8px;">&#128269;</td></tr>
-                        <tr><td style="color: #e5e5e5; font-size: 13px; font-weight: 600; padding-bottom: 4px;">AI Deal Scoring</td></tr>
-                        <tr><td style="color: #525252; font-size: 12px; line-height: 1.4;">Instant spread analysis on every property</td></tr>
+                    <td width="33%" valign="top" style="padding-right: 8px;">
+                      <table cellpadding="0" cellspacing="0" border="0" width="100%">
+                        <tr><td style="background-color: rgba(255,255,255,0.02); border: 1px solid #1a1a1a; border-radius: 8px; padding: 14px;">
+                          <table cellpadding="0" cellspacing="0" border="0">
+                            <tr><td style="color: #ffffff; font-size: 13px; font-weight: 600; padding-bottom: 4px;">1. Run your first search</td></tr>
+                            <tr><td style="color: #a3a3a3; font-size: 12px; line-height: 1.5; padding-bottom: 10px;">Pick a market and we'll surface listings priced under Zestimate.</td></tr>
+                            <tr><td><a href="${appUrl}/app" style="color: #06b6d4; font-size: 12px; font-weight: 600; text-decoration: none;">Search properties &rarr;</a></td></tr>
+                          </table>
+                        </td></tr>
                       </table>
                     </td>
-                    <td width="33%" valign="top" style="padding: 0 6px;">
-                      <table cellpadding="0" cellspacing="0" border="0">
-                        <tr><td style="font-size: 22px; padding-bottom: 8px;">&#128200;</td></tr>
-                        <tr><td style="color: #e5e5e5; font-size: 13px; font-weight: 600; padding-bottom: 4px;">Market Analytics</td></tr>
-                        <tr><td style="color: #525252; font-size: 12px; line-height: 1.4;">Real-time comps and market trends</td></tr>
+                    <td width="33%" valign="top" style="padding: 0 4px;">
+                      <table cellpadding="0" cellspacing="0" border="0" width="100%">
+                        <tr><td style="background-color: rgba(255,255,255,0.02); border: 1px solid #1a1a1a; border-radius: 8px; padding: 14px;">
+                          <table cellpadding="0" cellspacing="0" border="0">
+                            <tr><td style="color: #ffffff; font-size: 13px; font-weight: 600; padding-bottom: 4px;">2. Set up alerts</td></tr>
+                            <tr><td style="color: #a3a3a3; font-size: 12px; line-height: 1.5; padding-bottom: 10px;">Save a search as an alert — we'll email you the moment new deals hit.</td></tr>
+                            <tr><td><a href="${appUrl}/app/alerts" style="color: #06b6d4; font-size: 12px; font-weight: 600; text-decoration: none;">Create alert &rarr;</a></td></tr>
+                          </table>
+                        </td></tr>
                       </table>
                     </td>
-                    <td width="33%" valign="top" style="padding-left: 12px;">
-                      <table cellpadding="0" cellspacing="0" border="0">
-                        <tr><td style="font-size: 22px; padding-bottom: 8px;">&#127968;</td></tr>
-                        <tr><td style="color: #e5e5e5; font-size: 13px; font-weight: 600; padding-bottom: 4px;">264 Markets</td></tr>
-                        <tr><td style="color: #525252; font-size: 12px; line-height: 1.4;">Coverage across all major U.S. metros</td></tr>
+                    <td width="33%" valign="top" style="padding-left: 8px;">
+                      <table cellpadding="0" cellspacing="0" border="0" width="100%">
+                        <tr><td style="background-color: rgba(255,255,255,0.02); border: 1px solid #1a1a1a; border-radius: 8px; padding: 14px;">
+                          <table cellpadding="0" cellspacing="0" border="0">
+                            <tr><td style="color: #ffffff; font-size: 13px; font-weight: 600; padding-bottom: 4px;">3. Browse top deals</td></tr>
+                            <tr><td style="color: #a3a3a3; font-size: 12px; line-height: 1.5; padding-bottom: 10px;">See the highest-spread listings across our 264 covered markets.</td></tr>
+                            <tr><td><a href="${appUrl}/app/deals" style="color: #06b6d4; font-size: 12px; font-weight: 600; text-decoration: none;">View deals &rarr;</a></td></tr>
+                          </table>
+                        </td></tr>
                       </table>
                     </td>
                   </tr>
@@ -345,13 +419,14 @@ router.post('/signup', [
               </td></tr>
 
               <!-- Footer -->
-              <tr><td style="padding: 20px 32px 24px; border-top: 1px solid #1a1a1a;">
+              <tr><td style="padding: 24px 32px; border-top: 1px solid #1a1a1a;">
                 <table width="100%" cellpadding="0" cellspacing="0" border="0">
                   <tr>
                     <td style="color: #404040; font-size: 11px; line-height: 1.5;">
+                      Questions? Just reply — a real person reads every email.<br/>
                       &copy; 2026 AIWholesail &middot; <a href="https://aiwholesail.com" style="color: #06b6d4; text-decoration: none;">aiwholesail.com</a>
                     </td>
-                    <td align="right" style="color: #404040; font-size: 11px;">
+                    <td align="right" valign="top" style="color: #404040; font-size: 11px;">
                       <a href="https://aiwholesail.com/app/account" style="color: #404040; text-decoration: none;">Manage preferences</a>
                     </td>
                   </tr>
@@ -365,13 +440,12 @@ router.post('/signup', [
       `,
     });
     if (verifyResult?.error) {
-      console.error('[Auth] Resend rejected verification email:', JSON.stringify(verifyResult.error));
+      console.error('[Auth] Resend rejected welcome email:', JSON.stringify(verifyResult.error));
     } else {
-      console.log(`[Auth] Verification email sent to ${normalizedEmail.substring(0, 3)}***`, { id: verifyResult?.data?.id });
+      console.log(`[Auth] Welcome email sent to ${normalizedEmail.substring(0, 3)}***`, { id: verifyResult?.data?.id });
     }
   } catch (emailErr) {
-    console.error('[Auth] Failed to send verification email:', emailErr.message);
-    // Don't fail signup — user can request resend later
+    console.error('[Auth] Failed to send welcome email:', emailErr.message);
   }
 
   await logSecurityEvent('signup_success', { email: normalizedEmail.substring(0, 3) + '***' }, userId, req);

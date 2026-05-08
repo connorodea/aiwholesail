@@ -64,18 +64,18 @@ export function PropertyCard({ property, onViewDetails }: PropertyCardProps) {
     }`}>
       {/* Deal Banner */}
       {isQualifiedDeal && (
-        <div className={`px-4 py-2 text-sm font-semibold flex items-center justify-between ${
+        <div className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold flex items-center justify-between gap-2 ${
           isTopDeal ? 'bg-gradient-to-r from-yellow-500 to-amber-500 text-white' :
           isGreatDeal ? 'bg-gradient-to-r from-emerald-500 to-green-500 text-white' :
           'bg-gradient-to-r from-green-600 to-emerald-600 text-white'
         }`}>
-          <span className="flex items-center gap-2">
-            <TrendingUp className="h-4 w-4" />
-            {isTopDeal ? 'TOP DEAL' : isGreatDeal ? 'GREAT DEAL' : 'GOOD DEAL'}
+          <span className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+            <TrendingUp className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0" />
+            <span className="truncate">{isTopDeal ? 'TOP DEAL' : isGreatDeal ? 'GREAT DEAL' : 'GOOD DEAL'}</span>
           </span>
-          <span className="flex items-center gap-2">
+          <span className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
             {formatSpread(spread)}
-            {isNew && <Flame className="h-4 w-4" />}
+            {isNew && <Flame className="h-3.5 w-3.5 sm:h-4 sm:w-4" />}
           </span>
         </div>
       )}
@@ -112,21 +112,21 @@ export function PropertyCard({ property, onViewDetails }: PropertyCardProps) {
         <Button
           variant="ghost"
           size="icon"
-          className="absolute top-3 right-3 bg-background/80 backdrop-blur-sm hover:bg-background h-8 w-8"
+          className="absolute top-3 right-3 bg-background/80 backdrop-blur-sm hover:bg-background h-10 w-10 sm:h-9 sm:w-9"
           onClick={(e) => { e.stopPropagation(); setIsFavorited(!isFavorited); }}
         >
-          <Heart className={`h-4 w-4 ${isFavorited ? 'fill-destructive text-destructive' : ''}`} />
+          <Heart className={`h-5 w-5 sm:h-4 sm:w-4 ${isFavorited ? 'fill-destructive text-destructive' : ''}`} />
         </Button>
       </div>
 
-      <CardContent className="p-4 space-y-4 flex-1 flex flex-col">
+      <CardContent className="p-4 space-y-3 sm:space-y-4 flex-1 flex flex-col">
         {/* Header: Price + Address */}
         <div>
-          <div className="text-2xl font-bold tracking-tight">
+          <div className="text-xl sm:text-2xl font-bold tracking-tight">
             {property.price ? formatFullPrice(property.price) : 'Price TBD'}
           </div>
           <div className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
-            <MapPin className="h-3 w-3" />
+            <MapPin className="h-3 w-3 flex-shrink-0" />
             <span className="truncate">{property.address}</span>
           </div>
         </div>
@@ -262,7 +262,7 @@ export function PropertyCard({ property, onViewDetails }: PropertyCardProps) {
       <CardFooter className="p-4 pt-0 flex gap-2">
         <Button
           onClick={() => onViewDetails(property)}
-          className="flex-1"
+          className="flex-1 h-11 sm:h-9 text-sm"
           size="sm"
         >
           <Eye className="h-4 w-4 mr-2" />
@@ -271,6 +271,8 @@ export function PropertyCard({ property, onViewDetails }: PropertyCardProps) {
         <Button
           variant="outline"
           size="sm"
+          aria-label="Skip trace"
+          className="h-11 w-11 sm:h-9 sm:w-9 p-0 flex-shrink-0"
           onClick={(e) => {
             e.stopPropagation();
             setShowSkipTrace(true);
@@ -282,6 +284,8 @@ export function PropertyCard({ property, onViewDetails }: PropertyCardProps) {
         <Button
           variant="outline"
           size="sm"
+          aria-label="Open on Zillow"
+          className="h-11 w-11 sm:h-9 sm:w-9 p-0 flex-shrink-0"
           onClick={(e) => {
             e.stopPropagation();
             window.open(`https://www.zillow.com/homes/${encodeURIComponent(property.address)}_rb/`, '_blank');
