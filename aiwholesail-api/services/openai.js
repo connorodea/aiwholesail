@@ -5,12 +5,17 @@ const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
 /**
  * Call Anthropic Claude API
+ *
+ * Hard timeout matters: nginx in front of this caps at 300s and the browser
+ * gives up well before that. A hung Anthropic request would leave the client
+ * spinning forever. 120s is generous for sonnet-4.6 on a 25-property batch.
  */
 async function callClaude(systemPrompt, userMessage, options = {}) {
   const {
     model = 'claude-sonnet-4-6',
     maxTokens = 4000,
-    temperature = 0.7
+    temperature = 0.7,
+    timeoutMs = 120000,
   } = options;
 
   const response = await axios.post(
@@ -26,7 +31,8 @@ async function callClaude(systemPrompt, userMessage, options = {}) {
         'Content-Type': 'application/json',
         'x-api-key': ANTHROPIC_API_KEY,
         'anthropic-version': '2023-06-01'
-      }
+      },
+      timeout: timeoutMs,
     }
   );
 
@@ -39,7 +45,8 @@ async function callClaude(systemPrompt, userMessage, options = {}) {
 async function callClaudeWithTools(systemPrompt, messages, tools, options = {}) {
   const {
     model = 'claude-sonnet-4-6',
-    maxTokens = 4000
+    maxTokens = 4000,
+    timeoutMs = 120000,
   } = options;
 
   const response = await axios.post(
@@ -56,7 +63,8 @@ async function callClaudeWithTools(systemPrompt, messages, tools, options = {}) 
         'Content-Type': 'application/json',
         'x-api-key': ANTHROPIC_API_KEY,
         'anthropic-version': '2023-06-01'
-      }
+      },
+      timeout: timeoutMs,
     }
   );
 

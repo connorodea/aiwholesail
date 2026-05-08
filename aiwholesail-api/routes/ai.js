@@ -270,10 +270,77 @@ router.post('/wholesale-analyzer', authenticate, [
   // Batch mode: if csv_data is provided, analyze multiple properties
   if (csv_data && Array.isArray(csv_data) && csv_data.length > 0) {
     const params = analysis_params || {};
-    const batchMessage = "Analyze these " + csv_data.length + " wholesale deal candidates in " + (market || "the target market") + ". Properties: " + JSON.stringify(csv_data.slice(0, 25)) + ". For each: calculate ARV, repair costs, MAO (70% rule), wholesale profit, deal score (1-100). Rank best to worst. Return JSON with deals array.";
-    const batchResponse = await callClaude(WHOLESALE_ANALYSIS_PROMPT, batchMessage);
-    const batchText = batchResponse.content[0]?.text || "";
-    return res.json({ response: batchText, type: "batch", count: csv_data.length });
+    const targetFee = Number(params.target_fee) || 10000;
+    const minSpreadPct = Number(params.min_spread_pct) || 0.20;
+    const repairLow = Number(params.repair_cost_low) || 25;
+    const repairHigh = Number(params.repair_cost_high) || 60;
+    const maxCandidates = Math.min(Number(params.max_candidates) || 15, 15);
+
+    const candidates = csv_data.slice(0, maxCandidates);
+
+    // Strict JSON-only system prompt for batch mode — otherwise Claude returns
+    // prose and the frontend's JSON.parse fails silently into "0 deals".
+    const BATCH_SYSTEM = `You are an expert real estate wholesale deal analyzer. You MUST respond with valid JSON only — no prose, no markdown fences, no commentary before or after. The response must parse with JSON.parse.
+
+Output schema (return EXACTLY this shape):
+{
+  "market": string,
+  "analysis_timestamp": string (ISO-8601),
+  "assumptions": {
+    "target_fee": number,
+    "min_spread_pct": number,
+    "mao_rule_pct_of_arv": number,
+    "repair_cost_low_per_sqft": number,
+    "repair_cost_high_per_sqft": number
+  },
+  "deals": [
+    {
+      "rank": number,
+      "address": string,
+      "property_details": { "list_price": number, "zestimate": number, "sqft": number, "beds": number, "baths": number },
+      "arv_calculation": { "estimated_arv": number, "method": string },
+      "repair_estimate": { "total_repair_estimate": number, "rationale": string },
+      "mao_calculation": { "mao": number, "mao_rounded": number },
+      "profit_analysis": {
+        "if_purchased_at_mao": { "recommended_assignment_fee": number, "estimated_wholesale_profit": number }
+      },
+      "deal_score": number,
+      "recommendation": "PURSUE" | "MAYBE" | "PASS",
+      "summary": { "one_liner": string }
+    }
+  ]
+}
+
+Rules:
+- Rank deals best-first by deal_score (highest first)
+- ARV: use Zestimate as primary anchor; adjust ±10% based on sqft/condition signals
+- Repair: sqft × repair_cost_low_per_sqft as floor, × repair_cost_high_per_sqft as ceiling, pick midpoint unless red flags push higher
+- MAO = (ARV × mao_rule_pct_of_arv) − repairs − target_fee
+- deal_score 0-100: 80+ for strong margin, 50-79 solid, 30-49 marginal, <30 pass
+- one_liner: ≤120 chars, plain English, why this is/isn't a deal
+- Return ALL ${candidates.length} deals — none filtered out`;
+
+    const batchMessage = `Market: ${market || 'unspecified'}
+Assumptions: target_fee=$${targetFee}, min_spread_pct=${minSpreadPct}, mao_rule_pct_of_arv=0.70, repair_cost_low_per_sqft=$${repairLow}, repair_cost_high_per_sqft=$${repairHigh}
+
+${candidates.length} properties to analyze:
+${JSON.stringify(candidates, null, 2)}
+
+Return JSON only.`;
+
+    try {
+      const batchResponse = await callClaude(BATCH_SYSTEM, batchMessage, { maxTokens: 8000, timeoutMs: 120000 });
+      const batchText = batchResponse.content?.[0]?.text || '';
+      // Strip any accidental markdown fences before sending to frontend
+      const cleaned = batchText.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/i, '').trim();
+      return res.json({ response: cleaned, type: 'batch', count: candidates.length });
+    } catch (err) {
+      const msg = err.code === 'ECONNABORTED'
+        ? 'Analysis timed out. Try fewer properties or try again in a moment.'
+        : (err.response?.data?.error?.message || err.message || 'Analysis failed');
+      console.error('[wholesale-analyzer batch] Claude call failed:', msg);
+      return res.status(502).json({ error: msg });
+    }
   }
 
   if (!property) {
