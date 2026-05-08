@@ -191,13 +191,13 @@ export function CountyBrowserDialog({ open, onOpenChange, onSelectCounty }: Coun
                     {group.state} · {group.counties.length} {group.counties.length === 1 ? 'county' : 'counties'}
                   </span>
                 </div>
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-x-3 gap-y-1">
+                <div className="columns-1 sm:columns-2 lg:columns-3 gap-x-3 [column-fill:balance]">
                   {group.counties.map((county) => (
                     <button
                       key={county.slug}
                       type="button"
                       onClick={() => handleSelect(county)}
-                      className="group flex items-center justify-between gap-2 px-3 py-1.5 rounded-md border border-transparent hover:border-cyan-500/30 hover:bg-white/[0.03] transition-all text-left"
+                      className="group flex w-full items-center justify-between gap-2 px-3 py-1.5 rounded-md border border-transparent hover:border-cyan-500/30 hover:bg-white/[0.03] transition-all text-left break-inside-avoid mb-0.5"
                     >
                       <span className="text-sm text-neutral-200 group-hover:text-white truncate min-w-0">
                         {county.name}
