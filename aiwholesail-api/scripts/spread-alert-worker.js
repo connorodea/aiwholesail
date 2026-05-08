@@ -315,6 +315,11 @@ async function sendAlertEmail(userEmail, location, deals) {
     subject,
     html,
   });
+  if (result?.error) {
+    // Resend SDK returns {error} instead of throwing on auth/validation failures.
+    // Surface as a real error so callers don't mark the deal as sent in the dedup table.
+    throw new Error(`Resend rejected alert email: ${JSON.stringify(result.error)}`);
+  }
   return result;
 }
 

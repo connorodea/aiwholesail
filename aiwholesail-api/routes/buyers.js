@@ -403,7 +403,7 @@ router.post('/:id/outreach', authenticate, [
       const { Resend } = require('resend');
       const resend = new Resend(process.env.RESEND_API_KEY);
       const senderName = req.user.fullName || 'AIWholesail';
-      await resend.emails.send({
+      const sendResult = await resend.emails.send({
         from: `${senderName} via AIWholesail <noreply@aiwholesail.com>`,
         replyTo: req.user.email,
         to: buyer.email,
@@ -431,7 +431,14 @@ router.post('/:id/outreach', authenticate, [
           </div>
         `,
       });
-      results.push({ channel: 'email', status: 'sent' });
+      if (sendResult?.error) {
+        // Resend SDK returns {error} instead of throwing on auth/validation failures
+        const msg = JSON.stringify(sendResult.error);
+        console.error('[Buyers] Resend rejected outreach email:', msg);
+        results.push({ channel: 'email', status: 'failed', error: msg });
+      } else {
+        results.push({ channel: 'email', status: 'sent', resendId: sendResult?.data?.id });
+      }
     } catch (err) {
       console.error('[Buyers] Email outreach failed:', err.message);
       results.push({ channel: 'email', status: 'failed', error: err.message });

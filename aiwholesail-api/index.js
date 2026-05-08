@@ -66,8 +66,14 @@ app.use(cors({
 // Handle preflight requests
 app.options('*', cors());
 
-// Request parsing
-app.use(express.json({ limit: '10mb' }));
+// Request parsing — skip JSON body parsing for the Stripe webhook so the route
+// handler can verify the raw body signature. Stripe's constructEvent() needs
+// the unmodified Buffer; if express.json() has already consumed it, signature
+// verification will fail with "no signatures found matching the expected signature".
+app.use((req, res, next) => {
+  if (req.originalUrl === '/api/stripe/webhook') return next();
+  return express.json({ limit: '10mb' })(req, res, next);
+});
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Logging
