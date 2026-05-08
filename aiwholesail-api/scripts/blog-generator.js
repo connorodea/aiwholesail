@@ -14,7 +14,7 @@ require('dotenv').config({ path: require('path').join(__dirname, '..', '.env') }
 
 const fs = require('fs');
 const path = require('path');
-const Anthropic = require('@anthropic-ai/sdk').default;
+const axios = require('axios');
 
 // On hetznerCO, the API runs from /var/www/aiwholesail-api but the frontend
 // repo (where blog data lives) is checked out at /var/www/aiwholesail-repo.
@@ -24,12 +24,27 @@ const REPO_DIR = process.env.FRONTEND_REPO_DIR || path.join(__dirname, '..', '..
 const BLOG_DIR = path.join(REPO_DIR, 'src', 'data', 'blog');
 const INDEX_PATH = path.join(BLOG_DIR, 'index.json');
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-  // Bound runaway calls — long Claude requests will be killed by the systemd
-  // unit anyway, but explicit timeout surfaces the failure cleanly to journal.
-  timeout: 120000,
-});
+const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
+
+/**
+ * Call Anthropic Claude API directly via axios (matches services/openai.js pattern).
+ * 120s timeout bounds runaway calls — systemd unit caps at 5min anyway.
+ */
+async function callClaude({ system, messages, model = 'claude-sonnet-4-6', maxTokens = 4000 }) {
+  const response = await axios.post(
+    'https://api.anthropic.com/v1/messages',
+    { model, max_tokens: maxTokens, system, messages },
+    {
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+      },
+      timeout: 120000,
+    }
+  );
+  return response.data;
+}
 
 // ============ KEYWORD POOLS ============
 
@@ -326,9 +341,9 @@ This should be an informative, SEO-optimized article that thoroughly answers thi
 Primary keyword: "${keyword}"
 Target length: 1000-1400 words.${linkingInstructions}`;
 
-  const response = await anthropic.messages.create({
+  const response = await callClaude({
     model: 'claude-sonnet-4-6',
-    max_tokens: 4000,
+    maxTokens: 4000,
     system: systemPrompt,
     messages: [
       {
