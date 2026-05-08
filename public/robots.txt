@@ -17,3 +17,4 @@ Disallow: /auth
 Disallow: /success
 
 Sitemap: https://aiwholesail.com/sitemap.xml
+Sitemap: https://aiwholesail.com/sitemap-index.xml

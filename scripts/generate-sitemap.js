@@ -66,6 +66,28 @@ const checklists = loadJson(path.join(dataDir, 'checklists.json'));
 const softwareReviews = loadJson(path.join(dataDir, 'software-reviews.json'));
 const stateLaws = loadJson(path.join(dataDir, 'state-laws.json'));
 
+// Optional data sources — load defensively so sitemap still builds if a file is missing
+function loadJsonOptional(filePath, label) {
+  try {
+    return loadJson(filePath);
+  } catch {
+    console.warn(`Warning: Could not load ${label} — skipping`);
+    return [];
+  }
+}
+
+const counties = loadJsonOptional(path.join(dataDir, 'counties.json'), 'counties.json');
+const lenders = loadJsonOptional(path.join(dataDir, 'lenders.json'), 'lenders.json');
+const financingGuides = loadJsonOptional(path.join(dataDir, 'financing-guides.json'), 'financing-guides.json');
+const rehabCosts = loadJsonOptional(path.join(dataDir, 'rehab-costs.json'), 'rehab-costs.json');
+const investorGroups = loadJsonOptional(path.join(dataDir, 'investor-groups.json'), 'investor-groups.json');
+const propertyTypes = loadJsonOptional(path.join(dataDir, 'property-types.json'), 'property-types.json');
+const zipcodes = loadJsonOptional(path.join(dataDir, 'zipcodes.json'), 'zipcodes.json');
+const dealExamples = loadJsonOptional(path.join(dataDir, 'deal-examples.json'), 'deal-examples.json');
+const faqTopics = loadJsonOptional(path.join(dataDir, 'faq-topics.json'), 'faq-topics.json');
+const strategyStates = loadJsonOptional(path.join(dataDir, 'strategy-states.json'), 'strategy-states.json');
+const rentalMarkets = loadJsonOptional(path.join(dataDir, 'rental-markets.json'), 'rental-markets.json');
+
 // ---------------------------------------------------------------------------
 // Derive unique states (slug = stateFull lowercased, spaces -> hyphens)
 // ---------------------------------------------------------------------------
@@ -113,6 +135,17 @@ const staticPages = [
   { path: '/for',           priority: '0.7', changefreq: 'monthly' },
   { path: '/checklists',    priority: '0.7', changefreq: 'monthly' },
   { path: '/reviews',       priority: '0.7', changefreq: 'monthly' },
+  { path: '/property-types', priority: '0.7', changefreq: 'monthly' },
+  { path: '/zip',            priority: '0.7', changefreq: 'monthly' },
+  { path: '/rental-markets', priority: '0.7', changefreq: 'monthly' },
+  { path: '/financing',      priority: '0.7', changefreq: 'monthly' },
+  { path: '/rehab-costs',    priority: '0.7', changefreq: 'monthly' },
+  { path: '/counties',       priority: '0.7', changefreq: 'monthly' },
+  { path: '/investor-groups', priority: '0.7', changefreq: 'monthly' },
+  { path: '/strategies',     priority: '0.7', changefreq: 'monthly' },
+  { path: '/lenders',        priority: '0.7', changefreq: 'monthly' },
+  { path: '/faq/topics',     priority: '0.6', changefreq: 'monthly' },
+  { path: '/deals/examples', priority: '0.7', changefreq: 'monthly' },
 ];
 
 // 2. Tool pages (13)
@@ -265,6 +298,74 @@ for (const law of stateLaws) {
   addUrl(`/laws/${law.slug}`, '0.7', 'monthly');
 }
 
+// --- Property type pages: /property-types/:slug ---
+for (const pt of propertyTypes) {
+  if (pt.slug) addUrl(`/property-types/${pt.slug}`, '0.7', 'monthly');
+}
+
+// --- Property type x City cross: /invest-in/:typeSlug/:citySlug ---
+for (const pt of propertyTypes) {
+  if (!pt.slug) continue;
+  for (const city of cities) {
+    addUrl(`/invest-in/${pt.slug}/${city.slug}`, '0.6', 'monthly');
+  }
+}
+
+// --- Property type index: /invest-in/:typeSlug ---
+for (const pt of propertyTypes) {
+  if (pt.slug) addUrl(`/invest-in/${pt.slug}`, '0.7', 'monthly');
+}
+
+// --- Zip code pages: /zip/:slug ---
+for (const z of zipcodes) {
+  if (z.slug) addUrl(`/zip/${z.slug}`, '0.6', 'monthly');
+}
+
+// --- County pages: /counties/:slug ---
+for (const c of counties) {
+  if (c.slug) addUrl(`/counties/${c.slug}`, '0.6', 'monthly');
+}
+
+// --- Lender pages: /lenders/:slug ---
+for (const l of lenders) {
+  if (l.slug) addUrl(`/lenders/${l.slug}`, '0.6', 'monthly');
+}
+
+// --- Financing guide pages: /financing/:slug ---
+for (const g of financingGuides) {
+  if (g.slug) addUrl(`/financing/${g.slug}`, '0.7', 'monthly');
+}
+
+// --- Rehab cost pages: /rehab-costs/:slug ---
+for (const r of rehabCosts) {
+  if (r.slug) addUrl(`/rehab-costs/${r.slug}`, '0.6', 'monthly');
+}
+
+// --- Investor group pages: /investor-groups/:slug ---
+for (const g of investorGroups) {
+  if (g.slug) addUrl(`/investor-groups/${g.slug}`, '0.6', 'monthly');
+}
+
+// --- Strategy state pages: /strategies/:slug ---
+for (const s of strategyStates) {
+  if (s.slug) addUrl(`/strategies/${s.slug}`, '0.6', 'monthly');
+}
+
+// --- Deal example pages: /deals/examples/:slug ---
+for (const d of dealExamples) {
+  if (d.slug) addUrl(`/deals/examples/${d.slug}`, '0.6', 'monthly');
+}
+
+// --- FAQ topic pages: /faq/:slug ---
+for (const t of faqTopics) {
+  if (t.slug) addUrl(`/faq/${t.slug}`, '0.6', 'monthly');
+}
+
+// --- Rental market pages: /rental-markets/:slug ---
+for (const m of rentalMarkets) {
+  if (m.slug) addUrl(`/rental-markets/${m.slug}`, '0.6', 'monthly');
+}
+
 // ---------------------------------------------------------------------------
 // XML helpers
 // ---------------------------------------------------------------------------
@@ -373,5 +474,17 @@ console.log(`  Investor personas:    ${personas.length}`);
 console.log(`  Checklists:           ${checklists.length}`);
 console.log(`  Software reviews:     ${softwareReviews.length}`);
 console.log(`  State law pages:      ${stateLaws.length}`);
+console.log(`  Property types:       ${propertyTypes.length}`);
+console.log(`  PropType x City:      ${propertyTypes.length} x ${cities.length} = ${propertyTypes.length * cities.length}`);
+console.log(`  Zipcodes:             ${zipcodes.length}`);
+console.log(`  Counties:             ${counties.length}`);
+console.log(`  Lenders:              ${lenders.length}`);
+console.log(`  Financing guides:     ${financingGuides.length}`);
+console.log(`  Rehab costs:          ${rehabCosts.length}`);
+console.log(`  Investor groups:      ${investorGroups.length}`);
+console.log(`  Strategy states:      ${strategyStates.length}`);
+console.log(`  Deal examples:        ${dealExamples.length}`);
+console.log(`  FAQ topics:           ${faqTopics.length}`);
+console.log(`  Rental markets:       ${rentalMarkets.length}`);
 console.log(`  --------------------------------`);
 console.log(`  TOTAL URLs:           ${urls.length}`);
