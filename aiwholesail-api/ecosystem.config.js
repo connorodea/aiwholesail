@@ -1,9 +1,14 @@
+// NOTE: PM2 is NOT the canonical process manager for aiwholesail-api.
+// Production uses the systemd unit at /etc/systemd/system/aiwholesail-api.service
+// (Restart=always, MemoryMax=1G, hardened). This file is kept as a fallback /
+// alternative reference only. Do not run pm2 commands against prod.
+
 module.exports = {
   apps: [
     {
       name: 'aiwholesail-api',
       script: 'index.js',
-      cwd: '/root/aiwholesail-api',
+      cwd: '/var/www/aiwholesail-api',
       instances: 'max', // Use all available CPU cores
       exec_mode: 'cluster',
       autorestart: true,
@@ -38,8 +43,8 @@ module.exports = {
       user: 'root',
       host: 'your-hetzner-ip',
       ref: 'origin/main',
-      repo: 'git@github.com:your-username/aiwholesail-api.git',
-      path: '/root/aiwholesail-api',
+      repo: 'git@github.com:connorodea/aiwholesail.git',
+      path: '/var/www/aiwholesail-api',
       'pre-deploy-local': '',
       'post-deploy': 'npm install && pm2 reload ecosystem.config.js --env production',
       'pre-setup': ''

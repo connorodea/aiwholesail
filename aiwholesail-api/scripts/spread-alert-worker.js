@@ -30,9 +30,10 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const DRY_RUN = process.argv.includes('--dry-run');
 
-// Zillow Scraper API config
-const RAPIDAPI_KEY = process.env.RAPIDAPI_KEY || process.env.ZILLOW_RAPIDAPI_KEY;
-const RAPIDAPI_HOST = 'zillow-scraper-api.p.rapidapi.com';
+// Use the same Zillow API proxy that the frontend uses (localhost:3200)
+// This gives us: same search params, batch zestimates, 24h in-memory cache
+const ZILLOW_PROXY_URL = process.env.ZILLOW_PROXY_URL || 'http://localhost:3201';
+const ZILLOW_API_KEY = process.env.ZILLOW_PROXY_API_KEY || 'aiwholesail_zillow_2026';
 
 // Twilio config
 const TWILIO_SID = process.env.TWILIO_ACCOUNT_SID;
@@ -40,87 +41,140 @@ const TWILIO_TOKEN = process.env.TWILIO_AUTH_TOKEN;
 const TWILIO_FROM = process.env.TWILIO_PHONE_NUMBER;
 
 const MAX_PAGES_PER_LOCATION = 5;
-const ZESTIMATE_BATCH_SIZE = 20;
+const ZESTIMATE_BATCH_SIZE = 25; // Match frontend batch size for Hetzner
 const MIN_SPREAD_DEFAULT = 30000;
 
-// State abbreviation → full name mapping for Zillow search
-const STATE_NAMES = {
-  AL: 'Alabama', AK: 'Alaska', AZ: 'Arizona', AR: 'Arkansas', CA: 'California',
-  CO: 'Colorado', CT: 'Connecticut', DE: 'Delaware', FL: 'Florida', GA: 'Georgia',
-  HI: 'Hawaii', ID: 'Idaho', IL: 'Illinois', IN: 'Indiana', IA: 'Iowa',
-  KS: 'Kansas', KY: 'Kentucky', LA: 'Louisiana', ME: 'Maine', MD: 'Maryland',
-  MA: 'Massachusetts', MI: 'Michigan', MN: 'Minnesota', MS: 'Mississippi', MO: 'Missouri',
-  MT: 'Montana', NE: 'Nebraska', NV: 'Nevada', NH: 'New Hampshire', NJ: 'New Jersey',
-  NM: 'New Mexico', NY: 'New York', NC: 'North Carolina', ND: 'North Dakota', OH: 'Ohio',
-  OK: 'Oklahoma', OR: 'Oregon', PA: 'Pennsylvania', RI: 'Rhode Island', SC: 'South Carolina',
-  SD: 'South Dakota', TN: 'Tennessee', TX: 'Texas', UT: 'Utah', VT: 'Vermont',
-  VA: 'Virginia', WA: 'Washington', WV: 'West Virginia', WI: 'Wisconsin', WY: 'Wyoming',
-  DC: 'District of Columbia',
+// Map user-facing property type names → all Zillow property_type values that could appear in cache.
+// Zillow API returns types like SINGLE_FAMILY, TOWNHOUSE, MULTI_FAMILY, CONDO, etc.
+// We match case-insensitively against the cache's property_type column.
+const PROPERTY_TYPE_MAP = {
+  'houses': ['house', 'single_family', 'singlefamily'],
+  'house': ['house', 'single_family', 'singlefamily'],
+  'townhomes': ['townhouse', 'townhome'],
+  'townhouse': ['townhouse', 'townhome'],
+  'multi-family': ['multi-family', 'multi_family', 'multifamily'],
+  'condos/co-ops': ['condo', 'condominium', 'co-op', 'coop'],
+  'condos': ['condo', 'condominium'],
+  'condo': ['condo', 'condominium'],
+  'apartments': ['apartment'],
+  'apartment': ['apartment'],
+  'lots/land': ['lot-land', 'lot', 'land', 'vacant_land'],
+  'manufactured': ['manufactured', 'mobile'],
 };
 
+// ---------- Zillow API helpers (via proxy — same as frontend) ----------
+
 /**
- * Resolve a location string for Zillow search.
- * If the location is a 2-letter state abbreviation, expand to full state name.
+ * Search Zillow via the proxy, matching the exact same API call the frontend makes.
+ * Passes all user filters: homeType, price range, bedrooms, bathrooms.
  */
-function resolveSearchLocation(location) {
-  const trimmed = location.trim();
-  const upper = trimmed.toUpperCase();
-  if (upper.length === 2 && STATE_NAMES[upper]) {
-    return STATE_NAMES[upper];
-  }
-  return trimmed;
-}
+async function searchZillow(location, page = 1, filters = {}) {
+  const searchParams = {
+    location,
+    page: String(page),
+  };
 
-// ---------- Zillow API helpers ----------
+  // Pass user filters — same keys the proxy expects
+  if (filters.homeType) searchParams.homeType = filters.homeType;
+  if (filters.price_min) searchParams.price_min = String(filters.price_min);
+  if (filters.price_max) searchParams.price_max = String(filters.price_max);
+  if (filters.bed_min) searchParams.bed_min = String(filters.bed_min);
+  if (filters.bathrooms) searchParams.bathrooms = String(filters.bathrooms);
 
-async function searchZillow(location, page = 1) {
-  const response = await axios.get(`https://${RAPIDAPI_HOST}/zillow/search`, {
-    params: {
-      location,
-      listing_type: 'for_sale',
-      home_type: 'house',
-      sort: 'newest',
-      page: String(page),
-    },
+  const response = await axios.post(`${ZILLOW_PROXY_URL}/zillow`, {
+    action: 'search',
+    searchParams,
+  }, {
     headers: {
-      'x-rapidapi-key': RAPIDAPI_KEY,
-      'x-rapidapi-host': RAPIDAPI_HOST,
+      'Content-Type': 'application/json',
+      'x-api-key': ZILLOW_API_KEY,
     },
     timeout: 30000,
   });
   return response.data;
 }
 
-async function getZestimate(zpid) {
-  try {
-    const response = await axios.get(`https://${RAPIDAPI_HOST}/zillow/valuation/${zpid}`, {
-      headers: {
-        'x-rapidapi-key': RAPIDAPI_KEY,
-        'x-rapidapi-host': RAPIDAPI_HOST,
-      },
-      timeout: 15000,
-    });
-    return response.data?.data?.zestimate || null;
-  } catch {
-    return null;
-  }
+/**
+ * Batch zestimate endpoint — same as the frontend uses.
+ * Leverages the proxy's 24h in-memory cache for already-fetched zpids.
+ */
+async function batchZestimates(zpids) {
+  const response = await axios.post(`${ZILLOW_PROXY_URL}/batch-zestimates`, {
+    zpids,
+  }, {
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': ZILLOW_API_KEY,
+    },
+    timeout: 120000, // batch can take a while
+  });
+  return response.data;
 }
 
+/**
+ * Enrich properties with zestimates using the batch endpoint.
+ * Chunks in groups of ZESTIMATE_BATCH_SIZE, same as frontend.
+ */
 async function enrichWithZestimates(properties) {
-  const results = [];
-  for (let i = 0; i < properties.length; i += ZESTIMATE_BATCH_SIZE) {
-    const batch = properties.slice(i, i + ZESTIMATE_BATCH_SIZE);
-    const zestimates = await Promise.allSettled(
-      batch.map(p => getZestimate(p.zpid))
-    );
-    batch.forEach((prop, idx) => {
-      const result = zestimates[idx];
-      const zest = result.status === 'fulfilled' ? result.value : null;
-      results.push({ ...prop, zestimate: zest });
-    });
-    console.log(`  Zestimates: ${i + batch.length}/${properties.length}`);
+  const zpids = properties
+    .map(p => String(p.zpid))
+    .filter(zpid => zpid && zpid.length >= 5);
+
+  if (zpids.length === 0) return properties;
+
+  const allZestimates = {};
+
+  for (let i = 0; i < zpids.length; i += ZESTIMATE_BATCH_SIZE) {
+    const chunk = zpids.slice(i, i + ZESTIMATE_BATCH_SIZE);
+    try {
+      const result = await batchZestimates(chunk);
+      if (result.success && result.data) {
+        Object.assign(allZestimates, result.data);
+      }
+      const hits = Object.values(result.data || {}).filter(v => v !== null && v > 0).length;
+      console.log(`  Zestimates: ${Math.min(i + chunk.length, zpids.length)}/${zpids.length} (${hits} found in batch, ${result.stats?.cached || 0} cached)`);
+    } catch (err) {
+      console.warn(`  Zestimate batch failed: ${err.message}`);
+      // Mark all in chunk as null
+      for (const zpid of chunk) allZestimates[zpid] = null;
+    }
   }
-  return results;
+
+  // Merge zestimates back into properties
+  return properties.map(p => {
+    const zpid = String(p.zpid);
+    const zest = allZestimates[zpid];
+    if (zest !== undefined && zest !== null && zest > 0) {
+      return { ...p, zestimate: zest };
+    }
+    return p;
+  });
+}
+
+/**
+ * Extract listings from Zillow API response, handling various response formats.
+ * Same logic as the frontend's processPropertyData().
+ */
+function extractListings(responseData) {
+  const data = responseData?.data || responseData;
+  if (!data) return [];
+
+  // Check for no results
+  if (data.message === '404: No results' || data.total_results === 0) return [];
+
+  // Try different keys (same as frontend)
+  const keys = ['searchResults', 'props', 'results', 'listings', 'properties', 'data', 'homes',
+    'mapResults', 'listResults', 'items', 'records'];
+
+  for (const key of keys) {
+    if (data[key] && Array.isArray(data[key])) return data[key];
+    if (data[key] && typeof data[key] === 'object') {
+      for (const nested of keys) {
+        if (data[key][nested] && Array.isArray(data[key][nested])) return data[key][nested];
+      }
+    }
+  }
+  return [];
 }
 
 // ---------- Twilio ----------
@@ -159,37 +213,103 @@ async function sendAlertEmail(userEmail, location, deals) {
   const minutesAgo = Math.max(1, Math.round((Date.now() - new Date(deals[0].last_seen_at || Date.now()).getTime()) / 60000));
   const timeAgoText = minutesAgo < 60 ? `${minutesAgo} minute${minutesAgo > 1 ? 's' : ''} ago` : `${Math.round(minutesAgo / 60)} hour${Math.round(minutesAgo / 60) > 1 ? 's' : ''} ago`;
 
-  const dealRows = deals.map((d, idx) => {
+  const dealCards = deals.map((d) => {
     const addr = d.address || 'Unknown';
     const listPrice = d.price ? `$${Number(d.price).toLocaleString()}` : 'N/A';
     const zestimate = d.zestimate ? `$${Number(d.zestimate).toLocaleString()}` : 'N/A';
     const spreadVal = (d.zestimate && d.price) ? (d.zestimate - d.price) : 0;
     const spreadText = spreadVal > 0 ? `+$${Number(spreadVal).toLocaleString()}` : 'N/A';
-    const rowBg = idx % 2 === 0 ? '#0f0f10' : '#0a0a0b';
+    const spreadPct = (d.price && d.zestimate) ? Math.round(((d.zestimate - d.price) / d.price) * 100) : 0;
 
-    // Property specs if available
     const specs = [];
-    if (d.bedrooms) specs.push(`${d.bedrooms}bd`);
-    if (d.bathrooms) specs.push(`${d.bathrooms}ba`);
+    if (d.bedrooms) specs.push(`${d.bedrooms} Bed`);
+    if (d.bathrooms) specs.push(`${d.bathrooms} Bath`);
     if (d.sqft) specs.push(`${Number(d.sqft).toLocaleString()} sqft`);
-    const specsText = specs.length > 0 ? specs.join(' / ') : '';
+    const specsText = specs.length > 0 ? specs.join('&nbsp;&nbsp;&middot;&nbsp;&nbsp;') : '';
+
+    const daysText = d.days_on_market ? `${d.days_on_market} days on market` : '';
+    const propType = d.property_type || '';
+    const listingUrl = d.listing_url || 'https://aiwholesail.com/app';
+    const imageUrl = d.image_url || 'https://aiwholesail.com/placeholder-property.png';
 
     return `
-      <tr style="background-color: ${rowBg};">
-        <td style="padding: 16px 12px; border-bottom: 1px solid #1a1a1a; vertical-align: top;">
-          <table cellpadding="0" cellspacing="0" border="0">
-            <tr><td style="color: #e5e5e5; font-size: 14px; font-weight: 500; line-height: 1.4;">${addr}</td></tr>
-            ${specsText ? '<tr><td style="color: #525252; font-size: 12px; padding-top: 4px;">' + specsText + '</td></tr>' : ''}
+      <!-- Property Card -->
+      <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 16px; border: 1px solid #1f1f23; border-radius: 12px; overflow: hidden; background-color: #111113;">
+        <!-- Property Image -->
+        ${d.image_url ? `
+        <tr><td style="padding: 0; position: relative;">
+          <a href="${listingUrl}" style="text-decoration: none;">
+            <img src="${imageUrl}" alt="${addr}" width="536" style="width: 100%; height: 180px; object-fit: cover; display: block;" />
+          </a>
+        </td></tr>
+        ` : ''}
+        <!-- Card Content -->
+        <tr><td style="padding: 20px;">
+          <!-- Spread badge -->
+          <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 12px;">
+            <tr>
+              <td>
+                <table cellpadding="0" cellspacing="0" border="0">
+                  <tr><td style="background-color: rgba(34,197,94,0.12); border: 1px solid rgba(34,197,94,0.25); border-radius: 20px; padding: 5px 14px;">
+                    <span style="color: #22c55e; font-weight: 800; font-size: 16px; letter-spacing: -0.3px;">${spreadText}</span>
+                    <span style="color: #4ade80; font-size: 12px; font-weight: 500; padding-left: 6px;">spread</span>
+                  </td></tr>
+                </table>
+              </td>
+              ${spreadPct > 0 ? `<td align="right"><span style="color: #737373; font-size: 12px;">${spreadPct}% upside</span></td>` : ''}
+            </tr>
           </table>
-        </td>
-        <td style="padding: 16px 10px; border-bottom: 1px solid #1a1a1a; color: #a3a3a3; text-align: right; font-size: 14px; vertical-align: top; white-space: nowrap;">${listPrice}</td>
-        <td style="padding: 16px 10px; border-bottom: 1px solid #1a1a1a; color: #a3a3a3; text-align: right; font-size: 14px; vertical-align: top; white-space: nowrap;">${zestimate}</td>
-        <td style="padding: 16px 12px; border-bottom: 1px solid #1a1a1a; text-align: right; vertical-align: top; white-space: nowrap;">
-          <table cellpadding="0" cellspacing="0" border="0" style="margin-left: auto;">
-            <tr><td style="background-color: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.2); border-radius: 6px; padding: 4px 10px; color: #22c55e; font-weight: 700; font-size: 14px;">${spreadText}</td></tr>
+
+          <!-- Address -->
+          <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 8px;">
+            <tr><td>
+              <a href="${listingUrl}" style="color: #f5f5f5; font-size: 15px; font-weight: 600; text-decoration: none; line-height: 1.3;">${addr}</a>
+            </td></tr>
           </table>
-        </td>
-      </tr>
+
+          <!-- Specs row -->
+          ${specsText ? `
+          <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 14px;">
+            <tr><td style="color: #737373; font-size: 12px; line-height: 1;">${specsText}${propType ? '&nbsp;&nbsp;&middot;&nbsp;&nbsp;' + propType : ''}</td></tr>
+          </table>
+          ` : ''}
+
+          <!-- Price boxes -->
+          <table width="100%" cellpadding="0" cellspacing="0" border="0">
+            <tr>
+              <td width="48%" style="background-color: #0a0a0b; border: 1px solid #1a1a1a; border-radius: 8px; padding: 12px 14px;">
+                <table cellpadding="0" cellspacing="0" border="0">
+                  <tr><td style="color: #525252; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; padding-bottom: 4px;">List Price</td></tr>
+                  <tr><td style="color: #e5e5e5; font-size: 18px; font-weight: 700; letter-spacing: -0.5px;">${listPrice}</td></tr>
+                </table>
+              </td>
+              <td width="4%">&nbsp;</td>
+              <td width="48%" style="background-color: #0a0a0b; border: 1px solid #1a1a1a; border-radius: 8px; padding: 12px 14px;">
+                <table cellpadding="0" cellspacing="0" border="0">
+                  <tr><td style="color: #525252; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; padding-bottom: 4px;">Zestimate</td></tr>
+                  <tr><td style="color: #06b6d4; font-size: 18px; font-weight: 700; letter-spacing: -0.5px;">${zestimate}</td></tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+
+          ${daysText ? `
+          <!-- Days on market -->
+          <table cellpadding="0" cellspacing="0" border="0" style="margin-top: 10px;">
+            <tr><td style="color: #525252; font-size: 11px;">${daysText}</td></tr>
+          </table>
+          ` : ''}
+        </td></tr>
+
+        <!-- View Deal button -->
+        <tr><td style="padding: 0 20px 18px;">
+          <table width="100%" cellpadding="0" cellspacing="0" border="0">
+            <tr><td align="center" style="background-color: #171719; border: 1px solid #1f1f23; border-radius: 8px; padding: 10px 0;">
+              <a href="${listingUrl}" style="color: #06b6d4; font-size: 13px; font-weight: 600; text-decoration: none; display: block;">View Deal &rarr;</a>
+            </td></tr>
+          </table>
+        </td></tr>
+      </table>
     `;
   }).join('');
 
@@ -249,20 +369,8 @@ async function sendAlertEmail(userEmail, location, deals) {
               </td></tr>
             </table>
 
-            <!-- Deals table -->
-            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 28px; border: 1px solid #1a1a1a; border-radius: 8px; overflow: hidden;">
-              <thead>
-                <tr style="background-color: #111111;">
-                  <th style="padding: 12px 12px; text-align: left; color: #737373; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; border-bottom: 1px solid #1a1a1a;">Address</th>
-                  <th style="padding: 12px 10px; text-align: right; color: #737373; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; border-bottom: 1px solid #1a1a1a;">List</th>
-                  <th style="padding: 12px 10px; text-align: right; color: #737373; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; border-bottom: 1px solid #1a1a1a;">Zestimate</th>
-                  <th style="padding: 12px 12px; text-align: right; color: #737373; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; border-bottom: 1px solid #1a1a1a;">Spread</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${dealRows}
-              </tbody>
-            </table>
+            <!-- Property Cards -->
+            ${dealCards}
 
             <!-- CTA Button -->
             <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 28px;">
@@ -320,6 +428,75 @@ async function sendAlertEmail(userEmail, location, deals) {
 
 // ---------- Main worker ----------
 
+// ---------- Price Drop Email ----------
+
+async function sendPriceDropEmail(userEmail, location, drops) {
+  const subject = `${drops.length} Price Drop${drops.length > 1 ? 's' : ''} in ${location} — AIWholesail`;
+
+  const dropCards = drops.map(d => {
+    const dropPct = d.drop_percent ? `${d.drop_percent}%` : '';
+    return `
+      <tr><td style="padding: 12px 16px; border-bottom: 1px solid #1a1a1a;">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0">
+          <tr>
+            <td style="color: #e5e5e5; font-size: 14px; font-weight: 500; padding-bottom: 6px;">${d.address || 'Unknown'}</td>
+          </tr>
+          <tr><td>
+            <table cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td style="color: #737373; font-size: 13px; text-decoration: line-through; padding-right: 12px;">$${Number(d.old_price).toLocaleString()}</td>
+                <td style="color: #22c55e; font-size: 15px; font-weight: 700; padding-right: 12px;">$${Number(d.new_price).toLocaleString()}</td>
+                <td><span style="background-color: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); border-radius: 12px; padding: 2px 10px; color: #ef4444; font-weight: 600; font-size: 12px;">-$${Number(d.drop_amount).toLocaleString()} ${dropPct ? `(${dropPct})` : ''}</span></td>
+              </tr>
+            </table>
+          </td></tr>
+        </table>
+      </td></tr>
+    `;
+  }).join('');
+
+  const html = `
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #000000; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+      <tr><td align="center" style="padding: 40px 20px;">
+        <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width: 600px; width: 100%; background-color: #0a0a0b; border-radius: 12px; overflow: hidden; border: 1px solid #1a1a1a;">
+          <tr><td style="padding: 28px 32px 20px; border-bottom: 1px solid #1a1a1a;">
+            <img src="https://aiwholesail.com/logo-white.png" alt="AIWholesail" height="32" style="height: 32px; width: auto;" />
+          </td></tr>
+          <tr><td style="height: 3px; background: linear-gradient(90deg, #ef4444, #f97316, #ef4444); font-size: 0;">&nbsp;</td></tr>
+          <tr><td style="padding: 28px 32px;">
+            <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 6px;">
+              <tr><td style="background-color: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); border-radius: 20px; padding: 4px 12px; color: #ef4444; font-size: 12px; font-weight: 600;">PRICE DROP</td></tr>
+            </table>
+            <h1 style="color: #ffffff; font-size: 22px; font-weight: 700; margin: 12px 0 8px;">${drops.length} Price Drop${drops.length > 1 ? 's' : ''} in ${location}</h1>
+            <p style="color: #a3a3a3; font-size: 14px; margin: 0 0 24px;">These properties just dropped in price — could be new deal opportunities.</p>
+            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border: 1px solid #1a1a1a; border-radius: 8px; overflow: hidden; background-color: #111113;">
+              ${dropCards}
+            </table>
+            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top: 24px;">
+              <tr><td align="center">
+                <a href="https://aiwholesail.com/app" style="background-color: #06b6d4; border-radius: 8px; padding: 14px 40px; color: #000; font-weight: 700; font-size: 15px; text-decoration: none; display: inline-block;">Search These Deals</a>
+              </td></tr>
+            </table>
+          </td></tr>
+          <tr><td style="padding: 16px 32px; border-top: 1px solid #1a1a1a; color: #404040; font-size: 11px;">
+            &copy; 2026 AIWholesail &middot; <a href="https://aiwholesail.com/app/notifications" style="color: #404040;">Manage notifications</a>
+          </td></tr>
+        </table>
+      </td></tr>
+    </table>
+  `;
+
+  const result = await resend.emails.send({
+    from: 'AIWholesail Alerts <alerts@aiwholesail.com>',
+    to: userEmail,
+    subject,
+    html,
+  });
+  return result;
+}
+
+// ---------- Main worker ----------
+
 async function run() {
   const jobStart = new Date();
   console.log(`\n=== Spread Alert Worker started at ${jobStart.toISOString()} ===`);
@@ -334,52 +511,80 @@ async function run() {
   const stats = { locations: 0, properties: 0, deals: 0, alerts: 0, errors: [] };
 
   try {
-    // 1. Get all unique locations from active alerts that are due
-    const alertsResult = await pool.query(`
-      SELECT DISTINCT LOWER(TRIM(location)) AS location
-      FROM property_alerts
-      WHERE is_active = true
+    // 1. Get all due alerts with user preferences
+    const dueAlerts = await pool.query(`
+      SELECT pa.*, u.email
+      FROM property_alerts pa
+      JOIN users u ON pa.user_id = u.id
+      WHERE pa.is_active = true
         AND (
-          last_alert_sent IS NULL
-          OR (alert_frequency = 'daily' AND last_alert_sent < NOW() - INTERVAL '24 hours')
-          OR (alert_frequency = 'instant' AND last_alert_sent < NOW() - INTERVAL '6 hours')
-          OR (alert_frequency = 'immediate' AND last_alert_sent < NOW() - INTERVAL '6 hours')
-          OR (alert_frequency = 'weekly' AND last_alert_sent < NOW() - INTERVAL '7 days')
+          pa.last_alert_sent IS NULL
+          OR (pa.alert_frequency = 'daily' AND pa.last_alert_sent < NOW() - INTERVAL '24 hours')
+          OR (pa.alert_frequency = 'instant' AND pa.last_alert_sent < NOW() - INTERVAL '6 hours')
+          OR (pa.alert_frequency = 'immediate' AND pa.last_alert_sent < NOW() - INTERVAL '6 hours')
+          OR (pa.alert_frequency = 'weekly' AND pa.last_alert_sent < NOW() - INTERVAL '7 days')
         )
     `);
 
-    const locations = alertsResult.rows.map(r => r.location);
-    console.log(`Found ${locations.length} unique locations to search\n`);
-    stats.locations = locations.length;
+    if (dueAlerts.rows.length === 0) {
+      console.log('No alerts due. Exiting.\n');
+    }
 
-    // 2. For each unique location: search + enrich + cache
-    for (const location of locations) {
+    // Deduplicate by location: one Zillow search per unique location, filter per alert later.
+    // This is efficient — 1000 users watching "Detroit, MI" = 1 API call.
+    // User-specific filters (price, beds, types) are applied at the deal-query stage.
+    const uniqueLocations = [...new Set(dueAlerts.rows.map(a => a.location.toLowerCase().trim()))];
+
+    console.log(`Found ${dueAlerts.rows.length} alerts across ${uniqueLocations.length} unique locations\n`);
+    stats.locations = uniqueLocations.length;
+
+    // 2. For each unique location: search + enrich + cache (via proxy — same as app)
+    for (const location of uniqueLocations) {
       try {
-        // Resolve state abbreviations to full names for Zillow search
-        const searchLocation = resolveSearchLocation(location);
-        console.log(`--- Searching: ${location}${searchLocation !== location ? ` (→ ${searchLocation})` : ''} ---`);
+        console.log(`--- Searching: ${location} ---`);
 
-        // Search Zillow (multiple pages)
+        // Search via proxy (same endpoint the frontend uses)
+        // No homeType filter — fetch ALL property types, filter per-alert later
         let allListings = [];
-        const firstPage = await searchZillow(searchLocation);
-        const totalPages = Math.min(firstPage?.data?.total_pages || 1, MAX_PAGES_PER_LOCATION);
-        const firstListings = (firstPage?.data?.listings || []).filter(p => p.price > 0);
+        const firstPage = await searchZillow(location, 1);
+        const responseData = firstPage?.data || firstPage;
+        const totalPages = Math.min(responseData?.total_pages || 1, MAX_PAGES_PER_LOCATION);
+
+        const firstListings = extractListings(firstPage).filter(p => p.price > 0);
         allListings.push(...firstListings);
 
-        for (let page = 2; page <= totalPages; page++) {
-          try {
-            const pageData = await searchZillow(searchLocation, page);
-            const listings = (pageData?.data?.listings || []).filter(p => p.price > 0);
-            allListings.push(...listings);
-          } catch (err) {
-            console.warn(`  Page ${page} failed: ${err.message}`);
+        // Fetch remaining pages in parallel (same as frontend)
+        if (totalPages > 1) {
+          const pagePromises = [];
+          for (let page = 2; page <= totalPages; page++) {
+            pagePromises.push(
+              searchZillow(location, page)
+                .then(data => extractListings(data).filter(p => p.price > 0))
+                .catch(err => {
+                  console.warn(`  Page ${page} failed: ${err.message}`);
+                  return [];
+                })
+            );
+          }
+          const pageResults = await Promise.allSettled(pagePromises);
+          for (const result of pageResults) {
+            if (result.status === 'fulfilled') allListings.push(...result.value);
           }
         }
+
+        // Deduplicate by zpid
+        const seen = new Set();
+        allListings = allListings.filter(p => {
+          const zpid = String(p.zpid);
+          if (!zpid || seen.has(zpid)) return false;
+          seen.add(zpid);
+          return true;
+        });
 
         console.log(`  ${allListings.length} properties with price across ${totalPages} pages`);
         stats.properties += allListings.length;
 
-        // Enrich with zestimates (only those we don't already have cached)
+        // Check DB cache for existing zestimates
         const cachedResult = await pool.query(
           'SELECT zpid, zestimate FROM property_search_cache WHERE location = $1 AND zestimate IS NOT NULL',
           [location]
@@ -389,14 +594,15 @@ async function run() {
         const needsZestimate = allListings.filter(p => !cachedZestimates.has(String(p.zpid)));
         const alreadyCached = allListings.filter(p => cachedZestimates.has(String(p.zpid)));
 
-        console.log(`  ${alreadyCached.length} cached zestimates, ${needsZestimate.length} need fetching`);
+        console.log(`  ${alreadyCached.length} DB-cached zestimates, ${needsZestimate.length} need fetching`);
 
+        // Enrich via batch endpoint (leverages proxy's 24h in-memory cache)
         let enriched = [];
         if (needsZestimate.length > 0) {
           enriched = await enrichWithZestimates(needsZestimate);
         }
 
-        // Merge cached + freshly enriched
+        // Merge DB-cached + freshly enriched
         const allWithZestimates = [
           ...alreadyCached.map(p => ({
             ...p,
@@ -405,7 +611,38 @@ async function run() {
           ...enriched,
         ];
 
-        // Upsert into property_search_cache
+        // Detect price drops: compare new prices against cached prices
+        let priceDropCount = 0;
+        const cachedPrices = new Map();
+        const priceResult = await pool.query(
+          'SELECT zpid, price, address FROM property_search_cache WHERE location = $1 AND price > 0',
+          [location]
+        );
+        for (const row of priceResult.rows) {
+          cachedPrices.set(row.zpid, { price: row.price, address: row.address });
+        }
+
+        for (const p of allWithZestimates) {
+          if (!p.zpid || !p.price) continue;
+          const cached = cachedPrices.get(String(p.zpid));
+          if (cached && cached.price > p.price) {
+            const dropAmount = cached.price - p.price;
+            const dropPercent = ((dropAmount / cached.price) * 100).toFixed(2);
+            // Only log meaningful drops (>$1K and >1%)
+            if (dropAmount >= 1000 && parseFloat(dropPercent) >= 1) {
+              priceDropCount++;
+              await pool.query(`
+                INSERT INTO price_drop_log (zpid, location, address, old_price, new_price, drop_amount, drop_percent)
+                VALUES ($1, $2, $3, $4, $5, $6, $7)
+              `, [String(p.zpid), location, cached.address || p.address, cached.price, p.price, dropAmount, dropPercent]);
+            }
+          }
+        }
+        if (priceDropCount > 0) {
+          console.log(`  ${priceDropCount} price drops detected`);
+        }
+
+        // Upsert into property_search_cache (spread is GENERATED ALWAYS — never insert it)
         for (const p of allWithZestimates) {
           if (!p.zpid) continue;
           await pool.query(`
@@ -416,7 +653,12 @@ async function run() {
             ON CONFLICT (location, zpid) DO UPDATE SET
               price = EXCLUDED.price,
               zestimate = COALESCE(EXCLUDED.zestimate, property_search_cache.zestimate),
+              bedrooms = COALESCE(EXCLUDED.bedrooms, property_search_cache.bedrooms),
+              bathrooms = COALESCE(EXCLUDED.bathrooms, property_search_cache.bathrooms),
+              sqft = COALESCE(EXCLUDED.sqft, property_search_cache.sqft),
+              property_type = COALESCE(EXCLUDED.property_type, property_search_cache.property_type),
               days_on_market = EXCLUDED.days_on_market,
+              image_url = COALESCE(EXCLUDED.image_url, property_search_cache.image_url),
               last_seen_at = NOW()
           `, [
             location,
@@ -447,20 +689,6 @@ async function run() {
     }
 
     // 3. For each alert: find new deals from cache and send email + optional SMS
-    const dueAlerts = await pool.query(`
-      SELECT pa.*, u.email
-      FROM property_alerts pa
-      JOIN users u ON pa.user_id = u.id
-      WHERE pa.is_active = true
-        AND (
-          pa.last_alert_sent IS NULL
-          OR (pa.alert_frequency = 'daily' AND pa.last_alert_sent < NOW() - INTERVAL '24 hours')
-          OR (pa.alert_frequency = 'instant' AND pa.last_alert_sent < NOW() - INTERVAL '6 hours')
-          OR (pa.alert_frequency = 'immediate' AND pa.last_alert_sent < NOW() - INTERVAL '6 hours')
-          OR (pa.alert_frequency = 'weekly' AND pa.last_alert_sent < NOW() - INTERVAL '7 days')
-        )
-    `);
-
     console.log(`\n=== Processing ${dueAlerts.rows.length} alerts ===\n`);
 
     for (const alert of dueAlerts.rows) {
@@ -492,6 +720,26 @@ async function run() {
           dealQuery += ` AND c.bedrooms >= $${paramIdx}`;
           dealParams.push(alert.min_bedrooms);
           paramIdx++;
+        }
+        if (alert.min_bathrooms) {
+          dealQuery += ` AND c.bathrooms >= $${paramIdx}`;
+          dealParams.push(alert.min_bathrooms);
+          paramIdx++;
+        }
+
+        // Filter by property type if the alert specifies types
+        if (alert.property_types && Array.isArray(alert.property_types) && alert.property_types.length > 0) {
+          // Map user-facing names to all possible Zillow property_type values stored in cache
+          const typeValues = [];
+          for (const t of alert.property_types) {
+            const mapped = PROPERTY_TYPE_MAP[t.toLowerCase()];
+            if (mapped) typeValues.push(...mapped);
+          }
+          if (typeValues.length > 0) {
+            dealQuery += ` AND LOWER(c.property_type) = ANY($${paramIdx})`;
+            dealParams.push(typeValues);
+            paramIdx++;
+          }
         }
 
         dealQuery += ' ORDER BY c.spread DESC LIMIT 10';
@@ -550,27 +798,30 @@ async function run() {
           stats.alerts++;
         }
 
-        // Log sent deals (dedup)
-        for (const deal of deals.rows) {
+        // Only persist to DB if NOT dry-run (dry-run should have no side effects)
+        if (!DRY_RUN) {
+          // Log sent deals (dedup — prevents re-sending on next run)
+          for (const deal of deals.rows) {
+            await pool.query(
+              'INSERT INTO alert_sent_deals (alert_id, zpid, spread) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING',
+              [alert.id, deal.zpid, deal.spread]
+            );
+          }
+
+          // Update last_alert_sent
           await pool.query(
-            'INSERT INTO alert_sent_deals (alert_id, zpid, spread) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING',
-            [alert.id, deal.zpid, deal.spread]
+            'UPDATE property_alerts SET last_alert_sent = NOW() WHERE id = $1',
+            [alert.id]
           );
-        }
 
-        // Update last_alert_sent
-        await pool.query(
-          'UPDATE property_alerts SET last_alert_sent = NOW() WHERE id = $1',
-          [alert.id]
-        );
-
-        // Log match
-        for (const deal of deals.rows) {
-          await pool.query(`
-            INSERT INTO property_alert_matches (alert_id, property_data, matched_at, sms_sent, email_sent)
-            VALUES ($1, $2, NOW(), $3, $4)
-            ON CONFLICT DO NOTHING
-          `, [alert.id, JSON.stringify(deal), smsSent, emailSent]);
+          // Log match
+          for (const deal of deals.rows) {
+            await pool.query(`
+              INSERT INTO property_alert_matches (alert_id, property_id, zpid, property_data, matched_at, sms_sent, email_sent)
+              VALUES ($1, $2, $2, $3, NOW(), $4, $5)
+              ON CONFLICT DO NOTHING
+            `, [alert.id, deal.zpid || 'unknown', JSON.stringify(deal), smsSent, emailSent]);
+          }
         }
 
       } catch (err) {
@@ -579,8 +830,65 @@ async function run() {
       }
     }
 
-    // 4. Cleanup: remove cache entries not seen in 7 days
+    // 4. Send price drop notifications to users who have price_drops_enabled
+    const recentDrops = await pool.query(`
+      SELECT pdl.* FROM price_drop_log pdl
+      WHERE pdl.detected_at > NOW() - INTERVAL '24 hours'
+      ORDER BY pdl.drop_amount DESC
+      LIMIT 50
+    `);
+
+    if (recentDrops.rows.length > 0) {
+      console.log(`\n=== ${recentDrops.rows.length} recent price drops to notify ===`);
+
+      // Find users with price_drops_enabled who have alerts in these locations
+      const dropLocations = [...new Set(recentDrops.rows.map(d => d.location))];
+      for (const dropLoc of dropLocations) {
+        const dropsInLoc = recentDrops.rows.filter(d => d.location === dropLoc);
+
+        // Find users who: have active alerts in this location AND have price drops enabled
+        const usersToNotify = await pool.query(`
+          SELECT DISTINCT u.id, u.email
+          FROM users u
+          JOIN property_alerts pa ON pa.user_id = u.id
+          LEFT JOIN notification_preferences np ON np.user_id = u.id
+          WHERE LOWER(TRIM(pa.location)) = $1
+            AND pa.is_active = true
+            AND COALESCE(np.price_drops_enabled, true) = true
+        `, [dropLoc]);
+
+        for (const user of usersToNotify.rows) {
+          // Filter out drops this user was already notified about
+          const unnotified = dropsInLoc.filter(d =>
+            !d.notified_user_ids || !d.notified_user_ids.includes(user.id)
+          );
+          if (unnotified.length === 0) continue;
+
+          if (!DRY_RUN) {
+            try {
+              await sendPriceDropEmail(user.email, dropLoc, unnotified);
+              console.log(`  Price drop email sent to ${user.email} (${unnotified.length} drops in ${dropLoc})`);
+
+              // Mark as notified
+              for (const drop of unnotified) {
+                await pool.query(
+                  'UPDATE price_drop_log SET notified_user_ids = array_append(notified_user_ids, $1) WHERE id = $2',
+                  [user.id, drop.id]
+                );
+              }
+            } catch (err) {
+              console.error(`  Failed to send price drop email to ${user.email}: ${err.message}`);
+            }
+          } else {
+            console.log(`  [DRY RUN] Would send price drop email to ${user.email} (${unnotified.length} drops in ${dropLoc})`);
+          }
+        }
+      }
+    }
+
+    // 5. Cleanup: remove cache entries not seen in 7 days, old price drops > 30 days
     await pool.query("DELETE FROM property_search_cache WHERE last_seen_at < NOW() - INTERVAL '7 days'");
+    await pool.query("DELETE FROM price_drop_log WHERE detected_at < NOW() - INTERVAL '30 days'");
 
   } catch (err) {
     console.error('FATAL:', err);
