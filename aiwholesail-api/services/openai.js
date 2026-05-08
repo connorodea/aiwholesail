@@ -74,7 +74,15 @@ async function callOpenAI(messages, options = {}) {
     temperature,
   } = options;
 
-  const body = { model, messages, max_tokens: maxTokens };
+  // GPT-5 family + reasoning models (o1, o3, o4) require `max_completion_tokens`
+  // and reject the legacy `max_tokens`. Older 4.x models still accept max_tokens.
+  const usesNewParam = /^gpt-5|^o[1-9]/.test(model);
+  const body = { model, messages };
+  if (usesNewParam) {
+    body.max_completion_tokens = maxTokens;
+  } else {
+    body.max_tokens = maxTokens;
+  }
   if (responseFormat) body.response_format = responseFormat;
   if (typeof temperature === 'number') body.temperature = temperature;
 
