@@ -58,14 +58,17 @@ export default function RealEstateWholesaler() {
   const [compareMode, setCompareMode] = useState(false);
   const [compareSelected, setCompareSelected] = useState<Property[]>([]);
   const [showComparison, setShowComparison] = useState(false);
-  const [showNegativeSpreads, setShowNegativeSpreads] = useState(false);
+  // Default: show ALL properties so users know the search is working while
+  // zestimates are still being calculated. Toggle ON to hide non-deals.
+  const [hideNegativeSpreads, setHideNegativeSpreads] = useState(false);
   const searchIdRef = useRef(0);
 
-  // A property has a "negative spread" when its list price meets or exceeds
-  // its zestimate (i.e. it is not a wholesale deal). Properties without a
-  // zestimate are treated as negative-spread for visibility purposes.
+  // A property is a confirmed non-deal when it has both a price and a
+  // zestimate, and the price is at or above the zestimate. Properties still
+  // awaiting a zestimate are NOT classified as negative — they're shown so
+  // the grid populates immediately during enrichment.
   const isNegativeSpread = (p: Property) =>
-    !!p.price && (!p.zestimate || p.price >= p.zestimate);
+    !!p.price && !!p.zestimate && p.price >= p.zestimate;
 
   // US States lookup
   const US_STATES: Record<string, string> = {
@@ -217,10 +220,11 @@ export default function RealEstateWholesaler() {
 
         const enrichedSorted = sortPropertiesByWholesalePotential(enriched);
 
-        // Default the negative-spread toggle from the user's wholesaleOnly
-        // search preference so deals stay highlighted unless they explicitly
-        // turned off the wholesale filter.
-        setShowNegativeSpreads(!params.wholesaleOnly);
+        // If the user searched with "wholesale only", auto-flip the
+        // hide-negative-spreads toggle ON post-enrichment so deals are
+        // surfaced. Otherwise leave it OFF (the default) so all results
+        // remain visible.
+        setHideNegativeSpreads(!!params.wholesaleOnly);
 
         setProperties(enrichedSorted);
 
@@ -436,9 +440,9 @@ export default function RealEstateWholesaler() {
 
             {/* Results Section */}
             {!isLoading && properties.length > 0 && (() => {
-              const visibleProperties = showNegativeSpreads
-                ? properties
-                : properties.filter(p => !isNegativeSpread(p));
+              const visibleProperties = hideNegativeSpreads
+                ? properties.filter(p => !isNegativeSpread(p))
+                : properties;
               const hiddenNegativeCount = properties.length - visibleProperties.length;
               return (
               <section className="space-y-10 animate-fade-in">
@@ -451,7 +455,7 @@ export default function RealEstateWholesaler() {
                     </h2>
                     <p className="text-neutral-400 font-light">
                       {visibleProperties.length} {visibleProperties.length === 1 ? 'property' : 'properties'} shown
-                      {!showNegativeSpreads && hiddenNegativeCount > 0 && (
+                      {hideNegativeSpreads && hiddenNegativeCount > 0 && (
                         <span className="text-neutral-500"> · {hiddenNegativeCount} hidden</span>
                       )}
                     </p>
@@ -461,29 +465,29 @@ export default function RealEstateWholesaler() {
                     <div className="flex items-center gap-2 flex-wrap">
                       <div
                         className={`flex items-center gap-2 h-9 px-3 rounded-md border text-sm font-medium smooth-transition ${
-                          showNegativeSpreads
-                            ? 'bg-orange-500/10 border-orange-500/30 text-orange-400'
+                          hideNegativeSpreads
+                            ? 'bg-cyan-500/10 border-cyan-500/30 text-cyan-400'
                             : 'bg-transparent border-border text-neutral-300'
                         }`}
-                        title={showNegativeSpreads
-                          ? 'Hide properties priced at or above their Zestimate'
-                          : 'Include properties priced at or above their Zestimate'}
+                        title={hideNegativeSpreads
+                          ? 'Showing only properties priced below their Zestimate (deals)'
+                          : 'Hide properties priced at or above their Zestimate'}
                       >
-                        {showNegativeSpreads ? (
-                          <Eye className="h-4 w-4" />
-                        ) : (
+                        {hideNegativeSpreads ? (
                           <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
                         )}
                         <Label
-                          htmlFor="show-negative-spreads"
+                          htmlFor="hide-negative-spreads"
                           className="cursor-pointer text-sm font-medium select-none"
                         >
-                          {showNegativeSpreads ? 'Showing negative spreads' : 'Show negative spreads'}
+                          {hideNegativeSpreads ? 'Hiding non-deals' : 'Hide negative spreads'}
                         </Label>
                         <Switch
-                          id="show-negative-spreads"
-                          checked={showNegativeSpreads}
-                          onCheckedChange={setShowNegativeSpreads}
+                          id="hide-negative-spreads"
+                          checked={hideNegativeSpreads}
+                          onCheckedChange={setHideNegativeSpreads}
                           className="ml-1"
                         />
                       </div>
