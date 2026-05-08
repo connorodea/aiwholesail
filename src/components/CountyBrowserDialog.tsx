@@ -99,7 +99,7 @@ export function CountyBrowserDialog({ open, onOpenChange, onSelectCounty }: Coun
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl w-[95vw] max-h-[85vh] p-0 bg-[#0c0d0f] border-neutral-800 text-white overflow-hidden flex flex-col">
+      <DialogContent className="max-w-3xl w-[95vw] h-[90vh] sm:h-auto sm:max-h-[88vh] p-0 bg-[#0c0d0f] border-neutral-800 text-white overflow-hidden flex flex-col">
         <DialogHeader className="px-6 pt-6 pb-3 border-b border-neutral-800/60">
           <DialogTitle className="text-xl font-medium tracking-tight">Browse counties by state</DialogTitle>
           <DialogDescription className="text-sm text-neutral-500 leading-relaxed">
@@ -169,8 +169,9 @@ export function CountyBrowserDialog({ open, onOpenChange, onSelectCounty }: Coun
           </p>
         </div>
 
-        <ScrollArea className="flex-1 max-h-[60vh]">
-          <div className="px-6 py-4 space-y-6">
+        <div className="relative flex-1 min-h-0">
+          <ScrollArea className="h-full">
+            <div className="px-6 py-4 space-y-6">
             {filtered.length === 0 && (
               <div className="text-center py-12 space-y-2">
                 <MapPin className="h-8 w-8 text-neutral-700 mx-auto" />
@@ -208,8 +209,16 @@ export function CountyBrowserDialog({ open, onOpenChange, onSelectCounty }: Coun
                 </div>
               </div>
             ))}
+            {/* Bottom spacer so the last row sits above the fade */}
+            <div className="h-6" aria-hidden />
           </div>
-        </ScrollArea>
+          </ScrollArea>
+          {/* Scrollability hint: gradient fade indicates more content below */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-[#0c0d0f] to-transparent"
+          />
+        </div>
 
         <div className="px-6 py-3 border-t border-neutral-800/60 text-xs text-neutral-500">
           Source: US Census Bureau · {TOTAL_COUNTIES.toLocaleString()} counties across {TOTAL_STATES} states + DC
