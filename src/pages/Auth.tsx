@@ -157,11 +157,14 @@ export default function Auth() {
   const [isReset, setIsReset] = useState(searchParams.get('mode') === 'reset');
   const [resetToken] = useState(searchParams.get('token') || '');
   const [resetSuccess, setResetSuccess] = useState(false);
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(searchParams.get('email') || '');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
+  // Cold-traffic LPs (e.g. /lp/find-deals) pass `source=...` so we know to
+  // strip optional fields and minimize signup friction.
+  const fromLandingPage = !!searchParams.get('source') || !!searchParams.get('email');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const { signIn, signUp, user } = useAuth();
@@ -224,7 +227,10 @@ export default function Auth() {
     setLoading(true);
     try {
       if (isSignUp) {
-        const { error } = await signUp(email, password, fullName, phoneNumber);
+        // From cold-traffic LPs we don't collect full name — derive a
+        // sensible placeholder from the email so the API contract holds.
+        const effectiveName = fullName.trim() || (fromLandingPage ? (email.split('@')[0] || 'Investor') : '');
+        const { error } = await signUp(email, password, effectiveName, phoneNumber);
         if (error) {
           if (error.message.includes('already') || error.message.includes('registered') || error.message.includes('Email already')) {
             toast.error('An account with this email already exists. Please sign in instead.');
@@ -333,7 +339,7 @@ export default function Auth() {
                 )
               ) : (
                 <form className="mt-8 flex flex-col gap-5" onSubmit={handleSubmit}>
-                  {isSignUp && (
+                  {isSignUp && !fromLandingPage && (
                     <>
                       <div>
                         <GradientLabel>Full Name</GradientLabel>
