@@ -1,0 +1,29 @@
+[Unit]
+Description=AIWholesail trial-lifecycle worker (sends day -1 / 0 / +1 / +7 emails)
+After=network-online.target postgresql.service aiwholesail-api.service
+Wants=network-online.target postgresql.service
+
+[Service]
+Type=oneshot
+User=root
+WorkingDirectory=/var/www/aiwholesail-api
+EnvironmentFile=/var/www/aiwholesail-api/.env
+ExecStart=/usr/bin/node scripts/trial-lifecycle-worker.js
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=aiwholesail-trial-lifecycle
+Nice=10
+
+# Hardening (matches main API unit)
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictNamespaces=true
+LockPersonality=true
+RestrictRealtime=true
+SystemCallArchitectures=native
+ReadWritePaths=/var/www/aiwholesail-api /var/log
