@@ -15,7 +15,7 @@ import { Spotlight } from '@/components/ui/spotlight';
 const plans = [
   {
     name: 'Pro',
-    price: 29,
+    price: 49,
     priceId: 'price_1QjrSuCwWnuOPtC4Bfwu6IEs',
     description: 'Perfect for individual investors',
     features: [
@@ -137,7 +137,7 @@ export default function Pricing() {
     <PublicLayout>
       <SEOHead
         title="Pricing Plans"
-        description="Choose the perfect AIWholesail plan for your real estate business. Start with a 7-day free trial. Pro at $29/month or Elite at $99/month."
+        description="Choose the perfect AIWholesail plan for your real estate business. Start with a 7-day free trial. Pro at $49/month or Elite at $99/month."
         noIndex={false}
       />
 

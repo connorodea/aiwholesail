@@ -44,11 +44,15 @@ router.post('/checkout', authenticate, [
     expand: ['data.product']
   });
 
-  // Find the correct price based on plan type
+  // Find the correct price based on plan type. We look up by amount so the
+  // priceId stored on the frontend is purely a label; new Stripe Price
+  // objects (e.g. after a price change) get picked up automatically.
+  // Existing subscribers stay on the price object their subscription was
+  // created with — this only affects new checkout sessions.
   let actualPriceId;
   if (priceId === 'Pro') {
     const proPrice = prices.data.find(price =>
-      price.unit_amount === 2900 &&
+      price.unit_amount === 4900 &&
       price.recurring?.interval === 'month'
     );
     actualPriceId = proPrice?.id;
