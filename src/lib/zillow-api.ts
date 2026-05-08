@@ -730,7 +730,10 @@ export class ZillowAPI {
     onProgress?: (completed: number, total: number) => void,
     onChunkComplete?: (partiallyEnriched: Property[]) => void
   ): Promise<Property[]> {
-    const MAX_ENRICH = 150; // Enrich as many as possible to find +$30K deals
+    // Enrich every property the search returned. We keep a high ceiling
+    // (2,000) as a runaway-protection backstop, but in normal markets this
+    // is well above the natural search size so no listing gets skipped.
+    const MAX_ENRICH = 2000;
     const CHUNK_SIZE = USE_SUPABASE ? 10 : 25; // Hetzner batch handles parallelism server-side
 
     const propertiesWithZpid = properties.map(p => ({
