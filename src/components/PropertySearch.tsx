@@ -92,7 +92,7 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
               <button
                 type="button"
                 onClick={() => setCountyBrowserOpen(true)}
-                className="mt-2 inline-flex items-center gap-1.5 text-xs text-neutral-400 hover:text-cyan-400 transition-colors"
+                className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium text-cyan-400 hover:text-cyan-300 hover:underline underline-offset-4 transition-colors"
               >
                 <MapPin className="h-3.5 w-3.5" />
                 Don&rsquo;t know the county? Browse counties by state →
