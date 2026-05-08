@@ -31,6 +31,7 @@ import {
 import { ArrowUpDown, Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { PropertyComparison } from '@/components/PropertyComparison';
+import { AITopPicksSection } from '@/components/AITopPicksSection';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 
@@ -616,6 +617,11 @@ export default function RealEstateWholesaler() {
                     </Button>
                   </div>
                 )}
+
+                <AITopPicksSection
+                  properties={visibleProperties}
+                  onSelectProperty={setSelectedProperty}
+                />
 
                 <div className="property-grid">
                   {[...visibleProperties].sort((a, b) => {

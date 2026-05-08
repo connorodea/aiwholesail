@@ -435,6 +435,24 @@ export const ai = {
     });
   },
 
+  rankDeals: async (properties: any[]) => {
+    return apiFetch<{
+      ranked_deals: Array<{
+        id: string;
+        ai_score: number;
+        label: 'strong_buy' | 'solid' | 'caution' | 'avoid';
+        rationale: string;
+        red_flags: string[];
+        motivated_signals: string[];
+      }>;
+      candidates_evaluated: number;
+      model: string;
+    }>('/api/ai/rank-deals', {
+      method: 'POST',
+      body: JSON.stringify({ properties }),
+    });
+  },
+
   advancedPropertyAssessment: async (data: {
     property: any;
     arv?: number;
