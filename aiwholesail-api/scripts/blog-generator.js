@@ -439,7 +439,7 @@ function saveArticle(article) {
   return articlePath;
 }
 
-async function gitCommitAndPush(article) {
+async function gitCommitAndPush(article, articlePath) {
   const { execSync } = require('child_process');
 
   try {
@@ -450,7 +450,11 @@ async function gitCommitAndPush(article) {
     execSync('git fetch origin main', { stdio: 'pipe' });
     execSync('git pull --rebase origin main', { stdio: 'pipe' });
 
-    execSync('git add src/data/blog/', { stdio: 'pipe' });
+    // Stage ONLY the files we just wrote — not the whole blog dir.
+    // A previous broken-push state could leave stray staged/untracked files
+    // around; we don't want to inadvertently bundle them into our commit.
+    execSync('git reset HEAD src/data/blog/', { stdio: 'pipe' });
+    execSync(`git add "${articlePath}" "${INDEX_PATH}"`, { stdio: 'pipe' });
 
     // If nothing was staged (e.g. file already committed by a prior run),
     // bail cleanly without a confusing "nothing to commit" failure.
@@ -507,8 +511,8 @@ async function main() {
 
   try {
     const article = await generateArticle(keywordData);
-    saveArticle(article);
-    await gitCommitAndPush(article);
+    const articlePath = saveArticle(article);
+    await gitCommitAndPush(article, articlePath);
     console.log(`[Blog] Complete: "${article.title}"`);
   } catch (err) {
     console.error('[Blog] Generation failed:', err.message);
