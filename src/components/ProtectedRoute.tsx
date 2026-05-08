@@ -5,6 +5,7 @@ import { Loader2 } from 'lucide-react';
 import { isNative } from '@/lib/platform';
 import { initPurchases, identifyUser, hasAnySubscription } from '@/lib/purchases';
 import { NativePaywall } from './NativePaywall';
+import { TrialExpiredModal } from './TrialExpiredModal';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -82,6 +83,13 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     );
   }
 
-  // User is authenticated (and subscribed on native), render protected content
-  return <>{children}</>;
+  // User is authenticated (and subscribed on native), render protected content.
+  // TrialExpiredModal renders alongside; it self-decides whether to show based
+  // on subscription state (auto-hides during initial load to prevent flicker).
+  return (
+    <>
+      {children}
+      <TrialExpiredModal />
+    </>
+  );
 }

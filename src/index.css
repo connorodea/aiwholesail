@@ -300,4 +300,32 @@ All colors MUST be HSL.
   .mobile-card {
     @apply p-4 sm:p-6 space-y-3 sm:space-y-4;
   }
+
+  /* Hide scrollbars for horizontal scroll regions on mobile */
+  .scrollbar-none {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Mobile global guards: prevent accidental horizontal scroll & give touch
+   targets a humane minimum size on small screens. */
+@media (max-width: 640px) {
+  html, body {
+    overflow-x: hidden;
+  }
+  /* Inputs at 16px+ font-size avoid iOS Safari auto-zooming on focus */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="tel"],
+  input[type="number"],
+  input[type="search"],
+  textarea,
+  select {
+    font-size: 16px;
+  }
 }

@@ -144,6 +144,35 @@ export const analytics = {
     fireFbq('Lead', { content_name: source, content_category: 'lp_email_capture' });
   },
 
+  // ============ TRIAL LIFECYCLE EVENTS ============
+
+  /** Trial countdown banner shown to user (impression) */
+  trialCountdownBannerShown(daysRemaining: number) {
+    fire('trial_countdown_banner_shown', { days_remaining: daysRemaining });
+  },
+
+  /** User's trial expired and the blocking modal was shown */
+  trialExpired() {
+    fire('trial_expired');
+    fireFbq('Lead', { content_name: 'trial_expired', content_category: 'lifecycle' });
+  },
+
+  /**
+   * User clicked an upgrade CTA. `source` identifies where:
+   *   'banner' (in-app countdown) | 'modal' (expired modal) |
+   *   'email_d-1' | 'email_d0' | 'email_d+1' | 'email_d+7' (lifecycle emails)
+   */
+  trialUpgradeClicked(source: 'banner' | 'modal' | 'email_d-1' | 'email_d0' | 'email_d+1' | 'email_d+7') {
+    fire('trial_upgrade_clicked', { source });
+    fireFbq('Lead', { content_name: 'trial_upgrade', content_category: source });
+  },
+
+  /** User completed a trial → paid upgrade (Stripe checkout success) */
+  trialUpgradeCompleted(plan: string, price: number) {
+    fire('trial_upgrade_completed', { plan, price, currency: 'USD' });
+    fireFbq('Subscribe', { content_name: plan, currency: 'USD', value: price });
+  },
+
   // ============ PROPERTY SEARCH EVENTS ============
 
   /** User performs a property search */
