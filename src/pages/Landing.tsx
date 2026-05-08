@@ -4,16 +4,17 @@ import { Link } from "react-router-dom";
 import {
   ArrowRight, Play, X, Search, DollarSign, Brain,
   BarChart3, Bell, Users, Target, Shield, CheckCircle, Star,
-  TrendingUp, ChevronRight, Sparkles, Mail, Zap, FileText,
+  TrendingUp, ChevronRight, Sparkles, Mail, Zap, FileText, Clock,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { SEOHead } from "@/components/SEOHead";
 import { AmbientColor } from "@/components/proactiv/AmbientColor";
 import { Heading, Subheading } from "@/components/proactiv/Heading";
 import { Container } from "@/components/proactiv/Container";
-import { FeatureIconContainer } from "@/components/proactiv/FeatureIconContainer";
 import { NavbarAIWholesail } from "@/components/ui/navbar-aiwholesail";
 import { Spotlight } from "@/components/ui/spotlight";
+import { ShaderBackground } from "@/components/ShaderBackground";
+import { WavyBackground } from "@/components/ui/wavy-background";
 
 const aiWholesailLogoWebP = "/logo-white.webp";
 const aiWholesailLogoPNG = "/logo-white.png";
@@ -107,267 +108,853 @@ const Landing = () => {
       <NavbarAIWholesail />
 
       <main>
-      {/* ===== HERO ===== */}
-      <div className="relative flex flex-col min-h-[50rem] md:min-h-[60rem] pt-28 md:pt-40">
-        <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" fill="rgba(6, 182, 212, 0.15)" />
-        <AmbientColor />
+      {/* ===== HERO — Two Column with Property Cards ===== */}
+      <section className="relative pt-24 md:pt-28 pb-0 overflow-hidden bg-gradient-to-b from-[#08090a] to-[#060708]">
+        {/* Wavy background — subtle, bottom of hero only */}
+        <div className="absolute inset-0 z-0 opacity-40">
+          <WavyBackground
+            className="absolute inset-0"
+            containerClassName="absolute inset-0"
+            colors={["#155e75", "#164e63", "#0e7490", "#083344", "#0c4a6e"]}
+            backgroundFill="#08090a"
+            blur={14}
+            speed="slow"
+            waveOpacity={0.15}
+          />
+        </div>
+        <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" fill="rgba(6, 182, 212, 0.12)" />
 
-        <Container className="flex flex-col items-center justify-center relative z-10">
-          <motion.div {...heroFadeUp(0)}>
-            <Heading as="h1" size="2xl" className="mt-6 py-6">
-              Find profitable real estate deals —{" "}
-              <span className="bg-gradient-to-r from-cyan-500 via-cyan-400 to-cyan-500 bg-clip-text text-transparent">
-                before everyone else
-              </span>
-            </Heading>
-          </motion.div>
-          <motion.div {...heroFadeUp(0.1)}>
-            <Subheading className="max-w-2xl">
-              Stop spending hours searching. Our AI scans thousands of properties, calculates your profit instantly, and alerts you the moment new opportunities hit the market.
-            </Subheading>
-          </motion.div>
+        <Container className="relative z-10">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-6 items-center">
+            {/* Left — Copy */}
+            <div className="max-w-xl">
+              <motion.div {...heroFadeUp(0)}>
+                <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold tracking-[0.12em] uppercase text-cyan-400 mb-5">
+                  <Sparkles className="h-3 w-3" /> AI-Powered Deal Finder
+                </span>
+              </motion.div>
 
-          {/* CTA Buttons */}
-          <motion.div {...heroFadeUp(0.2)} className="flex flex-col sm:flex-row gap-3 mt-8 relative z-10">
-            <Link to="/pricing">
-              <button className="bg-cyan-500 hover:bg-cyan-400 text-black text-sm md:text-base font-medium px-6 py-2.5 rounded-md transition-all hover:-translate-y-0.5 active:scale-[0.98] shadow-[0px_-1px_0px_0px_rgba(255,255,255,0.4)_inset,0px_1px_0px_0px_rgba(255,255,255,0.4)_inset] flex items-center gap-2">
-                Start 7-Day Free Trial <ArrowRight className="h-4 w-4" />
-              </button>
-            </Link>
-            <button
-              onClick={() => setShowDemo(true)}
-              className="bg-neutral-800 hover:bg-neutral-700 text-white text-sm md:text-base font-medium px-6 py-2.5 rounded-md transition-all border border-transparent hover:border-white/10 shadow-[0px_1px_0px_0px_rgba(255,255,255,0.1)_inset] flex items-center gap-2"
-            >
-              <Play className="h-4 w-4" /> Watch Demo
-            </button>
-          </motion.div>
+              <motion.h1 {...heroFadeUp(0.05)} className="text-4xl sm:text-5xl lg:text-[3.4rem] font-bold tracking-tight leading-[1.1] text-white">
+                Find profitable<br />
+                real estate deals<br />
+                <span className="italic bg-gradient-to-r from-cyan-400 to-cyan-500 bg-clip-text text-transparent">before</span>{" "}
+                everyone else
+              </motion.h1>
 
-          {/* Trust badges */}
-          <motion.div {...heroFadeUp(0.3)} className="flex items-center gap-6 mt-6 text-xs text-neutral-500">
-            <span className="flex items-center gap-1.5"><Shield className="h-3 w-3" /> No credit card required</span>
-            <span className="flex items-center gap-1.5"><CheckCircle className="h-3 w-3" /> 7-day free trial</span>
-          </motion.div>
+              <motion.p {...heroFadeUp(0.1)} className="mt-6 text-[15px] sm:text-base text-neutral-400 leading-relaxed max-w-lg">
+                Our AI scans thousands of properties, calculates profit potential, and alerts you the moment new opportunities hit the market.
+              </motion.p>
 
-          {/* Social proof */}
-          <motion.div {...heroFadeUp(0.3)} className="flex flex-col items-center mt-10 mb-10">
-            <div className="flex -space-x-3 mb-3">
-              {["SJ", "MC", "JD", "RM", "KL"].map((initials, i) => (
-                <div key={i} className="w-10 h-10 rounded-full border-2 border-neutral-800 bg-gradient-to-br from-cyan-500/20 to-neutral-800 flex items-center justify-center text-[10px] font-semibold text-white/70">
-                  {initials}
+              {/* CTA Buttons */}
+              <motion.div {...heroFadeUp(0.15)} className="flex flex-col sm:flex-row gap-3 mt-8">
+                <Link to="/pricing">
+                  <button className="bg-cyan-500 hover:bg-cyan-400 text-black text-sm md:text-base font-semibold px-7 py-3 rounded-lg transition-all hover:-translate-y-0.5 active:scale-[0.98] shadow-lg shadow-cyan-500/20 flex items-center gap-2">
+                    Start 7-Day Free Trial <ArrowRight className="h-4 w-4" />
+                  </button>
+                </Link>
+                <button
+                  onClick={() => setShowDemo(true)}
+                  className="bg-white/[0.04] hover:bg-white/[0.08] text-white text-sm md:text-base font-medium px-7 py-3 rounded-lg transition-all border border-white/[0.08] hover:border-white/[0.15] flex items-center gap-2 justify-center"
+                >
+                  <Play className="h-4 w-4" /> Watch Demo
+                </button>
+              </motion.div>
+
+              {/* Trust line */}
+              <motion.div {...heroFadeUp(0.2)} className="flex items-center gap-5 mt-5 text-xs text-neutral-500">
+                <span className="flex items-center gap-1.5"><Shield className="h-3.5 w-3.5" /> No credit card required</span>
+                <span className="flex items-center gap-1.5"><CheckCircle className="h-3.5 w-3.5" /> 7-day free trial</span>
+              </motion.div>
+            </div>
+
+            {/* Right — Three Property Cards (angled, overlapping) */}
+            <motion.div {...heroFadeUp(0.15)} className="relative h-[380px] sm:h-[420px] lg:h-[460px] hidden md:block">
+              {/* Glow behind cards */}
+              <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 via-transparent to-emerald-500/5 rounded-3xl blur-2xl" />
+
+              {/* Grid pattern overlay */}
+              <div className="absolute inset-0 opacity-[0.03]" style={{
+                backgroundImage: 'linear-gradient(rgba(6,182,212,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(6,182,212,0.3) 1px, transparent 1px)',
+                backgroundSize: '40px 40px',
+              }} />
+
+              {/* Card 1 — Left, tilted back */}
+              <div className="absolute left-0 top-10 w-[210px] transform -rotate-[8deg] z-10 transition-transform duration-500 hover:-rotate-[4deg] hover:scale-105">
+                <div className="bg-gradient-to-b from-[#0d1117] to-[#0a0d12] rounded-2xl border border-cyan-500/10 overflow-hidden shadow-2xl shadow-black/70" style={{ boxShadow: '0 0 40px rgba(6,182,212,0.06), 0 25px 50px rgba(0,0,0,0.6)' }}>
+                  {/* Green JUST FOUND banner */}
+                  <div className="bg-emerald-500 text-black text-[8px] font-bold tracking-widest uppercase text-center py-1">JUST FOUND</div>
+                  <div className="relative h-[120px] overflow-hidden">
+                    <img src="/generated/distressed-1.jpg" alt="Investment property" className="w-full h-full object-cover" loading="eager" onError={(e) => { (e.target as HTMLImageElement).src = '/generated/hero-property-1.jpg'; }} />
+                    <div className="absolute top-2 left-2 bg-cyan-500 text-black text-[7px] font-bold px-2 py-0.5 rounded-sm tracking-wide">FOR SALE</div>
+                  </div>
+                  <div className="p-3 space-y-1.5">
+                    <div className="text-lg font-bold text-white leading-tight">$37,900</div>
+                    <div className="text-[9px] text-neutral-500 leading-snug">9120 Conner St,<br/>Cleveland, OH 44105</div>
+                    <div className="flex items-center gap-1.5 text-[8px] text-neutral-600">
+                      <span className="flex items-center gap-0.5"><span>2</span> bed</span>
+                      <span className="text-neutral-700">|</span>
+                      <span className="flex items-center gap-0.5"><span>1</span> bath</span>
+                      <span className="text-neutral-700">|</span>
+                      <span>896 sq ft</span>
+                    </div>
+                    <div className="mt-2 bg-emerald-500/[0.07] border border-emerald-500/20 rounded-lg py-2 text-center">
+                      <div className="text-[8px] text-neutral-500 uppercase tracking-widest">Est. Profit</div>
+                      <div className="text-[17px] font-bold text-emerald-400 leading-tight">+$29,600</div>
+                      <div className="text-[8px] text-emerald-400/60">ROI 78.1%</div>
+                    </div>
+                  </div>
                 </div>
-              ))}
-            </div>
-            <div className="flex gap-0.5 mb-2">
-              {[...Array(5)].map((_, i) => <Star key={i} className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />)}
-            </div>
-            <p className="text-neutral-500 text-xs">Trusted by real estate professionals nationwide</p>
-          </motion.div>
+              </div>
+
+              {/* Card 2 — Center, featured (largest) */}
+              <div className="absolute left-1/2 -translate-x-1/2 -top-2 w-[270px] z-30 transition-transform duration-500 hover:scale-105">
+                <div className="bg-gradient-to-b from-[#0d1117] to-[#0a0d12] rounded-2xl border border-cyan-500/25 overflow-hidden" style={{ boxShadow: '0 0 60px rgba(6,182,212,0.1), 0 0 120px rgba(6,182,212,0.04), 0 30px 60px rgba(0,0,0,0.7)' }}>
+                  {/* TOP DEAL yellow bar integrated into card top */}
+                  <div className="bg-gradient-to-r from-amber-500 to-amber-400 text-black text-[9px] font-bold tracking-widest uppercase text-center py-1.5 flex items-center justify-center gap-1">
+                    <Star className="h-3 w-3 fill-current" /> TOP DEAL
+                  </div>
+                  <div className="relative h-[155px] overflow-hidden">
+                    <img src="/generated/distressed-2.jpg" alt="Top deal property" className="w-full h-full object-cover" loading="eager" onError={(e) => { (e.target as HTMLImageElement).src = '/generated/hero-property-2.jpg'; }} />
+                    <div className="absolute top-2 left-2 bg-cyan-500 text-black text-[7px] font-bold px-2 py-0.5 rounded-sm tracking-wide">FOR SALE</div>
+                  </div>
+                  <div className="p-4 space-y-1.5">
+                    <div className="text-[22px] font-bold text-white leading-tight">$68,000</div>
+                    <div className="text-[10px] text-neutral-500 leading-snug">1234 Mitchell St,<br/>Detroit, MI 48206</div>
+                    <div className="flex items-center gap-2 text-[9px] text-neutral-600 mt-1">
+                      <span>3 bed</span>
+                      <span className="text-neutral-700">|</span>
+                      <span>1 bath</span>
+                      <span className="text-neutral-700">|</span>
+                      <span>1,024 sq ft</span>
+                    </div>
+                    <div className="mt-3 bg-emerald-500/[0.07] border border-emerald-500/20 rounded-xl py-3 text-center">
+                      <div className="text-[8px] text-neutral-500 uppercase tracking-widest mb-0.5">Est. Profit</div>
+                      <div className="text-2xl font-extrabold text-emerald-400 leading-tight">+$46,000</div>
+                      <div className="text-[10px] text-emerald-400/60 mt-0.5">ROI 67.6%</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 3 — Right, tilted */}
+              <div className="absolute right-0 top-10 w-[210px] transform rotate-[8deg] z-10 transition-transform duration-500 hover:rotate-[4deg] hover:scale-105">
+                <div className="bg-gradient-to-b from-[#0d1117] to-[#0a0d12] rounded-2xl border border-cyan-500/10 overflow-hidden shadow-2xl shadow-black/70" style={{ boxShadow: '0 0 40px rgba(6,182,212,0.06), 0 25px 50px rgba(0,0,0,0.6)' }}>
+                  <div className="relative h-[120px] overflow-hidden">
+                    <img src="/generated/distressed-3.jpg" alt="New listing property" className="w-full h-full object-cover" loading="eager" onError={(e) => { (e.target as HTMLImageElement).src = '/generated/hero-property-3.jpg'; }} />
+                    <div className="absolute top-2 left-2 bg-cyan-500 text-black text-[7px] font-bold px-2 py-0.5 rounded-sm tracking-wide">FOR SALE</div>
+                    <div className="absolute top-2 right-2 bg-emerald-500/90 text-white text-[7px] font-bold px-2 py-0.5 rounded-sm tracking-wide">NEW</div>
+                  </div>
+                  <div className="p-3 space-y-1.5">
+                    <div className="text-lg font-bold text-white leading-tight">$41,500</div>
+                    <div className="text-[9px] text-neutral-500 leading-snug">2647 W North Ave,<br/>Baltimore, MD 21216</div>
+                    <div className="flex items-center gap-1.5 text-[8px] text-neutral-600">
+                      <span>3 bed</span>
+                      <span className="text-neutral-700">|</span>
+                      <span>1 bath</span>
+                      <span className="text-neutral-700">|</span>
+                      <span>1,112 sq ft</span>
+                    </div>
+                    <div className="mt-2 bg-emerald-500/[0.07] border border-emerald-500/20 rounded-lg py-2 text-center">
+                      <div className="text-[8px] text-neutral-500 uppercase tracking-widest">Est. Profit</div>
+                      <div className="text-[17px] font-bold text-emerald-400 leading-tight">+$32,700</div>
+                      <div className="text-[8px] text-emerald-400/60">ROI 78.8%</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
         </Container>
 
-        {/* Gradient border reveal — simplified from Proactiv's conic gradient */}
-        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent" />
-      </div>
+        {/* Stats Bar */}
+        <motion.div {...heroFadeUp(0.25)} className="mt-14 md:mt-20 pb-8 relative z-20">
+          <Container>
+            <div className="bg-[#0b0d10] border border-white/[0.06] rounded-2xl py-6 md:py-8 px-4 md:px-8">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-0 md:divide-x md:divide-white/[0.06]">
+                {[
+                  { icon: BarChart3, value: "16K+", label: "Deals Analyzed", iconBg: "bg-rose-500/10", iconColor: "text-rose-400" },
+                  { icon: DollarSign, value: "$281K+", label: "Avg. Profit Potential", iconBg: "bg-emerald-500/10", iconColor: "text-emerald-400" },
+                  { icon: Users, value: "10K+", label: "Investors Winning", iconBg: "bg-cyan-500/10", iconColor: "text-cyan-400" },
+                  { icon: Star, value: "4.8/5", label: "User Rating", iconBg: "bg-amber-500/10", iconColor: "text-amber-400" },
+                ].map((stat) => (
+                  <div key={stat.label} className="flex items-center justify-center gap-3 md:px-6">
+                    <div className={`w-10 h-10 rounded-full ${stat.iconBg} flex items-center justify-center shrink-0`}>
+                      <stat.icon className={`h-4.5 w-4.5 ${stat.iconColor}`} />
+                    </div>
+                    <div>
+                      <div className="text-xl md:text-2xl font-bold text-white leading-tight">{stat.value}</div>
+                      <div className="text-[10px] text-neutral-500">{stat.label}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </Container>
+        </motion.div>
 
-      {/* ===== FEATURES GRID ===== */}
-      <motion.section className="relative py-20 sm:py-32" {...sectionFadeIn}>
+        {/* Bottom gradient fade into next section */}
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#060708] to-transparent z-[1] pointer-events-none" />
+      </section>
+
+      {/* ===== AS SEEN IN — Trust Logos (below hero) ===== */}
+      <motion.div {...sectionFadeIn} className="relative z-20 bg-[#070809] py-8 md:py-10 -mt-12">
+        {/* Top gradient fade from hero */}
+        <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-[#060708] to-transparent z-[1] pointer-events-none" />
+        {/* Bottom gradient fade into features */}
+        <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[#08090a] to-transparent z-[1] pointer-events-none" />
         <Container>
-          <FeatureIconContainer className="flex justify-center items-center mx-auto mb-4">
-            <Sparkles className="h-5 w-5 text-cyan-500" />
-          </FeatureIconContainer>
-          <Heading className="pt-4">Everything you need to close more deals</Heading>
-          <Subheading>
-            Whether you're wholesaling, flipping, or building a rental portfolio — one platform handles it all.
-          </Subheading>
+          <div className="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-8">
+            <div className="flex items-center gap-4 flex-shrink-0">
+              <span className="text-[10px] font-semibold tracking-[0.25em] uppercase text-neutral-500">As Seen In</span>
+              <div className="hidden md:block w-px h-8 bg-neutral-700" />
+            </div>
+            <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-10 md:gap-14">
+              <img src="/logos/forbes-white.png" alt="Forbes" className="h-8 sm:h-10 hover:opacity-100 transition-opacity" style={{ opacity: 0.8 }} />
+              <img src="/logos/biggerpockets.png" alt="BiggerPockets" className="h-8 sm:h-9 hover:opacity-100 transition-opacity" style={{ filter: 'grayscale(1) brightness(5)', opacity: 0.8 }} />
+              <img src="/logos/rei-ink-white.png" alt="REI INK" className="h-10 sm:h-12 hover:opacity-100 transition-opacity" style={{ opacity: 0.8 }} />
+              <img src="/logos/disruptors-white.png" alt="Real Estate Disruptors" className="h-10 sm:h-12 hover:opacity-100 transition-opacity" style={{ opacity: 0.8 }} />
+              <img src="/logos/investor-fuel.png" alt="Investor Fuel" className="h-8 sm:h-9 hover:opacity-100 transition-opacity" style={{ opacity: 0.8 }} />
+            </div>
+          </div>
+        </Container>
+      </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-16">
-            {[
-              { icon: Search, title: "Smart Property Search", desc: "Just type a city, zip code, or address. We search multiple sources and show you every property with profit potential — sorted by the best deals first." },
-              { icon: DollarSign, title: "Instant Profit Analysis", desc: "See exactly how much money is in every deal. We compare listing prices to market values so you know your numbers before you make an offer." },
-              { icon: Brain, title: "AI-Powered Scoring", desc: "Every property gets a score from 0 to 100 based on profit potential, market conditions, and comparable sales. Focus on the deals that matter." },
-              { icon: Bell, title: "Deal Alerts", desc: "Set your criteria once and we'll notify you instantly when new high-profit opportunities hit the market. Never miss a deal again." },
-              { icon: Target, title: "Deal Pipeline", desc: "Track every deal from first contact to closing. Manage your pipeline visually, add notes, and never lose track of where a deal stands." },
-              { icon: Users, title: "Buyer Matching", desc: "Build your buyer list and let AI match the right buyers to the right properties based on their criteria, location, and price range." },
-              { icon: Mail, title: "Automated Follow-ups", desc: "Set up text and email sequences that run automatically. Stay in touch with sellers and buyers without lifting a finger." },
-              { icon: FileText, title: "Contract Generator", desc: "Generate assignment agreements, purchase contracts, and letters of intent. Fill in the details and download a professional PDF." },
-              { icon: BarChart3, title: "Market Intelligence", desc: "Understand any market in seconds. See median prices, trends, comparable sales, and neighborhood data all in one dashboard." },
-            ].map((feature, index) => (
-              <motion.div
-                key={feature.title}
-                {...cardFadeIn(index)}
-                className="relative group p-4 sm:p-6 rounded-xl border border-white/[0.05] bg-gradient-to-b from-neutral-900/50 to-transparent hover:border-cyan-500/20 transition-all duration-300"
-              >
-                {/* Grid pattern background */}
-                <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                  style={{
-                    backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.03) 1px, transparent 0)',
-                    backgroundSize: '24px 24px',
-                  }}
-                />
-                <div className="relative z-10">
-                  <FeatureIconContainer className="mb-4">
-                    <feature.icon className="h-4 w-4 text-cyan-500" />
-                  </FeatureIconContainer>
-                  <h3 className="text-sm font-semibold text-white mb-2">{feature.title}</h3>
-                  <p className="text-xs text-neutral-400 leading-relaxed">{feature.desc}</p>
+      {/* ===== FEATURES GRID (4-col with floating icon badges + CSS mockups) ===== */}
+      <motion.section className="relative py-20 sm:py-32 bg-gradient-to-b from-[#08090a] to-[#030405] -mt-12" {...sectionFadeIn}>
+        {/* Top gradient fade from trust logos */}
+        <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-[#08090a] to-transparent z-[1] pointer-events-none" />
+        {/* Bottom gradient fade into how it works */}
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#030405] to-transparent z-[1] pointer-events-none" />
+        <Container>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-center text-white">
+            Everything you need to{" "}
+            <span className="italic bg-gradient-to-r from-cyan-400 to-cyan-500 bg-clip-text text-transparent">close more deals</span>
+          </h2>
+          <p className="text-center text-base md:text-lg text-neutral-400 mt-4 max-w-2xl mx-auto italic">
+            Whether you're wholesaling, flipping, or building a rental portfolio — one platform handles it all.
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mt-16">
+
+            {/* Feature 1 — Smart Property Search */}
+            <motion.div {...cardFadeIn(0)} className="group relative flex flex-col rounded-2xl border border-white/[0.06] bg-[#0d1117] overflow-visible hover:border-cyan-500/20 transition-all duration-300">
+              {/* Floating icon badge — top-left, overlapping */}
+              <div className="absolute -top-5 left-5 z-20 w-12 h-12 rounded-full bg-[#0d1117] border-2 border-cyan-500/30 flex items-center justify-center shadow-lg shadow-cyan-500/10">
+                <Search className="h-5 w-5 text-cyan-400" />
+              </div>
+              {/* Image area — dark map with green property dots */}
+              <div className="relative h-[200px] overflow-hidden rounded-t-2xl">
+                <img src="/generated/feature-bg-search.jpg" alt="Aerial neighborhood view with property markers" className="w-full h-full object-cover" loading="lazy" />
+                {/* Dark map overlay with green dots */}
+                <div className="absolute inset-0 bg-[#0a1628]/70">
+                  <div className="relative w-full h-full">
+                    {[
+                      { top: '22%', left: '18%' }, { top: '38%', left: '52%' }, { top: '58%', left: '32%' },
+                      { top: '28%', left: '68%' }, { top: '52%', left: '78%' }, { top: '72%', left: '42%' },
+                      { top: '18%', left: '42%' }, { top: '62%', left: '62%' }, { top: '42%', left: '22%' },
+                    ].map((pos, i) => (
+                      <div key={i} className="absolute w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-lg shadow-emerald-400/40" style={{ top: pos.top, left: pos.left }}>
+                        <div className="absolute inset-0 rounded-full bg-emerald-400 animate-ping opacity-20" style={{ animationDelay: `${i * 200}ms`, animationDuration: '2.5s' }} />
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </motion.div>
-            ))}
+              </div>
+              <div className="p-5 flex flex-col flex-1">
+                <h3 className="text-[16px] font-bold text-white mb-2">Smart Property Search</h3>
+                <p className="text-[13px] text-neutral-400 leading-relaxed flex-1">Search by city, zip code, or neighborhood and find the most profitable deals in seconds.</p>
+                <Link to="/how-it-works" className="inline-flex items-center gap-1 text-[13px] font-medium text-cyan-400 hover:text-cyan-300 transition-colors mt-4">
+                  Learn more <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+              </div>
+            </motion.div>
+
+            {/* Feature 2 — Instant Profit Analysis (CSS mockup) */}
+            <motion.div {...cardFadeIn(1)} className="group relative flex flex-col rounded-2xl border border-white/[0.06] bg-[#0d1117] overflow-visible hover:border-cyan-500/20 transition-all duration-300">
+              {/* Floating icon badge */}
+              <div className="absolute -top-5 left-5 z-20 w-12 h-12 rounded-full bg-[#0d1117] border-2 border-cyan-500/30 flex items-center justify-center shadow-lg shadow-cyan-500/10">
+                <DollarSign className="h-5 w-5 text-cyan-400" />
+              </div>
+              {/* CSS Mockup — Deal Analysis UI */}
+              <div className="h-[200px] bg-gradient-to-b from-[#0a0e14] to-[#0d1117] rounded-t-2xl p-4 pt-8 flex flex-col overflow-hidden">
+                {/* Address bar */}
+                <div className="text-[10px] font-semibold text-white truncate">123 Oakwood Avenue</div>
+                <div className="text-[8px] text-neutral-500 mt-0.5">Detroit, MI 48201</div>
+                {/* Tabs */}
+                <div className="flex gap-1 mt-2.5 overflow-hidden">
+                  {['Summary', 'Comparable', 'Rehab Est.', 'Photos', 'Notes', 'Analysis'].map((tab, i) => (
+                    <span key={tab} className={`text-[7px] px-1.5 py-0.5 rounded-md whitespace-nowrap ${i === 0 ? 'bg-cyan-500/20 text-cyan-400 font-semibold' : 'text-neutral-600'}`}>{tab}</span>
+                  ))}
+                </div>
+                {/* Profit banner */}
+                <div className="mt-3 bg-emerald-500/[0.08] border border-emerald-500/20 rounded-lg px-3 py-2 text-center">
+                  <div className="text-[8px] text-neutral-500 uppercase tracking-wider">Est. Profit</div>
+                  <div className="text-[20px] font-extrabold text-emerald-400 leading-tight">+$81,000</div>
+                  <div className="text-[9px] font-semibold text-emerald-400/80">Great Deal</div>
+                </div>
+                {/* Stats grid */}
+                <div className="grid grid-cols-2 gap-x-3 gap-y-1 mt-2.5">
+                  {[
+                    { label: 'ARV', value: '$180,000' },
+                    { label: 'Repair Estimate', value: '$25,000' },
+                    { label: 'Total Costs', value: '$74,000' },
+                    { label: 'Estimated Profit', value: '$81,000', highlight: true },
+                  ].map((stat) => (
+                    <div key={stat.label} className="flex justify-between items-center">
+                      <span className="text-[7px] text-neutral-600">{stat.label}</span>
+                      <span className={`text-[8px] font-semibold ${stat.highlight ? 'text-emerald-400' : 'text-neutral-300'}`}>{stat.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="p-5 flex flex-col flex-1">
+                <h3 className="text-[16px] font-bold text-white mb-2">Instant Profit Analysis</h3>
+                <p className="text-[13px] text-neutral-400 leading-relaxed flex-1">See exact profit potential, repair estimates, and ROI before you even make an offer.</p>
+                <Link to="/how-it-works" className="inline-flex items-center gap-1 text-[13px] font-medium text-cyan-400 hover:text-cyan-300 transition-colors mt-4">
+                  Learn more <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+              </div>
+            </motion.div>
+
+            {/* Feature 3 — AI-Powered Scoring (CSS circular gauge) */}
+            <motion.div {...cardFadeIn(2)} className="group relative flex flex-col rounded-2xl border border-white/[0.06] bg-[#0d1117] overflow-visible hover:border-cyan-500/20 transition-all duration-300">
+              {/* Floating icon badge */}
+              <div className="absolute -top-5 left-5 z-20 w-12 h-12 rounded-full bg-[#0d1117] border-2 border-cyan-500/30 flex items-center justify-center shadow-lg shadow-cyan-500/10">
+                <Brain className="h-5 w-5 text-cyan-400" />
+              </div>
+              {/* CSS Gauge Mockup — Large circular gauge */}
+              <div className="h-[200px] bg-gradient-to-b from-[#0a0e14] to-[#0d1117] rounded-t-2xl flex flex-col items-center justify-center relative overflow-hidden">
+                {/* Radial glow behind gauge */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-40 h-40 rounded-full bg-cyan-500/[0.06] blur-2xl" />
+                </div>
+                {/* Full circular gauge */}
+                <div className="relative w-[110px] h-[110px]">
+                  <svg viewBox="0 0 120 120" className="w-full h-full -rotate-90" style={{ overflow: 'visible' }}>
+                    <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth="8" />
+                    <circle cx="60" cy="60" r="52" fill="none" stroke="url(#gaugeGradFeat)" strokeWidth="8" strokeLinecap="round" strokeDasharray="326.73" strokeDashoffset="26.14" />
+                    <defs>
+                      <linearGradient id="gaugeGradFeat" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#06b6d4" />
+                        <stop offset="50%" stopColor="#22d3ee" />
+                        <stop offset="100%" stopColor="#10b981" />
+                      </linearGradient>
+                    </defs>
+                  </svg>
+                  {/* Score in center */}
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <span className="text-[9px] font-semibold tracking-[0.15em] uppercase text-neutral-500">Deal Score</span>
+                    <span className="text-[30px] font-extrabold text-white leading-none mt-0.5">92</span>
+                    <span className="text-[10px] text-neutral-500 font-medium">/100</span>
+                  </div>
+                </div>
+                {/* Label + badge below gauge */}
+                <div className="text-[13px] font-bold text-emerald-400 mt-1">Great Deal</div>
+                <span className="inline-flex items-center gap-1 bg-emerald-500/[0.12] border border-emerald-500/20 text-emerald-400 text-[8px] font-bold tracking-wider uppercase px-2.5 py-0.5 rounded-full mt-1.5">
+                  <Star className="h-2.5 w-2.5 fill-current" /> High Profit Potential
+                </span>
+              </div>
+              <div className="p-5 flex flex-col flex-1">
+                <h3 className="text-[16px] font-bold text-white mb-2">AI-Powered Scoring</h3>
+                <p className="text-[13px] text-neutral-400 leading-relaxed flex-1">Our AI analyzes market data, comps, and trends to score every deal so you focus only on winners.</p>
+                <Link to="/how-it-works" className="inline-flex items-center gap-1 text-[13px] font-medium text-cyan-400 hover:text-cyan-300 transition-colors mt-4">
+                  Learn more <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+              </div>
+            </motion.div>
+
+            {/* Feature 4 — Real-Time Alerts (CSS iPhone mockup) */}
+            <motion.div {...cardFadeIn(3)} className="group relative flex flex-col rounded-2xl border border-white/[0.06] bg-[#0d1117] overflow-visible hover:border-cyan-500/20 transition-all duration-300">
+              {/* Floating icon badge */}
+              <div className="absolute -top-5 left-5 z-20 w-12 h-12 rounded-full bg-[#0d1117] border-2 border-cyan-500/30 flex items-center justify-center shadow-lg shadow-cyan-500/10">
+                <Bell className="h-5 w-5 text-cyan-400" />
+              </div>
+              {/* CSS iPhone Frame Mockup */}
+              <div className="h-[200px] bg-gradient-to-b from-[#0a0e14] to-[#0d1117] rounded-t-2xl flex items-center justify-center overflow-hidden">
+                {/* iPhone frame */}
+                <div className="relative w-[130px] h-[172px] bg-[#1a1a1a] rounded-[20px] border-2 border-neutral-700/60 shadow-2xl shadow-black/50 overflow-hidden">
+                  {/* Dynamic Island */}
+                  <div className="absolute top-1.5 left-1/2 -translate-x-1/2 w-[42px] h-[12px] bg-black rounded-full z-30" />
+                  {/* Status bar */}
+                  <div className="relative z-20 flex items-center justify-between px-4 pt-2.5">
+                    <span className="text-[7px] font-semibold text-white">9:41</span>
+                    <div className="flex items-center gap-0.5">
+                      <div className="w-2.5 h-1.5 border border-white/60 rounded-[1px] relative">
+                        <div className="absolute inset-[1px] bg-white/80 rounded-[0.5px]" style={{ width: '70%' }} />
+                      </div>
+                    </div>
+                  </div>
+                  {/* Date */}
+                  <div className="text-center mt-3 relative z-20">
+                    <div className="text-[7px] text-neutral-400">Tuesday, June 11</div>
+                  </div>
+                  {/* Push notification card */}
+                  <div className="mx-2 mt-3 bg-white/[0.12] backdrop-blur-md rounded-xl p-2 border border-white/[0.08] relative z-20">
+                    <div className="flex items-start gap-1.5">
+                      {/* App icon */}
+                      <div className="w-5 h-5 rounded-md bg-cyan-500 flex items-center justify-center shrink-0 mt-0.5">
+                        <Zap className="h-2.5 w-2.5 text-black" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-[7px] font-bold text-white/90 uppercase tracking-wide">AIWholesail</div>
+                        <div className="text-[7px] font-semibold text-white mt-0.5 leading-snug">New Deal Alert!</div>
+                        <div className="text-[6px] text-white/70 leading-snug mt-0.5">123 Oakwood Ave, Lansing</div>
+                        <div className="flex items-center gap-1.5 mt-1">
+                          <span className="text-[7px] font-bold text-emerald-400">+$84,100 profit</span>
+                          <span className="text-[5px] text-white/40">|</span>
+                          <span className="text-[6px] text-white/50">2 bed, 1 bath</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  {/* Wallpaper gradient */}
+                  <div className="absolute inset-0 bg-gradient-to-b from-[#0f172a] via-[#0c1220] to-[#0a0e14] z-10" />
+                  {/* Home indicator */}
+                  <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 w-10 h-[3px] bg-white/20 rounded-full z-20" />
+                </div>
+              </div>
+              <div className="p-5 flex flex-col flex-1">
+                <h3 className="text-[16px] font-bold text-white mb-2">Real-Time Alerts</h3>
+                <p className="text-[13px] text-neutral-400 leading-relaxed flex-1">Get notified instantly when high-profit opportunities hit the market so you can act fast.</p>
+                <Link to="/how-it-works" className="inline-flex items-center gap-1 text-[13px] font-medium text-cyan-400 hover:text-cyan-300 transition-colors mt-4">
+                  Learn more <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+              </div>
+            </motion.div>
+
           </div>
         </Container>
       </motion.section>
 
-      {/* ===== WHO IT'S FOR ===== */}
-      <motion.section className="relative py-20" {...sectionFadeIn}>
-        <div className="absolute inset-0 h-px top-0 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-        <Container>
-          <FeatureIconContainer className="flex justify-center items-center mx-auto mb-4">
-            <Users className="h-5 w-5 text-cyan-500" />
-          </FeatureIconContainer>
-          <Heading className="pt-4">Built for every strategy</Heading>
-          <Subheading>Wholesalers, flippers, landlords, agents — one platform for every approach to profitable real estate.</Subheading>
+      {/* ===== HOW IT WORKS ===== */}
+      <motion.section className="relative py-28 sm:py-36 overflow-hidden -mt-16" {...sectionFadeIn}>
+        {/* Top gradient fade from features */}
+        <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-[#030405] to-transparent z-[2] pointer-events-none" />
+        {/* Bottom gradient fade into testimonials */}
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#08090a] to-transparent z-[2] pointer-events-none" />
+        {/* Very dark immersive background */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#030405] via-[#050607] to-[#08090a]" />
+        {/* Investor laptop image — visible on right side */}
+        <div className="absolute inset-0 z-0">
+          <img
+            src="/generated/investor-laptop.jpg"
+            alt=""
+            className="absolute right-0 top-0 h-full w-[55%] object-cover object-left opacity-[0.35]"
+            loading="lazy"
+          />
+          {/* Gradient fades: strong left fade, subtle top/bottom */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#030405] via-[#030405]/90 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#030405]/40 via-transparent to-[#030405]/60" />
+        </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-12">
-            {[
-              { icon: TrendingUp, title: "Wholesalers", desc: "Find undervalued properties, calculate assignment fees, and match with cash buyers" },
-              { icon: DollarSign, title: "Flippers", desc: "Estimate renovation costs, calculate after-repair values, and score every deal" },
-              { icon: BarChart3, title: "Landlords", desc: "Analyze rental income, calculate returns, and find properties below market value" },
-              { icon: Users, title: "Agents", desc: "Impress clients with instant market data and professional property analysis" },
-            ].map((item, index) => (
-              <motion.div key={item.title} {...cardFadeIn(index)} className="p-4 sm:p-6 rounded-xl border border-white/[0.05] bg-neutral-900/30 hover:border-cyan-500/20 transition-all duration-300 text-center group">
-                <div className="w-12 h-12 mx-auto rounded-xl bg-cyan-500/10 flex items-center justify-center mb-4 group-hover:bg-cyan-500/20 transition-colors">
-                  <item.icon className="h-5 w-5 text-cyan-500" />
+        <Container className="relative z-10">
+          {/* Label: — HOW IT WORKS — */}
+          <motion.div {...cardFadeIn(0)} className="flex items-center justify-center gap-4 mb-4">
+            <span className="w-10 h-px bg-cyan-500/50" />
+            <span className="text-[12px] font-semibold tracking-[0.3em] uppercase text-cyan-400">How It Works</span>
+            <span className="w-10 h-px bg-cyan-500/50" />
+          </motion.div>
+
+          {/* Very large heading with neon glow */}
+          <motion.h2
+            {...cardFadeIn(0)}
+            className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold text-white text-center tracking-tight mb-20"
+            style={{ textShadow: '0 0 80px rgba(6,182,212,0.15)' }}
+          >
+            How it{" "}
+            <span className="italic bg-gradient-to-r from-cyan-400 to-cyan-500 bg-clip-text text-transparent" style={{ textShadow: 'none' }}>works</span>
+          </motion.h2>
+
+          {/* Steps row */}
+          <div className="relative max-w-5xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-16 md:gap-0 relative z-10">
+
+              {/* Step 1 */}
+              <motion.div {...cardFadeIn(0)} className="flex flex-col items-center text-center px-4">
+                {/* Large double-ring circle */}
+                <div className="relative w-[140px] h-[140px] lg:w-[160px] lg:h-[160px] rounded-full flex items-center justify-center mb-8">
+                  {/* Outer glow ring */}
+                  <div className="absolute inset-0 rounded-full border border-cyan-500/15" style={{ boxShadow: '0 0 50px rgba(6,182,212,0.1), 0 0 100px rgba(6,182,212,0.05)' }} />
+                  {/* Inner circle */}
+                  <div className="w-[110px] h-[110px] lg:w-[130px] lg:h-[130px] rounded-full border-2 border-cyan-500/40 bg-[#060708]/90 flex items-center justify-center">
+                    <Search className="h-12 w-12 lg:h-14 lg:w-14 text-cyan-400" />
+                  </div>
                 </div>
-                <h3 className="text-sm font-semibold mb-2">{item.title}</h3>
-                <p className="text-xs text-neutral-400">{item.desc}</p>
+                <span className="text-3xl lg:text-4xl font-extrabold italic text-cyan-400 mb-3 leading-none">01</span>
+                <h3 className="text-xl font-bold text-white mb-3">Search Your Market</h3>
+                <p className="text-sm text-neutral-400 leading-relaxed max-w-[260px]">Enter your target market and set your deal criteria.</p>
               </motion.div>
-            ))}
+
+              {/* Arrow 1→2 */}
+              <div className="hidden md:flex absolute top-[70px] left-[33.33%] -translate-x-1/2 items-center justify-center z-20">
+                <ArrowRight className="h-8 w-8 text-neutral-600" />
+              </div>
+
+              {/* Step 2 */}
+              <motion.div {...cardFadeIn(1)} className="flex flex-col items-center text-center px-4">
+                <div className="relative w-[140px] h-[140px] lg:w-[160px] lg:h-[160px] rounded-full flex items-center justify-center mb-8">
+                  <div className="absolute inset-0 rounded-full border border-cyan-500/15" style={{ boxShadow: '0 0 50px rgba(6,182,212,0.1), 0 0 100px rgba(6,182,212,0.05)' }} />
+                  <div className="w-[110px] h-[110px] lg:w-[130px] lg:h-[130px] rounded-full border-2 border-cyan-500/40 bg-[#060708]/90 flex items-center justify-center">
+                    <Brain className="h-12 w-12 lg:h-14 lg:w-14 text-cyan-400" />
+                  </div>
+                </div>
+                <span className="text-3xl lg:text-4xl font-extrabold italic text-cyan-400 mb-3 leading-none">02</span>
+                <h3 className="text-xl font-bold text-white mb-3">AI Scans Thousands<br />of Properties</h3>
+                <p className="text-sm text-neutral-400 leading-relaxed max-w-[260px]">Our AI analyzes data from multiple sources in real-time.</p>
+              </motion.div>
+
+              {/* Arrow 2→3 */}
+              <div className="hidden md:flex absolute top-[70px] left-[66.66%] -translate-x-1/2 items-center justify-center z-20">
+                <ArrowRight className="h-8 w-8 text-neutral-600" />
+              </div>
+
+              {/* Step 3 */}
+              <motion.div {...cardFadeIn(2)} className="flex flex-col items-center text-center px-4">
+                <div className="relative w-[140px] h-[140px] lg:w-[160px] lg:h-[160px] rounded-full flex items-center justify-center mb-8">
+                  <div className="absolute inset-0 rounded-full border border-cyan-500/15" style={{ boxShadow: '0 0 50px rgba(6,182,212,0.1), 0 0 100px rgba(6,182,212,0.05)' }} />
+                  <div className="w-[110px] h-[110px] lg:w-[130px] lg:h-[130px] rounded-full border-2 border-cyan-500/40 bg-[#060708]/90 flex items-center justify-center">
+                    <CheckCircle className="h-12 w-12 lg:h-14 lg:w-14 text-cyan-400" />
+                  </div>
+                </div>
+                <span className="text-3xl lg:text-4xl font-extrabold italic text-cyan-400 mb-3 leading-none">03</span>
+                <h3 className="text-xl font-bold text-white mb-3">Get Profitable Deals<br />Instantly</h3>
+                <p className="text-sm text-neutral-400 leading-relaxed max-w-[260px]">See the best deals, profit estimates, and act fast.</p>
+              </motion.div>
+            </div>
           </div>
+
+          {/* Pill badges */}
+          <motion.div {...cardFadeIn(3)} className="mt-20 flex flex-wrap justify-center items-center gap-4 sm:gap-6">
+            <div className="flex items-center gap-2.5 px-6 py-3 rounded-full border border-white/[0.08] bg-white/[0.02]">
+              <CheckCircle className="h-4.5 w-4.5 text-cyan-400" />
+              <span className="text-sm text-neutral-300 font-medium">Takes 30 seconds</span>
+            </div>
+            <div className="flex items-center gap-2.5 px-6 py-3 rounded-full border border-white/[0.08] bg-white/[0.02]">
+              <CheckCircle className="h-4.5 w-4.5 text-cyan-400" />
+              <span className="text-sm text-neutral-300 font-medium">Scans 10,000+ properties</span>
+            </div>
+            <div className="flex items-center gap-2.5 px-6 py-3 rounded-full border border-white/[0.08] bg-white/[0.02]">
+              <CheckCircle className="h-4.5 w-4.5 text-cyan-400" />
+              <span className="text-sm text-neutral-300 font-medium">Deals delivered instantly</span>
+            </div>
+          </motion.div>
         </Container>
       </motion.section>
 
       {/* ===== TESTIMONIALS ===== */}
-      <motion.section className="relative py-20" {...sectionFadeIn}>
-        <div className="absolute inset-0 h-px top-0 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+      <motion.section className="relative py-20 sm:py-28 bg-gradient-to-b from-[#08090a] to-[#0a0b0d] -mt-16" {...sectionFadeIn}>
+        {/* Top gradient fade from how it works */}
+        <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-[#08090a] to-transparent z-[1] pointer-events-none" />
+        {/* Bottom gradient fade into pricing */}
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#0a0b0d] to-transparent z-[1] pointer-events-none" />
         <Container>
-          <FeatureIconContainer className="flex justify-center items-center mx-auto mb-4">
-            <Star className="h-5 w-5 text-cyan-500" />
-          </FeatureIconContainer>
-          <Heading className="pt-4">Trusted by professionals</Heading>
-          <Subheading>See what real estate investors are saying about AIWholesail.</Subheading>
+          {/* Label */}
+          <p className="flex items-center justify-center gap-3 text-[11px] font-semibold tracking-[0.2em] uppercase text-cyan-400 text-center mb-4">
+            <span className="text-cyan-400/40">&mdash;</span> TRUSTED BY INVESTORS <span className="text-cyan-400/40">&mdash;</span>
+          </p>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-center text-white">
+            Trusted by real estate investors nationwide
+          </h2>
+          <p className="text-center text-base md:text-lg text-neutral-400 mt-4 max-w-2xl mx-auto">
+            Real stories. Real results. Real profits.
+          </p>
 
-          <div className="grid md:grid-cols-2 gap-4 mt-12 max-w-4xl mx-auto">
+          {/* Testimonial Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 mt-14">
             {[
-              { name: "Sarah Johnson", role: "Real Estate Investor", content: "AIWholesail helped me find 3 profitable deals in my first month. The analysis is incredibly accurate and saved me countless hours of research.", profit: "$85K" },
-              { name: "Mike Chen", role: "Real Estate Investor", content: "The time I save on research has doubled my deal flow. This platform is a game-changer for serious investors.", profit: "$120K" },
-              { name: "Jennifer Davis", role: "Property Flipper", content: "The profit calculations are spot-on every time. I understand market trends in seconds instead of spending days on research.", profit: "$95K" },
-              { name: "Robert Martinez", role: "Investment Advisor", content: "We're closing 40% more transactions since implementing AIWholesail for our deal sourcing. My clients love the speed.", profit: "$150K" },
+              {
+                name: "Sarah Johnson",
+                role: "Real Estate Investor",
+                quote: "AIWholesail helped me find 3 profitable deals in my first month. The data is spot on and saves me countless hours.",
+                profit: "$85K+",
+                profitLabel: "Profit",
+                photo: "/generated/testimonial-investor-2.jpg",
+                initials: "SJ",
+              },
+              {
+                name: "Mike Chen",
+                role: "Wholesaler",
+                quote: "The time I save on research has doubled my deal flow. This platform is a game-changer for serious investors.",
+                profit: "$120K+",
+                profitLabel: "Profit",
+                photo: "/generated/testimonial-investor-1.jpg",
+                initials: "MC",
+              },
+              {
+                name: "Jennifer Davis",
+                role: "Property Flipper",
+                quote: "The profit calculations are accurate every time. I close more deals and make more money.",
+                profit: "$95K+",
+                profitLabel: "Profit",
+                photo: "/generated/testimonial-investor-3.jpg",
+                initials: "JD",
+              },
+              {
+                name: "Robert Martinez",
+                role: "Investment Advisor",
+                quote: "We're closing 40% more transactions since implementing AIWholesail for our deal sourcing.",
+                profit: "$150K+",
+                profitLabel: "Profit",
+                photo: null,
+                initials: "RM",
+              },
             ].map((t, i) => (
-              <motion.div key={i} {...cardFadeIn(i)} className="p-4 sm:p-6 rounded-xl border border-white/[0.05] bg-neutral-900/30">
+              <motion.div
+                key={i}
+                {...cardFadeIn(i)}
+                className="group relative p-6 rounded-2xl border border-white/[0.06] bg-[#0d1117] flex flex-col hover:border-cyan-500/15 transition-colors duration-300"
+              >
+                {/* Stars */}
                 <div className="flex gap-0.5 mb-4">
-                  {[...Array(5)].map((_, j) => <Star key={j} className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />)}
+                  {[...Array(5)].map((_, s) => (
+                    <Star key={s} className="h-4 w-4 fill-cyan-400 text-cyan-400" />
+                  ))}
                 </div>
-                <p className="text-sm text-neutral-300 leading-relaxed mb-6">"{t.content}"</p>
-                <div className="flex justify-between items-end border-t border-white/5 pt-4">
-                  <div>
-                    <p className="text-sm font-semibold">{t.name}</p>
-                    <p className="text-xs text-neutral-500">{t.role}</p>
+
+                {/* Quote */}
+                <p className="text-[14px] leading-relaxed text-neutral-200 flex-1 mb-6">
+                  <span className="text-cyan-400/60">&ldquo;</span>{t.quote}<span className="text-cyan-400/60">&rdquo;</span>
+                </p>
+
+                {/* Bottom area: person info left, profit right */}
+                <div className="flex items-end justify-between gap-3 mt-auto">
+                  {/* Person */}
+                  <div className="flex items-center gap-3 min-w-0">
+                    {t.photo ? (
+                      <img
+                        src={t.photo}
+                        alt={t.name}
+                        className="w-[52px] h-[52px] rounded-full object-cover border-2 border-white/10 flex-shrink-0"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div className="w-[52px] h-[52px] rounded-full bg-neutral-800 border-2 border-white/10 flex items-center justify-center flex-shrink-0">
+                        <span className="text-sm font-bold text-neutral-400">{t.initials}</span>
+                      </div>
+                    )}
+                    <div className="min-w-0">
+                      <p className="text-sm font-bold text-white truncate">{t.name}</p>
+                      <p className="text-xs text-neutral-400">{t.role}</p>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-xs text-neutral-500">Profit</p>
-                    <p className="text-sm font-bold text-cyan-400">{t.profit}</p>
+
+                  {/* Profit */}
+                  <div className="text-right flex-shrink-0">
+                    <p className="text-xl font-bold text-cyan-400 leading-tight">{t.profit}</p>
+                    <p className="text-[11px] text-neutral-500 mt-0.5">{t.profitLabel}</p>
                   </div>
                 </div>
               </motion.div>
             ))}
           </div>
+
+          {/* Stats Row */}
+          <motion.div {...cardFadeIn(4)} className="flex flex-col sm:flex-row items-center justify-center gap-8 sm:gap-16 mt-16">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-cyan-500/10 flex items-center justify-center flex-shrink-0">
+                <Users className="h-5 w-5 text-cyan-400" />
+              </div>
+              <div>
+                <p className="text-2xl sm:text-3xl font-bold text-cyan-400 leading-tight">10,000+</p>
+                <p className="text-xs text-neutral-500 mt-0.5">investors already winning with AIWholesail</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-cyan-500/10 flex items-center justify-center flex-shrink-0">
+                <TrendingUp className="h-5 w-5 text-cyan-400" />
+              </div>
+              <div>
+                <p className="text-2xl sm:text-3xl font-bold text-cyan-400 leading-tight">$281M+</p>
+                <p className="text-xs text-neutral-500 mt-0.5">in profit generated on our platform</p>
+              </div>
+            </div>
+          </motion.div>
+
         </Container>
       </motion.section>
 
       {/* ===== PRICING ===== */}
-      <motion.section className="relative py-20 sm:py-32" {...sectionFadeIn}>
-        <div className="absolute inset-0 h-px top-0 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-        <Container className="text-center">
-          <FeatureIconContainer className="flex justify-center items-center mx-auto mb-4">
-            <DollarSign className="h-5 w-5 text-cyan-500" />
-          </FeatureIconContainer>
-          <Heading className="pt-4">Simple pricing</Heading>
-          <Subheading>Start free. Upgrade when you're ready. No credit card required.</Subheading>
+      <motion.section className="relative py-20 sm:py-32 overflow-hidden -mt-16" {...sectionFadeIn}>
+        {/* Top gradient fade from testimonials */}
+        <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-[#0a0b0d] to-transparent z-[2] pointer-events-none" />
+        {/* Bottom gradient fade into CTA */}
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#08090a] to-transparent z-[2] pointer-events-none" />
+        {/* Subtle cityscape background */}
+        <div className="absolute inset-0 z-0">
+          <img src="/generated/cta-background.jpg" alt="" className="w-full h-full object-cover opacity-[0.05]" loading="lazy" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0a0b0d] via-[#0a0b0d]/95 to-[#08090a]" />
+        </div>
+        <Container className="relative z-10 text-center">
+          {/* PRICING label with em-dash decorations */}
+          <p className="flex items-center justify-center gap-3 text-[11px] font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-4">
+            <span className="text-cyan-400/40">&mdash;</span> PRICING <span className="text-cyan-400/40">&mdash;</span>
+          </p>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-white">
+            Simple, transparent pricing
+          </h2>
+          <p className="text-base md:text-lg text-neutral-400 mt-4 max-w-2xl mx-auto">
+            Start free. Upgrade when you're ready. No credit card required.
+          </p>
 
-          <div className="grid md:grid-cols-2 gap-4 max-w-2xl mx-auto mt-12 text-left">
-            <div className="p-4 sm:p-6 rounded-xl border border-cyan-500/30 bg-gradient-to-b from-cyan-500/5 to-transparent relative">
-              <span className="absolute -top-3 left-6 bg-cyan-500 text-black text-[10px] font-semibold px-3 py-0.5 rounded-full">Most Popular</span>
-              <h3 className="text-lg font-semibold mb-1">Pro</h3>
-              <div className="text-3xl font-bold mb-1">$29<span className="text-sm font-normal text-neutral-500">/mo</span></div>
-              <p className="text-xs text-neutral-500 mb-6">For individual investors</p>
-              <ul className="space-y-2 mb-6">
-                {["5 alert locations", "24-hour updates", "Advanced matching", "Email notifications", "Market analytics"].map(f => (
-                  <li key={f} className="flex items-center gap-2 text-xs text-neutral-400"><CheckCircle className="h-3 w-3 text-cyan-500/60" />{f}</li>
+          <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto mt-14 text-left">
+            {/* Pro Card */}
+            <motion.div
+              {...cardFadeIn(0)}
+              className="relative p-6 sm:p-8 rounded-2xl border border-cyan-500/30 border-l-4 border-l-cyan-500 bg-gradient-to-b from-cyan-500/[0.06] to-[#0d0e10] shadow-lg shadow-cyan-500/5"
+            >
+              <span className="absolute -top-3 left-6 bg-cyan-500 text-black text-[10px] font-bold px-3 py-0.5 rounded-full tracking-wide uppercase">
+                Most Popular
+              </span>
+              <h3 className="text-xl font-bold text-white mb-2">Pro</h3>
+              <div className="flex items-baseline gap-1 mb-1">
+                <span className="text-5xl sm:text-6xl font-bold text-white">$29</span>
+                <span className="text-base font-normal text-neutral-500">/mo</span>
+              </div>
+              <p className="text-sm text-neutral-400 mb-6">For individual investors</p>
+              <div className="h-px bg-white/[0.08] mb-6" />
+              <ul className="space-y-3.5 mb-8">
+                {[
+                  "5 alert locations",
+                  "24-hour updates",
+                  "Advanced matching",
+                  "Email notifications",
+                  "Market analytics",
+                ].map(f => (
+                  <li key={f} className="flex items-center gap-2.5 text-sm text-neutral-300">
+                    <CheckCircle className="h-4 w-4 text-cyan-500 shrink-0" />{f}
+                  </li>
                 ))}
               </ul>
               <Link to="/pricing">
-                <button className="w-full bg-cyan-500 hover:bg-cyan-400 text-black text-sm font-medium py-2.5 rounded-md transition-all shadow-[0px_-1px_0px_0px_rgba(255,255,255,0.4)_inset,0px_1px_0px_0px_rgba(255,255,255,0.4)_inset]">
+                <button className="w-full bg-cyan-500 hover:bg-cyan-400 text-black text-sm font-semibold py-3 rounded-lg transition-all shadow-lg shadow-cyan-500/20 hover:-translate-y-0.5 active:scale-[0.98]">
                   Start Free Trial
                 </button>
               </Link>
+            </motion.div>
+
+            {/* Elite Card */}
+            <motion.div
+              {...cardFadeIn(1)}
+              className="relative p-6 sm:p-8 rounded-2xl border border-white/[0.08] bg-[#0d0e10]"
+            >
+              <h3 className="text-xl font-bold text-white mb-2">Elite</h3>
+              <div className="flex items-baseline gap-1 mb-1">
+                <span className="text-5xl sm:text-6xl font-bold text-white">$99</span>
+                <span className="text-base font-normal text-neutral-500">/mo</span>
+              </div>
+              <p className="text-sm text-neutral-400 mb-6">For serious professionals</p>
+              <div className="h-px bg-white/[0.08] mb-6" />
+              <ul className="space-y-3.5 mb-8">
+                {[
+                  "Unlimited locations",
+                  "4-hour updates",
+                  "Advanced AI analysis",
+                  "Skip tracing",
+                  "Lead scoring",
+                  "Priority support",
+                ].map(f => (
+                  <li key={f} className="flex items-center gap-2.5 text-sm text-neutral-300">
+                    <CheckCircle className="h-4 w-4 text-neutral-500 shrink-0" />{f}
+                  </li>
+                ))}
+              </ul>
+              <Link to="/pricing">
+                <button className="w-full bg-transparent hover:bg-white/[0.04] text-white text-sm font-semibold py-3 rounded-lg transition-all border border-white/[0.12] hover:border-white/[0.2]">
+                  Start Free Trial
+                </button>
+              </Link>
+            </motion.div>
+          </div>
+
+          {/* Trust badges row */}
+          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-0 mt-10">
+            <div className="flex items-center gap-1.5 px-4">
+              <CheckCircle className="h-4 w-4 text-cyan-500 shrink-0" />
+              <span className="text-[13px] text-neutral-400">No credit card required</span>
             </div>
-            <div className="p-4 sm:p-6 rounded-xl border border-white/[0.05] bg-neutral-900/30">
-              <h3 className="text-lg font-semibold mb-1">Elite</h3>
-              <div className="text-3xl font-bold mb-1">$99<span className="text-sm font-normal text-neutral-500">/mo</span></div>
-              <p className="text-xs text-neutral-500 mb-6">For serious professionals</p>
-              <ul className="space-y-2 mb-6">
-                {["Unlimited locations", "4-hour updates", "Advanced AI analysis", "Skip tracing", "Lead scoring", "Priority support"].map(f => (
-                  <li key={f} className="flex items-center gap-2 text-xs text-neutral-400"><CheckCircle className="h-3 w-3 text-neutral-500" />{f}</li>
-                ))}
-              </ul>
-              <Link to="/pricing">
-                <button className="w-full bg-neutral-800 hover:bg-neutral-700 text-white text-sm font-medium py-2.5 rounded-md transition-all border border-white/5 shadow-[0px_1px_0px_0px_rgba(255,255,255,0.1)_inset]">
-                  Start Free Trial
-                </button>
-              </Link>
+            <div className="hidden sm:block h-4 w-px bg-neutral-700" />
+            <div className="flex items-center gap-1.5 px-4">
+              <CheckCircle className="h-4 w-4 text-cyan-500 shrink-0" />
+              <span className="text-[13px] text-neutral-400">7-day free trial on all plans</span>
+            </div>
+            <div className="hidden sm:block h-4 w-px bg-neutral-700" />
+            <div className="flex items-center gap-1.5 px-4">
+              <CheckCircle className="h-4 w-4 text-cyan-500 shrink-0" />
+              <span className="text-[13px] text-neutral-400">Cancel anytime</span>
             </div>
           </div>
         </Container>
       </motion.section>
 
       {/* ===== CTA ===== */}
-      <motion.section className="relative py-20 sm:py-32" {...sectionFadeIn}>
-        <AmbientColor />
-        <div className="absolute inset-0 h-px top-0 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-        <Container className="flex flex-col md:flex-row justify-between items-center gap-12">
-          <div className="flex flex-col text-center md:text-left">
-            <h2 className="text-white text-xl md:text-3xl font-bold max-w-xl">
-              Ready to find your next profitable deal?
-            </h2>
-            <p className="max-w-md mt-4 text-sm text-neutral-400">
-              Join thousands of real estate professionals using AI to find deals faster than ever. Start your 7-day free trial today — no credit card required.
-            </p>
-            {/* Social proof */}
-            <div className="flex items-center gap-3 mt-6 justify-center md:justify-start">
-              <div className="flex -space-x-2">
-                {["SJ", "MC", "JD"].map((initials, i) => (
-                  <div key={i} className="w-8 h-8 rounded-full border-2 border-neutral-800 bg-neutral-700 flex items-center justify-center text-[9px] font-semibold">
-                    {initials}
+      <motion.section className="relative py-24 sm:py-32 overflow-hidden bg-gradient-to-b from-[#08090a] to-[#08090a] -mt-16" {...sectionFadeIn}>
+        {/* Top gradient fade from pricing */}
+        <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-[#08090a] to-transparent z-[2] pointer-events-none" />
+        {/* Background property image */}
+        <div className="absolute inset-0 z-0">
+          <img src="/generated/cta-background.jpg" alt="" className="w-full h-full object-cover opacity-[0.08]" loading="lazy" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#08090a]/90 via-[#08090a]/80 to-[#08090a]/95" />
+        </div>
+        <Container className="relative z-10 flex flex-col items-center text-center">
+          <motion.h2
+            {...cardFadeIn(0)}
+            className="text-white text-2xl sm:text-3xl md:text-4xl font-bold max-w-2xl leading-tight"
+          >
+            Ready to find your next profitable deal?
+          </motion.h2>
+          <motion.p
+            {...cardFadeIn(1)}
+            className="max-w-lg mt-5 text-base text-neutral-400 leading-relaxed"
+          >
+            Join thousands of real estate professionals using AI to find deals faster than ever.
+          </motion.p>
+          <motion.div {...cardFadeIn(2)}>
+            <Link to="/pricing" className="mt-8 inline-block">
+              <button className="bg-cyan-500 hover:bg-cyan-400 text-black text-base font-semibold px-10 py-3.5 rounded-lg transition-all hover:-translate-y-0.5 active:scale-[0.98] shadow-lg shadow-cyan-500/20 flex items-center gap-2">
+                Start Free Trial <ArrowRight className="h-4 w-4" />
+              </button>
+            </Link>
+          </motion.div>
+          {/* Social proof */}
+          <motion.div {...cardFadeIn(3)} className="flex items-center gap-3 mt-8">
+            <div className="flex -space-x-2">
+              {[
+                { initials: "SJ", photo: "/generated/testimonial-investor-2.jpg" },
+                { initials: "MC", photo: "/generated/testimonial-investor-1.jpg" },
+                { initials: "JD", photo: "/generated/testimonial-investor-3.jpg" },
+                { initials: "RM", photo: null },
+              ].map((person, i) => (
+                person.photo ? (
+                  <img
+                    key={i}
+                    src={person.photo}
+                    alt={person.initials}
+                    className="w-8 h-8 rounded-full border-2 border-[#08090a] object-cover"
+                  />
+                ) : (
+                  <div
+                    key={i}
+                    className="w-8 h-8 rounded-full border-2 border-[#08090a] bg-neutral-700 flex items-center justify-center text-[9px] font-semibold text-white"
+                  >
+                    {person.initials}
                   </div>
-                ))}
-              </div>
-              <div className="flex gap-0.5">
-                {[...Array(5)].map((_, i) => <Star key={i} className="h-3 w-3 fill-yellow-400 text-yellow-400" />)}
-              </div>
-              <span className="text-xs text-neutral-500">4.8/5 rating</span>
+                )
+              ))}
             </div>
-          </div>
-          <Link to="/pricing">
-            <button className="bg-cyan-500 hover:bg-cyan-400 text-black text-base font-medium px-8 py-3 rounded-md transition-all hover:-translate-y-0.5 active:scale-[0.98] shadow-[0px_-1px_0px_0px_rgba(255,255,255,0.4)_inset,0px_1px_0px_0px_rgba(255,255,255,0.4)_inset] flex items-center gap-2 whitespace-nowrap">
-              Start Free Trial <ArrowRight className="h-4 w-4" />
-            </button>
-          </Link>
+            <div className="flex gap-0.5">
+              {[...Array(5)].map((_, i) => <Star key={i} className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />)}
+            </div>
+            <span className="text-sm text-neutral-400">4.8/5 from 200+ investors</span>
+          </motion.div>
         </Container>
+        {/* Bottom gradient fade into footer */}
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#060607] to-transparent z-[2] pointer-events-none" />
       </motion.section>
 
       </main>
 
       {/* ===== FOOTER ===== */}
-      <footer className="relative border-t border-white/[0.06] bg-[#060607]">
+      <footer className="relative bg-[#060607]">
         <div className="border-b border-white/[0.06]">
           <Container>
             <div className="py-12 sm:py-16 flex flex-col md:flex-row items-center justify-between gap-6">
