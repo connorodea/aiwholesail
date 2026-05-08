@@ -114,7 +114,7 @@ router.post('/signup', [
   // Send notification to Quinton about new signup
   try {
     const signupTime = new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
-    await resend.emails.send({
+    const notifResult = await resend.emails.send({
       from: 'AIWholesail <noreply@aiwholesail.com>',
       to: ['quintonw500@gmail.com', 'cpodea5@gmail.com'],
       replyTo: normalizedEmail,
@@ -238,6 +238,11 @@ router.post('/signup', [
         </table>
       `,
     });
+    if (notifResult?.error) {
+      console.error('[Auth] Resend rejected signup notification:', JSON.stringify(notifResult.error));
+    } else {
+      console.log('[Auth] Signup notification sent', { id: notifResult?.data?.id, email: normalizedEmail });
+    }
   } catch (notifyErr) {
     console.error('[Auth] Failed to send signup notification:', notifyErr.message);
   }
@@ -246,7 +251,7 @@ router.post('/signup', [
   const verifyUrl = `${process.env.API_URL || 'https://api.aiwholesail.com'}/api/auth/verify-email/${verificationToken}`;
   const firstName = fullName ? fullName.split(' ')[0] : '';
   try {
-    await resend.emails.send({
+    const verifyResult = await resend.emails.send({
       from: 'AIWholesail <noreply@aiwholesail.com>',
       to: normalizedEmail,
       subject: 'Verify Your Email — AIWholesail',
@@ -356,7 +361,11 @@ router.post('/signup', [
         </table>
       `,
     });
-    console.log(`[Auth] Verification email sent to ${normalizedEmail.substring(0, 3)}***`);
+    if (verifyResult?.error) {
+      console.error('[Auth] Resend rejected verification email:', JSON.stringify(verifyResult.error));
+    } else {
+      console.log(`[Auth] Verification email sent to ${normalizedEmail.substring(0, 3)}***`, { id: verifyResult?.data?.id });
+    }
   } catch (emailErr) {
     console.error('[Auth] Failed to send verification email:', emailErr.message);
     // Don't fail signup — user can request resend later
@@ -590,7 +599,7 @@ router.post('/forgot-password', [
   // Send password reset email via Resend
   const resetUrl = `${process.env.FRONTEND_URL || 'https://aiwholesail.com'}/auth?mode=reset&token=${resetToken}`;
   try {
-    await resend.emails.send({
+    const resetResult = await resend.emails.send({
       from: 'AIWholesail <noreply@aiwholesail.com>',
       to: normalizedEmail,
       subject: 'Reset Your Password — AIWholesail',
@@ -681,7 +690,11 @@ router.post('/forgot-password', [
         </table>
       `,
     });
-    console.log(`[Auth] Password reset email sent to ${normalizedEmail.substring(0, 3)}***`);
+    if (resetResult?.error) {
+      console.error('[Auth] Resend rejected password reset email:', JSON.stringify(resetResult.error));
+    } else {
+      console.log(`[Auth] Password reset email sent to ${normalizedEmail.substring(0, 3)}***`, { id: resetResult?.data?.id });
+    }
   } catch (emailErr) {
     console.error('[Auth] Failed to send password reset email:', emailErr.message);
     // Don't fail the request — token is saved, user can retry
