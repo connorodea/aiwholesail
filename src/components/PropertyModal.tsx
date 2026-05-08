@@ -167,7 +167,41 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
     return new Intl.NumberFormat('en-US').format(num);
   };
 
+  // Humanize backend enum-style strings ("FOR_SALE" → "For Sale", "single_family" → "Single Family")
+  const humanize = (raw?: string | null) => {
+    if (!raw) return '';
+    return raw
+      .toString()
+      .replace(/[_-]+/g, ' ')
+      .toLowerCase()
+      .split(' ')
+      .map(w => (w ? w[0].toUpperCase() + w.slice(1) : ''))
+      .join(' ')
+      .trim();
+  };
+
   const wholesalePotential = calculateWholesalePotential(displayProperty);
+  const propertyImage =
+    (displayProperty as any).imageUrl ||
+    (displayProperty as any).image_url ||
+    (displayProperty as any).imgSrc ||
+    (displayProperty as any).hiResImageLink ||
+    null;
+
+  // Tier-driven theming (drives ring, badge, callout, spread color)
+  const TIER_THEME: Record<string, { label: string; ring: string; ringBg: string; text: string; bg: string; border: string; chip: string; ctaLabel: string }> = {
+    excellent: { label: 'Excellent Deal', ring: '#10b981', ringBg: 'rgba(16,185,129,0.10)', text: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/30', chip: 'bg-emerald-500 text-black', ctaLabel: 'Top-tier opportunity — strong margin, move fast' },
+    great:     { label: 'Great Deal',     ring: '#10b981', ringBg: 'rgba(16,185,129,0.10)', text: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/30', chip: 'bg-emerald-500 text-black', ctaLabel: 'Strong margin — well below market' },
+    good:      { label: 'Good Deal',      ring: '#06b6d4', ringBg: 'rgba(6,182,212,0.10)',  text: 'text-cyan-400',     bg: 'bg-cyan-500/10',     border: 'border-cyan-500/30',     chip: 'bg-cyan-500 text-black',    ctaLabel: 'Solid spread — worth a closer look' },
+    fair:      { label: 'Fair Deal',      ring: '#f59e0b', ringBg: 'rgba(245,158,11,0.10)', text: 'text-amber-400',    bg: 'bg-amber-500/10',    border: 'border-amber-500/30',    chip: 'bg-amber-500 text-black',   ctaLabel: 'Modest margin — verify comps before pursuing' },
+    poor:      { label: 'Weak Deal',      ring: '#737373', ringBg: 'rgba(115,115,115,0.10)',text: 'text-neutral-400',  bg: 'bg-neutral-500/10',  border: 'border-neutral-500/30',  chip: 'bg-neutral-700 text-white', ctaLabel: 'Limited spread — likely not a wholesale fit' },
+  };
+  const tierTheme = TIER_THEME[wholesalePotential.tier] || TIER_THEME.poor;
+  const scorePct = Math.max(0, Math.min(100, wholesalePotential.score));
+  // Conic-gradient for the deal-score ring (CSS-only, no extra deps)
+  const ringStyle: React.CSSProperties = {
+    background: `conic-gradient(${tierTheme.ring} ${scorePct * 3.6}deg, rgba(255,255,255,0.06) ${scorePct * 3.6}deg)`,
+  };
   const isPropertyFavorite = isFavorite(displayProperty.id || displayProperty.zpid || '');
 
   const handleToggleFavorite = async () => {
@@ -198,40 +232,61 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="w-full max-w-7xl h-[100dvh] sm:h-auto sm:max-h-[95vh] overflow-hidden p-0 bg-gradient-to-br from-background via-background to-muted/5 border-0 sm:border-2 border-border/50 shadow-2xl rounded-none sm:rounded-2xl">
         {/* Header */}
-        <DialogHeader className="p-4 sm:p-8 pb-4 sm:pb-6 border-b border-border/30 bg-gradient-to-r from-background via-muted/5 to-background backdrop-blur-sm">
-          <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
-            <div className="flex-1 lg:pr-6 min-w-0">
-              <div className="flex items-center gap-2 mb-3 sm:mb-6 flex-wrap">
-                <Badge variant="outline" className="text-[10px] sm:text-xs font-medium border-border/50 bg-muted/30 rounded-full px-2.5 sm:px-3 py-1 sm:py-1.5">
-                  {displayProperty.status}
+        <DialogHeader className="relative p-4 sm:p-5 lg:p-6 pb-3 sm:pb-4 border-b border-border/30 backdrop-blur-sm overflow-hidden flex-shrink-0">
+          {/* Optional hero image with darkening gradient */}
+          {propertyImage && (
+            <>
+              <div
+                aria-hidden
+                className="absolute inset-0 bg-cover bg-center opacity-[0.18]"
+                style={{ backgroundImage: `url(${propertyImage})` }}
+              />
+              <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-background via-background/85 to-background/40" />
+              <div aria-hidden className="absolute inset-0 bg-gradient-to-b from-background/0 via-background/20 to-background/95" />
+            </>
+          )}
+          {!propertyImage && (
+            <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-background via-muted/5 to-background" />
+          )}
+
+          <div className="relative flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 lg:gap-6">
+            <div className="flex-1 lg:pr-4 min-w-0">
+              {/* Single-line badge row */}
+              <div className="flex items-center gap-2 mb-2 sm:mb-3 flex-wrap">
+                <Badge variant="outline" className="text-[10px] font-medium border-border/50 bg-muted/30 rounded-full px-2.5 py-0.5">
+                  {humanize(displayProperty.status) || 'For Sale'}
                 </Badge>
                 {displayProperty.isFSBO && (
-                  <Badge variant="secondary" className="text-[10px] sm:text-xs rounded-full px-2.5 sm:px-3 py-1 sm:py-1.5 bg-info/10 text-info border-info/20">FSBO</Badge>
+                  <Badge variant="secondary" className="text-[10px] rounded-full px-2.5 py-0.5 bg-info/10 text-info border-info/20">FSBO</Badge>
                 )}
-                <Badge
-                  variant={wholesalePotential.tier === 'excellent' || wholesalePotential.tier === 'great' ? 'default' : 'secondary'}
-                  className="text-[10px] sm:text-xs rounded-full px-2.5 sm:px-3 py-1 sm:py-1.5"
-                >
-                  {wholesalePotential.tier} potential
+                <Badge className={`text-[10px] rounded-full px-2.5 py-0.5 border-0 font-semibold ${tierTheme.chip}`}>
+                  {tierTheme.label}
                 </Badge>
+                {displayProperty.propertyType && (
+                  <span className="hidden sm:inline-flex items-center gap-1 text-[11px] text-muted-foreground">
+                    <MapPin className="h-3 w-3" />
+                    {humanize(displayProperty.propertyType)}
+                  </span>
+                )}
                 {isLoadingDetails && (
-                  <div className="flex items-center gap-1.5 text-[10px] sm:text-xs text-muted-foreground">
+                  <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
                     <Loader2 className="h-3 w-3 animate-spin" />
-                    Loading details...
+                    Loading...
                   </div>
                 )}
               </div>
-              <DialogTitle className="text-lg sm:text-2xl md:text-4xl font-bold mb-2 sm:mb-4 leading-tight bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text pr-8 lg:pr-0">
+
+              {/* Address — single line, truncated, with title attr for full text */}
+              <DialogTitle
+                title={displayProperty.address}
+                className="text-base sm:text-lg lg:text-2xl font-bold leading-tight bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text pr-8 lg:pr-0 truncate"
+              >
                 {displayProperty.address}
               </DialogTitle>
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0" />
-                <span className="text-xs sm:text-sm font-medium truncate">{displayProperty.propertyType || 'Property'}</span>
-              </div>
 
-              {/* Mobile-only price (shown inline below address) */}
-              <div className="mt-3 lg:hidden flex items-baseline gap-2">
-                <div className="text-2xl sm:text-3xl font-bold text-foreground">
+              {/* Mobile-only inline price */}
+              <div className="mt-2 lg:hidden flex items-baseline gap-2">
+                <div className="text-xl sm:text-2xl font-bold text-foreground">
                   {displayProperty.price ? formatPrice(displayProperty.price) : 'Price N/A'}
                 </div>
                 {displayProperty.pricePerSqft && (
@@ -239,78 +294,56 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                     ${Math.round(displayProperty.pricePerSqft)}/sqft
                   </div>
                 )}
+                {/* mobile property type — only shows here when sm hidden */}
+                {displayProperty.propertyType && (
+                  <span className="sm:hidden text-[11px] text-muted-foreground ml-auto">
+                    {humanize(displayProperty.propertyType)}
+                  </span>
+                )}
               </div>
             </div>
 
-            {/* Desktop price column */}
-            <div className="hidden lg:block text-right">
-              <div className="text-3xl font-bold mb-2 text-foreground">
-                {displayProperty.price ? formatPrice(displayProperty.price) : 'Price N/A'}
-              </div>
-              {displayProperty.pricePerSqft && (
-                <div className="text-sm text-muted-foreground font-medium mb-4">
-                  ${Math.round(displayProperty.pricePerSqft)}/sqft
+            {/* Desktop right cluster — price + actions inline */}
+            <div className="hidden lg:flex items-center gap-4 flex-shrink-0">
+              <div className="text-right border-r border-border/40 pr-4">
+                <div className="text-2xl xl:text-3xl font-bold text-foreground leading-none">
+                  {displayProperty.price ? formatPrice(displayProperty.price) : 'Price N/A'}
                 </div>
-              )}
-              <div className="flex gap-3 justify-end">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleToggleFavorite}
-                  className="gap-2 hover:bg-muted rounded-xl border-border/50 transition-all duration-300 hover:shadow-md"
-                >
+                {displayProperty.pricePerSqft && (
+                  <div className="text-xs text-muted-foreground font-medium mt-1">
+                    ${Math.round(displayProperty.pricePerSqft)}/sqft
+                  </div>
+                )}
+              </div>
+              <div className="flex gap-1.5">
+                <Button variant="outline" size="sm" onClick={handleToggleFavorite} className="gap-1.5 h-9 rounded-lg border-border/50">
                   <Heart className={`h-4 w-4 ${isPropertyFavorite ? 'fill-current text-red-500' : ''}`} />
-                  {isPropertyFavorite ? 'Saved' : 'Save'}
+                  <span className="hidden xl:inline">{isPropertyFavorite ? 'Saved' : 'Save'}</span>
                 </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleConvertToLead}
-                  className="gap-2 hover:bg-muted rounded-xl border-border/50 transition-all duration-300 hover:shadow-md"
-                >
+                <Button variant="outline" size="sm" onClick={handleConvertToLead} className="gap-1.5 h-9 rounded-lg border-border/50">
                   <Phone className="h-4 w-4" />
-                  Convert to Lead
+                  <span className="hidden xl:inline">Lead</span>
                 </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => generateDealReport(displayProperty)}
-                  className="gap-2 hover:bg-muted rounded-xl border-border/50 transition-all duration-300 hover:shadow-md"
-                >
+                <Button variant="outline" size="sm" onClick={() => generateDealReport(displayProperty)} className="gap-1.5 h-9 rounded-lg border-border/50">
                   <FileText className="h-4 w-4" />
-                  Export PDF
+                  <span className="hidden xl:inline">PDF</span>
                 </Button>
                 <AddToPipelineButton property={displayProperty} variant="full" size="sm" />
               </div>
             </div>
 
             {/* Mobile action row — horizontally scrollable */}
-            <div className="lg:hidden -mx-4 px-4 sm:-mx-8 sm:px-8 overflow-x-auto scrollbar-none">
+            <div className="lg:hidden -mx-4 px-4 overflow-x-auto scrollbar-none">
               <div className="flex gap-2 min-w-max pb-1">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleToggleFavorite}
-                  className="gap-1.5 h-10 rounded-xl border-border/50 flex-shrink-0"
-                >
+                <Button variant="outline" size="sm" onClick={handleToggleFavorite} className="gap-1.5 h-9 rounded-lg border-border/50 flex-shrink-0">
                   <Heart className={`h-4 w-4 ${isPropertyFavorite ? 'fill-current text-red-500' : ''}`} />
                   {isPropertyFavorite ? 'Saved' : 'Save'}
                 </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleConvertToLead}
-                  className="gap-1.5 h-10 rounded-xl border-border/50 flex-shrink-0"
-                >
+                <Button variant="outline" size="sm" onClick={handleConvertToLead} className="gap-1.5 h-9 rounded-lg border-border/50 flex-shrink-0">
                   <Phone className="h-4 w-4" />
                   Lead
                 </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => generateDealReport(displayProperty)}
-                  className="gap-1.5 h-10 rounded-xl border-border/50 flex-shrink-0"
-                >
+                <Button variant="outline" size="sm" onClick={() => generateDealReport(displayProperty)} className="gap-1.5 h-9 rounded-lg border-border/50 flex-shrink-0">
                   <FileText className="h-4 w-4" />
                   PDF
                 </Button>
@@ -323,44 +356,46 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
         {/* Content */}
         <div className="flex-1 overflow-hidden">
           <Tabs defaultValue="overview" className="w-full h-full flex flex-col">
-            <div className="px-3 sm:px-8 pt-4 sm:pt-6 pb-3 sm:pb-4 border-b border-border/30 bg-gradient-to-r from-muted/5 to-transparent overflow-x-auto">
+            <div className="px-3 sm:px-8 pt-3 sm:pt-5 pb-3 sm:pb-4 border-b border-border/30 bg-gradient-to-r from-muted/5 to-transparent overflow-x-auto scrollbar-none">
               <TabsList className="inline-flex w-auto min-w-full bg-muted/30 rounded-xl p-1 backdrop-blur-sm gap-1">
-                <TabsTrigger value="overview" className="data-[state=active]:bg-background data-[state=active]:shadow-md rounded-lg transition-all duration-300 text-xs px-3">
+                <TabsTrigger value="overview" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_0_1px_rgba(6,182,212,0.25),0_2px_8px_rgba(0,0,0,0.4)] rounded-lg transition-all duration-200 text-xs font-medium px-3 h-8">
+                  <Home className="h-3.5 w-3.5" />
                   Overview
                 </TabsTrigger>
-                <TabsTrigger value="investment" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-md rounded-lg transition-all duration-300 text-xs px-3">
-                  <Calculator className="h-3 w-3" />
+                <TabsTrigger value="investment" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_0_1px_rgba(6,182,212,0.25),0_2px_8px_rgba(0,0,0,0.4)] rounded-lg transition-all duration-200 text-xs font-medium px-3 h-8">
+                  <Calculator className="h-3.5 w-3.5" />
                   Investment
                 </TabsTrigger>
-                <TabsTrigger value="arv" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-md rounded-lg transition-all duration-300 text-xs px-3">
-                  <TrendingUp className="h-3 w-3" />
+                <TabsTrigger value="arv" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_0_1px_rgba(6,182,212,0.25),0_2px_8px_rgba(0,0,0,0.4)] rounded-lg transition-all duration-200 text-xs font-medium px-3 h-8">
+                  <TrendingUp className="h-3.5 w-3.5" />
                   ARV
                 </TabsTrigger>
-                <TabsTrigger value="comps" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-md rounded-lg transition-all duration-300 text-xs px-3">
-                  <Home className="h-3 w-3" />
+                <TabsTrigger value="comps" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_0_1px_rgba(6,182,212,0.25),0_2px_8px_rgba(0,0,0,0.4)] rounded-lg transition-all duration-200 text-xs font-medium px-3 h-8">
+                  <BadgeCheck className="h-3.5 w-3.5" />
                   Comps
                 </TabsTrigger>
-                <TabsTrigger value="price-history" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-md rounded-lg transition-all duration-300 text-xs px-3">
-                  <History className="h-3 w-3" />
+                <TabsTrigger value="price-history" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_0_1px_rgba(6,182,212,0.25),0_2px_8px_rgba(0,0,0,0.4)] rounded-lg transition-all duration-200 text-xs font-medium px-3 h-8">
+                  <History className="h-3.5 w-3.5" />
                   History
                 </TabsTrigger>
-                <TabsTrigger value="taxes" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-md rounded-lg transition-all duration-300 text-xs px-3">
-                  <Receipt className="h-3 w-3" />
+                <TabsTrigger value="taxes" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_0_1px_rgba(6,182,212,0.25),0_2px_8px_rgba(0,0,0,0.4)] rounded-lg transition-all duration-200 text-xs font-medium px-3 h-8">
+                  <Receipt className="h-3.5 w-3.5" />
                   Taxes
                 </TabsTrigger>
-                <TabsTrigger value="photos" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-md rounded-lg transition-all duration-300 text-xs px-3">
-                  <Image className="h-3 w-3" />
+                <TabsTrigger value="photos" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_0_1px_rgba(6,182,212,0.25),0_2px_8px_rgba(0,0,0,0.4)] rounded-lg transition-all duration-200 text-xs font-medium px-3 h-8">
+                  <Image className="h-3.5 w-3.5" />
                   Photos
                 </TabsTrigger>
-                <TabsTrigger value="details" className="data-[state=active]:bg-background data-[state=active]:shadow-md rounded-lg transition-all duration-300 text-xs px-3">
+                <TabsTrigger value="details" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_0_1px_rgba(6,182,212,0.25),0_2px_8px_rgba(0,0,0,0.4)] rounded-lg transition-all duration-200 text-xs font-medium px-3 h-8">
+                  <FileText className="h-3.5 w-3.5" />
                   Details
                 </TabsTrigger>
-                <TabsTrigger value="photo-analysis" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-md rounded-lg transition-all duration-300 text-xs px-3">
-                  <Image className="h-3 w-3" />
+                <TabsTrigger value="photo-analysis" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_0_1px_rgba(6,182,212,0.25),0_2px_8px_rgba(0,0,0,0.4)] rounded-lg transition-all duration-200 text-xs font-medium px-3 h-8">
+                  <Image className="h-3.5 w-3.5" />
                   AI Vision
                 </TabsTrigger>
-                <TabsTrigger value="ai-analysis" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-md rounded-lg transition-all duration-300 text-xs px-3">
-                  <Brain className="h-3 w-3" />
+                <TabsTrigger value="ai-analysis" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_0_1px_rgba(6,182,212,0.25),0_2px_8px_rgba(0,0,0,0.4)] rounded-lg transition-all duration-200 text-xs font-medium px-3 h-8">
+                  <Brain className="h-3.5 w-3.5" />
                   AI
                 </TabsTrigger>
               </TabsList>
@@ -369,124 +404,124 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
             <TabsContent value="overview" className="flex-1 overflow-auto mt-0">
               <div className="p-3 sm:p-6 space-y-5 sm:space-y-8">
                 {/* Key Stats */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
-                  <Card className="border-border hover:shadow-md transition-shadow">
-                    <CardContent className="p-3 sm:p-6 text-center">
-                      <div className="flex items-center justify-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
-                        <div className="p-1.5 sm:p-2 rounded-lg bg-primary/10">
-                          <Bed className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
+                {/* Compact key stats — uniform grid, missing values muted */}
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-2 sm:gap-3">
+                  {([
+                    { label: 'Beds',   value: displayProperty.bedrooms ?? null,                     icon: Bed },
+                    { label: 'Baths',  value: displayProperty.bathrooms ?? null,                    icon: Bath },
+                    { label: 'Sq Ft',  value: displayProperty.sqft ? formatNumber(displayProperty.sqft) : null, icon: Square },
+                    { label: '$/sqft', value: displayProperty.pricePerSqft ? `$${Math.round(displayProperty.pricePerSqft)}` : null, icon: TrendingUp },
+                    { label: 'Days',   value: displayProperty.daysOnMarket ?? null,                  icon: Calendar },
+                  ] as const).map((stat) => {
+                    const Icon = stat.icon;
+                    const isEmpty = stat.value == null;
+                    return (
+                      <div key={stat.label} className="rounded-xl border border-border/60 bg-white/[0.02] hover:bg-white/[0.04] transition-colors p-3 sm:p-4">
+                        <div className="flex items-center gap-1.5 mb-2">
+                          <Icon className="h-3.5 w-3.5 text-cyan-400/80" />
+                          <span className="text-[11px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wide">{stat.label}</span>
                         </div>
-                        <span className="text-[11px] sm:text-sm font-medium text-muted-foreground">Bedrooms</span>
-                      </div>
-                      <div className="text-xl sm:text-3xl font-bold text-foreground">{displayProperty.bedrooms || '—'}</div>
-                    </CardContent>
-                  </Card>
-                  <Card className="border-border hover:shadow-md transition-shadow">
-                    <CardContent className="p-3 sm:p-6 text-center">
-                      <div className="flex items-center justify-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
-                        <div className="p-1.5 sm:p-2 rounded-lg bg-primary/10">
-                          <Bath className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
+                        <div className={`text-xl sm:text-2xl font-bold tracking-tight ${isEmpty ? 'text-neutral-700' : 'text-foreground'}`}>
+                          {isEmpty ? '—' : stat.value}
                         </div>
-                        <span className="text-[11px] sm:text-sm font-medium text-muted-foreground">Bathrooms</span>
                       </div>
-                      <div className="text-xl sm:text-3xl font-bold text-foreground">{displayProperty.bathrooms || '—'}</div>
-                    </CardContent>
-                  </Card>
-                  <Card className="border-border hover:shadow-md transition-shadow">
-                    <CardContent className="p-3 sm:p-6 text-center">
-                      <div className="flex items-center justify-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
-                        <div className="p-1.5 sm:p-2 rounded-lg bg-primary/10">
-                          <Square className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
-                        </div>
-                        <span className="text-[11px] sm:text-sm font-medium text-muted-foreground">Sq Ft</span>
-                      </div>
-                      <div className="text-xl sm:text-3xl font-bold text-foreground">{displayProperty.sqft ? formatNumber(displayProperty.sqft) : '—'}</div>
-                    </CardContent>
-                  </Card>
-                  <Card className="border-border hover:shadow-md transition-shadow">
-                    <CardContent className="p-3 sm:p-6 text-center">
-                      <div className="flex items-center justify-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
-                        <div className="p-1.5 sm:p-2 rounded-lg bg-primary/10">
-                          <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
-                        </div>
-                        <span className="text-[11px] sm:text-sm font-medium text-muted-foreground">Days</span>
-                      </div>
-                      <div className="text-xl sm:text-3xl font-bold text-foreground">{displayProperty.daysOnMarket || '—'}</div>
-                    </CardContent>
-                  </Card>
+                    );
+                  })}
                 </div>
 
-                {/* Wholesale Analysis */}
-                <Card className="border-border shadow-sm">
-                  <CardHeader className="pb-4">
-                    <CardTitle className="flex items-center gap-3">
-                      <div className="p-2 rounded-lg bg-primary/10">
-                        <DollarSign className="h-5 w-5 text-primary" />
-                      </div>
-                      <div className="flex-1">
-                        <span className="text-xl">Deal Analysis</span>
-                        <Badge 
-                          variant={wholesalePotential.tier === 'excellent' || wholesalePotential.tier === 'great' ? 'default' : 'secondary'}
-                          className="ml-3"
-                        >
-                          {wholesalePotential.tier} deal
-                        </Badge>
-                      </div>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-10">
-                      <div className="space-y-6">
-                        <div className="flex justify-between items-center py-3 border-b border-border">
-                          <span className="text-sm font-medium text-muted-foreground">Deal Score</span>
-                          <span className="text-2xl font-bold text-foreground">{wholesalePotential.score}/100</span>
+                {/* Deal Analysis — visual hero card */}
+                {(() => {
+                  const price = displayProperty.price || 0;
+                  const zest = displayProperty.zestimate || 0;
+                  const spread = wholesalePotential.spreadAmount;
+                  const spreadPos = spread >= 0;
+                  // Bar widths: render Current Price vs. Zestimate proportionally
+                  const maxVal = Math.max(price, zest, 1);
+                  const priceWidth = (price / maxVal) * 100;
+                  const zestWidth = (zest / maxVal) * 100;
+                  return (
+                    <div className={`rounded-2xl border ${tierTheme.border} ${tierTheme.bg} backdrop-blur-sm overflow-hidden`}>
+                      {/* Top: tier banner */}
+                      <div className={`flex items-center justify-between px-4 sm:px-6 py-3 border-b ${tierTheme.border}`}>
+                        <div className="flex items-center gap-2.5">
+                          <div className={`w-8 h-8 rounded-lg ${tierTheme.bg} ${tierTheme.text} flex items-center justify-center border ${tierTheme.border}`}>
+                            <DollarSign className="h-4 w-4" />
+                          </div>
+                          <div>
+                            <div className="text-sm sm:text-base font-semibold text-foreground leading-tight">Deal Analysis</div>
+                            <div className={`text-[11px] sm:text-xs font-medium ${tierTheme.text}`}>{tierTheme.label}</div>
+                          </div>
                         </div>
-                        <div className="flex justify-between items-center py-3 border-b border-border">
-                          <span className="text-sm font-medium text-muted-foreground">Spread Amount</span>
-                          <span className="text-2xl font-bold text-emerald-600">
-                            ${formatNumber(wholesalePotential.spreadAmount)}
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center py-3">
-                          <span className="text-sm font-medium text-muted-foreground">Spread Percentage</span>
-                          <span className="text-2xl font-bold text-foreground">
-                            {wholesalePotential.spreadPercentage.toFixed(1)}%
-                          </span>
+                        <div className="hidden sm:block text-xs text-muted-foreground italic max-w-[60%] text-right">
+                          {tierTheme.ctaLabel}
                         </div>
                       </div>
 
-                      <div className="space-y-6">
-                        <div className="flex justify-between items-center py-3 border-b border-border">
-                          <span className="text-sm font-medium text-muted-foreground">Current Price</span>
-                          <span className="text-lg font-semibold">{formatPrice(displayProperty.price || 0)}</span>
-                        </div>
-                        <div className="flex justify-between items-center py-3 border-b border-border">
-                          <span className="text-sm font-medium text-muted-foreground">Zestimate</span>
-                          <span className="text-lg font-semibold">{formatPrice(displayProperty.zestimate || 0)}</span>
-                        </div>
-                        {wholesalePotential.tier === 'excellent' || wholesalePotential.tier === 'great' ? (
-                          <div className="p-4 bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-950/50 dark:to-green-950/50 rounded-xl border border-emerald-200 dark:border-emerald-800">
-                            <div className="flex items-center gap-3">
-                              <Star className="h-5 w-5 text-emerald-600" />
-                              <span className="font-semibold text-emerald-700 dark:text-emerald-300">
-                                Excellent investment opportunity!
+                      {/* Body: ring + spread + bars */}
+                      <div className="p-4 sm:p-6 grid grid-cols-1 md:grid-cols-[auto_1fr] gap-5 sm:gap-8 items-center">
+                        {/* Deal score ring */}
+                        <div className="flex justify-center md:justify-start">
+                          <div className="relative w-28 h-28 sm:w-32 sm:h-32 rounded-full flex items-center justify-center" style={ringStyle}>
+                            <div className="absolute inset-1.5 rounded-full bg-[#0c0d0f] flex flex-col items-center justify-center">
+                              <span className={`text-2xl sm:text-3xl font-extrabold tracking-tight ${tierTheme.text}`}>
+                                {wholesalePotential.score}
                               </span>
+                              <span className="text-[10px] uppercase tracking-widest text-neutral-500 mt-0.5">/100 score</span>
                             </div>
                           </div>
-                        ) : wholesalePotential.tier === 'good' ? (
-                          <div className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/50 dark:to-cyan-950/50 rounded-xl border border-blue-200 dark:border-blue-800">
-                            <div className="flex items-center gap-3">
-                              <Star className="h-5 w-5 text-blue-600" />
-                              <span className="font-semibold text-blue-700 dark:text-blue-300">
-                                Good profit potential
-                              </span>
+                        </div>
+
+                        {/* Spread + comparison bars */}
+                        <div className="space-y-4 min-w-0">
+                          {/* Spread headline */}
+                          <div className="flex items-baseline justify-between gap-3 flex-wrap">
+                            <div>
+                              <div className="text-[11px] sm:text-xs font-medium uppercase tracking-widest text-muted-foreground mb-1">
+                                {spreadPos ? 'Below market by' : 'Above market by'}
+                              </div>
+                              <div className={`text-3xl sm:text-4xl font-extrabold tracking-tight ${tierTheme.text}`}>
+                                {spreadPos ? '+' : '−'}{formatPrice(Math.abs(spread))}
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-[11px] sm:text-xs font-medium uppercase tracking-widest text-muted-foreground mb-1">% Spread</div>
+                              <div className={`text-xl sm:text-2xl font-bold ${tierTheme.text}`}>
+                                {spreadPos ? '+' : ''}{wholesalePotential.spreadPercentage.toFixed(1)}%
+                              </div>
                             </div>
                           </div>
-                        ) : null}
+
+                          {/* Comparison bars */}
+                          <div className="space-y-2.5 pt-1">
+                            <div>
+                              <div className="flex items-center justify-between text-xs mb-1">
+                                <span className="text-muted-foreground">Current Price</span>
+                                <span className="font-semibold text-foreground">{formatPrice(price)}</span>
+                              </div>
+                              <div className="h-2 rounded-full bg-white/[0.04] overflow-hidden">
+                                <div className="h-full bg-gradient-to-r from-cyan-500 to-cyan-400 rounded-full transition-all duration-700" style={{ width: `${priceWidth}%` }} />
+                              </div>
+                            </div>
+                            <div>
+                              <div className="flex items-center justify-between text-xs mb-1">
+                                <span className="text-muted-foreground">Zestimate</span>
+                                <span className="font-semibold text-foreground">{formatPrice(zest)}</span>
+                              </div>
+                              <div className="h-2 rounded-full bg-white/[0.04] overflow-hidden">
+                                <div className={`h-full rounded-full transition-all duration-700 ${spreadPos ? 'bg-gradient-to-r from-emerald-500 to-emerald-400' : 'bg-gradient-to-r from-amber-500 to-amber-400'}`} style={{ width: `${zestWidth}%` }} />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Mobile-only CTA label */}
+                      <div className={`sm:hidden border-t ${tierTheme.border} px-4 py-3 text-xs ${tierTheme.text} bg-black/20`}>
+                        {tierTheme.ctaLabel}
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
+                  );
+                })()}
               </div>
             </TabsContent>
 
