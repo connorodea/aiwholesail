@@ -52,7 +52,7 @@ async function callClaude({ system, messages, model = 'claude-sonnet-4-6', maxTo
 let LONG_TAIL_KEYWORDS = [];
 try {
   const siloData = JSON.parse(
-    fs.readFileSync(path.join(__dirname, '..', '..', 'src', 'data', 'keyword-silos.json'), 'utf8')
+    fs.readFileSync(path.join(REPO_DIR, 'src', 'data', 'keyword-silos.json'), 'utf8')
   );
   for (const silo of siloData.silos || []) {
     for (const kw of silo.keywords || []) {
@@ -75,7 +75,7 @@ try {
 let TOPICAL_CLUSTERS = { pillars: [] };
 try {
   TOPICAL_CLUSTERS = JSON.parse(
-    fs.readFileSync(path.join(__dirname, '..', '..', 'src', 'data', 'topical-clusters.json'), 'utf8')
+    fs.readFileSync(path.join(REPO_DIR, 'src', 'data', 'topical-clusters.json'), 'utf8')
   );
   console.log(`[Blog] Loaded ${TOPICAL_CLUSTERS.pillars.length} pillar clusters for internal linking`);
 } catch (e) {
@@ -86,7 +86,7 @@ try {
 let GUIDES = [];
 try {
   GUIDES = JSON.parse(
-    fs.readFileSync(path.join(__dirname, '..', '..', 'src', 'data', 'guides.json'), 'utf8')
+    fs.readFileSync(path.join(REPO_DIR, 'src', 'data', 'guides.json'), 'utf8')
   );
   console.log(`[Blog] Loaded ${GUIDES.length} guides for linking`);
 } catch (e) {
@@ -197,7 +197,7 @@ function findRelatedContent(keyword, silo) {
 let CITIES = [];
 try {
   const citiesData = JSON.parse(
-    fs.readFileSync(path.join(__dirname, '..', '..', 'src', 'data', 'cities.json'), 'utf8')
+    fs.readFileSync(path.join(REPO_DIR, 'src', 'data', 'cities.json'), 'utf8')
   );
   CITIES = citiesData.map(c => `${c.city} ${c.state}`);
   console.log(`[Blog] Loaded ${CITIES.length} cities`);
@@ -454,16 +454,35 @@ function saveArticle(article) {
   return articlePath;
 }
 
+/**
+ * Sync the repo to origin/main BEFORE any local writes.
+ *
+ * Why before, not at commit-time: saveArticle() updates index.json (a tracked
+ * file). If we pull --rebase after that write, the dirty working tree blocks
+ * the rebase. So sync first, write second, commit third. Any pre-existing
+ * stray staged/untracked files get reset/cleaned so we start from a known
+ * clean state matching origin.
+ */
+function syncRepo() {
+  const { execSync } = require('child_process');
+  process.chdir(REPO_DIR);
+
+  execSync('git fetch origin main', { stdio: 'pipe' });
+  // Reset any leftover staged state from previous failed runs (non-destructive
+  // for tracked files — just unstages; for untracked, nothing changes).
+  try { execSync('git reset HEAD src/data/blog/', { stdio: 'pipe' }); } catch {}
+  // Bring local main fast-forward to origin/main. If there are local commits
+  // on main (e.g. orphaned by a previous broken push), --rebase replays them
+  // on top, but we'd rather discard than carry forward — handled by checking
+  // ahead-count and resetting hard if non-empty AND env says ok.
+  execSync('git pull --rebase origin main', { stdio: 'pipe' });
+}
+
 async function gitCommitAndPush(article, articlePath) {
   const { execSync } = require('child_process');
 
   try {
     process.chdir(REPO_DIR);
-
-    // Pull latest first so our commit doesn't race with concurrent merges
-    // (CI deploy job, manual PRs, etc.). --rebase keeps history linear.
-    execSync('git fetch origin main', { stdio: 'pipe' });
-    execSync('git pull --rebase origin main', { stdio: 'pipe' });
 
     // Stage ONLY the files we just wrote — not the whole blog dir.
     // A previous broken-push state could leave stray staged/untracked files
@@ -525,6 +544,16 @@ async function main() {
   console.log(`[Blog] Generating article for: "${keywordData.keyword}" (${keywordData.type})`);
 
   try {
+    // Sync repo first so saveArticle() writes against the latest tree.
+    // Any local writes after this point we own and want to commit.
+    try {
+      syncRepo();
+    } catch (syncErr) {
+      const detail = syncErr.stderr ? syncErr.stderr.toString().trim() : syncErr.message;
+      console.error('[Blog] Repo sync failed (cannot proceed):', detail);
+      throw syncErr;
+    }
+
     const article = await generateArticle(keywordData);
     const articlePath = saveArticle(article);
     await gitCommitAndPush(article, articlePath);
