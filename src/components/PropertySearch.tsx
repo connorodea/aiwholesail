@@ -8,8 +8,10 @@ import { Switch } from '@/components/ui/switch';
 import { PropertySearchParams } from '@/types/zillow';
 import { Search, Home, Bed, Bath, DollarSign, TrendingDown, MessageSquare, Gavel, Building2, AlertTriangle } from 'lucide-react';
 import { LocationAutocomplete } from './LocationAutocomplete';
+import { CountyBrowserDialog } from './CountyBrowserDialog';
 import { validatePriceRange, sanitizeSearchKeywords, validateLocationInput } from '@/lib/security';
 import { useToast } from '@/hooks/use-toast';
+import { MapPin } from 'lucide-react';
 
 interface PropertySearchProps {
   onSearch: (params: PropertySearchParams) => void;
@@ -23,6 +25,7 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
     wholesaleOnly: true // Default: only show properties priced below Zestimate
   });
   const { toast } = useToast();
+  const [countyBrowserOpen, setCountyBrowserOpen] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -86,7 +89,21 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
                 onChange={(value) => updateParam('location', value)}
                 required={true}
               />
+              <button
+                type="button"
+                onClick={() => setCountyBrowserOpen(true)}
+                className="mt-2 inline-flex items-center gap-1.5 text-xs text-neutral-400 hover:text-cyan-400 transition-colors"
+              >
+                <MapPin className="h-3.5 w-3.5" />
+                Don&rsquo;t know the county? Browse counties by state →
+              </button>
             </div>
+
+            <CountyBrowserDialog
+              open={countyBrowserOpen}
+              onOpenChange={setCountyBrowserOpen}
+              onSelectCounty={(loc) => updateParam('location', loc)}
+            />
 
             {/* Property Type */}
             <div className="space-y-2">

@@ -1,0 +1,147 @@
+import { useMemo, useState } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { MapPin, Search, ArrowRight } from 'lucide-react';
+import countiesRaw from '@/data/counties.json';
+
+interface County {
+  slug: string;
+  name: string;
+  state: string;
+  stateFull: string;
+  county_seat: string;
+  population: number;
+  medianHomePrice: number;
+  investorActivity?: string;
+}
+
+const counties = countiesRaw as County[];
+
+// Group counties by full state name for display, sorted alphabetically.
+const COUNTIES_BY_STATE = (() => {
+  const grouped: Record<string, { state: string; stateFull: string; counties: County[] }> = {};
+  for (const c of counties) {
+    if (!grouped[c.stateFull]) {
+      grouped[c.stateFull] = { state: c.state, stateFull: c.stateFull, counties: [] };
+    }
+    grouped[c.stateFull].counties.push(c);
+  }
+  for (const k of Object.keys(grouped)) {
+    grouped[k].counties.sort((a, b) => b.population - a.population);
+  }
+  return Object.values(grouped).sort((a, b) => a.stateFull.localeCompare(b.stateFull));
+})();
+
+interface CountyBrowserDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSelectCounty: (locationString: string) => void;
+}
+
+export function CountyBrowserDialog({ open, onOpenChange, onSelectCounty }: CountyBrowserDialogProps) {
+  const [query, setQuery] = useState('');
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return COUNTIES_BY_STATE;
+    return COUNTIES_BY_STATE
+      .map((group) => {
+        const stateMatch = group.stateFull.toLowerCase().includes(q) || group.state.toLowerCase() === q;
+        const matchedCounties = stateMatch
+          ? group.counties
+          : group.counties.filter((c) => c.name.toLowerCase().includes(q));
+        return { ...group, counties: matchedCounties };
+      })
+      .filter((g) => g.counties.length > 0);
+  }, [query]);
+
+  const handleSelect = (county: County) => {
+    onSelectCounty(`${county.name}, ${county.state}`);
+    onOpenChange(false);
+    setQuery('');
+  };
+
+  const totalShown = filtered.reduce((sum, g) => sum + g.counties.length, 0);
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl w-[95vw] max-h-[85vh] p-0 bg-[#0c0d0f] border-neutral-800 text-white overflow-hidden flex flex-col">
+        <DialogHeader className="px-6 pt-6 pb-3 border-b border-neutral-800/60">
+          <DialogTitle className="text-xl font-medium tracking-tight">Browse counties by state</DialogTitle>
+          <DialogDescription className="text-sm text-neutral-500 leading-relaxed">
+            Pick a county to instantly run a search there. Showing the most populous investor markets across {COUNTIES_BY_STATE.length} states.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="px-6 py-3 border-b border-neutral-800/60">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-500 pointer-events-none" />
+            <Input
+              autoFocus
+              placeholder="Filter by state or county name…"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              className="pl-10 h-10 bg-white/[0.03] border-white/[0.08] text-white placeholder:text-neutral-500"
+            />
+          </div>
+          <p className="mt-2 text-xs text-neutral-500">
+            {totalShown} {totalShown === 1 ? 'county' : 'counties'} {query ? 'match' : 'available'}
+          </p>
+        </div>
+
+        <ScrollArea className="flex-1 max-h-[60vh]">
+          <div className="px-6 py-4 space-y-6">
+            {filtered.length === 0 && (
+              <div className="text-center py-12 space-y-2">
+                <MapPin className="h-8 w-8 text-neutral-700 mx-auto" />
+                <p className="text-sm text-neutral-400">No matches for &ldquo;{query}&rdquo;</p>
+                <p className="text-xs text-neutral-500">
+                  Don&rsquo;t see your county? Type it directly into the search field as &ldquo;[County] County, [ST]&rdquo;
+                </p>
+              </div>
+            )}
+
+            {filtered.map((group) => (
+              <div key={group.stateFull}>
+                <div className="flex items-baseline gap-2 mb-2">
+                  <h3 className="text-xs font-semibold tracking-[0.18em] uppercase text-cyan-400">
+                    {group.stateFull}
+                  </h3>
+                  <span className="text-xs text-neutral-600">
+                    {group.state} · {group.counties.length} {group.counties.length === 1 ? 'county' : 'counties'}
+                  </span>
+                </div>
+                <div className="grid sm:grid-cols-2 gap-1">
+                  {group.counties.map((county) => (
+                    <button
+                      key={county.slug}
+                      type="button"
+                      onClick={() => handleSelect(county)}
+                      className="group flex items-center justify-between gap-3 px-3 py-2 rounded-md border border-transparent hover:border-cyan-500/30 hover:bg-white/[0.03] transition-all text-left"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium text-neutral-200 group-hover:text-white truncate">
+                          {county.name}
+                        </p>
+                        <p className="text-xs text-neutral-500 truncate">
+                          {county.county_seat} · {(county.population / 1000).toFixed(0)}K residents
+                        </p>
+                      </div>
+                      <ArrowRight className="h-4 w-4 text-neutral-600 group-hover:text-cyan-400 group-hover:translate-x-0.5 transition-all flex-shrink-0" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </ScrollArea>
+
+        <div className="px-6 py-3 border-t border-neutral-800/60 text-xs text-neutral-500">
+          <span>Don&rsquo;t see your county?</span>{' '}
+          <span className="text-neutral-400">Type it manually as <code className="text-cyan-400">&ldquo;Oakland County, MI&rdquo;</code></span>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
