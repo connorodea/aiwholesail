@@ -1,5 +1,6 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
 const { body, validationResult } = require('express-validator');
 const { query } = require('../config/database');
@@ -10,6 +11,8 @@ const { getClient } = require('../config/database');
 
 const { Resend } = require('resend');
 const resend = new Resend(process.env.RESEND_API_KEY);
+const Stripe = require('stripe');
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 const router = express.Router();
 
@@ -951,6 +954,100 @@ router.delete('/account', authenticate, asyncHandler(async (req, res) => {
   }, null, req);
 
   res.json({ message: 'Account deleted successfully' });
+}));
+
+/**
+ * GET /api/auth/trial-upgrade?token=<jwt>
+ *
+ * One-click magic-link upgrade from a trial-lifecycle email. The worker signs a
+ * short-lived JWT containing { userId, plan, type: 'trial-upgrade' } and embeds
+ * the URL in the day -1 / day 0 / day +1 / day +7 emails. When the user clicks,
+ * we verify the token, look them up, create a Stripe checkout session pre-filled
+ * with their email, and 302 redirect them straight to Stripe — no login needed.
+ *
+ * Token is scoped (type === 'trial-upgrade') so it can't be replayed for normal
+ * auth. Expires in 24h.
+ */
+router.get('/trial-upgrade', asyncHandler(async (req, res) => {
+  const { token } = req.query;
+  if (!token || typeof token !== 'string') {
+    return res.status(400).send('Missing token');
+  }
+
+  let decoded;
+  try {
+    decoded = jwt.verify(token, process.env.JWT_SECRET);
+  } catch (err) {
+    return res.status(401).send('Token invalid or expired. Please request a fresh upgrade link from your most recent AIWholesail email, or sign in directly at https://aiwholesail.com/auth.');
+  }
+
+  if (decoded.type !== 'trial-upgrade') {
+    return res.status(401).send('Token scope invalid');
+  }
+
+  const userResult = await query(
+    'SELECT id, email FROM users WHERE id = $1 LIMIT 1',
+    [decoded.userId]
+  );
+  if (userResult.rows.length === 0) {
+    return res.status(404).send('User not found');
+  }
+  const user = userResult.rows[0];
+  const plan = decoded.plan === 'Elite' ? 'Elite' : 'Pro';
+  const targetAmount = plan === 'Elite' ? 9900 : 4900;
+
+  // Look up the active Stripe Price for the chosen plan by amount (matches the
+  // pattern used in routes/stripe.js POST /checkout — price ID isn't hardcoded
+  // so price changes don't require a code deploy).
+  const prices = await stripe.prices.list({
+    active: true,
+    type: 'recurring',
+    expand: ['data.product'],
+  });
+  const targetPrice = prices.data.find(
+    (p) => p.unit_amount === targetAmount && p.recurring?.interval === 'month'
+  );
+  if (!targetPrice) {
+    console.error(`[trial-upgrade] No active $${targetAmount/100}/mo price found for plan=${plan}`);
+    return res.status(500).send('Plan unavailable. Please contact support.');
+  }
+
+  // Reuse existing Stripe customer if we already have one
+  let customerId;
+  const existingCustomers = await stripe.customers.list({ email: user.email, limit: 1 });
+  if (existingCustomers.data.length > 0) {
+    customerId = existingCustomers.data[0].id;
+  }
+
+  const frontendUrl = process.env.FRONTEND_URL || 'https://aiwholesail.com';
+  const session = await stripe.checkout.sessions.create({
+    customer: customerId,
+    customer_email: customerId ? undefined : user.email,
+    line_items: [{ price: targetPrice.id, quantity: 1 }],
+    mode: 'subscription',
+    payment_method_collection: 'if_required',
+    subscription_data: {
+      trial_period_days: 0,    // already had a trial; no double-trial
+      trial_settings: {
+        end_behavior: { missing_payment_method: 'cancel' },
+      },
+    },
+    success_url: `${frontendUrl}/success?session_id={CHECKOUT_SESSION_ID}&from=trial-upgrade`,
+    cancel_url: `${frontendUrl}/pricing`,
+    metadata: {
+      company_name: 'AI Wholesail',
+      user_id: user.id,
+      flow: 'trial-upgrade-magic-link',
+    },
+  });
+
+  await logSecurityEvent('trial_upgrade_link_used', {
+    userId: user.id,
+    plan,
+    sessionId: session.id,
+  }, user.id, req);
+
+  return res.redirect(302, session.url);
 }));
 
 module.exports = router;

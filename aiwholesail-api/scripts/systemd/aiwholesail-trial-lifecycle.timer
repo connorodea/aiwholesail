@@ -1,0 +1,11 @@
+[Unit]
+Description=Run aiwholesail trial-lifecycle worker every hour at :15
+
+[Timer]
+OnCalendar=*-*-* *:15:00
+Persistent=true
+AccuracySec=1m
+RandomizedDelaySec=30s
+
+[Install]
+WantedBy=timers.target
