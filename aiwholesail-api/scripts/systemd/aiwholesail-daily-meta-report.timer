@@ -1,0 +1,11 @@
+[Unit]
+Description=Run aiwholesail daily Meta Ads report at 9am ET (13:00 UTC)
+
+[Timer]
+OnCalendar=*-*-* 13:00:00
+Persistent=true
+AccuracySec=1m
+RandomizedDelaySec=30s
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,28 @@
+[Unit]
+Description=AIWholesail daily Meta Ads performance digest (emails operator)
+After=network-online.target aiwholesail-api.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+WorkingDirectory=/var/www/aiwholesail-api
+EnvironmentFile=/var/www/aiwholesail-api/.env
+ExecStart=/usr/bin/node scripts/daily-meta-ads-report.js
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=aiwholesail-daily-meta-report
+Nice=10
+
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictNamespaces=true
+LockPersonality=true
+RestrictRealtime=true
+SystemCallArchitectures=native
+ReadWritePaths=/var/www/aiwholesail-api /var/log
