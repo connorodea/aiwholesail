@@ -16,12 +16,19 @@ const fs = require('fs');
 const path = require('path');
 const Anthropic = require('@anthropic-ai/sdk').default;
 
-const BLOG_DIR = path.join(__dirname, '..', '..', 'src', 'data', 'blog');
+// On hetznerCO, the API runs from /var/www/aiwholesail-api but the frontend
+// repo (where blog data lives) is checked out at /var/www/aiwholesail-repo.
+// FRONTEND_REPO_DIR lets ops point at the right git working tree without
+// touching code. Falls back to the legacy `__dirname/../..` for local dev.
+const REPO_DIR = process.env.FRONTEND_REPO_DIR || path.join(__dirname, '..', '..');
+const BLOG_DIR = path.join(REPO_DIR, 'src', 'data', 'blog');
 const INDEX_PATH = path.join(BLOG_DIR, 'index.json');
-const REPO_DIR = path.join(__dirname, '..', '..');
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
+  // Bound runaway calls — long Claude requests will be killed by the systemd
+  // unit anyway, but explicit timeout surfaces the failure cleanly to journal.
+  timeout: 120000,
 });
 
 // ============ KEYWORD POOLS ============
@@ -438,15 +445,33 @@ async function gitCommitAndPush(article) {
   try {
     process.chdir(REPO_DIR);
 
+    // Pull latest first so our commit doesn't race with concurrent merges
+    // (CI deploy job, manual PRs, etc.). --rebase keeps history linear.
+    execSync('git fetch origin main', { stdio: 'pipe' });
+    execSync('git pull --rebase origin main', { stdio: 'pipe' });
+
     execSync('git add src/data/blog/', { stdio: 'pipe' });
+
+    // If nothing was staged (e.g. file already committed by a prior run),
+    // bail cleanly without a confusing "nothing to commit" failure.
+    const staged = execSync('git diff --cached --name-only', { encoding: 'utf8' }).trim();
+    if (!staged) {
+      console.log('[Blog] Nothing new to commit — skipping push');
+      return;
+    }
+
     execSync(
-      `git commit --author="AIWholesail Bot <bot@aiwholesail.com>" -m "blog: ${article.title.slice(0, 60)}"`,
+      `git commit --author="AIWholesail Bot <bot@aiwholesail.com>" -m "blog: ${article.title.slice(0, 60).replace(/"/g, '\\"')}"`,
       { stdio: 'pipe' }
     );
-    execSync('git push origin staging', { stdio: 'pipe' });
-    console.log(`[Blog] Pushed to staging: ${article.slug}`);
+    execSync('git push origin main', { stdio: 'pipe' });
+    console.log(`[Blog] Pushed to main: ${article.slug}`);
   } catch (err) {
-    console.error('[Blog] Git push failed:', err.message);
+    // Surface the full git output, not just .message — git errors usually
+    // contain the actionable info (e.g. "rejected non-fast-forward") on stderr.
+    const detail = err.stderr ? err.stderr.toString().trim() : err.message;
+    console.error('[Blog] Git push failed:', detail);
+    throw err; // re-throw so main() exits non-zero and systemd marks failed
   }
 }
 
