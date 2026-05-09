@@ -1,0 +1,34 @@
+[Unit]
+Description=AIWholesail hourly health monitor (API, DB, blog, timers, resources)
+After=network-online.target postgresql.service aiwholesail-api.service
+Wants=network-online.target postgresql.service
+# Self-loop guard: don't try to alert on this unit's own failure via OnFailure
+# (the onfailure-notify handler refuses self-triggers anyway, but be explicit).
+
+[Service]
+Type=oneshot
+User=root
+WorkingDirectory=/var/www/aiwholesail-api
+EnvironmentFile=/var/www/aiwholesail-api/.env
+Environment=FRONTEND_REPO_DIR=/var/www/aiwholesail-repo
+TimeoutStartSec=120
+ExecStart=/usr/bin/node scripts/health-monitor.js
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=aiwholesail-health-monitor
+Nice=15
+
+# Hardening (matches main API unit; ProtectHome=read-only so it can read
+# /root/.gitconfig and any SSH keys needed by `git -C` for blog freshness)
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateTmp=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictNamespaces=true
+LockPersonality=true
+RestrictRealtime=true
+SystemCallArchitectures=native
+ReadWritePaths=/var/www/aiwholesail-api /var/log

@@ -1,24 +1,26 @@
 [Unit]
-Description=AIWholesail trial-lifecycle worker (sends day -1 / 0 / +1 / +7 emails)
-After=network-online.target postgresql.service aiwholesail-api.service
-Wants=network-online.target postgresql.service
-OnFailure=aiwholesail-onfailure-notify.service
+Description=Email operator when an aiwholesail-* unit fails
+# Don't propagate failures from this notifier — would create alert loop
+# if it itself crashed.
 
 [Service]
 Type=oneshot
 User=root
 WorkingDirectory=/var/www/aiwholesail-api
 EnvironmentFile=/var/www/aiwholesail-api/.env
-ExecStart=/usr/bin/node scripts/trial-lifecycle-worker.js
+TimeoutStartSec=60
+# MONITOR_UNIT, MONITOR_INVOCATION_ID, MONITOR_EXIT_CODE are set by systemd
+# automatically when this unit is invoked via OnFailure= from another unit.
+ExecStart=/usr/bin/node scripts/onfailure-notify.js
 StandardOutput=journal
 StandardError=journal
-SyslogIdentifier=aiwholesail-trial-lifecycle
+SyslogIdentifier=aiwholesail-onfailure-notify
 Nice=10
 
-# Hardening (matches main API unit)
+# Hardening
 NoNewPrivileges=true
 ProtectSystem=strict
-ProtectHome=true
+ProtectHome=read-only
 PrivateTmp=true
 ProtectKernelTunables=true
 ProtectKernelModules=true

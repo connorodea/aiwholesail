@@ -2,6 +2,7 @@
 Description=AIWholesail daily Meta Ads performance digest (emails operator)
 After=network-online.target aiwholesail-api.service
 Wants=network-online.target
+OnFailure=aiwholesail-onfailure-notify.service
 
 [Service]
 Type=oneshot

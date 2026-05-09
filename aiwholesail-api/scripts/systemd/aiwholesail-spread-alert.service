@@ -2,6 +2,7 @@
 Description=AIWholesail spread-alert worker (scans property alerts, finds matches)
 After=network-online.target postgresql.service aiwholesail-api.service
 Wants=network-online.target postgresql.service
+OnFailure=aiwholesail-onfailure-notify.service
 
 [Service]
 Type=oneshot

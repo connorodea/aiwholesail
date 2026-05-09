@@ -1,0 +1,12 @@
+[Unit]
+Description=Run AIWholesail health monitor every hour at :30
+
+[Timer]
+# Hourly at :30 — offset from spread-alert (:05) and trial-lifecycle (:15)
+OnCalendar=*-*-* *:30:00
+Persistent=true
+AccuracySec=1m
+RandomizedDelaySec=30s
+
+[Install]
+WantedBy=timers.target
