@@ -61,12 +61,19 @@ const attachSubscription = async (req, res, next) => {
       return next();
     }
 
-    // Determine effective tier
+    // Determine effective tier.
+    //
+    // For trial users: respect the tier they're trialing on. An Elite trial
+    // gets Elite features; a Pro trial gets Pro features. Previously this
+    // collapsed every trial to TIERS.TRIAL, which silently locked Elite-trial
+    // users out of the very features they were upgraded to test (the front-
+    // end useSubscription hook correctly distinguishes — this middleware did
+    // not, causing 403s on /api/ai/property-analysis and /api/ai/photo-analysis
+    // for any Elite-trial user).
     let tier = TIERS.NONE;
     if (sub.is_trial) {
-      // Check if trial has expired
+      // Expired trial → downgrade
       if (sub.trial_end && new Date(sub.trial_end) < new Date()) {
-        // Downgrade expired trial in database
         query(
           `UPDATE subscribers SET subscribed = false, is_trial = false, updated_at = NOW() WHERE user_id = $1 AND is_trial = true`,
           [req.user.id]
@@ -74,7 +81,15 @@ const attachSubscription = async (req, res, next) => {
         req.subscription = { tier: TIERS.NONE, searchesUsed: 0 };
         return next();
       }
-      tier = TIERS.TRIAL;
+      // Active trial — resolve to the tier the user is trialing
+      if (sub.subscription_tier === 'Elite' || sub.subscription_tier === 'Premium') {
+        tier = TIERS.ELITE;
+      } else if (sub.subscription_tier === 'Pro') {
+        tier = TIERS.PRO;
+      } else {
+        // No explicit trial tier set — default to TRIAL (Pro-equivalent rate limits)
+        tier = TIERS.TRIAL;
+      }
     } else if (sub.subscription_tier === 'Elite' || sub.subscription_tier === 'Premium') {
       tier = TIERS.ELITE;
     } else if (sub.subscription_tier === 'Pro') {
