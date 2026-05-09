@@ -1,0 +1,13 @@
+[Unit]
+Description=Run aiwholesail founder hot-list worker every weekday at 08:00 ET (13:00 UTC)
+
+[Timer]
+# Mon-Fri at 13:00 UTC = 08:00 ET (during DST) / 09:00 ET (standard time)
+# Connor reads the email with morning coffee and texts hot trials before the workday hits.
+OnCalendar=Mon..Fri *-*-* 13:00:00
+Persistent=true
+AccuracySec=1m
+RandomizedDelaySec=2m
+
+[Install]
+WantedBy=timers.target
