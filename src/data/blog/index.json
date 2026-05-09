@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-lansing-mi-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Lansing MI: The Investor's Complete Guide for 2024",
+      "excerpt": "Lansing, Michigan is quietly becoming one of the Midwest's most attractive markets for real estate investors. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Lansing MI.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-09T12:01:09.101Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Lansing MI",
+        "Lansing Michigan real estate investing",
+        "wholesale deals Lansing MI",
+        "investment properties Lansing",
+        "Lansing MI real estate market"
+      ],
+      "featured": true
+    },
+    {
       "slug": "do-you-need-an-llc-to-wholesale-real-estate-the-honest-answer",
       "title": "Do You Need an LLC to Wholesale Real Estate? The Honest Answer",
       "excerpt": "Many new wholesalers wonder if they need an LLC before closing their first deal. This guide breaks down the real risks, real benefits, and the smartest path forward for your situation.",
@@ -15,7 +32,7 @@
         "real estate wholesaling business structure",
         "wholesale real estate beginners"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "wholesaling-vs-brrrr-which-is-better-for-beginners-in-real-estate",
