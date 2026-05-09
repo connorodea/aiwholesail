@@ -47,6 +47,7 @@ const Pipeline = lazy(() => import("./pages/Pipeline"));
 const Buyers = lazy(() => import("./pages/Buyers"));
 const Sequences = lazy(() => import("./pages/Sequences"));
 const Contracts = lazy(() => import("./pages/Contracts"));
+const SkipTrace = lazy(() => import("./pages/SkipTrace"));
 const Account = lazy(() => import("./pages/Account"));
 const ToolsIndex = lazy(() => import("./pages/tools/ToolsIndex"));
 const MortgageCalculator = lazy(() => import("./pages/tools/MortgageCalculator"));
@@ -174,6 +175,11 @@ const App = () => (
                 <Route path="/app/contracts" element={
                   <ProtectedRoute>
                     <Contracts />
+                  </ProtectedRoute>
+                } />
+                <Route path="/app/skip-trace" element={
+                  <ProtectedRoute>
+                    <SkipTrace />
                   </ProtectedRoute>
                 } />
                 <Route path="/app/account" element={

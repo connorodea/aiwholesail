@@ -12,6 +12,7 @@ import {
   IconFileText,
   IconHeart,
   IconBell,
+  IconAddressBook,
   IconCreditCard,
   IconLogout,
   IconUser,
@@ -35,6 +36,7 @@ const navItems = [
   { href: '/app/buyers', label: 'Buyers', icon: IconUsers },
   { href: '/app/sequences', label: 'Sequences', icon: IconRepeat },
   { href: '/app/contracts', label: 'Contracts', icon: IconFileText },
+  { href: '/app/skip-trace', label: 'Skip Trace', icon: IconAddressBook },
   { href: '/app/favorites', label: 'Favorites', icon: IconHeart },
   { href: '/app/alerts', label: 'Alerts', icon: IconBell },
 ];
