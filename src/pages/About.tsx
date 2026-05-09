@@ -97,18 +97,18 @@ export default function About() {
       />
 
       {/* ===== HERO ===== */}
-      <section className="relative bg-gradient-to-b from-[#0a0a0a] via-[#0f0f0f] to-[#0a0a0a] text-white overflow-hidden">
+      <section className="relative bg-gradient-to-b from-background via-card to-background text-foreground overflow-hidden">
         <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" fill="rgba(6, 182, 212, 0.15)" />
         <div className="relative container mx-auto max-w-5xl px-4 pt-28 pb-20 text-center">
           <motion.p {...heroFadeUp(0)} className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-6">ABOUT</motion.p>
-          <motion.h1 {...heroFadeUp(0.1)} className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[0.95] text-white mb-6">
+          <motion.h1 {...heroFadeUp(0.1)} className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[0.95] text-foreground mb-6">
             Built by Investors,
             <br />
             <span className="bg-gradient-to-r from-cyan-500 via-cyan-400 to-cyan-500 bg-clip-text text-transparent">
               For Investors.
             </span>
           </motion.h1>
-          <motion.p {...heroFadeUp(0.2)} className="text-lg md:text-xl text-white/50 max-w-2xl mx-auto leading-relaxed font-light">
+          <motion.p {...heroFadeUp(0.2)} className="text-lg md:text-xl text-foreground/50 max-w-2xl mx-auto leading-relaxed font-light">
             We believe every investor deserves the same analytical edge that top firms have. AIWholesail puts AI-powered deal finding and market intelligence in your hands -- so the best deals are never out of reach.
           </motion.p>
         </div>
@@ -121,7 +121,7 @@ export default function About() {
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
             Three principles behind every feature.
           </h2>
-          <p className="text-lg text-neutral-400 font-light max-w-xl mb-16">
+          <p className="text-lg text-muted-foreground font-light max-w-xl mb-16">
             These values guide every decision we make and every tool we build.
           </p>
 
@@ -130,13 +130,13 @@ export default function About() {
               <motion.div
                 key={item.title}
                 {...cardFadeIn(index)}
-                className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-8 group hover:border-cyan-500/20 transition-all duration-300"
+                className="bg-foreground/[0.03] border border-foreground/[0.06] rounded-xl p-8 group hover:border-cyan-500/20 transition-all duration-300"
               >
                 <div className="w-12 h-12 rounded-xl bg-cyan-500/10 flex items-center justify-center mb-6 group-hover:bg-cyan-500/20 transition-colors">
                   <item.icon className="h-6 w-6 text-cyan-400" />
                 </div>
                 <h3 className="text-lg font-bold tracking-tight mb-3">{item.title}</h3>
-                <p className="text-neutral-400 leading-relaxed font-light">
+                <p className="text-muted-foreground leading-relaxed font-light">
                   {item.description}
                 </p>
               </motion.div>
@@ -146,14 +146,14 @@ export default function About() {
       </motion.section>
 
       {/* ===== OUR STORY -- LIGHT (muted bg) ===== */}
-      <motion.section className="py-24 px-4 bg-white/[0.02]" {...sectionFadeIn}>
+      <motion.section className="py-24 px-4 bg-foreground/[0.02]" {...sectionFadeIn}>
         <div className="container mx-auto max-w-4xl">
           <p className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-4 text-center">Our Story</p>
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-center mb-12">
             Why we built AIWholesail.
           </h2>
 
-          <div className="space-y-6 text-neutral-400 font-light leading-relaxed text-base md:text-lg">
+          <div className="space-y-6 text-muted-foreground font-light leading-relaxed text-base md:text-lg">
             <p>
               We started AIWholesail because finding profitable real estate
               deals should not require a team of analysts, a massive data
@@ -184,13 +184,13 @@ export default function About() {
       </motion.section>
 
       {/* ===== BY THE NUMBERS -- DARK ===== */}
-      <motion.section className="bg-[#0a0a0a] text-white py-24 px-4" {...sectionFadeIn}>
+      <motion.section className="bg-background text-foreground py-24 px-4" {...sectionFadeIn}>
         <div className="container mx-auto max-w-7xl">
           <p className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-4 text-center">By the Numbers</p>
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-center mb-4">
             The scale of our platform means more opportunities for you.
           </h2>
-          <p className="text-lg text-white/60 font-light max-w-2xl mx-auto text-center mb-16">
+          <p className="text-lg text-foreground/60 font-light max-w-2xl mx-auto text-center mb-16">
             Our platform grows every day -- and so does your edge.
           </p>
 
@@ -199,13 +199,13 @@ export default function About() {
               <motion.div
                 key={stat.label}
                 {...cardFadeIn(index)}
-                className="bg-white/5 border border-white/10 rounded-2xl p-8 text-center hover:bg-white/10 transition-colors"
+                className="bg-foreground/5 border border-foreground/10 rounded-2xl p-8 text-center hover:bg-foreground/10 transition-colors"
               >
                 <stat.icon className="h-6 w-6 text-cyan-400 mx-auto mb-4" />
                 <div className="text-4xl md:text-5xl font-bold tracking-tight mb-2">
                   {stat.value}
                 </div>
-                <p className="text-sm text-white/50 font-light">
+                <p className="text-sm text-foreground/50 font-light">
                   {stat.label}
                 </p>
               </motion.div>
@@ -215,7 +215,7 @@ export default function About() {
       </motion.section>
 
       {/* Fade dark to white */}
-      <div className="h-24 bg-gradient-to-b from-[#0a0a0a] to-[#08090a]" />
+      <div className="h-24 bg-gradient-to-b from-background to-background" />
 
       {/* ===== CTA -- LIGHT ===== */}
       <motion.section className="py-24 px-4" {...sectionFadeIn}>
@@ -223,7 +223,7 @@ export default function About() {
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight leading-tight mb-6">
             Ready to find your next deal?
           </h2>
-          <p className="text-lg text-neutral-400 font-light max-w-2xl mx-auto mb-10">
+          <p className="text-lg text-muted-foreground font-light max-w-2xl mx-auto mb-10">
             Join thousands of investors using AIWholesail to uncover profitable opportunities faster than ever before.
           </p>
           <Link to="/pricing">
@@ -231,7 +231,7 @@ export default function About() {
               Start Your Free Trial <ArrowRight className="h-4 w-4" />
             </Button>
           </Link>
-          <div className="flex items-center justify-center gap-6 text-sm text-neutral-400 mt-6">
+          <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground mt-6">
             <span className="flex items-center gap-1.5"><Shield className="h-3.5 w-3.5 text-cyan-400" /> No Credit Card Required</span>
             <span className="flex items-center gap-1.5"><CheckCircle className="h-3.5 w-3.5 text-cyan-400" /> Cancel Anytime</span>
           </div>

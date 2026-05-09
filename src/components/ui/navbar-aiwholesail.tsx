@@ -111,7 +111,7 @@ export function NavbarAIWholesail() {
 
   return (
     <div className="fixed top-4 inset-x-0 z-50 mx-auto w-[95%] max-w-5xl">
-      <header className="rounded-2xl bg-neutral-950 shadow-xl shadow-black/50 ring-1 ring-white/10" style={{ boxShadow: '0 0 0 1px rgba(255,255,255,0.06) inset, 0 1px 0 0 rgba(255,255,255,0.03) inset, 0 -1px 0 0 rgba(0,0,0,0.2) inset, 0 8px 30px rgba(0,0,0,0.5), 0 2px 8px rgba(0,0,0,0.4)' }}>
+      <header className="rounded-2xl bg-card shadow-xl shadow-black/50 ring-1 ring-foreground/10" style={{ boxShadow: '0 0 0 1px rgba(255,255,255,0.06) inset, 0 1px 0 0 rgba(255,255,255,0.03) inset, 0 -1px 0 0 rgba(0,0,0,0.2) inset, 0 8px 30px rgba(0,0,0,0.5), 0 2px 8px rgba(0,0,0,0.4)' }}>
         <div className="px-4 sm:px-6">
           <div className="flex h-14 items-center justify-between gap-4">
             {/* Logo */}
@@ -134,7 +134,7 @@ export function NavbarAIWholesail() {
                   </Link>
                 ) : (
                   <>
-                    <Link to="/auth" className="rounded-md px-3 py-1.5 text-sm text-neutral-400 hover:text-white transition-colors">
+                    <Link to="/auth" className="rounded-md px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
                       Sign in
                     </Link>
                     <Link to="/pricing" className="rounded-md bg-gradient-to-b from-neutral-100 to-neutral-300 px-3 py-1.5 text-sm font-medium text-neutral-950 ring-1 ring-white/70 hover:from-white hover:to-neutral-200 transition-all" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3), 0 1px 0 0 rgba(255,255,255,0.9) inset, 0 -1px 0 0 rgba(0,0,0,0.08) inset' }}>
@@ -145,7 +145,7 @@ export function NavbarAIWholesail() {
               </div>
               <button
                 aria-label="Toggle menu"
-                className="relative inline-flex size-9 items-center justify-center rounded-md text-neutral-400 hover:bg-white/[0.06] hover:text-white lg:hidden"
+                className="relative inline-flex size-9 items-center justify-center rounded-md text-muted-foreground hover:bg-foreground/[0.06] hover:text-foreground lg:hidden"
                 onClick={() => setMobileOpen(s => !s)}
               >
                 {mobileOpen ? <IconX className="size-5" /> : <IconMenu2 className="size-5" />}
@@ -172,17 +172,17 @@ function DesktopNav({ activeDropdown, onOpen, onClose }: { activeDropdown: strin
       {dropdowns.map(dd => (
         <button
           key={dd.label}
-          className="inline-flex items-center gap-1 rounded-md px-3 py-2 text-sm text-neutral-400 hover:bg-white/[0.06] hover:text-white transition-colors"
+          className="inline-flex items-center gap-1 rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-foreground/[0.06] hover:text-foreground transition-colors"
           onMouseEnter={() => onOpen(dd.label)}
           onClick={() => activeDropdown === dd.label ? onClose() : onOpen(dd.label)}
           aria-expanded={activeDropdown === dd.label}
         >
           {dd.label}
-          <IconChevronDown className={`size-3.5 text-neutral-500 transition-transform duration-200 ${activeDropdown === dd.label ? "rotate-180" : ""}`} />
+          <IconChevronDown className={`size-3.5 text-muted-foreground transition-transform duration-200 ${activeDropdown === dd.label ? "rotate-180" : ""}`} />
         </button>
       ))}
       {plainLinks.map(link => (
-        <Link key={link.label} to={link.href} className="rounded-md px-3 py-2 text-sm text-neutral-400 hover:bg-white/[0.06] hover:text-white transition-colors" onMouseEnter={onClose}>
+        <Link key={link.label} to={link.href} className="rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-foreground/[0.06] hover:text-foreground transition-colors" onMouseEnter={onClose}>
           {link.label}
         </Link>
       ))}
@@ -201,7 +201,7 @@ function DesktopNav({ activeDropdown, onOpen, onClose }: { activeDropdown: strin
             <motion.div
               layout
               transition={springTransition}
-              className="overflow-hidden rounded-xl bg-neutral-900 p-2 ring-1 ring-white/10"
+              className="overflow-hidden rounded-xl bg-card p-2 ring-1 ring-white/10"
               style={{ boxShadow: '0 8px 30px rgba(0,0,0,0.5), 0 2px 8px rgba(0,0,0,0.4), 0 1px 0 0 rgba(255,255,255,0.06) inset, 0 -1px 0 0 rgba(0,0,0,0.2) inset' }}
             >
               <AnimatePresence mode="popLayout" initial={false}>
@@ -230,13 +230,13 @@ function DropdownContent({ config }: { config: DropdownConfig }) {
   return (
     <div className="grid w-[32rem] grid-cols-2 gap-0">
       <div className="p-1">
-        <p className="px-2 pt-2 pb-1.5 text-xs font-medium text-neutral-500">{heading1}</p>
+        <p className="px-2 pt-2 pb-1.5 text-xs font-medium text-muted-foreground">{heading1}</p>
         <ul className="grid gap-0.5">
           {col1.map(item => <li key={item.label}><LinkRow item={item} /></li>)}
         </ul>
       </div>
-      <div className="border-l border-white/[0.06] p-1">
-        <p className="px-2 pt-2 pb-1.5 text-xs font-medium text-neutral-500">{heading2}</p>
+      <div className="border-l border-foreground/[0.06] p-1">
+        <p className="px-2 pt-2 pb-1.5 text-xs font-medium text-muted-foreground">{heading2}</p>
         <ul className="grid gap-0.5">
           {col2.map(item => <li key={item.label}><LinkRow item={item} /></li>)}
         </ul>
@@ -247,13 +247,13 @@ function DropdownContent({ config }: { config: DropdownConfig }) {
 
 function LinkRow({ item }: { item: LinkItem }) {
   return (
-    <Link to={item.href} className="group flex items-start gap-3 rounded-md px-2 py-2 hover:bg-white/[0.06] transition-colors">
+    <Link to={item.href} className="group flex items-start gap-3 rounded-md px-2 py-2 hover:bg-foreground/[0.06] transition-colors">
       <div className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-md bg-neutral-800/80 ring-1 ring-white/[0.08] group-hover:bg-neutral-800" style={{ boxShadow: '0 1px 0 0 rgba(255,255,255,0.06) inset' }}>
-        <item.icon className="size-4 text-neutral-400 group-hover:text-white transition-colors" />
+        <item.icon className="size-4 text-muted-foreground group-hover:text-foreground transition-colors" />
       </div>
       <div className="min-w-0">
-        <p className="text-sm font-medium text-neutral-200 group-hover:text-white">{item.label}</p>
-        <p className="text-xs text-neutral-500 group-hover:text-neutral-400">{item.description}</p>
+        <p className="text-sm font-medium text-foreground group-hover:text-foreground">{item.label}</p>
+        <p className="text-xs text-muted-foreground group-hover:text-muted-foreground">{item.description}</p>
       </div>
     </Link>
   );
@@ -265,24 +265,24 @@ function MobileNav({ onClose, user }: { onClose: () => void; user: any }) {
       initial={{ opacity: 0, height: 0 }}
       animate={{ opacity: 1, height: "auto" }}
       exit={{ opacity: 0, height: 0 }}
-      className="overflow-hidden border-t border-white/[0.08] lg:hidden"
+      className="overflow-hidden border-t border-foreground/[0.08] lg:hidden"
     >
       <div className="px-4 py-4 sm:px-6">
         {dropdowns.map(dd => <MobileDropdown key={dd.label} config={dd} onClose={onClose} />)}
         {plainLinks.map(link => (
-          <Link key={link.label} to={link.href} onClick={onClose} className="flex items-center justify-between rounded-lg px-3 py-2.5 text-sm text-neutral-300 hover:bg-white/[0.06]">
+          <Link key={link.label} to={link.href} onClick={onClose} className="flex items-center justify-between rounded-lg px-3 py-2.5 text-sm text-foreground/80 hover:bg-foreground/[0.06]">
             <span>{link.label}</span>
-            <IconChevronRight className="size-4 text-neutral-500" />
+            <IconChevronRight className="size-4 text-muted-foreground" />
           </Link>
         ))}
-        <div className="mt-4 flex items-center justify-end gap-2 border-t border-white/[0.08] pt-4">
+        <div className="mt-4 flex items-center justify-end gap-2 border-t border-foreground/[0.08] pt-4">
           {user ? (
             <Link to="/app" onClick={onClose} className="rounded-md bg-gradient-to-b from-neutral-100 to-neutral-300 px-3 py-1.5 text-sm font-medium text-neutral-950 ring-1 ring-white/70" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.4), 0 1px 0 0 rgba(255,255,255,0.9) inset' }}>
               Dashboard
             </Link>
           ) : (
             <>
-              <Link to="/auth" onClick={onClose} className="rounded-md px-3 py-1.5 text-sm text-neutral-400 hover:text-white">Sign in</Link>
+              <Link to="/auth" onClick={onClose} className="rounded-md px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground">Sign in</Link>
               <Link to="/pricing" onClick={onClose} className="rounded-md bg-gradient-to-b from-neutral-100 to-neutral-300 px-3 py-1.5 text-sm font-medium text-neutral-950 ring-1 ring-white/70" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.4), 0 1px 0 0 rgba(255,255,255,0.9) inset' }}>
                 Get started
               </Link>
@@ -300,20 +300,20 @@ function MobileDropdown({ config, onClose }: { config: DropdownConfig; onClose: 
 
   return (
     <div>
-      <button className="flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-sm text-neutral-300 hover:bg-white/[0.06]" onClick={() => setOpen(s => !s)}>
+      <button className="flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-sm text-foreground/80 hover:bg-foreground/[0.06]" onClick={() => setOpen(s => !s)}>
         <span>{config.label}</span>
-        <IconChevronDown className={`size-4 text-neutral-500 transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
+        <IconChevronDown className={`size-4 text-muted-foreground transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
       </button>
       <AnimatePresence initial={false}>
         {open && (
           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
             <div className="py-1 pl-3">
               {allItems.map(item => (
-                <Link key={item.label} to={item.href} onClick={onClose} className="flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-white/[0.06]">
-                  <item.icon className="size-4 shrink-0 text-neutral-500" />
+                <Link key={item.label} to={item.href} onClick={onClose} className="flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-foreground/[0.06]">
+                  <item.icon className="size-4 shrink-0 text-muted-foreground" />
                   <div className="min-w-0">
-                    <p className="text-sm text-neutral-300">{item.label}</p>
-                    <p className="text-xs text-neutral-500">{item.description}</p>
+                    <p className="text-sm text-foreground/80">{item.label}</p>
+                    <p className="text-xs text-muted-foreground">{item.description}</p>
                   </div>
                 </Link>
               ))}

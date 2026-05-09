@@ -16,8 +16,8 @@ const GradientInput = ({ className, type, ...props }: React.ComponentProps<'inpu
   <input
     type={type}
     className={cn(
-      'flex h-11 w-full rounded-xl border bg-neutral-900 px-4 py-2 text-sm text-white placeholder:text-neutral-500 transition-all outline-none',
-      'border-white/[0.08] focus:border-cyan-500/40 focus:ring-2 focus:ring-cyan-500/20',
+      'flex h-11 w-full rounded-xl border bg-card px-4 py-2 text-sm text-foreground placeholder:text-muted-foreground transition-all outline-none',
+      'border-foreground/[0.08] focus:border-cyan-500/40 focus:ring-2 focus:ring-cyan-500/20',
       'shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.3),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)]',
       className
     )}
@@ -27,7 +27,7 @@ const GradientInput = ({ className, type, ...props }: React.ComponentProps<'inpu
 
 const GradientLabel = ({ className, ...props }: React.ComponentProps<typeof LabelPrimitive.Root>) => (
   <LabelPrimitive.Root
-    className={cn('text-sm font-medium text-neutral-200 select-none', className)}
+    className={cn('text-sm font-medium text-foreground select-none', className)}
     {...props}
   />
 );
@@ -266,7 +266,7 @@ export default function Auth() {
         noIndex={false}
       />
 
-      <section className="relative bg-[#08090a] text-white min-h-[calc(100vh-80px)]">
+      <section className="relative bg-background text-foreground min-h-[calc(100vh-80px)]">
         <div className="mx-auto max-w-7xl py-10 md:py-20">
           <div className="grid grid-cols-1 gap-10 px-4 md:grid-cols-2 md:px-8 lg:gap-20">
 
@@ -279,10 +279,10 @@ export default function Auth() {
                 </picture>
               </Link>
 
-              <h1 className="text-left text-3xl font-bold tracking-tight text-white lg:text-5xl">
+              <h1 className="text-left text-3xl font-bold tracking-tight text-foreground lg:text-5xl">
                 {isReset ? 'Reset your password' : isSignUp ? 'Create your account' : 'Welcome back'}
               </h1>
-              <p className="mt-3 max-w-md text-left text-sm font-medium text-neutral-400 lg:text-base">
+              <p className="mt-3 max-w-md text-left text-sm font-medium text-muted-foreground lg:text-base">
                 {isReset
                   ? 'Enter your new password below to regain access.'
                   : isSignUp
@@ -296,7 +296,7 @@ export default function Auth() {
                   <div className="mt-8 space-y-4">
                     <CheckCircle className="h-12 w-12 text-cyan-400" />
                     <h3 className="text-xl font-semibold">Password Reset Successfully</h3>
-                    <p className="text-sm text-neutral-400">You can now sign in with your new password.</p>
+                    <p className="text-sm text-muted-foreground">You can now sign in with your new password.</p>
                     <GradientButton onClick={() => { setIsReset(false); setResetSuccess(false); }}>
                       Sign In <ArrowRight className="inline h-4 w-4 ml-2" />
                     </GradientButton>
@@ -314,11 +314,11 @@ export default function Auth() {
                           required
                           minLength={8}
                         />
-                        <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white">
+                        <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
                           {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                         </button>
                       </div>
-                      <p className="mt-1.5 text-xs text-neutral-500">Min 8 characters with uppercase, lowercase, number, and special character</p>
+                      <p className="mt-1.5 text-xs text-muted-foreground">Min 8 characters with uppercase, lowercase, number, and special character</p>
                     </div>
                     <div>
                       <GradientLabel>Confirm Password</GradientLabel>
@@ -353,7 +353,7 @@ export default function Auth() {
                         />
                       </div>
                       <div>
-                        <GradientLabel>Phone Number <span className="text-neutral-500 font-normal">(optional)</span></GradientLabel>
+                        <GradientLabel>Phone Number <span className="text-muted-foreground font-normal">(optional)</span></GradientLabel>
                         <GradientInput
                           className="mt-2"
                           type="tel"
@@ -386,12 +386,12 @@ export default function Auth() {
                         required
                         minLength={8}
                       />
-                      <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white">
+                      <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
                         {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </button>
                     </div>
                     {isSignUp && (
-                      <p className="mt-1.5 text-xs text-neutral-500">Min 8 characters with uppercase, lowercase, number, and special character</p>
+                      <p className="mt-1.5 text-xs text-muted-foreground">Min 8 characters with uppercase, lowercase, number, and special character</p>
                     )}
                     {!isSignUp && (
                       <div className="mt-2 text-right">
@@ -430,13 +430,13 @@ export default function Auth() {
               )}
 
               {/* Trust + Switch mode */}
-              <div className="mt-6 flex items-center gap-4 text-xs text-neutral-500">
+              <div className="mt-6 flex items-center gap-4 text-xs text-muted-foreground">
                 <span className="flex items-center gap-1.5"><Shield className="h-3.5 w-3.5 text-cyan-400" /> Secure</span>
                 <span className="flex items-center gap-1.5"><CheckCircle className="h-3.5 w-3.5 text-cyan-400" /> 10,000+ Users</span>
               </div>
               {!isReset && (
                 <div className="mt-4">
-                  <span className="text-sm text-neutral-400">
+                  <span className="text-sm text-muted-foreground">
                     {isSignUp ? 'Already have an account? ' : "Don't have an account? "}
                   </span>
                   <button
@@ -451,7 +451,7 @@ export default function Auth() {
             </div>
 
             {/* ===== RIGHT: PRODUCT SCREENSHOT ===== */}
-            <div className="relative hidden min-h-[500px] flex-col items-start justify-end overflow-hidden rounded-2xl bg-black md:flex">
+            <div className="relative hidden min-h-[500px] flex-col items-start justify-end overflow-hidden rounded-2xl bg-background md:flex">
               <picture>
                 <source srcSet="/auth-preview.webp" type="image/webp" />
                 <img
