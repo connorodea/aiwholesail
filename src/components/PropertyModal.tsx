@@ -23,6 +23,8 @@ import {
   Mail,
   BadgeCheck,
   FileText,
+  Sparkles,
+  Crown,
   Link2,
   Copy,
   CheckCircle2,
@@ -46,6 +48,9 @@ import { TaxCarryingCosts } from './TaxCarryingCosts';
 import { ARVCalculator } from './ARVCalculator';
 import { AIPhotoAnalysis } from './AIPhotoAnalysis';
 import { generateDealReport } from './DealReportPDF';
+import { generateBuyerPitch } from './BuyerPitchPDF';
+import { useSubscription } from '@/hooks/useSubscription';
+import { useAuth } from '@/contexts/AuthContext';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useLeads } from '@/hooks/useLeads';
 import { analytics } from '@/lib/analytics';
@@ -61,6 +66,20 @@ interface PropertyModalProps {
 export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps) {
   const { addToFavorites, removeFromFavorites, isFavorite } = useFavorites();
   const { exportLead } = useLeads();
+  const { isElite } = useSubscription();
+  const { user } = useAuth();
+
+  const handleBuyerPitch = () => {
+    if (!isElite) {
+      toast.error('Buyer Pitch PDF is an Elite feature. Upgrade to unlock.');
+      return;
+    }
+    generateBuyerPitch(displayProperty, {
+      wholesalerName: user?.fullName || user?.email?.split('@')[0],
+      wholesalerEmail: user?.email,
+    });
+    analytics.dataExport?.('buyer-pitch-pdf', 1);
+  };
   const [copiedField, setCopiedField] = React.useState<string | null>(null);
   const [enrichedProperty, setEnrichedProperty] = useState<Property | null>(null);
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
@@ -328,6 +347,16 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                   <FileText className="h-4 w-4" />
                   <span className="hidden xl:inline">PDF</span>
                 </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleBuyerPitch}
+                  title={isElite ? 'Generate buyer-ready deal sheet' : 'Elite feature — upgrade to unlock'}
+                  className={`gap-1.5 h-9 rounded-lg border-cyan-500/40 ${isElite ? 'text-cyan-400 hover:bg-cyan-500/10' : 'text-neutral-500'}`}
+                >
+                  {isElite ? <Sparkles className="h-4 w-4" /> : <Crown className="h-4 w-4" />}
+                  <span className="hidden xl:inline">Buyer Pitch</span>
+                </Button>
                 <AddToPipelineButton property={displayProperty} variant="full" size="sm" />
               </div>
             </div>
@@ -346,6 +375,15 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                 <Button variant="outline" size="sm" onClick={() => generateDealReport(displayProperty)} className="gap-1.5 h-9 rounded-lg border-border/50 flex-shrink-0">
                   <FileText className="h-4 w-4" />
                   PDF
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleBuyerPitch}
+                  className={`gap-1.5 h-9 rounded-lg border-cyan-500/40 flex-shrink-0 ${isElite ? 'text-cyan-400' : 'text-neutral-500'}`}
+                >
+                  {isElite ? <Sparkles className="h-4 w-4" /> : <Crown className="h-4 w-4" />}
+                  Buyer Pitch
                 </Button>
                 <AddToPipelineButton property={displayProperty} variant="full" size="sm" />
               </div>
