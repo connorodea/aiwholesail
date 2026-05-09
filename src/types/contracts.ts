@@ -1,4 +1,4 @@
-export type ContractType = 'assignment_agreement' | 'purchase_agreement' | 'letter_of_intent';
+export type ContractType = 'assignment_agreement' | 'purchase_agreement' | 'letter_of_intent' | 'proof_of_funds';
 
 export interface ContractParty {
   name: string;
@@ -22,6 +22,18 @@ export interface ContractTerms {
   closingAgent: string;
 }
 
+export interface ProofOfFundsData {
+  amount: number;
+  expirationDate: string;
+  fundsSource: string;
+  issuerName: string;
+  issuerEntity: string;
+  issuerTitle: string;
+  issuerAddress: string;
+  issuerPhone: string;
+  issuerEmail: string;
+}
+
 export interface ContractData {
   contractType: ContractType;
   propertyAddress: string;
@@ -30,6 +42,7 @@ export interface ContractData {
   buyer: ContractParty;
   assignee: ContractParty;
   terms: ContractTerms;
+  proofOfFunds?: ProofOfFundsData;
 }
 
 export interface GeneratedContract {
@@ -62,6 +75,12 @@ export const CONTRACT_TYPES = [
     description: 'Non-binding letter expressing intent to purchase a property',
     icon: 'FileSignature',
   },
+  {
+    type: 'proof_of_funds' as ContractType,
+    label: 'Proof of Funds',
+    description: 'Letter showing you have the funds available to close on a property',
+    icon: 'Wallet',
+  },
 ] as const;
 
 export const DEFAULT_PARTY: ContractParty = {
@@ -84,4 +103,16 @@ export const DEFAULT_TERMS: ContractTerms = {
   additionalTerms: '',
   titleCompany: '',
   closingAgent: '',
+};
+
+export const DEFAULT_PROOF_OF_FUNDS: ProofOfFundsData = {
+  amount: 0,
+  expirationDate: '',
+  fundsSource: 'Cash reserves and committed lines of credit',
+  issuerName: '',
+  issuerEntity: '',
+  issuerTitle: '',
+  issuerAddress: '',
+  issuerPhone: '',
+  issuerEmail: '',
 };

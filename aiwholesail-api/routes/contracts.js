@@ -79,10 +79,26 @@ router.get('/lead/:leadId', authenticate, [
  * Generate a contract PDF and save the record
  */
 router.post('/generate', authenticate, [
-  body('contractType').isIn(['assignment_agreement', 'purchase_agreement', 'letter_of_intent']).withMessage('Valid contract type required'),
-  body('propertyAddress').notEmpty().withMessage('Property address required'),
-  body('seller').isObject().withMessage('Seller data required'),
+  body('contractType').isIn(['assignment_agreement', 'purchase_agreement', 'letter_of_intent', 'proof_of_funds']).withMessage('Valid contract type required'),
   body('buyer').isObject().withMessage('Buyer data required'),
+  // Property + seller required for everything except POF
+  body('propertyAddress').custom((val, { req }) => {
+    if (req.body.contractType === 'proof_of_funds') return true;
+    if (!val) throw new Error('Property address required');
+    return true;
+  }),
+  body('seller').custom((val, { req }) => {
+    if (req.body.contractType === 'proof_of_funds') return true;
+    if (!val || typeof val !== 'object') throw new Error('Seller data required');
+    return true;
+  }),
+  // POF-specific: amount must be positive
+  body('proofOfFunds.amount').custom((val, { req }) => {
+    if (req.body.contractType !== 'proof_of_funds') return true;
+    const n = Number(val);
+    if (!Number.isFinite(n) || n <= 0) throw new Error('Proof-of-funds amount must be a positive number');
+    return true;
+  }),
 ], asyncHandler(async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -147,6 +163,7 @@ const CONTRACT_TITLES = {
   assignment_agreement: 'WHOLESALE ASSIGNMENT OF CONTRACT',
   purchase_agreement: 'REAL ESTATE PURCHASE AGREEMENT',
   letter_of_intent: 'LETTER OF INTENT TO PURCHASE',
+  proof_of_funds: 'PROOF OF FUNDS',
 };
 
 function formatCurrency(amount) {
@@ -166,6 +183,167 @@ function formatDate(dateStr) {
   });
 }
 
+function renderProofOfFunds(doc, data) {
+  const { propertyAddress, buyer = {}, proofOfFunds = {} } = data;
+
+  // Issuer falls back to buyer if not separately provided
+  const issuer = {
+    name: proofOfFunds.issuerName || buyer.name || '',
+    entity: proofOfFunds.issuerEntity || buyer.entity || '',
+    title: proofOfFunds.issuerTitle || '',
+    address: proofOfFunds.issuerAddress || buyer.address || '',
+    phone: proofOfFunds.issuerPhone || buyer.phone || '',
+    email: proofOfFunds.issuerEmail || buyer.email || '',
+  };
+
+  const todayIso = new Date().toISOString();
+  const expIso = proofOfFunds.expirationDate || '';
+  const amountStr = brandFormatCurrency(proofOfFunds.amount);
+
+  drawPageHeader(doc, {
+    subtitle: 'PROOF OF FUNDS',
+    date: brandFormatDate(todayIso),
+  });
+
+  // Title
+  doc.y = 90;
+  doc
+    .font('Helvetica-Bold')
+    .fontSize(22)
+    .fillColor(COLORS.ink)
+    .text('PROOF OF FUNDS LETTER', PAGE.MARGIN, doc.y, {
+      width: doc.page.width - PAGE.MARGIN * 2,
+      align: 'center',
+    });
+  doc.moveDown(0.3);
+  doc
+    .font('Helvetica')
+    .fontSize(9)
+    .fillColor(COLORS.muted)
+    .text(`Issued ${brandFormatDate(todayIso)}`, {
+      width: doc.page.width - PAGE.MARGIN * 2,
+      align: 'center',
+    });
+  doc.moveDown(2);
+
+  // Salutation
+  doc
+    .font('Helvetica-Bold')
+    .fontSize(11)
+    .fillColor(COLORS.ink)
+    .text('TO WHOM IT MAY CONCERN:', PAGE.MARGIN, doc.y);
+  doc.moveDown(1);
+
+  // Attestation paragraph
+  const buyerLabel = buyer.entity
+    ? `${buyer.name} (${buyer.entity})`
+    : (buyer.name || '_______________');
+
+  const propertyClause = propertyAddress
+    ? ` for the purchase of the property located at ${propertyAddress}`
+    : '';
+
+  doc
+    .font('Helvetica')
+    .fontSize(11)
+    .fillColor(COLORS.text)
+    .text(
+      `This letter confirms that ${buyerLabel} has the financial resources readily available to ` +
+      `complete a real estate transaction${propertyClause}. The funds are unencumbered, in good standing, ` +
+      `and immediately accessible for closing.`,
+      PAGE.MARGIN,
+      doc.y,
+      {
+        width: doc.page.width - PAGE.MARGIN * 2,
+        align: 'left',
+        lineGap: 2,
+      }
+    );
+  doc.moveDown(1.2);
+
+  // Headline amount callout
+  drawCallout(
+    doc,
+    `Funds available: ${amountStr}\n` +
+    (proofOfFunds.fundsSource ? `Source: ${proofOfFunds.fundsSource}\n` : '') +
+    (expIso ? `Letter valid through: ${brandFormatDate(expIso)}` : 'Letter valid for 30 days from issuance'),
+    { title: 'Verified Funds', tone: 'cyan' }
+  );
+
+  // Verification block
+  if (issuer.phone || issuer.email) {
+    drawSectionHeader(doc, 'Verification');
+    doc.font('Helvetica').fontSize(10).fillColor(COLORS.text);
+    doc.text(
+      'For verification of these funds, please contact the issuer below directly:',
+      { width: doc.page.width - PAGE.MARGIN * 2 }
+    );
+    doc.moveDown(0.4);
+    if (issuer.phone) doc.text(`Phone: ${issuer.phone}`);
+    if (issuer.email) doc.text(`Email: ${issuer.email}`);
+    doc.moveDown(0.8);
+  }
+
+  // Sign-off
+  doc.moveDown(1);
+  doc
+    .font('Helvetica')
+    .fontSize(11)
+    .fillColor(COLORS.text)
+    .text('Sincerely,', PAGE.MARGIN, doc.y);
+  doc.moveDown(2.5);
+
+  // Signature line
+  const sigLineW = 260;
+  const sigStartY = doc.y;
+  doc
+    .save()
+    .moveTo(PAGE.MARGIN, sigStartY)
+    .lineTo(PAGE.MARGIN + sigLineW, sigStartY)
+    .lineWidth(0.6)
+    .strokeColor(COLORS.ink)
+    .stroke()
+    .restore();
+  doc.y = sigStartY + 4;
+
+  doc
+    .font('Helvetica-Bold')
+    .fontSize(11)
+    .fillColor(COLORS.ink)
+    .text(issuer.name || '_______________', PAGE.MARGIN, doc.y);
+
+  if (issuer.title || issuer.entity) {
+    doc
+      .font('Helvetica')
+      .fontSize(9.5)
+      .fillColor(COLORS.muted)
+      .text(
+        [issuer.title, issuer.entity].filter(Boolean).join(' · '),
+        PAGE.MARGIN,
+        doc.y
+      );
+  }
+  if (issuer.address) {
+    doc
+      .font('Helvetica')
+      .fontSize(9)
+      .fillColor(COLORS.muted)
+      .text(issuer.address, PAGE.MARGIN, doc.y);
+  }
+  doc.moveDown(2);
+
+  // Disclaimer (POF is a self-attestation unless from a financial institution)
+  drawCallout(
+    doc,
+    'This Proof of Funds is provided as a good-faith representation of available funds at the time of issuance ' +
+    'and does not constitute a commitment to lend or guarantee of closing. Recipients are encouraged to verify ' +
+    'directly with the issuer using the contact information above.',
+    { title: 'Notice', tone: 'amber' }
+  );
+
+  drawFooter(doc, { tagline: 'Proof of Funds · verify directly with issuer' });
+}
+
 async function generateContractPdf(contractType, data) {
   return new Promise((resolve, reject) => {
     // bufferPages required so footer can paint on every page after content
@@ -178,6 +356,12 @@ async function generateContractPdf(contractType, data) {
       resolve(pdfBuffer.toString('base64'));
     });
     doc.on('error', reject);
+
+    if (contractType === 'proof_of_funds') {
+      renderProofOfFunds(doc, data);
+      doc.end();
+      return;
+    }
 
     const { propertyAddress, propertyLegalDescription, seller, buyer, assignee, terms } = data;
     const titleText = CONTRACT_TITLES[contractType] || 'CONTRACT';
