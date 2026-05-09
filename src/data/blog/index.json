@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-san-francisco-ca-a-practical-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in San Francisco CA: A Practical Investor's Guide for 2024",
+      "excerpt": "San Francisco's real estate market is one of the most competitive in the country, but profitable deals still exist for investors who know where to look. This guide breaks down the best neighborhoods, deal types, and strategies for finding real estate deals in San Francisco CA.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-09T18:01:14.107Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in San Francisco CA",
+        "San Francisco investment properties",
+        "wholesale real estate San Francisco",
+        "fix and flip San Francisco",
+        "San Francisco rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-toledo-oh-the-investor-s-complete-guide-to-this-underrated-",
       "title": "Real Estate Deals in Toledo OH: The Investor's Complete Guide to This Underrated Market",
       "excerpt": "Toledo, Ohio is quietly becoming one of the Midwest's most attractive markets for real estate investors, with low entry prices and strong rental demand. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Toledo OH.",
@@ -15,7 +32,7 @@
         "Toledo rental properties",
         "Toledo Ohio home prices"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-wichita-ks-the-investor-s-complete-guide-for-2024",
