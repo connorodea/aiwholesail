@@ -13,6 +13,20 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Download, Trophy, X } from 'lucide-react';
 import jsPDF from 'jspdf';
+import {
+  PAGE,
+  BRAND_INK,
+  BRAND_MUTED,
+  BRAND_DIVIDER,
+  BRAND_PAPER,
+  SUCCESS_GREEN,
+  drawPageHeader,
+  drawCallout,
+  drawFooter,
+  drawDisclaimer,
+  safeFilename,
+  humanize,
+} from '@/lib/pdf-brand';
 
 interface PropertyComparisonProps {
   properties: Property[];
@@ -205,74 +219,60 @@ function getTierColor(tier: WholesalePotential['tier']): string {
 // ---- PDF Export ----
 
 function generateComparisonPDF(properties: Property[]): void {
-  const ACCENT: [number, number, number] = [0, 150, 180];
-  const DARK: [number, number, number] = [30, 30, 30];
-  const MUTED: [number, number, number] = [120, 120, 120];
-  const LINE: [number, number, number] = [220, 220, 220];
-  const WHITE: [number, number, number] = [255, 255, 255];
-  const GREEN: [number, number, number] = [0, 150, 50];
-
-  const doc = new jsPDF('l', 'mm', 'a4'); // landscape for comparison
+  // Landscape A4 — 297mm × 210mm
+  const PAGE_W = 297;
+  const PAGE_H = 210;
+  const doc = new jsPDF('l', 'mm', 'a4');
   const reportDate = new Date().toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
   });
 
-  // Header
-  doc.setFillColor(...ACCENT);
-  doc.rect(0, 0, 297, 28, 'F');
-  doc.setTextColor(...WHITE);
-  doc.setFontSize(18);
-  doc.setFont('helvetica', 'bold');
-  doc.text('AIWholesail', 15, 13);
-  doc.setFontSize(10);
-  doc.setFont('helvetica', 'normal');
-  doc.text('Property Comparison Report', 15, 21);
-  doc.setFontSize(8);
-  doc.text(reportDate, 270, 21, { align: 'right' });
+  // ── Branded header ──
+  drawPageHeader(doc, {
+    subtitle: `Property Comparison · ${properties.length} properties`,
+    date: reportDate,
+    pageWidth: PAGE_W,
+  });
 
-  let y = 38;
-  const colCount = properties.length;
-  const labelWidth = 50;
-  const tableWidth = 267; // 297 - 30 margins
-  const colWidth = (tableWidth - labelWidth) / colCount;
-  const startX = 15;
+  let y = 36;
+  const startX = PAGE.MARGIN_X;
+  const labelWidth = 56;
+  const tableWidth = PAGE_W - PAGE.MARGIN_X * 2;
+  const colWidth = (tableWidth - labelWidth) / properties.length;
 
-  // Column headers (property addresses)
-  doc.setFillColor(240, 240, 240);
+  // ── Column headers (property addresses) ──
+  doc.setFillColor(...BRAND_PAPER);
   doc.rect(startX, y, tableWidth, 14, 'F');
   doc.setFontSize(8);
   doc.setFont('helvetica', 'bold');
-  doc.setTextColor(...DARK);
-  doc.text('Metric', startX + 4, y + 9);
+  doc.setTextColor(...BRAND_INK);
+  doc.text('METRIC', startX + 4, y + 9);
 
   properties.forEach((p, i) => {
     const x = startX + labelWidth + i * colWidth;
-    const addr = (p.address || 'N/A').substring(0, 30);
+    const addr = (p.address || '—').substring(0, 32);
     doc.text(addr, x + 2, y + 9);
   });
   y += 16;
 
-  // Best deal index
+  // ── Best deal index ──
   const bestIdx = getBestDealIndex(properties);
 
-  // Metrics rows
+  // ── Metric rows ──
   const allMetrics = [
     ...METRICS,
     {
       label: 'Deal Score',
       getValue: (p: Property) => calculateWholesalePotential(p).score,
-      format: (v: number | string | null) => (v != null ? `${v}/100` : 'N/A'),
+      format: (v: number | string | null) => (v != null ? `${v}/100` : '—'),
       bestFn: 'highest' as const,
     },
     {
       label: 'Deal Tier',
       getValue: (p: Property) => calculateWholesalePotential(p).tier,
-      format: (v: number | string | null) => {
-        if (v == null) return 'N/A';
-        return String(v).charAt(0).toUpperCase() + String(v).slice(1);
-      },
+      format: (v: number | string | null) => (v == null ? '—' : humanize(String(v))),
       bestFn: 'none' as const,
     },
   ];
@@ -281,14 +281,15 @@ function generateComparisonPDF(properties: Property[]): void {
     const values = properties.map((p) => metric.getValue(p));
     const best = findBestIndex(values, metric.bestFn);
 
+    // Zebra-stripe rows for readability
     if (rowIdx % 2 === 0) {
-      doc.setFillColor(248, 248, 248);
-      doc.rect(startX, y - 1, tableWidth, 7, 'F');
+      doc.setFillColor(250, 250, 250);
+      doc.rect(startX, y - 1.2, tableWidth, 7, 'F');
     }
 
     doc.setFontSize(8);
     doc.setFont('helvetica', 'bold');
-    doc.setTextColor(...MUTED);
+    doc.setTextColor(...BRAND_MUTED);
     doc.text(metric.label, startX + 4, y + 4);
 
     properties.forEach((_, i) => {
@@ -298,62 +299,41 @@ function generateComparisonPDF(properties: Property[]): void {
 
       if (best === i) {
         doc.setFont('helvetica', 'bold');
-        doc.setTextColor(...GREEN);
+        doc.setTextColor(...SUCCESS_GREEN);
       } else {
         doc.setFont('helvetica', 'normal');
-        doc.setTextColor(...DARK);
+        doc.setTextColor(...BRAND_INK);
       }
       doc.text(formatted, x + 2, y + 4);
     });
 
-    doc.setDrawColor(...LINE);
+    doc.setDrawColor(...BRAND_DIVIDER);
     doc.setLineWidth(0.2);
     doc.line(startX, y + 6, startX + tableWidth, y + 6);
     y += 7;
   });
 
-  // Best Deal recommendation
-  y += 6;
-  doc.setFillColor(...GREEN);
-  doc.rect(startX, y, tableWidth, 10, 'F');
-  doc.setTextColor(...WHITE);
-  doc.setFontSize(10);
-  doc.setFont('helvetica', 'bold');
-  const bestAddr = properties[bestIdx]?.address || 'N/A';
-  doc.text(
-    `Best Deal Recommendation: ${bestAddr.substring(0, 60)}`,
-    startX + 4,
-    y + 7
+  // ── Best deal recommendation as a branded callout ──
+  y += 4;
+  const bestAddr = properties[bestIdx]?.address || '—';
+  const winner = calculateWholesalePotential(properties[bestIdx]);
+  y = drawCallout(
+    doc,
+    `${bestAddr} — score ${winner.score}/100, ${humanize(winner.tier)} tier. ` +
+      `Spread: $${(winner.spreadAmount || 0).toLocaleString()} (${(winner.spreadPercentage || 0).toFixed(1)}%).`,
+    y,
+    { title: 'Best Deal Recommendation', tone: 'green', pageWidth: PAGE_W }
   );
 
-  y += 16;
-
-  // Disclaimer
-  doc.setFontSize(7);
-  doc.setFont('helvetica', 'italic');
-  doc.setTextColor(...MUTED);
-  const disclaimer =
-    'This report is for informational purposes only and does not constitute financial, legal, or investment advice. ' +
-    'All figures are estimates based on available data. Always conduct independent due diligence.';
-  const lines = doc.splitTextToSize(disclaimer, tableWidth);
-  doc.text(lines, startX, y);
-
-  // Footer
-  const pageCount = doc.getNumberOfPages();
-  for (let i = 1; i <= pageCount; i++) {
-    doc.setPage(i);
-    doc.setFontSize(7);
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(...MUTED);
-    doc.text(
-      `Generated by AIWholesail.com | ${reportDate}`,
-      148,
-      200,
-      { align: 'center' }
-    );
+  // ── Disclaimer ──
+  if (y < PAGE_H - 40) {
+    drawDisclaimer(doc, y, PAGE_W);
   }
 
-  doc.save('AIWholesail_Property_Comparison.pdf');
+  // ── Footer ──
+  drawFooter(doc, { pageWidth: PAGE_W, pageHeight: PAGE_H, date: reportDate });
+
+  doc.save(`AIWholesail_Comparison_${safeFilename([new Date().toISOString().slice(0, 10)])}.pdf`);
 }
 
 // ---- Component ----
