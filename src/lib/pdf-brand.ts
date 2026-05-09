@@ -16,6 +16,13 @@
 
 import jsPDF from 'jspdf';
 
+// jsPDF's GState (graphics state — opacity etc.) isn't in @types/jspdf,
+// so we declare the surface we use locally to avoid `as any`.
+type JsPDFWithGState = jsPDF & {
+  GState: new (opts: { opacity: number }) => unknown;
+  setGState: (state: unknown) => void;
+};
+
 // ============================================================================
 // COLORS (RGB tuples — jsPDF API)
 // ============================================================================
@@ -334,10 +341,11 @@ export function drawCallout(
   const h = padY + titleH + lines.length * 4 + padY;
 
   // Background tint
+  const g = doc as JsPDFWithGState;
   doc.setFillColor(accent[0], accent[1], accent[2]);
-  doc.setGState(new (doc as any).GState({ opacity: 0.06 }));
+  g.setGState(new g.GState({ opacity: 0.06 }));
   doc.rect(x, y, w, h, 'F');
-  doc.setGState(new (doc as any).GState({ opacity: 1 }));
+  g.setGState(new g.GState({ opacity: 1 }));
 
   // Left accent bar
   doc.setFillColor(...accent);
