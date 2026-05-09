@@ -4,6 +4,16 @@ const { query } = require('../config/database');
 const { authenticate } = require('../middleware/auth');
 const { asyncHandler } = require('../middleware/errorHandler');
 const PDFDocument = require('pdfkit');
+const {
+  COLORS,
+  PAGE,
+  drawPageHeader,
+  drawSectionHeader,
+  drawCallout,
+  drawFooter,
+  formatCurrency: brandFormatCurrency,
+  formatDate: brandFormatDate,
+} = require('../lib/pdfBrand');
 
 const router = express.Router();
 
@@ -158,7 +168,8 @@ function formatDate(dateStr) {
 
 async function generateContractPdf(contractType, data) {
   return new Promise((resolve, reject) => {
-    const doc = new PDFDocument({ margin: 60, size: 'LETTER' });
+    // bufferPages required so footer can paint on every page after content
+    const doc = new PDFDocument({ margin: 60, size: 'LETTER', bufferPages: true });
     const buffers = [];
 
     doc.on('data', chunk => buffers.push(chunk));
@@ -169,61 +180,80 @@ async function generateContractPdf(contractType, data) {
     doc.on('error', reject);
 
     const { propertyAddress, propertyLegalDescription, seller, buyer, assignee, terms } = data;
+    const titleText = CONTRACT_TITLES[contractType] || 'CONTRACT';
 
-    // Title
-    doc.fontSize(16).font('Helvetica-Bold').text(CONTRACT_TITLES[contractType] || 'CONTRACT', { align: 'center' });
-    doc.moveDown(0.5);
-    doc.fontSize(10).font('Helvetica').text(`Date: ${formatDate(new Date().toISOString())}`, { align: 'center' });
+    // ── Branded header ──
+    drawPageHeader(doc, {
+      subtitle: titleText,
+      date: brandFormatDate(new Date().toISOString()),
+    });
+
+    // ── Document title (centered, large) ──
+    doc.y = 90;
+    doc
+      .font('Helvetica-Bold')
+      .fontSize(18)
+      .fillColor(COLORS.ink)
+      .text(titleText, PAGE.MARGIN, doc.y, {
+        width: doc.page.width - PAGE.MARGIN * 2,
+        align: 'center',
+      });
+    doc.moveDown(0.4);
+    doc
+      .font('Helvetica')
+      .fontSize(9)
+      .fillColor(COLORS.muted)
+      .text(`Executed ${brandFormatDate(new Date().toISOString())}`, {
+        width: doc.page.width - PAGE.MARGIN * 2,
+        align: 'center',
+      });
     doc.moveDown(1.5);
 
-    // Parties
-    doc.fontSize(12).font('Helvetica-Bold').text('PARTIES');
-    doc.moveDown(0.3);
-    doc.fontSize(10).font('Helvetica');
+    // ── Parties ──
+    drawSectionHeader(doc, 'Parties');
+    doc.font('Helvetica').fontSize(10).fillColor(COLORS.text);
 
     doc.text(`SELLER: ${seller?.name || '_______________'}${seller?.entity ? ` (${seller.entity})` : ''}`);
     doc.text(`Address: ${seller?.address || '_______________'}`);
-    doc.text(`Phone: ${seller?.phone || '_______________'}  Email: ${seller?.email || '_______________'}`);
-    doc.moveDown(0.5);
+    doc.text(`Phone: ${seller?.phone || '_______________'}  ·  Email: ${seller?.email || '_______________'}`);
+    doc.moveDown(0.6);
 
     doc.text(`BUYER: ${buyer?.name || '_______________'}${buyer?.entity ? ` (${buyer.entity})` : ''}`);
     doc.text(`Address: ${buyer?.address || '_______________'}`);
-    doc.text(`Phone: ${buyer?.phone || '_______________'}  Email: ${buyer?.email || '_______________'}`);
-    doc.moveDown(0.5);
+    doc.text(`Phone: ${buyer?.phone || '_______________'}  ·  Email: ${buyer?.email || '_______________'}`);
+    doc.moveDown(0.6);
 
     if (contractType === 'assignment_agreement' && assignee?.name) {
       doc.text(`ASSIGNEE: ${assignee.name}${assignee.entity ? ` (${assignee.entity})` : ''}`);
       doc.text(`Address: ${assignee.address || '_______________'}`);
-      doc.text(`Phone: ${assignee.phone || '_______________'}  Email: ${assignee.email || '_______________'}`);
-      doc.moveDown(0.5);
+      doc.text(`Phone: ${assignee.phone || '_______________'}  ·  Email: ${assignee.email || '_______________'}`);
+      doc.moveDown(0.6);
     }
-
-    // Property
     doc.moveDown(0.5);
-    doc.fontSize(12).font('Helvetica-Bold').text('PROPERTY');
-    doc.moveDown(0.3);
-    doc.fontSize(10).font('Helvetica');
+
+    // ── Property ──
+    drawSectionHeader(doc, 'Property');
+    doc.font('Helvetica').fontSize(10).fillColor(COLORS.text);
     doc.text(`Address: ${propertyAddress || '_______________'}`);
     if (propertyLegalDescription) {
       doc.text(`Legal Description: ${propertyLegalDescription}`);
     }
     doc.moveDown(1);
 
-    // Terms
-    doc.fontSize(12).font('Helvetica-Bold').text('TERMS AND CONDITIONS');
-    doc.moveDown(0.3);
-    doc.fontSize(10).font('Helvetica');
+    // ── Terms ──
+    drawSectionHeader(doc, 'Terms and Conditions');
+    doc.font('Helvetica').fontSize(10).fillColor(COLORS.text);
 
-    doc.text(`1. Purchase Price: ${formatCurrency(terms?.purchasePrice)}`);
-    doc.text(`2. Earnest Money Deposit: ${formatCurrency(terms?.earnestMoney)}`);
+    doc.text(`1. Purchase Price: ${brandFormatCurrency(terms?.purchasePrice)}`);
+    doc.text(`2. Earnest Money Deposit: ${brandFormatCurrency(terms?.earnestMoney)}`);
 
     if (contractType === 'assignment_agreement') {
-      doc.text(`3. Assignment Fee: ${formatCurrency(terms?.assignmentFee)}`);
+      doc.text(`3. Assignment Fee: ${brandFormatCurrency(terms?.assignmentFee)}`);
     }
 
-    doc.text(`${contractType === 'assignment_agreement' ? '4' : '3'}. Closing Date: ${formatDate(terms?.closingDate)}`);
+    doc.text(`${contractType === 'assignment_agreement' ? '4' : '3'}. Closing Date: ${brandFormatDate(terms?.closingDate)}`);
     doc.text(`${contractType === 'assignment_agreement' ? '5' : '4'}. Inspection Period: ${terms?.inspectionPeriod || 10} days from execution`);
-    doc.moveDown(0.5);
+    doc.moveDown(0.6);
 
     // Contingencies
     const contingencies = [];
@@ -244,64 +274,65 @@ async function generateContractPdf(contractType, data) {
     if (terms?.closingAgent) {
       doc.text(`Closing Agent: ${terms.closingAgent}`);
     }
-    doc.moveDown(0.5);
+    doc.moveDown(0.6);
 
-    // Additional terms
+    // ── Additional terms ──
     if (terms?.additionalTerms) {
-      doc.fontSize(12).font('Helvetica-Bold').text('ADDITIONAL TERMS');
-      doc.moveDown(0.3);
-      doc.fontSize(10).font('Helvetica').text(terms.additionalTerms);
+      drawSectionHeader(doc, 'Additional Terms');
+      doc.font('Helvetica').fontSize(10).fillColor(COLORS.text).text(terms.additionalTerms);
       doc.moveDown(1);
     }
 
-    // Contract-type specific clauses
+    // ── Contract-type specific clause as a callout ──
     if (contractType === 'assignment_agreement') {
-      doc.fontSize(12).font('Helvetica-Bold').text('ASSIGNMENT CLAUSE');
-      doc.moveDown(0.3);
-      doc.fontSize(10).font('Helvetica');
-      doc.text(
+      drawCallout(doc,
         'Buyer hereby assigns all rights, title, and interest in this Purchase Agreement to the Assignee named above. ' +
         'Assignee agrees to assume all obligations of the Buyer under the original Purchase Agreement. ' +
-        'The Assignment Fee shall be paid at closing.'
+        'The Assignment Fee shall be paid at closing.',
+        { title: 'Assignment Clause', tone: 'cyan' }
       );
-      doc.moveDown(1);
     } else if (contractType === 'letter_of_intent') {
-      doc.fontSize(12).font('Helvetica-Bold').text('NON-BINDING NATURE');
-      doc.moveDown(0.3);
-      doc.fontSize(10).font('Helvetica');
-      doc.text(
+      drawCallout(doc,
         'This Letter of Intent is not a binding agreement to purchase or sell the above-described property. ' +
         'It is intended to set forth the general terms upon which the parties may enter into a formal Purchase Agreement. ' +
-        'Either party may withdraw from negotiations at any time without liability.'
+        'Either party may withdraw from negotiations at any time without liability.',
+        { title: 'Non-Binding Nature', tone: 'amber' }
       );
-      doc.moveDown(1);
     }
 
-    // Signature Lines
-    doc.moveDown(2);
-    doc.fontSize(12).font('Helvetica-Bold').text('SIGNATURES');
-    doc.moveDown(1);
-    doc.fontSize(10).font('Helvetica');
+    // ── Signature Lines ──
+    doc.moveDown(1.5);
+    drawSectionHeader(doc, 'Signatures');
+    doc.font('Helvetica').fontSize(10).fillColor(COLORS.text);
+    doc.moveDown(0.5);
 
-    // Seller signature
-    doc.text('_______________________________________          _______________');
-    doc.text(`Seller: ${seller?.name || ''}                                         Date`);
+    const sigLine = '_______________________________________          _______________';
+
+    doc.text(sigLine);
+    doc.font('Helvetica').fontSize(9).fillColor(COLORS.muted)
+       .text(`Seller: ${seller?.name || ''}                                         Date`);
     doc.moveDown(1.5);
 
-    // Buyer signature
-    doc.text('_______________________________________          _______________');
-    doc.text(`Buyer: ${buyer?.name || ''}                                          Date`);
+    doc.font('Helvetica').fontSize(10).fillColor(COLORS.text).text(sigLine);
+    doc.font('Helvetica').fontSize(9).fillColor(COLORS.muted)
+       .text(`Buyer: ${buyer?.name || ''}                                          Date`);
     doc.moveDown(1.5);
 
     if (contractType === 'assignment_agreement' && assignee?.name) {
-      doc.text('_______________________________________          _______________');
-      doc.text(`Assignee: ${assignee.name}                                       Date`);
+      doc.font('Helvetica').fontSize(10).fillColor(COLORS.text).text(sigLine);
+      doc.font('Helvetica').fontSize(9).fillColor(COLORS.muted)
+         .text(`Assignee: ${assignee.name}                                       Date`);
     }
 
-    // Footer
+    // ── Closing legal-review nudge ──
     doc.moveDown(2);
-    doc.fontSize(8).fillColor('#888888');
-    doc.text('Generated by AIWholesail.com - This document is a template and should be reviewed by a qualified attorney before execution.', { align: 'center' });
+    drawCallout(doc,
+      'This document is a template generated by AIWholesail and should be reviewed by a qualified attorney licensed in the relevant jurisdiction before execution. AIWholesail does not provide legal advice.',
+      { title: 'Attorney Review Recommended', tone: 'amber' }
+    );
+
+    // ── Branded footer (paints on every page) ──
+    drawFooter(doc, { tagline: 'Contract template · attorney review recommended' });
 
     doc.end();
   });
