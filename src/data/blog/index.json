@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "wholesaling-vs-brrrr-which-is-better-for-beginners-in-real-estate",
+      "title": "Wholesaling vs BRRRR: Which Is Better for Beginners in Real Estate?",
+      "excerpt": "Choosing between wholesaling and the BRRRR strategy can make or break your first year in real estate investing. This guide breaks down both methods so you can pick the right path based on your budget, time, and goals.",
+      "category": "Comparison",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-09T06:00:53.753Z",
+      "readTime": 7,
+      "tags": [
+        "wholesaling vs BRRRR",
+        "which is better for beginners",
+        "real estate investing strategies",
+        "wholesaling real estate",
+        "BRRRR method"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-columbia-sc-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Columbia SC: The Investor's Complete Guide for 2024",
       "excerpt": "Columbia, South Carolina is quietly becoming one of the Southeast's best markets for real estate investors. This guide breaks down the best neighborhoods, deal types, and strategies to find profitable real estate deals in Columbia SC.",
@@ -15,7 +32,7 @@
         "flip houses Columbia SC",
         "rental properties Columbia SC"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-track-real-estate-deals-and-expenses-step-by-step-guide",
