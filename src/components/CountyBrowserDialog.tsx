@@ -99,7 +99,7 @@ export function CountyBrowserDialog({ open, onOpenChange, onSelectCounty }: Coun
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl w-[95vw] h-[90vh] sm:h-auto sm:max-h-[88vh] p-0 bg-[#0c0d0f] border-neutral-800 text-white overflow-hidden flex flex-col">
+      <DialogContent className="max-w-3xl w-[95vw] h-[90vh] sm:h-[88vh] p-0 bg-[#0c0d0f] border-neutral-800 text-white overflow-hidden flex flex-col">
         <DialogHeader className="px-6 pt-6 pb-3 border-b border-neutral-800/60">
           <DialogTitle className="text-xl font-medium tracking-tight">Browse counties by state</DialogTitle>
           <DialogDescription className="text-sm text-neutral-500 leading-relaxed">
