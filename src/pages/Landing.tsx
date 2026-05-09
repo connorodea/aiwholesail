@@ -807,7 +807,7 @@ const Landing = () => {
               </span>
               <h3 className="text-xl font-bold text-white mb-2">Pro</h3>
               <div className="flex items-baseline gap-1 mb-1">
-                <span className="text-5xl sm:text-6xl font-bold text-white">$29</span>
+                <span className="text-5xl sm:text-6xl font-bold text-white">$49</span>
                 <span className="text-base font-normal text-neutral-500">/mo</span>
               </div>
               <p className="text-sm text-neutral-400 mb-6">For individual investors</p>
@@ -816,9 +816,9 @@ const Landing = () => {
                 {[
                   "5 alert locations",
                   "24-hour updates",
-                  "Advanced matching",
+                  "Property matching",
                   "Email notifications",
-                  "Market analytics",
+                  "Basic market analytics",
                 ].map(f => (
                   <li key={f} className="flex items-center gap-2.5 text-sm text-neutral-300">
                     <CheckCircle className="h-4 w-4 text-cyan-500 shrink-0" />{f}

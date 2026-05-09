@@ -71,7 +71,7 @@ export default function FAQ() {
     },
     {
       question: "What's the difference between Pro and Elite plans?",
-      answer: 'Pro ($29/month) includes up to 5 alert locations, 24-hour updates, and basic analytics. Elite ($99/month) offers unlimited locations, 4-hour updates, advanced AI analysis, skip tracing, lead scoring, and priority support. Elite is designed for serious professionals who need more comprehensive tools.'
+      answer: 'Pro ($49/month) includes up to 5 alert locations, 24-hour updates, and basic analytics. Elite ($99/month) offers unlimited locations, 4-hour updates, advanced AI analysis, skip tracing, lead scoring, and priority support. Elite is designed for serious professionals who need more comprehensive tools.'
     },
     {
       question: 'How accurate is the property data and AI analysis?',

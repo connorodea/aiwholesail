@@ -36,7 +36,7 @@ function buildFeatureTable(comp: Competitor): FeatureRow[] {
     { feature: 'Investment Calculators', aiwholesail: true, competitor: comp.slug === 'propstream' || comp.slug === 'reipro' },
     { feature: 'Market Intelligence Dashboard', aiwholesail: true, competitor: comp.slug === 'propstream' },
     { feature: 'Mobile-Optimized Interface', aiwholesail: true, competitor: comp.slug !== 'reipro' },
-    { feature: 'Starting Price', aiwholesail: '$29/mo', competitor: comp.pricing },
+    { feature: 'Starting Price', aiwholesail: '$49/mo', competitor: comp.pricing },
   ];
 }
 
@@ -66,7 +66,7 @@ export default function ComparisonPage() {
     <PublicLayout>
       <SEOHead
         title={`AIWholesail vs ${comp.name} -- Better Alternative`}
-        description={`Compare AIWholesail vs ${comp.name}. See why investors switch from ${comp.name} (${comp.pricing}) to AIWholesail's AI-powered deal scoring starting at $29/mo.`}
+        description={`Compare AIWholesail vs ${comp.name}. See why investors switch from ${comp.name} (${comp.pricing}) to AIWholesail's AI-powered deal scoring starting at $49/mo.`}
         keywords={`AIWholesail vs ${comp.name}, ${comp.name} alternative, ${comp.name} competitor, best wholesale real estate software, ${comp.name} review, better than ${comp.name}`}
       />
 

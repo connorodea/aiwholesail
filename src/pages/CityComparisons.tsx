@@ -259,7 +259,7 @@ export default function CityComparisons() {
           </h2>
           <p className="text-lg text-white/50 font-light max-w-xl mx-auto mb-10">
             AIWholesail scans every market daily. AI-powered deal scoring, instant comps, and automated
-            outreach -- all starting at $29/mo.
+            outreach -- all starting at $49/mo.
           </p>
           <Link to="/pricing">
             <button className="inline-flex items-center gap-2 px-10 py-4 bg-cyan-500 hover:bg-cyan-400 text-black text-base font-semibold rounded-md transition-colors">
