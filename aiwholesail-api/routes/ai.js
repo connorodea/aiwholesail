@@ -605,7 +605,10 @@ IMPORTANT: Respond ONLY with valid JSON in this exact structure (no markdown, no
       headers: {
         'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
         'Content-Type': 'application/json'
-      }
+      },
+      // Cap the wait — vision calls usually finish in 10-30s; a hung request
+      // shouldn't burn the full nginx 300s window before the user sees an error.
+      timeout: 90000
     });
 
     const responseText = response.data.choices?.[0]?.message?.content || '';

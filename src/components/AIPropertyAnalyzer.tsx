@@ -82,20 +82,35 @@ export function AIPropertyAnalyzer({ property }: AIPropertyAnalyzerProps) {
       }
 
       if ((response.data as any)?.response) {
-        // Parse the AI response to extract analysis data
+        // The Anthropic endpoint returns prose, not structured JSON. Rather
+        // than fabricating fake metric cards (the previous behavior — hardcoded
+        // wholesaleScore=75, grade=B, repair=$25k regardless of property), we
+        // surface ONLY the real AI prose plus property-derived metrics that
+        // we actually know are accurate (zestimate, list price).
         const analysisText = (response.data as any).response;
-        // Create a structured analysis from the AI response
+        const zest = propertyData.zestimate || 0;
+        const price = propertyData.price || 0;
+        const spread = zest > 0 && price > 0 ? zest - price : 0;
+        const spreadPct = zest > 0 && price > 0 ? (spread / zest) * 100 : 0;
+        // Derived heuristics from real numbers, not hardcoded constants:
+        const opportunityScore = Math.max(0, Math.min(100, Math.round(spreadPct * 4)));
+        const investmentGrade =
+          spread >= 100000 ? 'A' :
+          spread >= 50000 ? 'B' :
+          spread >= 20000 ? 'C' :
+          spread > 0 ? 'D' : 'F';
+
         const analysis = {
-          wholesaleScore: 75,
-          investmentGrade: 'B' as const,
-          keyInsights: [analysisText.substring(0, 200)],
-          marketAnalysis: analysisText,
-          repairEstimate: 25000,
-          potentialARV: (propertyData.zestimate || propertyData.price * 1.2),
-          recommendations: ['Review the full AI analysis above'],
-          riskFactors: ['Market conditions may vary'],
-          opportunityScore: 70,
-          fullAnalysis: analysisText
+          wholesaleScore: opportunityScore,
+          investmentGrade: investmentGrade as 'A' | 'B' | 'C' | 'D' | 'F',
+          keyInsights: [], // shown via fullAnalysis below; don't duplicate
+          marketAnalysis: '', // shown via fullAnalysis below; don't duplicate
+          repairEstimate: 0, // not derivable from text response — leave 0 so UI hides it
+          potentialARV: zest, // truthful: same as zestimate
+          recommendations: [],
+          riskFactors: [],
+          opportunityScore,
+          fullAnalysis: analysisText, // the real Claude analysis
         };
         setAnalysis(analysis);
         toast.success('AI analysis completed!');
