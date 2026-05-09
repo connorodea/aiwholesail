@@ -1,190 +1,216 @@
-import { useState } from 'react';
-import { zillowAPI } from '@/lib/zillow-api';
-import { Property } from '@/types/zillow';
+import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import {
+  skipTrace,
+  type SkipTraceSearchParams,
+  type SkipTraceSearchResponse,
+  type SkipTraceQuota,
+} from '@/lib/api-client';
+import { Property } from '@/types/zillow';
+
+export interface SkipTracePerson {
+  peoId?: string;
+  name?: string;
+  age?: number | string;
+  currentAddress?: string;
+  phones?: string[];
+  emails?: string[];
+  relatives?: string[];
+  raw: Record<string, unknown>;
+}
 
 export interface SkipTraceResult {
-  address: string;
-  location: string;
-  phones?: string[];
-  names?: string[];
-  emails?: string[];
-  currentAddress?: string;
-  age?: number;
-  fallbackMessage?: string;
-  searchSuggestions?: string[];
-  manualResearchTips?: string[];
-  [key: string]: any;
+  searchType: SkipTraceSearchParams['searchType'];
+  paramsLabel: string;
+  people: SkipTracePerson[];
+  resultCount: number;
+  servedFromCache: boolean;
+  raw: unknown;
+}
+
+function asString(v: unknown): string | undefined {
+  if (v == null) return undefined;
+  if (typeof v === 'string') return v;
+  if (typeof v === 'number') return String(v);
+  return undefined;
+}
+
+function arrayOfStrings(input: unknown): string[] {
+  if (!Array.isArray(input)) return [];
+  const out: string[] = [];
+  for (const item of input) {
+    if (typeof item === 'string') {
+      out.push(item);
+    } else if (item && typeof item === 'object') {
+      const obj = item as Record<string, unknown>;
+      const candidate =
+        asString(obj.number) ||
+        asString(obj.email) ||
+        asString(obj.phone) ||
+        asString(obj.address) ||
+        asString(obj.value) ||
+        asString(obj.name);
+      if (candidate) out.push(candidate);
+    }
+  }
+  return Array.from(new Set(out));
+}
+
+function normalizePerson(node: Record<string, unknown>): SkipTracePerson {
+  const name =
+    asString(node.name) ||
+    asString(node.full_name) ||
+    asString(node.fullName) ||
+    [asString(node.first_name), asString(node.middle_name), asString(node.last_name)]
+      .filter(Boolean)
+      .join(' ')
+      .trim() ||
+    undefined;
+
+  return {
+    peoId: asString(node.peo_id) || asString(node.peoId),
+    name,
+    age: typeof node.age === 'number' || typeof node.age === 'string' ? node.age : undefined,
+    currentAddress: asString(node.current_address) || asString(node.currentAddress) || asString(node.address),
+    phones: arrayOfStrings(node.phones || node.phone_numbers || node.phoneNumbers),
+    emails: arrayOfStrings(node.emails || node.email_addresses || node.emailAddresses),
+    relatives: arrayOfStrings(node.relatives || node.relations),
+    raw: node,
+  };
+}
+
+function extractPeople(payload: unknown): SkipTracePerson[] {
+  if (!payload || typeof payload !== 'object') return [];
+  const obj = payload as Record<string, unknown>;
+  const candidates: Record<string, unknown>[] = [];
+  for (const key of ['results', 'data', 'people', 'persons', 'records']) {
+    const v = obj[key];
+    if (Array.isArray(v)) {
+      v.forEach((item) => {
+        if (item && typeof item === 'object') candidates.push(item as Record<string, unknown>);
+      });
+    }
+  }
+  // Some endpoints return a single record at the top level (detailsbyID)
+  if (candidates.length === 0 && (obj.peo_id || obj.full_name || obj.name)) {
+    candidates.push(obj);
+  }
+  return candidates.map(normalizePerson);
+}
+
+function paramsLabel(p: SkipTraceSearchParams): string {
+  switch (p.searchType) {
+    case 'byname': return p.name || '';
+    case 'byaddress': return [p.street, p.citystatezip].filter(Boolean).join(', ');
+    case 'bynameaddress': return [p.name, p.citystatezip].filter(Boolean).join(' · ');
+    case 'byphone': return p.phoneno || '';
+    case 'byemail': return p.email || '';
+    default: return '';
+  }
 }
 
 export function useSkipTrace() {
-  const [loading, setLoading] = useState(false);
+  const [searching, setSearching] = useState(false);
+  const [loadingDetails, setLoadingDetails] = useState<string | null>(null);
   const [results, setResults] = useState<SkipTraceResult[]>([]);
+  const [quota, setQuota] = useState<SkipTraceQuota | null>(null);
 
-  const skipTrace = async (property: Property): Promise<SkipTraceResult | null> => {
-    setLoading(true);
-    try {
-      // Extract address and location from property
-      const addressParts = property.address.split(',');
-      const streetAddress = addressParts[0]?.trim() || '';
-      const cityStateZip = addressParts.slice(1).join(',').trim() || '';
+  const fetchQuota = useCallback(async () => {
+    const r = await skipTrace.quota();
+    if (r.data) setQuota(r.data);
+    return r.data ?? null;
+  }, []);
 
-      if (!streetAddress || !cityStateZip) {
-        toast.error('Unable to parse property address for skip tracing');
+  const search = useCallback(
+    async (params: SkipTraceSearchParams): Promise<SkipTraceResult | null> => {
+      setSearching(true);
+      try {
+        const r = await skipTrace.search(params);
+        if (r.error) {
+          toast.error(r.error, {
+            description:
+              r.code === 'TIER_REQUIRED'
+                ? 'Skip tracing requires a Pro or Elite subscription.'
+                : r.code === 'QUOTA_EXCEEDED'
+                  ? 'You have reached your monthly skip-trace quota.'
+                  : undefined,
+          });
+          return null;
+        }
+        if (!r.data) return null;
+        const result: SkipTraceResult = {
+          searchType: r.data.searchType,
+          paramsLabel: paramsLabel(params),
+          people: extractPeople(r.data.result),
+          resultCount: r.data.resultCount,
+          servedFromCache: r.data.servedFromCache,
+          raw: r.data.result,
+        };
+        setResults((prev) => [result, ...prev].slice(0, 25));
+        if (!r.data.servedFromCache) fetchQuota();
+        if (result.resultCount === 0) {
+          toast.info('No matches found', {
+            description: 'Try a different search type or broaden your query.',
+          });
+        } else {
+          toast.success(`${result.resultCount} match${result.resultCount === 1 ? '' : 'es'} found`);
+        }
+        return result;
+      } finally {
+        setSearching(false);
+      }
+    },
+    [fetchQuota]
+  );
+
+  /** Convenience wrapper for Property modal — searches by parsed property address. */
+  const skipTraceProperty = useCallback(
+    async (property: Property): Promise<SkipTraceResult | null> => {
+      const parts = (property.address || '').split(',');
+      const street = parts[0]?.trim() || '';
+      const citystatezip = parts.slice(1).join(',').trim();
+      if (!street || !citystatezip) {
+        toast.error('Could not parse property address');
         return null;
       }
+      return search({ searchType: 'byaddress', street, citystatezip });
+    },
+    [search]
+  );
 
-      console.log('Skip tracing:', { streetAddress, cityStateZip });
-      
+  const getDetails = useCallback(
+    async (peoId: string) => {
+      setLoadingDetails(peoId);
       try {
-        const data = await zillowAPI.getSkipTrace(streetAddress, cityStateZip);
-        
-        if (data && data.success !== false) {
-          // Handle the new enhanced API response format
-          const result: SkipTraceResult = {
-            address: streetAddress,
-            location: cityStateZip,
-            // Extract phone numbers - new format includes objects with number and type
-            phones: Array.isArray(data.phones) ? 
-              data.phones.map((phone: any) => typeof phone === 'object' ? phone.number : phone).filter(Boolean) :
-              [],
-            names: data.names || [],
-            // Extract emails - new format includes objects with email and valid flag
-            emails: Array.isArray(data.emails) ? 
-              data.emails.map((email: any) => typeof email === 'object' ? email.email : email).filter(Boolean) :
-              [],
-            currentAddress: data.currentAddress,
-            age: data.age,
-            relatives: data.relatives || [],
-            previousAddresses: data.previousAddresses || [],
-            associates: data.associates || [],
-            source: data.source,
-            timestamp: data.timestamp,
-            costPerQuery: data.costPerQuery || 0,
-            confidence: data.confidence,
-            // Enhanced fallback handling
-            fallbackMessage: data.fallbackReason || data.fallbackMessage,
-            searchSuggestions: data.fallbackGuidance?.searchStrategies?.map((s: any) => s.description) || 
-                             data.searchSuggestions || [],
-            manualResearchTips: data.fallbackGuidance?.investigationTips || 
-                               data.manualResearchTips || []
-          };
-          
-          setResults(prev => {
-            const filtered = prev.filter(r => r.address !== streetAddress);
-            return [result, ...filtered];
-          });
-          
-          toast.success('Skip trace completed successfully');
-          return result;
-        } else {
-          // API returned but no data - provide helpful fallback
-          const fallbackResult: SkipTraceResult = {
-            address: streetAddress,
-            location: cityStateZip,
-            names: [],
-            phones: [],
-            emails: [],
-            fallbackMessage: 'Skip trace data not available through automatic lookup. Consider manual research methods.',
-            searchSuggestions: [
-              'Check public property records',
-              'Search social media platforms',
-              'Contact listing agent if available',
-              'Use professional skip trace services',
-              'Check voter registration records'
-            ]
-          };
-          
-          setResults(prev => {
-            const filtered = prev.filter(r => r.address !== streetAddress);
-            return [fallbackResult, ...filtered];
-          });
-          
-          toast.warning('No skip trace data found - showing manual research suggestions');
-          return fallbackResult;
+        const r = await skipTrace.details(peoId);
+        if (r.error) {
+          toast.error(r.error);
+          return null;
         }
-      } catch (apiError) {
-        console.warn('Skip trace API failed, providing fallback guidance:', apiError);
-        
-        // Provide helpful fallback information when API fails
-        const fallbackResult: SkipTraceResult = {
-          address: streetAddress,
-          location: cityStateZip,
-          names: [],
-          phones: [],
-          emails: [],
-          fallbackMessage: 'Skip trace service temporarily unavailable. Here are alternative research methods:',
-          searchSuggestions: [
-            'Visit your county\'s property record website',
-            'Search the property address on social media',
-            'Check voter registration databases',
-            'Use LinkedIn to find property owners',
-            'Contact neighbors for information',
-            'Check with the local post office',
-            'Search property tax records',
-            'Use professional skip trace services like BeenVerified or Spokeo'
-          ],
-          manualResearchTips: [
-            'Look for the owner\'s name in property tax records',
-            'Check if the property is in a trust or LLC',
-            'Search for the owner on professional networks',
-            'Check local business listings if it\'s a commercial property'
-          ]
-        };
-        
-        setResults(prev => {
-          const filtered = prev.filter(r => r.address !== streetAddress);
-          return [fallbackResult, ...filtered];
-        });
-        
-        toast.warning('Skip trace service unavailable - showing manual research methods');
-        return fallbackResult;
+        if (r.data && !r.data.servedFromCache) fetchQuota();
+        return r.data ?? null;
+      } finally {
+        setLoadingDetails(null);
       }
-    } catch (error) {
-      console.error('Skip trace failed:', error);
-      toast.error('Skip trace failed. Please try again.');
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    [fetchQuota]
+  );
 
-  const clearResults = () => {
-    setResults([]);
-  };
+  const clearResults = useCallback(() => setResults([]), []);
 
-  const exportResults = (result: SkipTraceResult) => {
-    const csvHeaders = ['Address', 'Location', 'Phone Numbers', 'Names', 'Emails', 'Current Address', 'Age'];
-    const csvRow = [
-      result.address,
-      result.location,
-      result.phones?.join('; ') || 'N/A',
-      result.names?.join('; ') || 'N/A',
-      result.emails?.join('; ') || 'N/A',
-      result.currentAddress || 'N/A',
-      result.age || 'N/A'
-    ];
-
-    const csvContent = [csvHeaders.join(','), csvRow.map(field => `"${field}"`).join(',')].join('\n');
-    
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', `skip_trace_${result.address.replace(/[^a-z0-9]/gi, '_')}_${new Date().toISOString().split('T')[0]}.csv`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    toast.success('Skip trace results exported');
-  };
+  useEffect(() => {
+    fetchQuota();
+  }, [fetchQuota]);
 
   return {
-    skipTrace,
-    loading,
-    results,
+    search,
+    skipTraceProperty,
+    getDetails,
+    fetchQuota,
     clearResults,
-    exportResults
+    searching,
+    loadingDetails,
+    results,
+    quota,
   };
 }

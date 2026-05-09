@@ -729,6 +729,57 @@ export const contact = {
   },
 };
 
+// ============ SKIP TRACE API ============
+export type SkipTraceSearchType = 'byname' | 'byaddress' | 'bynameaddress' | 'byphone' | 'byemail';
+
+export interface SkipTraceSearchParams {
+  searchType: SkipTraceSearchType;
+  name?: string;
+  street?: string;
+  citystatezip?: string;
+  phoneno?: string;
+  email?: string;
+  phone?: string;
+  page?: string;
+}
+
+export interface SkipTraceSearchResponse {
+  searchType: SkipTraceSearchType;
+  params: Record<string, string>;
+  result: unknown;
+  resultCount: number;
+  peoIds: string[];
+  servedFromCache: boolean;
+}
+
+export interface SkipTraceQuota {
+  tier: string;
+  used: number;
+  limit: number;
+  remaining: number;
+  resetsAt: string;
+  gated: boolean;
+}
+
+export const skipTrace = {
+  search: async (params: SkipTraceSearchParams): Promise<ApiResponse<SkipTraceSearchResponse>> => {
+    return apiFetch('/api/skip-trace/search', {
+      method: 'POST',
+      body: JSON.stringify(params),
+    });
+  },
+
+  details: async (peoId: string) =>
+    apiFetch<{ peoId: string; details: unknown; servedFromCache: boolean; fetchedAt: string }>(
+      `/api/skip-trace/details/${encodeURIComponent(peoId)}`
+    ),
+
+  history: async (limit = 20) =>
+    apiFetch<{ history: Array<Record<string, unknown>> }>(`/api/skip-trace/history?limit=${limit}`),
+
+  quota: async (): Promise<ApiResponse<SkipTraceQuota>> => apiFetch('/api/skip-trace/quota'),
+};
+
 // ============ UTILITY API ============
 export const utility = {
   geocode: async (address: string) => {
@@ -761,6 +812,7 @@ const apiClient = {
   sequences,
   contracts,
   contact,
+  skipTrace,
   utility,
   onAuthStateChange,
 };

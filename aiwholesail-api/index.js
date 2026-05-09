@@ -19,6 +19,7 @@ const sequencesRoutes = require('./routes/sequences');
 const contractsRoutes = require('./routes/contracts');
 const contactRoutes = require('./routes/contact');
 const utilityRoutes = require('./routes/utility');
+const skipTraceRoutes = require('./routes/skipTrace');
 
 // Import middleware
 const { errorHandler } = require('./middleware/errorHandler');
@@ -108,6 +109,7 @@ app.use('/api/buyers', buyersRoutes);
 app.use('/api/sequences', sequencesRoutes);
 app.use('/api/contracts', contractsRoutes);
 app.use('/api/contact', contactRoutes);
+app.use('/api/skip-trace', skipTraceRoutes);
 app.use('/api', utilityRoutes);
 
 // Handle 404
