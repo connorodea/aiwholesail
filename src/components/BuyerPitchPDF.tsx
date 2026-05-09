@@ -15,6 +15,12 @@
 
 import jsPDF from 'jspdf';
 import { Property } from '@/types/zillow';
+
+// Local type for jsPDF's untyped GState (opacity) API
+type JsPDFWithGState = jsPDF & {
+  GState: new (opts: { opacity: number }) => unknown;
+  setGState: (state: unknown) => void;
+};
 import { calculateWholesalePotential } from '@/lib/wholesale-calculator';
 import {
   PAGE,
@@ -34,7 +40,6 @@ import {
   drawFooter,
   formatCurrency,
   formatNumber,
-  formatPercent,
   humanize,
   safeFilename,
 } from '@/lib/pdf-brand';
@@ -64,8 +69,11 @@ export function generateBuyerPitch(property: Property, opts: PitchOptions = {}):
   const tierKey = wholesale.tier.toLowerCase();
   const tierColor = TIER_COLORS[tierKey] || BRAND_CYAN;
 
-  const assignmentFee = opts.assignmentFee ?? 10000;
   const repairPerSqft = opts.repairPerSqft ?? 25;
+  // assignmentFee is in opts for future use (wholesaler's view) but the
+  // buyer-facing pitch intentionally doesn't surface it — see Deal Math
+  // section comment for the reasoning.
+  void opts.assignmentFee;
 
   // Deal math
   const listPrice = property.price || 0;
@@ -112,10 +120,11 @@ export function generateBuyerPitch(property: Property, opts: PitchOptions = {}):
     sub?: string
   ) => {
     // Light tinted background
+    const g = doc as JsPDFWithGState;
     doc.setFillColor(color[0], color[1], color[2]);
-    (doc as any).setGState(new (doc as any).GState({ opacity: 0.07 }));
+    g.setGState(new g.GState({ opacity: 0.07 }));
     doc.roundedRect(x, y, cardW, cardH, 1.5, 1.5, 'F');
-    (doc as any).setGState(new (doc as any).GState({ opacity: 1 }));
+    g.setGState(new g.GState({ opacity: 1 }));
 
     // Top accent bar
     doc.setFillColor(...color);
@@ -192,16 +201,19 @@ export function generateBuyerPitch(property: Property, opts: PitchOptions = {}):
   // ── Deal math (the convincing breakdown) ─────────────────
   y = drawSectionHeader(doc, 'Deal Math', y);
 
+  // Buyer-facing math — every line is a number THE BUYER will live with.
+  // The wholesaler's assignment fee is implicit in MAO (already baked into
+  // "your purchase price") and is intentionally not surfaced here, because
+  // a buyer reading "your assignment fee" would mis-read it as their cost.
   y = drawMetricRow(doc, 'Original list price', formatCurrency(listPrice), y);
   y = drawMetricRow(doc, 'After-Repair Value (Zestimate)', formatCurrency(arv), y);
-  y = drawMetricRow(doc, `Estimated repairs ($${repairPerSqft}/sqft)`, formatCurrency(repairs), y);
-  y = drawMetricRow(doc, 'Maximum Allowable Offer (70% rule)', formatCurrency(mao), y, { bold: true });
-  y = drawMetricRow(doc, 'Your assignment fee', formatCurrency(assignmentFee), y);
-  y = drawMetricRow(doc, 'Buyer cost basis (asking + repairs)', formatCurrency(buyerCostBasis), y, { bold: true });
+  y = drawMetricRow(doc, `Repair budget ($${repairPerSqft}/sqft)`, formatCurrency(repairs), y);
+  y = drawMetricRow(doc, 'Your purchase price (assignment cost)', formatCurrency(askingFromBuyer), y, { bold: true });
+  y = drawMetricRow(doc, 'Total invested (purchase + repairs)', formatCurrency(buyerCostBasis), y, { bold: true });
   y = drawMetricRow(doc, 'Selling costs at exit (~6% of ARV)', formatCurrency(sellingCostsAtExit), y);
   y = drawMetricRow(
     doc,
-    'BUYER NET PROFIT',
+    'YOUR NET PROFIT',
     formatCurrency(buyerNetProfit),
     y,
     { bold: true, valueColor: buyerNetProfit > 0 ? SUCCESS_GREEN : [239, 68, 68] }
@@ -241,6 +253,17 @@ export function generateBuyerPitch(property: Property, opts: PitchOptions = {}):
       { title: 'Verify Before You Commit', tone: 'amber' }
     );
   }
+
+  // ── Tiny inline disclaimer (above the contact card so it can't be cut off) ──
+  doc.setFont('helvetica', 'italic');
+  doc.setFontSize(7);
+  doc.setTextColor(...BRAND_MUTED);
+  const disclaimerLines = doc.splitTextToSize(
+    'All figures are estimates based on Zestimate and AI-derived calculations. Buyer is responsible for verifying ARV, repairs, comps, title, and physical condition. Not financial or legal advice.',
+    PAGE.WIDTH_A4 - PAGE.MARGIN_X * 2
+  );
+  doc.text(disclaimerLines, PAGE.MARGIN_X, y);
+  y += disclaimerLines.length * 3 + 3;
 
   // ── Wholesaler contact (footer-area card) ───────────────
   y = Math.max(y, PAGE.HEIGHT_A4 - PAGE.MARGIN_BOTTOM - 38);
