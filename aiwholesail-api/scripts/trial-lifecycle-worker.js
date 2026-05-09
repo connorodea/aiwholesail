@@ -27,6 +27,7 @@ const jwt = require('jsonwebtoken');
 const { Resend } = require('resend');
 
 const {
+  renderFounderWelcome,
   renderDayMinus1,
   renderDayZero,
   renderDayPlus1,
@@ -48,6 +49,41 @@ if (!JWT_SECRET) {
 // SQL window queries — each returns users matching exactly one milestone.
 // Using LEFT JOIN to dedup table so we never re-send.
 const MILESTONES = [
+  {
+    // Personal note from the founder, fired ~24-26 hours after signup.
+    // Long enough that they've actually tried the product, short enough to
+    // feel timely. No upgrade CTA — pure relationship building + feedback ask.
+    // The 2-hour window is wider than the others because the worker fires
+    // hourly: if we used a tight 1h window and the worker missed a tick,
+    // a user would never get the email. 2h tolerates a one-fire miss.
+    type: 'founder_welcome',
+    description: 'Founder welcome (~24h after signup)',
+    sql: `
+      SELECT u.id AS user_id, u.email, u.full_name
+      FROM users u
+      JOIN subscribers s ON s.user_id = u.id
+      LEFT JOIN trial_lifecycle_emails_sent e
+        ON e.user_id = u.id AND e.email_type = 'founder_welcome'
+      WHERE s.is_trial = true
+        AND u.created_at BETWEEN NOW() - INTERVAL '26 hours' AND NOW() - INTERVAL '24 hours'
+        AND u.email NOT LIKE '%@aiwholesail.test%'
+        AND u.email NOT LIKE 'e2e-%'
+        AND u.email NOT LIKE 'signup-%'
+        AND u.email NOT LIKE '%pr113-%'
+        AND u.email NOT LIKE '%newkey-%'
+        AND e.id IS NULL
+    `,
+    render: renderFounderWelcome,
+    // From override — this email is presented as a personal note from
+    // Connor, so it should appear to come from his @aiwholesail.com address
+    // (which forwards via ImprovMX to his Gmail). The default noreply@
+    // sender feels impersonal and contradicts "reply and tell me what you
+    // think".
+    from: `Connor O'Dea <connor@aiwholesail.com>`,
+    replyTo: 'connor@aiwholesail.com',
+    // No upgrade CTA — render only takes the user object
+    skipUpgradeUrl: true,
+  },
   {
     type: 'day_minus_1',
     description: 'Trial ends in ~24 hours',
@@ -150,7 +186,9 @@ async function processMilestone(milestone, stats) {
 
   for (const row of result.rows) {
     try {
-      const upgradeUrl = generateUpgradeUrl(row.user_id, 'Pro');
+      // Some milestones (founder_welcome) don't include an upgrade CTA —
+      // their render function takes only the user object.
+      const upgradeUrl = milestone.skipUpgradeUrl ? undefined : generateUpgradeUrl(row.user_id, 'Pro');
       const { subject, html } = milestone.render(row, upgradeUrl);
 
       if (DRY_RUN) {
@@ -158,12 +196,19 @@ async function processMilestone(milestone, stats) {
         continue;
       }
 
-      const send = await resend.emails.send({
-        from: FROM,
+      const sendPayload = {
+        // Per-milestone From override (founder_welcome ships from
+        // Connor's address; lifecycle emails ship from noreply by default)
+        from: milestone.from || FROM,
         to: row.email,
         subject,
         html,
-      });
+      };
+      if (milestone.replyTo) {
+        sendPayload.replyTo = milestone.replyTo;
+      }
+
+      const send = await resend.emails.send(sendPayload);
 
       if (send?.error) {
         const msg = `Resend rejected ${milestone.type} for ${row.email}: ${JSON.stringify(send.error)}`;
