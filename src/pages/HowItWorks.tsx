@@ -116,18 +116,18 @@ export default function HowItWorks() {
       />
 
       {/* ===== HERO ===== */}
-      <section className="relative bg-gradient-to-b from-[#0a0a0a] via-[#0f0f0f] to-[#0a0a0a] text-white overflow-hidden">
+      <section className="relative bg-gradient-to-b from-background via-card to-background text-foreground overflow-hidden">
         <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" fill="rgba(6, 182, 212, 0.15)" />
         <div className="relative container mx-auto max-w-5xl px-4 pt-28 pb-20 text-center">
           <motion.p {...heroFadeUp(0)} className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-6">HOW IT WORKS</motion.p>
-          <motion.h1 {...heroFadeUp(0.1)} className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[0.95] text-white mb-6">
+          <motion.h1 {...heroFadeUp(0.1)} className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[0.95] text-foreground mb-6">
             How
             <br />
             <span className="bg-gradient-to-r from-cyan-500 via-cyan-400 to-cyan-500 bg-clip-text text-transparent">
               AIWholesail Works.
             </span>
           </motion.h1>
-          <motion.p {...heroFadeUp(0.2)} className="text-lg md:text-xl text-white/50 max-w-2xl mx-auto leading-relaxed font-light">
+          <motion.p {...heroFadeUp(0.2)} className="text-lg md:text-xl text-foreground/50 max-w-2xl mx-auto leading-relaxed font-light">
             Six straightforward steps between you and your next profitable deal. No learning curve, no complicated setup -- just results.
           </motion.p>
         </div>
@@ -140,7 +140,7 @@ export default function HowItWorks() {
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">
             Your path from search to closing.
           </h2>
-          <p className="text-lg text-neutral-400 font-light max-w-xl mb-16">
+          <p className="text-lg text-muted-foreground font-light max-w-xl mb-16">
             Every step is designed to save you time and surface the most profitable opportunities first.
           </p>
 
@@ -149,21 +149,21 @@ export default function HowItWorks() {
               <motion.div
                 key={step.number}
                 {...cardFadeIn(index)}
-                className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-8 flex flex-col justify-between min-h-[300px] group hover:border-cyan-500/20 transition-all duration-300"
+                className="bg-foreground/[0.03] border border-foreground/[0.06] rounded-xl p-8 flex flex-col justify-between min-h-[300px] group hover:border-cyan-500/20 transition-all duration-300"
               >
                 <div>
                   <div className="flex items-center gap-3 mb-5">
                     <div className="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center">
                       <step.icon className="h-5 w-5 text-cyan-400" />
                     </div>
-                    <span className="text-xs font-semibold tracking-[0.15em] uppercase text-neutral-400">
+                    <span className="text-xs font-semibold tracking-[0.15em] uppercase text-muted-foreground">
                       Step {step.number}
                     </span>
                   </div>
                   <h3 className="text-xl font-bold tracking-tight mb-3">
                     {step.title}
                   </h3>
-                  <p className="text-sm text-neutral-400 font-light leading-relaxed">
+                  <p className="text-sm text-muted-foreground font-light leading-relaxed">
                     {step.description}
                   </p>
                 </div>
@@ -174,7 +174,7 @@ export default function HowItWorks() {
       </motion.section>
 
       {/* ===== AI TECH CALLOUT -- DARK ===== */}
-      <motion.section className="bg-[#0a0a0a] text-white py-24 px-4" {...sectionFadeIn}>
+      <motion.section className="bg-background text-foreground py-24 px-4" {...sectionFadeIn}>
         <div className="container mx-auto max-w-7xl">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div>
@@ -185,7 +185,7 @@ export default function HowItWorks() {
                 <br />You close
                 <br />the deals.
               </h2>
-              <p className="text-lg text-white/60 font-light max-w-md mb-8">
+              <p className="text-lg text-foreground/60 font-light max-w-md mb-8">
                 Behind every deal score and property analysis is advanced AI and real-time market data built for speed and accuracy.
               </p>
               <Link to="/pricing">
@@ -202,10 +202,10 @@ export default function HowItWorks() {
                 { icon: BarChart3, label: 'Market Intel', desc: 'Comparable sales, trends, and neighborhood data' },
                 { icon: Bell, label: 'Instant Alerts', desc: 'Get notified the moment high-profit deals appear' },
               ].map((item, index) => (
-                <motion.div key={item.label} {...cardFadeIn(index)} className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/10 transition-colors">
+                <motion.div key={item.label} {...cardFadeIn(index)} className="bg-foreground/5 border border-foreground/10 rounded-2xl p-6 hover:bg-foreground/10 transition-colors">
                   <item.icon className="h-6 w-6 text-cyan-400 mb-3" />
                   <h4 className="font-semibold text-sm mb-1">{item.label}</h4>
-                  <p className="text-xs text-white/50">{item.desc}</p>
+                  <p className="text-xs text-foreground/50">{item.desc}</p>
                 </motion.div>
               ))}
             </div>
@@ -214,7 +214,7 @@ export default function HowItWorks() {
       </motion.section>
 
       {/* Fade dark to white */}
-      <div className="h-24 bg-gradient-to-b from-[#0a0a0a] to-[#08090a]" />
+      <div className="h-24 bg-gradient-to-b from-background to-background" />
 
       {/* ===== CTA -- LIGHT ===== */}
       <motion.section className="py-24 px-4" {...sectionFadeIn}>
@@ -222,7 +222,7 @@ export default function HowItWorks() {
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight leading-tight mb-6">
             Ready to find your next deal?
           </h2>
-          <p className="text-lg text-neutral-400 font-light max-w-2xl mx-auto mb-10">
+          <p className="text-lg text-muted-foreground font-light max-w-2xl mx-auto mb-10">
             See it in action. Start your free trial and search your first market in under two minutes.
           </p>
           <Link to="/pricing">
@@ -230,7 +230,7 @@ export default function HowItWorks() {
               Start Your Free Trial <ArrowRight className="h-4 w-4" />
             </Button>
           </Link>
-          <div className="flex items-center justify-center gap-6 text-sm text-neutral-400 mt-6">
+          <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground mt-6">
             <span className="flex items-center gap-1.5"><Shield className="h-3.5 w-3.5 text-cyan-400" /> No Credit Card Required</span>
             <span className="flex items-center gap-1.5"><CheckCircle className="h-3.5 w-3.5 text-cyan-400" /> Cancel Anytime</span>
           </div>

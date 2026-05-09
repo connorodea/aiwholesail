@@ -101,18 +101,18 @@ export default function Contact() {
       />
 
       {/* ===== HERO ===== */}
-      <section className="relative bg-gradient-to-b from-[#0a0a0a] via-[#0f0f0f] to-[#0a0a0a] text-white overflow-hidden">
+      <section className="relative bg-gradient-to-b from-background via-card to-background text-foreground overflow-hidden">
         <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" fill="rgba(6, 182, 212, 0.15)" />
         <div className="relative container mx-auto max-w-5xl px-4 pt-28 pb-20 text-center">
           <motion.p {...heroFadeUp(0)} className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-6">CONTACT</motion.p>
-          <motion.h1 {...heroFadeUp(0.1)} className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[0.95] text-white mb-6">
+          <motion.h1 {...heroFadeUp(0.1)} className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[0.95] text-foreground mb-6">
             Get In
             <br />
             <span className="bg-gradient-to-r from-cyan-500 via-cyan-400 to-cyan-500 bg-clip-text text-transparent">
               Touch.
             </span>
           </motion.h1>
-          <motion.p {...heroFadeUp(0.2)} className="text-lg md:text-xl text-white/50 max-w-2xl mx-auto leading-relaxed font-light">
+          <motion.p {...heroFadeUp(0.2)} className="text-lg md:text-xl text-foreground/50 max-w-2xl mx-auto leading-relaxed font-light">
             Have questions about AIWholesail? Our team is ready to help you
             get started and make the most of the platform.
           </motion.p>
@@ -120,11 +120,11 @@ export default function Contact() {
       </section>
 
       {/* ===== CONTACT FORM + INFO — LIGHT ===== */}
-      <motion.section className="py-24 px-4 bg-[#08090a]" {...sectionFadeIn}>
+      <motion.section className="py-24 px-4 bg-background" {...sectionFadeIn}>
         <div className="container mx-auto max-w-6xl">
           <div className="grid lg:grid-cols-2 gap-8">
             {/* Contact Form */}
-            <motion.div {...cardFadeIn(0)} className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-5 sm:p-8 md:p-10">
+            <motion.div {...cardFadeIn(0)} className="bg-foreground/[0.03] border border-foreground/[0.06] rounded-xl p-5 sm:p-8 md:p-10">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center">
                   <Send className="h-5 w-5 text-cyan-400" />
@@ -143,7 +143,7 @@ export default function Contact() {
                       onChange={handleChange}
                       placeholder="Your full name"
                       required
-                      className="h-11 bg-white/[0.03] border-white/[0.06] focus:border-primary transition-colors"
+                      className="h-11 bg-foreground/[0.03] border-foreground/[0.06] focus:border-primary transition-colors"
                     />
                   </div>
                   <div className="space-y-2">
@@ -156,7 +156,7 @@ export default function Contact() {
                       onChange={handleChange}
                       placeholder="your@email.com"
                       required
-                      className="h-11 bg-white/[0.03] border-white/[0.06] focus:border-primary transition-colors"
+                      className="h-11 bg-foreground/[0.03] border-foreground/[0.06] focus:border-primary transition-colors"
                     />
                   </div>
                 </div>
@@ -170,7 +170,7 @@ export default function Contact() {
                     onChange={handleChange}
                     placeholder="What's this about?"
                     required
-                    className="h-11 bg-white/[0.03] border-white/[0.06] focus:border-primary transition-colors"
+                    className="h-11 bg-foreground/[0.03] border-foreground/[0.06] focus:border-primary transition-colors"
                   />
                 </div>
 
@@ -184,7 +184,7 @@ export default function Contact() {
                     placeholder="Tell us how we can help..."
                     rows={6}
                     required
-                    className="bg-white/[0.03] border-white/[0.06] focus:border-primary transition-colors"
+                    className="bg-foreground/[0.03] border-foreground/[0.06] focus:border-primary transition-colors"
                   />
                 </div>
 
@@ -210,62 +210,62 @@ export default function Contact() {
 
             {/* Contact Information */}
             <div className="space-y-4">
-              <motion.div {...cardFadeIn(1)} className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-5 sm:p-8">
+              <motion.div {...cardFadeIn(1)} className="bg-foreground/[0.03] border border-foreground/[0.06] rounded-xl p-5 sm:p-8">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center">
                     <Mail className="h-5 w-5 text-cyan-400" />
                   </div>
                   <h3 className="text-lg font-bold tracking-tight">Email Support</h3>
                 </div>
-                <p className="text-neutral-400 font-light mb-3">
+                <p className="text-muted-foreground font-light mb-3">
                   Get help with your account, billing, or any questions.
                 </p>
                 <a href="mailto:support@aiwholesail.com" className="text-cyan-400 hover:text-cyan-400/80 font-medium transition-colors">
                   support@aiwholesail.com
                 </a>
-                <p className="text-sm text-neutral-400 font-light mt-2">
+                <p className="text-sm text-muted-foreground font-light mt-2">
                   Response time: Within 24 hours
                 </p>
               </motion.div>
 
-              <motion.div {...cardFadeIn(2)} className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-5 sm:p-8">
+              <motion.div {...cardFadeIn(2)} className="bg-foreground/[0.03] border border-foreground/[0.06] rounded-xl p-5 sm:p-8">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center">
                     <Phone className="h-5 w-5 text-cyan-400" />
                   </div>
                   <h3 className="text-lg font-bold tracking-tight">Sales Inquiries</h3>
                 </div>
-                <p className="text-neutral-400 font-light mb-3">
+                <p className="text-muted-foreground font-light mb-3">
                   Questions about pricing, features, or enterprise solutions?
                 </p>
                 <a href="mailto:sales@aiwholesail.com" className="text-cyan-400 hover:text-cyan-400/80 font-medium transition-colors">
                   sales@aiwholesail.com
                 </a>
-                <p className="text-sm text-neutral-400 font-light mt-2">
+                <p className="text-sm text-muted-foreground font-light mt-2">
                   Response time: Within 4 hours (business days)
                 </p>
               </motion.div>
 
-              <motion.div {...cardFadeIn(3)} className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-5 sm:p-8">
+              <motion.div {...cardFadeIn(3)} className="bg-foreground/[0.03] border border-foreground/[0.06] rounded-xl p-5 sm:p-8">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center">
                     <MapPin className="h-5 w-5 text-cyan-400" />
                   </div>
                   <h3 className="text-lg font-bold tracking-tight">Business Hours</h3>
                 </div>
-                <div className="space-y-1.5 text-neutral-400 font-light">
+                <div className="space-y-1.5 text-muted-foreground font-light">
                   <p>Monday - Friday: 9:00 AM - 6:00 PM EST</p>
                   <p>Saturday: 10:00 AM - 4:00 PM EST</p>
                   <p>Sunday: Closed</p>
                 </div>
-                <p className="text-sm text-neutral-400 font-light mt-3">
+                <p className="text-sm text-muted-foreground font-light mt-3">
                   Emergency support available 24/7 for critical issues
                 </p>
               </motion.div>
 
               <motion.div {...cardFadeIn(4)} className="bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/20 rounded-xl p-5 sm:p-8 text-center">
                 <h3 className="text-lg font-bold tracking-tight mb-2">Need quick answers?</h3>
-                <p className="text-neutral-400 font-light mb-5">
+                <p className="text-muted-foreground font-light mb-5">
                   Check our FAQ section for common questions and instant solutions.
                 </p>
                 <Link to="/faq">

@@ -142,18 +142,18 @@ export default function Pricing() {
       />
 
       {/* ===== HERO ===== */}
-      <section className="relative bg-gradient-to-b from-[#0a0a0a] via-[#0f0f0f] to-[#0a0a0a] text-white overflow-hidden">
+      <section className="relative bg-gradient-to-b from-background via-card to-background text-foreground overflow-hidden">
         <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" fill="rgba(6, 182, 212, 0.15)" />
         <div className="relative container mx-auto max-w-5xl px-4 pt-28 pb-20 text-center">
           <motion.p {...heroFadeUp(0)} className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-6">PRICING</motion.p>
-          <motion.h1 {...heroFadeUp(0.1)} className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[0.95] text-white mb-6">
+          <motion.h1 {...heroFadeUp(0.1)} className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[0.95] text-foreground mb-6">
             Simple, Transparent
             <br />
             <span className="bg-gradient-to-r from-cyan-500 via-cyan-400 to-cyan-500 bg-clip-text text-transparent">
               Pricing.
             </span>
           </motion.h1>
-          <motion.p {...heroFadeUp(0.2)} className="text-lg md:text-xl text-white/50 max-w-2xl mx-auto leading-relaxed font-light">
+          <motion.p {...heroFadeUp(0.2)} className="text-lg md:text-xl text-foreground/50 max-w-2xl mx-auto leading-relaxed font-light">
             Start free for 7 days. No credit card required. Pick the plan that fits your business and upgrade when you are ready.
           </motion.p>
         </div>
@@ -166,7 +166,7 @@ export default function Pricing() {
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-center mb-4">
             Invest in your deal flow.
           </h2>
-          <p className="text-lg text-neutral-400 font-light max-w-2xl mx-auto text-center mb-16">
+          <p className="text-lg text-muted-foreground font-light max-w-2xl mx-auto text-center mb-16">
             Both plans include full access to AI-powered property analysis, market search, and deal alerts. Choose the scale that matches your business.
           </p>
 
@@ -175,10 +175,10 @@ export default function Pricing() {
               <motion.div
                 key={plan.name}
                 {...cardFadeIn(index)}
-                className={`relative bg-white/[0.03] border rounded-xl p-5 sm:p-8 md:p-10 flex flex-col justify-between group hover:border-cyan-500/20 transition-all duration-300 ${
+                className={`relative bg-foreground/[0.03] border rounded-xl p-5 sm:p-8 md:p-10 flex flex-col justify-between group hover:border-cyan-500/20 transition-all duration-300 ${
                   plan.popular
                     ? 'border-2 border-primary/30 shadow-lg shadow-primary/5'
-                    : 'border-white/[0.06]'
+                    : 'border-foreground/[0.06]'
                 }`}
               >
                 {plan.popular && (
@@ -194,9 +194,9 @@ export default function Pricing() {
                   <h3 className="text-xl font-bold tracking-tight mb-2">{plan.name}</h3>
                   <div className="flex items-baseline gap-1 mb-2">
                     <span className="text-5xl font-bold tracking-tight">${plan.price}</span>
-                    <span className="text-lg font-normal text-neutral-400">/month</span>
+                    <span className="text-lg font-normal text-muted-foreground">/month</span>
                   </div>
-                  <p className="text-neutral-400 font-light mb-8">{plan.description}</p>
+                  <p className="text-muted-foreground font-light mb-8">{plan.description}</p>
 
                   <ul className="space-y-3 mb-8">
                     {plan.features.map((feature, index) => (
@@ -224,7 +224,7 @@ export default function Pricing() {
                       : `Start Free Trial`}
                     {loading !== plan.priceId && <ArrowRight className="h-4 w-4" />}
                   </Button>
-                  <p className="text-xs text-neutral-400 font-light mt-3 text-center">
+                  <p className="text-xs text-muted-foreground font-light mt-3 text-center">
                     No credit card required
                   </p>
                 </div>
@@ -234,11 +234,11 @@ export default function Pricing() {
 
           <div className="mt-12 text-center">
             {user ? (
-              <p className="text-sm text-neutral-400">
+              <p className="text-sm text-muted-foreground">
                 <Link to="/app" className="text-cyan-400 hover:underline">Go to Dashboard</Link>
               </p>
             ) : (
-              <p className="text-sm text-neutral-400">
+              <p className="text-sm text-muted-foreground">
                 Already have an account? <Link to="/auth" className="text-cyan-400 hover:underline">Sign in here</Link>
               </p>
             )}
@@ -247,7 +247,7 @@ export default function Pricing() {
       </motion.section>
 
       {/* ===== WHAT'S INCLUDED -- DARK ===== */}
-      <motion.section className="bg-[#0a0a0a] text-white py-24 px-4" {...sectionFadeIn}>
+      <motion.section className="bg-background text-foreground py-24 px-4" {...sectionFadeIn}>
         <div className="container mx-auto max-w-7xl">
           <p className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-4 text-center">Every Plan Includes</p>
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-center mb-12">
@@ -263,10 +263,10 @@ export default function Pricing() {
               { label: 'Deal Pipeline', desc: 'Track every deal from first contact to closing in one organized view.' },
               { label: 'Data Export', desc: 'Export your leads, saved properties, and contact data anytime you need it.' },
             ].map((item, index) => (
-              <motion.div key={item.label} {...cardFadeIn(index)} className="bg-white/5 border border-white/10 rounded-2xl p-4 sm:p-6 hover:bg-white/10 transition-colors">
+              <motion.div key={item.label} {...cardFadeIn(index)} className="bg-foreground/5 border border-foreground/10 rounded-2xl p-4 sm:p-6 hover:bg-foreground/10 transition-colors">
                 <CheckCircle className="h-5 w-5 text-cyan-400 mb-3" />
                 <h4 className="font-semibold text-sm mb-1">{item.label}</h4>
-                <p className="text-xs text-white/50 leading-relaxed">{item.desc}</p>
+                <p className="text-xs text-foreground/50 leading-relaxed">{item.desc}</p>
               </motion.div>
             ))}
           </div>
@@ -274,7 +274,7 @@ export default function Pricing() {
       </motion.section>
 
       {/* Fade dark to white */}
-      <div className="h-24 bg-gradient-to-b from-[#0a0a0a] to-[#08090a]" />
+      <div className="h-24 bg-gradient-to-b from-background to-background" />
 
       {/* ===== CTA -- LIGHT ===== */}
       <motion.section className="py-24 px-4" {...sectionFadeIn}>
@@ -282,7 +282,7 @@ export default function Pricing() {
           <h2 className="text-4xl md:text-5xl font-bold tracking-tight leading-tight mb-6">
             Ready to find your next deal?
           </h2>
-          <p className="text-lg text-neutral-400 font-light max-w-2xl mx-auto mb-10">
+          <p className="text-lg text-muted-foreground font-light max-w-2xl mx-auto mb-10">
             Join thousands of investors using AIWholesail to uncover profitable opportunities faster than ever before.
           </p>
           <Link to="/auth?mode=signup">
@@ -290,7 +290,7 @@ export default function Pricing() {
               Start Your Free Trial <ArrowRight className="h-4 w-4" />
             </Button>
           </Link>
-          <div className="flex items-center justify-center gap-6 text-sm text-neutral-400 mt-6">
+          <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground mt-6">
             <span className="flex items-center gap-1.5"><Shield className="h-3.5 w-3.5 text-cyan-400" /> No Credit Card Required</span>
             <span className="flex items-center gap-1.5"><CheckCircle className="h-3.5 w-3.5 text-cyan-400" /> Cancel Anytime</span>
           </div>
