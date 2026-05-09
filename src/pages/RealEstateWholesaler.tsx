@@ -213,6 +213,15 @@ export default function RealEstateWholesaler() {
             if (currentSearchId !== searchIdRef.current) return;
             const sorted = sortPropertiesByWholesalePotential(partiallyEnriched);
             setProperties(sorted);
+            // Cross-tab cache write — partial data is better than none if the
+            // user navigates to /app/analyzer mid-enrichment
+            try {
+              localStorage.setItem('aiw_search_results', JSON.stringify(sorted));
+              localStorage.setItem('aiw_search_location', params.location);
+              localStorage.setItem('aiw_search_timestamp', String(Date.now()));
+            } catch {
+              // Quota exceeded or storage disabled — non-fatal; the UI tab still has the data
+            }
             // Log deals found so far
             const dealsFound = sorted.filter(p => p.zestimate && p.price && (p.zestimate - p.price) >= 30000).length;
             if (dealsFound > 0) {
@@ -236,11 +245,19 @@ export default function RealEstateWholesaler() {
 
         setProperties(enrichedSorted);
 
-        // Cache results for the AI Analyzer tab
+        // Cache results for the AI Analyzer tab. Use localStorage so the
+        // cache survives tab switches, and write to sessionStorage too so
+        // any older code paths still find data.
         try {
-          sessionStorage.setItem('aiw_search_results', JSON.stringify(enrichedSorted));
+          const json = JSON.stringify(enrichedSorted);
+          localStorage.setItem('aiw_search_results', json);
+          localStorage.setItem('aiw_search_location', params.location);
+          localStorage.setItem('aiw_search_timestamp', String(Date.now()));
+          sessionStorage.setItem('aiw_search_results', json);
           sessionStorage.setItem('aiw_search_location', params.location);
-        } catch {}
+        } catch {
+          // Quota exceeded — keep going, in-memory state still works for this tab
+        }
 
         const bigDeals = enrichedSorted.filter(p => p.price && p.zestimate && (p.zestimate - p.price) >= 30000).length;
         const allPositive = enrichedSorted.filter(p => p.price && p.zestimate && p.zestimate > p.price).length;
