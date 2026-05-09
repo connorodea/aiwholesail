@@ -102,7 +102,7 @@ const endpoints: Endpoint[] = [
 const rateLimits = [
   {
     plan: 'Pro',
-    price: '$29/mo',
+    price: '$49/mo',
     limit: '30 req/min',
     highlight: false,
     features: ['Property search', 'Basic analytics', 'Email support'],

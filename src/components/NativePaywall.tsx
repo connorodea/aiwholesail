@@ -123,7 +123,7 @@ export function NativePaywall({ onSubscribed }: NativePaywallProps) {
                   Pro
                 </CardTitle>
                 <div className="text-right">
-                  <span className="text-2xl font-bold">$49.99</span>
+                  <span className="text-2xl font-bold">$49</span>
                   <span className="text-muted-foreground text-sm">/mo</span>
                 </div>
               </div>
@@ -161,7 +161,7 @@ export function NativePaywall({ onSubscribed }: NativePaywallProps) {
                   <Badge className="bg-primary/10 text-primary border-0">Most Popular</Badge>
                 </CardTitle>
                 <div className="text-right">
-                  <span className="text-2xl font-bold">$99.99</span>
+                  <span className="text-2xl font-bold">$99</span>
                   <span className="text-muted-foreground text-sm">/mo</span>
                 </div>
               </div>

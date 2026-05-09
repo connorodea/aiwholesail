@@ -254,7 +254,7 @@ export default function SoftwareReviews() {
             </span>
           </h2>
           <p className="text-lg text-white/50 font-light max-w-xl mx-auto mb-10">
-            AIWholesail combines AI deal scoring, lead generation, CRM, and analysis in one platform starting at $29/month. No credit card required.
+            AIWholesail combines AI deal scoring, lead generation, CRM, and analysis in one platform starting at $49/month. No credit card required.
           </p>
           <Link to="/pricing">
             <button className="inline-flex items-center gap-2 px-10 py-4 bg-cyan-500 hover:bg-cyan-400 text-black text-base font-semibold rounded-md transition-colors">
