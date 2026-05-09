@@ -12,6 +12,38 @@
 
 const LOGO_URL = 'https://aiwholesail.com/logo-white.png';
 const FOOTER_YEAR = new Date().getFullYear();
+const FOUNDER_EMAIL = 'connor@aiwholesail.com';
+const FOUNDER_PHONE = '248-881-4147';
+
+/**
+ * Branded signature block — appended to founder-personal emails.
+ * Logo + name + role + website + reply-to email + phone.
+ */
+function founderSignature() {
+  return `
+<table cellpadding="0" cellspacing="0" border="0" style="margin:32px 0 0;border-top:1px solid #1a1a1a;padding-top:20px;width:100%">
+  <tr>
+    <td style="padding-right:14px;vertical-align:top;width:48px">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr><td style="background:#0a0a0b;border:1px solid #1a1a1a;border-radius:10px;padding:8px;width:48px;height:48px;text-align:center">
+          <img src="${LOGO_URL}" alt="AIWholesail" height="32" style="display:block;height:32px;width:auto;margin:0 auto" />
+        </td></tr>
+      </table>
+    </td>
+    <td style="vertical-align:top;border-left:2px solid #06b6d4;padding-left:14px">
+      <p style="margin:0;color:#ffffff;font-size:15px;font-weight:600;letter-spacing:-0.2px;line-height:1.2">Connor O'Dea</p>
+      <p style="margin:2px 0 0;color:#06b6d4;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.12em;line-height:1.3">Founder &amp; CEO</p>
+      <p style="margin:8px 0 0;color:#737373;font-size:12px;line-height:1.6">
+        <a href="https://aiwholesail.com" style="color:#06b6d4;text-decoration:none">aiwholesail.com</a>
+        &nbsp;·&nbsp;
+        <a href="mailto:${FOUNDER_EMAIL}" style="color:#a3a3a3;text-decoration:none">${FOUNDER_EMAIL}</a>
+        &nbsp;·&nbsp;
+        <a href="tel:+1${FOUNDER_PHONE.replace(/-/g,'')}" style="color:#a3a3a3;text-decoration:none">${FOUNDER_PHONE}</a>
+      </p>
+    </td>
+  </tr>
+</table>`;
+}
 
 function shell({ headline, intro, body, cta, ctaUrl, footer }) {
   return `<!DOCTYPE html>
@@ -78,6 +110,102 @@ function fmtDate(iso) {
   return new Date(iso).toLocaleDateString('en-US', {
     weekday: 'long', month: 'long', day: 'numeric', year: 'numeric',
   });
+}
+
+// ───────────────── Founder welcome (~24-48h after signup) ─────────────────
+// Personal note from Connor. No upgrade CTA — this is purely about
+// relationship-building and feedback collection. Replies route back to
+// connor@aiwholesail.com via Reply-To (forwarded by ImprovMX to Connor's
+// Gmail) so the user can text/email/call him directly.
+function renderFounderWelcome(user) {
+  const first = nameOf(user);
+
+  return {
+    subject: `${first}, a quick note from Connor (founder of AIWholesail)`,
+    html: `<!DOCTYPE html>
+<html><body style="margin:0;padding:0;background:#000">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#000;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif">
+  <tr><td align="center" style="padding:40px 20px">
+    <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;background:#0a0a0b;border-radius:12px;overflow:hidden;border:1px solid #1a1a1a">
+      <tr><td style="padding:28px 32px 20px;border-bottom:1px solid #1a1a1a">
+        <img src="${LOGO_URL}" alt="AIWholesail" height="32" style="height:32px;width:auto;display:block" />
+      </td></tr>
+      <tr><td style="height:3px;background:linear-gradient(90deg,#06b6d4,#0891b2,#06b6d4);font-size:0;line-height:0">&nbsp;</td></tr>
+      <tr><td style="padding:36px 32px 32px">
+        ${statusBadge('#06b6d4', 'A note from the founder')}
+        <h1 style="color:#ffffff;font-size:24px;font-weight:700;letter-spacing:-0.5px;line-height:1.25;margin:0 0 22px">
+          Hey ${first} — thanks for signing up.
+        </h1>
+        <p style="color:#d4d4d4;font-size:15px;line-height:1.7;margin:0 0 18px">
+          I'm Connor, the founder of AIWholesail. I wanted to reach out personally and say thanks for trying us out.
+        </p>
+        <p style="color:#d4d4d4;font-size:15px;line-height:1.7;margin:0 0 18px">
+          I'll be straight with you: <strong style="color:#ffffff">we're new software.</strong> A lot of what we've built is working, some of it is rough, and some of the most important features are still being shaped. The investors who give us feedback in this window have an outsized influence on where the product goes next.
+        </p>
+        <p style="color:#d4d4d4;font-size:15px;line-height:1.7;margin:0 0 22px">
+          So I'd genuinely appreciate three things:
+        </p>
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 26px">
+          <tr><td style="padding:0 0 12px">
+            <table cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td valign="top" style="color:#06b6d4;font-size:15px;padding-right:10px;padding-top:1px">&#9679;</td>
+                <td style="color:#e5e5e5;font-size:14px;line-height:1.55"><strong style="color:#ffffff">What's working</strong> — what part of AIWholesail is genuinely useful for your deal flow?</td>
+              </tr>
+            </table>
+          </td></tr>
+          <tr><td style="padding:0 0 12px">
+            <table cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td valign="top" style="color:#06b6d4;font-size:15px;padding-right:10px;padding-top:1px">&#9679;</td>
+                <td style="color:#e5e5e5;font-size:14px;line-height:1.55"><strong style="color:#ffffff">What's missing</strong> — what would make this a no-brainer to pay for?</td>
+              </tr>
+            </table>
+          </td></tr>
+          <tr><td>
+            <table cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td valign="top" style="color:#06b6d4;font-size:15px;padding-right:10px;padding-top:1px">&#9679;</td>
+                <td style="color:#e5e5e5;font-size:14px;line-height:1.55"><strong style="color:#ffffff">What's broken</strong> — anything weird, slow, confusing, or just plain wrong?</td>
+              </tr>
+            </table>
+          </td></tr>
+        </table>
+
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 22px;background:rgba(6,182,212,0.06);border:1px solid rgba(6,182,212,0.20);border-radius:10px">
+          <tr><td style="padding:18px 20px">
+            <p style="color:#06b6d4;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;margin:0 0 4px">Reach me directly</p>
+            <p style="color:#ffffff;font-size:18px;font-weight:600;letter-spacing:-0.2px;margin:0 0 8px">
+              <a href="tel:+12488814147" style="color:#ffffff;text-decoration:none">${FOUNDER_PHONE}</a>
+            </p>
+            <p style="color:#a3a3a3;font-size:13px;line-height:1.5;margin:0">
+              Text or call. Seriously — I pick up. Or just reply to this email; it goes to my inbox.
+            </p>
+          </td></tr>
+        </table>
+
+        <p style="color:#a3a3a3;font-size:14px;line-height:1.65;margin:0 0 6px">
+          Even one sentence helps. The product gets sharper every time someone tells me what's wrong with it.
+        </p>
+        ${founderSignature()}
+      </td></tr>
+      <tr><td style="padding:20px 32px 24px;border-top:1px solid #1a1a1a">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0">
+          <tr>
+            <td style="color:#404040;font-size:11px;line-height:1.5">
+              &copy; ${FOOTER_YEAR} AIWholesail &middot; <a href="https://aiwholesail.com" style="color:#06b6d4;text-decoration:none">aiwholesail.com</a>
+            </td>
+            <td align="right" style="color:#404040;font-size:11px">
+              <a href="mailto:${FOUNDER_EMAIL}" style="color:#404040;text-decoration:none">${FOUNDER_EMAIL}</a>
+            </td>
+          </tr>
+        </table>
+      </td></tr>
+    </table>
+  </td></tr>
+</table>
+</body></html>`,
+  };
 }
 
 // ───────────────── Day -1 (24h before trial expires) ─────────────────
@@ -184,6 +312,7 @@ function renderDayPlus7(user, upgradeUrl) {
 }
 
 module.exports = {
+  renderFounderWelcome,
   renderDayMinus1,
   renderDayZero,
   renderDayPlus1,
