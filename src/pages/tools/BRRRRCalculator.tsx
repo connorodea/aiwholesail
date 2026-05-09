@@ -3,19 +3,27 @@ import { Link } from 'react-router-dom';
 import { SEOHead } from '@/components/SEOHead';
 import { PublicLayout } from '@/components/PublicLayout';
 import { RefreshCw, DollarSign, TrendingUp, Sparkles, ChevronRight, Infinity, CheckCircle2, XCircle } from 'lucide-react';
+import { usePrefill } from '@/lib/property-prefill';
 
 const fmt = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
 const fmtPct = (n: number) => `${n.toFixed(1)}%`;
 
 export default function BRRRRCalculator() {
-  const [purchasePrice, setPurchasePrice] = useState(120000);
-  const [rehabCosts, setRehabCosts] = useState(35000);
-  const [arv, setArv] = useState(220000);
+  const prefill = usePrefill();
+  const sqft = prefill?.sqft;
+  const defaultRehab = sqft ? Math.round(sqft * 25) : 35000;
+  const [purchasePrice, setPurchasePrice] = useState(prefill?.price ?? 120000);
+  const [rehabCosts, setRehabCosts] = useState(defaultRehab);
+  const [arv, setArv] = useState(prefill?.arv ?? prefill?.zestimate ?? 220000);
   const [refiLtv, setRefiLtv] = useState(75);
   const [refiRate, setRefiRate] = useState(7.5);
-  const [monthlyRent, setMonthlyRent] = useState(1800);
-  const [taxes, setTaxes] = useState(250);
-  const [insurance, setInsurance] = useState(120);
+  const [monthlyRent, setMonthlyRent] = useState(prefill?.estimatedMonthlyRent ?? 1800);
+  const [taxes, setTaxes] = useState(
+    prefill?.estimatedAnnualPropertyTax ? Math.round(prefill.estimatedAnnualPropertyTax / 12) : 250
+  );
+  const [insurance, setInsurance] = useState(
+    prefill?.estimatedAnnualInsurance ? Math.round(prefill.estimatedAnnualInsurance / 12) : 120
+  );
   const [maintenance, setMaintenance] = useState(150);
   const [management, setManagement] = useState(180);
   const [vacancy, setVacancy] = useState(90);

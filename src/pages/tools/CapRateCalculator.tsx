@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { SEOHead } from '@/components/SEOHead';
 import { PublicLayout } from '@/components/PublicLayout';
 import { Building2, DollarSign, Sparkles, ChevronRight, TrendingUp, Info } from 'lucide-react';
+import { usePrefill } from '@/lib/property-prefill';
 
 const fmt = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
 const fmtPct = (n: number) => `${n.toFixed(2)}%`;
@@ -17,11 +18,14 @@ function getCapRateRating(rate: number): { label: string; color: string; descrip
 }
 
 export default function CapRateCalculator() {
-  const [propertyValue, setPropertyValue] = useState(300000);
-  const [grossAnnualRent, setGrossAnnualRent] = useState(36000);
+  const prefill = usePrefill();
+  const [propertyValue, setPropertyValue] = useState(prefill?.price ?? 300000);
+  const [grossAnnualRent, setGrossAnnualRent] = useState(
+    prefill?.estimatedMonthlyRent ? prefill.estimatedMonthlyRent * 12 : 36000
+  );
   const [vacancyRate, setVacancyRate] = useState(5);
-  const [propertyTax, setPropertyTax] = useState(3600);
-  const [insuranceAnnual, setInsuranceAnnual] = useState(1800);
+  const [propertyTax, setPropertyTax] = useState(prefill?.estimatedAnnualPropertyTax ?? 3600);
+  const [insuranceAnnual, setInsuranceAnnual] = useState(prefill?.estimatedAnnualInsurance ?? 1800);
   const [maintenanceAnnual, setMaintenanceAnnual] = useState(2400);
   const [managementFeePct, setManagementFeePct] = useState(8);
   const [otherExpenses, setOtherExpenses] = useState(600);

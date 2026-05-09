@@ -46,6 +46,7 @@ import { ComparableSalesTable } from './ComparableSalesTable';
 import { PhotosGallery } from './PhotosGallery';
 import { TaxCarryingCosts } from './TaxCarryingCosts';
 import { ARVCalculator } from './ARVCalculator';
+import { PropertyToolsTab } from './PropertyToolsTab';
 import { AIPhotoAnalysis } from './AIPhotoAnalysis';
 import { generateDealReport } from './DealReportPDF';
 import { generateBuyerPitch } from './BuyerPitchPDF';
@@ -412,6 +413,10 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                   <BadgeCheck className="h-3.5 w-3.5" />
                   Comps
                 </TabsTrigger>
+                <TabsTrigger value="tools" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_0_1px_rgba(6,182,212,0.25),0_2px_8px_rgba(0,0,0,0.4)] rounded-lg transition-all duration-200 text-xs font-medium px-3 h-8">
+                  <Calculator className="h-3.5 w-3.5" />
+                  Tools
+                </TabsTrigger>
                 <TabsTrigger value="price-history" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_0_1px_rgba(6,182,212,0.25),0_2px_8px_rgba(0,0,0,0.4)] rounded-lg transition-all duration-200 text-xs font-medium px-3 h-8">
                   <History className="h-3.5 w-3.5" />
                   History
@@ -573,6 +578,10 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
 
             <TabsContent value="comps" className="flex-1 overflow-auto p-3 sm:p-6 mt-0">
               <ComparableSalesTable property={displayProperty} />
+            </TabsContent>
+
+            <TabsContent value="tools" className="flex-1 overflow-auto p-3 sm:p-6 mt-0">
+              <PropertyToolsTab property={displayProperty} />
             </TabsContent>
 
             <TabsContent value="price-history" className="flex-1 overflow-auto p-3 sm:p-6 mt-0">

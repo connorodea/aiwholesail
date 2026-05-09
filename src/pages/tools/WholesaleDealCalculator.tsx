@@ -3,14 +3,18 @@ import { Link } from 'react-router-dom';
 import { SEOHead } from '@/components/SEOHead';
 import { PublicLayout } from '@/components/PublicLayout';
 import { DollarSign, Percent, Clock, ArrowRight, CheckCircle2, XCircle, AlertTriangle, TrendingUp } from 'lucide-react';
+import { usePrefill } from '@/lib/property-prefill';
 
 const fmt = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
 const fmtPct = (v: number) => `${v.toFixed(1)}%`;
 
 export default function WholesaleDealCalculator() {
-  const [askingPrice, setAskingPrice] = useState(180000);
-  const [arv, setArv] = useState(320000);
-  const [repairs, setRepairs] = useState(45000);
+  const prefill = usePrefill();
+  const sqft = prefill?.sqft;
+  const defaultRepairs = sqft ? Math.round(sqft * 25) : 45000;
+  const [askingPrice, setAskingPrice] = useState(prefill?.price ?? 180000);
+  const [arv, setArv] = useState(prefill?.arv ?? prefill?.zestimate ?? 320000);
+  const [repairs, setRepairs] = useState(defaultRepairs);
   const [wholesaleFee, setWholesaleFee] = useState(10000);
   const [closingCostPercent, setClosingCostPercent] = useState(3);
   const [holdingCostsMonthly, setHoldingCostsMonthly] = useState(1500);

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { SEOHead } from '@/components/SEOHead';
 import { PublicLayout } from '@/components/PublicLayout';
 import { Hammer, DollarSign, Sparkles, ChevronRight, AlertTriangle } from 'lucide-react';
+import { usePrefill } from '@/lib/property-prefill';
 
 type RenovationLevel = 'none' | 'minor' | 'major' | 'full';
 
@@ -21,19 +22,24 @@ function getLevelCosts(level: RenovationLevel, ranges: { minor: [number, number]
 }
 
 export default function RehabEstimator() {
+  const prefill = usePrefill();
+  const sqft = prefill?.sqft;
+  const baths = prefill?.bathrooms;
   const [kitchenLevel, setKitchenLevel] = useState<RenovationLevel>('none');
-  const [bathroomCount, setBathroomCount] = useState(2);
+  const [bathroomCount, setBathroomCount] = useState(baths ? Math.max(1, Math.round(baths)) : 2);
   const [bathroomLevel, setBathroomLevel] = useState<RenovationLevel>('none');
-  const [flooringSqft, setFlooringSqft] = useState(1500);
+  // Flooring sqft: typically ~80% of total (subtract baths/closets/utility)
+  const [flooringSqft, setFlooringSqft] = useState(sqft ? Math.round(sqft * 0.8) : 1500);
   const [flooringMaterial, setFlooringMaterial] = useState<'laminate' | 'hardwood' | 'tile'>('laminate');
-  const [paintSqft, setPaintSqft] = useState(1800);
+  // Paint sqft: total floor area (rough surrogate for wall area)
+  const [paintSqft, setPaintSqft] = useState(sqft ?? 1800);
   const [roofNeeded, setRoofNeeded] = useState(false);
   const [hvacNeeded, setHvacNeeded] = useState(false);
   const [electricalLevel, setElectricalLevel] = useState<RenovationLevel>('none');
   const [plumbingLevel, setPlumbingLevel] = useState<RenovationLevel>('none');
   const [windowCount, setWindowCount] = useState(0);
   const [landscapingNeeded, setLandscapingNeeded] = useState(false);
-  const [totalSqft, setTotalSqft] = useState(1800);
+  const [totalSqft, setTotalSqft] = useState(sqft ?? 1800);
 
   const flooringRates: Record<string, [number, number]> = {
     laminate: [3, 6],
