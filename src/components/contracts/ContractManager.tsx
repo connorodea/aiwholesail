@@ -7,7 +7,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table';
-import { FileText, FileOutput, FileSignature, Trash2, Download, RefreshCw } from 'lucide-react';
+import { FileText, FileOutput, FileSignature, Wallet, Trash2, Download, RefreshCw } from 'lucide-react';
 import { useContracts } from '@/hooks/useContracts';
 import { ContractType, ContractData, CONTRACT_TYPES } from '@/types/contracts';
 import { ContractEditor } from './ContractEditor';
@@ -16,12 +16,14 @@ const TYPE_ICONS: Record<ContractType, typeof FileText> = {
   assignment_agreement: FileOutput,
   purchase_agreement: FileText,
   letter_of_intent: FileSignature,
+  proof_of_funds: Wallet,
 };
 
 const TYPE_LABELS: Record<ContractType, string> = {
   assignment_agreement: 'Assignment',
   purchase_agreement: 'Purchase',
   letter_of_intent: 'LOI',
+  proof_of_funds: 'POF',
 };
 
 export function ContractManager() {
@@ -61,7 +63,7 @@ export function ContractManager() {
             <p className="text-sm text-muted-foreground text-center">
               Select a contract type to get started
             </p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {CONTRACT_TYPES.map(ct => {
                 const Icon = TYPE_ICONS[ct.type];
                 return (
@@ -139,8 +141,17 @@ export function ContractManager() {
                         {data?.propertyAddress || 'N/A'}
                       </TableCell>
                       <TableCell className="text-xs text-muted-foreground">
-                        {data?.seller?.name && `Seller: ${data.seller.name}`}
-                        {data?.buyer?.name && ` | Buyer: ${data.buyer.name}`}
+                        {contract.contractType === 'proof_of_funds' ? (
+                          <>
+                            {data?.buyer?.name && `Buyer: ${data.buyer.name}`}
+                            {data?.proofOfFunds?.amount ? ` | Amount: $${data.proofOfFunds.amount.toLocaleString()}` : ''}
+                          </>
+                        ) : (
+                          <>
+                            {data?.seller?.name && `Seller: ${data.seller.name}`}
+                            {data?.buyer?.name && ` | Buyer: ${data.buyer.name}`}
+                          </>
+                        )}
                       </TableCell>
                       <TableCell className="text-xs text-muted-foreground">
                         {new Date(contract.createdAt).toLocaleDateString()}
