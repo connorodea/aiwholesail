@@ -51,6 +51,7 @@ import { PropertyToolsTab } from './PropertyToolsTab';
 import { AIPhotoAnalysis } from './AIPhotoAnalysis';
 import { generateDealReport } from './DealReportPDF';
 import { generateBuyerPitch } from './BuyerPitchPDF';
+import { ListingDescriptionGenerator } from './ListingDescriptionGenerator';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useAuth } from '@/contexts/AuthContext';
 import { useFavorites } from '@/hooks/useFavorites';
@@ -86,6 +87,15 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
   const [copiedField, setCopiedField] = React.useState<string | null>(null);
   const [enrichedProperty, setEnrichedProperty] = useState<Property | null>(null);
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
+  const [listingCopyOpen, setListingCopyOpen] = useState(false);
+
+  const handleListingCopy = () => {
+    if (!allowedForProFeatures) {
+      toast.error('AI Listing Copy is a Pro / Elite feature. Upgrade to unlock.');
+      return;
+    }
+    setListingCopyOpen(true);
+  };
 
   // Fire ViewContent for FB/GA when a property modal opens
   useEffect(() => {
@@ -360,6 +370,16 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                   {allowedForProFeatures ? <Sparkles className="h-4 w-4" /> : <Crown className="h-4 w-4" />}
                   <span className="hidden xl:inline">Buyer Pitch</span>
                 </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleListingCopy}
+                  title={allowedForProFeatures ? 'Generate AI listing copy for marketing' : 'Pro / Elite feature — upgrade to unlock'}
+                  className={`gap-1.5 h-9 rounded-lg border-cyan-500/40 ${allowedForProFeatures ? 'text-cyan-400 hover:bg-cyan-500/10' : 'text-neutral-500'}`}
+                >
+                  {allowedForProFeatures ? <Sparkles className="h-4 w-4" /> : <Crown className="h-4 w-4" />}
+                  <span className="hidden xl:inline">Listing Copy</span>
+                </Button>
                 <AddToPipelineButton property={displayProperty} variant="full" size="sm" />
               </div>
             </div>
@@ -387,6 +407,15 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                 >
                   {allowedForProFeatures ? <Sparkles className="h-4 w-4" /> : <Crown className="h-4 w-4" />}
                   Buyer Pitch
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleListingCopy}
+                  className={`gap-1.5 h-9 rounded-lg border-cyan-500/40 flex-shrink-0 ${allowedForProFeatures ? 'text-cyan-400' : 'text-neutral-500'}`}
+                >
+                  {allowedForProFeatures ? <Sparkles className="h-4 w-4" /> : <Crown className="h-4 w-4" />}
+                  Listing Copy
                 </Button>
                 <AddToPipelineButton property={displayProperty} variant="full" size="sm" />
               </div>
@@ -913,6 +942,13 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
           </Tabs>
         </div>
       </DialogContent>
+      {/* AI Listing Copy generator — rendered as a sibling Dialog so it can
+          stack atop the PropertyModal without z-index drama. */}
+      <ListingDescriptionGenerator
+        property={displayProperty}
+        open={listingCopyOpen}
+        onOpenChange={setListingCopyOpen}
+      />
     </Dialog>
   );
 }

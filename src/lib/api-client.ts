@@ -407,6 +407,22 @@ export const ai = {
     });
   },
 
+  listingDescription: async (params: {
+    property: Record<string, unknown>;
+    tone?: 'wholesaler' | 'flipper' | 'rental' | 'agent';
+  }): Promise<ApiResponse<{
+    headline: string;
+    description: string;
+    bullets: string[];
+    tone: string;
+    model: string;
+  }>> => {
+    return apiFetch('/api/ai/listing-description', {
+      method: 'POST',
+      body: JSON.stringify(params),
+    });
+  },
+
   rankComps: async (params: {
     zpid?: string;
     address?: string;
