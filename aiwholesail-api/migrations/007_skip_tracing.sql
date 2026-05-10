@@ -58,3 +58,15 @@ CREATE TABLE IF NOT EXISTS skip_trace_details (
 
 CREATE INDEX IF NOT EXISTS idx_skip_trace_details_fetched_at
     ON skip_trace_details(fetched_at DESC);
+
+-- ───────────── Grants ─────────────
+-- The migration is run as `postgres` superuser, but the API connects as
+-- `aiwholesail`. Without these grants the live skip-tracing endpoints
+-- and the founder-hot-list worker fail with "permission denied for
+-- table skip_trace_*". This was discovered post-shipment of PR #131.
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'aiwholesail') THEN
+    GRANT SELECT, INSERT, UPDATE, DELETE ON skip_trace_lookups, skip_trace_details TO aiwholesail;
+  END IF;
+END$$;
