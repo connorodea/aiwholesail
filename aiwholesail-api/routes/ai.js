@@ -1187,4 +1187,109 @@ Pick fewer than 6 only if the pool genuinely lacks good matches. Order by score 
   });
 }));
 
+/**
+ * POST /api/ai/listing-description
+ * Phase 1.5 of ChatARV parity.
+ *
+ * Generates wholesale-style marketing copy from a property. Used by:
+ *  - BuyerPitchPDF (drops into the "About this property" section)
+ *  - "Run Full ARV Analysis" bundle (Phase 1.4)
+ *  - Standalone "Copy listing description" button on the property modal
+ *
+ * Tier gating: Pro 25/mo, Elite unlimited.
+ */
+router.post('/listing-description',
+  authenticate,
+  attachSubscription,
+  requireTierWithLimit({ eventType: 'ai_listing_description', proMonthly: 25, featureLabel: 'AI listing description' }),
+  [
+    body('property').isObject().withMessage('property required'),
+    body('tone').optional().isIn(['wholesaler', 'flipper', 'rental', 'agent']),
+  ],
+  asyncHandler(async (req, res) => {
+    const errs = validationResult(req);
+    if (!errs.isEmpty()) return res.status(400).json({ error: 'Validation failed', errors: errs.array() });
+
+    const { property, tone = 'wholesaler' } = req.body;
+
+    // Trim to what matters — don't dump the whole property object on Claude.
+    const slim = {
+      address: property.address,
+      price: property.price,
+      zestimate: property.zestimate,
+      bedrooms: property.bedrooms,
+      bathrooms: property.bathrooms,
+      sqft: property.sqft,
+      yearBuilt: property.yearBuilt,
+      lotSize: property.lotSize,
+      propertyType: property.propertyType,
+      isFSBO: property.isFSBO,
+      status: property.status,
+      daysOnMarket: property.daysOnMarket,
+      mlsDescription: property.description ? String(property.description).slice(0, 800) : undefined,
+    };
+
+    const toneGuide = {
+      wholesaler: 'speak to cash buyers and other wholesalers — emphasize spread, motivated-seller signals, and quick-close upside. Avoid retail-buyer language.',
+      flipper:    'speak to fix-and-flip investors — emphasize ARV potential, condition, and after-rehab comps. Mention rehab opportunity but be honest about scope.',
+      rental:     'speak to buy-and-hold landlords — emphasize cash flow, cap rate, neighborhood rent comps, and tenant appeal.',
+      agent:      'speak to retail buyers via a listing agent — highlight lifestyle features, school district vibes, move-in readiness.',
+    };
+
+    const systemPrompt = `You are an expert real estate copywriter producing short, scannable marketing copy for investor property listings. Your tone is direct, specific, and grounded — never hyperbolic or "gurus-on-Instagram." Cite real numbers when they're in the input, and never fabricate features.
+
+Audience tone: ${toneGuide[tone] || toneGuide.wholesaler}
+
+Output strict JSON only:
+{
+  "headline": "<short headline, 6-10 words, no clickbait>",
+  "description": "<2-3 short paragraphs of body copy, 80-180 words total>",
+  "bullets": ["<5-8 short standalone selling points, each <14 words>"]
+}`;
+
+    const userPrompt = `PROPERTY:
+${JSON.stringify(slim, null, 2)}
+
+Write the listing copy now. JSON only.`;
+
+    let aiResponse;
+    try {
+      aiResponse = await callClaude(systemPrompt, userPrompt, {
+        model: 'claude-sonnet-4-6',
+        maxTokens: 1500,
+        temperature: 0.5,
+        timeoutMs: 60_000,
+      });
+    } catch (err) {
+      console.error('[listing-description] Claude call failed:', err.response?.data || err.message);
+      return res.status(502).json({ error: 'AI service unavailable. Try again in a moment.' });
+    }
+
+    const text = aiResponse?.content?.[0]?.text || '';
+    let parsed;
+    try {
+      const cleaned = text.replace(/^```(?:json)?\n?|\n?```$/g, '').trim();
+      parsed = JSON.parse(cleaned);
+    } catch (parseErr) {
+      console.error('[listing-description] JSON parse failed:', parseErr.message, 'Raw:', text.slice(0, 400));
+      return res.status(502).json({ error: 'AI returned malformed response' });
+    }
+
+    logEvent(req.user.id, EVENTS.AI_LISTING_DESC, {
+      tone,
+      word_count: typeof parsed.description === 'string' ? parsed.description.split(/\s+/).length : 0,
+      tokens: aiResponse?.usage?.total_tokens || 0,
+    });
+
+    res.json({
+      headline: parsed.headline || '',
+      description: parsed.description || '',
+      bullets: Array.isArray(parsed.bullets) ? parsed.bullets.slice(0, 8) : [],
+      tone,
+      model: 'claude-sonnet-4-6',
+      usage: aiResponse?.usage,
+    });
+  })
+);
+
 module.exports = router;
