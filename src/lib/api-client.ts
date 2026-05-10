@@ -729,6 +729,58 @@ export const contact = {
   },
 };
 
+// ============ WEBHOOKS API ============
+export type WebhookEventType = 'property_alert_match' | 'price_change' | 'status_change' | 'owner_update';
+
+export interface WebhookEndpoint {
+  id: string;
+  url: string;
+  events: WebhookEventType[];
+  description: string | null;
+  active: boolean;
+  lastSuccessAt: string | null;
+  lastFailureAt: string | null;
+  consecutiveFailures: number;
+  createdAt: string;
+  secret?: string;        // only present on create response
+}
+
+export interface WebhookDelivery {
+  id: string;
+  event_type: string;
+  attempt: number;
+  response_status: number | null;
+  duration_ms: number | null;
+  status: 'pending' | 'success' | 'failed' | 'abandoned';
+  delivered_at: string;
+  response_body_truncated: string | null;
+}
+
+export const webhooks = {
+  list: async () =>
+    apiFetch<{ endpoints: WebhookEndpoint[]; knownEvents: WebhookEventType[]; limit: number | null }>(
+      '/api/webhooks'
+    ),
+  create: async (params: { url: string; events: WebhookEventType[]; description?: string }) =>
+    apiFetch<{ endpoint: WebhookEndpoint; note: string }>('/api/webhooks', {
+      method: 'POST',
+      body: JSON.stringify(params),
+    }),
+  update: async (id: string, params: { events?: WebhookEventType[]; active?: boolean; description?: string }) =>
+    apiFetch<{ endpoint: WebhookEndpoint }>(`/api/webhooks/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(params),
+    }),
+  remove: async (id: string) =>
+    apiFetch<{ deleted: string }>(`/api/webhooks/${id}`, { method: 'DELETE' }),
+  test: async (id: string) =>
+    apiFetch<{ ok: boolean; status: number; durationMs: number; message: string }>(
+      `/api/webhooks/${id}/test`, { method: 'POST' }
+    ),
+  deliveries: async (id: string) =>
+    apiFetch<{ deliveries: WebhookDelivery[] }>(`/api/webhooks/${id}/deliveries`),
+};
+
 // ============ SKIP TRACE API ============
 export type SkipTraceSearchType = 'byname' | 'byaddress' | 'bynameaddress' | 'byphone' | 'byemail';
 
@@ -813,6 +865,7 @@ const apiClient = {
   contracts,
   contact,
   skipTrace,
+  webhooks,
   utility,
   onAuthStateChange,
 };

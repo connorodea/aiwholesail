@@ -28,6 +28,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { auth, stripe } from '@/lib/api-client';
 import { SEOHead } from '@/components/SEOHead';
+import { WebhooksManager } from '@/components/WebhooksManager';
 import { toast } from 'sonner';
 
 export default function Account() {
@@ -461,6 +462,9 @@ export default function Account() {
             </div>
           </CardContent>
         </Card>
+
+        {/* ─── Webhooks (Pro/Elite) ─── */}
+        <WebhooksManager />
 
         {/* ─── 4. Danger Zone ─── */}
         <Card className="border-red-900/30 bg-[#0f1115]">
