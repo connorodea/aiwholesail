@@ -1,10 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Slider } from '@/components/ui/slider';
+import { Label } from '@/components/ui/label';
 import {
-  Loader2, Sparkles, TrendingUp, TrendingDown, AlertCircle, Award,
+  Loader2, Sparkles, AlertCircle, Award,
   MapPin, Bed, Bath, Square, Calendar, Building2, ArrowUp, ArrowDown,
+  Hammer, Wallet, Percent, Target, Calculator,
 } from 'lucide-react';
 import { ai, type RankCompsResponse } from '@/lib/api-client';
 import type { Property } from '@/types/zillow';
@@ -169,7 +172,7 @@ export function AIRankedComps({ property }: AIRankedCompsProps) {
   return (
     <div className="space-y-4">
       {/* Headline values */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
         <Card className="border-border/50">
           <CardContent className="p-4">
             <div className="text-[10px] uppercase tracking-wider text-muted-foreground">As-Is Value</div>
@@ -184,6 +187,21 @@ export function AIRankedComps({ property }: AIRankedCompsProps) {
             <div className="text-[11px] text-muted-foreground mt-1">Adjusted up for post-rehab condition</div>
           </CardContent>
         </Card>
+        {/* Phase 1.2 extension: rehab headroom = ARV − As-Is, the spread the
+            condition lift implies. Useful as a sanity check on the user's
+            repair budget — if the headroom is $40K but their rehab estimate
+            is $60K, the deal probably doesn't pencil. */}
+        {result.implied_arv != null && result.implied_as_is_value != null && (
+          <Card className="border-emerald-500/30 bg-emerald-500/[0.04]">
+            <CardContent className="p-4">
+              <div className="text-[10px] uppercase tracking-wider text-emerald-400/70">Rehab Headroom</div>
+              <div className="text-2xl font-bold mt-0.5 text-emerald-400">
+                {fmtCurrency(result.implied_arv - result.implied_as_is_value)}
+              </div>
+              <div className="text-[11px] text-muted-foreground mt-1">ARV − As-Is — your repair-budget ceiling</div>
+            </CardContent>
+          </Card>
+        )}
         <Card className={`border ${confidenceColor(result.overall_confidence).split(' ')[2]}`}>
           <CardContent className="p-4">
             <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Confidence</div>
@@ -194,6 +212,15 @@ export function AIRankedComps({ property }: AIRankedCompsProps) {
           </CardContent>
         </Card>
       </div>
+
+      {/* Phase 1.3 — Runtime-adjustable deal math sliders. ChatARV-parity move:
+          let the user tune MAO% / repair cost / assignment fee in-context and
+          see implied offer + spread recompute live. */}
+      <DealMathPanel
+        arv={result.implied_arv}
+        listPrice={property.price}
+        sqft={property.sqft}
+      />
 
       {/* Ranked comp cards */}
       <div className="flex items-center justify-between">
@@ -298,5 +325,178 @@ export function AIRankedComps({ property }: AIRankedCompsProps) {
         )}
       </div>
     </div>
+  );
+}
+
+/**
+ * In-context deal math: ARV → MAO → offer → expected profit.
+ *
+ * Live-recomputes as the user drags any slider. Defaults seed from the
+ * property (price as listing-side reference, sqft × $25 as a rule-of-thumb
+ * repair estimate) so the panel is immediately useful even before the user
+ * touches anything.
+ *
+ * Math:
+ *   MAO        = ARV × (mao_pct / 100) − repairs − fee
+ *   offer      = MAO (the price you'd offer the seller)
+ *   gross profit (wholesaler) = fee  (what you keep when you assign)
+ *   buyer profit at sale     = ARV − offer − repairs − closing/sell-side
+ *   spread vs list           = listPrice − offer  (negative = you'd be paying ABOVE list, bad)
+ */
+function DealMathPanel({
+  arv,
+  listPrice,
+  sqft,
+}: {
+  arv: number | null;
+  listPrice?: number;
+  sqft?: number;
+}) {
+  // 70% rule baseline. ChatARV lets users adjust this between 60-80%.
+  const [maoPct, setMaoPct] = useState(70);
+  // Repair budget defaults to sqft × $25 (industry rule of thumb for cosmetic)
+  const defaultRepair = sqft ? Math.round(sqft * 25) : 25000;
+  const [repairs, setRepairs] = useState(defaultRepair);
+  // Assignment fee — typical wholesale range $5K-$25K
+  const [fee, setFee] = useState(10000);
+
+  const math = useMemo(() => {
+    if (!arv || arv <= 0) return null;
+    const mao = Math.max(0, Math.round(arv * (maoPct / 100) - repairs - fee));
+    const spreadVsList = listPrice ? listPrice - mao : null;
+    const buyerCostBasis = mao + repairs;
+    const sellingCosts = Math.round(arv * 0.06); // 6% closing on the sell side, industry standard
+    const buyerNetProfit = arv - buyerCostBasis - sellingCosts;
+    const buyerRoi = buyerCostBasis > 0 ? (buyerNetProfit / buyerCostBasis) * 100 : 0;
+    return { mao, spreadVsList, buyerCostBasis, sellingCosts, buyerNetProfit, buyerRoi };
+  }, [arv, maoPct, repairs, fee, listPrice]);
+
+  if (!arv || arv <= 0) {
+    return null;
+  }
+
+  const fmtUsd = (n: number | null | undefined) => {
+    if (n == null || !Number.isFinite(n)) return '—';
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n);
+  };
+
+  return (
+    <Card className="border-border/50">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-sm flex items-center gap-2">
+          <Calculator className="h-4 w-4 text-cyan-400" />
+          Deal Math
+          <span className="text-[11px] text-muted-foreground font-normal ml-2">drag to tune offer + repair + fee</span>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {/* Sliders */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="space-y-2">
+            <Label className="text-xs flex items-center justify-between">
+              <span className="flex items-center gap-1.5"><Percent className="h-3 w-3 text-cyan-400" /> MAO Rule</span>
+              <span className="font-mono text-cyan-400">{maoPct}%</span>
+            </Label>
+            <Slider
+              value={[maoPct]}
+              min={60}
+              max={80}
+              step={1}
+              onValueChange={(v) => setMaoPct(v[0])}
+            />
+            <p className="text-[10px] text-muted-foreground">60% conservative · 70% standard · 80% aggressive</p>
+          </div>
+          <div className="space-y-2">
+            <Label className="text-xs flex items-center justify-between">
+              <span className="flex items-center gap-1.5"><Hammer className="h-3 w-3 text-cyan-400" /> Repair Budget</span>
+              <span className="font-mono text-cyan-400">{fmtUsd(repairs)}</span>
+            </Label>
+            <Slider
+              value={[repairs]}
+              min={0}
+              max={Math.max(100000, defaultRepair * 2)}
+              step={1000}
+              onValueChange={(v) => setRepairs(v[0])}
+            />
+            <p className="text-[10px] text-muted-foreground">
+              Default: {sqft ? `${sqft} sqft × $25` : '$25K'} · drag to tune
+            </p>
+          </div>
+          <div className="space-y-2">
+            <Label className="text-xs flex items-center justify-between">
+              <span className="flex items-center gap-1.5"><Wallet className="h-3 w-3 text-cyan-400" /> Assignment Fee</span>
+              <span className="font-mono text-cyan-400">{fmtUsd(fee)}</span>
+            </Label>
+            <Slider
+              value={[fee]}
+              min={0}
+              max={50000}
+              step={500}
+              onValueChange={(v) => setFee(v[0])}
+            />
+            <p className="text-[10px] text-muted-foreground">Your wholesale spread</p>
+          </div>
+        </div>
+
+        {/* Live-recomputed deal math */}
+        {math && (
+          <div className="border-t border-border/50 pt-3 grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="rounded-lg bg-cyan-500/5 border border-cyan-500/20 p-3">
+              <div className="text-[10px] uppercase tracking-wider text-cyan-400/70 flex items-center gap-1">
+                <Target className="h-3 w-3" /> Offer to Seller (MAO)
+              </div>
+              <div className="text-lg font-bold text-cyan-400 mt-1">{fmtUsd(math.mao)}</div>
+            </div>
+            {math.spreadVsList != null && (
+              <div className={`rounded-lg p-3 border ${
+                math.spreadVsList > 0
+                  ? 'bg-emerald-500/5 border-emerald-500/20'
+                  : 'bg-red-500/5 border-red-500/20'
+              }`}>
+                <div className={`text-[10px] uppercase tracking-wider flex items-center gap-1 ${
+                  math.spreadVsList > 0 ? 'text-emerald-400/70' : 'text-red-400/70'
+                }`}>
+                  {math.spreadVsList > 0 ? <ArrowDown className="h-3 w-3" /> : <ArrowUp className="h-3 w-3" />}
+                  Below List Price
+                </div>
+                <div className={`text-lg font-bold mt-1 ${math.spreadVsList > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                  {math.spreadVsList > 0 ? fmtUsd(math.spreadVsList) : `−${fmtUsd(Math.abs(math.spreadVsList))}`}
+                </div>
+              </div>
+            )}
+            <div className="rounded-lg bg-foreground/[0.04] border border-border/50 p-3">
+              <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Buyer Cost Basis</div>
+              <div className="text-lg font-bold mt-1">{fmtUsd(math.buyerCostBasis)}</div>
+              <div className="text-[10px] text-muted-foreground mt-0.5">Offer + repairs</div>
+            </div>
+            <div className={`rounded-lg p-3 border ${
+              math.buyerRoi >= 20
+                ? 'bg-emerald-500/5 border-emerald-500/20'
+                : math.buyerRoi >= 10
+                  ? 'bg-amber-500/5 border-amber-500/20'
+                  : 'bg-red-500/5 border-red-500/20'
+            }`}>
+              <div className={`text-[10px] uppercase tracking-wider ${
+                math.buyerRoi >= 20 ? 'text-emerald-400/70'
+                : math.buyerRoi >= 10 ? 'text-amber-400/70'
+                : 'text-red-400/70'
+              }`}>
+                Buyer ROI
+              </div>
+              <div className={`text-lg font-bold mt-1 ${
+                math.buyerRoi >= 20 ? 'text-emerald-400'
+                : math.buyerRoi >= 10 ? 'text-amber-400'
+                : 'text-red-400'
+              }`}>
+                {math.buyerRoi.toFixed(1)}%
+              </div>
+              <div className="text-[10px] text-muted-foreground mt-0.5">
+                {fmtUsd(math.buyerNetProfit)} after 6% selling costs
+              </div>
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }
