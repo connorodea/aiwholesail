@@ -15,6 +15,8 @@ export interface PropertySearchParams {
   auctionOnly?: boolean;
   hideForeclosures?: boolean;
   fsboOnly?: boolean;
+  /** Elite-only: filter the result set to high-motivation sellers (score >= 30) */
+  motivatedSellersOnly?: boolean;
   keywords?: string;
 }
 
@@ -112,6 +114,10 @@ export interface Property {
     priceReductions?: number;
     motivatedSeller?: boolean;
   };
+  /** Set when the property has been run through the motivated-seller scorer.
+   *  See src/lib/motivated-seller-score.ts for shape; typed `unknown` here
+   *  to avoid a circular dep — consumers should import MotivationResult. */
+  motivation?: unknown;
   [key: string]: any;
 }
 
