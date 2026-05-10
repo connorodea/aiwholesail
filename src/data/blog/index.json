@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-montgomery-al-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Montgomery AL: A Complete Investor's Guide for 2024",
+      "excerpt": "Montgomery, Alabama is quietly becoming one of the South's most attractive markets for real estate investors, with low entry prices and strong rental demand. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Montgomery AL.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-10T12:00:56.403Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Montgomery AL",
+        "Montgomery Alabama real estate investing",
+        "wholesale real estate Montgomery",
+        "investment properties Montgomery AL",
+        "Montgomery AL rental market"
+      ],
+      "featured": true
+    },
+    {
       "slug": "what-is-absorption-rate-in-real-estate-and-why-it-matters-for-investors",
       "title": "What Is Absorption Rate in Real Estate and Why It Matters for Investors",
       "excerpt": "Absorption rate tells you exactly how fast homes are selling in any market — and smart investors use it to time deals, negotiate prices, and spot opportunities before the competition. Learn how to calculate it, read it correctly, and put it to work in your investing strategy.",
@@ -15,7 +32,7 @@
         "buyer seller market",
         "months of inventory"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "cash-flow-vs-appreciation-which-matters-more-for-real-estate-investors",
