@@ -68,12 +68,13 @@ interface PropertyModalProps {
 export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps) {
   const { addToFavorites, removeFromFavorites, isFavorite } = useFavorites();
   const { exportLead } = useLeads();
-  const { isElite } = useSubscription();
+  const { isElite, isPro } = useSubscription();
+  const allowedForProFeatures = isElite || isPro;
   const { user } = useAuth();
 
   const handleBuyerPitch = () => {
-    if (!isElite) {
-      toast.error('Buyer Pitch PDF is an Elite feature. Upgrade to unlock.');
+    if (!allowedForProFeatures) {
+      toast.error('Buyer Pitch PDF is a Pro / Elite feature. Upgrade to unlock.');
       return;
     }
     generateBuyerPitch(displayProperty, {
@@ -353,10 +354,10 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                   variant="outline"
                   size="sm"
                   onClick={handleBuyerPitch}
-                  title={isElite ? 'Generate buyer-ready deal sheet' : 'Elite feature — upgrade to unlock'}
-                  className={`gap-1.5 h-9 rounded-lg border-cyan-500/40 ${isElite ? 'text-cyan-400 hover:bg-cyan-500/10' : 'text-neutral-500'}`}
+                  title={allowedForProFeatures ? 'Generate buyer-ready deal sheet' : 'Pro / Elite feature — upgrade to unlock'}
+                  className={`gap-1.5 h-9 rounded-lg border-cyan-500/40 ${allowedForProFeatures ? 'text-cyan-400 hover:bg-cyan-500/10' : 'text-neutral-500'}`}
                 >
-                  {isElite ? <Sparkles className="h-4 w-4" /> : <Crown className="h-4 w-4" />}
+                  {allowedForProFeatures ? <Sparkles className="h-4 w-4" /> : <Crown className="h-4 w-4" />}
                   <span className="hidden xl:inline">Buyer Pitch</span>
                 </Button>
                 <AddToPipelineButton property={displayProperty} variant="full" size="sm" />
@@ -382,9 +383,9 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                   variant="outline"
                   size="sm"
                   onClick={handleBuyerPitch}
-                  className={`gap-1.5 h-9 rounded-lg border-cyan-500/40 flex-shrink-0 ${isElite ? 'text-cyan-400' : 'text-neutral-500'}`}
+                  className={`gap-1.5 h-9 rounded-lg border-cyan-500/40 flex-shrink-0 ${allowedForProFeatures ? 'text-cyan-400' : 'text-neutral-500'}`}
                 >
-                  {isElite ? <Sparkles className="h-4 w-4" /> : <Crown className="h-4 w-4" />}
+                  {allowedForProFeatures ? <Sparkles className="h-4 w-4" /> : <Crown className="h-4 w-4" />}
                   Buyer Pitch
                 </Button>
                 <AddToPipelineButton property={displayProperty} variant="full" size="sm" />

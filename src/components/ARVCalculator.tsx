@@ -41,7 +41,7 @@ interface FlipResults {
 }
 
 export function ARVCalculator({ property }: ARVCalculatorProps) {
-  const { isElite, loading: subLoading } = useSubscription();
+  const { isElite, isPro, loading: subLoading } = useSubscription();
   const purchasePrice = property.price || 0;
   const zestimate = property.zestimate || 0;
   const sqft = property.sqft || 0;
@@ -68,12 +68,12 @@ export function ARVCalculator({ property }: ARVCalculatorProps) {
   const [interestRate, setInterestRate] = useState(10);
   const [loanPoints, setLoanPoints] = useState(2);
 
-  // Show upgrade prompt for non-Elite users (after all hooks)
-  if (!subLoading && !isElite) {
+  // ARV Calculator is pure client-side math (no API cost). Open to Pro + Elite; Trial blocked.
+  if (!subLoading && !isElite && !isPro) {
     return (
       <UpgradePrompt
         featureName="ARV Calculator & Comps"
-        description="Calculate After Repair Value, Maximum Allowable Offer, and analyze comparable sales with advanced flip analysis tools."
+        description="Calculate After Repair Value, Maximum Allowable Offer, and analyze comparable sales with advanced flip analysis tools. Available on Pro and Elite."
       />
     );
   }

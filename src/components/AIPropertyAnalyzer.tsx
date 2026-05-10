@@ -40,16 +40,16 @@ interface AIAnalysisResult {
 }
 
 export function AIPropertyAnalyzer({ property }: AIPropertyAnalyzerProps) {
-  const { isElite, loading: subLoading } = useSubscription();
+  const { isElite, isPro, loading: subLoading } = useSubscription();
   const [analysis, setAnalysis] = useState<AIAnalysisResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Show upgrade prompt for non-Elite users
-  if (!subLoading && !isElite) {
+  // Pro (10/mo, server-enforced) + Elite (unlimited) can access. Trial/no-sub still blocked.
+  if (!subLoading && !isElite && !isPro) {
     return (
       <UpgradePrompt
         featureName="AI Property Analysis"
-        description="Get detailed AI-powered insights about deal potential, market positioning, and investment opportunities."
+        description="Get detailed AI-powered insights about deal potential, market positioning, and investment opportunities. Pro: 10 analyses/mo. Elite: unlimited."
       />
     );
   }

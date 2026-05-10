@@ -44,7 +44,7 @@ interface PhotoAnalysisResult {
 }
 
 export function AIPhotoAnalysis({ property }: AIPhotoAnalysisProps) {
-  const { isElite, loading: subLoading } = useSubscription();
+  const { isElite, isPro, loading: subLoading } = useSubscription();
   const [photos, setPhotos] = useState<string[]>([]);
   const [isLoadingPhotos, setIsLoadingPhotos] = useState(true);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -210,12 +210,12 @@ export function AIPhotoAnalysis({ property }: AIPhotoAnalysisProps) {
     }
   };
 
-  // Show upgrade prompt for non-Elite users (after all hooks)
-  if (!subLoading && !isElite) {
+  // Pro (10/mo, server-enforced) + Elite (unlimited) can access. Trial/no-sub blocked.
+  if (!subLoading && !isElite && !isPro) {
     return (
       <UpgradePrompt
         featureName="AI Photo Condition Analysis"
-        description="Analyze property photos with AI to assess condition, identify issues, and estimate rehab costs."
+        description="Analyze property photos with AI to assess condition, identify issues, and estimate rehab costs. Pro: 10 analyses/mo. Elite: unlimited."
       />
     );
   }

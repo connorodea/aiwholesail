@@ -49,14 +49,15 @@ function confidenceColor(c: 'high' | 'medium' | 'low') {
 }
 
 export function AIRankedComps({ property }: AIRankedCompsProps) {
-  const { isElite } = useSubscription();
+  const { isElite, isPro } = useSubscription();
+  const allowed = isElite || isPro;
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<RankCompsResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showAllComps, setShowAllComps] = useState(false);
 
   useEffect(() => {
-    if (!isElite) return;
+    if (!allowed) return;
     let cancelled = false;
     const run = async () => {
       setLoading(true);
@@ -94,24 +95,24 @@ export function AIRankedComps({ property }: AIRankedCompsProps) {
     // property. Re-running on every transient property-field change would
     // spam Claude unnecessarily.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [property.id, property.zpid, isElite]);
+  }, [property.id, property.zpid, allowed]);
 
-  if (!isElite) {
+  if (!allowed) {
     return (
       <div className="space-y-4">
         <Card className="border-cyan-500/30">
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-cyan-400" />
-              AI-Ranked Comps is Elite
+              AI-Ranked Comps — Pro / Elite
             </CardTitle>
           </CardHeader>
           <CardContent className="text-sm text-muted-foreground space-y-3">
             <p>
-              Elite picks the top 6 comparable sales for you from Zillow's full pool — with reasoning, per-comp adjustments,
-              and overall confidence on the comp set. Below is the flat comp table that Pro / Trial users see.
+              Pro and Elite pick the top 6 comparable sales for you from Zillow's full pool — with reasoning, per-comp adjustments,
+              and overall confidence on the comp set. Pro: 25 ranked-comps/month. Elite: unlimited. Below is the flat comp table that Trial users see.
             </p>
-            <Button asChild><Link to="/pricing">View Elite plan</Link></Button>
+            <Button asChild><Link to="/pricing">View plans</Link></Button>
           </CardContent>
         </Card>
         <ComparableSalesTable property={property} />

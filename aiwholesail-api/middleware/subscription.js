@@ -157,6 +157,88 @@ const requireElite = (req, res, next) => {
 };
 
 /**
+ * Middleware factory: tier gate with optional Pro monthly limit.
+ *
+ *   Trial / no-sub   → 403 (TIER_REQUIRED, upgrade nudge)
+ *   Pro              → check user_events count for `eventType` this calendar
+ *                       month vs `proMonthly`. 429 if over.
+ *   Elite            → next() (unlimited)
+ *
+ * Use this for AI / premium features that should be Pro-accessible but
+ * rate-limited (per our Pro $49 / Elite $99 model: Pro gets it with caps,
+ * Elite gets it unlimited).
+ *
+ * The eventType passed here MUST match the EVENTS.* constant logged at the
+ * route's success point, otherwise counting silently fails.
+ *
+ *   router.post('/ai/property-analysis',
+ *     authenticate,
+ *     attachSubscription,
+ *     requireTierWithLimit({ eventType: 'ai_property_analysis', proMonthly: 10 }),
+ *     handler,
+ *   );
+ *
+ * Must be used AFTER attachSubscription.
+ */
+function requireTierWithLimit({ eventType, proMonthly, featureLabel } = {}) {
+  return async (req, res, next) => {
+    try {
+      if (!req.subscription) {
+        console.warn('[Subscription] requireTierWithLimit called without attachSubscription — allowing access');
+        return next();
+      }
+      const tier = req.subscription.tier;
+
+      // Trial / no sub → hard block
+      if (tier !== TIERS.PRO && tier !== TIERS.ELITE) {
+        return res.status(403).json({
+          error: `Upgrade required for ${featureLabel || 'this feature'}`,
+          code: 'TIER_REQUIRED',
+          message: `${featureLabel || 'This feature'} is available on Pro and Elite plans.`,
+          currentTier: tier || TIERS.NONE,
+        });
+      }
+
+      // Elite → unlimited, skip counting
+      if (tier === TIERS.ELITE) return next();
+
+      // Pro → enforce monthly limit
+      if (!eventType || !proMonthly) {
+        // No limit configured — allow
+        return next();
+      }
+      const r = await query(
+        `SELECT COUNT(*)::int AS used
+         FROM user_events
+         WHERE user_id = $1
+           AND event_type = $2
+           AND created_at >= date_trunc('month', NOW())`,
+        [req.user.id, eventType]
+      );
+      const used = r.rows[0]?.used || 0;
+      if (used >= proMonthly) {
+        const nextMonth = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth() + 1, 1)).toISOString();
+        return res.status(429).json({
+          error: `Monthly ${featureLabel || 'usage'} limit reached`,
+          code: 'QUOTA_EXCEEDED',
+          message: `You've used all ${proMonthly} of your monthly ${featureLabel || ''} on Pro. Upgrade to Elite for unlimited, or wait until ${nextMonth}.`,
+          tier,
+          used,
+          limit: proMonthly,
+          resetsAt: nextMonth,
+        });
+      }
+      // Attach quota state for routes that want to surface it in the response
+      req.featureQuota = { used, limit: proMonthly, remaining: proMonthly - used, tier };
+      next();
+    } catch (err) {
+      console.error('[Subscription] requireTierWithLimit error:', err);
+      next();   // fail open — don't lock users out of paid features over a DB blip
+    }
+  };
+}
+
+/**
  * Middleware: Check daily search limit.
  * Pro/trial: 10 searches per day. Elite: unlimited.
  * Must be used AFTER attachSubscription.
@@ -247,6 +329,7 @@ const checkSearchLimit = async (req, res, next) => {
 module.exports = {
   attachSubscription,
   requireElite,
+  requireTierWithLimit,
   checkSearchLimit,
   TIERS,
   DAILY_SEARCH_LIMITS,

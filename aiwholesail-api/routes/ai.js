@@ -5,7 +5,7 @@ const { query } = require('../config/database');
 const { authenticate } = require('../middleware/auth');
 const { asyncHandler, logSecurityEvent } = require('../middleware/errorHandler');
 const { checkDatabaseRateLimit } = require('../middleware/rateLimit');
-const { attachSubscription, requireElite } = require('../middleware/subscription');
+const { attachSubscription, requireElite, requireTierWithLimit } = require('../middleware/subscription');
 const { logEvent, EVENTS } = require('../lib/events');
 const {
   callClaude,
@@ -23,9 +23,12 @@ const RAPIDAPI_KEY = process.env.RAPIDAPI_KEY;
  * POST /api/ai/property-analysis
  * AI-powered property analysis
  */
-router.post('/property-analysis', authenticate, attachSubscription, requireElite, [
-  body('property').optional().isObject(), body('csv_data').optional().isArray(), body('market').optional().isString()
-], asyncHandler(async (req, res) => {
+router.post('/property-analysis',
+  authenticate,
+  attachSubscription,
+  requireTierWithLimit({ eventType: 'ai_property_analysis', proMonthly: 10, featureLabel: 'AI property analysis' }),
+  [body('property').optional().isObject(), body('csv_data').optional().isArray(), body('market').optional().isString()],
+asyncHandler(async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ error: 'Validation failed', errors: errors.array() });
@@ -542,7 +545,11 @@ Be helpful, concise, and provide actionable advice.`;
  * POST /api/ai/photo-analysis
  * AI-powered property photo condition analysis and rehab cost estimation
  */
-router.post('/photo-analysis', authenticate, attachSubscription, requireElite, [
+router.post('/photo-analysis',
+  authenticate,
+  attachSubscription,
+  requireTierWithLimit({ eventType: 'photo_analysis', proMonthly: 10, featureLabel: 'AI photo analysis' }),
+  [
   body('property').optional().isObject(), body('csv_data').optional().isArray(), body('market').optional().isString(),
   body('imageUrls').isArray({ min: 1 }).withMessage('At least one image URL required')
 ], asyncHandler(async (req, res) => {
@@ -643,6 +650,14 @@ IMPORTANT: Respond ONLY with valid JSON in this exact structure (no markdown, no
       photosAnalyzed: limitedUrls.length,
       tokensUsed: response.data.usage?.total_tokens || 0
     }, req.user.id, req);
+
+    // Required for Pro monthly-limit accounting (requireTierWithLimit queries
+    // user_events by event_type). Without this, Pro users would get unlimited
+    // photo analyses for free — the counter would never increment.
+    logEvent(req.user.id, EVENTS.PHOTO_ANALYSIS, {
+      photos: limitedUrls.length,
+      tokens: response.data.usage?.total_tokens || 0,
+    });
 
     res.json({
       analysis: analysisData || null,
@@ -991,7 +1006,11 @@ router.post('/rank-deals', authenticate, [
  *   model: 'claude-sonnet-4-6'
  * }
  */
-router.post('/rank-comps', authenticate, attachSubscription, requireElite, [
+router.post('/rank-comps',
+  authenticate,
+  attachSubscription,
+  requireTierWithLimit({ eventType: 'ai_rank_comps', proMonthly: 25, featureLabel: 'AI-ranked comps' }),
+  [
   body('zpid').optional().isString(),
   body('address').optional().isString(),
   body('subject').isObject().withMessage('subject property required'),
@@ -1138,8 +1157,10 @@ Pick fewer than 6 only if the pool genuinely lacks good matches. Order by score 
       comp: slimComps[r.comp_index],
     }));
 
-  logEvent(req.user.id, EVENTS.AI_PROPERTY_ANALYSIS, {
-    type: 'rank_comps',
+  // Dedicated event type so Pro monthly-limit counting is accurate (the
+  // requireTierWithLimit middleware queries by event_type, so rank_comps
+  // must not share a bucket with property_analysis).
+  logEvent(req.user.id, EVENTS.AI_RANK_COMPS, {
     candidates: slimComps.length,
     returned: ranked.length,
     confidence: parsed.overall_confidence,
