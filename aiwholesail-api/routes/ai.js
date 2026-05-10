@@ -6,6 +6,7 @@ const { authenticate } = require('../middleware/auth');
 const { asyncHandler, logSecurityEvent } = require('../middleware/errorHandler');
 const { checkDatabaseRateLimit } = require('../middleware/rateLimit');
 const { attachSubscription, requireElite } = require('../middleware/subscription');
+const { logEvent, EVENTS } = require('../lib/events');
 const {
   callClaude,
   callClaudeWithTools,
@@ -155,6 +156,10 @@ Current property overview: ${JSON.stringify(property, null, 2)}`;
     type: 'property-analysis',
     tokensUsed: aiResponse.usage?.total_tokens || 0
   }, req.user.id, req);
+
+  logEvent(req.user.id, EVENTS.AI_PROPERTY_ANALYSIS, {
+    tokens: aiResponse.usage?.total_tokens || 0,
+  });
 
   res.json({
     response: aiResponse.content[0]?.text || 'Analysis complete',
@@ -367,6 +372,12 @@ Provide a comprehensive wholesale deal analysis including MAO calculation, profi
      VALUES ($1, $2, $3, $4, $5, NOW())`,
     [req.user.id, address, arv || null, repairEstimate || null, responseText]
   );
+
+  logEvent(req.user.id, EVENTS.AI_ANALYZER_RUN, {
+    has_arv: !!arv,
+    has_repair_estimate: !!repairEstimate,
+    tokens: aiResponse.usage?.total_tokens || 0,
+  });
 
   res.json({
     response: responseText,
@@ -939,6 +950,11 @@ router.post('/rank-deals', authenticate, [
       console.error('[rank-deals] JSON parse failed:', parseErr, 'Raw:', choice.slice(0, 500));
       return res.status(502).json({ error: 'AI returned malformed response' });
     }
+
+    logEvent(req.user.id, EVENTS.AI_RANK_DEALS, {
+      candidates: candidates.length,
+      ranked: (parsed.ranked_deals || []).length,
+    });
 
     res.json({
       ranked_deals: parsed.ranked_deals || [],
