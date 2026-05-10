@@ -72,8 +72,14 @@ export function AIRankedComps({ property }: AIRankedCompsProps) {
           propertyType: property.propertyType,
           price: property.price,
         };
+        // Only send zpid if it actually looks like a Zillow zpid (5+ digits).
+        // property.id is an internal app identifier and will produce garbage
+        // results if forwarded to Zillow's comp API. Fall back to address-only
+        // lookup when no real zpid is available.
+        const rawZpid = property.zpid;
+        const zpid = rawZpid && /^\d{5,}$/.test(String(rawZpid)) ? String(rawZpid) : undefined;
         const r = await ai.rankComps({
-          zpid: property.zpid || property.id,
+          zpid,
           address: property.address,
           subject,
         });
@@ -209,7 +215,7 @@ export function AIRankedComps({ property }: AIRankedCompsProps) {
                   <div className="flex items-center gap-2">
                     <Badge variant="outline" className="text-[10px]">#{idx + 1}</Badge>
                     <Badge className={`${scoreColor(entry.score)} text-xs`}>Score {entry.score}</Badge>
-                    {entry.comp.daysOnZillow != null && (
+                    {entry.comp.saleDate && (
                       <span className="text-[11px] text-muted-foreground flex items-center gap-1">
                         <Calendar className="h-3 w-3" />
                         Sold {fmtDate(entry.comp.saleDate)}

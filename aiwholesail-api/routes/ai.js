@@ -1149,9 +1149,17 @@ Pick fewer than 6 only if the pool genuinely lacks good matches. Order by score 
   }
 
   // Re-hydrate each ranked entry with the full comp object so the UI doesn't
-  // need to cross-reference indexes itself
+  // need to cross-reference indexes itself. Dedup on comp_index in case
+  // Claude returns the same comp twice (rare but observed) — otherwise the
+  // UI renders duplicate cards.
+  const seenIndexes = new Set();
   const ranked = (parsed.ranked || [])
     .filter((r) => Number.isInteger(r.comp_index) && slimComps[r.comp_index])
+    .filter((r) => {
+      if (seenIndexes.has(r.comp_index)) return false;
+      seenIndexes.add(r.comp_index);
+      return true;
+    })
     .map((r) => ({
       ...r,
       comp: slimComps[r.comp_index],

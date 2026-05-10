@@ -181,6 +181,25 @@ const requireElite = (req, res, next) => {
  * Must be used AFTER attachSubscription.
  */
 function requireTierWithLimit({ eventType, proMonthly, featureLabel } = {}) {
+  // Factory-time assertion: catch silent bucket bugs (PR #131 / #143 class)
+  // before they ship. If a route asks us to gate on an event_type that isn't
+  // in the canonical vocabulary, no logEvent call will ever match → counting
+  // silently fails → user gets unlimited usage. Throw at boot so this can
+  // never reach production.
+  if (eventType) {
+    // Lazy-require to avoid a circular dependency if events.js ever imports
+    // anything that itself imports this middleware.
+    const { EVENTS } = require('../lib/events');
+    const valid = Object.values(EVENTS);
+    if (!valid.includes(eventType)) {
+      throw new Error(
+        `[requireTierWithLimit] eventType='${eventType}' is not registered in lib/events.js EVENTS. ` +
+        `Add it there before using as a quota key, otherwise the Pro counter will silently fail. ` +
+        `Known: ${valid.join(', ')}`
+      );
+    }
+  }
+
   return async (req, res, next) => {
     try {
       if (!req.subscription) {
@@ -189,8 +208,16 @@ function requireTierWithLimit({ eventType, proMonthly, featureLabel } = {}) {
       }
       const tier = req.subscription.tier;
 
-      // Trial / no sub → hard block
-      if (tier !== TIERS.PRO && tier !== TIERS.ELITE) {
+      // Trial users get Pro-level access while their trial is active. The
+      // attachSubscription middleware already kicked out expired trials.
+      // Treating an active trial as Pro keeps the frontend ⇄ backend story
+      // consistent (useSubscription.ts defaults trial → 'Pro'). Without
+      // this, a paying-tier-during-trial user would see the feature unlocked
+      // in the UI but get a 403 from the API.
+      const proLike = tier === TIERS.PRO || tier === TIERS.TRIAL;
+
+      // No sub at all → hard block
+      if (tier !== TIERS.ELITE && !proLike) {
         return res.status(403).json({
           error: `Upgrade required for ${featureLabel || 'this feature'}`,
           code: 'TIER_REQUIRED',
@@ -202,7 +229,7 @@ function requireTierWithLimit({ eventType, proMonthly, featureLabel } = {}) {
       // Elite → unlimited, skip counting
       if (tier === TIERS.ELITE) return next();
 
-      // Pro → enforce monthly limit
+      // Pro/Trial → enforce monthly limit
       if (!eventType || !proMonthly) {
         // No limit configured — allow
         return next();
@@ -217,7 +244,8 @@ function requireTierWithLimit({ eventType, proMonthly, featureLabel } = {}) {
       );
       const used = r.rows[0]?.used || 0;
       if (used >= proMonthly) {
-        const nextMonth = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth() + 1, 1)).toISOString();
+        const now = new Date();
+        const nextMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1)).toISOString();
         return res.status(429).json({
           error: `Monthly ${featureLabel || 'usage'} limit reached`,
           code: 'QUOTA_EXCEEDED',
@@ -232,8 +260,20 @@ function requireTierWithLimit({ eventType, proMonthly, featureLabel } = {}) {
       req.featureQuota = { used, limit: proMonthly, remaining: proMonthly - used, tier };
       next();
     } catch (err) {
-      console.error('[Subscription] requireTierWithLimit error:', err);
-      next();   // fail open — don't lock users out of paid features over a DB blip
+      // FAIL OPEN — don't lock paid users out over a transient DB blip.
+      // But emit a structured log line so an APM / alert can catch a
+      // SUSTAINED outage. During a long Postgres incident every Pro user
+      // gets unlimited Claude calls on our bill, so this needs to be loud.
+      console.error(JSON.stringify({
+        level: 'error',
+        scope: 'subscription.requireTierWithLimit',
+        event: 'quota_check_failed_open',
+        user_id: req.user?.id,
+        feature: featureLabel,
+        event_type: eventType,
+        error: err.message,
+      }));
+      next();
     }
   };
 }
