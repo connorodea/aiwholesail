@@ -407,6 +407,25 @@ export const ai = {
     });
   },
 
+  rankComps: async (params: {
+    zpid?: string;
+    address?: string;
+    subject: {
+      sqft?: number;
+      beds?: number;
+      baths?: number;
+      yearBuilt?: number;
+      lotSize?: number;
+      propertyType?: string;
+      price?: number;
+    };
+  }): Promise<ApiResponse<RankCompsResponse>> => {
+    return apiFetch('/api/ai/rank-comps', {
+      method: 'POST',
+      body: JSON.stringify(params),
+    });
+  },
+
   wholesaleAnalyzer: async (data: {
     market?: string;
     csv_data?: any[];
@@ -728,6 +747,51 @@ export const contact = {
     });
   },
 };
+
+// ============ AI: RANK COMPS ============
+export interface RankCompsComp {
+  i?: number;
+  address: string;
+  city?: string;
+  zip?: string;
+  price?: number;
+  sqft?: number;
+  beds?: number;
+  baths?: number;
+  yearBuilt?: number;
+  lotSize?: number;
+  propertyType?: string;
+  saleDate?: string;
+  daysOnZillow?: number;
+  distance?: number;
+  pricePerSqft?: number;
+  zpid?: string;
+}
+
+export interface RankCompsAdjustment {
+  factor: string;
+  direction: 'up' | 'down';
+  amount_estimate: number;
+  reason: string;
+}
+
+export interface RankCompsEntry {
+  comp_index: number;
+  score: number;
+  reasoning: string;
+  adjustments: RankCompsAdjustment[];
+  comp: RankCompsComp;
+}
+
+export interface RankCompsResponse {
+  ranked: RankCompsEntry[];
+  overall_confidence: 'high' | 'medium' | 'low';
+  confidence_reasoning: string;
+  implied_arv: number | null;
+  implied_as_is_value: number | null;
+  candidates_evaluated: number;
+  model: string;
+}
 
 // ============ WEBHOOKS API ============
 export type WebhookEventType = 'property_alert_match' | 'price_change' | 'status_change' | 'owner_update';

@@ -43,6 +43,7 @@ import { AIPropertyAnalyzer } from './AIPropertyAnalyzer';
 import { InvestmentCalculator } from './InvestmentCalculator';
 import { PriceHistoryChart } from './PriceHistoryChart';
 import { ComparableSalesTable } from './ComparableSalesTable';
+import { AIRankedComps } from './AIRankedComps';
 import { PhotosGallery } from './PhotosGallery';
 import { TaxCarryingCosts } from './TaxCarryingCosts';
 import { ARVCalculator } from './ARVCalculator';
@@ -577,7 +578,7 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
             </TabsContent>
 
             <TabsContent value="comps" className="flex-1 overflow-auto p-3 sm:p-6 mt-0">
-              <ComparableSalesTable property={displayProperty} />
+              <AIRankedComps property={displayProperty} />
             </TabsContent>
 
             <TabsContent value="tools" className="flex-1 overflow-auto p-3 sm:p-6 mt-0">
