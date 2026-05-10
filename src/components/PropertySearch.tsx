@@ -29,7 +29,8 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
   });
   const { toast } = useToast();
   const [countyBrowserOpen, setCountyBrowserOpen] = useState(false);
-  const { isElite } = useSubscription();
+  const { isElite, isPro } = useSubscription();
+  const allowedForProFeatures = isElite || isPro;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -289,7 +290,7 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
               />
             </div>
 
-            {/* Motivated Sellers Toggle — Elite-only "The Wedge" */}
+            {/* Motivated Sellers Toggle — Pro / Elite (pure client-side scoring, no API cost) */}
             <div className={`flex items-center justify-between space-x-2 rounded-lg border p-3 transition-colors ${
               searchParams.motivatedSellersOnly
                 ? 'border-cyan-500/40 bg-cyan-500/[0.04]'
@@ -301,12 +302,12 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
                   <Label htmlFor="motivated-toggle" className="text-sm font-medium flex items-center gap-1.5">
                     Motivated Sellers Only
                     <Badge variant="secondary" className="text-[9px] gap-0.5 bg-cyan-500/10 text-cyan-400 border-cyan-500/30">
-                      <Sparkles className="h-2 w-2" /> Elite
+                      <Sparkles className="h-2 w-2" /> Pro / Elite
                     </Badge>
-                    {!isElite && <Lock className="h-3 w-3 text-muted-foreground" />}
+                    {!allowedForProFeatures && <Lock className="h-3 w-3 text-muted-foreground" />}
                   </Label>
                   <span className="text-xs text-muted-foreground">
-                    {isElite
+                    {allowedForProFeatures
                       ? 'FSBO + days-on-market + price cuts + Make Me Move signals'
                       : <>Combine off-market signals into one filtered view. <Link to="/pricing" className="text-cyan-400 hover:underline">Upgrade</Link></>}
                   </span>
@@ -315,12 +316,12 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
               <Switch
                 id="motivated-toggle"
                 checked={searchParams.motivatedSellersOnly || false}
-                disabled={!isElite}
+                disabled={!allowedForProFeatures}
                 onCheckedChange={(checked) => {
-                  if (!isElite) {
+                  if (!allowedForProFeatures) {
                     toast({
-                      title: 'Elite feature',
-                      description: 'Upgrade to Elite to use the motivated-seller pipeline.',
+                      title: 'Pro / Elite feature',
+                      description: 'Upgrade to Pro or Elite to use the motivated-seller pipeline.',
                     });
                     return;
                   }
