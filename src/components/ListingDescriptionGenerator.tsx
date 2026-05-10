@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -50,34 +50,49 @@ export function ListingDescriptionPanel({ property, autoGenerate = false }: { pr
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ListingResult | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
-  const [autoStarted, setAutoStarted] = useState(false);
+  // Tracks whether autoGenerate has already fired so we don't re-trigger.
+  // Lives outside React state because we don't need re-renders on flip and
+  // we want it to survive even when other state changes (StrictMode safety).
+  const autoStartedRef = useRef(false);
+  // AbortController for the in-flight Claude call. Set when a request fires,
+  // aborted on unmount so closing the dialog mid-fire doesn't keep burning
+  // Pro quota while the user has moved on.
+  const abortRef = useRef<AbortController | null>(null);
 
   const handleGenerate = async () => {
     if (!allowed) {
       toast.error('AI Listing Description is a Pro / Elite feature.');
       return;
     }
+    // Cancel any prior in-flight request from a previous click
+    abortRef.current?.abort();
+    abortRef.current = new AbortController();
+    const signal = abortRef.current.signal;
     setLoading(true);
     setResult(null);
     try {
-      const r = await ai.listingDescription({
-        property: {
-          address: property.address,
-          price: property.price,
-          zestimate: property.zestimate,
-          bedrooms: property.bedrooms,
-          bathrooms: property.bathrooms,
-          sqft: property.sqft,
-          yearBuilt: property.yearBuilt,
-          lotSize: property.lotSize,
-          propertyType: property.propertyType,
-          isFSBO: property.isFSBO,
-          status: property.status,
-          daysOnMarket: property.daysOnMarket,
-          description: property.description,
+      const r = await ai.listingDescription(
+        {
+          property: {
+            address: property.address,
+            price: property.price,
+            zestimate: property.zestimate,
+            bedrooms: property.bedrooms,
+            bathrooms: property.bathrooms,
+            sqft: property.sqft,
+            yearBuilt: property.yearBuilt,
+            lotSize: property.lotSize,
+            propertyType: property.propertyType,
+            isFSBO: property.isFSBO,
+            status: property.status,
+            daysOnMarket: property.daysOnMarket,
+            description: property.description,
+          },
+          tone,
         },
-        tone,
-      });
+        { signal }
+      );
+      if (signal.aborted) return; // user unmounted; don't paint stale state
       if (r.error) {
         toast.error(r.error, {
           description:
@@ -98,18 +113,28 @@ export function ListingDescriptionPanel({ property, autoGenerate = false }: { pr
         });
       }
     } finally {
-      setLoading(false);
+      if (!signal.aborted) setLoading(false);
     }
   };
 
-  // autoGenerate: kick off the first run automatically. Used by the
-  // "Run Full ARV Analysis" bundle (Phase 1.4) where the user expects
-  // everything to happen with one click.
-  if (autoGenerate && !autoStarted && allowed && !result && !loading) {
-    setAutoStarted(true);
-    // Fire and forget — handleGenerate has its own loading state
-    handleGenerate();
-  }
+  // autoGenerate: kick off the first run after mount. In an effect (not
+  // during render) so we don't violate React's no-side-effects-in-render
+  // rule, and to make double-fires impossible under StrictMode.
+  useEffect(() => {
+    if (autoGenerate && !autoStartedRef.current && allowed) {
+      autoStartedRef.current = true;
+      handleGenerate();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoGenerate, allowed]);
+
+  // Abort the in-flight request on unmount so a closed dialog doesn't keep
+  // ticking the Pro counter for ~30s after the user has moved on.
+  useEffect(() => {
+    return () => {
+      abortRef.current?.abort();
+    };
+  }, []);
 
   const copyToClipboard = async (text: string, label: string) => {
     try {

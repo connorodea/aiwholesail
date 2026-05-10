@@ -407,10 +407,13 @@ export const ai = {
     });
   },
 
-  listingDescription: async (params: {
-    property: Record<string, unknown>;
-    tone?: 'wholesaler' | 'flipper' | 'rental' | 'agent';
-  }): Promise<ApiResponse<{
+  listingDescription: async (
+    params: {
+      property: Record<string, unknown>;
+      tone?: 'wholesaler' | 'flipper' | 'rental' | 'agent';
+    },
+    opts?: { signal?: AbortSignal }
+  ): Promise<ApiResponse<{
     headline: string;
     description: string;
     bullets: string[];
@@ -420,25 +423,30 @@ export const ai = {
     return apiFetch('/api/ai/listing-description', {
       method: 'POST',
       body: JSON.stringify(params),
+      signal: opts?.signal,
     });
   },
 
-  rankComps: async (params: {
-    zpid?: string;
-    address?: string;
-    subject: {
-      sqft?: number;
-      beds?: number;
-      baths?: number;
-      yearBuilt?: number;
-      lotSize?: number;
-      propertyType?: string;
-      price?: number;
-    };
-  }): Promise<ApiResponse<RankCompsResponse>> => {
+  rankComps: async (
+    params: {
+      zpid?: string;
+      address?: string;
+      subject: {
+        sqft?: number;
+        beds?: number;
+        baths?: number;
+        yearBuilt?: number;
+        lotSize?: number;
+        propertyType?: string;
+        price?: number;
+      };
+    },
+    opts?: { signal?: AbortSignal }
+  ): Promise<ApiResponse<RankCompsResponse>> => {
     return apiFetch('/api/ai/rank-comps', {
       method: 'POST',
       body: JSON.stringify(params),
+      signal: opts?.signal,
     });
   },
 

@@ -368,7 +368,9 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                   className="gap-1.5 h-9 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-black font-semibold shadow-[0_0_18px_rgba(6,182,212,0.25)]"
                 >
                   <Zap className="h-4 w-4" />
-                  <span>Full ARV Analysis</span>
+                  {/* hidden xl:inline matches sibling buttons so the row doesn't overflow at lg width */}
+                  <span className="hidden xl:inline">Full ARV Analysis</span>
+                  <span className="xl:hidden">Full ARV</span>
                 </Button>
                 <Button variant="outline" size="sm" onClick={handleToggleFavorite} className="gap-1.5 h-9 rounded-lg border-border/50">
                   <Heart className={`h-4 w-4 ${isPropertyFavorite ? 'fill-current text-red-500' : ''}`} />
@@ -409,6 +411,15 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
             {/* Mobile action row — horizontally scrollable */}
             <div className="lg:hidden -mx-4 px-4 overflow-x-auto scrollbar-none">
               <div className="flex gap-2 min-w-max pb-1">
+                {/* Headline CTA — same Phase 1.4 button as desktop, leading the mobile row */}
+                <Button
+                  size="sm"
+                  onClick={handleFullArv}
+                  className="gap-1.5 h-9 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-black font-semibold flex-shrink-0 shadow-[0_0_18px_rgba(6,182,212,0.25)]"
+                >
+                  <Zap className="h-4 w-4" />
+                  Full ARV
+                </Button>
                 <Button variant="outline" size="sm" onClick={handleToggleFavorite} className="gap-1.5 h-9 rounded-lg border-border/50 flex-shrink-0">
                   <Heart className={`h-4 w-4 ${isPropertyFavorite ? 'fill-current text-red-500' : ''}`} />
                   {isPropertyFavorite ? 'Saved' : 'Save'}
