@@ -578,6 +578,32 @@ async function run() {
           `, [alert.id, JSON.stringify(deal), smsSent, emailSent]);
         }
 
+        // Webhook dispatch (Pro/Elite feature) — fire-and-forget.
+        // Payload mirrors the alert email shape so subscribers can render
+        // the same info in their CRM / workflow tool without a second API call.
+        try {
+          const { dispatchEvent, WEBHOOK_EVENTS } = require('../lib/webhooks');
+          dispatchEvent(alert.user_id, WEBHOOK_EVENTS.PROPERTY_ALERT_MATCH, {
+            alert: {
+              id: alert.id,
+              location: alert.location,
+              min_spread: minSpread,
+              frequency: alert.alert_frequency,
+            },
+            matches: deals.rows.map(d => ({
+              zpid: d.zpid,
+              address: d.address,
+              price: d.price,
+              zestimate: d.zestimate,
+              spread: d.spread,
+              url: d.zpid ? `https://www.zillow.com/homedetails/${d.zpid}_zpid/` : null,
+            })),
+            match_count: deals.rows.length,
+          });
+        } catch (whErr) {
+          console.error(`  [webhooks] dispatch error for alert ${alert.id}: ${whErr.message}`);
+        }
+
       } catch (err) {
         console.error(`  ERROR processing alert ${alert.id}: ${err.message}`);
         stats.errors.push(`alert ${alert.id}: ${err.message}`);
