@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { MapPin, Search, ArrowRight, X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { MapPin, Search, ArrowRight, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import allCountiesRaw from '@/data/all-us-counties.json';
 
 interface County {
@@ -32,6 +32,10 @@ const COUNTIES_BY_STATE = (() => {
 const TOTAL_COUNTIES = counties.length;
 const TOTAL_STATES = COUNTIES_BY_STATE.length;
 
+// 60 = 3 columns × 20 rows. Fits in the dialog without ScrollArea acrobatics.
+// Tall states (TX 254, GA 159) get paged naturally — no more height-inheritance war.
+const PAGE_SIZE = 60;
+
 interface CountyBrowserDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -41,15 +45,22 @@ interface CountyBrowserDialogProps {
 export function CountyBrowserDialog({ open, onOpenChange, onSelectCounty }: CountyBrowserDialogProps) {
   const [query, setQuery] = useState('');
   const [selectedState, setSelectedState] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
   const stateChipRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
-  // Reset filters whenever the dialog reopens.
+  // Reset filters + page whenever the dialog reopens.
   useEffect(() => {
     if (!open) {
       setQuery('');
       setSelectedState(null);
+      setPage(1);
     }
   }, [open]);
+
+  // Reset to page 1 whenever the filter narrows or widens
+  useEffect(() => {
+    setPage(1);
+  }, [query, selectedState]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -75,6 +86,40 @@ export function CountyBrowserDialog({ open, onOpenChange, onSelectCounty }: Coun
       .filter((g) => g.counties.length > 0);
   }, [query, selectedState]);
 
+  // Flatten for pagination, then re-group the current page by state for rendering.
+  // This way a search that matches across 5 states still paginates cleanly even
+  // though we render state headers per group.
+  const flatItems = useMemo(
+    () => filtered.flatMap((g) => g.counties.map((c) => ({ group: g, county: c }))),
+    [filtered]
+  );
+
+  const totalShown = flatItems.length;
+  const totalPages = Math.max(1, Math.ceil(totalShown / PAGE_SIZE));
+  const safePage = Math.min(page, totalPages);
+  const pageStart = (safePage - 1) * PAGE_SIZE;
+  const pageEnd = Math.min(pageStart + PAGE_SIZE, totalShown);
+  const pageItems = flatItems.slice(pageStart, pageEnd);
+
+  // Re-group the page back by state so the state headers render naturally.
+  const pageGroups = useMemo(() => {
+    const out: { stateFull: string; state: string; counties: County[] }[] = [];
+    for (const item of pageItems) {
+      const last = out[out.length - 1];
+      if (last && last.stateFull === item.group.stateFull) {
+        last.counties.push(item.county);
+      } else {
+        out.push({
+          stateFull: item.group.stateFull,
+          state: item.group.state,
+          counties: [item.county],
+        });
+      }
+    }
+    return out;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pageStart, pageEnd, flatItems]);
+
   const handleSelect = (county: County) => {
     onSelectCounty(`${county.name}, ${county.state}`);
     onOpenChange(false);
@@ -82,24 +127,21 @@ export function CountyBrowserDialog({ open, onOpenChange, onSelectCounty }: Coun
 
   const handleStateClick = (stateAbbr: string) => {
     if (selectedState === stateAbbr) {
-      // Toggle off
       setSelectedState(null);
       return;
     }
     setSelectedState(stateAbbr);
     setQuery('');
-    // Center the chip in the strip
     const chip = stateChipRefs.current[stateAbbr];
-    if (chip) {
-      chip.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-    }
+    if (chip) chip.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
   };
-
-  const totalShown = filtered.reduce((sum, g) => sum + g.counties.length, 0);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl w-[95vw] h-[90vh] sm:h-[88vh] p-0 gap-0 bg-[#0c0d0f] border-neutral-800 text-white overflow-hidden flex flex-col">
+      {/* Note: no longer needs h-[88vh] or absolute-inset-0 ScrollArea tricks.
+          Pagination keeps every page small enough to fit, so the dialog can be
+          its natural max-height. */}
+      <DialogContent className="max-w-3xl w-[95vw] max-h-[90vh] p-0 gap-0 bg-[#0c0d0f] border-neutral-800 text-white overflow-hidden flex flex-col">
         <DialogHeader className="px-6 pt-6 pb-3 border-b border-neutral-800/60">
           <DialogTitle className="text-xl font-medium tracking-tight">Browse counties by state</DialogTitle>
           <DialogDescription className="text-sm text-neutral-500 leading-relaxed">
@@ -119,7 +161,6 @@ export function CountyBrowserDialog({ open, onOpenChange, onSelectCounty }: Coun
             />
           </div>
 
-          {/* Horizontal state picker — scroll or click to filter */}
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
               <p className="text-[10px] uppercase tracking-[0.18em] font-semibold text-neutral-500">
@@ -163,19 +204,24 @@ export function CountyBrowserDialog({ open, onOpenChange, onSelectCounty }: Coun
             </div>
           </div>
 
-          <p className="text-xs text-neutral-500">
-            {totalShown.toLocaleString()} {totalShown === 1 ? 'county' : 'counties'} {query || selectedState ? 'match' : 'available'}
-            {query && !selectedState ? ` across ${filtered.length} ${filtered.length === 1 ? 'state' : 'states'}` : ''}
-          </p>
+          <div className="flex items-center justify-between text-xs text-neutral-500">
+            <p>
+              {totalShown.toLocaleString()} {totalShown === 1 ? 'county' : 'counties'} {query || selectedState ? 'match' : 'available'}
+              {query && !selectedState ? ` across ${filtered.length} ${filtered.length === 1 ? 'state' : 'states'}` : ''}
+            </p>
+            {totalShown > 0 && (
+              <p className="tabular-nums">
+                {pageStart + 1}–{pageEnd} of {totalShown.toLocaleString()}
+              </p>
+            )}
+          </div>
         </div>
 
-        <div className="relative flex-1 min-h-0">
-          {/* absolute inset-0 sidesteps flex-1 + h-full quirks where some
-              browsers fail to compute h-full inside a flex item, letting the
-              scroll content overflow past the footer. */}
-          <ScrollArea className="absolute inset-0">
-            <div className="px-6 py-4 space-y-6">
-            {filtered.length === 0 && (
+        {/* Content — naturally sized, no ScrollArea. Pagination keeps the
+            visible item count low enough that scroll-fighting isn't needed. */}
+        <div className="flex-1 min-h-0 overflow-auto">
+          <div className="px-6 py-4 space-y-6">
+            {totalShown === 0 && (
               <div className="text-center py-12 space-y-2">
                 <MapPin className="h-8 w-8 text-neutral-700 mx-auto" />
                 <p className="text-sm text-neutral-400">No matches for &ldquo;{query}&rdquo;</p>
@@ -185,14 +231,17 @@ export function CountyBrowserDialog({ open, onOpenChange, onSelectCounty }: Coun
               </div>
             )}
 
-            {filtered.map((group) => (
-              <div key={group.stateFull}>
-                <div className="flex items-baseline gap-2 mb-2 sticky top-0 bg-[#0c0d0f] py-1 z-10">
+            {pageGroups.map((group, idx) => (
+              <div key={`${group.stateFull}-${idx}`}>
+                <div className="flex items-baseline gap-2 mb-2">
                   <h3 className="text-xs font-semibold tracking-[0.18em] uppercase text-cyan-400">
                     {group.stateFull}
                   </h3>
                   <span className="text-xs text-neutral-600">
-                    {group.state} · {group.counties.length} {group.counties.length === 1 ? 'county' : 'counties'}
+                    {group.state}
+                    {idx === 0 && totalShown > group.counties.length && (
+                      <> · showing {group.counties.length} on this page</>
+                    )}
                   </span>
                 </div>
                 <div className="columns-1 sm:columns-2 lg:columns-3 gap-x-3 [column-fill:balance]">
@@ -212,19 +261,45 @@ export function CountyBrowserDialog({ open, onOpenChange, onSelectCounty }: Coun
                 </div>
               </div>
             ))}
-            {/* Bottom spacer so the last row sits above the fade */}
-            <div className="h-6" aria-hidden />
           </div>
-          </ScrollArea>
-          {/* Scrollability hint: gradient fade indicates more content below */}
-          <div
-            aria-hidden
-            className="pointer-events-none absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-[#0c0d0f] to-transparent"
-          />
         </div>
 
-        <div className="px-6 py-3 border-t border-neutral-800/60 text-xs text-neutral-500">
-          Source: US Census Bureau · {TOTAL_COUNTIES.toLocaleString()} counties across {TOTAL_STATES} states + DC
+        {/* Pagination controls — replace the prior footer fade gradient.
+            Only render when there's more than one page; collapses cleanly
+            when filtered to fewer than PAGE_SIZE counties. */}
+        <div className="px-6 py-3 border-t border-neutral-800/60 flex items-center justify-between gap-3">
+          <span className="text-xs text-neutral-500">
+            Source: US Census Bureau
+          </span>
+          {totalPages > 1 ? (
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={safePage === 1}
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                className="h-8 px-2.5 gap-1 border-white/[0.08] bg-white/[0.02] text-neutral-300 hover:bg-white/[0.06] hover:text-white disabled:opacity-30"
+              >
+                <ChevronLeft className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Prev</span>
+              </Button>
+              <span className="text-xs text-neutral-400 tabular-nums min-w-[64px] text-center">
+                Page {safePage} of {totalPages}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={safePage >= totalPages}
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                className="h-8 px-2.5 gap-1 border-white/[0.08] bg-white/[0.02] text-neutral-300 hover:bg-white/[0.06] hover:text-white disabled:opacity-30"
+              >
+                <span className="hidden sm:inline">Next</span>
+                <ChevronRight className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          ) : (
+            <span className="text-xs text-neutral-600">{TOTAL_COUNTIES.toLocaleString()} counties · {TOTAL_STATES} states + DC</span>
+          )}
         </div>
       </DialogContent>
     </Dialog>
