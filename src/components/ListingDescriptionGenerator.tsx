@@ -18,6 +18,12 @@ import type { Property } from '@/types/zillow';
  * the audience (cash buyer / flipper / landlord / retail). The output
  * is structured (headline + body + bullets) so it can drop into the
  * BuyerPitchPDF or be copied straight into Zillow / Facebook / Craigslist.
+ *
+ * Two exports:
+ *   - <ListingDescriptionPanel property> — bare panel for embedding in
+ *     other layouts (e.g. the Full ARV Analysis bundle from Phase 1.4).
+ *   - <ListingDescriptionGenerator property open onOpenChange> — Dialog
+ *     wrapper for standalone use from PropertyModal.
  */
 
 type Tone = 'wholesaler' | 'flipper' | 'rental' | 'agent';
@@ -36,13 +42,7 @@ const TONES: { value: Tone; label: string; hint: string }[] = [
   { value: 'agent',      label: 'Retail buyer',              hint: 'Lifestyle, move-in feel' },
 ];
 
-interface ListingDescriptionGeneratorProps {
-  property: Property;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}
-
-export function ListingDescriptionGenerator({ property, open, onOpenChange }: ListingDescriptionGeneratorProps) {
+export function ListingDescriptionPanel({ property, autoGenerate = false }: { property: Property; autoGenerate?: boolean }) {
   const { isElite, isPro } = useSubscription();
   const allowed = isElite || isPro;
 
@@ -50,6 +50,7 @@ export function ListingDescriptionGenerator({ property, open, onOpenChange }: Li
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ListingResult | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
+  const [autoStarted, setAutoStarted] = useState(false);
 
   const handleGenerate = async () => {
     if (!allowed) {
@@ -101,6 +102,15 @@ export function ListingDescriptionGenerator({ property, open, onOpenChange }: Li
     }
   };
 
+  // autoGenerate: kick off the first run automatically. Used by the
+  // "Run Full ARV Analysis" bundle (Phase 1.4) where the user expects
+  // everything to happen with one click.
+  if (autoGenerate && !autoStarted && allowed && !result && !loading) {
+    setAutoStarted(true);
+    // Fire and forget — handleGenerate has its own loading state
+    handleGenerate();
+  }
+
   const copyToClipboard = async (text: string, label: string) => {
     try {
       await navigator.clipboard.writeText(text);
@@ -117,6 +127,101 @@ export function ListingDescriptionGenerator({ property, open, onOpenChange }: Li
     : '';
 
   return (
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <div className="text-xs font-medium text-muted-foreground">Audience tone</div>
+        <div className="grid grid-cols-2 gap-2">
+          {TONES.map((t) => (
+            <button
+              key={t.value}
+              type="button"
+              onClick={() => setTone(t.value)}
+              className={`text-left rounded-lg border p-2.5 transition-colors ${
+                tone === t.value
+                  ? 'border-cyan-500/40 bg-cyan-500/[0.04]'
+                  : 'border-border/50 hover:border-border'
+              }`}
+            >
+              <div className="text-xs font-medium">{t.label}</div>
+              <div className="text-[11px] text-muted-foreground mt-0.5">{t.hint}</div>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <Button onClick={handleGenerate} disabled={loading || !allowed} className="w-full gap-2">
+        {loading ? (
+          <><Loader2 className="h-4 w-4 animate-spin" /> Writing…</>
+        ) : (
+          <><Wand2 className="h-4 w-4" /> {result ? 'Regenerate' : 'Generate'}</>
+        )}
+      </Button>
+      {!allowed && (
+        <p className="text-[11px] text-muted-foreground text-center">
+          Pro: 25 generations/month · Elite: unlimited
+        </p>
+      )}
+
+      {result && (
+        <div className="space-y-3 pt-2">
+          <Card className="border-cyan-500/30 bg-cyan-500/[0.04]">
+            <CardHeader className="pb-2 flex flex-row items-start justify-between gap-3">
+              <CardTitle className="text-sm">Headline</CardTitle>
+              <Button size="sm" variant="ghost" onClick={() => copyToClipboard(result.headline, 'Headline')} className="h-6 px-2 gap-1 text-[11px]">
+                {copiedField === 'Headline' ? <CheckCircle2 className="h-3 w-3" /> : <Copy className="h-3 w-3" />} Copy
+              </Button>
+            </CardHeader>
+            <CardContent className="text-base font-medium text-foreground">{result.headline}</CardContent>
+          </Card>
+
+          <Card className="border-border/50">
+            <CardHeader className="pb-2 flex flex-row items-start justify-between gap-3">
+              <CardTitle className="text-sm">Description</CardTitle>
+              <Button size="sm" variant="ghost" onClick={() => copyToClipboard(result.description, 'Description')} className="h-6 px-2 gap-1 text-[11px]">
+                {copiedField === 'Description' ? <CheckCircle2 className="h-3 w-3" /> : <Copy className="h-3 w-3" />} Copy
+              </Button>
+            </CardHeader>
+            <CardContent className="text-sm leading-relaxed whitespace-pre-wrap">{result.description}</CardContent>
+          </Card>
+
+          {result.bullets.length > 0 && (
+            <Card className="border-border/50">
+              <CardHeader className="pb-2 flex flex-row items-start justify-between gap-3">
+                <CardTitle className="text-sm">Key points</CardTitle>
+                <Button size="sm" variant="ghost" onClick={() => copyToClipboard(result.bullets.map((b) => `• ${b}`).join('\n'), 'Bullets')} className="h-6 px-2 gap-1 text-[11px]">
+                  {copiedField === 'Bullets' ? <CheckCircle2 className="h-3 w-3" /> : <Copy className="h-3 w-3" />} Copy
+                </Button>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-1.5">
+                  {result.bullets.map((b, i) => (
+                    <li key={i} className="text-sm flex items-start gap-2">
+                      <span className="text-cyan-400 mt-1">•</span><span>{b}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          )}
+
+          <Button onClick={() => copyToClipboard(fullText, 'Full copy')} variant="outline" className="w-full gap-2">
+            {copiedField === 'Full copy' ? <CheckCircle2 className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+            Copy full listing (headline + description + bullets)
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+interface ListingDescriptionGeneratorProps {
+  property: Property;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+export function ListingDescriptionGenerator({ property, open, onOpenChange }: ListingDescriptionGeneratorProps) {
+  return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[85vh] overflow-auto">
         <DialogHeader>
@@ -131,122 +236,7 @@ export function ListingDescriptionGenerator({ property, open, onOpenChange }: Li
             Generate marketing copy tuned to your audience. Drop it into Zillow, Facebook, Craigslist, or your buyer-pitch deck.
           </DialogDescription>
         </DialogHeader>
-
-        <div className="space-y-4">
-          {/* Tone picker */}
-          <div className="space-y-2">
-            <div className="text-xs font-medium text-muted-foreground">Audience tone</div>
-            <div className="grid grid-cols-2 gap-2">
-              {TONES.map((t) => (
-                <button
-                  key={t.value}
-                  type="button"
-                  onClick={() => setTone(t.value)}
-                  className={`text-left rounded-lg border p-2.5 transition-colors ${
-                    tone === t.value
-                      ? 'border-cyan-500/40 bg-cyan-500/[0.04]'
-                      : 'border-border/50 hover:border-border'
-                  }`}
-                >
-                  <div className="text-xs font-medium">{t.label}</div>
-                  <div className="text-[11px] text-muted-foreground mt-0.5">{t.hint}</div>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Generate button */}
-          <Button
-            onClick={handleGenerate}
-            disabled={loading || !allowed}
-            className="w-full gap-2"
-          >
-            {loading ? (
-              <><Loader2 className="h-4 w-4 animate-spin" /> Writing…</>
-            ) : (
-              <><Wand2 className="h-4 w-4" /> {result ? 'Regenerate' : 'Generate'}</>
-            )}
-          </Button>
-          {!allowed && (
-            <p className="text-[11px] text-muted-foreground text-center">
-              Pro: 25 generations/month · Elite: unlimited
-            </p>
-          )}
-
-          {/* Result */}
-          {result && (
-            <div className="space-y-3 pt-2">
-              <Card className="border-cyan-500/30 bg-cyan-500/[0.04]">
-                <CardHeader className="pb-2 flex flex-row items-start justify-between gap-3">
-                  <CardTitle className="text-sm">Headline</CardTitle>
-                  <Button
-                    size="sm" variant="ghost"
-                    onClick={() => copyToClipboard(result.headline, 'Headline')}
-                    className="h-6 px-2 gap-1 text-[11px]"
-                  >
-                    {copiedField === 'Headline' ? <CheckCircle2 className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
-                    Copy
-                  </Button>
-                </CardHeader>
-                <CardContent className="text-base font-medium text-foreground">
-                  {result.headline}
-                </CardContent>
-              </Card>
-
-              <Card className="border-border/50">
-                <CardHeader className="pb-2 flex flex-row items-start justify-between gap-3">
-                  <CardTitle className="text-sm">Description</CardTitle>
-                  <Button
-                    size="sm" variant="ghost"
-                    onClick={() => copyToClipboard(result.description, 'Description')}
-                    className="h-6 px-2 gap-1 text-[11px]"
-                  >
-                    {copiedField === 'Description' ? <CheckCircle2 className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
-                    Copy
-                  </Button>
-                </CardHeader>
-                <CardContent className="text-sm leading-relaxed whitespace-pre-wrap">
-                  {result.description}
-                </CardContent>
-              </Card>
-
-              {result.bullets.length > 0 && (
-                <Card className="border-border/50">
-                  <CardHeader className="pb-2 flex flex-row items-start justify-between gap-3">
-                    <CardTitle className="text-sm">Key points</CardTitle>
-                    <Button
-                      size="sm" variant="ghost"
-                      onClick={() => copyToClipboard(result.bullets.map((b) => `• ${b}`).join('\n'), 'Bullets')}
-                      className="h-6 px-2 gap-1 text-[11px]"
-                    >
-                      {copiedField === 'Bullets' ? <CheckCircle2 className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
-                      Copy
-                    </Button>
-                  </CardHeader>
-                  <CardContent>
-                    <ul className="space-y-1.5">
-                      {result.bullets.map((b, i) => (
-                        <li key={i} className="text-sm flex items-start gap-2">
-                          <span className="text-cyan-400 mt-1">•</span>
-                          <span>{b}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                </Card>
-              )}
-
-              <Button
-                onClick={() => copyToClipboard(fullText, 'Full copy')}
-                variant="outline"
-                className="w-full gap-2"
-              >
-                {copiedField === 'Full copy' ? <CheckCircle2 className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                Copy full listing (headline + description + bullets)
-              </Button>
-            </div>
-          )}
-        </div>
+        <ListingDescriptionPanel property={property} />
       </DialogContent>
     </Dialog>
   );
