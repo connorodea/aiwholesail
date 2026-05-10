@@ -5,7 +5,7 @@ const { query } = require('../config/database');
 const { authenticate } = require('../middleware/auth');
 const { asyncHandler, logSecurityEvent } = require('../middleware/errorHandler');
 const { checkDatabaseRateLimit } = require('../middleware/rateLimit');
-const { attachSubscription, requireElite } = require('../middleware/subscription');
+const { attachSubscription, requireElite, requireTierWithLimit } = require('../middleware/subscription');
 const { logEvent, EVENTS } = require('../lib/events');
 const {
   callClaude,
@@ -23,9 +23,12 @@ const RAPIDAPI_KEY = process.env.RAPIDAPI_KEY;
  * POST /api/ai/property-analysis
  * AI-powered property analysis
  */
-router.post('/property-analysis', authenticate, attachSubscription, requireElite, [
-  body('property').optional().isObject(), body('csv_data').optional().isArray(), body('market').optional().isString()
-], asyncHandler(async (req, res) => {
+router.post('/property-analysis',
+  authenticate,
+  attachSubscription,
+  requireTierWithLimit({ eventType: 'ai_property_analysis', proMonthly: 10, featureLabel: 'AI property analysis' }),
+  [body('property').optional().isObject(), body('csv_data').optional().isArray(), body('market').optional().isString()],
+asyncHandler(async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ error: 'Validation failed', errors: errors.array() });
@@ -542,7 +545,11 @@ Be helpful, concise, and provide actionable advice.`;
  * POST /api/ai/photo-analysis
  * AI-powered property photo condition analysis and rehab cost estimation
  */
-router.post('/photo-analysis', authenticate, attachSubscription, requireElite, [
+router.post('/photo-analysis',
+  authenticate,
+  attachSubscription,
+  requireTierWithLimit({ eventType: 'photo_analysis', proMonthly: 10, featureLabel: 'AI photo analysis' }),
+  [
   body('property').optional().isObject(), body('csv_data').optional().isArray(), body('market').optional().isString(),
   body('imageUrls').isArray({ min: 1 }).withMessage('At least one image URL required')
 ], asyncHandler(async (req, res) => {
@@ -643,6 +650,14 @@ IMPORTANT: Respond ONLY with valid JSON in this exact structure (no markdown, no
       photosAnalyzed: limitedUrls.length,
       tokensUsed: response.data.usage?.total_tokens || 0
     }, req.user.id, req);
+
+    // Required for Pro monthly-limit accounting (requireTierWithLimit queries
+    // user_events by event_type). Without this, Pro users would get unlimited
+    // photo analyses for free — the counter would never increment.
+    logEvent(req.user.id, EVENTS.PHOTO_ANALYSIS, {
+      photos: limitedUrls.length,
+      tokens: response.data.usage?.total_tokens || 0,
+    });
 
     res.json({
       analysis: analysisData || null,
@@ -966,6 +981,210 @@ router.post('/rank-deals', authenticate, [
     console.error('[rank-deals] OpenAI call failed:', err.response?.data || err.message);
     res.status(502).json({ error: 'AI service unavailable. Try again in a moment.' });
   }
+}));
+
+/**
+ * POST /api/ai/rank-comps
+ * Elite-only. Takes a subject property, fetches the Zillow comp pool, asks
+ * Claude to pick the top 6 with reasoning + adjustments + confidence.
+ *
+ * This is the head-to-head feature with chatarv.ai — their headline product
+ * is "top 6 comps with reasoning in 60 seconds." This route does the same
+ * thing, but augmented by our broader platform (skip-trace, contracts,
+ * pipeline) that ChatARV doesn't have.
+ *
+ * Request body: { zpid?: string, address?: string, subject: { sqft, beds,
+ *   baths, yearBuilt, lotSize, propertyType, price } }
+ *
+ * Response: {
+ *   ranked: [{ comp_index, score, reasoning, adjustments: [...], comp: {...} }],
+ *   overall_confidence: 'high' | 'medium' | 'low',
+ *   confidence_reasoning: string,
+ *   implied_arv: number,
+ *   implied_as_is_value: number,
+ *   candidates_evaluated: number,
+ *   model: 'claude-sonnet-4-6'
+ * }
+ */
+router.post('/rank-comps',
+  authenticate,
+  attachSubscription,
+  requireTierWithLimit({ eventType: 'ai_rank_comps', proMonthly: 25, featureLabel: 'AI-ranked comps' }),
+  [
+  body('zpid').optional().isString(),
+  body('address').optional().isString(),
+  body('subject').isObject().withMessage('subject property required'),
+], asyncHandler(async (req, res) => {
+  const errs = validationResult(req);
+  if (!errs.isEmpty()) return res.status(400).json({ error: 'Validation failed', errors: errs.array() });
+
+  const { zpid, address, subject } = req.body;
+  if (!zpid && !address) return res.status(400).json({ error: 'zpid or address required' });
+
+  if (!RAPIDAPI_KEY) {
+    return res.status(503).json({ error: 'Comps service not configured' });
+  }
+
+  // 1) Pull the comp pool from Zillow (same source as ComparableSalesTable)
+  let compPool = [];
+  try {
+    const params = {};
+    if (zpid) params.byzpid = zpid;
+    if (address) params.byaddress = address;
+    const r = await axios.get(
+      'https://zillow-working-api.p.rapidapi.com/comparable_homes',
+      {
+        params,
+        headers: {
+          'x-rapidapi-key': RAPIDAPI_KEY,
+          'x-rapidapi-host': 'zillow-working-api.p.rapidapi.com',
+        },
+        timeout: 30_000,
+      }
+    );
+    // The RapidAPI response shape varies; normalize defensively
+    const payload = r.data || {};
+    compPool = payload.comparableHomes || payload.comparable_homes ||
+               payload.comparables || payload.comps || payload.data || [];
+    if (!Array.isArray(compPool)) compPool = [];
+  } catch (err) {
+    console.error('[rank-comps] Zillow comps fetch failed:', err.response?.data || err.message);
+    return res.status(502).json({
+      error: 'Could not fetch comparable sales from upstream',
+      message: 'Try again in a moment.',
+    });
+  }
+
+  if (compPool.length === 0) {
+    return res.json({
+      ranked: [],
+      overall_confidence: 'low',
+      confidence_reasoning: 'No comparable sales returned from upstream.',
+      implied_arv: null,
+      implied_as_is_value: null,
+      candidates_evaluated: 0,
+      model: 'claude-sonnet-4-6',
+    });
+  }
+
+  // 2) Trim each comp to fields that matter so we don't blow Claude's context
+  const slimComps = compPool.slice(0, 50).map((c, i) => ({
+    i,
+    address: c.address?.streetAddress || c.address || c.streetAddress || '',
+    city: c.address?.city || c.city || '',
+    zip: c.address?.zipcode || c.zipcode || '',
+    price: c.price || c.lastSoldPrice || c.salePrice,
+    sqft: c.livingArea || c.sqft || c.area,
+    beds: c.bedrooms || c.beds,
+    baths: c.bathrooms || c.baths,
+    yearBuilt: c.yearBuilt,
+    lotSize: c.lotAreaValue || c.lotSize,
+    propertyType: c.homeType || c.propertyType,
+    saleDate: c.dateSold || c.lastSoldDate || c.saleDate,
+    daysOnZillow: c.daysOnZillow,
+    distance: c.distance,
+    pricePerSqft: c.pricePerSqft || (c.price && c.livingArea ? Math.round(c.price / c.livingArea) : undefined),
+    zpid: c.zpid,
+  }));
+
+  // 3) Ask Claude for structured top-6 + reasoning
+  const systemPrompt = `You are a senior real estate appraiser specializing in wholesale-deal ARV valuation. You select comparable sales the way an experienced wholesaler would: prioritizing recency, proximity, sqft tightness, similar bed/bath/yearBuilt, and same property type. You explain your reasoning concisely and flag adjustments where the comp differs meaningfully from the subject.
+
+You MUST respond with valid JSON only — no preamble, no markdown, no code fences. Just the JSON object.`;
+
+  const userPrompt = `SUBJECT PROPERTY:
+${JSON.stringify(subject, null, 2)}
+
+COMP POOL (${slimComps.length} candidates, each with index i):
+${JSON.stringify(slimComps, null, 2)}
+
+TASK: Pick the top 6 best comps for ARV calculation on the subject property. Reply with this exact JSON shape:
+
+{
+  "ranked": [
+    {
+      "comp_index": <integer matching i in pool>,
+      "score": <0-100 similarity score>,
+      "reasoning": "<one short sentence, e.g. 'Same zip, sold 47 days ago, sqft within 4%'>",
+      "adjustments": [
+        {
+          "factor": "<lot_size|sqft|beds|baths|year_built|condition|garage|other>",
+          "direction": "<up|down>",
+          "amount_estimate": <signed integer in dollars, negative if down>,
+          "reason": "<one short clause>"
+        }
+      ]
+    }
+  ],
+  "overall_confidence": "<high|medium|low>",
+  "confidence_reasoning": "<one sentence on comp tightness, e.g. '12 candidates, all within 0.5mi, sold within 90 days'>",
+  "implied_as_is_value": <integer in dollars, median of comps without condition lift>,
+  "implied_arv": <integer in dollars, comps adjusted up for post-rehab condition>
+}
+
+Pick fewer than 6 only if the pool genuinely lacks good matches. Order by score descending. Score >= 80 = excellent, 60-79 = good, 40-59 = marginal, < 40 = poor (avoid if possible).`;
+
+  let aiResponse;
+  try {
+    aiResponse = await callClaude(systemPrompt, userPrompt, {
+      model: 'claude-sonnet-4-6',
+      maxTokens: 4000,
+      temperature: 0.3, // low — we want consistent, defensible picks
+      timeoutMs: 90_000,
+    });
+  } catch (err) {
+    console.error('[rank-comps] Claude call failed:', err.response?.data || err.message);
+    return res.status(502).json({ error: 'AI service unavailable. Try again in a moment.' });
+  }
+
+  const text = aiResponse?.content?.[0]?.text || '';
+  let parsed;
+  try {
+    // Strip any accidental code fences in case the model ignored instructions
+    const cleaned = text.replace(/^```(?:json)?\n?|\n?```$/g, '').trim();
+    parsed = JSON.parse(cleaned);
+  } catch (parseErr) {
+    console.error('[rank-comps] JSON parse failed:', parseErr.message, 'Raw:', text.slice(0, 500));
+    return res.status(502).json({ error: 'AI returned malformed response' });
+  }
+
+  // Re-hydrate each ranked entry with the full comp object so the UI doesn't
+  // need to cross-reference indexes itself. Dedup on comp_index in case
+  // Claude returns the same comp twice (rare but observed) — otherwise the
+  // UI renders duplicate cards.
+  const seenIndexes = new Set();
+  const ranked = (parsed.ranked || [])
+    .filter((r) => Number.isInteger(r.comp_index) && slimComps[r.comp_index])
+    .filter((r) => {
+      if (seenIndexes.has(r.comp_index)) return false;
+      seenIndexes.add(r.comp_index);
+      return true;
+    })
+    .map((r) => ({
+      ...r,
+      comp: slimComps[r.comp_index],
+    }));
+
+  // Dedicated event type so Pro monthly-limit counting is accurate (the
+  // requireTierWithLimit middleware queries by event_type, so rank_comps
+  // must not share a bucket with property_analysis).
+  logEvent(req.user.id, EVENTS.AI_RANK_COMPS, {
+    candidates: slimComps.length,
+    returned: ranked.length,
+    confidence: parsed.overall_confidence,
+    tokens: aiResponse?.usage?.total_tokens || 0,
+  });
+
+  res.json({
+    ranked,
+    overall_confidence: parsed.overall_confidence || 'medium',
+    confidence_reasoning: parsed.confidence_reasoning || '',
+    implied_arv: parsed.implied_arv ?? null,
+    implied_as_is_value: parsed.implied_as_is_value ?? null,
+    candidates_evaluated: slimComps.length,
+    model: 'claude-sonnet-4-6',
+    usage: aiResponse?.usage,
+  });
 }));
 
 module.exports = router;
