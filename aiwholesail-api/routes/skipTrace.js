@@ -34,6 +34,7 @@ const { query } = require('../config/database');
 const { authenticate } = require('../middleware/auth');
 const { asyncHandler } = require('../middleware/errorHandler');
 const { attachSubscription, TIERS } = require('../middleware/subscription');
+const { logEvent, EVENTS } = require('../lib/events');
 
 const router = express.Router();
 
@@ -320,6 +321,12 @@ router.post(
         message: upstreamError || 'Skip tracing provider is temporarily unavailable. Please try again.',
       });
     }
+
+    logEvent(userId, EVENTS.SKIP_TRACE_USED, {
+      searchType,
+      result_count: resultCount,
+      cached: false,
+    });
 
     return res.json({
       searchType,

@@ -6,6 +6,7 @@ const { authenticate, optionalAuth } = require('../middleware/auth');
 const { asyncHandler } = require('../middleware/errorHandler');
 const { checkDatabaseRateLimit } = require('../middleware/rateLimit');
 const { attachSubscription, checkSearchLimit } = require('../middleware/subscription');
+const { logEvent, EVENTS } = require('../lib/events');
 
 const router = express.Router();
 const RAPIDAPI_KEY = process.env.RAPIDAPI_KEY;
@@ -65,6 +66,10 @@ router.post('/zillow/search', authenticate, attachSubscription, checkSearchLimit
       }
     );
 
+    logEvent(req.user?.id, EVENTS.PROPERTY_SEARCH, {
+      location, page: Number(page), status, has_filters: !!(bedrooms || bathrooms || minPrice || maxPrice || propertyType || fsbo),
+    });
+
     res.json(response.data);
   } catch (error) {
     console.error('[Property] Zillow search error:', error.response?.data || error.message);
@@ -104,6 +109,11 @@ router.post('/zillow/details', optionalAuth, asyncHandler(async (req, res) => {
         }
       }
     );
+
+    logEvent(req.user?.id, EVENTS.PROPERTY_VIEWED, {
+      zpid: zpid || null,
+      address_present: !!address,
+    });
 
     res.json(response.data);
   } catch (error) {

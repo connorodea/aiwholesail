@@ -2,6 +2,7 @@ const express = require('express');
 const { body, param, validationResult } = require('express-validator');
 const { query } = require('../config/database');
 const { authenticate } = require('../middleware/auth');
+const { logEvent, EVENTS } = require('../lib/events');
 const { asyncHandler } = require('../middleware/errorHandler');
 const PDFDocument = require('pdfkit');
 const {
@@ -126,6 +127,8 @@ router.post('/generate', authenticate, [
       pdfFilename,
     ]
   );
+
+  logEvent(req.user.id, EVENTS.CONTRACT_GENERATED, { contract_type: contractType });
 
   res.status(201).json({
     contract: result.rows[0],

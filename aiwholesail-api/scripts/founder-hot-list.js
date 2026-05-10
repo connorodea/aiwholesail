@@ -58,14 +58,27 @@ candidates AS (
     AND u.email NOT LIKE '%newkey-%'
     AND u.email NOT LIKE 'cpodea5%'
 ),
+-- Two sources of search/analyze activity:
+--   1. rate_limits buckets (existing) — covers historical data
+--   2. user_events (new) — purpose-built per-event log
+-- We UNION + de-dup so users active in either show up.
 search_counts AS (
-  SELECT identifier::uuid AS user_id,
-         COALESCE(SUM(request_count), 0)::int AS searches_today
-  FROM rate_limits
-  WHERE function_name = 'daily-search'
-    AND window_start >= (SELECT start_of_day FROM today)
-    AND identifier ~ '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
-  GROUP BY identifier
+  SELECT user_id, SUM(cnt)::int AS searches_today FROM (
+    SELECT identifier::uuid AS user_id, COALESCE(SUM(request_count), 0)::int AS cnt
+      FROM rate_limits
+      WHERE function_name IN ('property-search', 'zillow-search', 'ai-rank-deals',
+                              'ai-wholesale-analyzer', 'ai-property-analysis')
+        AND window_start >= (SELECT start_of_day FROM today)
+        AND identifier ~ '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\$'
+      GROUP BY identifier
+    UNION ALL
+    SELECT user_id, COUNT(*)::int AS cnt
+      FROM user_events
+      WHERE event_type IN ('property_search', 'property_viewed', 'ai_rank_deals',
+                           'ai_analyzer_run', 'ai_property_analysis')
+        AND created_at >= (SELECT start_of_day FROM today)
+      GROUP BY user_id
+  ) sub GROUP BY user_id
 ),
 fav_counts AS (
   SELECT user_id, COUNT(*)::int AS fav_count
