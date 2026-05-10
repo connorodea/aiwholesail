@@ -17,6 +17,7 @@ import { useLeads } from '@/hooks/useLeads';
 import { useSubscription } from '@/hooks/useSubscription';
 import { toast } from 'sonner';
 import { PropertyAlertsManager } from '@/components/PropertyAlertsManager';
+import { PopularMarketsEmptyState } from '@/components/PopularMarketsEmptyState';
 import { AIWholesaleAnalyzer } from '@/components/AIWholesaleAnalyzer';
 import { PropDataMarketPanel } from '@/components/PropDataMarketPanel';
 import { PropDataPropertySearch } from '@/components/PropDataPropertySearch';
@@ -354,6 +355,13 @@ export default function RealEstateWholesaler() {
             {/* Loading Animation — visible during search AND enrichment */}
             {(isLoading || loadingProgress > 0) && (
               <SearchLoadingState progress={loadingProgress} status={loadingStatus} />
+            )}
+
+            {/* First-run empty state — collapses the "what should I search?" decision into one click.
+                Only renders when nothing has been searched yet (not loading, no error, no results, no
+                cached search). This is the fix for the 77% activation leak surfaced in the trial-results analysis. */}
+            {!isLoading && loadingProgress === 0 && !error && properties.length === 0 && !lastSearchLocation && (
+              <PopularMarketsEmptyState onSelect={handleSearch} />
             )}
 
             {/* Results Section */}
