@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "what-is-absorption-rate-in-real-estate-and-why-it-matters-for-investors",
+      "title": "What Is Absorption Rate in Real Estate and Why It Matters for Investors",
+      "excerpt": "Absorption rate tells you exactly how fast homes are selling in any market — and smart investors use it to time deals, negotiate prices, and spot opportunities before the competition. Learn how to calculate it, read it correctly, and put it to work in your investing strategy.",
+      "category": "Market Trends",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-10T06:02:44.074Z",
+      "readTime": 7,
+      "tags": [
+        "absorption rate real estate",
+        "what is absorption rate",
+        "real estate market analysis",
+        "buyer seller market",
+        "months of inventory"
+      ],
+      "featured": true
+    },
+    {
       "slug": "cash-flow-vs-appreciation-which-matters-more-for-real-estate-investors",
       "title": "Cash Flow vs Appreciation: Which Matters More for Real Estate Investors?",
       "excerpt": "The debate over cash flow vs appreciation is one of the oldest in real estate investing. Understanding which strategy fits your goals could be the difference between building lasting wealth and running out of money.",
@@ -15,7 +32,7 @@
         "real estate appreciation",
         "buy and hold investing"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-san-francisco-ca-a-practical-investor-s-guide-for-2024",
