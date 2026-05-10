@@ -7,6 +7,7 @@ import { PropertyModal } from '@/components/PropertyModal';
 import { Property, PropertySearchParams } from '@/types/zillow';
 import { zillowAPI } from '@/lib/zillow-api';
 import { sortPropertiesByWholesalePotential } from '@/lib/wholesale-calculator';
+import { scoreAllProperties, filterMotivatedSellers, MIN_MOTIVATED_SCORE } from '@/lib/motivated-seller-score';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { User, Download, Bell, MessageSquare, GitCompareArrows, Check } from 'lucide-react';
@@ -236,7 +237,25 @@ export default function RealEstateWholesaler() {
           return;
         }
 
-        const enrichedSorted = sortPropertiesByWholesalePotential(enriched);
+        let enrichedSorted = sortPropertiesByWholesalePotential(enriched);
+
+        // Motivated-seller pipeline (Elite-only). When the toggle is on:
+        //  1) score every property,
+        //  2) filter to score >= MIN_MOTIVATED_SCORE,
+        //  3) re-sort by motivation score descending (best leads first).
+        // When OFF: still attach motivation scores so PropertyCard can
+        // show subtle badges on any incidental high-motivation listings.
+        if (params.motivatedSellersOnly) {
+          enrichedSorted = filterMotivatedSellers(enrichedSorted, MIN_MOTIVATED_SCORE);
+          const surfaced = enrichedSorted.length;
+          if (surfaced > 0) {
+            toast.success(`${surfaced} motivated seller${surfaced > 1 ? 's' : ''} surfaced in ${params.location}`);
+          } else {
+            toast.info('No motivated sellers in this market right now. Try broadening the location or running without the toggle.');
+          }
+        } else {
+          enrichedSorted = scoreAllProperties(enrichedSorted);
+        }
 
         // If the user searched with "wholesale only", auto-flip the
         // hide-negative-spreads toggle ON post-enrichment so deals are

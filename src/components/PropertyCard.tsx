@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { MapPin, Bed, Bath, Square, Eye, ExternalLink, Search, TrendingUp, TrendingDown, Clock, Flame, User, Phone, Building2, Heart, Star } from 'lucide-react';
+import { type MotivationResult, MIN_MOTIVATED_SCORE, HIGH_MOTIVATION_SCORE, describeMotivation } from '@/lib/motivated-seller-score';
 import { useState } from 'react';
 import { SkipTraceModal } from './SkipTraceModal';
 import { AddToPipelineButton } from './pipeline/AddToPipelineButton';
@@ -106,6 +107,26 @@ export function PropertyCard({ property, onViewDetails }: PropertyCardProps) {
           {isNew && (
             <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-white border-0">New</Badge>
           )}
+          {(() => {
+            // Motivation badge — surfaces high-motivation sellers regardless of
+            // whether the user has the Motivated-Sellers-Only toggle on.
+            const m = property.motivation as MotivationResult | undefined;
+            if (!m || m.score < MIN_MOTIVATED_SCORE) return null;
+            const high = m.score >= HIGH_MOTIVATION_SCORE;
+            return (
+              <Badge
+                title={describeMotivation(m)}
+                className={
+                  high
+                    ? 'bg-gradient-to-r from-cyan-500 to-cyan-400 text-black border-0 gap-1'
+                    : 'bg-cyan-500/15 text-cyan-300 border border-cyan-500/40 gap-1'
+                }
+              >
+                <Flame className="h-3 w-3" />
+                {high ? `Hot · ${m.score}` : `Motivated · ${m.score}`}
+              </Badge>
+            );
+          })()}
         </div>
 
         {/* Favorite Button */}
