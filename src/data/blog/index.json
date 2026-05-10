@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "cash-flow-vs-appreciation-which-matters-more-for-real-estate-investors",
+      "title": "Cash Flow vs Appreciation: Which Matters More for Real Estate Investors?",
+      "excerpt": "The debate over cash flow vs appreciation is one of the oldest in real estate investing. Understanding which strategy fits your goals could be the difference between building lasting wealth and running out of money.",
+      "category": "Strategy",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-10T06:00:48.186Z",
+      "readTime": 7,
+      "tags": [
+        "cash flow vs appreciation",
+        "real estate investing strategy",
+        "rental property cash flow",
+        "real estate appreciation",
+        "buy and hold investing"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-san-francisco-ca-a-practical-investor-s-guide-for-2024",
       "title": "Real Estate Deals in San Francisco CA: A Practical Investor's Guide for 2024",
       "excerpt": "San Francisco's real estate market is one of the most competitive in the country, but profitable deals still exist for investors who know where to look. This guide breaks down the best neighborhoods, deal types, and strategies for finding real estate deals in San Francisco CA.",
@@ -15,7 +32,7 @@
         "fix and flip San Francisco",
         "San Francisco rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-toledo-oh-the-investor-s-complete-guide-to-this-underrated-",
