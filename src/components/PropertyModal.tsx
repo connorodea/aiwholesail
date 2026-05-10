@@ -34,7 +34,8 @@ import {
   History,
   Home,
   Receipt,
-  Loader2
+  Loader2,
+  Zap
 } from 'lucide-react';
 import { calculateWholesalePotential } from '@/lib/wholesale-calculator';
 import { zillowAPI } from '@/lib/zillow-api';
@@ -52,6 +53,7 @@ import { AIPhotoAnalysis } from './AIPhotoAnalysis';
 import { generateDealReport } from './DealReportPDF';
 import { generateBuyerPitch } from './BuyerPitchPDF';
 import { ListingDescriptionGenerator } from './ListingDescriptionGenerator';
+import { FullArvAnalysis } from './FullArvAnalysis';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useAuth } from '@/contexts/AuthContext';
 import { useFavorites } from '@/hooks/useFavorites';
@@ -88,6 +90,7 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
   const [enrichedProperty, setEnrichedProperty] = useState<Property | null>(null);
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
   const [listingCopyOpen, setListingCopyOpen] = useState(false);
+  const [fullArvOpen, setFullArvOpen] = useState(false);
 
   const handleListingCopy = () => {
     if (!allowedForProFeatures) {
@@ -95,6 +98,14 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
       return;
     }
     setListingCopyOpen(true);
+  };
+
+  const handleFullArv = () => {
+    if (!allowedForProFeatures) {
+      toast.error('Full ARV Analysis is a Pro / Elite feature. Upgrade to unlock.');
+      return;
+    }
+    setFullArvOpen(true);
   };
 
   // Fire ViewContent for FB/GA when a property modal opens
@@ -348,6 +359,19 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                 )}
               </div>
               <div className="flex gap-1.5">
+                {/* Headline CTA — Phase 1.4 "Run Full ARV Analysis" bundle.
+                    The ChatARV-parity marketing demo: one click → AI comps,
+                    deal math, listing copy in 60 seconds. */}
+                <Button
+                  size="sm"
+                  onClick={handleFullArv}
+                  className="gap-1.5 h-9 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-black font-semibold shadow-[0_0_18px_rgba(6,182,212,0.25)]"
+                >
+                  <Zap className="h-4 w-4" />
+                  {/* hidden xl:inline matches sibling buttons so the row doesn't overflow at lg width */}
+                  <span className="hidden xl:inline">Full ARV Analysis</span>
+                  <span className="xl:hidden">Full ARV</span>
+                </Button>
                 <Button variant="outline" size="sm" onClick={handleToggleFavorite} className="gap-1.5 h-9 rounded-lg border-border/50">
                   <Heart className={`h-4 w-4 ${isPropertyFavorite ? 'fill-current text-red-500' : ''}`} />
                   <span className="hidden xl:inline">{isPropertyFavorite ? 'Saved' : 'Save'}</span>
@@ -387,6 +411,15 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
             {/* Mobile action row — horizontally scrollable */}
             <div className="lg:hidden -mx-4 px-4 overflow-x-auto scrollbar-none">
               <div className="flex gap-2 min-w-max pb-1">
+                {/* Headline CTA — same Phase 1.4 button as desktop, leading the mobile row */}
+                <Button
+                  size="sm"
+                  onClick={handleFullArv}
+                  className="gap-1.5 h-9 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-black font-semibold flex-shrink-0 shadow-[0_0_18px_rgba(6,182,212,0.25)]"
+                >
+                  <Zap className="h-4 w-4" />
+                  Full ARV
+                </Button>
                 <Button variant="outline" size="sm" onClick={handleToggleFavorite} className="gap-1.5 h-9 rounded-lg border-border/50 flex-shrink-0">
                   <Heart className={`h-4 w-4 ${isPropertyFavorite ? 'fill-current text-red-500' : ''}`} />
                   {isPropertyFavorite ? 'Saved' : 'Save'}
@@ -942,12 +975,17 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
           </Tabs>
         </div>
       </DialogContent>
-      {/* AI Listing Copy generator — rendered as a sibling Dialog so it can
-          stack atop the PropertyModal without z-index drama. */}
+      {/* AI Listing Copy generator — sibling Dialog */}
       <ListingDescriptionGenerator
         property={displayProperty}
         open={listingCopyOpen}
         onOpenChange={setListingCopyOpen}
+      />
+      {/* Full ARV Analysis bundle — Phase 1.4. Sibling Dialog. */}
+      <FullArvAnalysis
+        property={displayProperty}
+        open={fullArvOpen}
+        onOpenChange={setFullArvOpen}
       />
     </Dialog>
   );

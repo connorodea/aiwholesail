@@ -61,7 +61,14 @@ export function AIRankedComps({ property }: AIRankedCompsProps) {
 
   useEffect(() => {
     if (!allowed) return;
-    let cancelled = false;
+    // AbortController so closing the dialog (or switching properties)
+    // mid-fetch actually cancels the HTTP request — not just suppresses
+    // setState on unmount. Server-side: the route may still complete its
+    // Claude call after the client aborts (Express doesn't notice client
+    // disconnect by default), so this isn't a 100% Pro-quota refund. But
+    // we do save the response-parsing work and the user gets a fresh
+    // request on reopen instead of two racing in flight.
+    const controller = new AbortController();
     const run = async () => {
       setLoading(true);
       setError(null);
@@ -77,29 +84,28 @@ export function AIRankedComps({ property }: AIRankedCompsProps) {
         };
         // Only send zpid if it actually looks like a Zillow zpid (5+ digits).
         // property.id is an internal app identifier and will produce garbage
-        // results if forwarded to Zillow's comp API. Fall back to address-only
-        // lookup when no real zpid is available.
+        // results if forwarded to Zillow's comp API.
         const rawZpid = property.zpid;
         const zpid = rawZpid && /^\d{5,}$/.test(String(rawZpid)) ? String(rawZpid) : undefined;
-        const r = await ai.rankComps({
-          zpid,
-          address: property.address,
-          subject,
-        });
-        if (cancelled) return;
+        const r = await ai.rankComps(
+          { zpid, address: property.address, subject },
+          { signal: controller.signal }
+        );
+        if (controller.signal.aborted) return;
         if (r.error) {
           setError(r.error);
         } else if (r.data) {
           setResult(r.data);
         }
       } catch (e) {
-        if (!cancelled) setError((e as Error).message || 'Failed to load AI-ranked comps');
+        if (controller.signal.aborted) return;
+        setError((e as Error).message || 'Failed to load AI-ranked comps');
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!controller.signal.aborted) setLoading(false);
       }
     };
     run();
-    return () => { cancelled = true; };
+    return () => { controller.abort(); };
     // Intentionally narrow deps: re-fetch only when the user opens a different
     // property. Re-running on every transient property-field change would
     // spam Claude unnecessarily.
