@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "brrrr-calculator-how-to-analyze-a-brrrr-deal-step-by-step",
+      "title": "BRRRR Calculator: How to Analyze a BRRRR Deal Step by Step",
+      "excerpt": "The BRRRR strategy can build serious wealth, but only if the numbers work. Learn how to use a BRRRR calculator to analyze every deal before you commit a single dollar.",
+      "category": "Calculator",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-11T06:01:06.759Z",
+      "readTime": 7,
+      "tags": [
+        "BRRRR calculator",
+        "how to analyze a BRRRR deal",
+        "BRRRR strategy",
+        "BRRRR real estate investing",
+        "buy rehab rent refinance repeat"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-long-does-it-take-to-make-money-wholesaling-real-estate",
       "title": "How Long Does It Take to Make Money Wholesaling Real Estate?",
       "excerpt": "Most new wholesalers close their first deal within 30 to 90 days, but your timeline depends on your market, your hustle, and how well you understand the process. Here's a realistic breakdown of what to expect and how to speed things up.",
@@ -15,7 +32,7 @@
         "wholesaling for beginners",
         "real estate wholesaling income"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-san-diego-ca-a-complete-investor-s-guide-for-2024",
