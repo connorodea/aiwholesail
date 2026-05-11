@@ -323,7 +323,10 @@ export interface PropDataCompsResponse {
 
 function unwrap<T>(res: { data?: T; error?: string }): T {
   if (res.error) throw new Error(res.error);
-  return (res.data ?? {}) as T;
+  // Strict-mode-safe "no data" fallback. Callers either get a real response
+  // or an empty object — `unknown` is used as the intermediate because
+  // `{}` isn't assignable to `T` in strict mode without it.
+  return (res.data ?? ({} as unknown as T));
 }
 
 class PropDataAPI {
@@ -432,7 +435,7 @@ class PropDataAPI {
     return unwrap(await backend.geocode(address));
   }
 
-  async healthCheck(): Promise<{ status: string }> {
+  async healthCheck(): Promise<{ status?: string }> {
     return unwrap(await backend.health());
   }
 

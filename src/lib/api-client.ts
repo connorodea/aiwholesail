@@ -975,17 +975,17 @@ function buildQuery(params: Record<string, string | number | boolean | undefined
 export const propdata = {
   health: () => apiFetch('/api/propdata/health'),
   stats: () => apiFetch('/api/propdata/stats'),
-  neighborhood: (zip: string) => apiFetch(`/api/propdata/neighborhood${buildQuery({ zip })}`),
+  neighborhood: (zip: string) => apiFetch<any>(`/api/propdata/neighborhood${buildQuery({ zip })}`),
   market: (p: { zip?: string; state?: string; metro?: string; months?: string | number }) =>
-    apiFetch(`/api/propdata/market${buildQuery(p)}`),
-  listing: (zip: string) => apiFetch(`/api/propdata/listing${buildQuery({ zip })}`),
+    apiFetch<any>(`/api/propdata/market${buildQuery(p)}`),
+  listing: (zip: string) => apiFetch<any>(`/api/propdata/listing${buildQuery({ zip })}`),
   rent: (p: { zip?: string; state?: string; beds?: string | number }) =>
-    apiFetch(`/api/propdata/rent${buildQuery(p)}`),
+    apiFetch<any>(`/api/propdata/rent${buildQuery(p)}`),
   estimate: (p: { zip?: string; state?: string; beds?: string | number }) =>
-    apiFetch(`/api/propdata/estimate${buildQuery(p)}`),
+    apiFetch<any>(`/api/propdata/estimate${buildQuery(p)}`),
   comps: (p: { zip?: string; address?: string; limit?: number; radius?: number }) =>
-    apiFetch(`/api/propdata/comps${buildQuery(p)}`),
-  geocode: (address: string) => apiFetch(`/api/propdata/geocode${buildQuery({ address })}`),
+    apiFetch<any>(`/api/propdata/comps${buildQuery(p)}`),
+  geocode: (address: string) => apiFetch<any>(`/api/propdata/geocode${buildQuery({ address })}`),
   property: (p: {
     zip?: string;
     address?: string;
@@ -993,10 +993,10 @@ export const propdata = {
     owner?: string;
     absentee_only?: boolean;
     limit?: number;
-  }) => apiFetch(`/api/propdata/property${buildQuery(p)}`),
+  }) => apiFetch<any>(`/api/propdata/property${buildQuery(p)}`),
   // Zillow autocomplete via the shared RapidAPI key — also backend-proxied.
   zillowAutocomplete: (query: string) =>
-    apiFetch(`/api/propdata/zillow-autocomplete${buildQuery({ query })}`),
+    apiFetch<any>(`/api/propdata/zillow-autocomplete${buildQuery({ query })}`),
 };
 
 // Default export for convenience
