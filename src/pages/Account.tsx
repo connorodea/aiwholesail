@@ -48,12 +48,21 @@ export default function Account() {
   const isSubscribed = (subscription as any)?.subscribed;
   const trialEnd = (subscription as any)?.trial_end;
 
-  // Usage limits based on tier
-  const isElite = subTier === 'Elite' || subTier === 'Premium';
-  const isPro = subTier === 'Pro';
+  // Usage limits based on tier. Normalize case defensively — a manual SQL fix
+  // or legacy import that writes 'elite'/'ELITE'/'pro' would otherwise silently
+  // downgrade the user, and the strict === checks everywhere else stay happy
+  // as long as the canonical Stripe write path uses 'Elite'/'Pro'.
+  const subTierNorm = typeof subTier === 'string' ? subTier.trim().toLowerCase() : '';
+  const isElite = subTierNorm === 'elite' || subTierNorm === 'premium';
+  const isPro = subTierNorm === 'pro';
   const dailySearchLimit = isElite ? Infinity : 10;
   const alertLocationLimit = isElite ? Infinity : isPro ? 5 : 1;
-  const hasAiAnalysis = isElite;
+  // AI Property Analysis (AIPropertyAnalyzer, AIPhotoAnalysis, AIRankedComps,
+  // ARVCalculator, FullArvAnalysis, ListingDescriptionGenerator, …) are all
+  // gated server-side via `isElite || isPro`. Match that here so the Account
+  // page's "Plan Features" panel doesn't tell Pro users they don't have AI
+  // when they actually do.
+  const hasAiAnalysis = isElite || isPro;
 
   // Mock current usage (would come from API in production)
   const dailySearchesUsed = 0;

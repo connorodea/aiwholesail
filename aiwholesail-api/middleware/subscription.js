@@ -81,19 +81,32 @@ const attachSubscription = async (req, res, next) => {
         req.subscription = { tier: TIERS.NONE, searchesUsed: 0 };
         return next();
       }
-      // Active trial — resolve to the tier the user is trialing
-      if (sub.subscription_tier === 'Elite' || sub.subscription_tier === 'Premium') {
+      // Active trial — resolve to the tier the user is trialing.
+      // Tier strings are normalized case-insensitively. A manual SQL fix or
+      // legacy import that wrote 'elite' / 'ELITE' would otherwise silently
+      // downgrade the user; the canonical Stripe write path uses 'Elite'/'Pro'
+      // so this is purely defensive.
+      const subTierNorm = typeof sub.subscription_tier === 'string'
+        ? sub.subscription_tier.trim().toLowerCase()
+        : '';
+      if (subTierNorm === 'elite' || subTierNorm === 'premium') {
         tier = TIERS.ELITE;
-      } else if (sub.subscription_tier === 'Pro') {
+      } else if (subTierNorm === 'pro') {
         tier = TIERS.PRO;
       } else {
         // No explicit trial tier set — default to TRIAL (Pro-equivalent rate limits)
         tier = TIERS.TRIAL;
       }
-    } else if (sub.subscription_tier === 'Elite' || sub.subscription_tier === 'Premium') {
-      tier = TIERS.ELITE;
-    } else if (sub.subscription_tier === 'Pro') {
-      tier = TIERS.PRO;
+    } else {
+      // Non-trial active subscription. Same case-normalization as above.
+      const subTierNorm = typeof sub.subscription_tier === 'string'
+        ? sub.subscription_tier.trim().toLowerCase()
+        : '';
+      if (subTierNorm === 'elite' || subTierNorm === 'premium') {
+        tier = TIERS.ELITE;
+      } else if (subTierNorm === 'pro') {
+        tier = TIERS.PRO;
+      }
     }
 
     // Count today's searches for rate-limited tiers

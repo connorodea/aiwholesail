@@ -384,6 +384,13 @@ export const stripe = {
   getSubscription: async () => {
     return apiFetch('/api/stripe/subscription');
   },
+
+  /** Self-diagnostic — returns the full tier resolution chain for the current
+   *  user (subscribers row + Stripe subscriptions + resolved tier). Use when a
+   *  paying customer reports they don't have Elite/Pro access. */
+  debugTier: async () => {
+    return apiFetch('/api/stripe/debug/tier');
+  },
 };
 
 // ============ SUBSCRIPTION API ============
