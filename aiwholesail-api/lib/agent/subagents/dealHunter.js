@@ -11,7 +11,7 @@
 
 const { z } = require('zod/v4');
 const { betaZodTool } = require('@anthropic-ai/sdk/helpers/beta/zod');
-const Anthropic = require('@anthropic-ai/sdk');
+const { runSubagent } = require('../subagentRunner');
 const { zillowSearch } = require('../tools/zillowSearch');
 const { wholesaleDealMath } = require('../tools/wholesaleDealMath');
 
@@ -37,18 +37,14 @@ const runDealHunter = betaZodTool({
   description:
     'Delegate to the Deal Hunter specialist subagent. Use this whenever the user wants to FIND wholesale-quality deals in a market (e.g. "find deals in 48371", "show me undervalued houses in Austin", "what\'s the best deal under $300k in Detroit"). The subagent runs zillow_search + wholesale_deal_math in an isolated context and returns the top 3-5 deals with citations linking to Zillow. Faster and cheaper than running these tools yourself.',
   inputSchema,
-  run: async ({ query }) => {
-    const client = new Anthropic.Anthropic();
-    const result = await client.beta.messages.toolRunner({
+  run: async ({ query }) =>
+    runSubagent({
       model: 'claude-haiku-4-5',
-      max_tokens: 1500,
       system: SUBAGENT_PROMPT,
       tools: [zillowSearch, wholesaleDealMath],
-      messages: [{ role: 'user', content: query }],
+      userContent: query,
       max_iterations: 6,
-    });
-    return result.content || [];
-  },
+    }),
 });
 
 module.exports = { runDealHunter };
