@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-raleigh-nc-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Raleigh NC: The Investor's Complete Guide for 2024",
+      "excerpt": "Raleigh, NC is one of the Southeast's hottest real estate markets, offering strong opportunities for wholesalers, flippers, and buy-and-hold investors alike. This guide breaks down the best neighborhoods, current market trends, and practical strategies to find profitable deals in the City of Oaks.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-11T12:01:01.571Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Raleigh NC",
+        "Raleigh NC real estate investing",
+        "wholesale real estate Raleigh",
+        "flip houses Raleigh NC",
+        "Raleigh investment properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "brrrr-calculator-how-to-analyze-a-brrrr-deal-step-by-step",
       "title": "BRRRR Calculator: How to Analyze a BRRRR Deal Step by Step",
       "excerpt": "The BRRRR strategy can build serious wealth, but only if the numbers work. Learn how to use a BRRRR calculator to analyze every deal before you commit a single dollar.",
@@ -15,7 +32,7 @@
         "BRRRR real estate investing",
         "buy rehab rent refinance repeat"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-long-does-it-take-to-make-money-wholesaling-real-estate",
