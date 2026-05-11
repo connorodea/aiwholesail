@@ -4,8 +4,18 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { useToast } from '@/hooks/use-toast';
 import { propDataAPI, PropDataMarketResponse, PropDataSafetyResponse, PropDataEstimateResponse } from '@/lib/propdata-api';
+import {
+  fanOutZipSearch,
+  MAX_RADIUS_MI,
+  MAX_ZIPS_PER_SEARCH,
+  parseZipList,
+  resolveOrigin,
+  zipsWithinRadius,
+} from '@/lib/zip-search';
 import {
   BarChart3, TrendingUp, Home, DollarSign, Shield, GraduationCap,
   AlertTriangle, Thermometer, MapPin, RefreshCw, Building, Users,
@@ -17,11 +27,25 @@ interface PropDataMarketPanelProps {
   onDataLoaded?: (data: PropDataMarketResponse) => void;
 }
 
+type MarketMode = 'single' | 'multi' | 'radius';
+
+interface ZipMarketRow {
+  zip: string;
+  market: PropDataMarketResponse | null;
+  safety: PropDataSafetyResponse | null;
+  rent: PropDataEstimateResponse | null;
+}
+
 export function PropDataMarketPanel({ zip: initialZip, onDataLoaded }: PropDataMarketPanelProps) {
+  const [mode, setMode] = useState<MarketMode>('single');
   const [zip, setZip] = useState(initialZip || '');
+  const [zipList, setZipList] = useState('');
+  const [origin, setOrigin] = useState('');
+  const [radius, setRadius] = useState('10');
   const [marketData, setMarketData] = useState<PropDataMarketResponse | null>(null);
   const [safetyData, setSafetyData] = useState<PropDataSafetyResponse | null>(null);
   const [rentData, setRentData] = useState<PropDataEstimateResponse | null>(null);
+  const [comparison, setComparison] = useState<ZipMarketRow[]>([]);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
@@ -31,27 +55,101 @@ export function PropDataMarketPanel({ zip: initialZip, onDataLoaded }: PropDataM
   const fmtPct = (val?: number) =>
     val != null ? `${val >= 0 ? '+' : ''}${val.toFixed(1)}%` : 'N/A';
 
-  const fetchData = async () => {
-    if (!zip.trim()) {
+  const loadOne = async (z: string): Promise<ZipMarketRow | null> => {
+    const [market, safety, rent] = await Promise.all([
+      propDataAPI.getMarketProfile({ zip: z, months: '12' }).catch(() => null),
+      propDataAPI.getSafetyScore({ zip: z }).catch(() => null),
+      propDataAPI.getRentEstimate({ zip: z, beds: '3' }).catch(() => null),
+    ]);
+    if (!market && !safety && !rent) return null;
+    return { zip: z, market, safety, rent };
+  };
+
+  const runSingle = async () => {
+    const z = zip.trim();
+    if (!z) {
       toast({ title: 'Enter a ZIP code', variant: 'destructive' });
       return;
     }
+    const row = await loadOne(z);
+    setComparison([]);
+    setMarketData(row?.market ?? null);
+    setSafetyData(row?.safety ?? null);
+    setRentData(row?.rent ?? null);
+    if (row?.market) {
+      onDataLoaded?.(row.market);
+      toast({ title: 'Market data loaded', description: `14 sources for ZIP ${z}` });
+    } else {
+      toast({ title: 'No market data', description: `Nothing returned for ${z}.`, variant: 'destructive' });
+    }
+  };
+
+  const runMulti = async () => {
+    const { valid, invalid } = parseZipList(zipList);
+    if (valid.length === 0) {
+      toast({ title: 'Enter ZIP codes', description: 'Add one or more 5-digit ZIPs.', variant: 'destructive' });
+      return;
+    }
+    if (invalid.length) toast({ title: 'Skipped invalid entries', description: invalid.slice(0, 5).join(', ') });
+    const zips = valid.slice(0, MAX_ZIPS_PER_SEARCH);
+    if (valid.length > MAX_ZIPS_PER_SEARCH) {
+      toast({ title: `Capped at ${MAX_ZIPS_PER_SEARCH} ZIPs`, description: `Got ${valid.length}; using the first ${MAX_ZIPS_PER_SEARCH}.` });
+    }
+    const batched = await fanOutZipSearch(zips, (z) => loadOne(z));
+    const rows = batched.map((b) => b.result);
+    setComparison(rows);
+    const first = rows[0];
+    setMarketData(first?.market ?? null);
+    setSafetyData(first?.safety ?? null);
+    setRentData(first?.rent ?? null);
+    if (first?.market) onDataLoaded?.(first.market);
+    toast({ title: `Loaded ${rows.length} ZIP${rows.length === 1 ? '' : 's'}`, description: rows.map((r) => r.zip).join(', ') });
+  };
+
+  const runRadius = async () => {
+    if (!origin.trim()) {
+      toast({ title: 'Enter an origin', description: 'Provide a ZIP code or address.', variant: 'destructive' });
+      return;
+    }
+    const r = Number(radius);
+    if (!Number.isFinite(r) || r <= 0) {
+      toast({ title: 'Invalid radius', description: `Enter miles between 1 and ${MAX_RADIUS_MI}.`, variant: 'destructive' });
+      return;
+    }
+    const o = await resolveOrigin(origin.trim());
+    if (!o) {
+      toast({ title: 'Could not resolve origin', description: `Couldn't find coordinates for "${origin.trim()}".`, variant: 'destructive' });
+      return;
+    }
+    const nearby = await zipsWithinRadius({ lat: o.lat, lng: o.lng }, r, MAX_ZIPS_PER_SEARCH);
+    if (nearby.length === 0) {
+      toast({ title: 'No ZIPs in range', description: `No US ZIPs within ${r} mi of ${o.label}.`, variant: 'destructive' });
+      return;
+    }
+    toast({ title: `${nearby.length} ZIP${nearby.length === 1 ? '' : 's'} within ${r} mi`, description: o.label });
+    const zips = nearby.map((n) => n.zip);
+    const batched = await fanOutZipSearch(zips, (z) => loadOne(z));
+    const rows = batched.map((b) => b.result);
+    setComparison(rows);
+    const first = rows[0];
+    setMarketData(first?.market ?? null);
+    setSafetyData(first?.safety ?? null);
+    setRentData(first?.rent ?? null);
+    if (first?.market) onDataLoaded?.(first.market);
+  };
+
+  const fetchData = async () => {
     setLoading(true);
     try {
-      const [market, safety, rent] = await Promise.all([
-        propDataAPI.getMarketProfile({ zip: zip.trim(), months: '12' }).catch(() => null),
-        propDataAPI.getSafetyScore({ zip: zip.trim() }).catch(() => null),
-        propDataAPI.getRentEstimate({ zip: zip.trim(), beds: '3' }).catch(() => null),
-      ]);
-      setMarketData(market);
-      setSafetyData(safety);
-      setRentData(rent);
-      if (market) onDataLoaded?.(market);
-      toast({ title: 'Market data loaded', description: `14 sources for ZIP ${zip.trim()}` });
-    } catch {
+      if (mode === 'single') await runSingle();
+      else if (mode === 'multi') await runMulti();
+      else await runRadius();
+    } catch (err) {
+      console.error('[PropDataMarketPanel]', err);
       toast({ title: 'Error', description: 'Failed to load market data.', variant: 'destructive' });
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const safetyColor = (grade?: string) => {
@@ -78,23 +176,124 @@ export function PropDataMarketPanel({ zip: initialZip, onDataLoaded }: PropDataM
         <p className="text-sm text-muted-foreground">82M+ parcels across 28+ states</p>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="flex gap-2">
-          <div className="flex-1">
-            <Label htmlFor="propdata-zip" className="sr-only">ZIP Code</Label>
-            <Input
-              id="propdata-zip"
-              value={zip}
-              onChange={(e) => setZip(e.target.value)}
-              placeholder="Enter ZIP code (e.g. 33101)"
-              className="bg-background/50"
-              onKeyDown={(e) => e.key === 'Enter' && fetchData()}
-            />
-          </div>
-          <Button onClick={fetchData} disabled={loading}>
-            {loading ? <RefreshCw className="h-4 w-4 animate-spin" /> : <BarChart3 className="h-4 w-4" />}
-            <span className="ml-2">{loading ? 'Loading...' : 'Analyze'}</span>
-          </Button>
+        <div className="space-y-3">
+          <ToggleGroup
+            type="single"
+            value={mode}
+            onValueChange={(v) => v && setMode(v as MarketMode)}
+            className="justify-start"
+          >
+            <ToggleGroupItem value="single" aria-label="Single ZIP">Single</ToggleGroupItem>
+            <ToggleGroupItem value="multi" aria-label="Multiple ZIPs">Multiple ZIPs</ToggleGroupItem>
+            <ToggleGroupItem value="radius" aria-label="ZIP + radius">ZIP + radius</ToggleGroupItem>
+          </ToggleGroup>
+
+          {mode === 'single' && (
+            <div className="flex gap-2">
+              <div className="flex-1">
+                <Label htmlFor="propdata-zip" className="sr-only">ZIP Code</Label>
+                <Input
+                  id="propdata-zip"
+                  value={zip}
+                  onChange={(e) => setZip(e.target.value)}
+                  placeholder="Enter ZIP code (e.g. 33101)"
+                  className="bg-background/50"
+                  onKeyDown={(e) => e.key === 'Enter' && fetchData()}
+                />
+              </div>
+              <Button onClick={fetchData} disabled={loading}>
+                {loading ? <RefreshCw className="h-4 w-4 animate-spin" /> : <BarChart3 className="h-4 w-4" />}
+                <span className="ml-2">{loading ? 'Loading...' : 'Analyze'}</span>
+              </Button>
+            </div>
+          )}
+
+          {mode === 'multi' && (
+            <div className="space-y-2">
+              <Label htmlFor="propdata-zip-list">ZIP Codes</Label>
+              <Textarea
+                id="propdata-zip-list"
+                value={zipList}
+                onChange={(e) => setZipList(e.target.value)}
+                placeholder="33101, 33102, 33125&#10;30318  30310  30314"
+                className="bg-background/50 font-mono text-sm min-h-[72px]"
+              />
+              <div className="flex items-center justify-between">
+                <p className="text-xs text-muted-foreground">Comma, space, or newline separated · up to {MAX_ZIPS_PER_SEARCH}.</p>
+                <Button onClick={fetchData} disabled={loading}>
+                  {loading ? <RefreshCw className="h-4 w-4 animate-spin" /> : <BarChart3 className="h-4 w-4" />}
+                  <span className="ml-2">{loading ? 'Loading...' : 'Compare all'}</span>
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {mode === 'radius' && (
+            <div className="flex flex-col sm:flex-row gap-2">
+              <div className="flex-1 space-y-2">
+                <Label htmlFor="propdata-origin">Origin (ZIP or address)</Label>
+                <Input
+                  id="propdata-origin"
+                  value={origin}
+                  onChange={(e) => setOrigin(e.target.value)}
+                  placeholder="33101 — or — 123 Main St, Miami FL"
+                  className="bg-background/50"
+                  onKeyDown={(e) => e.key === 'Enter' && fetchData()}
+                />
+              </div>
+              <div className="w-full sm:w-28 space-y-2">
+                <Label htmlFor="propdata-radius">Radius (mi)</Label>
+                <Input
+                  id="propdata-radius"
+                  type="number"
+                  min={1}
+                  max={MAX_RADIUS_MI}
+                  value={radius}
+                  onChange={(e) => setRadius(e.target.value)}
+                  className="bg-background/50"
+                  onKeyDown={(e) => e.key === 'Enter' && fetchData()}
+                />
+              </div>
+              <div className="flex items-end">
+                <Button onClick={fetchData} disabled={loading} className="h-10">
+                  {loading ? <RefreshCw className="h-4 w-4 animate-spin" /> : <BarChart3 className="h-4 w-4" />}
+                  <span className="ml-2">{loading ? 'Loading...' : 'Analyze'}</span>
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
+
+        {comparison.length > 1 && (
+          <div className="space-y-2 animate-fade-in">
+            <h4 className="font-semibold flex items-center gap-2"><TrendingUp className="h-4 w-4 text-primary" /> ZIP Comparison ({comparison.length})</h4>
+            <div className="overflow-x-auto rounded-lg border border-border/40">
+              <table className="w-full text-sm">
+                <thead className="bg-muted/30">
+                  <tr className="text-left">
+                    <th className="px-3 py-2 font-medium">ZIP</th>
+                    <th className="px-3 py-2 font-medium">Median List</th>
+                    <th className="px-3 py-2 font-medium">Rent (3BR)</th>
+                    <th className="px-3 py-2 font-medium">DOM</th>
+                    <th className="px-3 py-2 font-medium">Safety</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {comparison.map((row) => (
+                    <tr key={row.zip} className="border-t border-border/40 hover:bg-muted/20">
+                      <td className="px-3 py-2 font-mono">{row.zip}</td>
+                      <td className="px-3 py-2">{fmt(row.market?.realtor?.median_list_price)}</td>
+                      <td className="px-3 py-2">{fmt(row.rent?.rent_mid)}</td>
+                      <td className="px-3 py-2">{row.market?.realtor?.days_on_market ?? 'N/A'}</td>
+                      <td className="px-3 py-2">{row.safety?.grade ? `${row.safety.grade} (${row.safety.score ?? '?'})` : 'N/A'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <p className="text-xs text-muted-foreground">Detail view below reflects the first ZIP in the batch.</p>
+          </div>
+        )}
 
         {marketData && (
           <div className="space-y-6 animate-fade-in">
@@ -195,7 +394,7 @@ export function PropDataMarketPanel({ zip: initialZip, onDataLoaded }: PropDataM
             )}
 
             <div className="pt-4 border-t text-xs text-muted-foreground flex items-center justify-between">
-              <span className="flex items-center gap-1"><MapPin className="h-3 w-3" /> ZIP {zip}</span>
+              <span className="flex items-center gap-1"><MapPin className="h-3 w-3" /> ZIP {marketData?.zip || comparison[0]?.zip || zip}</span>
               <span>Zillow ZORI, Realtor.com, Redfin, HUD, Census, FHFA, FRED, FEMA, NCES</span>
             </div>
           </div>
