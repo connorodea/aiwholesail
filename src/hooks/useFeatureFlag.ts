@@ -90,3 +90,19 @@ export async function refreshFeatureFlags(): Promise<FlagMap> {
   inflight = null;
   return fetchFlags();
 }
+
+/**
+ * Synchronous cache lookup for callers that can't be React hooks
+ * (event handlers, dynamic imports, imperative code paths). Returns
+ * `undefined` if the cache is cold; callers must supply a sensible
+ * fallback for that branch (typically the conservative "off" outcome).
+ *
+ * The cache populates the first time any mounted component calls
+ * useFeatureFlag, so on most pages this returns a real boolean almost
+ * immediately.
+ */
+export function getFlagFromCache(slug: string): boolean | undefined {
+  const flags = getCached();
+  if (!flags) return undefined;
+  return flags[slug];
+}
