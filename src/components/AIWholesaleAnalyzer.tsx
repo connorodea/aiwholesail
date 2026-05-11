@@ -83,12 +83,17 @@ interface AnalysisResult {
   generated_at_utc: string;
   assumptions: {
     target_fee: number;
-    repair_cost_psf_range: { low: number; high: number };
-    closing_costs_pct: number;
+    repair_cost_psf_range?: { low: number; high: number };
+    closing_costs_pct?: number;
     mao_rule_pct_of_arv: number;
     min_spread_pct: number;
   };
   ranked_opportunities: WholesaleOpportunity[];
+  // Optional fields populated only when Claude returned prose instead of
+  // structured JSON. The render path surfaces a useful empty-state in this case.
+  raw_analysis?: string;
+  analysis_timestamp?: string;
+  deals?: unknown[];
 }
 
 interface AIWholesaleAnalyzerProps {
@@ -238,6 +243,25 @@ export function AIWholesaleAnalyzer({ properties, market }: AIWholesaleAnalyzerP
         parsed.assumptions = { target_fee: analysisParams.target_fee || 10000, min_spread_pct: analysisParams.min_spread_pct || 0.2, mao_rule_pct_of_arv: 0.7 };
       }
 
+      // Defensive normalization — guarantees the result has the four fields
+      // the render path dereferences directly (ranked_opportunities.length,
+      // assumptions.target_fee, etc.). Without this, any Claude response that
+      // returns valid JSON but is missing a key (e.g. just `{"error": "..."}` or
+      // a truncated payload) crashes the render subtree and the user sees a
+      // blank screen instead of either a result or an error toast.
+      if (!Array.isArray(parsed.ranked_opportunities)) parsed.ranked_opportunities = [];
+      if (typeof parsed.market !== 'string') parsed.market = market || 'Unknown market';
+      if (typeof parsed.generated_at_utc !== 'string') {
+        parsed.generated_at_utc = parsed.analysis_timestamp || new Date().toISOString();
+      }
+      if (!parsed.assumptions || typeof parsed.assumptions !== 'object') {
+        parsed.assumptions = {};
+      }
+      const a = parsed.assumptions;
+      if (typeof a.target_fee !== 'number') a.target_fee = analysisParams.target_fee || 10000;
+      if (typeof a.min_spread_pct !== 'number') a.min_spread_pct = analysisParams.min_spread_pct || 0.2;
+      if (typeof a.mao_rule_pct_of_arv !== 'number') a.mao_rule_pct_of_arv = 0.7;
+
       setAnalysisResult(parsed);
       const dealCount = parsed?.ranked_opportunities?.length || parsed?.deals?.length || data?.count || 0;
       toast({
@@ -276,22 +300,22 @@ export function AIWholesaleAnalyzer({ properties, market }: AIWholesaleAnalyzerP
       'Agent Name', 'Agent Phone', 'Risk Flags'
     ];
 
-    const csvData = analysisResult.ranked_opportunities.map(opp => [
+    const csvData = (analysisResult.ranked_opportunities || []).map(opp => [
       opp.rank,
       opp.address,
       opp.list_price,
       opp.zestimate,
       opp.spread_abs,
-      (opp.spread_pct * 100).toFixed(1) + '%',
+      typeof opp.spread_pct === 'number' ? (opp.spread_pct * 100).toFixed(1) + '%' : '',
       opp.arv_final,
-      opp.repairs.mid,
+      opp.repairs?.mid,
       opp.mao,
       opp.flip_margin,
-      opp.score.toFixed(2),
+      typeof opp.score === 'number' ? opp.score.toFixed(2) : '',
       opp.exit,
-      opp.agent.name,
-      opp.agent.phone,
-      opp.risk_flags.join('; ')
+      opp.agent?.name,
+      opp.agent?.phone,
+      Array.isArray(opp.risk_flags) ? opp.risk_flags.join('; ') : ''
     ]);
 
     const csvContent = [csvHeaders, ...csvData]
@@ -421,60 +445,82 @@ export function AIWholesaleAnalyzer({ properties, market }: AIWholesaleAnalyzerP
           )}
         </div>
 
-        {/* Analysis Results */}
-        {analysisResult && (
+        {/* Analysis Results — every dereference below is optional-chained so a
+            malformed analysisResult can never crash the render subtree. */}
+        {analysisResult && (() => {
+          const opps = analysisResult.ranked_opportunities || [];
+          const a = analysisResult.assumptions || {} as Partial<AnalysisResult['assumptions']>;
+          const generatedAt = analysisResult.generated_at_utc
+            ? new Date(analysisResult.generated_at_utc)
+            : null;
+          return (
           <div className="space-y-6">
             <Separator />
-            
+
             {/* Header with Export */}
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-lg font-semibold text-foreground">
-                  Analysis Results for {analysisResult.market}
+                  Analysis Results{analysisResult.market ? ` for ${analysisResult.market}` : ''}
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  Generated: {new Date(analysisResult.generated_at_utc).toLocaleString()}
+                  {generatedAt && !isNaN(generatedAt.getTime())
+                    ? `Generated: ${generatedAt.toLocaleString()}`
+                    : 'Just now'}
                 </p>
               </div>
-              <Button onClick={downloadCSV} variant="outline" size="sm">
+              <Button onClick={downloadCSV} variant="outline" size="sm" disabled={opps.length === 0}>
                 <Download className="h-4 w-4 mr-2" />
                 Export CSV
               </Button>
             </div>
+
+            {/* Empty-state callout when Claude returned a malformed or zero-deal
+                response — replaces the silent blank screen that previously
+                rendered when ranked_opportunities was undefined or [] */}
+            {opps.length === 0 && (
+              <Card className="simple-card p-6 text-center">
+                <p className="text-sm text-muted-foreground">
+                  No qualifying deals in this batch. {analysisResult.raw_analysis
+                    ? 'Claude returned an explanation instead of structured deals — try with different properties or relax the spread / repair filters.'
+                    : 'Try increasing your max candidates or relaxing the min-spread filter.'}
+                </p>
+              </Card>
+            )}
 
             {/* Summary Stats */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               <Card className="simple-card p-4">
                 <div className="text-center">
                   <div className="text-2xl font-bold text-primary">
-                    {analysisResult.ranked_opportunities.length}
+                    {opps.length}
                   </div>
                   <div className="text-sm text-muted-foreground">Opportunities</div>
                 </div>
               </Card>
-              
+
               <Card className="simple-card p-4">
                 <div className="text-center">
                   <div className="text-2xl font-bold text-primary">
-                    {formatCurrency(analysisResult.assumptions.target_fee)}
+                    {formatCurrency(a.target_fee ?? 10000)}
                   </div>
                   <div className="text-sm text-muted-foreground">Target Fee</div>
                 </div>
               </Card>
-              
+
               <Card className="simple-card p-4">
                 <div className="text-center">
                   <div className="text-2xl font-bold text-primary">
-                    {(analysisResult.assumptions.min_spread_pct * 100).toFixed(0)}%
+                    {((a.min_spread_pct ?? 0.2) * 100).toFixed(0)}%
                   </div>
                   <div className="text-sm text-muted-foreground">Min Spread</div>
                 </div>
               </Card>
-              
+
               <Card className="simple-card p-4">
                 <div className="text-center">
                   <div className="text-2xl font-bold text-primary">
-                    {(analysisResult.assumptions.mao_rule_pct_of_arv * 100).toFixed(0)}%
+                    {((a.mao_rule_pct_of_arv ?? 0.7) * 100).toFixed(0)}%
                   </div>
                   <div className="text-sm text-muted-foreground">MAO Rule</div>
                 </div>
@@ -483,7 +529,7 @@ export function AIWholesaleAnalyzer({ properties, market }: AIWholesaleAnalyzerP
 
             {/* Opportunities List */}
             <Accordion type="single" collapsible className="space-y-4">
-              {analysisResult.ranked_opportunities.map((opportunity) => (
+              {opps.map((opportunity) => (
                 <AccordionItem 
                   key={opportunity.zpid} 
                   value={opportunity.zpid}
@@ -621,7 +667,8 @@ export function AIWholesaleAnalyzer({ properties, market }: AIWholesaleAnalyzerP
               ))}
             </Accordion>
           </div>
-        )}
+          );
+        })()}
       </CardContent>
     </Card>
   );
