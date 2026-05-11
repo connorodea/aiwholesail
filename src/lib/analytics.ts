@@ -1,3 +1,5 @@
+import { events } from '@/lib/api-client';
+
 /**
  * AIWholesail Analytics — Comprehensive Event Tracking
  *
@@ -182,6 +184,10 @@ export const analytics = {
       ...filters,
     });
     fireFbq('Search', { search_string: location });
+    // Also log to our own user_events table — GA4/FB Pixel are for ads
+    // attribution; the DB is what founder-hot-list and activation funnel
+    // queries read from. Without this, the table stays near-empty.
+    events.log('property_search', { location, ...(filters || {}) });
   },
 
   /** User views property details */
@@ -198,6 +204,7 @@ export const analytics = {
       currency: 'USD',
       value: price || 0,
     });
+    events.log('property_viewed', { propertyId, address, price: price ?? null });
   },
 
   /** User adds property to favorites */
