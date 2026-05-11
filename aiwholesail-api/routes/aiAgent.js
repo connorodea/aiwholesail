@@ -109,6 +109,17 @@ router.post(
       } catch { /* socket closed */ }
     };
 
+    // Hard wall-clock cap. A single Cmd+K turn fans out to up to 8 router
+    // iterations × 4 subagents × 6 inner iterations × 1500 max_tokens each.
+    // Without this ceiling, a pathological prompt (or attacker) could burn
+    // tens of thousands of Anthropic tokens per turn. The Pro 100/mo counter
+    // only increments once per turn, so this cap is also revenue-side.
+    const AGENT_WALL_CLOCK_MS = parseInt(process.env.AI_AGENT_TIMEOUT_MS || '60000', 10);
+    const wallClockTimer = setTimeout(() => {
+      try { send({ type: 'error', message: `Agent timed out after ${AGENT_WALL_CLOCK_MS}ms` }); } catch {}
+      ac.abort();
+    }, AGENT_WALL_CLOCK_MS);
+
     send({ type: 'ready' });
     if (session) send({ type: 'session', id: session.id, title: session.title });
 
@@ -145,6 +156,7 @@ router.post(
     } catch (err) {
       send({ type: 'error', message: err.message || 'router error' });
     } finally {
+      clearTimeout(wallClockTimer);
       // Persist the final assistant message (best-effort)
       if (session && accumulated.text.trim()) {
         try {

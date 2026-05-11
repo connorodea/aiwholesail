@@ -20,6 +20,7 @@
 const { z } = require('zod/v4');
 const { betaZodTool } = require('@anthropic-ai/sdk/helpers/beta/zod');
 const { proxyZillow } = require('../zillowProxy');
+const { sanitizeRecord } = require('../sanitize');
 
 const inputSchema = z.object({
   action: z.enum([
@@ -57,7 +58,12 @@ const zillowProperty = betaZodTool({
   inputSchema,
   run: async ({ action, zpid }) => {
     const data = await proxyZillow(ACTION_TO_PROXY[action], { zpid });
-    const sourceUrl = `https://www.zillow.com/homedetails/${zpid}_zpid/`;
+    // Defense in depth: sanitize free-text fields (description, agent bio,
+    // school reviews, etc.) before embedding in tool_result. Caps each field
+    // and strips control / bidi-override chars that have no business in a
+    // real listing record.
+    const safeData = sanitizeRecord(data);
+    const sourceUrl = `https://www.zillow.com/homedetails/${encodeURIComponent(zpid)}_zpid/`;
     const title = `Zillow ${action} — zpid ${zpid}`;
 
     return [
@@ -68,7 +74,7 @@ const zillowProperty = betaZodTool({
         content: [
           {
             type: 'text',
-            text: typeof data === 'string' ? data : JSON.stringify(data, null, 2),
+            text: typeof safeData === 'string' ? safeData : JSON.stringify(safeData, null, 2),
           },
         ],
         citations: { enabled: true },

@@ -13,6 +13,7 @@
 const { z } = require('zod/v4');
 const { betaZodTool } = require('@anthropic-ai/sdk/helpers/beta/zod');
 const { proxyZillow } = require('../zillowProxy');
+const { sanitizeRecord } = require('../sanitize');
 
 const inputSchema = z.object({
   action: z.enum([
@@ -58,7 +59,7 @@ const zillowMarket = betaZodTool({
       sp.username = input.username;
     }
 
-    const data = await proxyZillow(ACTION_TO_PROXY[input.action], sp);
+    const data = sanitizeRecord(await proxyZillow(ACTION_TO_PROXY[input.action], sp));
     const sourceUrl =
       input.action === 'market_overview'
         ? `https://www.zillow.com/${input.slug}/`
