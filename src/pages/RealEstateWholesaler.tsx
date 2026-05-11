@@ -70,6 +70,7 @@ export default function RealEstateWholesaler() {
   // zestimates are still being calculated. Toggle ON to hide non-deals.
   const [hideNegativeSpreads, setHideNegativeSpreads] = useState(false);
   const searchIdRef = useRef(0);
+  const resultsRef = useRef<HTMLDivElement>(null);
 
   // A property is a confirmed non-deal when it has both a price and a
   // zestimate, and the price is at or above the zestimate. Properties still
@@ -153,6 +154,13 @@ export default function RealEstateWholesaler() {
       setError(null);
       setLastSearchLocation(params.location);
       setIsSearchingFSBO(params.fsboOnly || false);
+
+      // Smoothly scroll to results region as soon as the search fires.
+      // Gives instant feedback that something is happening + carries the
+      // user's eye down to where the loader + results will render.
+      requestAnimationFrame(() => {
+        resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
 
       // Step 1: Fetch every page Zillow has for this query. We pass a high
       // ceiling (100 pages ≈ 4,000+ properties) so the search isn't artificially
@@ -370,6 +378,10 @@ export default function RealEstateWholesaler() {
                 <AlertOnboardingBanner suggestedLocation={lastSearchLocation} />
               </div>
             </section>
+
+            {/* Anchor for smooth-scroll after Search Properties is clicked.
+                scroll-mt-* gives the smooth scroll some breathing room from the sticky header. */}
+            <div ref={resultsRef} className="scroll-mt-20 sm:scroll-mt-24" aria-hidden="true" />
 
             {/* Loading Animation — visible during search AND enrichment */}
             {(isLoading || loadingProgress > 0) && (
