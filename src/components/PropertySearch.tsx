@@ -6,11 +6,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { PropertySearchParams } from '@/types/zillow';
-import { Search, Home, Bed, Bath, DollarSign, TrendingDown, MessageSquare, Gavel, Building2, AlertTriangle, Flame, Sparkles, Lock } from 'lucide-react';
+import { Search, Home, Bed, Bath, DollarSign, TrendingDown, MessageSquare, Gavel, Building2, AlertTriangle, Flame, Sparkles, Lock, Radius } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { LocationAutocomplete } from './LocationAutocomplete';
 import { CountyBrowserDialog } from './CountyBrowserDialog';
 import { validatePriceRange, sanitizeSearchKeywords, validateLocationInput } from '@/lib/security';
+import { isMultiLocationSearchEnabled } from '@/lib/feature-flags';
+import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useSubscription } from '@/hooks/useSubscription';
 import { Badge } from '@/components/ui/badge';
@@ -28,9 +30,11 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
     wholesaleOnly: true // Default: only show properties priced below Zestimate
   });
   const { toast } = useToast();
+  const { user } = useAuth();
   const [countyBrowserOpen, setCountyBrowserOpen] = useState(false);
   const { isElite, isPro } = useSubscription();
   const allowedForProFeatures = isElite || isPro;
+  const multiLocationEnabled = isMultiLocationSearchEnabled(user?.email);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -94,15 +98,53 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
                 onChange={(value) => updateParam('location', value)}
                 required={true}
               />
-              <button
-                type="button"
-                onClick={() => setCountyBrowserOpen(true)}
-                className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium text-cyan-400 hover:text-cyan-300 hover:underline underline-offset-4 transition-colors"
-              >
-                <MapPin className="h-3.5 w-3.5" />
-                Don&rsquo;t know the county? Browse counties by state →
-              </button>
+              <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+                {multiLocationEnabled && (
+                  <span className="text-muted-foreground">
+                    Tip: paste multiple ZIPs (<span className="font-mono">33101, 33102, 33125</span>) to search several at once.
+                  </span>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setCountyBrowserOpen(true)}
+                  className="inline-flex items-center gap-1.5 font-medium text-cyan-400 hover:text-cyan-300 hover:underline underline-offset-4 transition-colors"
+                >
+                  <MapPin className="h-3.5 w-3.5" />
+                  Don&rsquo;t know the county? Browse counties by state →
+                </button>
+              </div>
             </div>
+
+            {/* Search radius (only meaningful for single ZIP/address inputs).
+                Hidden entirely when the multi-location flag is off so users
+                can't enter a radius that the search loop will ignore. */}
+            {multiLocationEnabled && (
+            <div className="space-y-2 sm:col-span-2">
+              <Label htmlFor="radius-mi" className="flex items-center gap-2">
+                <Radius className="h-4 w-4 text-primary" />
+                Search radius (mi) <span className="text-xs text-muted-foreground font-normal">— optional, single ZIP/address only</span>
+              </Label>
+              <Input
+                id="radius-mi"
+                type="number"
+                min={1}
+                max={100}
+                placeholder="e.g. 10"
+                value={searchParams.radiusMi ?? ''}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  setSearchParams((prev) => ({
+                    ...prev,
+                    radiusMi: v === '' ? undefined : Number(v),
+                  }));
+                }}
+                className="bg-background/50 max-w-xs"
+              />
+              <p className="text-xs text-muted-foreground">
+                Expands a single ZIP or address into every ZIP within X miles, then searches each one.
+              </p>
+            </div>
+            )}
 
             <CountyBrowserDialog
               open={countyBrowserOpen}

@@ -193,21 +193,84 @@ export default function RealEstateWholesaler() {
         resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
 
-      // Step 1: Fetch every page Zillow has for this query. We pass a high
-      // ceiling (100 pages ≈ 4,000+ properties) so the search isn't artificially
-      // truncated — Zillow's own totalPages stops the loop at the real end.
-      const isStateSearch = isStateOnlyLocation(params.location);
-      const maxPages = 100;
+      // Step 1: Resolve the location text into the list of effective queries.
+      // Three cases (only when MULTI_LOCATION_SEARCH_ENABLED is true; otherwise
+      // the rollback flag forces the original single-query path):
+      //  - multiple ZIPs in the text       → fan out, one search per ZIP
+      //  - single ZIP/address + radius set → expand to nearby ZIPs, fan out
+      //  - single location, no radius      → original single-query path
+      const { isMultiLocationSearchEnabled } = await import('@/lib/feature-flags');
+      const multiLocationEnabled = isMultiLocationSearchEnabled(user?.email);
+      const { parseZipList, resolveOrigin, zipsWithinRadius, fanOutZipSearch, MAX_ZIPS_PER_SEARCH } = await import('@/lib/zip-search');
+      const parsed = multiLocationEnabled ? parseZipList(params.location) : { valid: [], invalid: [] };
+      let effectiveLocations: string[] = [params.location];
 
-      if (isStateSearch) {
+      if (parsed.valid.length >= 2) {
+        effectiveLocations = parsed.valid.slice(0, MAX_ZIPS_PER_SEARCH);
+        if (parsed.valid.length > MAX_ZIPS_PER_SEARCH) {
+          toast.info(`Capped at ${MAX_ZIPS_PER_SEARCH} ZIPs — using the first ${MAX_ZIPS_PER_SEARCH}.`);
+        }
+        setLoadingStatus(`Searching ${effectiveLocations.length} ZIPs in parallel…`);
+      } else if (multiLocationEnabled && params.radiusMi && params.radiusMi > 0) {
+        const origin = await resolveOrigin(params.location);
+        if (!origin) {
+          toast.warning(`Couldn't resolve "${params.location}" to coordinates — falling back to single-location search.`);
+        } else {
+          const nearby = await zipsWithinRadius({ lat: origin.lat, lng: origin.lng }, params.radiusMi, MAX_ZIPS_PER_SEARCH);
+          if (nearby.length === 0) {
+            toast.warning(`No US ZIPs found within ${params.radiusMi} mi — searching the single location instead.`);
+          } else {
+            effectiveLocations = nearby.map((n) => n.zip);
+            setLoadingStatus(`Searching ${effectiveLocations.length} ZIPs within ${params.radiusMi} mi of ${origin.label}…`);
+          }
+        }
+      }
+
+      // Fetch every page Zillow has for this query. We pass a high ceiling
+      // (100 pages ≈ 4,000+ properties) so the search isn't artificially
+      // truncated — Zillow's own totalPages stops the loop at the real end.
+      // For multi-location fan-out we cap pages per ZIP to keep total API calls bounded.
+      const isStateSearch = isStateOnlyLocation(params.location);
+      const isFanout = effectiveLocations.length > 1;
+      const maxPages = isFanout ? 5 : 100;
+
+      if (isStateSearch && !isFanout) {
         setLoadingStatus(`State-wide search: fetching every listing across ${params.location}... This may take a minute or two.`);
       }
 
-      const searchResults = await zillowAPI.searchProperties(params, maxPages, (loaded, total, count) => {
-        const pct = Math.round((loaded / total) * 60) + 20; // 20-80% range for search
-        setLoadingProgress(pct);
-        setLoadingStatus(`Fetching page ${loaded}/${total} — ${count} properties found so far...`);
-      });
+      let searchResults: Property[];
+      if (isFanout) {
+        // Bounded-concurrency fan-out, dedupe by zpid.
+        const fanProgress = { done: 0 };
+        const batches = await fanOutZipSearch(
+          effectiveLocations,
+          async (loc) => {
+            const r = await zillowAPI.searchProperties({ ...params, location: loc, radiusMi: undefined }, maxPages);
+            fanProgress.done += 1;
+            const pct = Math.round((fanProgress.done / effectiveLocations.length) * 60) + 20;
+            setLoadingProgress(pct);
+            setLoadingStatus(`Searched ${fanProgress.done}/${effectiveLocations.length} ZIPs — ${(r as Property[]).length} listings found this ZIP`);
+            return r;
+          },
+          3, // concurrency
+        );
+        const seen = new Set<string>();
+        searchResults = [];
+        for (const { result } of batches) {
+          for (const p of result as Property[]) {
+            const key = p.zpid || p.id || `${p.address}-${p.price}`;
+            if (seen.has(key)) continue;
+            seen.add(key);
+            searchResults.push(p);
+          }
+        }
+      } else {
+        searchResults = await zillowAPI.searchProperties(params, maxPages, (loaded, total, count) => {
+          const pct = Math.round((loaded / total) * 60) + 20; // 20-80% range for search
+          setLoadingProgress(pct);
+          setLoadingStatus(`Fetching page ${loaded}/${total} — ${count} properties found so far...`);
+        });
+      }
 
       if (searchResults.length === 0) {
         setError("No properties found. Try adjusting your search criteria.");

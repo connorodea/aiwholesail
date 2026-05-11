@@ -1,5 +1,8 @@
 export interface PropertySearchParams {
   location: string;
+  /** Optional radius in miles around the single-ZIP/address location. Ignored
+   *  if the location text contains multiple ZIP codes (multi-ZIP fan-out wins). */
+  radiusMi?: number;
   homeType: string;
   bed_min?: string;
   bed_max?: string;
