@@ -28,6 +28,7 @@ const EVENTS = Object.freeze({
   PHOTO_ANALYSIS: 'photo_analysis',             // AI photo / damage detection
   BUYER_PITCH_PDF: 'buyer_pitch_pdf',           // generated branded buyer pitch
   AI_LISTING_DESC: 'ai_listing_description',    // generated AI listing/marketing copy (Phase 1.5)
+  AI_AGENT_CHAT: 'ai_agent_chat',               // Cmd+K AI agent — one event per router turn (Pro cap = 100/mo)
   // Premium feature touches (also tracked in their dedicated tables, but
   // mirroring here gives the hot-list ONE source to query)
   SKIP_TRACE_USED: 'skip_trace_used',
