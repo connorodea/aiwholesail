@@ -38,6 +38,7 @@ import { SaveSearchAsAlertDialog } from '@/components/SaveSearchAsAlertDialog';
 import { AlertOnboardingBanner } from '@/components/AlertOnboardingBanner';
 import { TrialCountdownBanner } from '@/components/TrialCountdownBanner';
 import { SearchLoadingState } from '@/components/SearchLoadingState';
+import { RealtimeProgressBar } from '@/components/RealtimeProgressBar';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 
@@ -429,9 +430,10 @@ export default function RealEstateWholesaler() {
               <section className="space-y-6 sm:space-y-10 animate-fade-in">
                 {/* Progressive-enrichment callout — visible while zestimates are still
                     landing. Explains the "spreads will pop to top automatically" behavior
-                    so users don't think the results are static. */}
+                    so users don't think the results are static. The real-time progress
+                    bar on the right is synced 1:1 with the actual search/enrichment pipeline. */}
                 {stillEnriching && (
-                  <div className="flex items-start gap-3 rounded-xl border border-cyan-500/30 bg-cyan-500/[0.06] px-4 py-3">
+                  <div className="flex items-start gap-4 rounded-xl border border-cyan-500/30 bg-cyan-500/[0.06] px-4 py-3">
                     <div className="relative shrink-0 mt-1.5">
                       <span className="absolute inset-0 rounded-full bg-cyan-400/40 animate-ping" />
                       <span className="relative block h-2.5 w-2.5 rounded-full bg-cyan-400" />
@@ -444,9 +446,11 @@ export default function RealEstateWholesaler() {
                         You can start browsing now. As more Zestimates come in, properties will re-sort so the biggest spreads land at the top.
                       </div>
                     </div>
-                    <div className="text-xs font-mono text-cyan-300/80 hidden sm:block tabular-nums shrink-0">
-                      {loadingProgress}%
-                    </div>
+                    <RealtimeProgressBar
+                      progress={loadingProgress}
+                      status={loadingStatus}
+                      compact
+                    />
                   </div>
                 )}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
