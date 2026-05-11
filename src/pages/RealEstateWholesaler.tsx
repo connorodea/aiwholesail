@@ -71,6 +71,10 @@ export default function RealEstateWholesaler() {
   const [hideNegativeSpreads, setHideNegativeSpreads] = useState(false);
   const searchIdRef = useRef(0);
   const resultsRef = useRef<HTMLDivElement>(null);
+  const propertyCardsRef = useRef<HTMLDivElement>(null);
+  // Tracks whether we've already done the "first-cards-landed" scroll for the
+  // current search. Reset on each new submit so a fresh search re-scrolls.
+  const firstResultsShownRef = useRef(false);
 
   // A property is a confirmed non-deal when it has both a price and a
   // zestimate, and the price is at or above the zestimate. Properties still
@@ -155,6 +159,9 @@ export default function RealEstateWholesaler() {
       setLastSearchLocation(params.location);
       setIsSearchingFSBO(params.fsboOnly || false);
 
+      // Reset the second-scroll tracker so this search can re-trigger.
+      firstResultsShownRef.current = false;
+
       // Smoothly scroll to results region as soon as the search fires.
       // Gives instant feedback that something is happening + carries the
       // user's eye down to where the loader + results will render.
@@ -206,6 +213,18 @@ export default function RealEstateWholesaler() {
       setLoadingProgress(80);
       setLoadingStatus(`Found ${sorted.length} properties. Now calculating spreads...`);
       setIsLoading(false); // Hide the blocking loader, show results while enriching
+
+      // Second smooth-scroll — carries the user past the loader and lands on
+      // the property grid the moment cards mount. Use a double-rAF so we wait
+      // for React to commit the new render before measuring/scrolling.
+      if (!firstResultsShownRef.current && sorted.length > 0) {
+        firstResultsShownRef.current = true;
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            propertyCardsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          });
+        });
+      }
 
       // Step 3: Enrich with zestimates to calculate spreads
       try {
@@ -395,14 +414,41 @@ export default function RealEstateWholesaler() {
               <PopularMarketsEmptyState onSelect={handleSearch} />
             )}
 
+            {/* Anchor for the second smooth-scroll — lands on the property grid
+                once cards first mount. scroll-mt-* keeps clear of the sticky header. */}
+            <div ref={propertyCardsRef} className="scroll-mt-20 sm:scroll-mt-24" aria-hidden="true" />
+
             {/* Results Section */}
             {!isLoading && properties.length > 0 && (() => {
               const visibleProperties = hideNegativeSpreads
                 ? properties.filter(p => !isNegativeSpread(p))
                 : properties;
               const hiddenNegativeCount = properties.length - visibleProperties.length;
+              const stillEnriching = loadingProgress > 0 && loadingProgress < 100;
               return (
               <section className="space-y-6 sm:space-y-10 animate-fade-in">
+                {/* Progressive-enrichment callout — visible while zestimates are still
+                    landing. Explains the "spreads will pop to top automatically" behavior
+                    so users don't think the results are static. */}
+                {stillEnriching && (
+                  <div className="flex items-start gap-3 rounded-xl border border-cyan-500/30 bg-cyan-500/[0.06] px-4 py-3">
+                    <div className="relative shrink-0 mt-1.5">
+                      <span className="absolute inset-0 rounded-full bg-cyan-400/40 animate-ping" />
+                      <span className="relative block h-2.5 w-2.5 rounded-full bg-cyan-400" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium text-cyan-100">
+                        Still calculating spreads — best deals will pop to the top automatically
+                      </div>
+                      <div className="text-xs text-cyan-300/70 mt-0.5">
+                        You can start browsing now. As more Zestimates come in, properties will re-sort so the biggest spreads land at the top.
+                      </div>
+                    </div>
+                    <div className="text-xs font-mono text-cyan-300/80 hidden sm:block tabular-nums shrink-0">
+                      {loadingProgress}%
+                    </div>
+                  </div>
+                )}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div className="space-y-1 sm:space-y-2">
                     <h2 className="text-xl sm:text-2xl font-medium tracking-tight">

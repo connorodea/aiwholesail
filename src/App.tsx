@@ -12,6 +12,7 @@ import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { FacebookPixel } from "@/components/FacebookPixel";
 import { SEOHead } from "@/components/SEOHead";
 import { CmdKAgent } from "@/components/CmdKAgent";
+import { CmdKLauncher } from "@/components/CmdKLauncher";
 
 // Critical / small pages — keep as static imports
 import Auth from "./pages/Auth";
@@ -126,6 +127,7 @@ const App = () => (
             <Sonner />
             <CmdKAgent />
             <BrowserRouter>
+              <CmdKLauncher />
               <ScrollToTop />
               <GoogleAnalytics />
               <FacebookPixel />
