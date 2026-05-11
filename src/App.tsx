@@ -13,6 +13,7 @@ import { FacebookPixel } from "@/components/FacebookPixel";
 import { SEOHead } from "@/components/SEOHead";
 import { CmdKAgent } from "@/components/CmdKAgent";
 import { CmdKLauncher } from "@/components/CmdKLauncher";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 // Critical / small pages — keep as static imports
 import Auth from "./pages/Auth";
@@ -132,6 +133,7 @@ const App = () => (
               <GoogleAnalytics />
               <FacebookPixel />
               <Suspense fallback={<div className="min-h-screen bg-[#08090a]" />}>
+              <ErrorBoundary label="app-routes">
               <Routes>
                 <Route path="/" element={<Landing />} />
                 <Route path="/lp/find-deals" element={<LpFindDeals />} />
@@ -267,6 +269,7 @@ const App = () => (
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
+              </ErrorBoundary>
               </Suspense>
             </BrowserRouter>
           </TooltipProvider>
