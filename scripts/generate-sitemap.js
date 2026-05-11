@@ -65,6 +65,7 @@ const personas = loadJson(path.join(dataDir, 'personas.json'));
 const checklists = loadJson(path.join(dataDir, 'checklists.json'));
 const softwareReviews = loadJson(path.join(dataDir, 'software-reviews.json'));
 const stateLaws = loadJson(path.join(dataDir, 'state-laws.json'));
+const zipcodes = loadJson(path.join(dataDir, 'zipcodes.json'));
 
 // ---------------------------------------------------------------------------
 // Derive unique states (slug = stateFull lowercased, spaces -> hyphens)
@@ -265,6 +266,12 @@ for (const law of stateLaws) {
   addUrl(`/laws/${law.slug}`, '0.7', 'monthly');
 }
 
+// --- ZIP code pages: /zip + /zip/:slug ---
+addUrl('/zip', '0.8', 'weekly');
+for (const z of zipcodes) {
+  addUrl(`/zip/${z.slug}`, '0.6', 'monthly');
+}
+
 // ---------------------------------------------------------------------------
 // XML helpers
 // ---------------------------------------------------------------------------
@@ -373,5 +380,6 @@ console.log(`  Investor personas:    ${personas.length}`);
 console.log(`  Checklists:           ${checklists.length}`);
 console.log(`  Software reviews:     ${softwareReviews.length}`);
 console.log(`  State law pages:      ${stateLaws.length}`);
+console.log(`  ZIP code pages:       ${zipcodes.length + 1}`);
 console.log(`  --------------------------------`);
 console.log(`  TOTAL URLs:           ${urls.length}`);

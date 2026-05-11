@@ -89,11 +89,14 @@ export default function ZipCodes() {
     return results;
   }, [query, cityFilter, activityFilter, sortBy]);
 
+  const totalZips = (zipcodes as ZipCode[]).length;
+  const totalMetros = new Set((zipcodes as ZipCode[]).map((z) => z.citySlug)).size;
+
   return (
     <PublicLayout>
       <SEOHead
-        title="ZIP Code Real Estate Data -- 290 Investing ZIP Codes Across 15 Metros"
-        description="Search 290+ ZIP codes across 15 US metros for wholesale, flip, and rental real estate investing. Filter by investor activity, sort by rent-to-price ratio, price growth, and median price."
+        title={`ZIP Code Real Estate Data -- ${totalZips.toLocaleString()} Investing ZIP Codes Across ${totalMetros} Metros`}
+        description={`Search ${totalZips.toLocaleString()}+ ZIP codes across ${totalMetros} US metros for wholesale, flip, and rental real estate investing. Filter by investor activity, sort by rent-to-price ratio, price growth, and median price.`}
         keywords="zip code real estate investing, best zip codes for wholesaling, zip code rental data, real estate investing by zip code, investor activity zip codes, rent to price ratio zip codes"
         breadcrumbs={[
           { name: 'Home', url: 'https://aiwholesail.com' },
