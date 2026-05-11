@@ -74,19 +74,43 @@ router.post('/checkout', authenticate, [
   let customerEmail = user?.email;
 
   if (!guestCheckout && user?.email) {
-    // For logged-in users, check for existing customer
-    const customers = await stripe.customers.list({ email: user.email, limit: 1 });
-    if (customers.data.length > 0) {
-      customerId = customers.data[0].id;
-      console.log('[Stripe] Found existing customer', { customerId });
+    // Prefer the customer id stored in our DB (populated at signup since the
+    // trial-customer fix, or backfilled for older trials). Falls back to
+    // Stripe customer search if we don't have one locally. Reduces a Stripe
+    // API roundtrip on the hot path.
+    try {
+      const local = await query(
+        'SELECT stripe_customer_id FROM subscribers WHERE user_id = $1 OR email = $2 LIMIT 1',
+        [user.id, user.email]
+      );
+      if (local.rows[0]?.stripe_customer_id) {
+        customerId = local.rows[0].stripe_customer_id;
+        console.log('[Stripe] Using stripe_customer_id from subscribers', { customerId });
+      }
+    } catch (err) {
+      console.warn('[Stripe] subscribers lookup failed, falling back to API:', err.message);
+    }
+
+    if (!customerId) {
+      const customers = await stripe.customers.list({ email: user.email, limit: 1 });
+      if (customers.data.length > 0) {
+        customerId = customers.data[0].id;
+        console.log('[Stripe] Found existing customer via API', { customerId });
+      }
     }
   }
 
   const frontendUrl = process.env.FRONTEND_URL || 'https://aiwholesail.com';
 
+  // Stripe rejects requests that set BOTH `customer` and `customer_email`
+  // ("You may only specify one of these parameters"). When we have a known
+  // customer id, omit the email — Stripe uses the customer's stored email.
+  // Only fall back to customer_email when we have no customer id (e.g. a
+  // truly anonymous guest checkout or a brand-new signup whose customer
+  // creation in routes/auth.js failed).
   const session = await stripe.checkout.sessions.create({
-    customer: customerId,
-    customer_email: guestCheckout ? undefined : customerEmail,
+    customer: customerId || undefined,
+    customer_email: customerId ? undefined : (guestCheckout ? undefined : customerEmail),
     line_items: [
       {
         price: actualPriceId,
