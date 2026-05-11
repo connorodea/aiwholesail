@@ -1117,6 +1117,113 @@ export class ZillowAPI {
     }
   }
 
+  // ============ Expanded search endpoints (via /zillow proxy) ============
+
+  async searchByCoordinates(opts: {
+    lat: number; lng: number; radius_mi?: number;
+    homeType?: string; listing_type?: string; page?: string | number;
+    bed_min?: number; bed_max?: number; bathrooms?: number;
+    price_min?: number; price_max?: number;
+  }): Promise<any> {
+    const data = await this.callApi('searchByCoordinates', opts);
+    return data?.data;
+  }
+
+  async searchByBounds(opts: {
+    sw_lat: number; sw_lng: number; ne_lat: number; ne_lng: number;
+    homeType?: string; listing_type?: string; page?: string | number;
+    bed_min?: number; bed_max?: number; bathrooms?: number;
+    price_min?: number; price_max?: number;
+  }): Promise<any> {
+    const data = await this.callApi('searchByBounds', opts);
+    return data?.data;
+  }
+
+  async searchByAddress(opts: {
+    address: string; radius_mi?: number;
+    homeType?: string; listing_type?: string; page?: string | number;
+  }): Promise<any> {
+    const data = await this.callApi('searchByAddress', opts);
+    return data?.data;
+  }
+
+  async searchByMls(mls_id: string): Promise<any> {
+    const data = await this.callApi('searchByMls', { mls_id });
+    return data?.data;
+  }
+
+  async searchByUrl(url: string): Promise<any> {
+    const data = await this.callApi('searchByUrl', { url });
+    return data?.data;
+  }
+
+  async autocompleteViaProxy(query: string): Promise<any[]> {
+    try {
+      const data = await this.callApi('autocomplete', { query });
+      return data?.data?.suggestions || [];
+    } catch {
+      return [];
+    }
+  }
+
+  // ============ Expanded property/valuation/agent/market endpoints ============
+
+  async getMortgage(zpid: string): Promise<any> {
+    const data = await this.callApi('mortgage', { zpid });
+    return data?.data;
+  }
+
+  async getMortgageRates(zpid: string): Promise<any> {
+    const data = await this.callApi('mortgageRates', { zpid });
+    return data?.data;
+  }
+
+  async getPropertyByUrl(url: string): Promise<any> {
+    const data = await this.callApi('propertyByUrl', { url });
+    return data?.data;
+  }
+
+  async getPropertyByAddress(address: string): Promise<any> {
+    const data = await this.callApi('propertyByAddress', { address });
+    return data?.data;
+  }
+
+  async getZestimateHistory(zpid: string): Promise<any> {
+    const data = await this.callApi('zestimateHistory', { zpid });
+    return data?.data;
+  }
+
+  async getAgentDetails(username: string): Promise<any> {
+    const data = await this.callApi('agentDetails', { username });
+    return data?.data;
+  }
+
+  async getAgentListings(username: string): Promise<any> {
+    const data = await this.callApi('agentListings', { username });
+    return data?.data;
+  }
+
+  async getAgentSold(username: string): Promise<any> {
+    const data = await this.callApi('agentSold', { username });
+    return data?.data;
+  }
+
+  async getAgentReviews(username: string): Promise<any> {
+    const data = await this.callApi('agentReviews', { username });
+    return data?.data;
+  }
+
+  async searchAgents(location: string, page: string | number = '1'): Promise<any> {
+    const data = await this.callApi('agentSearch', { location, page });
+    return data?.data;
+  }
+
+  async getMarket(slug: string): Promise<any> {
+    // slug example: "austin-tx"
+    const data = await this.callApi('market', { slug });
+    return data?.data;
+  }
+
   async getSkipTrace(address: string, location: string, format: string = 'full'): Promise<any> {
     // Skip trace uses the backend API endpoint instead of Zillow
     return null;
