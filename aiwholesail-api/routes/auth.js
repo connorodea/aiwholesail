@@ -106,6 +106,60 @@ router.post('/signup', [
     [normalizedEmail, userId, trialEnd]
   );
 
+  // Create a Stripe customer up-front so the user appears in the Stripe
+  // dashboard during their trial, the Customer Portal works before they
+  // ever check out, and any future checkout reuses this customer id
+  // (avoids the duplicate-customer race when two requests fire in parallel).
+  //
+  // Best-effort — Stripe outages must NOT break signup. The backfill script
+  // (scripts/backfill-stripe-customers.js) picks up any rows we miss here.
+  try {
+    // Reuse an existing Stripe customer if one already exists for this email
+    // (e.g. the user previously did a guest checkout before signing up).
+    const existing = await stripe.customers.list({ email: normalizedEmail, limit: 1 });
+    let stripeCustomerId;
+    if (existing.data.length > 0) {
+      stripeCustomerId = existing.data[0].id;
+      // Update the existing Stripe customer with our metadata so the dashboard
+      // shows the link back to our internal user_id.
+      await stripe.customers.update(stripeCustomerId, {
+        name: fullName || existing.data[0].name || undefined,
+        phone: phoneNumber || existing.data[0].phone || undefined,
+        metadata: {
+          ...(existing.data[0].metadata || {}),
+          user_id: userId,
+          source: 'trial_signup',
+          trial_started_at: new Date().toISOString(),
+          trial_ends_at: trialEnd.toISOString(),
+        },
+      });
+    } else {
+      const stripeCustomer = await stripe.customers.create({
+        email: normalizedEmail,
+        name: fullName || undefined,
+        phone: phoneNumber || undefined,
+        metadata: {
+          user_id: userId,
+          source: 'trial_signup',
+          trial_started_at: new Date().toISOString(),
+          trial_ends_at: trialEnd.toISOString(),
+        },
+      });
+      stripeCustomerId = stripeCustomer.id;
+    }
+    await query(
+      'UPDATE subscribers SET stripe_customer_id = $1, updated_at = NOW() WHERE user_id = $2',
+      [stripeCustomerId, userId]
+    );
+  } catch (err) {
+    // Don't block signup. Log and let the backfill script reconcile later.
+    console.error(`[auth/signup] Stripe customer creation failed for ${normalizedEmail.substring(0, 3)}***: ${err.message}`);
+    await logSecurityEvent('stripe_customer_create_failed_at_signup', {
+      user_id: userId,
+      error: err.message?.substring(0, 200),
+    }, userId, req);
+  }
+
   // Store phone number in profile (profile auto-created by DB trigger)
   if (phoneNumber) {
     await query(
