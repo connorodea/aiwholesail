@@ -6,7 +6,7 @@
 
 const { z } = require('zod/v4');
 const { betaZodTool } = require('@anthropic-ai/sdk/helpers/beta/zod');
-const Anthropic = require('@anthropic-ai/sdk');
+const { runSubagent } = require('../subagentRunner');
 const { zillowMarket } = require('../tools/zillowMarket');
 const { zillowSearch } = require('../tools/zillowSearch');
 
@@ -39,16 +39,14 @@ const runMarketWatcher = betaZodTool({
   run: async ({ location }) => {
     const slug = normalizeSlug(location);
     const userMsg = `Tell me the market condition for ${location} (slug: ${slug}). If looks like a ZIP, also check ZIP-level inventory.`;
-    const client = new Anthropic.Anthropic();
-    const result = await client.beta.messages.toolRunner({
+    return runSubagent({
       model: 'claude-haiku-4-5',
-      max_tokens: 1000,
       system: SUBAGENT_PROMPT,
       tools: [zillowMarket, zillowSearch],
-      messages: [{ role: 'user', content: userMsg }],
+      userContent: userMsg,
       max_iterations: 4,
+      max_tokens: 1000,
     });
-    return result.content || [];
   },
 });
 
