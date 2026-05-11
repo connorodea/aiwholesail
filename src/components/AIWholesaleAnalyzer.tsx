@@ -210,22 +210,63 @@ export function AIWholesaleAnalyzer({ properties, market }: AIWholesaleAnalyzerP
         }
       }
 
-      // Transform new Claude format (deals[]) to old format (ranked_opportunities[]) if needed
+      // Transform new Claude format (deals[]) to old format (ranked_opportunities[]) if needed.
+      // CRITICAL: every field the Accordion render dereferences must be populated
+      // here with a safe default — Claude can legitimately omit fields like
+      // `repairs`, `agent`, `risk_flags`, `next_actions` from a deal entry, and
+      // a naked dereference on the render side will throw, unmount the subtree,
+      // and (without an ErrorBoundary above) take down the whole app.
       if (parsed.deals && !parsed.ranked_opportunities) {
-        parsed.ranked_opportunities = parsed.deals.map((deal: any, i: number) => ({
-          rank: deal.rank || i + 1,
-          zpid: deal.address || `deal-${i}`,
-          address: deal.address || deal.property_details?.address || 'Unknown',
-          list_price: deal.property_details?.list_price || deal.list_price || 0,
-          zestimate: deal.property_details?.zestimate || deal.zestimate || 0,
-          estimated_arv: deal.arv_calculation?.estimated_arv || deal.estimated_arv || 0,
-          estimated_repairs: deal.repair_estimate?.total_repair_estimate || deal.estimated_repairs || 0,
-          mao: deal.mao_calculation?.mao_rounded || deal.mao_calculation?.mao || deal.mao || 0,
-          wholesale_fee: deal.profit_analysis?.if_purchased_at_mao?.recommended_assignment_fee || 10000,
-          deal_score: deal.deal_score || deal.summary?.deal_score || 50,
-          recommendation: deal.recommendation || deal.summary?.recommendation || 'Review',
-          notes: deal.summary?.one_liner || deal.one_liner || '',
-        }));
+        parsed.ranked_opportunities = parsed.deals.map((deal: any, i: number) => {
+          const listPrice = deal.property_details?.list_price || deal.list_price || 0;
+          const zest = deal.property_details?.zestimate || deal.zestimate || 0;
+          const repairMid = deal.repair_estimate?.total_repair_estimate || deal.estimated_repairs || 0;
+          return {
+            rank: deal.rank || i + 1,
+            zpid: deal.zpid || deal.address || `deal-${i}`,
+            address: deal.address || deal.property_details?.address || 'Unknown',
+            list_price: listPrice,
+            zestimate: zest,
+            estimated_arv: deal.arv_calculation?.estimated_arv || deal.estimated_arv || zest || 0,
+            arv_final: deal.arv_calculation?.estimated_arv || deal.estimated_arv || zest || 0,
+            estimated_repairs: repairMid,
+            mao: deal.mao_calculation?.mao_rounded || deal.mao_calculation?.mao || deal.mao || 0,
+            wholesale_fee: deal.profit_analysis?.if_purchased_at_mao?.recommended_assignment_fee || 10000,
+            deal_score: deal.deal_score || deal.summary?.deal_score || 50,
+            recommendation: deal.recommendation || deal.summary?.recommendation || 'Review',
+            notes: deal.summary?.one_liner || deal.one_liner || '',
+            // Defaults for the 12 fields the Accordion list dereferences without
+            // guards — see PR #166 follow-up for the audit.
+            spread_abs: typeof deal.spread_abs === 'number' ? deal.spread_abs : (zest - listPrice),
+            spread_pct: typeof deal.spread_pct === 'number'
+              ? deal.spread_pct
+              : (listPrice > 0 ? (zest - listPrice) / listPrice : 0),
+            repairs: deal.repairs && typeof deal.repairs === 'object'
+              ? {
+                  low: typeof deal.repairs.low === 'number' ? deal.repairs.low : 0,
+                  mid: typeof deal.repairs.mid === 'number' ? deal.repairs.mid : repairMid,
+                  high: typeof deal.repairs.high === 'number' ? deal.repairs.high : 0,
+                }
+              : { low: 0, mid: repairMid, high: 0 },
+            flip_margin: typeof deal.flip_margin === 'number' ? deal.flip_margin : 0,
+            score: typeof deal.score === 'number'
+              ? deal.score
+              : (typeof deal.deal_score === 'number' ? deal.deal_score / 100 : 0.5),
+            exit: deal.exit || deal.recommendation || 'wholesale',
+            risk_flags: Array.isArray(deal.risk_flags) ? deal.risk_flags : [],
+            agent: deal.agent && typeof deal.agent === 'object'
+              ? { name: deal.agent.name || '', phone: deal.agent.phone || '' }
+              : { name: '', phone: '' },
+            next_actions: deal.next_actions && typeof deal.next_actions === 'object'
+              ? {
+                  offer_price_first: typeof deal.next_actions.offer_price_first === 'number' ? deal.next_actions.offer_price_first : 0,
+                  offer_price_ceiling_MAO: typeof deal.next_actions.offer_price_ceiling_MAO === 'number' ? deal.next_actions.offer_price_ceiling_MAO : 0,
+                  call_script: deal.next_actions.call_script || '',
+                  email_copy: deal.next_actions.email_copy || '',
+                }
+              : { offer_price_first: 0, offer_price_ceiling_MAO: 0, call_script: '', email_copy: '' },
+          };
+        });
         parsed.market = parsed.market || market;
         parsed.generated_at_utc = parsed.analysis_timestamp || new Date().toISOString();
         parsed.assumptions = parsed.assumptions || {
@@ -547,7 +588,7 @@ export function AIWholesaleAnalyzer({ properties, market }: AIWholesaleAnalyzerP
                           </div>
                           <div className="text-sm text-muted-foreground">
                             {formatCurrency(opportunity.list_price)} • 
-                            Spread: {formatCurrency(opportunity.spread_abs)} ({(opportunity.spread_pct * 100).toFixed(1)}%)
+                            Spread: {formatCurrency(opportunity.spread_abs ?? 0)} ({((opportunity.spread_pct ?? 0) * 100).toFixed(1)}%)
                           </div>
                         </div>
                       </div>
@@ -556,7 +597,7 @@ export function AIWholesaleAnalyzer({ properties, market }: AIWholesaleAnalyzerP
                           MAO: {formatCurrency(opportunity.mao)}
                         </div>
                         <div className="text-sm text-muted-foreground">
-                          Score: {opportunity.score.toFixed(2)}
+                          Score: {(typeof opportunity.score === 'number' ? opportunity.score : 0).toFixed(2)}
                         </div>
                       </div>
                     </div>
@@ -575,32 +616,32 @@ export function AIWholesaleAnalyzer({ properties, market }: AIWholesaleAnalyzerP
                         <div className="space-y-1">
                           <div className="text-sm text-muted-foreground">Repair Est.</div>
                           <div className="font-semibold text-foreground">
-                            {formatCurrency(opportunity.repairs.mid)}
+                            {formatCurrency(opportunity.repairs?.mid ?? 0)}
                           </div>
                         </div>
                         <div className="space-y-1">
                           <div className="text-sm text-muted-foreground">Flip Margin</div>
                           <div className="font-semibold text-foreground">
-                            {formatCurrency(opportunity.flip_margin)}
+                            {formatCurrency(opportunity.flip_margin ?? 0)}
                           </div>
                         </div>
                         <div className="space-y-1">
                           <div className="text-sm text-muted-foreground">Exit Strategy</div>
                           <Badge variant="secondary" className="text-xs">
-                            {opportunity.exit}
+                            {opportunity.exit ?? 'wholesale'}
                           </Badge>
                         </div>
                       </div>
 
                       {/* Risk Flags */}
-                      {opportunity.risk_flags.length > 0 && (
+                      {(opportunity.risk_flags?.length ?? 0) > 0 && (
                         <div className="space-y-2">
                           <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
                             <AlertTriangle className="h-4 w-4" />
                             Risk Flags
                           </div>
                           <div className="flex flex-wrap gap-2">
-                            {opportunity.risk_flags.map((flag, idx) => (
+                            {(opportunity.risk_flags ?? []).map((flag, idx) => (
                               <Badge key={idx} variant="destructive" className="text-xs">
                                 {flag}
                               </Badge>
@@ -618,13 +659,13 @@ export function AIWholesaleAnalyzer({ properties, market }: AIWholesaleAnalyzerP
                           <div className="flex items-center gap-2">
                             <Home className="h-4 w-4 text-primary" />
                             <span className="text-sm text-foreground">
-                              {opportunity.agent.name} - {opportunity.agent.brokerage}
+                              {opportunity.agent?.name || '—'}{opportunity.agent?.brokerage ? ` - ${opportunity.agent.brokerage}` : ''}
                             </span>
                           </div>
                           <div className="flex items-center gap-2">
                             <Phone className="h-4 w-4 text-primary" />
                             <span className="text-sm text-foreground">
-                              {opportunity.agent.phone}
+                              {opportunity.agent?.phone || '—'}
                             </span>
                           </div>
                         </div>
@@ -639,10 +680,10 @@ export function AIWholesaleAnalyzer({ properties, market }: AIWholesaleAnalyzerP
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                           <div className="space-y-2">
                             <div className="text-xs font-medium text-muted-foreground">
-                              Initial Offer: {formatCurrency(opportunity.next_actions.offer_price_first)}
+                              Initial Offer: {formatCurrency(opportunity.next_actions?.offer_price_first ?? 0)}
                             </div>
                             <div className="text-xs font-medium text-muted-foreground">
-                              Max Offer: {formatCurrency(opportunity.next_actions.offer_price_ceiling_MAO)}
+                              Max Offer: {formatCurrency(opportunity.next_actions?.offer_price_ceiling_MAO ?? 0)}
                             </div>
                           </div>
                         </div>
@@ -650,14 +691,14 @@ export function AIWholesaleAnalyzer({ properties, market }: AIWholesaleAnalyzerP
                         <div className="bg-muted/50 rounded-lg p-3 space-y-2">
                           <div className="text-xs font-medium text-muted-foreground">Call Script</div>
                           <div className="text-sm text-foreground">
-                            {opportunity.next_actions.call_script}
+                            {opportunity.next_actions?.call_script || '—'}
                           </div>
                         </div>
 
                         <div className="bg-muted/50 rounded-lg p-3 space-y-2">
                           <div className="text-xs font-medium text-muted-foreground">Email Template</div>
                           <div className="text-sm text-foreground">
-                            {opportunity.next_actions.email_copy}
+                            {opportunity.next_actions?.email_copy || '—'}
                           </div>
                         </div>
                       </div>

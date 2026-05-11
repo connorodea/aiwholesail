@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { DashboardNav } from '@/components/DashboardNav';
 import { AIWholesaleAnalyzer } from '@/components/AIWholesaleAnalyzer';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { ChatAssistant } from '@/components/ChatAssistant';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -293,7 +294,9 @@ export default function Analyzer() {
         {/* Analyzer — falls back to all enriched properties when no qualifying deals exist */}
         {hasAnyData && propertiesToAnalyze.length > 0 && (
           <section className="max-w-6xl mx-auto animate-fade-in">
-            <AIWholesaleAnalyzer properties={propertiesToAnalyze} market={location} />
+            <ErrorBoundary label="AIWholesaleAnalyzer">
+              <AIWholesaleAnalyzer properties={propertiesToAnalyze} market={location} />
+            </ErrorBoundary>
           </section>
         )}
       </main>
