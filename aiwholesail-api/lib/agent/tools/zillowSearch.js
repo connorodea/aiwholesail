@@ -17,6 +17,7 @@
 const { z } = require('zod/v4');
 const { betaZodTool } = require('@anthropic-ai/sdk/helpers/beta/zod');
 const { proxyZillow } = require('../zillowProxy');
+const { sanitizeText } = require('../sanitize');
 
 const inputSchema = z.object({
   action: z.enum([
@@ -69,11 +70,11 @@ const inputSchema = z.object({
 });
 
 function formatListingAsSearchResult(listing) {
-  const zpid = listing.zpid || listing.id || '';
-  const addr = listing.address || listing.streetAddress || 'Unknown address';
-  const city = listing.city || '';
-  const state = listing.state || '';
-  const zip = listing.zipcode || '';
+  const zpid = sanitizeText(String(listing.zpid || listing.id || ''), 32);
+  const addr = sanitizeText(listing.address || listing.streetAddress || 'Unknown address', 200);
+  const city = sanitizeText(listing.city || '', 80);
+  const state = sanitizeText(listing.state || '', 8);
+  const zip = sanitizeText(listing.zipcode || '', 12);
   const price = typeof listing.price === 'number' ? listing.price : null;
   const beds = listing.bedrooms ?? listing.beds ?? null;
   const baths = listing.bathrooms ?? listing.baths ?? null;
@@ -132,7 +133,20 @@ const zillowSearch = betaZodTool({
       sp.address = input.address;
       if (input.radius_mi != null) sp.radius_mi = input.radius_mi;
     }
-    if (input.action === 'by_url') sp.url = input.url;
+    if (input.action === 'by_url') {
+      // SSRF guard: only forward URLs that resolve to Zillow. Without this,
+      // a prompt-injected listing description could coax the agent into
+      // calling arbitrary hosts via this tool.
+      try {
+        const u = new URL(input.url);
+        if (!/^(www\.)?zillow\.com$/i.test(u.hostname)) {
+          return [{ type: 'text', text: `Refused: by_url only accepts zillow.com URLs, got ${u.hostname}` }];
+        }
+      } catch {
+        return [{ type: 'text', text: 'Refused: by_url received an unparseable URL' }];
+      }
+      sp.url = input.url;
+    }
     if (input.homeType) sp.homeType = input.homeType;
     if (input.listing_type) sp.listing_type = input.listing_type;
     if (input.bed_min != null) sp.bed_min = input.bed_min;
