@@ -171,12 +171,14 @@ export default function RealEstateWholesaler() {
       });
 
       // Step 1: Resolve the location text into the list of effective queries.
-      // Three cases:
+      // Three cases (only when MULTI_LOCATION_SEARCH_ENABLED is true; otherwise
+      // the rollback flag forces the original single-query path):
       //  - multiple ZIPs in the text       → fan out, one search per ZIP
       //  - single ZIP/address + radius set → expand to nearby ZIPs, fan out
       //  - single location, no radius      → original single-query path
+      const { MULTI_LOCATION_SEARCH_ENABLED } = await import('@/lib/feature-flags');
       const { parseZipList, resolveOrigin, zipsWithinRadius, fanOutZipSearch, MAX_ZIPS_PER_SEARCH } = await import('@/lib/zip-search');
-      const parsed = parseZipList(params.location);
+      const parsed = MULTI_LOCATION_SEARCH_ENABLED ? parseZipList(params.location) : { valid: [], invalid: [] };
       let effectiveLocations: string[] = [params.location];
 
       if (parsed.valid.length >= 2) {
@@ -185,7 +187,7 @@ export default function RealEstateWholesaler() {
           toast.info(`Capped at ${MAX_ZIPS_PER_SEARCH} ZIPs — using the first ${MAX_ZIPS_PER_SEARCH}.`);
         }
         setLoadingStatus(`Searching ${effectiveLocations.length} ZIPs in parallel…`);
-      } else if (params.radiusMi && params.radiusMi > 0) {
+      } else if (MULTI_LOCATION_SEARCH_ENABLED && params.radiusMi && params.radiusMi > 0) {
         const origin = await resolveOrigin(params.location);
         if (!origin) {
           toast.warning(`Couldn't resolve "${params.location}" to coordinates — falling back to single-location search.`);

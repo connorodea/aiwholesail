@@ -11,6 +11,7 @@ import { Link } from 'react-router-dom';
 import { LocationAutocomplete } from './LocationAutocomplete';
 import { CountyBrowserDialog } from './CountyBrowserDialog';
 import { validatePriceRange, sanitizeSearchKeywords, validateLocationInput } from '@/lib/security';
+import { MULTI_LOCATION_SEARCH_ENABLED } from '@/lib/feature-flags';
 import { useToast } from '@/hooks/use-toast';
 import { useSubscription } from '@/hooks/useSubscription';
 import { Badge } from '@/components/ui/badge';
@@ -95,9 +96,11 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
                 required={true}
               />
               <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
-                <span className="text-muted-foreground">
-                  Tip: paste multiple ZIPs (<span className="font-mono">33101, 33102, 33125</span>) to search several at once.
-                </span>
+                {MULTI_LOCATION_SEARCH_ENABLED && (
+                  <span className="text-muted-foreground">
+                    Tip: paste multiple ZIPs (<span className="font-mono">33101, 33102, 33125</span>) to search several at once.
+                  </span>
+                )}
                 <button
                   type="button"
                   onClick={() => setCountyBrowserOpen(true)}
@@ -109,7 +112,10 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
               </div>
             </div>
 
-            {/* Search radius (only meaningful for single ZIP/address inputs) */}
+            {/* Search radius (only meaningful for single ZIP/address inputs).
+                Hidden entirely when the multi-location flag is off so users
+                can't enter a radius that the search loop will ignore. */}
+            {MULTI_LOCATION_SEARCH_ENABLED && (
             <div className="space-y-2 sm:col-span-2">
               <Label htmlFor="radius-mi" className="flex items-center gap-2">
                 <Radius className="h-4 w-4 text-primary" />
@@ -135,6 +141,7 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
                 Expands a single ZIP or address into every ZIP within X miles, then searches each one.
               </p>
             </div>
+            )}
 
             <CountyBrowserDialog
               open={countyBrowserOpen}
