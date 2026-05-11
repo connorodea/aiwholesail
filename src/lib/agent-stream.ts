@@ -9,6 +9,7 @@
 
 export type AgentEvent =
   | { type: 'ready' }
+  | { type: 'session'; id: string; title: string | null }
   | { type: 'text_start' }
   | { type: 'text_delta'; delta: string }
   | { type: 'tool_start'; name: string }
@@ -42,6 +43,7 @@ export interface RunAgentOptions {
   apiBaseUrl: string;
   accessToken: string;
   messages: ChatMessage[];
+  sessionId?: string;            // optional — server creates a new session if omitted
   signal?: AbortSignal;
   onEvent: (ev: AgentEvent) => void;
 }
@@ -53,7 +55,7 @@ const SSE_DELIMITER = '\n\n';
  * Caller-provided onEvent gets every parsed event in order.
  */
 export async function runAgent(opts: RunAgentOptions): Promise<void> {
-  const { apiBaseUrl, accessToken, messages, signal, onEvent } = opts;
+  const { apiBaseUrl, accessToken, messages, sessionId, signal, onEvent } = opts;
 
   let resp: Response;
   try {
@@ -64,7 +66,7 @@ export async function runAgent(opts: RunAgentOptions): Promise<void> {
         Authorization: `Bearer ${accessToken}`,
         Accept: 'text/event-stream',
       },
-      body: JSON.stringify({ messages }),
+      body: JSON.stringify(sessionId ? { messages, session_id: sessionId } : { messages }),
       signal,
     });
   } catch (err) {
@@ -133,4 +135,72 @@ export function citationUrl(c: CitationData): string | null {
   if (c.type === 'search_result_location' && c.source) return c.source;
   if (c.source && c.source.startsWith('http')) return c.source;
   return null;
+}
+
+// ============ Session history ============
+
+export interface ChatSessionSummary {
+  id: string;
+  title: string | null;
+  created_at: string;
+  updated_at: string;
+  message_count: number;
+}
+
+export interface PersistedChatMessage {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  citations: CitationData[] | null;
+  tool_events: string[] | null;
+  created_at: string;
+}
+
+export interface LoadedSession {
+  session: { id: string; title: string | null; created_at: string; updated_at: string };
+  messages: PersistedChatMessage[];
+}
+
+async function authedFetch(apiBaseUrl: string, token: string, path: string, init?: RequestInit) {
+  const resp = await fetch(`${apiBaseUrl}${path}`, {
+    ...init,
+    headers: {
+      ...(init?.headers || {}),
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  if (!resp.ok) {
+    let msg = `HTTP ${resp.status}`;
+    try {
+      const body = await resp.json();
+      msg = body?.error || msg;
+    } catch { /* ignore */ }
+    throw new Error(msg);
+  }
+  return resp.json();
+}
+
+export async function fetchSessions(
+  apiBaseUrl: string,
+  accessToken: string,
+  limit = 20
+): Promise<ChatSessionSummary[]> {
+  const data = await authedFetch(apiBaseUrl, accessToken, `/api/ai/agent/sessions?limit=${limit}`);
+  return (data?.sessions || []) as ChatSessionSummary[];
+}
+
+export async function fetchSession(
+  apiBaseUrl: string,
+  accessToken: string,
+  sessionId: string
+): Promise<LoadedSession> {
+  return (await authedFetch(apiBaseUrl, accessToken, `/api/ai/agent/sessions/${sessionId}`)) as LoadedSession;
+}
+
+export async function deleteSession(
+  apiBaseUrl: string,
+  accessToken: string,
+  sessionId: string
+): Promise<void> {
+  await authedFetch(apiBaseUrl, accessToken, `/api/ai/agent/sessions/${sessionId}`, { method: 'DELETE' });
 }
