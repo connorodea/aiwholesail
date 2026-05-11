@@ -961,6 +961,44 @@ export const utility = {
   },
 };
 
+// PropData proxy — all calls go through our backend so the RapidAPI key stays
+// server-side and we get per-user rate limit + 1h LRU cache for free.
+function buildQuery(params: Record<string, string | number | boolean | undefined>): string {
+  const search = new URLSearchParams();
+  for (const [k, v] of Object.entries(params)) {
+    if (v !== undefined && v !== null && v !== '') search.set(k, String(v));
+  }
+  const qs = search.toString();
+  return qs ? `?${qs}` : '';
+}
+
+export const propdata = {
+  health: () => apiFetch('/api/propdata/health'),
+  stats: () => apiFetch('/api/propdata/stats'),
+  neighborhood: (zip: string) => apiFetch(`/api/propdata/neighborhood${buildQuery({ zip })}`),
+  market: (p: { zip?: string; state?: string; metro?: string; months?: string | number }) =>
+    apiFetch(`/api/propdata/market${buildQuery(p)}`),
+  listing: (zip: string) => apiFetch(`/api/propdata/listing${buildQuery({ zip })}`),
+  rent: (p: { zip?: string; state?: string; beds?: string | number }) =>
+    apiFetch(`/api/propdata/rent${buildQuery(p)}`),
+  estimate: (p: { zip?: string; state?: string; beds?: string | number }) =>
+    apiFetch(`/api/propdata/estimate${buildQuery(p)}`),
+  comps: (p: { zip?: string; address?: string; limit?: number; radius?: number }) =>
+    apiFetch(`/api/propdata/comps${buildQuery(p)}`),
+  geocode: (address: string) => apiFetch(`/api/propdata/geocode${buildQuery({ address })}`),
+  property: (p: {
+    zip?: string;
+    address?: string;
+    apn?: string;
+    owner?: string;
+    absentee_only?: boolean;
+    limit?: number;
+  }) => apiFetch(`/api/propdata/property${buildQuery(p)}`),
+  // Zillow autocomplete via the shared RapidAPI key — also backend-proxied.
+  zillowAutocomplete: (query: string) =>
+    apiFetch(`/api/propdata/zillow-autocomplete${buildQuery({ query })}`),
+};
+
 // Default export for convenience
 const apiClient = {
   auth,
@@ -979,6 +1017,7 @@ const apiClient = {
   skipTrace,
   webhooks,
   utility,
+  propdata,
   onAuthStateChange,
 };
 

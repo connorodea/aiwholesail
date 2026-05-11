@@ -901,22 +901,12 @@ export class ZillowAPI {
 
   async autocomplete(query: string): Promise<any[]> {
     try {
-      const rapidApiKey = import.meta.env.VITE_PROPDATA_RAPIDAPI_KEY || '';
-      if (!rapidApiKey) return [];
-
-      const response = await fetch(
-        `https://zillow-scraper-api.p.rapidapi.com/zillow/search/autocomplete?query=${encodeURIComponent(query)}`,
-        {
-          headers: {
-            'x-rapidapi-key': rapidApiKey,
-            'x-rapidapi-host': 'zillow-scraper-api.p.rapidapi.com'
-          }
-        }
-      );
-
-      if (!response.ok) return [];
-      const data = await response.json();
-      return data?.data?.suggestions || [];
+      // Migrated to backend proxy in PR #169 — RapidAPI key no longer in browser.
+      const { propdata } = await import('./api-client');
+      const res = await propdata.zillowAutocomplete(query);
+      if (res.error) return [];
+      const data = res.data as { suggestions?: any[] } | undefined;
+      return data?.suggestions || [];
     } catch {
       return [];
     }

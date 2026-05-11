@@ -1,12 +1,15 @@
 /**
- * PropData Real Estate Market Intelligence API
- * 82M+ parcels · 14 data sources · One endpoint
- * https://propdata.proptechusa.ai
+ * PropData Real Estate Market Intelligence API client.
+ *
+ * All calls go through our backend proxy (`/api/propdata/*`) so the RapidAPI
+ * key stays server-side. Per-user rate limit + 1h LRU cache live in the
+ * backend; this file is just a typed wrapper around the apiFetch transport.
+ *
+ * The old shape (`new PropDataAPI()`, `propDataAPI.getMarketProfile(...)`)
+ * is preserved so existing components don't break.
  */
 
-const RAPIDAPI_KEY = import.meta.env.VITE_PROPDATA_RAPIDAPI_KEY || '';
-const RAPIDAPI_HOST = import.meta.env.VITE_PROPDATA_RAPIDAPI_HOST || 'propdata-real-estate-market-intelligence-api.p.rapidapi.com';
-const BASE_URL = `https://${RAPIDAPI_HOST}`;
+import { propdata as backend } from './api-client';
 
 // ============ TYPES ============
 
@@ -132,6 +135,70 @@ export interface PropDataPropertyResponse {
   [key: string]: any;
 }
 
+// New richer shape for /v1/property — bulk + single use both fit here.
+export interface PropDataPropertyRecord {
+  parcel_id?: string;
+  county_fips?: string;
+  county_name?: string;
+  state?: string;
+  address?: { street?: string; city?: string; zip?: string };
+  owner?: {
+    name?: string;
+    mailing_address?: string;
+    mailing_city?: string;
+    mailing_state?: string;
+    mailing_zip?: string;
+  };
+  valuation?: {
+    market_value?: number;
+    assessed_value?: number;
+    land_value?: number;
+    improvement_value?: number;
+    tax_year?: number;
+  };
+  sale?: { last_sale_date?: string; last_sale_price?: number };
+  characteristics?: {
+    property_type?: string;
+    sq_ft_living?: number | null;
+    sq_ft_lot?: number | null;
+    year_built?: number;
+    bedrooms?: number | null;
+    bathrooms?: number | null;
+    zoning?: string | null;
+  };
+  tax_status?: string;
+  source?: string;
+  data_as_of?: string;
+  equity?: {
+    estimated_equity?: number;
+    equity_pct?: number;
+    est_loan_balance?: number;
+    years_held?: number;
+    confidence?: string;
+  };
+  flags?: {
+    is_absentee_owner?: boolean;
+    is_vacant_land?: boolean;
+    has_owner_data?: boolean;
+    has_phone?: boolean;
+  };
+  [key: string]: any;
+}
+
+export interface PropDataPropertyListResponse {
+  query?: Record<string, any>;
+  count?: number;
+  enrichment?: {
+    is_opportunity_zone?: boolean;
+    usda_rural_eligible?: boolean;
+    fema_flood_zone?: string | null;
+  };
+  properties?: PropDataPropertyRecord[];
+  error?: string;
+  status?: number;
+  [key: string]: any;
+}
+
 export interface PropDataEstimateResponse {
   zip?: string;
   state?: string;
@@ -142,6 +209,16 @@ export interface PropDataEstimateResponse {
   confidence?: number;
   weighted_estimate?: number;
   sources?: { zori?: number; hud_fmr?: number; census?: number };
+  // Newer API shape: nested `estimate`
+  estimate?: {
+    bedrooms?: number;
+    monthly_low?: number;
+    monthly_mid?: number;
+    monthly_high?: number;
+    confidence_pct?: number;
+    market_trend?: string;
+    yoy_rent_change?: string;
+  };
   [key: string]: any;
 }
 
@@ -161,65 +238,107 @@ export interface PropDataSafetyResponse {
 }
 
 export interface PropDataGeocodeResponse {
+  results?: Array<{
+    lat?: number;
+    lng?: number;
+    fips_state?: string;
+    fips_county?: string;
+    fips_tract?: string;
+    fips_block_group?: string;
+    formatted_address?: string;
+    [key: string]: any;
+  }>;
+  count?: number;
+  source?: string;
+  // Back-compat: flat shape
   lat?: number;
   lng?: number;
-  fips_state?: string;
-  fips_county?: string;
-  fips_tract?: string;
-  fips_block_group?: string;
   formatted_address?: string;
+  [key: string]: any;
+}
+
+export interface PropDataNeighborhoodResponse {
+  zip?: string;
+  demographics?: {
+    total_population?: number | null;
+    median_age?: number | null;
+    median_household_income?: number | null;
+    owner_occupied_pct?: number | null;
+    college_degree_pct?: number | null;
+  };
+  housing?: {
+    median_value?: number | null;
+    avg_sqft?: number | null;
+    avg_year_built?: number | null;
+    total_parcels?: number;
+  };
+  scores?: {
+    walkability?: number;
+    crime_index?: number;
+    school_score?: number;
+    note?: string;
+  };
+  source?: string;
+  [key: string]: any;
+}
+
+export interface PropDataRentResponse {
+  location?: { zip?: string; state?: string; metro?: string };
+  rent?: {
+    median_asking_rent?: number;
+    yoy_pct?: number;
+    mom_pct?: number;
+    period?: string;
+    fmr_efficiency?: number;
+    fmr_1br?: number;
+    fmr_2br?: number;
+    fmr_3br?: number;
+    fmr_4br?: number;
+    fmr_year?: number;
+  };
+  history?: Array<Record<string, any>>;
+  error?: string;
+  [key: string]: any;
+}
+
+export interface PropDataCompsResponse {
+  zip?: string;
+  comps?: Array<{
+    parcel_id?: string;
+    address?: string;
+    value?: number | null;
+    last_sale_price?: number | null;
+    last_sale_date?: string | null;
+    beds?: number | null;
+    baths?: number | null;
+    sqft?: number | null;
+    year_built?: number | null;
+  }>;
+  count?: number;
+  source?: string;
   [key: string]: any;
 }
 
 // ============ SERVICE ============
 
+function unwrap<T>(res: { data?: T; error?: string }): T {
+  if (res.error) throw new Error(res.error);
+  return (res.data ?? {}) as T;
+}
+
 class PropDataAPI {
-  private headers: Record<string, string>;
-
-  constructor() {
-    this.headers = {
-      'x-rapidapi-key': RAPIDAPI_KEY,
-      'x-rapidapi-host': RAPIDAPI_HOST,
-      'Content-Type': 'application/json',
-    };
-  }
-
-  private async request<T>(endpoint: string, params: Record<string, string> = {}): Promise<T> {
-    const url = new URL(`${BASE_URL}${endpoint}`);
-    Object.entries(params).forEach(([key, value]) => {
-      if (value) url.searchParams.set(key, value);
-    });
-
-    console.log(`[PropData] GET ${endpoint}`, params);
-
-    const response = await fetch(url.toString(), {
-      method: 'GET',
-      headers: this.headers,
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`[PropData] Error ${response.status}:`, errorText);
-      throw new Error(`PropData API error: ${response.status} ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    console.log(`[PropData] Response from ${endpoint}:`, JSON.stringify(data).substring(0, 500));
-    return data as T;
-  }
-
   async getMarketProfile(params: {
     zip?: string;
     state?: string;
     metro?: string;
     months?: string;
   }): Promise<PropDataMarketResponse> {
-    return this.request<PropDataMarketResponse>('/v1/market', {
-      zip: params.zip || '',
-      state: params.state || '',
-      metro: params.metro || '',
+    return unwrap(await backend.market({
+      zip: params.zip,
+      state: params.state,
+      metro: params.metro,
       months: params.months || '12',
-    });
+    }));
   }
 
   async getProperty(params: {
@@ -227,13 +346,24 @@ class PropDataAPI {
     zip?: string;
     apn?: string;
     owner?: string;
-  }): Promise<PropDataPropertyResponse> {
-    return this.request<PropDataPropertyResponse>('/v1/property', {
-      address: params.address || '',
-      zip: params.zip || '',
-      apn: params.apn || '',
-      owner: params.owner || '',
-    });
+  }): Promise<PropDataPropertyResponse | PropDataPropertyListResponse> {
+    return unwrap(await backend.property({
+      address: params.address,
+      zip: params.zip,
+      apn: params.apn,
+      owner: params.owner,
+    }));
+  }
+
+  async listAbsenteeOwners(params: {
+    zip: string;
+    limit?: number;
+  }): Promise<PropDataPropertyListResponse> {
+    return unwrap(await backend.property({
+      zip: params.zip,
+      absentee_only: true,
+      limit: params.limit ?? 25,
+    }));
   }
 
   async getRentEstimate(params: {
@@ -241,29 +371,73 @@ class PropDataAPI {
     state?: string;
     beds?: string;
   }): Promise<PropDataEstimateResponse> {
-    return this.request<PropDataEstimateResponse>('/v1/estimate', {
-      zip: params.zip || '',
-      state: params.state || '',
+    return unwrap(await backend.estimate({
+      zip: params.zip,
+      state: params.state,
       beds: params.beds || '3',
-    });
+    }));
   }
 
-  async getSafetyScore(params: {
+  async getNeighborhood(zip: string): Promise<PropDataNeighborhoodResponse> {
+    return unwrap(await backend.neighborhood(zip));
+  }
+
+  async getRent(params: {
     zip?: string;
     state?: string;
-  }): Promise<PropDataSafetyResponse> {
-    return this.request<PropDataSafetyResponse>('/v1/safety', {
-      zip: params.zip || '',
-      state: params.state || '',
-    });
+    beds?: string;
+  }): Promise<PropDataRentResponse> {
+    return unwrap(await backend.rent({
+      zip: params.zip,
+      state: params.state,
+      beds: params.beds,
+    }));
+  }
+
+  async getListing(zip: string) {
+    return unwrap(await backend.listing(zip));
+  }
+
+  async getComps(params: {
+    zip?: string;
+    address?: string;
+    limit?: number;
+    radius?: number;
+  }): Promise<PropDataCompsResponse> {
+    return unwrap(await backend.comps(params));
+  }
+
+  // Back-compat alias. The new API doesn't have a dedicated /v1/safety; the
+  // safety signal lives inside /v1/neighborhood.scores.
+  async getSafetyScore(params: { zip?: string; state?: string }): Promise<PropDataSafetyResponse> {
+    if (!params.zip) return {};
+    const nb = await this.getNeighborhood(params.zip);
+    const score = nb.scores?.crime_index;
+    const grade = score == null ? undefined
+      : score >= 80 ? 'A'
+      : score >= 65 ? 'B'
+      : score >= 50 ? 'C'
+      : score >= 35 ? 'D'
+      : 'F';
+    return {
+      zip: params.zip,
+      state: params.state,
+      grade,
+      score,
+      narrative: nb.scores?.note,
+    };
   }
 
   async geocode(address: string): Promise<PropDataGeocodeResponse> {
-    return this.request<PropDataGeocodeResponse>('/v1/geocode', { address });
+    return unwrap(await backend.geocode(address));
   }
 
   async healthCheck(): Promise<{ status: string }> {
-    return this.request<{ status: string }>('/v1/health');
+    return unwrap(await backend.health());
+  }
+
+  async getStats() {
+    return unwrap(await backend.stats());
   }
 
   async getFullPropertyIntelligence(params: {
@@ -271,13 +445,13 @@ class PropDataAPI {
     zip: string;
     beds?: string;
   }): Promise<{
-    property: PropDataPropertyResponse;
+    property: PropDataPropertyResponse | PropDataPropertyListResponse;
     market: PropDataMarketResponse;
     safety: PropDataSafetyResponse;
     rentEstimate: PropDataEstimateResponse;
   }> {
     const [property, market, safety, rentEstimate] = await Promise.all([
-      this.getProperty({ address: params.address }).catch(() => ({} as PropDataPropertyResponse)),
+      this.getProperty({ address: params.address, zip: params.zip }).catch(() => ({} as PropDataPropertyResponse)),
       this.getMarketProfile({ zip: params.zip }).catch(() => ({} as PropDataMarketResponse)),
       this.getSafetyScore({ zip: params.zip }).catch(() => ({} as PropDataSafetyResponse)),
       this.getRentEstimate({ zip: params.zip, beds: params.beds || '3' }).catch(() => ({} as PropDataEstimateResponse)),
