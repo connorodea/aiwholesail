@@ -5,8 +5,18 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 import { propDataAPI, type PropDataPropertyListResponse, type PropDataPropertyRecord } from '@/lib/propdata-api';
-import { Search, MapPin, User, Mail, Building, RefreshCw, Download, TrendingUp, Flame, ShieldCheck } from 'lucide-react';
+import { mapPropDataListToUnified } from '@/lib/unifiedPropertyAdapters';
+import { Search, MapPin, User, Mail, Building, RefreshCw, Download, TrendingUp, Flame, ShieldCheck, Sparkles } from 'lucide-react';
+
+/**
+ * sessionStorage key for handing off off-market UnifiedProperty[] records
+ * from this component to the AI Deal Analyzer on /app/analyzer. The
+ * analyzer reads + clears this key on mount.
+ */
+export const OFFMARKET_ANALYZER_HANDOFF_KEY = 'aiw_offmarket_for_analyzer';
+export const OFFMARKET_ANALYZER_HANDOFF_ZIP_KEY = 'aiw_offmarket_for_analyzer_zip';
 
 /**
  * Absentee Owner Search
@@ -98,6 +108,7 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<PropDataPropertyListResponse | null>(null);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const filtered = useMemo(() => {
     const props = data?.properties || [];
@@ -134,6 +145,33 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
     } finally {
       setLoading(false);
     }
+  };
+
+  /**
+   * Hand off the currently-filtered absentee owners to the AI Deal Analyzer.
+   * Maps PropData records → UnifiedProperty[] (the analyzer's expected shape
+   * since PR #179), stashes in sessionStorage, then navigates. The analyzer
+   * picks the stash up on mount and clears it.
+   */
+  const handleAnalyzeWithAI = () => {
+    if (filtered.length === 0) return;
+    const unified = mapPropDataListToUnified({
+      properties: filtered,
+      enrichment: data?.enrichment,
+    });
+    try {
+      sessionStorage.setItem(OFFMARKET_ANALYZER_HANDOFF_KEY, JSON.stringify(unified));
+      sessionStorage.setItem(OFFMARKET_ANALYZER_HANDOFF_ZIP_KEY, zip.trim());
+    } catch (err) {
+      console.error('[AbsenteeOwnerSearch] sessionStorage write failed', err);
+      toast({ title: 'Could not hand off to analyzer', description: 'Storage quota?', variant: 'destructive' });
+      return;
+    }
+    toast({
+      title: `Sending ${filtered.length} owner${filtered.length === 1 ? '' : 's'} to AI Analyzer`,
+      description: 'Running ARV, repair, MAO, and motivation analysis…',
+    });
+    navigate('/app/analyzer?source=off-market');
   };
 
   const handleExport = () => {
@@ -244,10 +282,20 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
                 </span>
               )}
             </h3>
-            <Button onClick={handleExport} variant="outline" size="sm" className="h-9">
-              <Download className="h-4 w-4 mr-2" />
-              Export CSV
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={handleAnalyzeWithAI}
+                size="sm"
+                className="h-9 bg-amber-400 text-neutral-950 hover:bg-amber-300"
+              >
+                <Sparkles className="h-4 w-4 mr-2" />
+                Analyze {filtered.length} with AI
+              </Button>
+              <Button onClick={handleExport} variant="outline" size="sm" className="h-9">
+                <Download className="h-4 w-4 mr-2" />
+                Export CSV
+              </Button>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

@@ -12,6 +12,11 @@ import {
 } from 'lucide-react';
 import { Property } from '@/types/zillow';
 import { mapZillowListToUnified } from '@/lib/unifiedPropertyAdapters';
+import type { UnifiedProperty } from '@/types/unifiedProperty';
+import {
+  OFFMARKET_ANALYZER_HANDOFF_KEY,
+  OFFMARKET_ANALYZER_HANDOFF_ZIP_KEY,
+} from '@/components/AbsenteeOwnerSearch';
 import { useNavigate } from 'react-router-dom';
 
 // Shared cache key — the main search page writes to this
@@ -61,11 +66,39 @@ function timeAgo(ts: number | null): string {
   return `${days}d ago`;
 }
 
+/**
+ * One-shot read + clear of the off-market handoff stash. Returns the
+ * UnifiedProperty[] queued by AbsenteeOwnerSearch + the source ZIP, or
+ * empty values if nothing was queued. Clears the keys so a refresh on
+ * /app/analyzer doesn't re-render the same off-market set forever.
+ */
+function consumeOffMarketHandoff(): { properties: UnifiedProperty[]; sourceZip: string } {
+  try {
+    const raw = sessionStorage.getItem(OFFMARKET_ANALYZER_HANDOFF_KEY);
+    const zip = sessionStorage.getItem(OFFMARKET_ANALYZER_HANDOFF_ZIP_KEY) || '';
+    if (!raw) return { properties: [], sourceZip: '' };
+    sessionStorage.removeItem(OFFMARKET_ANALYZER_HANDOFF_KEY);
+    sessionStorage.removeItem(OFFMARKET_ANALYZER_HANDOFF_ZIP_KEY);
+    const parsed = JSON.parse(raw);
+    return {
+      properties: Array.isArray(parsed) ? (parsed as UnifiedProperty[]) : [],
+      sourceZip: zip,
+    };
+  } catch (e) {
+    console.error('[Analyzer] off-market handoff read failed', e);
+    return { properties: [], sourceZip: '' };
+  }
+}
+
 export default function Analyzer() {
   const [properties, setProperties] = useState<Property[]>([]);
   const [location, setLocation] = useState('');
   const [updatedAt, setUpdatedAt] = useState<number | null>(null);
   const [threshold, setThreshold] = useState<number>(DEFAULT_THRESHOLD);
+  // When the user arrives via the "Analyze with AI" button on
+  // AbsenteeOwnerSearch, the off-market UnifiedProperty[] is pre-stashed
+  // and the analyzer renders that path instead of the Zillow-cache flow.
+  const [offMarket, setOffMarket] = useState<{ properties: UnifiedProperty[]; sourceZip: string }>(() => consumeOffMarketHandoff());
   const navigate = useNavigate();
 
   const refresh = useCallback(() => {
@@ -126,16 +159,26 @@ export default function Analyzer() {
   //   - Otherwise, fall back to all enriched properties so the analyzer is
   //     never silently empty when the user clearly has search results
   const propertiesToAnalyze = useMemo(() => {
+    // Off-market handoff wins when present — the user explicitly clicked
+    // "Analyze with AI" from AbsenteeOwnerSearch, which already mapped
+    // the PropData records to UnifiedProperty[].
+    if (offMarket.properties.length > 0) return offMarket.properties;
     const zillowSubset = dealCount > 0
       ? qualifiedDeals
       : properties.filter((p) => p.price && p.zestimate);
-    // The analyzer consumes UnifiedProperty[] so it can handle both on-market
-    // (Zillow) and off-market (PropData) sources with one code path. Map at
-    // the boundary so the rest of this page stays Zillow-shaped.
+    // On-market: map Zillow Property[] → UnifiedProperty[] at the boundary.
     return mapZillowListToUnified(zillowSubset);
-  }, [dealCount, qualifiedDeals, properties]);
+  }, [offMarket.properties, dealCount, qualifiedDeals, properties]);
 
-  const hasAnyData = totalProperties > 0;
+  const analyzingOffMarket = offMarket.properties.length > 0;
+  const analyzerMarket = analyzingOffMarket
+    ? (offMarket.sourceZip ? `ZIP ${offMarket.sourceZip} (off-market)` : 'Off-market')
+    : location;
+
+  // hasAnyData drives the "you need to search first" empty state. When an
+  // off-market handoff is in flight, treat that as "has data" so the page
+  // skips the empty state and goes straight to the analyzer.
+  const hasAnyData = totalProperties > 0 || analyzingOffMarket;
   const hasEnrichedData = withZestimates > 0;
 
   return (
@@ -173,6 +216,39 @@ export default function Analyzer() {
                   </Button>
                   <Button onClick={refresh} variant="outline" className="gap-2">
                     <RefreshCw className="h-4 w-4" /> Refresh
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ) : analyzingOffMarket ? (
+            <Card className="border-amber-500/30 bg-amber-500/5">
+              <CardContent className="p-6">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center shrink-0">
+                    <Sparkles className="h-5 w-5 text-amber-400" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-semibold mb-1">
+                      Analyzing {offMarket.properties.length} off-market{' '}
+                      {offMarket.properties.length === 1 ? 'property' : 'properties'}
+                      {offMarket.sourceZip ? ` from ZIP ${offMarket.sourceZip}` : ''}
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      These are absentee-owner records from PropData. The AI will compute
+                      ARV (from comps + market value), repair estimate, MAO at 70% of ARV,
+                      and a motivation score per property.
+                    </p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setOffMarket({ properties: [], sourceZip: '' });
+                      refresh();
+                    }}
+                    className="shrink-0"
+                  >
+                    Clear
                   </Button>
                 </div>
               </CardContent>
@@ -301,7 +377,7 @@ export default function Analyzer() {
         {hasAnyData && propertiesToAnalyze.length > 0 && (
           <section className="max-w-6xl mx-auto animate-fade-in">
             <ErrorBoundary label="AIWholesaleAnalyzer">
-              <AIWholesaleAnalyzer properties={propertiesToAnalyze} market={location} />
+              <AIWholesaleAnalyzer properties={propertiesToAnalyze} market={analyzerMarket} />
             </ErrorBoundary>
           </section>
         )}
