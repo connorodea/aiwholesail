@@ -146,12 +146,24 @@ const zillowSearch = betaZodTool({
     const listings = data?.listings || data?.results || data?.searchResults || [];
     const totalResults = data?.total_results ?? listings.length;
 
-    const blocks = listings.slice(0, 40).map(formatListingAsSearchResult);
-    // Trailing text summary so the model has a quick total without scanning every block
-    blocks.push({
+    // Anthropic API requires uniform block types within one tool_result: if any
+    // search_result blocks are present, ALL blocks must be search_result. So we
+    // either return all-search_result OR all-text. When we have listings, embed
+    // the total-count summary into the first block's content as a leading line.
+    const trimmed = listings.slice(0, 40);
+    if (trimmed.length === 0) {
+      // No results — return a plain text block (uniform type, no search_results)
+      return [{
+        type: 'text',
+        text: `No matching listings. Total upstream: ${totalResults}. Action: ${input.action}.`,
+      }];
+    }
+    const blocks = trimmed.map(formatListingAsSearchResult);
+    // Prepend a summary line to the first block's content (search_result.content
+    // is itself an array of text blocks, so we can add metadata there).
+    blocks[0].content.unshift({
       type: 'text',
-      text: `Total matching: ${totalResults} (showing ${blocks.length - 0}). ` +
-            `Action: ${input.action}.`,
+      text: `[search summary — total matching upstream: ${totalResults}, showing ${blocks.length}; action: ${input.action}]`,
     });
     return blocks;
   },
