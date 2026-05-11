@@ -108,6 +108,19 @@ router.post('/checkout', authenticate, [
   // Only fall back to customer_email when we have no customer id (e.g. a
   // truly anonymous guest checkout or a brand-new signup whose customer
   // creation in routes/auth.js failed).
+  // CRITICAL: do NOT stack another 7-day Stripe trial on top of the app's
+  // in-product 7-day trial. The prior config was:
+  //   payment_method_collection: 'if_required'   // no card up front
+  //   subscription_data.trial_period_days: 7     // a second 7-day free trial
+  //   trial_settings.end_behavior.missing_payment_method: 'cancel'
+  // Result: 13 subscriptions ever created, 11 already auto-canceled, 2 mid-
+  // trial — zero dollars collected through the entire flow. This was the
+  // root cause of the "no paid subscriptions" mystery.
+  //
+  // New config: card required at Checkout, no second trial. The user's
+  // in-app 7-day trial (enforced via subscribers.trial_end + requireTier-
+  // WithLimit) remains as the lead magnet; Checkout is now the actual
+  // conversion event.
   const session = await stripe.checkout.sessions.create({
     customer: customerId || undefined,
     customer_email: customerId ? undefined : (guestCheckout ? undefined : customerEmail),
@@ -118,20 +131,12 @@ router.post('/checkout', authenticate, [
       }
     ],
     mode: 'subscription',
-    payment_method_collection: 'if_required',
-    subscription_data: {
-      trial_period_days: 7,
-      trial_settings: {
-        end_behavior: {
-          missing_payment_method: 'cancel'
-        }
-      }
-    },
+    payment_method_collection: 'always',
     success_url: `${frontendUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${frontendUrl}/pricing`,
     custom_text: {
       submit: {
-        message: 'Start your 7-day free trial! Get access to AI-powered real estate deal analysis, property scoring, and market intelligence. No charge until trial ends.'
+        message: "You've used your 7-day free trial. Subscribe now to keep full access — cancel anytime from your account."
       }
     },
     metadata: {
