@@ -391,6 +391,30 @@ export const subscription = {
   getStatus: async () => apiFetch('/api/stripe/subscription'),
 };
 
+// ============ EVENTS API (activation telemetry) ============
+//
+// The frontend's primary search flow (zillowAPI.searchProperties) bypasses
+// the express API entirely — it talks directly to the /zillow standalone
+// proxy. As a result, none of the server-side logEvent() calls fired for
+// real user activity, and the user_events table sat near-empty (~13 rows
+// ever before this endpoint shipped).
+//
+// `events.log()` POSTs to /api/events so the frontend can explicitly log
+// activation events (property_search, property_viewed, first_search, etc.)
+// to the same vocabulary that founder-hot-list and other backend
+// telemetry consume. Fire-and-forget — never surfaces errors to the user.
+export const events = {
+  log: (type: string, properties?: Record<string, unknown>) => {
+    // No await — intentional. Telemetry must never block a UI action.
+    apiFetch('/api/events', {
+      method: 'POST',
+      body: JSON.stringify({ type, properties }),
+    }).catch(() => {
+      /* swallow — the table is best-effort, not transactional */
+    });
+  },
+};
+
 // ============ AI API ============
 export const ai = {
   propertyAnalysis: async (property: any, userMessage?: string, conversationHistory?: any[]) => {
