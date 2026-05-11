@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-gainesville-fl-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Gainesville FL: The Investor's Complete Guide for 2024",
+      "excerpt": "Gainesville, FL is one of Florida's most overlooked real estate markets — offering strong rental demand, affordable entry points, and steady appreciation. Here's everything investors need to know to find profitable deals in this college-town market.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-11T18:02:26.976Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Gainesville FL",
+        "Gainesville FL investment property",
+        "wholesale deals Gainesville",
+        "Gainesville rental property",
+        "fix and flip Gainesville FL"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-corpus-christi-tx-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Corpus Christi TX: A Complete Investor's Guide for 2024",
       "excerpt": "Corpus Christi is one of Texas's most overlooked real estate markets, offering strong rental demand, affordable entry points, and growing wholesale opportunities. Here's everything investors need to know to find profitable deals in this Gulf Coast city.",
@@ -15,7 +32,7 @@
         "investment properties Corpus Christi",
         "off-market deals Corpus Christi"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-riverside-ca-the-investor-s-complete-guide-for-2024",
