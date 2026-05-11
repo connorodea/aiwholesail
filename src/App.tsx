@@ -11,6 +11,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { FacebookPixel } from "@/components/FacebookPixel";
 import { SEOHead } from "@/components/SEOHead";
+import { CmdKAgent } from "@/components/CmdKAgent";
 
 // Critical / small pages — keep as static imports
 import Auth from "./pages/Auth";
@@ -123,6 +124,7 @@ const App = () => (
             <SEOHead />
             <Toaster />
             <Sonner />
+            <CmdKAgent />
             <BrowserRouter>
               <ScrollToTop />
               <GoogleAnalytics />
