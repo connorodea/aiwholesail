@@ -108,6 +108,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Explicitly clear local state
       setUser(null);
       setSession(null);
+      // Drop any per-user caches so a different account signing in on this
+      // device starts from a clean read — otherwise the previous user's
+      // subscription tier (Elite / Pro / none) can leak into the next session.
+      try {
+        const { clearSubscriptionCache } = await import('@/hooks/useSubscription');
+        clearSubscriptionCache();
+      } catch {
+        // Hook module not present in this build — safe to skip.
+      }
     } catch (error) {
       console.error('Error signing out:', error);
       throw error;

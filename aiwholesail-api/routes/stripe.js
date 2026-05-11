@@ -21,6 +21,43 @@ const requireStripe = (req, res, next) => {
 };
 
 /**
+ * Resolve canonical tier ('Elite' | 'Pro') from a Stripe Price object.
+ *
+ * Priority order — first match wins:
+ *  1. `price.metadata.tier`            — set in the Stripe dashboard / API. Wins
+ *                                         outright. Supports founder / annual /
+ *                                         comped Elite pricing under $99.
+ *  2. `price.lookup_key`               — convention: starts with 'elite' or 'pro'.
+ *  3. `price.unit_amount` thresholds   — legacy fallback. $99+ → Elite, $29+ → Pro.
+ *
+ * Returns 'Pro' when no signal indicates Elite. This is the canonical writer for
+ * the `subscribers.subscription_tier` column and is shared by both the on-demand
+ * GET /subscription path AND the webhook reconciler so the two never disagree.
+ */
+function resolveTierFromPrice(price) {
+  if (!price) return 'Pro';
+
+  // 1. Explicit metadata wins.
+  const metaTier = typeof price.metadata?.tier === 'string'
+    ? price.metadata.tier.trim().toLowerCase()
+    : '';
+  if (metaTier === 'elite' || metaTier === 'premium') return 'Elite';
+  if (metaTier === 'pro') return 'Pro';
+
+  // 2. Lookup key convention.
+  const lookupKey = typeof price.lookup_key === 'string'
+    ? price.lookup_key.trim().toLowerCase()
+    : '';
+  if (lookupKey.startsWith('elite')) return 'Elite';
+  if (lookupKey.startsWith('pro')) return 'Pro';
+
+  // 3. Legacy unit_amount fallback. Cents, monthly billing cycle.
+  const amount = Number(price.unit_amount) || 0;
+  if (amount >= 9900) return 'Elite';
+  return 'Pro';
+}
+
+/**
  * POST /api/stripe/checkout
  * Create a checkout session for subscription
  */
@@ -272,18 +309,15 @@ router.get('/subscription', authenticate, asyncHandler(async (req, res) => {
         }
       }
 
-      // Determine subscription tier from price
+      // Determine subscription tier from the active price. We resolve in this
+      // priority order so annual / discounted / founder prices don't silently
+      // demote a paying Elite customer to 'Pro':
+      //   1. price.metadata.tier === 'Elite' | 'Pro'         (admin sets in Stripe)
+      //   2. price.lookup_key starts with 'elite' or 'pro'    (admin sets in Stripe)
+      //   3. unit_amount >= 9900 → Elite, >= 2900 → Pro
       const priceId = subscription.items.data[0].price.id;
       const price = await stripe.prices.retrieve(priceId);
-      const amount = price.unit_amount || 0;
-
-      if (amount >= 9900) {
-        subscriptionTier = 'Elite';
-      } else if (amount >= 2900) {
-        subscriptionTier = 'Pro';
-      } else {
-        subscriptionTier = 'Pro';
-      }
+      subscriptionTier = resolveTierFromPrice(price);
 
       break;
     }
@@ -459,8 +493,10 @@ async function reconcileCustomerSubscriptions(customerId) {
     if (sub.trial_start) trialStart = new Date(sub.trial_start * 1000).toISOString();
   }
 
-  let subscriptionTier = 'Pro';
-  if (sub.items?.data?.[0]?.price?.unit_amount >= 9900) subscriptionTier = 'Elite';
+  // Match the same priority order as the GET /subscription path so the
+  // webhook reconciler and the on-demand fetch never disagree on tier.
+  const reconcilePrice = sub.items?.data?.[0]?.price;
+  let subscriptionTier = reconcilePrice ? resolveTierFromPrice(reconcilePrice) : 'Pro';
 
   await query(
     `INSERT INTO subscribers (email, stripe_customer_id, subscribed, subscription_tier, subscription_end, is_trial, trial_start, trial_end, updated_at)
@@ -516,5 +552,110 @@ async function handleCheckoutCompleted(session) {
     );
   }
 }
+
+/**
+ * GET /api/stripe/debug/tier
+ *
+ * Self-diagnostic — returns the full tier-resolution chain for the logged-in
+ * user. Safe for any authenticated user (only returns their own data).
+ *
+ * Use when a customer reports they have an Elite subscription but the app
+ * shows them as Pro / locked / free. Walks every layer and reports where the
+ * mismatch is:
+ *   - subscribers row (raw)
+ *   - active Stripe subscription items + price.metadata + price.lookup_key + unit_amount
+ *   - resolved tier per resolveTierFromPrice()
+ *   - what `req.subscription.tier` would be after the middleware runs
+ *
+ * Reveals only the user's own Stripe customer — no other-account leakage.
+ */
+router.get('/debug/tier', authenticate, requireStripe, asyncHandler(async (req, res) => {
+  const userEmail = req.user.email;
+  const userId = req.user.id;
+
+  // 1. subscribers row as-stored
+  const rowResult = await query(
+    `SELECT email, user_id, stripe_customer_id, subscribed, subscription_tier,
+            subscription_end, is_trial, trial_start, trial_end, updated_at
+     FROM subscribers WHERE user_id = $1 OR email = $2 LIMIT 1`,
+    [userId, userEmail]
+  );
+  const subscriberRow = rowResult.rows[0] || null;
+
+  // 2. Active Stripe subscription chain for this customer
+  let stripeChain = null;
+  if (subscriberRow?.stripe_customer_id) {
+    try {
+      const subs = await stripe.subscriptions.list({
+        customer: subscriberRow.stripe_customer_id,
+        status: 'all',
+        limit: 5,
+      });
+      stripeChain = await Promise.all(
+        subs.data.map(async (sub) => {
+          const priceId = sub.items?.data?.[0]?.price?.id;
+          const price = priceId ? await stripe.prices.retrieve(priceId) : null;
+          return {
+            id: sub.id,
+            status: sub.status,
+            current_period_end: sub.current_period_end
+              ? new Date(sub.current_period_end * 1000).toISOString()
+              : null,
+            trial_end: sub.trial_end ? new Date(sub.trial_end * 1000).toISOString() : null,
+            cancel_at_period_end: sub.cancel_at_period_end,
+            price: price ? {
+              id: price.id,
+              unit_amount: price.unit_amount,
+              currency: price.currency,
+              recurring: price.recurring,
+              lookup_key: price.lookup_key || null,
+              metadata: price.metadata || {},
+              nickname: price.nickname || null,
+            } : null,
+            resolved_tier: price ? resolveTierFromPrice(price) : null,
+          };
+        })
+      );
+    } catch (err) {
+      stripeChain = { error: err.message };
+    }
+  }
+
+  // 3. What the subscription middleware would resolve for THIS request
+  //    (re-runs the same logic from middleware/subscription.js without firing
+  //    the rate-limit count, so the diagnostic is side-effect-free.)
+  let middlewareTier = 'none';
+  let middlewareReason = 'no subscribers row';
+  if (subscriberRow) {
+    if (!subscriberRow.subscribed) {
+      middlewareReason = `subscribed=false (updated_at ${subscriberRow.updated_at})`;
+    } else if (subscriberRow.is_trial) {
+      if (subscriberRow.trial_end && new Date(subscriberRow.trial_end) < new Date()) {
+        middlewareReason = `trial expired (${subscriberRow.trial_end})`;
+      } else {
+        const t = (subscriberRow.subscription_tier || '').trim().toLowerCase();
+        middlewareTier = t === 'elite' || t === 'premium' ? 'Elite' : t === 'pro' ? 'Pro' : 'trial';
+        middlewareReason = `active trial, subscription_tier='${subscriberRow.subscription_tier}' → ${middlewareTier}`;
+      }
+    } else {
+      const t = (subscriberRow.subscription_tier || '').trim().toLowerCase();
+      middlewareTier = t === 'elite' || t === 'premium' ? 'Elite' : t === 'pro' ? 'Pro' : 'none';
+      middlewareReason = `paid sub, subscription_tier='${subscriberRow.subscription_tier}' → ${middlewareTier}`;
+    }
+  }
+
+  res.json({
+    user: { id: userId, email: userEmail },
+    subscriber_row: subscriberRow,
+    stripe_subscriptions: stripeChain,
+    resolved_tier_from_db: middlewareTier,
+    resolution_reason: middlewareReason,
+    notes: [
+      "If `resolved_tier_from_db` says 'Pro' but a `stripe_subscriptions` entry shows `resolved_tier='Elite'`, the DB is stale — hit POST /api/stripe/sync to reconcile.",
+      "If `subscriber_row.subscription_tier` is lowercase or null, that's the bug — Stripe write path should always use 'Elite'/'Pro'.",
+      "If `stripe_subscriptions` is empty but `subscriber_row.subscribed=true`, the row is orphaned from Stripe."
+    ],
+  });
+}));
 
 module.exports = router;
