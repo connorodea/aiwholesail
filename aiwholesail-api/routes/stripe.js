@@ -377,40 +377,90 @@ router.post('/webhook', express.raw({ type: 'application/json' }), asyncHandler(
 }));
 
 /**
- * Helper: Handle subscription update
+ * Pick the "winning" subscription from a customer's set when they have multiple.
+ *
+ * Priority order:
+ *   1. active        — fully paid, in good standing
+ *   2. trialing      — on a trial (paid or unpaid)
+ *   3. past_due      — paying but card retry pending
+ *   4. anything else (incomplete, paused, etc.) — surface but flag as inactive
+ *
+ * Within the same status tier, prefer the most recently created. We also
+ * prefer subscriptions that have a payment method attached (i.e. real
+ * intent to pay) over no-card trials.
  */
-async function handleSubscriptionUpdate(subscription) {
-  const customerId = subscription.customer;
+function pickRepresentativeSub(subs) {
+  if (!Array.isArray(subs) || subs.length === 0) return null;
+  const score = (s) => {
+    const status = s.status;
+    let base = 0;
+    if (status === 'active') base = 4000;
+    else if (status === 'trialing') base = 3000;
+    else if (status === 'past_due') base = 2000;
+    else if (status === 'unpaid') base = 1000;
+    // Has a default payment method? Strong signal of real intent
+    if (s.default_payment_method || s.collection_method === 'send_invoice') base += 500;
+    // Recency tiebreaker — created is unix seconds, just add as-is (rank ms apart)
+    return base + (s.created || 0) / 1e6;
+  };
+  return subs.slice().sort((a, b) => score(b) - score(a))[0];
+}
 
-  // Get customer email
+/**
+ * Re-derive the subscribers row state for a customer by asking Stripe for
+ * their current sub list and picking the winner. Used by both update and
+ * cancel handlers so that:
+ *   - events arriving out of order don't clobber state
+ *   - a customer with multiple subs (e.g. ghost trial + new paid) reflects
+ *     the active paid sub, not the ghost
+ *   - a cancellation only downgrades if no other active sub remains
+ */
+async function reconcileCustomerSubscriptions(customerId) {
   const customer = await stripe.customers.retrieve(customerId);
+  if (!customer || customer.deleted) return;
   const email = customer.email;
-
   if (!email) {
-    console.error('[Stripe] Customer has no email:', customerId);
+    console.error('[Stripe] reconcile: customer has no email:', customerId);
     return;
   }
 
-  const hasActiveSub = subscription.status === 'active' || subscription.status === 'trialing';
-  const subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
+  // status: 'all' returns active + trialing + past_due + canceled + incomplete + paused + unpaid + ended
+  const list = await stripe.subscriptions.list({ customer: customerId, status: 'all', limit: 20 });
+  // Drop subs that are unambiguously done — they shouldn't influence current access
+  const live = (list.data || []).filter(s => !['canceled', 'incomplete_expired'].includes(s.status));
+
+  if (live.length === 0) {
+    // Truly no live subs — downgrade
+    await query(
+      `UPDATE subscribers SET
+         subscribed = false,
+         subscription_tier = NULL,
+         is_trial = false,
+         updated_at = NOW()
+       WHERE email = $1`,
+      [email]
+    );
+    console.log(`[Stripe] reconcile: no live subs for ${email} — downgraded`);
+    return;
+  }
+
+  const sub = pickRepresentativeSub(live);
+  const hasActiveSub = sub.status === 'active' || sub.status === 'trialing';
+  const subscriptionEnd = sub.current_period_end
+    ? new Date(sub.current_period_end * 1000).toISOString()
+    : null;
 
   let isOnTrial = false;
   let trialEnd = null;
   let trialStart = null;
-
-  if (subscription.status === 'trialing' && subscription.trial_end) {
+  if (sub.status === 'trialing' && sub.trial_end) {
     isOnTrial = true;
-    trialEnd = new Date(subscription.trial_end * 1000).toISOString();
-    if (subscription.trial_start) {
-      trialStart = new Date(subscription.trial_start * 1000).toISOString();
-    }
+    trialEnd = new Date(sub.trial_end * 1000).toISOString();
+    if (sub.trial_start) trialStart = new Date(sub.trial_start * 1000).toISOString();
   }
 
-  // Determine tier
   let subscriptionTier = 'Pro';
-  if (subscription.items?.data?.[0]?.price?.unit_amount >= 9900) {
-    subscriptionTier = 'Elite';
-  }
+  if (sub.items?.data?.[0]?.price?.unit_amount >= 9900) subscriptionTier = 'Elite';
 
   await query(
     `INSERT INTO subscribers (email, stripe_customer_id, subscribed, subscription_tier, subscription_end, is_trial, trial_start, trial_end, updated_at)
@@ -427,33 +477,26 @@ async function handleSubscriptionUpdate(subscription) {
     [email, customerId, hasActiveSub, subscriptionTier, subscriptionEnd, isOnTrial, trialStart, trialEnd]
   );
 
-  console.log('[Stripe] Updated subscription for:', email);
+  console.log(`[Stripe] reconcile: ${email} → tier=${subscriptionTier} active=${hasActiveSub} trial=${isOnTrial} (picked ${sub.id} from ${live.length} live)`);
 }
 
 /**
- * Helper: Handle subscription canceled
+ * Handle subscription update — delegates to reconcileCustomerSubscriptions
+ * so multi-sub customers (e.g. ghost trial + new paid) end up in the
+ * correct state regardless of webhook ordering.
+ */
+async function handleSubscriptionUpdate(subscription) {
+  await reconcileCustomerSubscriptions(subscription.customer);
+}
+
+/**
+ * Handle subscription canceled — same path. Reconciliation will only
+ * downgrade if the customer has NO other live subs. Prevents the false-
+ * cancel bug where a ghost trial's auto-cancel would knock out a user
+ * who had since started a real paid sub.
  */
 async function handleSubscriptionCanceled(subscription) {
-  const customerId = subscription.customer;
-  const customer = await stripe.customers.retrieve(customerId);
-  const email = customer.email;
-
-  if (!email) {
-    console.error('[Stripe] Customer has no email:', customerId);
-    return;
-  }
-
-  await query(
-    `UPDATE subscribers SET
-       subscribed = false,
-       subscription_tier = NULL,
-       is_trial = false,
-       updated_at = NOW()
-     WHERE email = $1`,
-    [email]
-  );
-
-  console.log('[Stripe] Subscription canceled for:', email);
+  await reconcileCustomerSubscriptions(subscription.customer);
 }
 
 /**
