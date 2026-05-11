@@ -9,6 +9,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { useToast } from '@/hooks/use-toast';
 import { ai } from '@/lib/api-client';
 import { Property } from '@/types/zillow';
+import type { UnifiedProperty } from '@/types/unifiedProperty';
 import { 
   Brain, 
   TrendingUp, 
@@ -97,7 +98,13 @@ interface AnalysisResult {
 }
 
 interface AIWholesaleAnalyzerProps {
-  properties: Property[];
+  /**
+   * Properties to analyze. Always UnifiedProperty[] so the analyzer can
+   * consume both on-market (Zillow) and off-market (PropData) sources
+   * with the same code path. Callers with Zillow Property[] should map
+   * via mapZillowListToUnified() before passing.
+   */
+  properties: UnifiedProperty[];
   market: string;
 }
 
@@ -141,41 +148,56 @@ export function AIWholesaleAnalyzer({ properties, market }: AIWholesaleAnalyzerP
     setIsAnalyzing(true);
     
     try {
-      // Filter properties to only include those with high spreads (positive difference between zestimate and list price)
+      // Filter to "qualifying" properties. On-market uses a 10% spread
+      // (zestimate vs list price) threshold; off-market has no list price,
+      // so we just require a market_value > 0 — the analyzer derives MAO
+      // from 70% × market_value when there's no list price to spread against.
       const highSpreadProperties = properties.filter(property => {
-        if (!property.zestimate || !property.price) return false;
-        const spread = property.zestimate - property.price;
-        const spreadPct = spread / property.zestimate;
-        // Only include properties with at least 10% positive spread
+        if (property.source === 'off-market') {
+          return (property.record?.marketValue ?? 0) > 0;
+        }
+        const listPrice = property.listing?.listPrice;
+        const estimate = property.listing?.estimate;
+        if (!listPrice || !estimate) return false;
+        const spread = estimate - listPrice;
+        const spreadPct = spread / estimate;
         return spreadPct >= 0.10 && spread > 5000;
       });
 
       if (highSpreadProperties.length === 0) {
         toast({
-          title: "No High Spread Properties",
-          description: "No properties found with significant positive spread between Zestimate and list price.",
+          title: "No qualifying properties",
+          description: "No properties with a significant positive spread (on-market) or known market value (off-market).",
           variant: "destructive"
         });
         return;
       }
 
-      // Convert high spread properties to CSV format for analysis
-      const csvData = highSpreadProperties.map(property => ({
-        zpid: property.zpid,
-        address: property.address,
-        city: property.city,
-        state: property.state,
-        zip: property.zipcode,
-        list_price: property.price,
-        zestimate: property.zestimate,
-        beds: property.bedrooms,
-        baths: property.bathrooms,
-        sqft: property.livingArea,
-        lot_sqft: property.lotAreaValue,
-        property_type: property.homeType,
-        days_on_zillow: property.daysOnZillow,
-        url: property.detailUrl
-      }));
+      // Convert each UnifiedProperty to the flat CSV row shape Claude expects.
+      // On-market: list_price + zestimate drive spread + MAO.
+      // Off-market: market_value substitutes for both — Claude computes ARV
+      // from market_value × condition adjustment and MAO from 70% × ARV.
+      const csvData = highSpreadProperties.map(property => {
+        const isOffMarket = property.source === 'off-market';
+        const fallbackValue = property.record?.marketValue ?? 0;
+        return {
+          zpid: property.id,
+          address: property.address,
+          city: property.city,
+          state: property.state,
+          zip: property.zip,
+          list_price: property.listing?.listPrice ?? (isOffMarket ? fallbackValue : undefined),
+          zestimate: property.listing?.estimate ?? (isOffMarket ? fallbackValue : undefined),
+          beds: property.bedrooms,
+          baths: property.bathrooms,
+          sqft: property.sqft,
+          lot_sqft: property.lotSqft,
+          property_type: property.propertyType,
+          days_on_zillow: property.listing?.daysOnMarket,
+          url: property.listing?.listingUrl,
+          source: property.source,
+        };
+      });
 
       const response = await ai.wholesaleAnalyzer({
         market,
@@ -226,17 +248,27 @@ export function AIWholesaleAnalyzer({ properties, market }: AIWholesaleAnalyzerP
           const mao = deal.mao_calculation?.mao_rounded || deal.mao_calculation?.mao || deal.mao || 0;
           const dealAddress = deal.address || deal.property_details?.address || '';
 
-          // Match Claude's deal back to the original Zillow property so we
-          // can populate agent contact info. Claude isn't sent the agent
-          // fields and would hallucinate them if asked, so we merge from
-          // source data instead.
+          // Match Claude's deal back to the original UnifiedProperty so we
+          // can populate contact info from source data. Claude isn't sent
+          // contact fields and would hallucinate them if asked.
+          //
+          // On-market: pull listing-agent name + phone + brokerage.
+          // Off-market: pull owner.name + owner.mailing_address as the
+          // "agent" surface — for direct mail there is no agent, the
+          // owner IS the contact.
           const originalProperty = properties.find(p =>
-            (deal.zpid && p.zpid === deal.zpid) ||
+            (deal.zpid && p.id === deal.zpid) ||
             (dealAddress && p.address === dealAddress)
           );
-          const agentName = originalProperty?.agentName || '';
-          const agentPhone = originalProperty?.agentPhone || originalProperty?.brokerPhone || '';
-          const brokerage = originalProperty?.brokerageName || originalProperty?.brokerName || '';
+          const agentName = originalProperty?.source === 'off-market'
+            ? (originalProperty.owner?.name || '')
+            : (originalProperty?.agent?.name || '');
+          const agentPhone = originalProperty?.source === 'off-market'
+            ? '' // Off-market: phone comes from skip-trace (not yet wired)
+            : (originalProperty?.agent?.phone || '');
+          const brokerage = originalProperty?.source === 'off-market'
+            ? [originalProperty.owner?.mailingAddress, originalProperty.owner?.mailingCity, originalProperty.owner?.mailingState].filter(Boolean).join(', ')
+            : (originalProperty?.agent?.brokerage || '');
 
           // Wholesaler standard: first offer ≈ 85% of MAO, ceiling = MAO.
           // Falls back to 0 if MAO is 0 so the UI hides nonsense numbers.

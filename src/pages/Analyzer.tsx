@@ -11,6 +11,7 @@ import {
   AlertTriangle, TrendingUp, Sparkles, ArrowRight, RefreshCw,
 } from 'lucide-react';
 import { Property } from '@/types/zillow';
+import { mapZillowListToUnified } from '@/lib/unifiedPropertyAdapters';
 import { useNavigate } from 'react-router-dom';
 
 // Shared cache key — the main search page writes to this
@@ -125,8 +126,13 @@ export default function Analyzer() {
   //   - Otherwise, fall back to all enriched properties so the analyzer is
   //     never silently empty when the user clearly has search results
   const propertiesToAnalyze = useMemo(() => {
-    if (dealCount > 0) return qualifiedDeals;
-    return properties.filter((p) => p.price && p.zestimate);
+    const zillowSubset = dealCount > 0
+      ? qualifiedDeals
+      : properties.filter((p) => p.price && p.zestimate);
+    // The analyzer consumes UnifiedProperty[] so it can handle both on-market
+    // (Zillow) and off-market (PropData) sources with one code path. Map at
+    // the boundary so the rest of this page stays Zillow-shaped.
+    return mapZillowListToUnified(zillowSubset);
   }, [dealCount, qualifiedDeals, properties]);
 
   const hasAnyData = totalProperties > 0;
