@@ -7,7 +7,7 @@
 
 const { z } = require('zod/v4');
 const { betaZodTool } = require('@anthropic-ai/sdk/helpers/beta/zod');
-const Anthropic = require('@anthropic-ai/sdk');
+const { runSubagent } = require('../subagentRunner');
 const { zillowProperty } = require('../tools/zillowProperty');
 
 const SUBAGENT_PROMPT = `You are the Comp Analyst, a specialist that produces defensible fair-value estimates for one property.
@@ -37,16 +37,13 @@ const runCompAnalyst = betaZodTool({
     const userMsg = context
       ? `Run comp analysis for zpid ${zpid}. Extra context: ${context}`
       : `Run comp analysis for zpid ${zpid}.`;
-    const client = new Anthropic.Anthropic();
-    const result = await client.beta.messages.toolRunner({
+    return runSubagent({
       model: 'claude-haiku-4-5',
-      max_tokens: 1500,
       system: SUBAGENT_PROMPT,
       tools: [zillowProperty],
-      messages: [{ role: 'user', content: userMsg }],
+      userContent: userMsg,
       max_iterations: 6,
     });
-    return result.content || [];
   },
 });
 

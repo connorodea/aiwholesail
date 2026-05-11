@@ -8,7 +8,7 @@
 
 const { z } = require('zod/v4');
 const { betaZodTool } = require('@anthropic-ai/sdk/helpers/beta/zod');
-const Anthropic = require('@anthropic-ai/sdk');
+const { runSubagent } = require('../subagentRunner');
 const { zillowProperty } = require('../tools/zillowProperty');
 
 const SUBAGENT_PROMPT = `You are the Seller Motivator, a specialist that scores one property's seller motivation on a 0-100 scale.
@@ -41,20 +41,15 @@ const runSellerMotivator = betaZodTool({
   description:
     'Delegate to the Seller Motivator specialist subagent. Use this when the user asks "how motivated is this seller", "is the owner desperate", or "should I make a low-ball offer". The subagent pulls property details and applies the same scoring rubric used in the in-app Motivated Seller panel: FSBO, DOM, price cuts, pre-foreclosure, distressed keywords. Returns a JSON object with score (0-100), tier (HIGH/MEDIUM/LOW/NONE), signals list, and a 1-2 sentence rationale.',
   inputSchema,
-  run: async ({ zpid }) => {
-    const client = new Anthropic.Anthropic();
-    const result = await client.beta.messages.toolRunner({
+  run: async ({ zpid }) =>
+    runSubagent({
       model: 'claude-haiku-4-5',
-      max_tokens: 800,
       system: SUBAGENT_PROMPT,
       tools: [zillowProperty],
-      messages: [
-        { role: 'user', content: `Score the seller motivation for zpid ${zpid}. Return JSON only.` },
-      ],
+      userContent: `Score the seller motivation for zpid ${zpid}. Return JSON only.`,
       max_iterations: 3,
-    });
-    return result.content || [];
-  },
+      max_tokens: 800,
+    }),
 });
 
 module.exports = { runSellerMotivator };
