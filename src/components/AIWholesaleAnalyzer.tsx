@@ -217,26 +217,65 @@ export function AIWholesaleAnalyzer({ properties, market }: AIWholesaleAnalyzerP
       // a naked dereference on the render side will throw, unmount the subtree,
       // and (without an ErrorBoundary above) take down the whole app.
       if (parsed.deals && !parsed.ranked_opportunities) {
+        const targetFee = analysisParams.target_fee || 10000;
         parsed.ranked_opportunities = parsed.deals.map((deal: any, i: number) => {
           const listPrice = deal.property_details?.list_price || deal.list_price || 0;
           const zest = deal.property_details?.zestimate || deal.zestimate || 0;
           const repairMid = deal.repair_estimate?.total_repair_estimate || deal.estimated_repairs || 0;
+          const arv = deal.arv_calculation?.estimated_arv || deal.estimated_arv || zest || 0;
+          const mao = deal.mao_calculation?.mao_rounded || deal.mao_calculation?.mao || deal.mao || 0;
+          const dealAddress = deal.address || deal.property_details?.address || '';
+
+          // Match Claude's deal back to the original Zillow property so we
+          // can populate agent contact info. Claude isn't sent the agent
+          // fields and would hallucinate them if asked, so we merge from
+          // source data instead.
+          const originalProperty = properties.find(p =>
+            (deal.zpid && p.zpid === deal.zpid) ||
+            (dealAddress && p.address === dealAddress)
+          );
+          const agentName = originalProperty?.agentName || '';
+          const agentPhone = originalProperty?.agentPhone || originalProperty?.brokerPhone || '';
+          const brokerage = originalProperty?.brokerageName || originalProperty?.brokerName || '';
+
+          // Wholesaler standard: first offer ≈ 85% of MAO, ceiling = MAO.
+          // Falls back to 0 if MAO is 0 so the UI hides nonsense numbers.
+          const offerFirst = mao > 0 ? Math.round(mao * 0.85) : 0;
+          const offerCeiling = mao;
+
+          // Flip margin = profit to the end flipper.
+          //   ARV − (MAO + assignment fee) − repairs − ~9% all-in closing costs
+          // Floors at 0 to avoid negative display.
+          const flipMargin = mao > 0 && arv > 0
+            ? Math.max(0, Math.round(arv - mao - repairMid - arv * 0.09 - targetFee))
+            : 0;
+
+          // Templated outreach copy. We don't ask Claude to write these:
+          // (a) burns tokens, (b) Claude hallucinates seller motivation.
+          // The user can edit before sending — this is a starting point.
+          const shortAddr = dealAddress.split(',')[0] || dealAddress || 'the property';
+          const greeting = agentName ? `Hi ${agentName.split(' ')[0]}` : 'Hi there';
+          const callScript = mao > 0
+            ? `${greeting}, I'm a local cash investor and came across your listing at ${shortAddr}. I run numbers on rehab projects in this area and I can offer $${offerFirst.toLocaleString()} as a starting point — cash, 14-day close, no inspection contingencies. Open to a quick call to discuss?`
+            : '';
+          const emailCopy = mao > 0
+            ? `Subject: Cash offer — ${shortAddr}\n\n${greeting},\n\nI'm a local investor focused on rehab properties. I've reviewed ${shortAddr} and can move quickly with a cash offer starting at $${offerFirst.toLocaleString()}, 14-day close, as-is.\n\nMy ceiling is around $${offerCeiling.toLocaleString()} depending on inspection. Happy to send proof of funds and a clean contract today.\n\nIf the seller is open to a fast, clean exit, please let me know a good time to talk.\n\nThanks,\n[Your name]`
+            : '';
+
           return {
             rank: deal.rank || i + 1,
-            zpid: deal.zpid || deal.address || `deal-${i}`,
-            address: deal.address || deal.property_details?.address || 'Unknown',
+            zpid: deal.zpid || dealAddress || `deal-${i}`,
+            address: dealAddress || 'Unknown',
             list_price: listPrice,
             zestimate: zest,
-            estimated_arv: deal.arv_calculation?.estimated_arv || deal.estimated_arv || zest || 0,
-            arv_final: deal.arv_calculation?.estimated_arv || deal.estimated_arv || zest || 0,
+            estimated_arv: arv,
+            arv_final: arv,
             estimated_repairs: repairMid,
-            mao: deal.mao_calculation?.mao_rounded || deal.mao_calculation?.mao || deal.mao || 0,
-            wholesale_fee: deal.profit_analysis?.if_purchased_at_mao?.recommended_assignment_fee || 10000,
+            mao,
+            wholesale_fee: deal.profit_analysis?.if_purchased_at_mao?.recommended_assignment_fee || targetFee,
             deal_score: deal.deal_score || deal.summary?.deal_score || 50,
             recommendation: deal.recommendation || deal.summary?.recommendation || 'Review',
             notes: deal.summary?.one_liner || deal.one_liner || '',
-            // Defaults for the 12 fields the Accordion list dereferences without
-            // guards — see PR #166 follow-up for the audit.
             spread_abs: typeof deal.spread_abs === 'number' ? deal.spread_abs : (zest - listPrice),
             spread_pct: typeof deal.spread_pct === 'number'
               ? deal.spread_pct
@@ -248,23 +287,31 @@ export function AIWholesaleAnalyzer({ properties, market }: AIWholesaleAnalyzerP
                   high: typeof deal.repairs.high === 'number' ? deal.repairs.high : 0,
                 }
               : { low: 0, mid: repairMid, high: 0 },
-            flip_margin: typeof deal.flip_margin === 'number' ? deal.flip_margin : 0,
+            flip_margin: typeof deal.flip_margin === 'number' && deal.flip_margin > 0 ? deal.flip_margin : flipMargin,
             score: typeof deal.score === 'number'
               ? deal.score
               : (typeof deal.deal_score === 'number' ? deal.deal_score / 100 : 0.5),
             exit: deal.exit || deal.recommendation || 'wholesale',
             risk_flags: Array.isArray(deal.risk_flags) ? deal.risk_flags : [],
             agent: deal.agent && typeof deal.agent === 'object'
-              ? { name: deal.agent.name || '', phone: deal.agent.phone || '' }
-              : { name: '', phone: '' },
+              ? {
+                  name: deal.agent.name || agentName,
+                  phone: deal.agent.phone || agentPhone,
+                  brokerage: deal.agent.brokerage || brokerage,
+                }
+              : { name: agentName, phone: agentPhone, brokerage },
             next_actions: deal.next_actions && typeof deal.next_actions === 'object'
               ? {
-                  offer_price_first: typeof deal.next_actions.offer_price_first === 'number' ? deal.next_actions.offer_price_first : 0,
-                  offer_price_ceiling_MAO: typeof deal.next_actions.offer_price_ceiling_MAO === 'number' ? deal.next_actions.offer_price_ceiling_MAO : 0,
-                  call_script: deal.next_actions.call_script || '',
-                  email_copy: deal.next_actions.email_copy || '',
+                  offer_price_first: typeof deal.next_actions.offer_price_first === 'number' && deal.next_actions.offer_price_first > 0
+                    ? deal.next_actions.offer_price_first
+                    : offerFirst,
+                  offer_price_ceiling_MAO: typeof deal.next_actions.offer_price_ceiling_MAO === 'number' && deal.next_actions.offer_price_ceiling_MAO > 0
+                    ? deal.next_actions.offer_price_ceiling_MAO
+                    : offerCeiling,
+                  call_script: deal.next_actions.call_script || callScript,
+                  email_copy: deal.next_actions.email_copy || emailCopy,
                 }
-              : { offer_price_first: 0, offer_price_ceiling_MAO: 0, call_script: '', email_copy: '' },
+              : { offer_price_first: offerFirst, offer_price_ceiling_MAO: offerCeiling, call_script: callScript, email_copy: emailCopy },
           };
         });
         parsed.market = parsed.market || market;
