@@ -99,6 +99,10 @@ export default function ZipCodePage() {
 
   const nearby = getNearbyZips(zipData);
   const strategy = strategyDetails[zipData.dominantStrategy];
+  // Auto-generated entries leave neighborhood blank; fall back to city so titles
+  // don't show empty placeholders or duplicated names.
+  const neighborhood = zipData.neighborhood?.trim() || `${zipData.city} Area`;
+  const hasNamedNeighborhood = !!zipData.neighborhood?.trim();
 
   const stats = [
     { label: 'Median Price', value: formatCurrency(zipData.medianPrice), icon: DollarSign },
@@ -116,9 +120,11 @@ export default function ZipCodePage() {
   return (
     <PublicLayout>
       <SEOHead
-        title={`Real Estate Investing in ${zipData.zip} -- ${zipData.neighborhood}, ${zipData.city}, ${zipData.state}`}
-        description={`Find profitable real estate deals in ZIP code ${zipData.zip} (${zipData.neighborhood}, ${zipData.city}, ${zipData.state}). Median price ${formatCurrency(zipData.medianPrice)}, avg rent $${zipData.avgRent}/mo, ${zipData.priceGrowth}% growth. AI-powered deal scoring.`}
-        keywords={`${zipData.zip} real estate investing, ${zipData.zip} wholesale deals, ${zipData.neighborhood} investment properties, ${zipData.city} ${zipData.state} zip code ${zipData.zip}, ${zipData.zip} rental properties, ${zipData.zip} flip houses`}
+        title={hasNamedNeighborhood
+          ? `Real Estate Investing in ${zipData.zip} -- ${neighborhood}, ${zipData.city}, ${zipData.state}`
+          : `Real Estate Investing in ${zipData.zip} -- ${zipData.city}, ${zipData.state}`}
+        description={`Find profitable real estate deals in ZIP code ${zipData.zip} (${zipData.city}, ${zipData.state}). Median price ${formatCurrency(zipData.medianPrice)}, avg rent $${zipData.avgRent}/mo, ${zipData.priceGrowth}% growth. AI-powered deal scoring.`}
+        keywords={`${zipData.zip} real estate investing, ${zipData.zip} wholesale deals, ${zipData.city} ${zipData.state} zip code ${zipData.zip}, ${zipData.zip} rental properties, ${zipData.zip} flip houses`}
         breadcrumbs={[
           { name: 'Home', url: 'https://aiwholesail.com' },
           { name: 'ZIP Codes', url: 'https://aiwholesail.com/zip' },
@@ -149,7 +155,7 @@ export default function ZipCodePage() {
             Real Estate Investing in {zipData.zip}
             <br />
             <span className="bg-gradient-to-r from-cyan-500 via-cyan-400 to-cyan-500 bg-clip-text text-transparent">
-              {zipData.neighborhood}.
+              {neighborhood}.
             </span>
           </h1>
           <p className="text-lg md:text-xl text-white/50 max-w-2xl mx-auto leading-relaxed font-light">
@@ -222,7 +228,7 @@ export default function ZipCodePage() {
               How to invest in {zipData.zip}.
             </h2>
             <p className="text-neutral-400 font-light mb-10 max-w-xl">
-              Based on current market data, the dominant investment strategy for {zipData.neighborhood} is:
+              Based on current market data, the dominant investment strategy for {neighborhood} is:
             </p>
 
             <Link
@@ -322,7 +328,7 @@ export default function ZipCodePage() {
             </span>
           </h2>
           <p className="text-lg text-white/50 font-light max-w-xl mx-auto mb-10">
-            AIWholesail scans {zipData.neighborhood} in {zipData.city} daily. Get AI-powered deal scoring, instant comps, and automated seller outreach.
+            AIWholesail scans {neighborhood} in {zipData.city} daily. Get AI-powered deal scoring, instant comps, and automated seller outreach.
           </p>
           <Link to="/pricing">
             <button className="inline-flex items-center gap-2 px-10 py-4 bg-cyan-500 hover:bg-cyan-400 text-black text-base font-semibold rounded-md transition-colors">
