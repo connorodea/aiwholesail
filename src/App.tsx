@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { useEffect, lazy, Suspense } from "react";
 import { HelmetProvider } from 'react-helmet-async';
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -42,7 +42,8 @@ const MarketPage = lazy(() => import("./pages/MarketPage"));
 const ComparisonPage = lazy(() => import("./pages/ComparisonPage"));
 const Guides = lazy(() => import("./pages/Guides"));
 const GuidePage = lazy(() => import("./pages/GuidePage"));
-const OffMarket = lazy(() => import("./pages/OffMarket"));
+// OffMarket page removed in PR #172 — /app/off-market now redirects to
+// /app?mode=off-market where the unified search renders AbsenteeOwnerSearch.
 const Analyzer = lazy(() => import("./pages/Analyzer"));
 const Favorites = lazy(() => import("./pages/Favorites"));
 const Alerts = lazy(() => import("./pages/Alerts"));
@@ -143,11 +144,9 @@ const App = () => (
                     <RealEstateWholesaler />
                   </ProtectedRoute>
                 } />
-                <Route path="/app/off-market" element={
-                  <ProtectedRoute>
-                    <OffMarket />
-                  </ProtectedRoute>
-                } />
+                {/* /app/off-market is the legacy route. Now redirects into
+                    the unified search on /app with mode=off-market preset. */}
+                <Route path="/app/off-market" element={<Navigate to="/app?mode=off-market" replace />} />
                 <Route path="/app/analyzer" element={
                   <ProtectedRoute>
                     <Analyzer />

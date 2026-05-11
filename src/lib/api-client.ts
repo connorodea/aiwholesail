@@ -66,7 +66,7 @@ const notifyAuthChange = (user: User | null): void => {
 };
 
 // Base fetch wrapper with auth
-async function apiFetch<T>(
+export async function apiFetch<T>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<ApiResponse<T>> {

@@ -31,7 +31,11 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ArrowUpDown, Eye, EyeOff } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { AbsenteeOwnerSearch } from '@/components/AbsenteeOwnerSearch';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { Building2, Home } from 'lucide-react';
+import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { PropertyComparison } from '@/components/PropertyComparison';
 import { AITopPicksSection } from '@/components/AITopPicksSection';
 import { SaveSearchAsAlertDialog } from '@/components/SaveSearchAsAlertDialog';
@@ -59,7 +63,26 @@ export default function RealEstateWholesaler() {
   const [lastSearchLocation, setLastSearchLocation] = useState<string>('');
   const [sortBy, setSortBy] = useState<'price-high' | 'price-low' | 'newest' | 'oldest' | 'default'>('default');
   const [isSearchingFSBO, setIsSearchingFSBO] = useState<boolean>(false);
-  const [searchMode, setSearchMode] = useState<'on-market' | 'off-market'>('on-market');
+  // Unified on/off-market search is gated behind a feature flag while we
+  // dogfood. Until enabled for the user, the toggle UI hides and the page
+  // forces on-market mode regardless of the ?mode= URL param — old
+  // bookmarks to /app?mode=off-market degrade silently to the legacy view
+  // instead of breaking.
+  const { enabled: unifiedSearchEnabled } = useFeatureFlag('unified-search');
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  const urlMode = searchParams.get('mode') === 'off-market' ? 'off-market' : 'on-market';
+  const [searchMode, setSearchModeState] = useState<'on-market' | 'off-market'>(urlMode);
+  const setSearchMode = (mode: 'on-market' | 'off-market') => {
+    setSearchModeState(mode);
+    const next = new URLSearchParams(searchParams);
+    if (mode === 'off-market') next.set('mode', 'off-market');
+    else next.delete('mode');
+    setSearchParams(next, { replace: true });
+  };
+  // Effective mode is what the render path actually reads. When the flag
+  // is off, force on-market — independent of stored state or URL.
+  const effectiveSearchMode = unifiedSearchEnabled ? searchMode : 'on-market';
   const [showSmsAlert, setShowSmsAlert] = useState(false);
   const [smsPhone, setSmsPhone] = useState('');
   const [sendingSms, setSendingSms] = useState(false);
@@ -379,14 +402,64 @@ export default function RealEstateWholesaler() {
                   Find profitable real estate deals
                 </h1>
                 <p className="text-base sm:text-lg md:text-xl text-neutral-400 font-light max-w-2xl mx-auto leading-relaxed">
-                  Discover undervalued properties with AI-powered analysis and comprehensive market data
+                  {effectiveSearchMode === 'on-market'
+                    ? 'Discover undervalued listings with AI-powered analysis and comprehensive market data'
+                    : 'Find absentee landlords with equity — the highest-converting direct-mail segment'}
                 </p>
               </div>
 
-              {/* Property Search */}
-              <div className="feature-card p-8 backdrop-blur-sm">
-                <PropertySearch onSearch={handleSearch} isLoading={isLoading} />
-              </div>
+              {/* On-market / Off-market toggle. Persists to ?mode= URL param.
+                  Hidden until the `unified-search` flag is enabled for the user. */}
+              {unifiedSearchEnabled && (
+                <div className="flex justify-center">
+                  <div
+                    role="tablist"
+                    aria-label="Search mode"
+                    className="inline-flex rounded-xl border border-neutral-800 bg-neutral-900/60 p-1"
+                  >
+                    <button
+                      role="tab"
+                      aria-selected={effectiveSearchMode === 'on-market'}
+                      onClick={() => setSearchMode('on-market')}
+                      className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+                        effectiveSearchMode === 'on-market'
+                          ? 'bg-neutral-100 text-neutral-950 shadow-sm'
+                          : 'text-neutral-400 hover:text-neutral-100'
+                      }`}
+                    >
+                      <Home className="h-3.5 w-3.5" />
+                      On-market
+                    </button>
+                    <button
+                      role="tab"
+                      aria-selected={effectiveSearchMode === 'off-market'}
+                      onClick={() => setSearchMode('off-market')}
+                      className={`inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+                        effectiveSearchMode === 'off-market'
+                          ? 'bg-amber-400 text-neutral-950 shadow-sm'
+                          : 'text-neutral-400 hover:text-neutral-100'
+                      }`}
+                    >
+                      <Building2 className="h-3.5 w-3.5" />
+                      Off-market
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Mode-specific search UI. On-market = existing Zillow flow.
+                  Off-market = PropData absentee owner search (PR #170). */}
+              {effectiveSearchMode === 'on-market' ? (
+                <div className="feature-card p-8 backdrop-blur-sm">
+                  <PropertySearch onSearch={handleSearch} isLoading={isLoading} />
+                </div>
+              ) : (
+                <div className="text-left">
+                  <ErrorBoundary label="AbsenteeOwnerSearch">
+                    <AbsenteeOwnerSearch />
+                  </ErrorBoundary>
+                </div>
+              )}
 
               {/* Trial countdown banner — only renders for trial users with ≤3 days remaining */}
               <div className="text-left">
@@ -399,6 +472,11 @@ export default function RealEstateWholesaler() {
               </div>
             </section>
 
+            {/* On-market results pipeline: search loading state, empty state,
+                results grid, error UI. Hidden in off-market mode — the
+                AbsenteeOwnerSearch component above owns its own results UI. */}
+            {effectiveSearchMode === 'on-market' && (
+            <>
             {/* Anchor for smooth-scroll after Search Properties is clicked.
                 scroll-mt-* gives the smooth scroll some breathing room from the sticky header. */}
             <div ref={resultsRef} className="scroll-mt-20 sm:scroll-mt-24" aria-hidden="true" />
@@ -744,6 +822,8 @@ export default function RealEstateWholesaler() {
                   </Button>
                 </div>
               </section>
+            )}
+            </>
             )}
           </>
         ) : (
