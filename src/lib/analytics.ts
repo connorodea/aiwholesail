@@ -38,10 +38,22 @@ function fire(eventName: string, params?: Record<string, any>) {
   }
 }
 
-/** Fire a Facebook Pixel standard event (only if fbq is loaded) */
-function fireFbq(eventName: string, params?: Record<string, any>) {
+/**
+ * Fire a Facebook Pixel standard event (only if fbq is loaded).
+ *
+ * If `eventId` is provided, it's passed as fbq's third "options" arg —
+ * Meta uses this as the deduplication key against server-side CAPI
+ * events with the same `event_id`. Critical for the trial→paid
+ * conversion to NOT double-count between client-side Pixel fire and
+ * the Layer 2 server-side CAPI Purchase event (PR #218).
+ *
+ * See: developers.facebook.com/docs/marketing-api/conversions-api/deduplicate-pixel-and-server-events
+ */
+function fireFbq(eventName: string, params?: Record<string, any>, eventId?: string) {
   if (typeof window !== 'undefined' && typeof window.fbq === 'function') {
-    if (params) {
+    if (eventId) {
+      window.fbq('track', eventName, params || {}, { eventID: eventId });
+    } else if (params) {
       window.fbq('track', eventName, params);
     } else {
       window.fbq('track', eventName);
@@ -70,12 +82,45 @@ export const analytics = {
     fire('login', { method });
   },
 
-  /** User starts free trial */
+  /**
+   * User starts free trial. GA4 `begin_trial` + Meta `StartTrial` fire
+   * from the same callsite with parameters that join cleanly across
+   * platforms — useful when comparing trial-start counts side-by-side
+   * in GA4 ↔ Events Manager and when Layer 2 CAPI fires the matching
+   * `Purchase` event on trial→paid conversion.
+   *
+   * Parameter parity:
+   *   - GA4 `value` / `currency` ↔ Meta `value` / `currency` (both 0/USD)
+   *   - GA4 `items[0].item_id` ↔ Meta `content_ids[0]` (`trial_pro` / `trial_elite`)
+   *   - GA4 `items[0].item_category` ↔ Meta `content_type` (`subscription`)
+   *   - GA4 `predicted_revenue` ↔ Meta `predicted_ltv` (3-mo conservative)
+   *
+   * Predicted LTV uses 3 months at list price as a conservative floor
+   * (Meta's optimization weights this; an over-optimistic number gets
+   * the algorithm bidding too aggressively).
+   */
   beginTrial(plan: string) {
-    fire('begin_trial', { plan, value: 0, currency: 'USD' });
+    const monthlyPrice = plan === 'Elite' ? 99 : 49;
+    const predictedLtv = monthlyPrice * 3;
+    const itemId = `trial_${plan.toLowerCase()}`;
+    fire('begin_trial', {
+      plan,
+      value: 0,
+      currency: 'USD',
+      predicted_revenue: predictedLtv,
+      items: [{
+        item_id: itemId,
+        item_name: `${plan} Trial`,
+        item_category: 'subscription',
+        price: 0,
+        quantity: 1,
+      }],
+    });
     fireFbq('StartTrial', {
       content_name: plan,
-      predicted_ltv: plan === 'Elite' ? 99 : 29,
+      content_ids: [itemId],
+      content_type: 'subscription',
+      predicted_ltv: predictedLtv,
       currency: 'USD',
       value: 0,
     });
@@ -97,28 +142,58 @@ export const analytics = {
     });
   },
 
-  /** User completes subscription purchase (paid conversion) */
+  /**
+   * User completes subscription purchase (paid conversion).
+   *
+   * Distinct content_id from StartTrial (`subscription_pro` vs
+   * `trial_pro`) so Meta builds two separate audiences — "trial
+   * started" lookalikes vs "purchased" lookalikes — which is what
+   * the optimization algorithm needs to distinguish intent from
+   * commitment.
+   *
+   * Both Purchase and Subscribe fire (Meta's dedicated SaaS event).
+   * The Layer 2 server-side CAPI Purchase event (PR #218) fires
+   * with `event_id` = Stripe event.id; Meta dedupes against any
+   * matching client-side fbq Purchase, so both signals reach Meta
+   * without double-counting.
+   */
   purchase(transactionId: string, plan: string, price: number) {
+    const itemId = `subscription_${plan.toLowerCase()}`;
     fire('purchase', {
       transaction_id: transactionId,
       currency: 'USD',
       value: price,
-      items: [{ item_name: plan, price, quantity: 1 }],
+      items: [{
+        item_id: itemId,
+        item_name: plan,
+        item_category: 'subscription',
+        price,
+        quantity: 1,
+      }],
     });
+    // Stripe Checkout Session ID is the shared dedup key between this
+    // client-side fire and the Layer 2 server-side CAPI Purchase event
+    // (PR #218). The server-side handler resolves session_id from the
+    // invoice and uses the same value as Meta's `event_id`. With both
+    // sides matching, Meta dedupes — no double-count.
     fireFbq('Purchase', {
       content_name: plan,
+      content_ids: [itemId],
       content_type: 'subscription',
       currency: 'USD',
       value: price,
-    });
+    }, transactionId);
     // Subscribe is Meta's dedicated SaaS subscription event — fires
     // alongside Purchase so either can be used as the optimization event.
+    // Same `event_id` so server-side Subscribe (if/when added) dedupes too.
     fireFbq('Subscribe', {
       content_name: plan,
+      content_ids: [itemId],
+      content_type: 'subscription',
       currency: 'USD',
       value: price,
       predicted_ltv: price * 12,
-    });
+    }, transactionId);
   },
 
   /** User reaches the pricing page (high-intent ViewContent for FB optimization) */

@@ -851,12 +851,33 @@ async function firePurchaseCapi({ invoice, eventId }) {
     } catch { /* swallow */ }
   }
 
+  // Resolve the Stripe Checkout Session ID that produced this
+  // subscription. Used as Meta's `event_id` so the server-side fire
+  // dedupes against the client-side `fbq('Purchase', ..., {eventID:
+  // session.id})` on the success page (see src/lib/analytics.ts).
+  //
+  // Falls back to the Stripe webhook event.id if no session is found
+  // (e.g. invoices created via API outside of Checkout) — still gives
+  // us idempotency on webhook retries, just no client-side dedup.
+  let dedupEventId = eventId;
+  if (invoice.subscription) {
+    try {
+      const sessions = await stripe.checkout.sessions.list({
+        subscription: invoice.subscription,
+        limit: 1,
+      });
+      if (sessions.data[0]?.id) dedupEventId = sessions.data[0].id;
+    } catch (err) {
+      console.warn('[CAPI] session lookup failed (falling back to webhook event.id):', err.message);
+    }
+  }
+
   const result = await sendPurchaseEvent({
     email,
     fullName,
     value: (invoice.amount_paid || 0) / 100,
     currency: invoice.currency,
-    eventId,
+    eventId: dedupEventId,
     eventTime: invoice.created || Math.floor(Date.now() / 1000),
     fbp: attr.fbp,
     fbc: attr.fbc,
