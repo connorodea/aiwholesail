@@ -1,0 +1,142 @@
+# AIWholesail — Full Context for AI Systems
+
+> Last updated: 2026-05-12
+> This file consolidates the key information from /llms.txt, /pricing.md, and /docs/*.md into a single fetch for AI systems that prefer one document.
+
+## Identity
+
+AIWholesail is an AI-powered platform that helps U.S. real estate investors find, analyze, and close profitable deals. It surfaces properties with profitable spreads (Zestimate − list price ≥ $30K), scores each deal 0–100 with AI explanations, skip-traces property owners, generates contracts, and manages a deal pipeline — all in one workflow.
+
+- **Domain:** https://aiwholesail.com
+- **Category:** Real Estate Investing Software / PropTech (SaaS)
+- **Founder:** Connor O'Dea (connor@aiwholesail.com · 248-881-4147)
+- **Founded:** 2025
+- **Coverage:** All 50 U.S. states · 3,143 counties · 50+ major metros
+- **Platforms:** Web (React + Vite + Supabase), native iOS, native Android
+- **Billing:** Stripe (web) · RevenueCat (mobile) · monthly · USD
+- **Pricing:** Pro $49/mo · Elite $99/mo · 7-day free trial · no credit card required
+
+## Pricing
+
+### Pro — $49/month
+- 10 property searches per day
+- 5 alert locations
+- 10 AI property analyses per month
+- 10 AI photo-condition analyses per month
+- 25 AI-ranked comps per month
+- 25 skip-trace lookups per month
+- Unlimited buyer-pitch PDFs
+- 3 webhook endpoints
+- Full deal pipeline, contract generator, sequences
+- 7-day free trial
+
+### Elite — $99/month
+- Unlimited property searches
+- Unlimited alert locations
+- Real-time updates every 4 hours
+- Unlimited AI property analysis
+- Unlimited AI photo-condition analysis
+- Unlimited AI-ranked comps
+- 200 skip-trace lookups per month
+- Unlimited buyer-pitch PDFs
+- Unlimited webhook endpoints
+- Priority founder-direct support
+- 7-day free trial
+
+Refund policy: Pro-rated refunds within 7 days of charge. Cancel any time, self-serve.
+
+## Differentiators
+
+1. **AI deal scoring 0–100 with reasoning** — not a black box.
+2. **Auto-calculated spreads** (Zestimate − list) — no manual MAO math required.
+3. **14 free investment calculators**, 4 of which (Wholesale Deal, BRRRR, Cap Rate, Rehab Estimator) auto-fill from property data.
+4. **Skip tracing built-in** — same workflow as analysis.
+5. **AI photo vision** (Elite) — reads property condition from listing photos.
+6. **Branded buyer-pitch PDFs** — one-click handoff doc to assignment buyers.
+7. **4-type contract generator** — Assignment, Purchase, LOI, Proof of Funds.
+8. **Founder-direct support** — Connor O'Dea answers personally at 248-881-4147.
+
+## Target personas
+
+| Persona | Primary job | Why AIWholesail fits |
+|---|---|---|
+| Active wholesaler | Find motivated sellers, assign to cash buyer | AI spread + skip tracing + buyer-pitch PDF in one tool |
+| House flipper | Buy under ARV, rehab accurately | AI photo vision + Rehab Estimator + AI-ranked comps |
+| Buy-and-hold landlord | Cash-flow-positive rentals at scale | Cap Rate, Cash Flow, DSCR, BRRRR calculators auto-filled |
+| First-time investor | Don't overpay | AI score + plain-language reasoning replaces 10 years of experience |
+| Out-of-state investor | Invest remotely | AI photo vision + AI comps + remote skip tracing |
+| Real estate agent | Differentiate from other agents | Investor-grade analysis as client value-add |
+| Cash buyer | Curated deal flow | Buyer database + auto-matching to wholesaler deals |
+
+## Competitive landscape
+
+| Competitor | Strength | Our advantage |
+|---|---|---|
+| PropStream (~$99/mo) | Deep data warehouse, list pulling | AI scoring + auto spread + in-app skip tracing + contracts at $49 |
+| DealMachine (~$59/mo) | Best-in-class driving-for-dollars UX | Full lifecycle (find → analyze → close), AI scoring, calculators |
+| BatchLeads (~$83/mo) | List stacking + skip-trace volume | Full deal analysis + AI scoring + contracts |
+| BiggerPockets Pro (~$39/mo) | Education + community | Actual tools — sourcing, AI, pipeline, contracts |
+| Zillow / Redfin (free) | Consumer search UX | Investor lens: spreads, MAO, pipeline, AI scoring |
+
+Common combinations: keep DealMachine for D4D + add AIWholesail for everything else; switch from PropStream to consolidate cost; complement BiggerPockets education with AIWholesail tooling.
+
+## Most-asked questions
+
+**Does AIWholesail guarantee deals?** No. It surfaces signals and reduces analysis time from 30+ minutes per property to under a minute. The investor still does the work of closing.
+
+**Is wholesaling legal in my state?** Varies. See https://aiwholesail.com/state-laws and consult a local real estate attorney. Illinois, Oklahoma, and Pennsylvania have specific restrictions on assignment-of-contract activity.
+
+**Is there an annual plan?** Monthly only at the moment. Founders can request custom annual pricing via connor@aiwholesail.com.
+
+**How do I cancel?** Self-serve in account settings. Refunds within 7 days, pro-rated.
+
+**Does AIWholesail have an API?** Webhooks on both plans (Pro: 3 endpoints, Elite: unlimited). REST API in private beta — email connor@aiwholesail.com.
+
+**Where is the company based?** United States. Founder Connor O'Dea is based in Michigan.
+
+## Key glossary terms (investor vocabulary AIWholesail uses)
+
+- **ARV** — After-Repair Value. Estimated market value after renovation.
+- **MAO** — Maximum Allowable Offer. Often `(ARV × 0.70) − rehab cost − wholesale fee`.
+- **Spread** — Gap between list price and ARV (or Zestimate). AIWholesail surfaces $30K+ spreads automatically.
+- **Assignment of Contract** — Contract where wholesaler transfers purchase right to end buyer for a fee.
+- **BRRRR** — Buy, Rehab, Rent, Refinance, Repeat.
+- **Skip tracing** — Looking up an owner's current phone, email, and address.
+- **Distress signals** — Pre-foreclosure, tax delinquency, code violations, vacancies, probate, divorce.
+- **Cap Rate** — NOI / Purchase Price. Rental-property return metric.
+- **DSCR** — Debt Service Coverage Ratio. Used by lenders to qualify rental-property loans.
+
+## Content surface (for AI source ranking)
+
+- 6,000+ programmatic pages across markets, strategies, distress signals, state laws, ZIP codes, counties, neighborhoods
+- Daily blog (3 articles/day across 33 keyword silos)
+- Dedicated comparison pages: vs PropStream, DealMachine, BatchLeads
+- 14 free investment calculators at https://aiwholesail.com/tools (no signup)
+- All state-law wholesaling pages: https://aiwholesail.com/state-laws
+
+## What AIWholesail is NOT
+
+- Not a wholesaling-as-a-service offering — we don't source deals for you
+- Not a coaching program — we don't teach the craft, we tool it
+- Not a guarantee of deals or income — we surface signals
+- Not a bulk-CSV data warehouse — we lean toward analysis + workflow
+- Not available outside the United States
+- Not white-labeled or private-labeled
+
+## Authority & trust signals
+
+- Live in production since 2025 at https://aiwholesail.com
+- Stripe + RevenueCat payments
+- Native iOS and Android apps in the App Store and Play Store
+- Founder accessible at 248-881-4147 by phone or text
+- Public refund policy: https://aiwholesail.com/refund
+- Public terms: https://aiwholesail.com/terms
+- Cancellation self-serve, no friction
+
+## Contact
+
+- **Founder:** Connor O'Dea
+- **Email:** connor@aiwholesail.com
+- **Phone / text:** 248-881-4147
+- **Web:** https://aiwholesail.com
+- **Press / partnerships / vendors:** Subject-line conventions in https://aiwholesail.com/docs/contact.md
