@@ -1,12 +1,21 @@
 import { useParams, Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import {
   ArrowRight, Check, X, ChevronRight,
   Calculator, BookOpen, Search, Shield, Star, Zap,
+  Calendar, ThumbsUp, ThumbsDown,
 } from 'lucide-react';
 import { SEOHead } from '@/components/SEOHead';
 import { PublicLayout } from '@/components/PublicLayout';
 import { Spotlight } from '@/components/ui/spotlight';
 import competitors from '@/data/competitors.json';
+
+const LAST_UPDATED = '2026-05-12';
+
+interface CompetitorFAQ {
+  q: string;
+  a: string;
+}
 
 interface Competitor {
   slug: string;
@@ -15,6 +24,12 @@ interface Competitor {
   pricing: string;
   weaknesses: string[];
   aiwholesailAdvantages: string[];
+  summary?: string;
+  strengths?: string[];
+  idealFor?: string;
+  notIdealFor?: string;
+  verdict?: string;
+  faqs?: CompetitorFAQ[];
 }
 
 interface FeatureRow {
@@ -61,14 +76,73 @@ export default function ComparisonPage() {
   }
 
   const features = buildFeatureTable(comp);
+  const canonical = `https://aiwholesail.com/vs/${comp.slug}`;
+
+  // Structured data: SoftwareApplication for AIWholesail + Review of competitor + FAQPage.
+  const aiwAppJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: 'AIWholesail',
+    applicationCategory: 'BusinessApplication',
+    applicationSubCategory: 'Real Estate Investing Software',
+    operatingSystem: 'Web, iOS, Android',
+    url: 'https://aiwholesail.com',
+    offers: [
+      { '@type': 'Offer', name: 'Pro', price: '49', priceCurrency: 'USD', url: 'https://aiwholesail.com/pricing' },
+      { '@type': 'Offer', name: 'Elite', price: '99', priceCurrency: 'USD', url: 'https://aiwholesail.com/pricing' },
+    ],
+  };
+
+  const reviewJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Review',
+    url: canonical,
+    datePublished: LAST_UPDATED,
+    itemReviewed: {
+      '@type': 'SoftwareApplication',
+      name: comp.name,
+      applicationCategory: 'BusinessApplication',
+      applicationSubCategory: 'Real Estate Investing Software',
+      offers: { '@type': 'Offer', price: comp.pricing.replace(/[^0-9.]/g, '') || undefined, priceCurrency: 'USD' },
+    },
+    author: { '@type': 'Organization', name: 'AIWholesail', url: 'https://aiwholesail.com' },
+    name: `AIWholesail vs ${comp.name} — Honest Comparison`,
+    reviewBody: comp.summary || `${comp.name}: ${comp.tagline}.`,
+  };
+
+  const faqJsonLd = comp.faqs && comp.faqs.length > 0
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: comp.faqs.map((f) => ({
+          '@type': 'Question',
+          name: f.q,
+          acceptedAnswer: { '@type': 'Answer', text: f.a },
+        })),
+      }
+    : null;
 
   return (
     <PublicLayout>
       <SEOHead
-        title={`AIWholesail vs ${comp.name} -- Better Alternative`}
-        description={`Compare AIWholesail vs ${comp.name}. See why investors switch from ${comp.name} (${comp.pricing}) to AIWholesail's AI-powered deal scoring starting at $49/mo.`}
+        title={`AIWholesail vs ${comp.name} -- Honest Comparison (${LAST_UPDATED})`}
+        description={`AIWholesail vs ${comp.name}: ${comp.summary?.slice(0, 155) || `Compare features, pricing, and use cases. AIWholesail starts at $49/mo with AI deal scoring; ${comp.name} is ${comp.pricing}.`}`}
         keywords={`AIWholesail vs ${comp.name}, ${comp.name} alternative, ${comp.name} competitor, best wholesale real estate software, ${comp.name} review, better than ${comp.name}`}
+        canonicalUrl={canonical}
+        breadcrumbs={[
+          { name: 'Home', url: 'https://aiwholesail.com' },
+          { name: 'Comparisons', url: 'https://aiwholesail.com/reviews' },
+          { name: `AIWholesail vs ${comp.name}`, url: canonical },
+        ]}
       />
+
+      <Helmet>
+        <script type="application/ld+json">{JSON.stringify(aiwAppJsonLd)}</script>
+        <script type="application/ld+json">{JSON.stringify(reviewJsonLd)}</script>
+        {faqJsonLd && <script type="application/ld+json">{JSON.stringify(faqJsonLd)}</script>}
+        <meta name="last-modified" content={LAST_UPDATED} />
+        <meta property="article:modified_time" content={LAST_UPDATED} />
+      </Helmet>
 
       {/* ===== HERO ===== */}
       <section className="relative bg-gradient-to-b from-[#0a0a0a] via-[#0f0f0f] to-[#0a0a0a] text-white overflow-hidden">
@@ -85,8 +159,91 @@ export default function ComparisonPage() {
           <p className="text-lg md:text-xl text-white/50 max-w-2xl mx-auto leading-relaxed font-light">
             {comp.name}: {comp.tagline}. See how AIWholesail delivers more features, AI-powered analysis, and a lower price point.
           </p>
+          <p className="mt-6 inline-flex items-center gap-2 text-xs text-white/40">
+            <Calendar className="h-3 w-3" /> Last updated <time dateTime={LAST_UPDATED}>{LAST_UPDATED}</time>
+          </p>
         </div>
       </section>
+
+      {/* ===== AI-EXTRACTABLE ANSWER BLOCK ===== */}
+      {comp.summary && (
+        <section className="py-10 px-4">
+          <div className="container mx-auto max-w-4xl">
+            <div className="border border-white/[0.05] bg-gradient-to-b from-neutral-900/50 to-transparent rounded-xl p-6 md:p-8">
+              <h2 className="text-sm font-semibold tracking-[0.15em] uppercase text-cyan-400 mb-3">
+                AIWholesail vs {comp.name} — at a glance
+              </h2>
+              <p className="text-base md:text-lg text-white/80 font-light leading-relaxed">
+                {comp.summary}
+              </p>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ===== VERDICT / WHO IT'S FOR ===== */}
+      {(comp.verdict || comp.idealFor) && (
+        <section className="py-10 px-4">
+          <div className="container mx-auto max-w-4xl">
+            <div className="grid md:grid-cols-2 gap-4">
+              {comp.idealFor && (
+                <div className="border border-white/[0.05] bg-gradient-to-b from-neutral-900/50 to-transparent rounded-xl p-6">
+                  <div className="flex items-center gap-2 mb-3">
+                    <ThumbsUp className="h-4 w-4 text-emerald-500" />
+                    <p className="text-xs font-semibold tracking-[0.15em] uppercase text-emerald-400">
+                      Pick {comp.name} if…
+                    </p>
+                  </div>
+                  <p className="text-sm md:text-base text-white/80 font-light leading-relaxed">
+                    {comp.idealFor}
+                  </p>
+                </div>
+              )}
+              {comp.notIdealFor && (
+                <div className="border border-white/[0.05] bg-gradient-to-b from-neutral-900/50 to-transparent rounded-xl p-6">
+                  <div className="flex items-center gap-2 mb-3">
+                    <ThumbsDown className="h-4 w-4 text-cyan-400" />
+                    <p className="text-xs font-semibold tracking-[0.15em] uppercase text-cyan-400">
+                      Pick AIWholesail if…
+                    </p>
+                  </div>
+                  <p className="text-sm md:text-base text-white/80 font-light leading-relaxed">
+                    {comp.notIdealFor}
+                  </p>
+                </div>
+              )}
+            </div>
+            {comp.verdict && (
+              <p className="mt-6 text-center text-base md:text-lg text-white/70 font-light leading-relaxed max-w-3xl mx-auto">
+                <span className="text-cyan-400 font-medium">Verdict:</span> {comp.verdict}
+              </p>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* ===== WHERE COMPETITOR WINS (balanced) ===== */}
+      {comp.strengths && comp.strengths.length > 0 && (
+        <section className="py-12 px-4">
+          <div className="container mx-auto max-w-4xl">
+            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-4">Where {comp.name} wins</p>
+            <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-white mb-6">
+              What {comp.name} does well.
+            </h2>
+            <p className="text-neutral-400 font-light mb-8 max-w-xl">
+              An honest comparison includes where the competition shines. Here's where {comp.name} has the edge.
+            </p>
+            <ul className="space-y-3">
+              {comp.strengths.map((s, i) => (
+                <li key={i} className="flex items-start gap-3 text-sm md:text-base text-white/80 font-light">
+                  <Check className="h-4 w-4 mt-1 text-emerald-500 flex-shrink-0" />
+                  <span>{s}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )}
 
       {/* ===== COMPARISON TABLE ===== */}
       <section className="py-16 px-4">
@@ -192,6 +349,29 @@ export default function ComparisonPage() {
           </div>
         </div>
       </section>
+
+      {/* ===== FAQ ===== */}
+      {comp.faqs && comp.faqs.length > 0 && (
+        <section className="py-16 px-4">
+          <div className="container mx-auto max-w-4xl">
+            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-4">FAQ</p>
+            <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-white mb-10">
+              Common questions about AIWholesail vs {comp.name}.
+            </h2>
+            <div className="space-y-4">
+              {comp.faqs.map((faq, i) => (
+                <div
+                  key={i}
+                  className="border border-white/[0.05] bg-gradient-to-b from-neutral-900/50 to-transparent rounded-xl p-6"
+                >
+                  <h3 className="text-base md:text-lg font-semibold text-white mb-2">{faq.q}</h3>
+                  <p className="text-sm md:text-base text-white/70 font-light leading-relaxed">{faq.a}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ===== INTERNAL LINKS ===== */}
       <section className="py-12 px-4">
