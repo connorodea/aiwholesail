@@ -332,14 +332,19 @@ router.post('/campaign/:id/response', authenticate, [
 
   const { responseContent } = req.body;
 
+  // Tenant scope via lead_id → leads.user_id. campaign_history has no direct
+  // user_id column; the JOIN through leads is the authoritative ownership check.
+  // Without this, any authenticated user could mark any campaign row as having
+  // received a response by guessing its UUID.
   const result = await query(
     `UPDATE campaign_history
      SET response_received = true,
          response_content = $1,
          response_date = NOW()
      WHERE id = $2
+       AND lead_id IN (SELECT id FROM leads WHERE user_id = $3)
      RETURNING *`,
-    [responseContent, req.params.id]
+    [responseContent, req.params.id, req.user.id]
   );
 
   if (result.rows.length === 0) {
