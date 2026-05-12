@@ -7,6 +7,7 @@ const { asyncHandler } = require('../middleware/errorHandler');
 const { checkDatabaseRateLimit } = require('../middleware/rateLimit');
 const { attachSubscription, checkSearchLimit } = require('../middleware/subscription');
 const { logEvent, EVENTS } = require('../lib/events');
+const { mapCachedRowToProperty, validateZpid } = require('../lib/property-mapper');
 
 const router = express.Router();
 const RAPIDAPI_KEY = process.env.RAPIDAPI_KEY;
@@ -445,9 +446,9 @@ router.post('/photos', optionalAuth, asyncHandler(async (req, res) => {
  * Returns Property-shape JSON ready for setSelectedProperty().
  */
 router.get('/by-zpid', authenticate, asyncHandler(async (req, res) => {
-  const { zpid } = req.query;
-  if (!zpid || typeof zpid !== 'string') {
-    return res.status(400).json({ error: 'zpid query param required' });
+  const safeZpid = validateZpid(req.query.zpid);
+  if (!safeZpid) {
+    return res.status(400).json({ error: 'zpid query param required (digits only, 1-20 chars)' });
   }
 
   const result = await query(
@@ -457,30 +458,14 @@ router.get('/by-zpid', authenticate, asyncHandler(async (req, res) => {
      WHERE zpid = $1
      ORDER BY last_seen_at DESC NULLS LAST
      LIMIT 1`,
-    [zpid]
+    [safeZpid]
   );
 
   if (result.rows.length === 0) {
-    return res.status(404).json({ error: 'Property not in cache', zpid });
+    return res.status(404).json({ error: 'Property not in cache', zpid: safeZpid });
   }
 
-  const r = result.rows[0];
-  const property = {
-    id: r.zpid,
-    zpid: r.zpid,
-    address: r.address || '',
-    price: Number(r.price) || 0,
-    zestimate: r.zestimate != null ? Number(r.zestimate) : undefined,
-    bedrooms: r.bedrooms ?? undefined,
-    bathrooms: r.bathrooms != null ? Number(r.bathrooms) : undefined,
-    sqft: r.sqft ?? undefined,
-    propertyType: r.property_type || undefined,
-    daysOnMarket: r.days_on_market ?? undefined,
-    status: 'forSale',
-    images: r.image_url ? [r.image_url] : [],
-  };
-
-  res.json({ property });
+  res.json({ property: mapCachedRowToProperty(result.rows[0]) });
 }));
 
 module.exports = router;
