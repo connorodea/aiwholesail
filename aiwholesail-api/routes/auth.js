@@ -8,6 +8,7 @@ const { authenticate, generateAccessToken, generateRefreshToken, verifyRefreshTo
 const { asyncHandler, AppError, logSecurityEvent } = require('../middleware/errorHandler');
 const { checkDatabaseRateLimit } = require('../middleware/rateLimit');
 const { getClient } = require('../config/database');
+const { clientIp } = require('../lib/clientIp');
 
 const { Resend } = require('resend');
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -598,6 +599,24 @@ router.post('/signin', [
 
   const { email, password } = req.body;
   const normalizedEmail = email.toLowerCase().trim();
+
+  // Throttle BEFORE the user lookup so we don't expose a timing oracle (lookup
+  // latency varies with row hit/miss). Two complementary windows:
+  //  - per-IP   (20 / 15min): protects against a single attacker spraying many emails
+  //  - per-email (10 / 15min): protects against credential stuffing across many IPs
+  // If either trips we 429 and surface Retry-After so well-behaved clients back off.
+  const ip = clientIp(req);
+  const ipLimit = await checkDatabaseRateLimit(ip, 'signin-ip', 20, 15);
+  const emailLimit = await checkDatabaseRateLimit(normalizedEmail, 'signin-email', 10, 15);
+  if (!ipLimit.allowed || !emailLimit.allowed) {
+    await logSecurityEvent('signin_rate_limit_exceeded', {
+      email: normalizedEmail.substring(0, 3) + '***',
+      ip_throttled: !ipLimit.allowed,
+      email_throttled: !emailLimit.allowed,
+    }, null, req);
+    res.set('Retry-After', '900');
+    return res.status(429).json({ error: 'Too many sign-in attempts. Try again in 15 minutes.' });
+  }
 
   // Find user
   const result = await query(
