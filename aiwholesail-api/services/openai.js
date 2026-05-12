@@ -215,11 +215,21 @@ PROVIDE:
 
 Format your response in clear sections with numbers and percentages.`;
 
+// Append the prompt-injection guardrail to every prompt that ingests
+// user-supplied data via <user_data> tags. Centralizing it here means the
+// guardrail is identical across all callers and only updated in one place.
+const { INJECTION_GUARDRAIL } = require('../lib/llm-prompt-safety');
+const PROPERTY_ANALYSIS_PROMPT_SAFE  = PROPERTY_ANALYSIS_PROMPT  + INJECTION_GUARDRAIL;
+const LEAD_SCORING_PROMPT_SAFE       = LEAD_SCORING_PROMPT       + INJECTION_GUARDRAIL;
+const WHOLESALE_ANALYSIS_PROMPT_SAFE = WHOLESALE_ANALYSIS_PROMPT + INJECTION_GUARDRAIL;
+
 module.exports = {
   callClaude,
   callClaudeWithTools,
   callOpenAI,
-  PROPERTY_ANALYSIS_PROMPT,
-  LEAD_SCORING_PROMPT,
-  WHOLESALE_ANALYSIS_PROMPT
+  // Original (kept exported for backward compat with any existing import);
+  // new code should use the _SAFE variants which carry the guardrail.
+  PROPERTY_ANALYSIS_PROMPT:  PROPERTY_ANALYSIS_PROMPT_SAFE,
+  LEAD_SCORING_PROMPT:       LEAD_SCORING_PROMPT_SAFE,
+  WHOLESALE_ANALYSIS_PROMPT: WHOLESALE_ANALYSIS_PROMPT_SAFE,
 };
