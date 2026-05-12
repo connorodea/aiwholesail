@@ -377,19 +377,29 @@ export class ZillowAPI {
                 flattened.listDate ||
                 flattened.onMarketDate,
       isFSBO,
-      // Agent/Listing information
+      // Agent/Listing information. Zillow returns these under many
+      // shapes — older `property_listing_*`, newer `attributionInfo*`,
+      // and the search-response top-level `listingAgent.*` and
+      // `agent.*` nested keys. We try them all so search-list cards
+      // pick up agent data when Zillow includes it inline (saves the
+      // per-property detail fetch when search already has it).
       agentName: flattened.property_listing_agentName ||
                  flattened.property_attributionInfo_agentName ||
-                 flattened.agentName ||
-                 flattened.agent_name,
+                 flattened.attributionInfo_agentName ||
+                 flattened.listingAgent_name ||
+                 flattened.agent_name ||
+                 flattened.agentName,
       agentPhone: flattened.property_listing_agentPhoneNumber ||
                   flattened.property_attributionInfo_agentPhoneNumber ||
-                  flattened.agentPhone ||
-                  flattened.agent_phone,
+                  flattened.attributionInfo_agentPhoneNumber ||
+                  flattened.listingAgent_phone ||
+                  flattened.agent_phone ||
+                  flattened.agentPhone,
       agentEmail: flattened.property_listing_agentEmail ||
                   flattened.property_attributionInfo_agentEmail ||
-                  flattened.agentEmail ||
-                  flattened.agent_email,
+                  flattened.attributionInfo_agentEmail ||
+                  flattened.agent_email ||
+                  flattened.agentEmail,
       agentLicenseNumber: flattened.property_listing_agentLicenseNumber ||
                           flattened.property_attributionInfo_agentLicenseNumber ||
                           flattened.agentLicenseNumber,

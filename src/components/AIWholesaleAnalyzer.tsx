@@ -173,6 +173,67 @@ export function AIWholesaleAnalyzer({ properties, market }: AIWholesaleAnalyzerP
         return;
       }
 
+      // Lazy-enrich on-market candidates with listing-agent data. Zillow's
+      // search endpoint omits agent fields; only the per-property detail
+      // endpoint returns them. Without this, Claude has no agent contact to
+      // surface in deal recommendations / call scripts. We only fetch when
+      // the property already lacks agent data and only for on-market rows
+      // (off-market owner info comes from PropData).
+      const needsEnrichment = highSpreadProperties.filter(
+        (p) => p.source === 'on-market' && !p.agent?.name
+      );
+      if (needsEnrichment.length > 0) {
+        try {
+          const { zillowAPI } = await import('@/lib/zillow-api');
+          const enrichedById = new Map<string, { name?: string; phone?: string; email?: string; brokerage?: string }>();
+          let done = 0;
+          const concurrency = Math.min(4, needsEnrichment.length);
+          let cursor = 0;
+          const workers = Array.from({ length: concurrency }, async () => {
+            while (cursor < needsEnrichment.length) {
+              const i = cursor++;
+              const p = needsEnrichment[i];
+              try {
+                const details = await zillowAPI.getPropertyDetails(p.id);
+                const attr = (details?.attributionInfo ?? {}) as Record<string, unknown>;
+                const la = (details?.listingAgent ?? {}) as Record<string, unknown>;
+                enrichedById.set(p.id, {
+                  name: (attr.agentName as string) || (la.name as string),
+                  phone: (attr.agentPhoneNumber as string) || (la.phone as string),
+                  email: (attr.agentEmail as string) || undefined,
+                  brokerage: (attr.brokerageName as string) || (la.brokerage as string),
+                });
+              } catch {
+                // Swallow — one missed enrichment shouldn't block the batch
+              }
+              done++;
+            }
+          });
+          await Promise.all(workers);
+          // Merge back into the highSpreadProperties array in place — only
+          // fill blank fields, don't clobber any prior data.
+          for (let i = 0; i < highSpreadProperties.length; i++) {
+            const p = highSpreadProperties[i];
+            const extra = enrichedById.get(p.id);
+            if (!extra) continue;
+            const cur = p.agent ?? {};
+            highSpreadProperties[i] = {
+              ...p,
+              agent: {
+                name: cur.name || extra.name,
+                phone: cur.phone || extra.phone,
+                email: cur.email || extra.email,
+                brokerage: cur.brokerage || extra.brokerage,
+              },
+            };
+          }
+          console.log(`[AIWholesaleAnalyzer] Enriched ${enrichedById.size}/${needsEnrichment.length} candidates with agent data`);
+        } catch (err) {
+          // Enrichment failure shouldn't block the analysis — log and continue
+          console.warn('[AIWholesaleAnalyzer] Agent enrichment failed:', err);
+        }
+      }
+
       // Convert each UnifiedProperty to the flat CSV row shape Claude expects.
       // On-market: list_price + zestimate drive spread + MAO.
       // Off-market: market_value substitutes for both — Claude computes ARV
