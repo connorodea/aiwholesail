@@ -569,13 +569,19 @@ async function run() {
           [alert.id]
         );
 
-        // Log match
+        // Log match.
+        // property_id is NOT NULL on the underlying table (migration 001) and
+        // serves as the durable per-property key. We use the Zillow zpid as
+        // the canonical id — same value the worker already stores in
+        // alert_sent_deals. Prior insert omitted this column, causing every
+        // match row to fail with a not-null constraint violation (the email
+        // still went out, but the audit trail was silently dropped).
         for (const deal of deals.rows) {
           await pool.query(`
-            INSERT INTO property_alert_matches (alert_id, property_data, matched_at, sms_sent, email_sent)
-            VALUES ($1, $2, NOW(), $3, $4)
+            INSERT INTO property_alert_matches (alert_id, property_id, zpid, property_data, matched_at, sms_sent, email_sent)
+            VALUES ($1, $2, $3, $4, NOW(), $5, $6)
             ON CONFLICT DO NOTHING
-          `, [alert.id, JSON.stringify(deal), smsSent, emailSent]);
+          `, [alert.id, String(deal.zpid), deal.zpid, JSON.stringify(deal), smsSent, emailSent]);
         }
 
         // Webhook dispatch (Pro/Elite feature) — fire-and-forget.
