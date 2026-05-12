@@ -52,9 +52,23 @@ const attachSubscription = async (req, res, next) => {
 
     // Check if subscription has expired
     if (sub.subscription_end && new Date(sub.subscription_end) < new Date()) {
-      // Downgrade in database so stale data is corrected
+      // CRITICAL: do NOT wipe subscription_tier here.
+      //
+      // At signup auth.js sets subscription_end = trial_end (same 7-day
+      // timestamp). So when a trial expires, this branch fires for every
+      // trialer. If we wipe tier=NULL we lose the "last plan was Pro"
+      // breadcrumb the UI uses for upgrade nudges, AND we nuke manually
+      // granted Elite overrides whose subscription_end happens to be in
+      // the past.
+      //
+      // Setting subscribed=false + is_trial=false is enough to gate
+      // access downstream (req.subscription = TIERS.NONE below).
+      //
+      // Real incident behind this fix: 20 users had subscription_tier
+      // wiped via this path after their 7-day trial expired, contributing
+      // to the 69 signups / 0 paying funnel collapse.
       query(
-        `UPDATE subscribers SET subscribed = false, subscription_tier = NULL, is_trial = false, updated_at = NOW() WHERE user_id = $1 AND subscribed = true`,
+        `UPDATE subscribers SET subscribed = false, is_trial = false, updated_at = NOW() WHERE user_id = $1 AND subscribed = true`,
         [req.user.id]
       ).catch(err => console.error('[Subscription] Failed to downgrade expired subscription:', err));
       req.subscription = { tier: TIERS.NONE, searchesUsed: 0 };
