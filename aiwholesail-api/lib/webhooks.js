@@ -23,6 +23,7 @@
 
 const crypto = require('crypto');
 const { query } = require('../config/database');
+const { validateWebhookUrl } = require('./url-safety');
 
 // Canonical event-type vocabulary. Routes use these constants so we don't
 // have stringly-typed event names scattered around the codebase.
@@ -71,6 +72,39 @@ async function deliver(endpoint, eventType, payload, attempt = 1) {
   let status = 0;
   let responseBody = '';
   let ok = false;
+
+  // Defense-in-depth: re-validate the target URL at delivery time. Catches:
+  //   (a) endpoints created before this guard landed that point at private IPs
+  //   (b) DNS rebinding — hostname public at create, private at delivery
+  // Treat a block as terminal (status='abandoned', no retry) so an attacker
+  // can't get us to keep poking an internal target.
+  const safetyErr = await validateWebhookUrl(endpoint.url, {
+    allowHttp: process.env.NODE_ENV !== 'production',
+  });
+  if (safetyErr) {
+    const durationMs = Date.now() - started;
+    await query(
+      `INSERT INTO webhook_deliveries
+         (endpoint_id, event_type, payload, attempt, response_status,
+          response_body_truncated, duration_ms, status, next_retry_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, 'abandoned', NULL)`,
+      [endpoint.id, eventType, payload, attempt, 0,
+       `url_blocked: ${safetyErr}`.slice(0, 500), durationMs]
+    ).catch((dbErr) => {
+      console.error(`[webhooks] failed to record url-block: ${dbErr.message}`);
+    });
+    await query(
+      `UPDATE webhook_endpoints
+         SET last_failure_at = NOW(),
+             consecutive_failures = consecutive_failures + 1,
+             active = CASE WHEN consecutive_failures + 1 >= $2 THEN false ELSE active END,
+             updated_at = NOW()
+       WHERE id = $1`,
+      [endpoint.id, AUTODISABLE_THRESHOLD]
+    ).catch(() => {});
+    return { ok: false, status: 0, durationMs, blocked: true, reason: safetyErr };
+  }
+
   try {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
