@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { lazy, Suspense, useMemo, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -216,6 +216,14 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
   const [bulkRunning, setBulkRunning] = useState(false);
   const [bulkProgress, setBulkProgress] = useState<{ done: number; total: number } | null>(null);
+  // Phase 7 — off-market heatmap. Flag-gated. The Leaflet bundle is loaded
+  // lazily so users without the flag never download ~80KB of map code.
+  const { enabled: heatmapEnabled } = useFeatureFlag('off-market-heatmap');
+  const [view, setView] = useState<'list' | 'map'>('list');
+  const HeatmapLazy = useMemo(
+    () => lazy(() => import('@/components/OffMarketHeatmap').then(m => ({ default: m.OffMarketHeatmap }))),
+    []
+  );
 
   const filtered = useMemo(() => {
     const props = data?.properties || [];
@@ -822,8 +830,43 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
                 <Mail className="h-4 w-4 mr-2" />
                 Mailing labels
               </Button>
+              {/* Phase 7 — heatmap view toggle. Flag-gated; lazy-loads
+                  Leaflet + react-leaflet + leaflet.heat in its own chunk
+                  so users without the flag never download the map deps. */}
+              {heatmapEnabled && (
+                <div className="inline-flex rounded-md border border-zinc-700 overflow-hidden h-9" role="group" aria-label="Results view">
+                  <button
+                    type="button"
+                    onClick={() => setView('list')}
+                    className={`px-3 text-xs font-medium ${view === 'list' ? 'bg-zinc-800 text-zinc-100' : 'bg-transparent text-zinc-400 hover:text-zinc-200'}`}
+                  >
+                    List
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setView('map')}
+                    className={`px-3 text-xs font-medium border-l border-zinc-700 ${view === 'map' ? 'bg-zinc-800 text-zinc-100' : 'bg-transparent text-zinc-400 hover:text-zinc-200'}`}
+                  >
+                    Map
+                  </button>
+                </div>
+              )}
             </div>
           </div>
+
+          {/* Phase 7 heatmap mounted only when flag is on AND user toggled to map.
+              React.lazy ensures the bundle isn't pulled until first render. */}
+          {heatmapEnabled && view === 'map' && (
+            <Suspense
+              fallback={
+                <div className="flex items-center justify-center h-96 bg-zinc-900/40 border border-zinc-800 rounded-lg text-zinc-400 text-sm">
+                  Loading map…
+                </div>
+              }
+            >
+              <HeatmapLazy records={filtered} />
+            </Suspense>
+          )}
 
           {/* Phase 3 bulk-action toolbar — sticky-feeling. Only renders
               when the bulk-skip-trace flag is enabled AND at least one
@@ -885,7 +928,7 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
             </Card>
           )}
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div className={`grid grid-cols-1 lg:grid-cols-2 gap-4 ${heatmapEnabled && view === 'map' ? 'hidden' : ''}`}>
             {filtered.map((rec, idx) => {
               const equityPct = rec.equity?.equity_pct;
               const highEquity = (equityPct ?? 0) >= 60;
