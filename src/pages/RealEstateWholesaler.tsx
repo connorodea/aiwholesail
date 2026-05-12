@@ -7,6 +7,7 @@ import { PropertyModal } from '@/components/PropertyModal';
 import { Property, PropertySearchParams } from '@/types/zillow';
 import { zillowAPI } from '@/lib/zillow-api';
 import { sortPropertiesByWholesalePotential } from '@/lib/wholesale-calculator';
+import { applyPreEnrichmentToggles } from '@/lib/property-filters';
 import { scoreAllProperties, filterMotivatedSellers, MIN_MOTIVATED_SCORE } from '@/lib/motivated-seller-score';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -289,9 +290,28 @@ export default function RealEstateWholesaler() {
         });
       }
 
-      // Apply FSBO filter
-      if (params.fsboOnly && results.length === 0) {
-        setError("No FSBO properties found. Try a different location.");
+      // Apply on-market toggle filters (Hide Auction, Hide Foreclosure,
+      // FSBO Only). Each of these used to update state but never narrow the
+      // result set — the toggle was a no-op. Centralised in property-filters.
+      const beforeToggles = results.length;
+      results = applyPreEnrichmentToggles(results, params);
+      const afterToggles = results.length;
+      if (afterToggles < beforeToggles) {
+        console.log(`[Search] Toggle filters: ${beforeToggles} → ${afterToggles}`, {
+          auctionOnly: params.auctionOnly,
+          hideForeclosures: params.hideForeclosures,
+          fsboOnly: params.fsboOnly,
+        });
+      }
+
+      if (results.length === 0) {
+        if (params.fsboOnly) {
+          setError('No FSBO properties found. Try a different location or turn off the FSBO toggle.');
+        } else if (params.auctionOnly || params.hideForeclosures) {
+          setError('No properties match the active filters. Try turning some off.');
+        } else {
+          setError('No properties found. Try adjusting your search criteria.');
+        }
         return;
       }
 
@@ -793,28 +813,22 @@ export default function RealEstateWholesaler() {
                       case 'oldest':
                         return (b.daysOnMarket || 0) - (a.daysOnMarket || 0);
                       default:
-                        // Default sorting: highest spreads first, prioritizing High-Value Wholesale Deals
-                        const getSpread = (property: any) => {
-                          if (!property.price || !property.zestimate) return -Infinity;
-                          return property.zestimate - property.price;
-                        };
-                        
-                        const getIsHighValue = (property: any) => {
-                          const spread = getSpread(property);
-                          return spread >= 30000;
-                        };
-                        
-                        const aSpread = getSpread(a);
-                        const bSpread = getSpread(b);
-                        const aIsHighValue = getIsHighValue(a);
-                        const bIsHighValue = getIsHighValue(b);
-                        
-                        // First, prioritize High-Value Wholesale Deals
-                        if (aIsHighValue && !bIsHighValue) return -1;
-                        if (!aIsHighValue && bIsHighValue) return 1;
-                        
-                        // Then sort by spread (highest to lowest)
-                        return bSpread - aSpread;
+                        // Default sort: rely on state's pre-sort from
+                        // sortPropertiesByWholesalePotential (qualified deals
+                        // first, then by spread descending). Re-running a
+                        // different inline comparator here used to produce
+                        // an undefined order whenever two properties both
+                        // lacked a zestimate (the old code used -Infinity
+                        // sentinels, and `-Infinity - -Infinity = NaN` is an
+                        // invalid comparator return — V8's sort then produced
+                        // garbled order across unrelated comparisons too,
+                        // which is why high-spread properties looked "mixed
+                        // in" with no-zestimate ones).
+                        //
+                        // The state IS already sorted; preserve it by
+                        // returning 0 here. Non-default sort cases (price /
+                        // newest / oldest) still apply below.
+                        return 0;
                     }
                   }).map((property, index) => {
                     const isCompareSelected = compareSelected.some((p) => p.id === property.id);
