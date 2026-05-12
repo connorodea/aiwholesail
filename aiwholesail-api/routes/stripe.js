@@ -20,42 +20,10 @@ const requireStripe = (req, res, next) => {
   next();
 };
 
-/**
- * Resolve canonical tier ('Elite' | 'Pro') from a Stripe Price object.
- *
- * Priority order — first match wins:
- *  1. `price.metadata.tier`            — set in the Stripe dashboard / API. Wins
- *                                         outright. Supports founder / annual /
- *                                         comped Elite pricing under $99.
- *  2. `price.lookup_key`               — convention: starts with 'elite' or 'pro'.
- *  3. `price.unit_amount` thresholds   — legacy fallback. $99+ → Elite, $29+ → Pro.
- *
- * Returns 'Pro' when no signal indicates Elite. This is the canonical writer for
- * the `subscribers.subscription_tier` column and is shared by both the on-demand
- * GET /subscription path AND the webhook reconciler so the two never disagree.
- */
-function resolveTierFromPrice(price) {
-  if (!price) return 'Pro';
-
-  // 1. Explicit metadata wins.
-  const metaTier = typeof price.metadata?.tier === 'string'
-    ? price.metadata.tier.trim().toLowerCase()
-    : '';
-  if (metaTier === 'elite' || metaTier === 'premium') return 'Elite';
-  if (metaTier === 'pro') return 'Pro';
-
-  // 2. Lookup key convention.
-  const lookupKey = typeof price.lookup_key === 'string'
-    ? price.lookup_key.trim().toLowerCase()
-    : '';
-  if (lookupKey.startsWith('elite')) return 'Elite';
-  if (lookupKey.startsWith('pro')) return 'Pro';
-
-  // 3. Legacy unit_amount fallback. Cents, monthly billing cycle.
-  const amount = Number(price.unit_amount) || 0;
-  if (amount >= 9900) return 'Elite';
-  return 'Pro';
-}
+// Shared with middleware/subscription.js so on-demand fetch and webhook
+// reconciler never disagree on tier. See aiwholesail-api/lib/subscriptionTier.js
+// for the resolver + the bugs it defends against.
+const { resolveTierFromPrice } = require('../lib/subscriptionTier');
 
 /**
  * POST /api/stripe/checkout

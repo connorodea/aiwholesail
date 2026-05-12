@@ -41,6 +41,15 @@ jobs:
       - name: Typecheck
         run: npx tsc --noEmit -p tsconfig.app.json
 
+      - name: API unit tests (subscription tier resolution)
+        run: |
+          cd aiwholesail-api
+          # No deps required — uses Node's built-in test runner. Covers the
+          # Stripe price resolver + tier-string normalizer that gate Elite
+          # access. Reproduces bugs #4 and #5 with side-by-side comparison
+          # against the pre-fix logic.
+          node --test tests/*.test.js
+
       # Build with the correct API URL based on target branch
       - name: Build (staging)
         if: github.ref == 'refs/heads/staging' || (github.event_name == 'pull_request' && github.base_ref == 'staging')
