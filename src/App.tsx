@@ -47,6 +47,7 @@ const GuidePage = lazy(() => import("./pages/GuidePage"));
 const Analyzer = lazy(() => import("./pages/Analyzer"));
 const Favorites = lazy(() => import("./pages/Favorites"));
 const Alerts = lazy(() => import("./pages/Alerts"));
+const AdminFlags = lazy(() => import("./pages/AdminFlags"));
 const Pipeline = lazy(() => import("./pages/Pipeline"));
 const Buyers = lazy(() => import("./pages/Buyers"));
 const Sequences = lazy(() => import("./pages/Sequences"));
@@ -147,6 +148,11 @@ const App = () => (
                 {/* /app/off-market is the legacy route. Now redirects into
                     the unified search on /app with mode=off-market preset. */}
                 <Route path="/app/off-market" element={<Navigate to="/app?mode=off-market" replace />} />
+                <Route path="/admin/flags" element={
+                  <ProtectedRoute>
+                    <AdminFlags />
+                  </ProtectedRoute>
+                } />
                 <Route path="/app/analyzer" element={
                   <ProtectedRoute>
                     <Analyzer />
