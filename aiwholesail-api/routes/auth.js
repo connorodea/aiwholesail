@@ -198,7 +198,7 @@ router.post('/signup', [
 
               <!-- Logo header -->
               <tr><td style="padding: 28px 32px 20px; border-bottom: 1px solid #1a1a1a;">
-                <img src="https://aiwholesail.com/logo-white.png" alt="AIWholesail" height="32" style="height: 32px; width: auto; display: block;" />
+                <img src="https://aiwholesail.com/logo-aiw-email.png" alt="AIWholesail" height="32" style="height: 32px; width: auto; display: block;" />
               </td></tr>
 
               <!-- Gradient accent bar -->
@@ -336,7 +336,7 @@ router.post('/signup', [
 
               <!-- Logo header -->
               <tr><td style="padding: 28px 32px 20px; border-bottom: 1px solid #1a1a1a;">
-                <img src="https://aiwholesail.com/logo-white.png" alt="AIWholesail" height="32" style="height: 32px; width: auto; display: block;" />
+                <img src="https://aiwholesail.com/logo-aiw-email.png" alt="AIWholesail" height="32" style="height: 32px; width: auto; display: block;" />
               </td></tr>
 
               <!-- Gradient accent bar -->
@@ -750,7 +750,7 @@ router.post('/forgot-password', [
 
               <!-- Logo header -->
               <tr><td style="padding: 28px 32px 20px; border-bottom: 1px solid #1a1a1a;">
-                <img src="https://aiwholesail.com/logo-white.png" alt="AIWholesail" height="32" style="height: 32px; width: auto; display: block;" />
+                <img src="https://aiwholesail.com/logo-aiw-email.png" alt="AIWholesail" height="32" style="height: 32px; width: auto; display: block;" />
               </td></tr>
 
               <!-- Content -->
