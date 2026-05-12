@@ -84,9 +84,18 @@ const MILESTONES = [
     // No upgrade CTA — render only takes the user object
     skipUpgradeUrl: true,
   },
+  // Previously the windows were tight 2h slices keyed to the worker's
+  // hourly cadence. If the worker missed a scan or a user's trial_end fell
+  // outside the 2h slice for any reason (clock drift, DB hiccup, server
+  // restart), they were silently skipped FOREVER for that milestone.
+  //
+  // The dedup via LEFT JOIN trial_lifecycle_emails_sent (e.id IS NULL)
+  // already guarantees one email per user per milestone — widening the
+  // windows is strictly safer. We now catch every eligible user at the
+  // next scan instead of relying on perfect cadence alignment.
   {
     type: 'day_minus_1',
-    description: 'Trial ends in ~24 hours',
+    description: 'Trial ends within next 25 hours, no day_minus_1 sent yet',
     sql: `
       SELECT u.id AS user_id, u.email, u.full_name, s.trial_end
       FROM users u
@@ -94,35 +103,36 @@ const MILESTONES = [
       LEFT JOIN trial_lifecycle_emails_sent e
         ON e.user_id = u.id AND e.email_type = 'day_minus_1'
       WHERE s.is_trial = true
-        AND s.trial_end BETWEEN NOW() + INTERVAL '23 hours' AND NOW() + INTERVAL '25 hours'
+        AND s.trial_end > NOW()
+        AND s.trial_end <= NOW() + INTERVAL '25 hours'
         AND e.id IS NULL
     `,
     render: renderDayMinus1,
   },
   {
     type: 'day_zero',
-    description: 'Trial just ended (within last hour)',
+    description: 'Trial ended within last 24 hours, no day_zero sent yet',
     sql: `
       SELECT u.id AS user_id, u.email, u.full_name, s.trial_end
       FROM users u
       JOIN subscribers s ON s.user_id = u.id
       LEFT JOIN trial_lifecycle_emails_sent e
         ON e.user_id = u.id AND e.email_type = 'day_zero'
-      WHERE s.trial_end BETWEEN NOW() - INTERVAL '1 hour' AND NOW() + INTERVAL '5 minutes'
+      WHERE s.trial_end BETWEEN NOW() - INTERVAL '24 hours' AND NOW() + INTERVAL '5 minutes'
         AND e.id IS NULL
     `,
     render: renderDayZero,
   },
   {
     type: 'day_plus_1',
-    description: '1 day after trial ended',
+    description: 'Trial ended 1-7 days ago, unconverted, no day_plus_1 sent',
     sql: `
       SELECT u.id AS user_id, u.email, u.full_name, s.trial_end
       FROM users u
       JOIN subscribers s ON s.user_id = u.id
       LEFT JOIN trial_lifecycle_emails_sent e
         ON e.user_id = u.id AND e.email_type = 'day_plus_1'
-      WHERE s.trial_end BETWEEN NOW() - INTERVAL '25 hours' AND NOW() - INTERVAL '23 hours'
+      WHERE s.trial_end BETWEEN NOW() - INTERVAL '7 days' AND NOW() - INTERVAL '23 hours'
         AND e.id IS NULL
         AND s.subscribed = false
     `,
@@ -130,14 +140,14 @@ const MILESTONES = [
   },
   {
     type: 'day_plus_7',
-    description: '7 days after trial ended',
+    description: 'Trial ended 7-14 days ago, unconverted, no day_plus_7 sent',
     sql: `
       SELECT u.id AS user_id, u.email, u.full_name, s.trial_end
       FROM users u
       JOIN subscribers s ON s.user_id = u.id
       LEFT JOIN trial_lifecycle_emails_sent e
         ON e.user_id = u.id AND e.email_type = 'day_plus_7'
-      WHERE s.trial_end BETWEEN NOW() - INTERVAL '7 days 1 hour' AND NOW() - INTERVAL '6 days 23 hours'
+      WHERE s.trial_end BETWEEN NOW() - INTERVAL '14 days' AND NOW() - INTERVAL '6 days 23 hours'
         AND e.id IS NULL
         AND s.subscribed = false
     `,
