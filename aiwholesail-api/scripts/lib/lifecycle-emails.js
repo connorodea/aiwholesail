@@ -10,7 +10,7 @@
  * table-based layout for Outlook compatibility).
  */
 
-const LOGO_URL = 'https://aiwholesail.com/logo-white.png';
+const LOGO_URL = 'https://aiwholesail.com/logo-aiw-email.png';
 const FOOTER_YEAR = new Date().getFullYear();
 const FOUNDER_EMAIL = 'connor@aiwholesail.com';
 const FOUNDER_PHONE = '248-881-4147';
@@ -47,8 +47,8 @@ function founderSignature() {
 
 function shell({ headline, intro, body, cta, ctaUrl, footer }) {
   return `<!DOCTYPE html>
-<html><body style="margin:0;padding:0;background:#000">
-<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#000;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif">
+<html><head><style>@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap');</style></head><body style="margin:0;padding:0;background:#000">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#000;font-family:'Montserrat',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif">
   <tr><td align="center" style="padding:40px 20px">
     <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;background:#0a0a0b;border-radius:12px;overflow:hidden;border:1px solid #1a1a1a">
       <tr><td style="padding:28px 32px 20px;border-bottom:1px solid #1a1a1a">
@@ -123,8 +123,8 @@ function renderFounderWelcome(user) {
   return {
     subject: `${first}, a quick note from Connor (founder of AIWholesail)`,
     html: `<!DOCTYPE html>
-<html><body style="margin:0;padding:0;background:#000">
-<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#000;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif">
+<html><head><style>@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap');</style></head><body style="margin:0;padding:0;background:#000">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#000;font-family:'Montserrat',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif">
   <tr><td align="center" style="padding:40px 20px">
     <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;background:#0a0a0b;border-radius:12px;overflow:hidden;border:1px solid #1a1a1a">
       <tr><td style="padding:28px 32px 20px;border-bottom:1px solid #1a1a1a">
