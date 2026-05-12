@@ -43,9 +43,11 @@ function cacheSet(key, body) {
   cache.set(key, { body, expiresAt: Date.now() + CACHE_TTL_MS });
 }
 
-// Per-user rate limit for PropData. 5 req/min protects the shared RapidAPI quota
-// from any single user spamming. Cache hits don't count.
-const RATE_LIMIT_PER_MIN = 5;
+// Per-user rate limit for PropData. Bumped from 5 → 60 after PR #183's
+// multi-location fan-out — a single state search fires up to 25 ZIPs in
+// seconds. 60/min still protects the shared RapidAPI quota (~1k/min at
+// our plan tier) from any single user spamming. Cache hits don't count.
+const RATE_LIMIT_PER_MIN = 60;
 
 async function proxy(req, res, endpoint, allowedParams) {
   if (!RAPIDAPI_KEY) {
