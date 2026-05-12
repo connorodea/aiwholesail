@@ -184,14 +184,15 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
                   <div className="space-y-2 sm:col-span-2">
                     <Label htmlFor="radius-mi" className="flex items-center gap-2">
                       <Radius className="h-4 w-4 text-primary" />
-                      Search radius (mi) <span className="text-xs text-muted-foreground font-normal">— optional, single ZIP/address only</span>
+                      Search radius
+                      <span className="text-xs text-muted-foreground font-normal ml-1">optional · single ZIP or address</span>
                     </Label>
                     <Input
                       id="radius-mi"
                       type="number"
                       min={1}
                       max={100}
-                      placeholder="e.g. 10"
+                      placeholder="e.g. 10 mi"
                       value={searchParams.radiusMi ?? ''}
                       onChange={(e) => {
                         const v = e.target.value;
@@ -200,10 +201,10 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
                           radiusMi: v === '' ? undefined : Number(v),
                         }));
                       }}
-                      className="bg-background/50 max-w-xs"
+                      className="bg-background/50 max-w-xs no-spinner"
                     />
                     <p className="text-xs text-muted-foreground">
-                      Expands a single ZIP or address into every ZIP within X miles, then searches each one.
+                      Expands to every ZIP within X miles, then searches each.
                     </p>
                   </div>
                 )}
@@ -216,8 +217,8 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
               onSelectCounty={(loc) => updateParam('location', loc)}
             />
 
-            {/* Property Type */}
-            <div className="space-y-2">
+            {/* Property Type — full width, anchors the row */}
+            <div className="space-y-2 sm:col-span-2">
               <Label className="flex items-center gap-2">
                 <Home className="h-4 w-4 text-primary" />
                 Property Type
@@ -278,149 +279,117 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
               </Select>
             </div>
 
-            {/* Price Range */}
-            <div className="space-y-2">
+            {/* Price range — paired in a single row so Max Price isn't left
+                hanging alone on the right (visual asymmetry the v1 layout
+                had). The two inputs share one label band. */}
+            <div className="space-y-2 sm:col-span-2">
               <Label className="flex items-center gap-2">
                 <DollarSign className="h-4 w-4 text-primary" />
-                Min Price
+                Price range
+                <span className="text-xs text-muted-foreground font-normal ml-1">USD</span>
               </Label>
-              <Input
-                value={searchParams.price_min || ''}
-                onChange={(e) => updateParam('price_min', e.target.value || undefined)}
-                placeholder="e.g., 100000"
-                type="number"
-                min="0"
-                max="50000000"
-                className="bg-background/50"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label className="flex items-center gap-2">
-                <DollarSign className="h-4 w-4 text-primary" />
-                Max Price
-              </Label>
-              <Input
-                value={searchParams.price_max || ''}
-                onChange={(e) => updateParam('price_max', e.target.value || undefined)}
-                placeholder="e.g., 500000"
-                type="number"
-                min="0"
-                max="50000000"
-                className="bg-background/50"
-              />
+              <div className="grid grid-cols-2 gap-3">
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground pointer-events-none">Min</span>
+                  <Input
+                    value={searchParams.price_min || ''}
+                    onChange={(e) => updateParam('price_min', e.target.value || undefined)}
+                    placeholder="100,000"
+                    type="number"
+                    min="0"
+                    max="50000000"
+                    className="bg-background/50 pl-12 no-spinner"
+                    aria-label="Minimum price"
+                  />
+                </div>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground pointer-events-none">Max</span>
+                  <Input
+                    value={searchParams.price_max || ''}
+                    onChange={(e) => updateParam('price_max', e.target.value || undefined)}
+                    placeholder="500,000"
+                    type="number"
+                    min="0"
+                    max="50000000"
+                    className="bg-background/50 pl-12 no-spinner"
+                    aria-label="Maximum price"
+                  />
+                </div>
+              </div>
             </div>
 
           </div>
 
-          {/* Filters */}
-          <div className="border-t pt-3 sm:pt-4 space-y-3 sm:space-y-4">
+          {/* Filters — uniform card-style toggle rows, eyebrow label,
+              subtle hover state. Motivated Sellers gets a brighter cyan
+              wash when enabled (premium accent) but matches the others
+              when off so the section reads as one unified list. */}
+          <div className="border-t border-border/60 pt-4 sm:pt-5 space-y-3">
+            <div className="flex items-center justify-between">
+              <h3 className="text-[11px] font-semibold tracking-[0.14em] text-muted-foreground uppercase">
+                Filters
+              </h3>
+              <span className="text-[10px] text-muted-foreground/70">
+                Refine your results
+              </span>
+            </div>
 
-            {/* Auction Filter */}
-            <div className="flex items-center justify-between space-x-2">
-              <div className="flex items-center space-x-2">
-                <Gavel className="h-4 w-4 text-primary" />
-                <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
-                  <Label htmlFor="auction-toggle" className="text-sm font-medium">
-                    Hide Auction Properties
-                  </Label>
-                  <span className="text-xs text-muted-foreground">
-                    Filter out auction properties from search results
-                  </span>
-                </div>
-              </div>
-              <Switch
+            <div className="space-y-2">
+              <ToggleRow
                 id="auction-toggle"
+                icon={Gavel}
+                label="Hide Auction Properties"
+                description="Filter out auction listings"
                 checked={searchParams.auctionOnly || false}
                 onCheckedChange={(checked) => setSearchParams(prev => ({ ...prev, auctionOnly: checked }))}
               />
-            </div>
-
-            {/* Foreclosure Filter */}
-            <div className="flex items-center justify-between space-x-2">
-              <div className="flex items-center space-x-2">
-                <AlertTriangle className="h-4 w-4 text-primary" />
-                <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
-                  <Label htmlFor="foreclosure-toggle" className="text-sm font-medium">
-                    Hide Foreclosure Properties
-                  </Label>
-                  <span className="text-xs text-muted-foreground">
-                    Filter out foreclosure properties from search results
-                  </span>
-                </div>
-              </div>
-              <Switch
+              <ToggleRow
                 id="foreclosure-toggle"
+                icon={AlertTriangle}
+                label="Hide Foreclosure Properties"
+                description="Filter out foreclosure listings"
                 checked={searchParams.hideForeclosures || false}
                 onCheckedChange={(checked) => setSearchParams(prev => ({ ...prev, hideForeclosures: checked }))}
               />
-            </div>
-
-            {/* Wholesale Deals Only Toggle */}
-            <div className="flex items-center justify-between space-x-2">
-              <div className="flex items-center space-x-2">
-                <TrendingDown className="h-4 w-4 text-success" />
-                <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
-                  <Label htmlFor="wholesale-toggle" className="text-sm font-medium">
-                    Most Profitable Only
-                  </Label>
-                  <span className="text-xs text-muted-foreground">
-                    Only show properties priced below their Zestimate
-                  </span>
-                </div>
-              </div>
-              <Switch
+              <ToggleRow
                 id="wholesale-toggle"
+                icon={TrendingDown}
+                iconClass="text-success"
+                label="Most Profitable Only"
+                description="Only properties priced below their Zestimate"
                 checked={searchParams.wholesaleOnly || false}
                 onCheckedChange={(checked) => updateParam('wholesaleOnly', checked)}
               />
-            </div>
-
-            {/* FSBO Toggle */}
-            <div className="flex items-center justify-between space-x-2">
-              <div className="flex items-center space-x-2">
-                <Building2 className="h-4 w-4 text-primary" />
-                <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
-                  <Label htmlFor="fsbo-toggle" className="text-sm font-medium">
-                    FSBO Properties Only
-                  </Label>
-                  <span className="text-xs text-muted-foreground">
-                    Show only For Sale By Owner properties
-                  </span>
-                </div>
-              </div>
-              <Switch
+              <ToggleRow
                 id="fsbo-toggle"
+                icon={Building2}
+                label="FSBO Properties Only"
+                description="Show only For Sale By Owner listings"
                 checked={searchParams.fsboOnly || false}
                 onCheckedChange={(checked) => updateParam('fsboOnly', checked)}
               />
-            </div>
 
-            {/* Motivated Sellers Toggle — Pro / Elite (pure client-side scoring, no API cost) */}
-            <div className={`flex items-center justify-between space-x-2 rounded-lg border p-3 transition-colors ${
-              searchParams.motivatedSellersOnly
-                ? 'border-cyan-500/40 bg-cyan-500/[0.04]'
-                : 'border-border/60'
-            }`}>
-              <div className="flex items-center space-x-2 min-w-0">
-                <Flame className="h-4 w-4 text-cyan-400 shrink-0" />
-                <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2 min-w-0">
-                  <Label htmlFor="motivated-toggle" className="text-sm font-medium flex items-center gap-1.5">
+              {/* Motivated Sellers — premium tier, accent when active */}
+              <ToggleRow
+                id="motivated-toggle"
+                icon={Flame}
+                iconClass="text-cyan-400"
+                accent
+                active={!!searchParams.motivatedSellersOnly}
+                label={
+                  <span className="flex items-center gap-1.5">
                     Motivated Sellers Only
                     <Badge variant="secondary" className="text-[9px] gap-0.5 bg-cyan-500/10 text-cyan-400 border-cyan-500/30">
                       <Sparkles className="h-2 w-2" /> Pro / Elite
                     </Badge>
                     {!allowedForProFeatures && <Lock className="h-3 w-3 text-muted-foreground" />}
-                  </Label>
-                  <span className="text-xs text-muted-foreground">
-                    {allowedForProFeatures
-                      ? 'FSBO + days-on-market + price cuts + Make Me Move signals'
-                      : <>Combine off-market signals into one filtered view. <Link to="/pricing" className="text-cyan-400 hover:underline">Upgrade</Link></>}
                   </span>
-                </div>
-              </div>
-              <Switch
-                id="motivated-toggle"
+                }
+                description={
+                  allowedForProFeatures
+                    ? 'FSBO + days-on-market + price cuts + Make Me Move signals'
+                    : <>Combine off-market signals into one filtered view. <Link to="/pricing" className="text-cyan-400 hover:underline">Upgrade</Link></>
+                }
                 checked={searchParams.motivatedSellersOnly || false}
                 disabled={!allowedForProFeatures}
                 onCheckedChange={(checked) => {
@@ -438,26 +407,86 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
           </div>
 
           <Button
-            type="submit" 
+            type="submit"
             variant="default"
             size="lg"
-            className="w-full h-12 sm:h-auto text-base sm:text-sm"
+            className="group w-full h-12 sm:h-12 text-base font-semibold bg-gradient-to-r from-cyan-500 to-cyan-400 text-cyan-950 hover:from-cyan-400 hover:to-cyan-300 shadow-[0_0_0_1px_rgba(6,182,212,0.4),0_8px_24px_-8px_rgba(6,182,212,0.5)] hover:shadow-[0_0_0_1px_rgba(6,182,212,0.5),0_12px_32px_-8px_rgba(6,182,212,0.7)] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
             disabled={isLoading || !searchParams.location.trim()}
           >
             {isLoading ? (
               <>
-                <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-primary-foreground mr-2 sm:mr-3" />
-                <span className="text-sm sm:text-base">Searching Properties...</span>
+                <div className="animate-spin rounded-full h-4 w-4 sm:h-5 sm:w-5 border-b-2 border-current mr-2 sm:mr-3" />
+                <span>Searching Properties…</span>
               </>
             ) : (
               <>
-                <Search className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3" />
-                <span className="text-sm sm:text-base">Search Properties</span>
+                <Search className="h-4 w-4 sm:h-5 sm:w-5 mr-2 sm:mr-3 transition-transform group-hover:scale-110" />
+                <span>Search Properties</span>
               </>
             )}
           </Button>
         </form>
       </CardContent>
     </Card>
+  );
+}
+
+/**
+ * Uniform toggle row used by the Filters section. Replaces 5 hand-written
+ * variants (3 plain + 2 styled) — same hover/active feel, easier to scan,
+ * and `accent` opt-in keeps Motivated Sellers visually distinct when active.
+ */
+function ToggleRow({
+  id,
+  icon: Icon,
+  iconClass = 'text-primary',
+  label,
+  description,
+  checked,
+  onCheckedChange,
+  disabled,
+  accent,
+  active,
+}: {
+  id: string;
+  icon: React.ComponentType<{ className?: string }>;
+  iconClass?: string;
+  label: React.ReactNode;
+  description: React.ReactNode;
+  checked: boolean;
+  onCheckedChange: (checked: boolean) => void;
+  disabled?: boolean;
+  accent?: boolean;
+  active?: boolean;
+}) {
+  const accentActive = accent && active;
+  return (
+    <div
+      className={[
+        'flex items-center justify-between gap-3 rounded-lg border px-3 py-2.5 transition-all duration-150',
+        accentActive
+          ? 'border-cyan-500/40 bg-cyan-500/[0.05] shadow-[0_0_0_1px_rgba(6,182,212,0.15)]'
+          : 'border-border/60 hover:border-border hover:bg-background/40',
+      ].join(' ')}
+    >
+      <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
+        <Icon className={`h-4 w-4 shrink-0 mt-0.5 sm:mt-0 ${iconClass}`} />
+        <div className="flex flex-col min-w-0">
+          <Label htmlFor={id} className="text-sm font-medium leading-tight cursor-pointer">
+            {label}
+          </Label>
+          <span className="text-xs text-muted-foreground mt-0.5 leading-snug">
+            {description}
+          </span>
+        </div>
+      </div>
+      <Switch
+        id={id}
+        checked={checked}
+        onCheckedChange={onCheckedChange}
+        disabled={disabled}
+        className="shrink-0"
+      />
+    </div>
   );
 }
