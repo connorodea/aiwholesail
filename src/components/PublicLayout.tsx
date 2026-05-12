@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { NavbarAIWholesail } from '@/components/ui/navbar-aiwholesail';
 import { Container } from '@/components/proactiv/Container';
 import { ArrowRight } from 'lucide-react';
+import { useInModal } from '@/lib/in-modal-context';
 
 const aiWholesailLogoWebP = '/logo-white.webp';
 const aiWholesailLogoPNG = '/logo-white.png';
@@ -12,6 +13,12 @@ interface PublicLayoutProps {
 }
 
 export function PublicLayout({ children }: PublicLayoutProps) {
+  // When rendered inside the property modal's Tools tab, skip the nav +
+  // footer chrome — the calculator page renders inline inside the tab
+  // content rather than as a standalone page.
+  const { inModal } = useInModal();
+  if (inModal) return <>{children}</>;
+
   return (
     <div className="relative overflow-hidden bg-background text-foreground min-h-screen">
       <NavbarAIWholesail />

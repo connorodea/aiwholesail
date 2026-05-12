@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { generateCSPHeader } from '@/lib/security-enhanced';
+import { useInModal } from '@/lib/in-modal-context';
 
 interface BreadcrumbItem {
   name: string;
@@ -26,6 +27,13 @@ export function SEOHead({
   noIndex = false,
   breadcrumbs
 }: SEOHeadProps) {
+  // No-op when rendered inside the property modal — we don't want a
+  // calculator's <Helmet> tags to stomp the property-detail page's title +
+  // canonical + OG image. The standalone /tools/<slug> route still renders
+  // these normally (inModal === false there).
+  const { inModal } = useInModal();
+  if (inModal) return null;
+
   const fullTitle = title.includes('AI Wholesail') ? title : `${title} | AI Wholesail`;
   const currentUrl = canonicalUrl || (typeof window !== 'undefined' ? window.location.href : '');
 
