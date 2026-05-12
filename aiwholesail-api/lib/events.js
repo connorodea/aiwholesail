@@ -37,6 +37,8 @@ const EVENTS = Object.freeze({
   FIRST_SEARCH: 'first_search',
   FIRST_PROPERTY_VIEW: 'first_property_view',
   FIRST_FAVORITE: 'first_favorite',
+  // Cost-control / abuse signals
+  LLM_BUDGET_EXCEEDED: 'llm_budget_exceeded',   // user hit their tier's monthly LLM cost cap
 });
 
 /**

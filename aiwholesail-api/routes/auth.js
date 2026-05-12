@@ -762,6 +762,20 @@ router.get('/me', authenticate, asyncHandler(async (req, res) => {
 
   const user = result.rows[0];
 
+  // Compute effective tier for the LLM budget block. Mirrors the logic in
+  // middleware/subscription.js attachSubscription so /me and the runtime
+  // gate agree on what bucket the user is in.
+  const trialActive = !!(user.is_trial && user.trial_end && new Date(user.trial_end) > new Date());
+  let effectiveTier = 'none';
+  if (user.subscribed) effectiveTier = trialActive ? 'trial' : (user.subscription_tier || 'Pro');
+
+  const { getMonthlyUsageCents } = require('../lib/llm-usage');
+  const { capCentsForTier } = require('../lib/llm-cost');
+  const capCents = capCentsForTier(effectiveTier);
+  const usedCents = capCents > 0 ? await getMonthlyUsageCents(req.user.id) : 0;
+  const now = new Date();
+  const resetsAt = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1)).toISOString();
+
   res.json({
     id: user.id,
     email: user.email,
@@ -773,7 +787,17 @@ router.get('/me', authenticate, asyncHandler(async (req, res) => {
       tier: user.subscription_tier,
       endDate: user.subscription_end,
       isTrial: user.is_trial || false,
-      trialEnd: user.trial_end
+      trialEnd: user.trial_end,
+      // Monthly LLM cost cap + month-to-date usage. Trial users get a smaller
+      // budget than full Pro even though tier gating treats trial as Pro-like;
+      // see lib/llm-cost.js for the math.
+      llm_budget: {
+        effective_tier: effectiveTier,
+        used_cents: usedCents,
+        cap_cents: capCents,
+        remaining_cents: Math.max(0, capCents - usedCents),
+        resets_at: resetsAt,
+      },
     }
   });
 }));
