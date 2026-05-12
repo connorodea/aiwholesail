@@ -28,6 +28,7 @@ const skipTraceRoutes = require('./routes/skipTrace');
 const webhookRoutes = require('./routes/webhooks');
 const propdataRoutes = require('./routes/propdata');
 const flagsRoutes = require('./routes/flags');
+const healthIntegrationsRoutes = require('./routes/healthIntegrations');
 
 // Import middleware
 const { errorHandler } = require('./middleware/errorHandler');
@@ -125,6 +126,7 @@ app.use('/api/skip-trace', skipTraceRoutes);
 app.use('/api/webhooks', webhookRoutes);
 app.use('/api/propdata', propdataRoutes);
 app.use('/api/flags', flagsRoutes);
+app.use('/api/health', healthIntegrationsRoutes);
 app.use('/api', utilityRoutes);
 
 // Exec dashboard at /exec/* — served via the nginx vhost for
