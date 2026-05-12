@@ -76,6 +76,16 @@ function mailingAddr(rec: PropDataPropertyRecord): string {
   return [o.mailing_address, o.mailing_city, o.mailing_state, o.mailing_zip].filter(Boolean).join(', ');
 }
 
+/** RFC 4180 CSV row encoder — quote when comma/quote/newline; double internal quotes. */
+function csvRow(cols: (string | number | null | undefined)[]): string {
+  return cols
+    .map((c) => {
+      const s = String(c ?? '');
+      return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    })
+    .join(',');
+}
+
 function toCsv(records: PropDataPropertyRecord[]): string {
   const header = [
     'owner_name', 'property_address', 'property_city', 'property_zip',
@@ -103,13 +113,72 @@ function toCsv(records: PropDataPropertyRecord[]): string {
     r.parcel_id || '',
     r.county_name || '',
   ]);
-  return [header, ...rows]
-    .map((cols) => cols.map((c) => {
-      const s = String(c ?? '');
-      // RFC 4180: quote when comma/quote/newline; double internal quotes.
-      return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
-    }).join(','))
-    .join('\n');
+  return [header, ...rows].map(csvRow).join('\n');
+}
+
+/**
+ * Mailing-labels CSV export — Phase 4 of the off-market roadmap.
+ *
+ * Emits a column shape matching the most common direct-mail tool
+ * conventions (Yellow Letter HQ, Click2Mail, Lob). One row per
+ * deliverable mailing record:
+ *
+ *   recipient_name        — owner name (mail-merge "Hi {name},...")
+ *   recipient_address     — owner's mailing street
+ *   recipient_city        — owner's mailing city
+ *   recipient_state       — owner's mailing state
+ *   recipient_zip         — owner's mailing zip
+ *   property_address      — the off-market property (merge field
+ *                           for "your property at {addr}")
+ *   property_city
+ *   property_state
+ *   property_zip
+ *   estimated_equity      — for value-anchor merge fields
+ *   equity_pct
+ *
+ * Rows with no recipient_name or recipient_address are SKIPPED at
+ * the source — direct-mail tools reject unaddressable rows anyway
+ * and counting them in the export wastes downstream credits.
+ *
+ * Returns { csv, included, skipped } so the caller can show a
+ * "Exported X of Y records (Z skipped — no mailing address)" toast.
+ */
+function toMailingLabelsCsv(records: PropDataPropertyRecord[]): {
+  csv: string;
+  included: number;
+  skipped: number;
+} {
+  const header = [
+    'recipient_name', 'recipient_address', 'recipient_city',
+    'recipient_state', 'recipient_zip',
+    'property_address', 'property_city', 'property_state', 'property_zip',
+    'estimated_equity', 'equity_pct',
+  ];
+  let skipped = 0;
+  const rows: (string | number | null | undefined)[][] = [];
+  for (const r of records) {
+    const name = (r.owner?.name || '').trim();
+    const mailingStreet = (r.owner?.mailing_address || '').trim();
+    if (!name || !mailingStreet) {
+      skipped += 1;
+      continue;
+    }
+    rows.push([
+      name,
+      mailingStreet,
+      r.owner?.mailing_city || '',
+      r.owner?.mailing_state || '',
+      r.owner?.mailing_zip || '',
+      r.address?.street || '',
+      r.address?.city || '',
+      r.state || '',
+      r.address?.zip || '',
+      r.equity?.estimated_equity ?? '',
+      r.equity?.equity_pct != null ? Math.round(r.equity.equity_pct) : '',
+    ]);
+  }
+  const csv = [header, ...rows].map(csvRow).join('\n');
+  return { csv, included: rows.length, skipped };
 }
 
 export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProps) {
@@ -477,20 +546,51 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
     navigate('/app/analyzer?source=off-market');
   };
 
-  const handleExport = () => {
-    if (filtered.length === 0) return;
-    const csv = toCsv(filtered);
+  /** Shared blob download helper — used by both CSV exports. */
+  const downloadCsv = (csv: string, filename: string) => {
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    const slug = (resolvedLabel || searchedZips[0] || 'export').replace(/[^a-z0-9-]+/gi, '-').slice(0, 40);
-    a.download = `absentee-owners-${slug}-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.download = filename;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+  };
+
+  const slugForFilename = () =>
+    (resolvedLabel || searchedZips[0] || 'export').replace(/[^a-z0-9-]+/gi, '-').slice(0, 40);
+
+  const handleExport = () => {
+    if (filtered.length === 0) return;
+    const csv = toCsv(filtered);
+    downloadCsv(csv, `absentee-owners-${slugForFilename()}-${new Date().toISOString().slice(0, 10)}.csv`);
     toast({ title: 'CSV exported', description: `${filtered.length} record${filtered.length === 1 ? '' : 's'} downloaded.` });
+  };
+
+  /**
+   * Phase 4 — Mailing labels export. Direct-mail-tool-ready CSV
+   * (Yellow Letter HQ / Click2Mail / Lob compatible column shape).
+   * Rows without owner_name or mailing_address are skipped at the
+   * source — direct-mail tools reject unaddressable rows anyway.
+   */
+  const handleExportMailingLabels = () => {
+    if (filtered.length === 0) return;
+    const { csv, included, skipped } = toMailingLabelsCsv(filtered);
+    if (included === 0) {
+      toast({
+        title: 'No mailable rows',
+        description: 'None of the selected records have an owner name + mailing address. Filter to higher-equity or larger ZIPs for richer owner data.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    downloadCsv(csv, `mailing-labels-${slugForFilename()}-${new Date().toISOString().slice(0, 10)}.csv`);
+    const desc = skipped > 0
+      ? `${included} mailable · ${skipped} skipped (no mailing address). Ready for Yellow Letter HQ / Click2Mail / Lob.`
+      : `${included} mailable rows ready for Yellow Letter HQ / Click2Mail / Lob.`;
+    toast({ title: 'Mailing labels exported', description: desc });
   };
 
   return (
@@ -711,6 +811,16 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
               <Button onClick={handleExport} variant="outline" size="sm" className="h-9">
                 <Download className="h-4 w-4 mr-2" />
                 Export CSV
+              </Button>
+              <Button
+                onClick={handleExportMailingLabels}
+                variant="outline"
+                size="sm"
+                className="h-9"
+                title="Direct-mail-ready CSV — Yellow Letter HQ / Click2Mail / Lob format"
+              >
+                <Mail className="h-4 w-4 mr-2" />
+                Mailing labels
               </Button>
             </div>
           </div>
