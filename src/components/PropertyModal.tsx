@@ -35,7 +35,9 @@ import {
   Home,
   Receipt,
   Loader2,
-  Zap
+  Zap,
+  GraduationCap,
+  Trees
 } from 'lucide-react';
 import { calculateWholesalePotential } from '@/lib/wholesale-calculator';
 import { zillowAPI } from '@/lib/zillow-api';
@@ -50,6 +52,8 @@ import { TaxCarryingCosts } from './TaxCarryingCosts';
 import { ARVCalculator } from './ARVCalculator';
 import { PropertyToolsTab } from './PropertyToolsTab';
 import { AIPhotoAnalysis } from './AIPhotoAnalysis';
+import { PropertySchoolsTab } from './PropertySchoolsTab';
+import { PropertyNeighborhoodTab } from './PropertyNeighborhoodTab';
 import { generateDealReport } from './DealReportPDF';
 import { generateBuyerPitch } from './BuyerPitchPDF';
 import { ListingDescriptionGenerator } from './ListingDescriptionGenerator';
@@ -489,6 +493,14 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                   <Receipt className="h-3.5 w-3.5" />
                   Taxes
                 </TabsTrigger>
+                <TabsTrigger value="schools" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_0_1px_rgba(6,182,212,0.25),0_2px_8px_rgba(0,0,0,0.4)] rounded-lg transition-all duration-200 text-xs font-medium px-3 h-8">
+                  <GraduationCap className="h-3.5 w-3.5" />
+                  Schools
+                </TabsTrigger>
+                <TabsTrigger value="neighborhood" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_0_1px_rgba(6,182,212,0.25),0_2px_8px_rgba(0,0,0,0.4)] rounded-lg transition-all duration-200 text-xs font-medium px-3 h-8">
+                  <Trees className="h-3.5 w-3.5" />
+                  Neighborhood
+                </TabsTrigger>
                 <TabsTrigger value="photos" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_0_1px_rgba(6,182,212,0.25),0_2px_8px_rgba(0,0,0,0.4)] rounded-lg transition-all duration-200 text-xs font-medium px-3 h-8">
                   <Image className="h-3.5 w-3.5" />
                   Photos
@@ -654,6 +666,14 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
 
             <TabsContent value="taxes" className="flex-1 overflow-auto p-3 sm:p-6 mt-0">
               <TaxCarryingCosts property={displayProperty} />
+            </TabsContent>
+
+            <TabsContent value="schools" className="flex-1 overflow-auto p-3 sm:p-6 mt-0">
+              <PropertySchoolsTab property={displayProperty} />
+            </TabsContent>
+
+            <TabsContent value="neighborhood" className="flex-1 overflow-auto p-3 sm:p-6 mt-0">
+              <PropertyNeighborhoodTab property={displayProperty} />
             </TabsContent>
 
             <TabsContent value="details" className="flex-1 overflow-auto p-3 sm:p-6 mt-0">
