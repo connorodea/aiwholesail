@@ -51,7 +51,9 @@ function validateEvents(events) {
 // hostname) so callers must `await` it.
 
 function publicShape(row) {
-  // Don't leak the secret in list/get responses (it's only revealed on create)
+  // Don't leak the secret in list/get responses (it's only revealed on create
+  // and on POST /:id/rotate). secret_rotated_at IS exposed so the UI can show
+  // "rotated 2h ago" indicators.
   return {
     id: row.id,
     url: row.url,
@@ -62,6 +64,7 @@ function publicShape(row) {
     lastFailureAt: row.last_failure_at,
     consecutiveFailures: row.consecutive_failures,
     createdAt: row.created_at,
+    secretRotatedAt: row.secret_rotated_at ?? null,
   };
 }
 
@@ -71,7 +74,7 @@ router.get('/', authenticate, attachSubscription, asyncHandler(async (req, res) 
   if (!gateTier(req, res)) return;
   const r = await query(
     `SELECT id, url, events, description, active, last_success_at, last_failure_at,
-            consecutive_failures, created_at
+            consecutive_failures, created_at, secret_rotated_at
        FROM webhook_endpoints
       WHERE user_id = $1
    ORDER BY created_at DESC`,
@@ -131,6 +134,46 @@ router.post('/', authenticate, attachSubscription, [
   });
 }));
 
+/**
+ * POST /:id/rotate — generate a new HMAC secret for an existing webhook.
+ *
+ * Same one-time-reveal contract as endpoint creation: the new secret is
+ * returned ONCE in the response body and never again. For 24h after
+ * rotation, the delivery path signs payloads with BOTH the new secret
+ * AND the old secret, sending two headers (X-AIWholesail-Signature +
+ * X-AIWholesail-Signature-Previous) so subscribers can re-deploy
+ * without dropping events. After the grace window the old secret is
+ * cleared. See lib/webhooks.js deliver() for the dual-signing logic.
+ */
+router.post('/:id/rotate', authenticate, attachSubscription, [
+  param('id').isUUID(),
+], asyncHandler(async (req, res) => {
+  if (!gateTier(req, res)) return;
+  const errs = validationResult(req);
+  if (!errs.isEmpty()) return res.status(400).json({ error: 'Validation failed', errors: errs.array() });
+
+  const nextSecret = newSecret();
+  // Single atomic UPDATE: capture the old secret into previous_secret,
+  // overwrite secret with the new one, stamp rotated_at. Tenant-scoped.
+  const r = await query(
+    `UPDATE webhook_endpoints
+        SET previous_secret   = secret,
+            secret            = $1,
+            secret_rotated_at = NOW(),
+            updated_at        = NOW()
+      WHERE id = $2 AND user_id = $3
+   RETURNING id, url, events, description, active, last_success_at, last_failure_at,
+             consecutive_failures, created_at, secret_rotated_at`,
+    [nextSecret, req.params.id, req.user.id]
+  );
+  if (r.rows.length === 0) return res.status(404).json({ error: 'Webhook not found' });
+
+  res.json({
+    endpoint: { ...publicShape(r.rows[0]), secret: nextSecret, secret_rotated_at: r.rows[0].secret_rotated_at },
+    note: 'Save this NEW secret now — it will not be shown again. For the next 24 hours, AIWholesail will sign payloads with BOTH the new secret (X-AIWholesail-Signature) AND the old secret (X-AIWholesail-Signature-Previous), so you can verify with either while you re-deploy. After 24h only the new secret is sent.',
+  });
+}));
+
 router.patch('/:id', authenticate, attachSubscription, [
   param('id').isUUID(),
 ], asyncHandler(async (req, res) => {
@@ -154,7 +197,7 @@ router.patch('/:id', authenticate, attachSubscription, [
             updated_at  = NOW()
       WHERE id = $4 AND user_id = $5
    RETURNING id, url, events, description, active, last_success_at, last_failure_at,
-             consecutive_failures, created_at`,
+             consecutive_failures, created_at, secret_rotated_at`,
     [events ?? null, active ?? null, description ?? null, req.params.id, req.user.id]
   );
   if (r.rows.length === 0) return res.status(404).json({ error: 'Webhook not found' });
