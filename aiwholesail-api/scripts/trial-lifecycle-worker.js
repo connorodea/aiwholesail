@@ -134,7 +134,7 @@ const MILESTONES = [
         ON e.user_id = u.id AND e.email_type = 'day_plus_1'
       WHERE s.trial_end BETWEEN NOW() - INTERVAL '7 days' AND NOW() - INTERVAL '23 hours'
         AND e.id IS NULL
-        AND s.subscribed = false
+        AND s.is_trial = true
     `,
     render: renderDayPlus1,
   },
@@ -149,7 +149,7 @@ const MILESTONES = [
         ON e.user_id = u.id AND e.email_type = 'day_plus_7'
       WHERE s.trial_end BETWEEN NOW() - INTERVAL '14 days' AND NOW() - INTERVAL '6 days 23 hours'
         AND e.id IS NULL
-        AND s.subscribed = false
+        AND s.is_trial = true
     `,
     render: renderDayPlus7,
   },
