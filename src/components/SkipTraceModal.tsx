@@ -35,8 +35,8 @@ export function SkipTraceModal({ property, isOpen, onClose }: SkipTraceModalProp
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl max-h-[85vh]">
-        <DialogHeader>
+      <DialogContent className="max-w-3xl h-[85vh] max-h-[85vh] flex flex-col overflow-hidden">
+        <DialogHeader className="shrink-0">
           <DialogTitle className="flex items-center gap-2">
             <Search className="h-5 w-5" />
             Skip Trace
@@ -47,7 +47,7 @@ export function SkipTraceModal({ property, isOpen, onClose }: SkipTraceModalProp
         </DialogHeader>
 
         {quota && (
-          <div className="text-xs text-muted-foreground border border-border/50 rounded-md px-3 py-2 flex items-center justify-between">
+          <div className="shrink-0 text-xs text-muted-foreground border border-border/50 rounded-md px-3 py-2 flex items-center justify-between">
             <span>
               <span className="text-foreground font-medium">{quota.used}</span> / {quota.limit} this month · {quota.tier}
             </span>
@@ -56,7 +56,7 @@ export function SkipTraceModal({ property, isOpen, onClose }: SkipTraceModalProp
         )}
 
         {!hasResults && (
-          <div className="text-center py-10 space-y-3">
+          <div className="shrink-0 text-center py-10 space-y-3">
             <Button onClick={handleSkipTrace} disabled={searching || !property} size="lg" className="gap-2">
               {searching ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
               {searching ? 'Searching...' : 'Run Skip Trace'}
@@ -68,7 +68,7 @@ export function SkipTraceModal({ property, isOpen, onClose }: SkipTraceModalProp
         )}
 
         {hasResults && current && (
-          <ScrollArea className="max-h-[60vh]">
+          <ScrollArea className="flex-1 min-h-0">
             <div className="space-y-3 pr-2">
               <div className="flex items-center justify-between">
                 <p className="text-sm text-muted-foreground">
