@@ -166,6 +166,10 @@ router.post('/signup', [
     // (e.g. the user previously did a guest checkout before signing up).
     // Marketing-attribution metadata for Stripe — only include keys that
     // have values, since Stripe truncates and we want a clean dashboard.
+    // Also includes fbp/fbc (Meta first-party cookies) which we do NOT
+    // persist to the users table (they rotate) but DO need at Layer-2
+    // CAPI-send time — and the webhook only sees what's on the Stripe
+    // customer.
     const attrMetadata = {};
     if (marketingFields.utm_source)   attrMetadata.utm_source   = marketingFields.utm_source;
     if (marketingFields.utm_medium)   attrMetadata.utm_medium   = marketingFields.utm_medium;
@@ -174,6 +178,11 @@ router.post('/signup', [
     if (marketingFields.utm_term)     attrMetadata.utm_term     = marketingFields.utm_term;
     if (marketingFields.fbclid)       attrMetadata.fbclid       = marketingFields.fbclid;
     if (marketingFields.gclid)        attrMetadata.gclid        = marketingFields.gclid;
+    if (marketingFields.landing_url)  attrMetadata.landing_url  = marketingFields.landing_url.slice(0, 500);
+    // fbp / fbc — not DB-backed (they rotate), but Meta wants them at
+    // CAPI send time. Stripe metadata is the durable side-channel.
+    if (typeof attr.fbp === 'string' && attr.fbp) attrMetadata.fbp = attr.fbp.slice(0, 200);
+    if (typeof attr.fbc === 'string' && attr.fbc) attrMetadata.fbc = attr.fbc.slice(0, 200);
 
     const existing = await stripe.customers.list({ email: normalizedEmail, limit: 1 });
     let stripeCustomerId;
