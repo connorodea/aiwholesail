@@ -59,3 +59,28 @@ export function isMultiLocationSearchEnabled(userEmail: string | null | undefine
 /** @deprecated Use `isMultiLocationSearchEnabled(user.email)` instead.
  *  Kept temporarily so older call sites compile while migrating. */
 export const MULTI_LOCATION_SEARCH_ENABLED = MULTI_LOCATION_SEARCH_BUILD_ENABLED;
+
+/** Main-search layout v2: Location + radius side-by-side, tightened copy.
+ *  Default OFF for everyone; ON for the dogfood allowlist while we
+ *  validate the new layout on prod. Kill switch:
+ *  `VITE_DISABLE_MAIN_SEARCH_LAYOUT_V2=true`. */
+const MAIN_SEARCH_LAYOUT_V2_BUILD_ENABLED = flagFromEnv(
+  import.meta.env.VITE_DISABLE_MAIN_SEARCH_LAYOUT_V2,
+  true,
+);
+
+const LAYOUT_V2_DOGFOOD_RAW =
+  (import.meta.env.VITE_MAIN_SEARCH_LAYOUT_V2_DOGFOOD as string | undefined)
+  ?? 'cpodea5@gmail.com';
+const LAYOUT_V2_DOGFOOD_ALLOWLIST = new Set(
+  LAYOUT_V2_DOGFOOD_RAW.split(',').map((s) => s.trim().toLowerCase()).filter(Boolean),
+);
+
+/** Returns true when the current user should see the v2 search layout
+ *  (Location + radius inline). Empty allowlist = open to all. */
+export function isMainSearchLayoutV2Enabled(userEmail: string | null | undefined): boolean {
+  if (!MAIN_SEARCH_LAYOUT_V2_BUILD_ENABLED) return false;
+  if (LAYOUT_V2_DOGFOOD_ALLOWLIST.size === 0) return true;
+  if (!userEmail) return false;
+  return LAYOUT_V2_DOGFOOD_ALLOWLIST.has(userEmail.trim().toLowerCase());
+}
