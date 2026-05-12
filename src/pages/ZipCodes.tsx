@@ -56,7 +56,7 @@ export default function ZipCodes() {
 
   const filtered = useMemo(() => {
     const q = query.toLowerCase().trim();
-    let results = (zipcodes as ZipCode[]).filter((z) => {
+    const results = (zipcodes as ZipCode[]).filter((z) => {
       const matchesQuery =
         !q ||
         z.zip.includes(q) ||

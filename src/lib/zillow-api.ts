@@ -70,8 +70,8 @@ export class ZillowAPI {
     maxPages: number,
     onPageProgress?: (loaded: number, total: number, propertiesSoFar: number) => void
   ): Promise<Property[]> {
-    let allProperties: Property[] = [];
-    let currentPage = 1;
+    const allProperties: Property[] = [];
+    const currentPage = 1;
     let totalPages = 1;
 
     // Normalize location (convert full state names to abbreviations)
