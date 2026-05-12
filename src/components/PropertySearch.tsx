@@ -12,6 +12,7 @@ import { LocationAutocomplete } from './LocationAutocomplete';
 import { CountyBrowserDialog } from './CountyBrowserDialog';
 import { validatePriceRange, sanitizeSearchKeywords, validateLocationInput } from '@/lib/security';
 import { isMultiLocationSearchEnabled } from '@/lib/feature-flags';
+import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useSubscription } from '@/hooks/useSubscription';
@@ -35,6 +36,11 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
   const { isElite, isPro } = useSubscription();
   const allowedForProFeatures = isElite || isPro;
   const multiLocationEnabled = isMultiLocationSearchEnabled(user?.email);
+  // Layout v2 = Location + radius side-by-side with tightened copy.
+  // Default OFF; flipped per-user via feature_flag_users (dogfood: cpodea5).
+  // While the flag fetch is in flight we render v1 — no skeleton needed,
+  // v1 is the safe legacy layout already on prod.
+  const { enabled: layoutV2Enabled } = useFeatureFlag('main-search-layout-v2');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -91,59 +97,117 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-            {/* Location with Autocomplete */}
-            <div className="sm:col-span-2">
-              <LocationAutocomplete
-                value={searchParams.location}
-                onChange={(value) => updateParam('location', value)}
-                required={true}
-              />
-              <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
-                {multiLocationEnabled && (
-                  <span className="text-muted-foreground">
-                    Tip: paste multiple ZIPs (<span className="font-mono">33101, 33102, 33125</span>) to search several at once.
-                  </span>
-                )}
-                <button
-                  type="button"
-                  onClick={() => setCountyBrowserOpen(true)}
-                  className="inline-flex items-center gap-1.5 font-medium text-cyan-400 hover:text-cyan-300 hover:underline underline-offset-4 transition-colors"
-                >
-                  <MapPin className="h-3.5 w-3.5" />
-                  Don&rsquo;t know the county? Browse counties by state →
-                </button>
-              </div>
-            </div>
+            {layoutV2Enabled ? (
+              /* v2 layout: Location + radius side-by-side, tightened copy.
+                 Gated on useFeatureFlag('main-search-layout-v2'). */
+              <div className="sm:col-span-2">
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 sm:items-start">
+                  <div className="flex-1 min-w-0">
+                    <LocationAutocomplete
+                      value={searchParams.location}
+                      onChange={(value) => updateParam('location', value)}
+                      required={true}
+                    />
+                  </div>
+                  {multiLocationEnabled && (
+                    <div className="space-y-2 sm:w-40 sm:shrink-0">
+                      <Label htmlFor="radius-mi" className="flex items-center gap-2">
+                        <Radius className="h-4 w-4 text-primary" />
+                        Within (mi)
+                      </Label>
+                      <Input
+                        id="radius-mi"
+                        type="number"
+                        min={1}
+                        max={100}
+                        placeholder="e.g. 10"
+                        value={searchParams.radiusMi ?? ''}
+                        onChange={(e) => {
+                          const v = e.target.value;
+                          setSearchParams((prev) => ({
+                            ...prev,
+                            radiusMi: v === '' ? undefined : Number(v),
+                          }));
+                        }}
+                        className="bg-background/50"
+                      />
+                      <p className="text-xs text-muted-foreground">Single ZIP or address</p>
+                    </div>
+                  )}
+                </div>
 
-            {/* Search radius (only meaningful for single ZIP/address inputs).
-                Hidden entirely when the multi-location flag is off so users
-                can't enter a radius that the search loop will ignore. */}
-            {multiLocationEnabled && (
-            <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor="radius-mi" className="flex items-center gap-2">
-                <Radius className="h-4 w-4 text-primary" />
-                Search radius (mi) <span className="text-xs text-muted-foreground font-normal">— optional, single ZIP/address only</span>
-              </Label>
-              <Input
-                id="radius-mi"
-                type="number"
-                min={1}
-                max={100}
-                placeholder="e.g. 10"
-                value={searchParams.radiusMi ?? ''}
-                onChange={(e) => {
-                  const v = e.target.value;
-                  setSearchParams((prev) => ({
-                    ...prev,
-                    radiusMi: v === '' ? undefined : Number(v),
-                  }));
-                }}
-                className="bg-background/50 max-w-xs"
-              />
-              <p className="text-xs text-muted-foreground">
-                Expands a single ZIP or address into every ZIP within X miles, then searches each one.
-              </p>
-            </div>
+                <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+                  {multiLocationEnabled && (
+                    <span className="text-muted-foreground">
+                      Tip: paste multiple ZIPs (<span className="font-mono">33101, 33102, 33125</span>) to search several at once.
+                    </span>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setCountyBrowserOpen(true)}
+                    className="inline-flex items-center gap-1.5 font-medium text-cyan-400 hover:text-cyan-300 hover:underline underline-offset-4 transition-colors"
+                  >
+                    <MapPin className="h-3.5 w-3.5" />
+                    Don&rsquo;t know the county? Browse counties by state →
+                  </button>
+                </div>
+              </div>
+            ) : (
+              /* v1 layout (default + loading state): Location full-width,
+                 radius stacked below. Byte-for-byte identical to current
+                 prod so non-flagged users see no change. */
+              <>
+                <div className="sm:col-span-2">
+                  <LocationAutocomplete
+                    value={searchParams.location}
+                    onChange={(value) => updateParam('location', value)}
+                    required={true}
+                  />
+                  <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+                    {multiLocationEnabled && (
+                      <span className="text-muted-foreground">
+                        Tip: paste multiple ZIPs (<span className="font-mono">33101, 33102, 33125</span>) to search several at once.
+                      </span>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => setCountyBrowserOpen(true)}
+                      className="inline-flex items-center gap-1.5 font-medium text-cyan-400 hover:text-cyan-300 hover:underline underline-offset-4 transition-colors"
+                    >
+                      <MapPin className="h-3.5 w-3.5" />
+                      Don&rsquo;t know the county? Browse counties by state →
+                    </button>
+                  </div>
+                </div>
+
+                {multiLocationEnabled && (
+                  <div className="space-y-2 sm:col-span-2">
+                    <Label htmlFor="radius-mi" className="flex items-center gap-2">
+                      <Radius className="h-4 w-4 text-primary" />
+                      Search radius (mi) <span className="text-xs text-muted-foreground font-normal">— optional, single ZIP/address only</span>
+                    </Label>
+                    <Input
+                      id="radius-mi"
+                      type="number"
+                      min={1}
+                      max={100}
+                      placeholder="e.g. 10"
+                      value={searchParams.radiusMi ?? ''}
+                      onChange={(e) => {
+                        const v = e.target.value;
+                        setSearchParams((prev) => ({
+                          ...prev,
+                          radiusMi: v === '' ? undefined : Number(v),
+                        }));
+                      }}
+                      className="bg-background/50 max-w-xs"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Expands a single ZIP or address into every ZIP within X miles, then searches each one.
+                    </p>
+                  </div>
+                )}
+              </>
             )}
 
             <CountyBrowserDialog
