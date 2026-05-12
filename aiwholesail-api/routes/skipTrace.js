@@ -35,6 +35,7 @@ const { authenticate } = require('../middleware/auth');
 const { asyncHandler } = require('../middleware/errorHandler');
 const { attachSubscription, TIERS } = require('../middleware/subscription');
 const { logEvent, EVENTS } = require('../lib/events');
+const { callV2Fallback, SUPPORTED_FALLBACKS } = require('../lib/skip-trace-v2');
 
 const router = express.Router();
 
@@ -282,10 +283,11 @@ router.post(
       });
     }
 
-    // ─── Call upstream ───
+    // ─── Call primary upstream (skip-tracing-working-api) ───
     let upstreamStatus = 0;
     let upstreamData = null;
     let upstreamError = null;
+    let providerUsed = 'v1';
     try {
       const upstream = await callUpstream(config.path, params);
       upstreamStatus = upstream.status;
@@ -299,6 +301,36 @@ router.post(
     } catch (err) {
       upstreamStatus = 0;
       upstreamError = (err.message || 'unknown error').slice(0, 500);
+    }
+
+    // ─── V2 fallback (skip-tracing-api) ───
+    // Only fires when primary genuinely failed AND the searchType has a
+    // V2 equivalent (byaddress / bynameaddress only). Treats:
+    //   - HTTP 5xx, timeout, network error  → fallback
+    //   - HTTP 200 + empty results          → DO NOT fallback (real "no match")
+    // Both providers count against the same RapidAPI account quota; the
+    // user's monthly skip_trace_lookups counter increments once regardless
+    // of which provider answered.
+    const primaryFailed =
+      !upstreamData &&
+      (upstreamStatus === 0 || upstreamStatus >= 500);
+    if (primaryFailed && SUPPORTED_FALLBACKS.includes(searchType)) {
+      console.warn(`[skip-trace] primary failed (status=${upstreamStatus}), trying V2 fallback for ${searchType}`);
+      const v2 = await callV2Fallback({
+        searchType,
+        params,
+        rapidApiKey: RAPIDAPI_KEY,
+        timeoutMs: 20000,
+      });
+      if (v2.ok) {
+        upstreamData = v2.data;
+        upstreamStatus = 200;
+        upstreamError = null;
+        providerUsed = 'v2';
+        console.log(`[skip-trace] V2 fallback succeeded for ${searchType}`);
+      } else {
+        console.warn(`[skip-trace] V2 fallback also failed: ${v2.error}`);
+      }
     }
 
     const peoIds = extractPeoIds(upstreamData);
@@ -326,6 +358,7 @@ router.post(
       searchType,
       result_count: resultCount,
       cached: false,
+      provider: providerUsed,
     });
 
     return res.json({
@@ -335,6 +368,7 @@ router.post(
       resultCount,
       peoIds,
       servedFromCache: false,
+      provider: providerUsed,
     });
   })
 );
