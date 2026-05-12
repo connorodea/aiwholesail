@@ -71,8 +71,8 @@ function verify(token) {
  */
 function buildUnsubscribeUrl(audience, id) {
   const token = sign(audience, id);
-  const base = process.env.API_URL || 'https://api.aiwholesail.com';
-  return `${base}/api/unsubscribe/${encodeURIComponent(token)}`;
+  const { apiUrl } = require('./env-urls');
+  return `${apiUrl()}/api/unsubscribe/${encodeURIComponent(token)}`;
 }
 
 module.exports = { sign, verify, buildUnsubscribeUrl };

@@ -6,6 +6,7 @@ const { authenticate, optionalAuth } = require('../middleware/auth');
 const { asyncHandler, logSecurityEvent } = require('../middleware/errorHandler');
 const { sendPurchaseEvent } = require('../lib/meta-capi');
 const { resolveTierFromPrice } = require('../lib/tier-resolver');
+const { frontendUrl } = require('../lib/env-urls');
 
 const router = express.Router();
 
@@ -106,7 +107,7 @@ router.post('/checkout', authenticate, [
     }
   }
 
-  const frontendUrl = process.env.FRONTEND_URL || 'https://aiwholesail.com';
+  const frontendUrlValue = frontendUrl();
 
   // Marketing-attribution metadata — pulled from the users row (populated
   // at signup). Propagated to BOTH the Checkout Session and the resulting
@@ -162,8 +163,8 @@ router.post('/checkout', authenticate, [
     ],
     mode: 'subscription',
     payment_method_collection: 'always',
-    success_url: `${frontendUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${frontendUrl}/pricing`,
+    success_url: `${frontendUrlValue}/success?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${frontendUrlValue}/pricing`,
     custom_text: {
       submit: {
         message: "You've used your 7-day free trial. Subscribe now to keep full access — cancel anytime from your account."
@@ -206,11 +207,10 @@ router.post('/portal', authenticate, asyncHandler(async (req, res) => {
   }
 
   const customerId = customers.data[0].id;
-  const frontendUrl = process.env.FRONTEND_URL || 'https://aiwholesail.com';
 
   const session = await stripe.billingPortal.sessions.create({
     customer: customerId,
-    return_url: `${frontendUrl}/dashboard`
+    return_url: `${frontendUrl()}/dashboard`
   });
 
   res.json({ url: session.url });
