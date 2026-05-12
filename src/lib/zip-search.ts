@@ -154,6 +154,43 @@ export async function resolveOrigin(input: string): Promise<{ lat: number; lng: 
 }
 
 /**
+ * All zip centroids in a given state, optionally capped. Returns the
+ * raw set — caller decides how to rank. For the off-market search we
+ * pair this with a population-weighted subset from zipcodes.json so
+ * we don't fan out into rural ZIPs with no PropData coverage.
+ */
+export async function zipsInState(state: string, max?: number): Promise<ZipCentroid[]> {
+  const target = state.trim().toUpperCase();
+  if (target.length !== 2) return [];
+  const map = await loadCentroids();
+  const out: ZipCentroid[] = [];
+  for (const c of map.values()) {
+    if (c.state.toUpperCase() === target) out.push(c);
+    if (max && out.length >= max) break;
+  }
+  return out;
+}
+
+/**
+ * Centroids matching a "City, ST" or just "City" search. Returns all
+ * matches when state is omitted, which is rarely desired — most callers
+ * should include state to disambiguate (Springfield is in 30+ states).
+ */
+export async function zipsInCity(city: string, state?: string): Promise<ZipCentroid[]> {
+  const targetCity = city.trim().toLowerCase();
+  const targetState = state?.trim().toUpperCase();
+  if (!targetCity) return [];
+  const map = await loadCentroids();
+  const out: ZipCentroid[] = [];
+  for (const c of map.values()) {
+    if (c.city.toLowerCase() !== targetCity) continue;
+    if (targetState && c.state.toUpperCase() !== targetState) continue;
+    out.push(c);
+  }
+  return out;
+}
+
+/**
  * Run a per-zip async fn against a list of zips with bounded concurrency.
  * Skips entries that throw or return null.
  */
