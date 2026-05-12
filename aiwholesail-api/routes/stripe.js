@@ -323,21 +323,65 @@ router.get('/subscription', authenticate, asyncHandler(async (req, res) => {
     }
   }
 
-  // Update database
-  await query(
-    `INSERT INTO subscribers (email, user_id, stripe_customer_id, subscribed, subscription_tier, subscription_end, is_trial, trial_start, trial_end, updated_at)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())
-     ON CONFLICT (email) DO UPDATE SET
-       stripe_customer_id = EXCLUDED.stripe_customer_id,
-       subscribed = EXCLUDED.subscribed,
-       subscription_tier = EXCLUDED.subscription_tier,
-       subscription_end = EXCLUDED.subscription_end,
-       is_trial = EXCLUDED.is_trial,
-       trial_start = EXCLUDED.trial_start,
-       trial_end = EXCLUDED.trial_end,
-       updated_at = NOW()`,
-    [user.email, user.id, customerId, hasActiveSub, subscriptionTier, subscriptionEnd, isOnTrial, trialStart, trialEnd]
-  );
+  // CRITICAL — must NOT wipe locally-managed state when Stripe shows
+  // no live subs. Same trap PR #192 fixed in the webhook reconciler:
+  // this endpoint fires on every authenticated page load, and the
+  // unconditional UPSERT below was wiping (a) in-app DB trial rows
+  // created at signup and (b) manual Elite grants (cpodea5 et al)
+  // every time a logged-in user loaded the app. Mirrors the reconciler
+  // preservation logic: if the local row has an active trial or an
+  // active subscription_end, skip the destructive write entirely and
+  // return the local state.
+  if (!hasActiveSub && dbSub.rows.length > 0) {
+    const localRow = dbSub.rows[0];
+    const now = new Date();
+    const trialStillActive = !!(localRow.is_trial && localRow.trial_end && new Date(localRow.trial_end) > now);
+    const subStillActive = !!(localRow.subscription_end && new Date(localRow.subscription_end) > now);
+
+    if (trialStillActive || subStillActive) {
+      console.log(`[Stripe] GET /subscription: ${user.email} — Stripe 0 live subs but local state active (trial=${trialStillActive} sub=${subStillActive}). Preserving.`);
+      return res.json({
+        subscribed: localRow.subscribed,
+        subscription_tier: localRow.subscription_tier,
+        subscription_end: localRow.subscription_end,
+        is_trial: localRow.is_trial,
+        trial_start: localRow.trial_start,
+        trial_end: localRow.trial_end,
+      });
+    }
+  }
+
+  // Update database. When hasActiveSub=true we write everything from
+  // Stripe (canonical). When hasActiveSub=false and we reach this point,
+  // local state is also expired — we preserve subscription_tier as a
+  // historical breadcrumb (matches the PR #193 middleware fix); the
+  // (subscribed=false, is_trial=false) pair is enough to gate features.
+  if (hasActiveSub) {
+    await query(
+      `INSERT INTO subscribers (email, user_id, stripe_customer_id, subscribed, subscription_tier, subscription_end, is_trial, trial_start, trial_end, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())
+       ON CONFLICT (email) DO UPDATE SET
+         stripe_customer_id = EXCLUDED.stripe_customer_id,
+         subscribed = EXCLUDED.subscribed,
+         subscription_tier = EXCLUDED.subscription_tier,
+         subscription_end = EXCLUDED.subscription_end,
+         is_trial = EXCLUDED.is_trial,
+         trial_start = EXCLUDED.trial_start,
+         trial_end = EXCLUDED.trial_end,
+         updated_at = NOW()`,
+      [user.email, user.id, customerId, hasActiveSub, subscriptionTier, subscriptionEnd, isOnTrial, trialStart, trialEnd]
+    );
+  } else {
+    await query(
+      `UPDATE subscribers
+         SET stripe_customer_id = $2,
+             subscribed = false,
+             is_trial = false,
+             updated_at = NOW()
+       WHERE email = $1`,
+      [user.email, customerId]
+    );
+  }
 
   res.json({
     subscribed: hasActiveSub,
