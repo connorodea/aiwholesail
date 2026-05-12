@@ -20,6 +20,7 @@ const { authenticate } = require('../middleware/auth');
 const { asyncHandler } = require('../middleware/errorHandler');
 const { attachSubscription, TIERS } = require('../middleware/subscription');
 const { WEBHOOK_EVENTS, newSecret, deliver } = require('../lib/webhooks');
+const { validateWebhookUrl } = require('../lib/url-safety');
 
 const router = express.Router();
 
@@ -45,20 +46,9 @@ function validateEvents(events) {
   return null;
 }
 
-function validateUrl(url) {
-  if (typeof url !== 'string') return 'url required';
-  try {
-    const u = new URL(url);
-    if (!['http:', 'https:'].includes(u.protocol)) return 'url must be http or https';
-    if (process.env.NODE_ENV === 'production' && u.protocol !== 'https:') return 'url must be https in production';
-    if (['localhost', '127.0.0.1', '0.0.0.0'].includes(u.hostname) && process.env.NODE_ENV === 'production') {
-      return 'localhost URLs not allowed in production';
-    }
-    return null;
-  } catch {
-    return 'invalid url';
-  }
-}
+// URL validation lives in lib/url-safety.validateWebhookUrl. It's async (resolves
+// DNS to enforce blocking against the *resolved* IP, not just the literal
+// hostname) so callers must `await` it.
 
 function publicShape(row) {
   // Don't leak the secret in list/get responses (it's only revealed on create)
@@ -104,7 +94,12 @@ router.post('/', authenticate, attachSubscription, [
   if (!errs.isEmpty()) return res.status(400).json({ error: 'Validation failed', errors: errs.array() });
 
   const { url, events, description } = req.body;
-  const urlErr = validateUrl(url);
+  if (typeof url !== 'string' || url.length === 0) {
+    return res.status(400).json({ error: 'url required' });
+  }
+  const urlErr = await validateWebhookUrl(url, {
+    allowHttp: process.env.NODE_ENV !== 'production',
+  });
   if (urlErr) return res.status(400).json({ error: urlErr });
   const evErr = validateEvents(events);
   if (evErr) return res.status(400).json({ error: evErr });
