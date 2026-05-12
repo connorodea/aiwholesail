@@ -60,9 +60,9 @@ export function DealDetailSheet({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpen}>
-      <DialogContent className="max-w-2xl w-full p-0 rounded-2xl overflow-hidden max-h-[90vh] overflow-y-auto" style={{ backgroundColor: '#0c0d0f', borderColor: 'rgba(255,255,255,0.08)', color: '#fff' }}>
+      <DialogContent className="max-w-2xl w-full p-0 rounded-2xl flex flex-col h-[90vh] max-h-[90vh] overflow-hidden" style={{ backgroundColor: '#0c0d0f', borderColor: 'rgba(255,255,255,0.08)', color: '#fff' }}>
         {/* Header */}
-        <div className="relative p-6 pb-4 border-b border-white/[0.06] bg-gradient-to-b from-white/[0.03] to-transparent">
+        <div className="relative p-6 pb-4 border-b border-white/[0.06] bg-gradient-to-b from-white/[0.03] to-transparent shrink-0">
           <button onClick={onClose} className="absolute top-4 right-4 p-1.5 rounded-lg hover:bg-white/[0.06] transition-colors">
             <X className="h-4 w-4 text-neutral-400" />
           </button>
@@ -106,7 +106,7 @@ export function DealDetailSheet({
         </div>
 
         {/* Body */}
-        <div className="p-6 space-y-6">
+        <div className="flex-1 min-h-0 overflow-y-auto p-6 space-y-6">
           {/* Metrics */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.06]">
