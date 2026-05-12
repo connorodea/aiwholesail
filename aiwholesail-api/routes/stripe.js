@@ -4,6 +4,7 @@ const { body, validationResult } = require('express-validator');
 const { query } = require('../config/database');
 const { authenticate, optionalAuth } = require('../middleware/auth');
 const { asyncHandler, logSecurityEvent } = require('../middleware/errorHandler');
+const { sendPurchaseEvent } = require('../lib/meta-capi');
 
 const router = express.Router();
 
@@ -478,7 +479,19 @@ router.post('/webhook', express.raw({ type: 'application/json' }), asyncHandler(
 
     case 'invoice.payment_succeeded': {
       const invoice = event.data.object;
-      console.log('[Stripe] Payment succeeded for invoice:', invoice.id);
+      console.log('[Stripe] Payment succeeded for invoice:', invoice.id, 'reason:', invoice.billing_reason);
+
+      // Meta CAPI Purchase event — fires on FIRST paid invoice only
+      // (subscription_create), not on monthly renewals (subscription_cycle).
+      // This is the trial→paid conversion moment we want Meta to optimise
+      // against. Best-effort: never block the webhook on CAPI failure.
+      if (invoice.billing_reason === 'subscription_create' && invoice.amount_paid > 0) {
+        try {
+          await firePurchaseCapi({ invoice, eventId: event.id });
+        } catch (err) {
+          console.error('[Stripe→Meta CAPI] Purchase fire failed (non-fatal):', err.message);
+        }
+      }
       break;
     }
 
@@ -781,5 +794,87 @@ router.get('/debug/tier', authenticate, requireStripe, asyncHandler(async (req, 
     ],
   });
 }));
+
+/**
+ * Build and fire a Meta CAPI Purchase event from a paid Stripe invoice.
+ *
+ * Pulls attribution off the Subscription (set at checkout via
+ * subscription_data.metadata) with a fallback to Customer metadata (set
+ * at signup) for the fbp / fbc cookies that only live there. Looks up
+ * the user's name from our users table for fn/ln hashing.
+ *
+ * Why this lives here and not in lib/meta-capi.js: this function knows
+ * about Stripe's specific object shape + our DB. lib/meta-capi.js is the
+ * generic transport — drop-in for any other paid-conversion source.
+ */
+async function firePurchaseCapi({ invoice, eventId }) {
+  let subMetadata = {};
+  let customerMetadata = {};
+
+  if (invoice.subscription) {
+    try {
+      const sub = await stripe.subscriptions.retrieve(invoice.subscription);
+      subMetadata = sub.metadata || {};
+    } catch (err) {
+      console.warn('[CAPI] subscription lookup failed:', err.message);
+    }
+  }
+  try {
+    const customer = await stripe.customers.retrieve(invoice.customer);
+    customerMetadata = customer.metadata || {};
+  } catch (err) {
+    console.warn('[CAPI] customer lookup failed:', err.message);
+  }
+
+  // Subscription metadata wins (set at checkout, fresher); customer
+  // metadata fills the gaps (fbp/fbc, landing_url).
+  const attr = { ...customerMetadata, ...subMetadata };
+
+  // Look up user name for fn/ln hashing (optional but improves match).
+  let fullName;
+  try {
+    if (customerMetadata.user_id) {
+      const r = await query('SELECT full_name FROM users WHERE id = $1 LIMIT 1', [customerMetadata.user_id]);
+      fullName = r.rows[0]?.full_name || undefined;
+    }
+  } catch (err) {
+    console.warn('[CAPI] users name lookup failed:', err.message);
+  }
+
+  // Stripe invoice.customer_email is reliable post-checkout; fall back
+  // to customer.email lookup if absent.
+  let email = invoice.customer_email;
+  if (!email) {
+    try {
+      const customer = await stripe.customers.retrieve(invoice.customer);
+      email = customer.email;
+    } catch { /* swallow */ }
+  }
+
+  const result = await sendPurchaseEvent({
+    email,
+    fullName,
+    value: (invoice.amount_paid || 0) / 100,
+    currency: invoice.currency,
+    eventId,
+    eventTime: invoice.created || Math.floor(Date.now() / 1000),
+    fbp: attr.fbp,
+    fbc: attr.fbc,
+    fbclid: attr.fbclid,
+    externalId: invoice.customer,
+    eventSourceUrl: attr.landing_url || 'https://aiwholesail.com',
+  });
+
+  if (result.ok) {
+    console.log('[CAPI] Purchase event sent', {
+      eventId,
+      invoiceId: invoice.id,
+      value: (invoice.amount_paid || 0) / 100,
+      campaign: attr.utm_campaign || null,
+    });
+  } else {
+    console.error('[CAPI] Purchase event failed', { eventId, invoiceId: invoice.id, error: result.error });
+  }
+}
 
 module.exports = router;
