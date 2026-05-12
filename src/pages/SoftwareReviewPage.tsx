@@ -1,4 +1,5 @@
 import { useParams, Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import {
   ArrowRight, Check, X, Star, Shield, ChevronRight,
   DollarSign, Calendar, Target, Award, Zap,
@@ -7,6 +8,8 @@ import { SEOHead } from '@/components/SEOHead';
 import { PublicLayout } from '@/components/PublicLayout';
 import { Spotlight } from '@/components/ui/spotlight';
 import softwareReviews from '@/data/software-reviews.json';
+
+const LAST_UPDATED = '2026-05-12';
 
 interface SoftwareReview {
   slug: string;
@@ -26,6 +29,42 @@ interface SoftwareReview {
   };
   verdict: string;
   relatedReviews: string[];
+}
+
+// Generate AI-extractable answer + FAQs from review data (no editorial overhead).
+function deriveSnippet(r: SoftwareReview): string {
+  return (
+    `${r.name} is a ${r.category.toLowerCase()} at ${r.pricing}. ` +
+    `Our rating: ${r.rating}/5. ${r.name} works best for ${r.bestFor.toLowerCase()}. ` +
+    `It's strong on: ${r.pros.slice(0, 2).join(' and ').toLowerCase()}. ` +
+    `Top trade-offs: ${r.cons.slice(0, 2).join(' and ').toLowerCase()}.`
+  );
+}
+
+function deriveFaqs(r: SoftwareReview): { q: string; a: string }[] {
+  const price = r.pricing.replace(/^\$/, '');
+  return [
+    {
+      q: `Is ${r.name} worth it?`,
+      a: `${r.name} earns ${r.rating}/5 in our review. It's worth it if you're ${r.bestFor.toLowerCase()}. The biggest drawbacks are: ${r.cons.slice(0, 2).join(', ')}. ${r.verdict}`,
+    },
+    {
+      q: `How much does ${r.name} cost?`,
+      a: `${r.name} is priced at ${r.pricing}. For comparison, AIWholesail Pro is $49/month and Elite is $99/month, both with a 7-day free trial and no credit card required.`,
+    },
+    {
+      q: `What is ${r.name} best for?`,
+      a: `${r.name} is best for ${r.bestFor}. Where it shines: ${r.pros.slice(0, 3).join(', ')}.`,
+    },
+    {
+      q: `What are the cons of ${r.name}?`,
+      a: `Common drawbacks based on our review: ${r.cons.slice(0, 4).join('; ')}.`,
+    },
+    {
+      q: `${r.name} vs AIWholesail — which is better?`,
+      a: `It depends on your workflow. AIWholesail's main edges over ${r.name}: ${r.vsAIWholesail.aiWholesailAdvantages.slice(0, 3).join(', ')}. ${r.name}'s edge over AIWholesail: ${r.vsAIWholesail.competitorAdvantages.slice(0, 2).join(', ')}. AIWholesail starts at $49/month vs ${r.pricing}.`,
+    },
+  ];
 }
 
 function StarRating({ rating }: { rating: number }) {
@@ -78,19 +117,68 @@ export default function SoftwareReviewPage() {
     review.relatedReviews.includes(r.slug)
   );
 
+  const snippet = deriveSnippet(review);
+  const faqs = deriveFaqs(review);
+  const canonical = `https://aiwholesail.com/reviews/${review.slug}`;
+  // Pull a numeric price for schema (best effort).
+  const priceMatch = review.pricing.match(/[\d,.]+/);
+  const numericPrice = priceMatch ? priceMatch[0].replace(/,/g, '') : undefined;
+
+  const reviewJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Review',
+    url: canonical,
+    datePublished: LAST_UPDATED,
+    name: `${review.name} Review ${new Date().getFullYear()}`,
+    reviewBody: review.overview,
+    reviewRating: {
+      '@type': 'Rating',
+      ratingValue: review.rating,
+      bestRating: 5,
+      worstRating: 1,
+    },
+    author: { '@type': 'Organization', name: 'AIWholesail', url: 'https://aiwholesail.com' },
+    itemReviewed: {
+      '@type': 'SoftwareApplication',
+      name: review.name,
+      applicationCategory: 'BusinessApplication',
+      applicationSubCategory: review.category,
+      ...(numericPrice && {
+        offers: { '@type': 'Offer', price: numericPrice, priceCurrency: 'USD' },
+      }),
+    },
+  };
+
+  const faqJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  };
+
   return (
     <PublicLayout>
       <SEOHead
-        title={`${review.name} Review 2026 -- Is It Worth It?`}
-        description={`Honest ${review.name} review for 2026. ${review.pricing} pricing, pros & cons, features, and how it compares to AIWholesail. Read before you buy.`}
-        keywords={`${review.name} review, ${review.name} review 2026, ${review.name} pricing, ${review.name} pros cons, ${review.name} vs AIWholesail, best wholesaling software, ${review.name} alternative`}
-        canonicalUrl={`https://aiwholesail.com/reviews/${review.slug}`}
+        title={`Is ${review.name} Worth It? Honest Review (${new Date().getFullYear()}) — ${review.rating}/5`}
+        description={`${review.name} review: ${review.rating}/5. ${review.pricing}. Best for ${review.bestFor.toLowerCase()}. ${review.pros.length} pros, ${review.cons.length} cons, and how it compares to AIWholesail at $49/mo. Updated ${LAST_UPDATED}.`}
+        keywords={`${review.name} review, ${review.name} review 2026, ${review.name} pricing, ${review.name} pros cons, ${review.name} vs AIWholesail, best wholesaling software, ${review.name} alternative, is ${review.name} worth it`}
+        canonicalUrl={canonical}
         breadcrumbs={[
           { name: 'Home', url: 'https://aiwholesail.com' },
           { name: 'Software Reviews', url: 'https://aiwholesail.com/reviews' },
-          { name: `${review.name} Review`, url: `https://aiwholesail.com/reviews/${review.slug}` },
+          { name: `${review.name} Review`, url: canonical },
         ]}
       />
+
+      <Helmet>
+        <script type="application/ld+json">{JSON.stringify(reviewJsonLd)}</script>
+        <script type="application/ld+json">{JSON.stringify(faqJsonLd)}</script>
+        <meta name="last-modified" content={LAST_UPDATED} />
+        <meta property="article:modified_time" content={LAST_UPDATED} />
+      </Helmet>
 
       {/* ===== HERO ===== */}
       <section className="relative bg-gradient-to-b from-[#0a0a0a] via-[#0f0f0f] to-[#0a0a0a] text-white overflow-hidden">
@@ -118,6 +206,23 @@ export default function SoftwareReviewPage() {
           </p>
           <div className="flex justify-center">
             <StarRating rating={review.rating} />
+          </div>
+          <p className="mt-6 inline-flex items-center gap-2 text-xs text-white/40">
+            <Calendar className="h-3 w-3" /> Updated <time dateTime={LAST_UPDATED}>{LAST_UPDATED}</time>
+          </p>
+        </div>
+      </section>
+
+      {/* ===== AI-EXTRACTABLE ANSWER BLOCK ===== */}
+      <section className="py-10 px-4">
+        <div className="container mx-auto max-w-4xl">
+          <div className="border border-white/[0.05] bg-gradient-to-b from-neutral-900/50 to-transparent rounded-xl p-6 md:p-8">
+            <h2 className="text-sm font-semibold tracking-[0.15em] uppercase text-cyan-400 mb-3">
+              Is {review.name} worth it?
+            </h2>
+            <p className="text-base md:text-lg text-white/80 font-light leading-relaxed">
+              {snippet}
+            </p>
           </div>
         </div>
       </section>
@@ -318,6 +423,27 @@ export default function SoftwareReviewPage() {
                 Try AIWholesail Free <ArrowRight className="h-4 w-4" />
               </button>
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== FAQ ===== */}
+      <section className="py-16 px-4">
+        <div className="container mx-auto max-w-4xl">
+          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-4">FAQ</p>
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-white mb-10">
+            Common questions about {review.name}.
+          </h2>
+          <div className="space-y-4">
+            {faqs.map((faq, i) => (
+              <div
+                key={i}
+                className="border border-white/[0.05] bg-gradient-to-b from-neutral-900/50 to-transparent rounded-xl p-6"
+              >
+                <h3 className="text-base md:text-lg font-semibold text-white mb-2">{faq.q}</h3>
+                <p className="text-sm md:text-base text-white/70 font-light leading-relaxed">{faq.a}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
