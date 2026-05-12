@@ -517,7 +517,7 @@ router.post('/signup', [
       id: userId,
       email: normalizedEmail,
       fullName: fullName || null,
-      emailVerified: false
+      emailVerified: true
     },
     accessToken,
     refreshToken,
