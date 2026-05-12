@@ -10,6 +10,7 @@ const { checkDatabaseRateLimit } = require('../middleware/rateLimit');
 const { getClient } = require('../config/database');
 const { clientIp } = require('../lib/clientIp');
 const { apiUrl, appUrl, frontendUrl } = require('../lib/env-urls');
+const { respondError } = require('../lib/responses');
 
 const { Resend } = require('resend');
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -615,8 +616,10 @@ router.post('/signin', [
       ip_throttled: !ipLimit.allowed,
       email_throttled: !emailLimit.allowed,
     }, null, req);
-    res.set('Retry-After', '900');
-    return res.status(429).json({ error: 'Too many sign-in attempts. Try again in 15 minutes.' });
+    return respondError(res, 429, 'Too many sign-in attempts. Try again in 15 minutes.', {
+      code: 'RATE_LIMITED',
+      headers: { 'Retry-After': '900' },
+    });
   }
 
   // Find user
@@ -627,7 +630,7 @@ router.post('/signin', [
 
   if (result.rows.length === 0) {
     await logSecurityEvent('signin_user_not_found', { email: normalizedEmail.substring(0, 3) + '***' }, null, req);
-    return res.status(401).json({ error: 'Invalid email or password' });
+    return respondError(res, 401, 'Invalid email or password', { code: 'INVALID_CREDENTIALS' });
   }
 
   const user = result.rows[0];

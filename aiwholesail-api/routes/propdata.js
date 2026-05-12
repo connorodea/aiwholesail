@@ -10,6 +10,7 @@ const {
   normalizeUpstreamResponse,
   isRetryableError,
 } = require('../lib/propdata-normalizer');
+const { respondError } = require('../lib/responses');
 
 const router = express.Router();
 
@@ -167,8 +168,7 @@ async function proxy(req, res, endpoint, allowedParams, options = {}) {
   const bucketMax = options.rateLimitMax || RATE_LIMIT_PER_MIN;
   const rateLimit = await checkDatabaseRateLimit(req.user.id, bucket, bucketMax, 1);
   if (!rateLimit.allowed) {
-    return res.status(429).json({
-      error: 'Rate limit exceeded. Try again in a minute.',
+    return respondError(res, 429, 'Rate limit exceeded. Try again in a minute.', {
       code: ERROR_CODES.RATE_LIMITED,
     });
   }
