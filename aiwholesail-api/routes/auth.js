@@ -66,9 +66,15 @@ router.post('/signup', [
     referrer:     clean(attr.referrer,     2000),
     first_visit_at: (typeof attr.first_visit_at === 'string' && /^\d{4}-\d{2}-\d{2}T/.test(attr.first_visit_at))
       ? attr.first_visit_at : null,
-    // fbp / fbc are NOT persisted to the DB (they're cookies meant to be
-    // re-read at CAPI-send time, not stored long-term). They round-trip
-    // via the user's browser cookies for the Layer-2 Meta CAPI call.
+    // fbp / fbc / posthog_distinct_id are NOW persisted (migration 013).
+    // fbp / fbc let us fire Meta CAPI Purchase events from Stripe webhooks
+    // without depending on the browser still having the cookies (long
+    // trials → cookies may have rolled). posthog_distinct_id lets us
+    // alias() the anonymous PostHog session to user.id at signup so
+    // pre-signup recordings + autocapture pageviews stay linked.
+    fbp:                 clean(attr.fbp,                 512),
+    fbc:                 clean(attr.fbc,                 512),
+    posthog_distinct_id: clean(attr.posthog_distinct_id, 255),
   };
 
   // Validate password strength
@@ -112,17 +118,20 @@ router.post('/signup', [
     `INSERT INTO users (
        id, email, password_hash, full_name, email_verification_token, email_verified,
        utm_source, utm_medium, utm_campaign, utm_content, utm_term,
-       fbclid, gclid, landing_url, referrer, first_visit_at
+       fbclid, gclid, landing_url, referrer, first_visit_at,
+       fbp, fbc, posthog_distinct_id, attribution_captured_at
      )
      VALUES ($1, $2, $3, $4, $5, true,
              $6, $7, $8, $9, $10,
-             $11, $12, $13, $14, $15)`,
+             $11, $12, $13, $14, $15,
+             $16, $17, $18, NOW())`,
     [
       userId, normalizedEmail, passwordHash, fullName || null, verificationToken,
       marketingFields.utm_source, marketingFields.utm_medium,
       marketingFields.utm_campaign, marketingFields.utm_content, marketingFields.utm_term,
       marketingFields.fbclid, marketingFields.gclid,
       marketingFields.landing_url, marketingFields.referrer, marketingFields.first_visit_at,
+      marketingFields.fbp, marketingFields.fbc, marketingFields.posthog_distinct_id,
     ]
   );
 
@@ -569,6 +578,34 @@ router.post('/signup', [
   }
 
   await logSecurityEvent('signup_success', { email: normalizedEmail.substring(0, 3) + '***' }, userId, req);
+
+  // PostHog server-side: link the anonymous browser session to the new user
+  // (so pre-signup recordings + autocapture pageviews stay connected) and
+  // emit the canonical server-side trial_started event. Both calls are
+  // no-ops when POSTHOG_KEY isn't set; both also write to analytics_events
+  // for local audit regardless.
+  try {
+    const { captureServer, aliasServer } = require('../lib/posthog');
+    if (marketingFields.posthog_distinct_id) {
+      await aliasServer(userId, marketingFields.posthog_distinct_id);
+    }
+    await captureServer(userId, 'trial_started_server', {
+      email: normalizedEmail,
+      plan: 'free_trial',
+      utm_source:   marketingFields.utm_source,
+      utm_medium:   marketingFields.utm_medium,
+      utm_campaign: marketingFields.utm_campaign,
+      utm_content:  marketingFields.utm_content,
+      utm_term:     marketingFields.utm_term,
+      fbclid:       marketingFields.fbclid,
+      gclid:        marketingFields.gclid,
+      landing_url:  marketingFields.landing_url,
+      referrer:     marketingFields.referrer,
+    }, { userId });
+  } catch (phErr) {
+    // Analytics outage must never break signup — log and continue.
+    console.warn('[PostHog] signup capture failed:', phErr.message);
+  }
 
   res.status(201).json({
     user: {

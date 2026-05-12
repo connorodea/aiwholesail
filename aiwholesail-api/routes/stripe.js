@@ -462,12 +462,20 @@ router.post('/webhook', express.raw({ type: 'application/json' }), asyncHandler(
     case 'customer.subscription.updated': {
       const subscription = event.data.object;
       await handleSubscriptionUpdate(subscription);
+      // PostHog: fire on creation only (updates fire too noisily — every
+      // status flip, payment-method change, period roll-over would emit).
+      if (event.type === 'customer.subscription.created') {
+        try { await capturePosthogSubscriptionEvent('subscription_activated', subscription); }
+        catch (e) { console.warn('[PostHog] subscription_activated capture failed:', e.message); }
+      }
       break;
     }
 
     case 'customer.subscription.deleted': {
       const subscription = event.data.object;
       await handleSubscriptionCanceled(subscription);
+      try { await capturePosthogSubscriptionEvent('subscription_cancelled', subscription); }
+      catch (e) { console.warn('[PostHog] subscription_cancelled capture failed:', e.message); }
       break;
     }
 
@@ -498,6 +506,8 @@ router.post('/webhook', express.raw({ type: 'application/json' }), asyncHandler(
     case 'invoice.payment_failed': {
       const invoice = event.data.object;
       console.log('[Stripe] Payment failed for invoice:', invoice.id);
+      try { await capturePosthogInvoiceEvent('payment_failed', invoice); }
+      catch (e) { console.warn('[PostHog] payment_failed capture failed:', e.message); }
       // TODO: Send notification email
       break;
     }
@@ -688,6 +698,100 @@ async function handleCheckoutCompleted(session) {
       [session.metadata.user_id, customerEmail, customerId]
     );
   }
+}
+
+/**
+ * Look up the user + their UTM payload from a Stripe customer id. Returns
+ * null if the customer is unknown locally (rare — usually means the
+ * Stripe webhook arrived for a customer we haven't synced into
+ * subscribers yet).
+ */
+async function lookupUserByStripeCustomer(customerId) {
+  if (!customerId) return null;
+  const r = await query(
+    `SELECT u.id, u.email, u.utm_source, u.utm_medium, u.utm_campaign,
+            u.utm_content, u.utm_term, u.fbclid, u.gclid,
+            u.fbp, u.fbc, u.posthog_distinct_id,
+            s.subscription_tier, s.is_trial, s.trial_start
+       FROM subscribers s
+       JOIN users u ON u.id = s.user_id
+      WHERE s.stripe_customer_id = $1
+      LIMIT 1`,
+    [customerId]
+  );
+  return r.rows[0] || null;
+}
+
+/**
+ * Fire a PostHog event on a Stripe subscription lifecycle change. Pulls
+ * the user's UTM payload so ad-set cohort analysis is possible downstream.
+ * No-ops gracefully when POSTHOG_KEY is unset.
+ */
+async function capturePosthogSubscriptionEvent(eventName, subscription) {
+  const { captureServer } = require('../lib/posthog');
+  const user = await lookupUserByStripeCustomer(subscription.customer);
+  const price = subscription.items?.data?.[0]?.price;
+  const amount = price?.unit_amount != null ? price.unit_amount / 100 : null;
+  const tier = price?.metadata?.tier
+    || (price?.lookup_key?.startsWith('elite') ? 'Elite'
+    : price?.lookup_key?.startsWith('pro') ? 'Pro'
+    : (price?.unit_amount >= 9900 ? 'Elite' : 'Pro'));
+
+  const daysActive = subscription.created
+    ? Math.round((Date.now() / 1000 - subscription.created) / 86400)
+    : null;
+
+  await captureServer(
+    user?.id || subscription.customer,
+    eventName,
+    {
+      stripe_subscription_id: subscription.id,
+      stripe_customer_id: subscription.customer,
+      plan: tier,
+      amount,
+      currency: price?.currency || 'usd',
+      status: subscription.status,
+      cancel_at_period_end: subscription.cancel_at_period_end,
+      cancellation_reason: subscription.cancellation_details?.reason,
+      trial_days: subscription.trial_end && subscription.trial_start
+        ? Math.round((subscription.trial_end - subscription.trial_start) / 86400)
+        : 0,
+      days_active: daysActive,
+      // Ad-attribution carry-through — lets PostHog break conversion down
+      // by utm_content (ad-set) without joining against the DB.
+      utm_source:   user?.utm_source,
+      utm_medium:   user?.utm_medium,
+      utm_campaign: user?.utm_campaign,
+      utm_content:  user?.utm_content,
+      utm_term:     user?.utm_term,
+      fbclid:       user?.fbclid,
+      gclid:        user?.gclid,
+    },
+    { userId: user?.id, source: 'webhook' }
+  );
+}
+
+async function capturePosthogInvoiceEvent(eventName, invoice) {
+  const { captureServer } = require('../lib/posthog');
+  const user = await lookupUserByStripeCustomer(invoice.customer);
+  await captureServer(
+    user?.id || invoice.customer,
+    eventName,
+    {
+      stripe_invoice_id: invoice.id,
+      stripe_customer_id: invoice.customer,
+      stripe_subscription_id: invoice.subscription,
+      amount_due:    invoice.amount_due != null ? invoice.amount_due / 100 : null,
+      amount_paid:   invoice.amount_paid != null ? invoice.amount_paid / 100 : null,
+      currency:      invoice.currency,
+      attempt_count: invoice.attempt_count,
+      billing_reason: invoice.billing_reason,
+      plan: user?.subscription_tier,
+      utm_content:  user?.utm_content,
+      utm_campaign: user?.utm_campaign,
+    },
+    { userId: user?.id, source: 'webhook' }
+  );
 }
 
 /**
