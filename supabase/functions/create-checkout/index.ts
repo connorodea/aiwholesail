@@ -122,19 +122,16 @@ serve(async (req) => {
         },
       ],
       mode: "subscription",
-      subscription_data: {
-        trial_period_days: 7, // 7-day free trial
-        trial_settings: {
-          end_behavior: {
-            missing_payment_method: 'cancel'
-          }
-        }
-      },
+      payment_method_collection: 'always',
+      // No `trial_period_days` — users already get the in-app 7-day trial
+      // (subscribers.trial_end). Stacking a second Stripe-side trial was
+      // the original bug: card-less subscriptions auto-cancelled and zero
+      // dollars were ever collected through this flow.
       success_url: `${req.headers.get("origin")}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.headers.get("origin")}/pricing`,
       custom_text: {
         submit: {
-          message: "Start your 7-day free trial of AI Wholesail Pro! You'll get access to advanced real estate wholesale tools and AI-powered analysis. No charge until trial ends."
+          message: "You've used your 7-day free trial. Subscribe now to keep full access — cancel anytime from your account."
         }
       },
       metadata: {
