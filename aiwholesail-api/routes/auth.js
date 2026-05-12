@@ -1265,7 +1265,7 @@ router.get('/trial-upgrade', asyncHandler(async (req, res) => {
     customer_email: customerId ? undefined : user.email,
     line_items: [{ price: targetPrice.id, quantity: 1 }],
     mode: 'subscription',
-    payment_method_collection: 'if_required',
+    payment_method_collection: 'always',
     subscription_data: {
       trial_period_days: 0,    // already had a trial; no double-trial
       trial_settings: {
