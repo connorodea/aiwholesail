@@ -1,29 +1,22 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { zillowAPI } from '@/lib/zillow-api';
 import { propDataAPI } from '@/lib/propdata-api';
 import type { Property } from '@/types/zillow';
-import { MapPin, RefreshCw, TrendingUp, AlertTriangle, Bike, Bus, Footprints } from 'lucide-react';
+import { MapPin, RefreshCw, TrendingUp, AlertTriangle, Footprints } from 'lucide-react';
 
 /**
  * Neighborhood tab for PropertyModal.
  *
- * Fuses two data sources:
- *   1. Zillow Scraper /v1/walk-score — walkability, transit, bike
- *   2. PropData /v1/neighborhood — ZIP-level demographics + crime score
+ * Sourced entirely from PropData /v1/neighborhood — ZIP-level
+ * demographics + crime / school / walkability scores.
  *
- * Each section is independently best-effort: if one source fails the
- * other still renders. Tab opens lazily so the API spend is per-click.
+ * The PR #203 version also tried Zillow Scraper's walk-score endpoint,
+ * but our proxy explicitly rejects that action because the upstream
+ * Zillow Scraper API doesn't expose it. The "walkability" score in the
+ * card grid below is PropData's own (composite of street network
+ * density + amenity density), which is the same conceptual signal.
  */
-
-interface WalkScoreData {
-  walkScore?: number;
-  transitScore?: number;
-  bikeScore?: number;
-  description?: string;
-}
 
 interface NeighborhoodData {
   demographics?: {
@@ -40,18 +33,6 @@ interface NeighborhoodData {
     walkability?: number;
     crime_index?: number;
     school_score?: number;
-  };
-}
-
-function normalizeWalkScore(raw: unknown): WalkScoreData {
-  if (!raw || typeof raw !== 'object') return {};
-  const d = raw as Record<string, unknown>;
-  const ws = (d.walkScore ?? d.walk_score ?? d.data ?? d) as Record<string, unknown>;
-  return {
-    walkScore: typeof ws.walkScore === 'number' ? ws.walkScore : (typeof ws.walk === 'number' ? ws.walk : undefined),
-    transitScore: typeof ws.transitScore === 'number' ? ws.transitScore : (typeof ws.transit === 'number' ? ws.transit : undefined),
-    bikeScore: typeof ws.bikeScore === 'number' ? ws.bikeScore : (typeof ws.bike === 'number' ? ws.bike : undefined),
-    description: typeof ws.description === 'string' ? ws.description : undefined,
   };
 }
 
@@ -109,51 +90,34 @@ const fmtPct = (val?: number | null) =>
   val != null ? `${Math.round(val * 100)}%` : '—';
 
 export function PropertyNeighborhoodTab({ property }: { property: Property }) {
-  const zpid = property.zpid || property.id;
   const zip = (property as { zipcode?: string; zip?: string }).zipcode || (property as { zip?: string }).zip;
 
   const [loading, setLoading] = useState(true);
-  const [walk, setWalk] = useState<WalkScoreData>({});
   const [neighborhood, setNeighborhood] = useState<NeighborhoodData | null>(null);
-  const [walkErr, setWalkErr] = useState<string | null>(null);
   const [nbErr, setNbErr] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!zip) {
+      setNbErr('No ZIP code on this property — neighborhood data requires a ZIP.');
+      setLoading(false);
+      return;
+    }
     let cancelled = false;
-    (async () => {
-      const tasks: Promise<unknown>[] = [];
-
-      if (zpid) {
-        tasks.push(
-          zillowAPI.getWalkScore(String(zpid))
-            .then((d) => {
-              if (!cancelled) setWalk(normalizeWalkScore(d));
-            })
-            .catch(() => {
-              if (!cancelled) setWalkErr('Could not load walk score.');
-            })
-        );
-      }
-
-      if (zip) {
-        tasks.push(
-          propDataAPI.getNeighborhood(String(zip))
-            .then((d) => {
-              if (!cancelled) setNeighborhood(d as NeighborhoodData);
-            })
-            .catch(() => {
-              if (!cancelled) setNbErr('Could not load neighborhood demographics.');
-            })
-        );
-      }
-
-      await Promise.all(tasks);
-      if (!cancelled) setLoading(false);
-    })();
+    propDataAPI
+      .getNeighborhood(String(zip))
+      .then((d) => {
+        if (!cancelled) setNeighborhood(d as NeighborhoodData);
+      })
+      .catch(() => {
+        if (!cancelled) setNbErr('Could not load neighborhood demographics.');
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
     return () => {
       cancelled = true;
     };
-  }, [zpid, zip]);
+  }, [zip]);
 
   if (loading) {
     return (
@@ -169,43 +133,6 @@ export function PropertyNeighborhoodTab({ property }: { property: Property }) {
 
   return (
     <div className="space-y-6">
-      <section className="space-y-3">
-        <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider px-1">
-          Walkability & Transit
-        </h3>
-        {walkErr ? (
-          <Card className="border-border/60">
-            <CardContent className="p-4 text-sm text-muted-foreground flex items-center gap-2">
-              <AlertTriangle className="h-4 w-4" /> {walkErr}
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <ScoreCard
-              label="Walk Score"
-              score={walk.walkScore}
-              icon={Footprints}
-              helperHigh="Most errands can be accomplished on foot"
-              helperLow="Most errands require a car"
-            />
-            <ScoreCard
-              label="Transit Score"
-              score={walk.transitScore}
-              icon={Bus}
-              helperHigh="Excellent public transit access"
-              helperLow="Few or no public transit options"
-            />
-            <ScoreCard
-              label="Bike Score"
-              score={walk.bikeScore}
-              icon={Bike}
-              helperHigh="Bikeable infrastructure"
-              helperLow="Limited bike infrastructure"
-            />
-          </div>
-        )}
-      </section>
-
       <section className="space-y-3">
         <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider px-1">
           Neighborhood Quality Scores
