@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { Helmet } from 'react-helmet-async';
 import { analytics } from '@/lib/analytics';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -143,6 +144,49 @@ export default function Pricing() {
         description="Choose the perfect AIWholesail plan for your real estate business. Start with a 7-day free trial. Pro at $49/month or Elite at $99/month."
         noIndex={false}
       />
+
+      {/* Pricing Product schema — AI-discoverable */}
+      <Helmet>
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Product",
+            "name": "AIWholesail",
+            "description": "AI-powered platform for real estate investors. Find profitable deals with AI scoring 0-100, auto spread detection, skip tracing, AI photo analysis, and built-in contract generation.",
+            "brand": {
+              "@type": "Brand",
+              "name": "AIWholesail"
+            },
+            "url": "https://aiwholesail.com/pricing",
+            "image": "https://aiwholesail.com/og-image.png",
+            "offers": {
+              "@type": "AggregateOffer",
+              "priceCurrency": "USD",
+              "lowPrice": "49",
+              "highPrice": "99",
+              "offerCount": plans.length,
+              "offers": plans.map((plan) => ({
+                "@type": "Offer",
+                "name": plan.name,
+                "price": String(plan.price),
+                "priceCurrency": "USD",
+                "priceSpecification": {
+                  "@type": "UnitPriceSpecification",
+                  "price": String(plan.price),
+                  "priceCurrency": "USD",
+                  "unitText": "MONTH",
+                  "billingDuration": "P1M"
+                },
+                "availability": "https://schema.org/InStock",
+                "url": "https://aiwholesail.com/pricing",
+                "category": "SaaS Subscription",
+                "eligibleRegion": { "@type": "Country", "name": "US" },
+                "description": plan.description
+              }))
+            }
+          })}
+        </script>
+      </Helmet>
 
       {/* ===== HERO ===== */}
       <section className="relative bg-gradient-to-b from-background via-card to-background text-foreground overflow-hidden">

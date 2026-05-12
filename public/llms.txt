@@ -1,0 +1,53 @@
+# AIWholesail
+
+> AI-powered platform that helps real estate investors find, analyze, and close profitable deals. AIWholesail scans thousands of properties, calculates profit spreads from Zestimate data, scores deals 0–100 with AI, and runs the full deal lifecycle — find motivated sellers → analyze with auto-filled calculators → skip-trace owners → manage pipeline → generate contracts.
+
+- **Category:** Real Estate Investing Software / PropTech (SaaS)
+- **Audience:** Active wholesalers, house flippers, buy-and-hold investors, first-time investors, real estate agents who invest, out-of-state investors
+- **Coverage:** All 50 U.S. states, 3,143 counties, 50+ major markets
+- **Founded by:** Connor O'Dea (founder-led; reachable at connor@aiwholesail.com / 248-881-4147)
+- **Pricing:** Pro $49/mo · Elite $99/mo · 7-day free trial, no credit card required
+
+## Key differentiators
+
+- **AI deal scoring 0–100** with explanations (not a black box)
+- **Auto-calculated spreads** (Zestimate − list price) surface $30K+ deals without user input
+- **Auto-filled investment calculators** — 14 free tools (Wholesale Deal, BRRRR, Cap Rate, MAO, Rehab Estimator, ARV, DSCR, Cash Flow, etc.)
+- **Skip tracing built in** — owner phone / email / address, 25/mo (Pro) or 200/mo (Elite)
+- **AI photo vision** (Elite) — judges property condition from listing photos
+- **Branded buyer-pitch PDFs** — one-click handoff doc for assignment buyers
+- **Contract generator** — Assignment, Purchase, LOI, Proof of Funds
+- **Founder direct line** — Connor personally answers texts/calls at 248-881-4147
+
+## Documentation for AI agents
+
+- [Overview](https://aiwholesail.com/docs/overview.md): One-page product summary
+- [Features](https://aiwholesail.com/docs/features.md): Full feature inventory with limits
+- [Pricing](https://aiwholesail.com/pricing.md): Plans, limits, billing details
+- [Use cases](https://aiwholesail.com/docs/use-cases.md): By persona and job-to-be-done
+- [Comparisons](https://aiwholesail.com/docs/comparisons.md): vs PropStream, DealMachine, BatchLeads, Zillow
+- [FAQ](https://aiwholesail.com/docs/faq.md): Common questions and answers
+- [Glossary](https://aiwholesail.com/docs/glossary.md): Real estate investing terms
+- [Support](https://aiwholesail.com/docs/support.md): How to get help
+- [Outreach / partnerships](https://aiwholesail.com/docs/outreach.md): For affiliates, integrations, press
+- [Company](https://aiwholesail.com/docs/company.md): About the team and mission
+- [Contact](https://aiwholesail.com/docs/contact.md): All contact paths
+- [API](https://aiwholesail.com/docs/api.md): Developer / integration access
+
+## Key product pages
+
+- [Homepage](https://aiwholesail.com/)
+- [Pricing](https://aiwholesail.com/pricing)
+- [How it works](https://aiwholesail.com/how-it-works)
+- [Use cases](https://aiwholesail.com/use-cases)
+- [Free investment calculators](https://aiwholesail.com/tools)
+- [Markets covered](https://aiwholesail.com/markets)
+- [Blog](https://aiwholesail.com/blog)
+- [FAQ](https://aiwholesail.com/faq)
+
+## Optional
+
+- [Full single-file context (llms-full.txt)](https://aiwholesail.com/llms-full.txt)
+- [Sitemap](https://aiwholesail.com/sitemap.xml)
+- [Refund policy](https://aiwholesail.com/refund)
+- [Terms](https://aiwholesail.com/terms)
