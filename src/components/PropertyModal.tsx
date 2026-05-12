@@ -273,7 +273,7 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-full max-w-7xl h-[100dvh] sm:h-auto sm:max-h-[95vh] overflow-hidden p-0 bg-gradient-to-br from-background via-background to-muted/5 border-0 sm:border-2 border-border/50 shadow-2xl rounded-none sm:rounded-2xl">
+      <DialogContent className="w-full max-w-7xl h-[100dvh] sm:h-auto sm:max-h-[95vh] overflow-hidden p-0 bg-gradient-to-br from-background via-background to-muted/5 border-0 sm:border-2 border-border/50 shadow-2xl rounded-none sm:rounded-2xl flex flex-col">
         {/* Header */}
         <DialogHeader className="relative p-4 sm:p-5 lg:p-6 pb-3 sm:pb-4 border-b border-border/30 backdrop-blur-sm overflow-hidden flex-shrink-0">
           {/* Optional hero image with darkening gradient */}
@@ -457,9 +457,9 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
         </DialogHeader>
 
         {/* Content */}
-        <div className="flex-1 overflow-hidden">
-          <Tabs defaultValue="overview" className="w-full h-full flex flex-col">
-            <div className="px-3 sm:px-8 pt-3 sm:pt-5 pb-3 sm:pb-4 border-b border-border/30 bg-gradient-to-r from-muted/5 to-transparent overflow-x-auto scrollbar-none">
+        <div className="flex-1 min-h-0 overflow-hidden">
+          <Tabs defaultValue="overview" className="w-full h-full flex flex-col min-h-0">
+            <div className="flex-shrink-0 px-3 sm:px-8 pt-3 sm:pt-5 pb-3 sm:pb-4 border-b border-border/30 bg-gradient-to-r from-muted/5 to-transparent overflow-x-auto scrollbar-none">
               <TabsList className="inline-flex w-auto min-w-full bg-muted/30 rounded-xl p-1 backdrop-blur-sm gap-1">
                 <TabsTrigger value="overview" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_0_1px_rgba(6,182,212,0.25),0_2px_8px_rgba(0,0,0,0.4)] rounded-lg transition-all duration-200 text-xs font-medium px-3 h-8">
                   <Home className="h-3.5 w-3.5" />
