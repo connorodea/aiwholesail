@@ -26,6 +26,7 @@
 const { getMonthlyUsageCents } = require('../lib/llm-usage');
 const { capCentsForTier } = require('../lib/llm-cost');
 const { logEvent, EVENTS } = require('../lib/events');
+const { respondError } = require('../lib/responses');
 
 function checkLlmBudget() {
   return async (req, res, next) => {
@@ -52,11 +53,12 @@ function checkLlmBudget() {
 
       if (capCents === 0) {
         // No-access tier — return a clear upgrade nudge rather than a generic 429.
-        return res.status(403).json({
-          error: 'AI features require a paid plan',
+        return respondError(res, 403, 'AI features require a paid plan', {
           code: 'TIER_REQUIRED',
-          message: 'Upgrade to Pro or Elite to use AI tools.',
-          currentTier: tier,
+          details: {
+            message: 'Upgrade to Pro or Elite to use AI tools.',
+            currentTier: tier,
+          },
         });
       }
 
@@ -71,18 +73,19 @@ function checkLlmBudget() {
           used_cents: usedCents,
           cap_cents: capCents,
         });
-        return res.status(429).json({
-          error: 'Monthly AI budget reached',
+        return respondError(res, 429, 'Monthly AI budget reached', {
           code: 'LLM_BUDGET_EXCEEDED',
-          message: `You've used your monthly AI budget on ${tier}. ${
-            tier === 'Pro' || tier === 'trial'
-              ? 'Upgrade to Elite for higher limits, or wait until '
-              : 'Resets at '
-          }${nextMonth}.`,
-          tier,
-          used_cents: usedCents,
-          cap_cents: capCents,
-          resets_at: nextMonth,
+          details: {
+            message: `You've used your monthly AI budget on ${tier}. ${
+              tier === 'Pro' || tier === 'trial'
+                ? 'Upgrade to Elite for higher limits, or wait until '
+                : 'Resets at '
+            }${nextMonth}.`,
+            tier,
+            used_cents: usedCents,
+            cap_cents: capCents,
+            resets_at: nextMonth,
+          },
         });
       }
 

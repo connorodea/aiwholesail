@@ -3,6 +3,7 @@ const { body, param, validationResult } = require('express-validator');
 const { query, getClient } = require('../config/database');
 const { authenticate } = require('../middleware/auth');
 const { asyncHandler } = require('../middleware/errorHandler');
+const { respondError } = require('../lib/responses');
 
 const router = express.Router();
 
@@ -379,11 +380,12 @@ router.post('/:id/outreach', authenticate, [
   // through this user's outreach path. Operator can confirm with the
   // recipient and clear the column manually if it was a mistake.
   if (buyer.unsubscribed_at) {
-    return res.status(400).json({
-      error: 'Buyer has unsubscribed',
+    return respondError(res, 400, 'Buyer has unsubscribed', {
       code: 'BUYER_UNSUBSCRIBED',
-      message: 'This buyer opted out of receiving messages from you. They will need to resubscribe before you can contact them again through AIWholesail.',
-      unsubscribed_at: buyer.unsubscribed_at,
+      details: {
+        message: 'This buyer opted out of receiving messages from you. They will need to resubscribe before you can contact them again through AIWholesail.',
+        unsubscribed_at: buyer.unsubscribed_at,
+      },
     });
   }
 

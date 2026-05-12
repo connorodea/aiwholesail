@@ -21,6 +21,7 @@ const { asyncHandler } = require('../middleware/errorHandler');
 const { attachSubscription, TIERS } = require('../middleware/subscription');
 const { WEBHOOK_EVENTS, newSecret, deliver } = require('../lib/webhooks');
 const { validateWebhookUrl } = require('../lib/url-safety');
+const { respondError } = require('../lib/responses');
 
 const router = express.Router();
 
@@ -111,11 +112,12 @@ router.post('/', authenticate, attachSubscription, [
   if (req.subscription.tier === TIERS.PRO) {
     const count = await query(`SELECT COUNT(*)::int AS n FROM webhook_endpoints WHERE user_id = $1`, [req.user.id]);
     if ((count.rows[0]?.n || 0) >= PRO_ENDPOINT_LIMIT) {
-      return res.status(403).json({
-        error: 'Endpoint limit reached',
+      return respondError(res, 403, 'Endpoint limit reached', {
         code: 'LIMIT_REACHED',
-        message: `Pro is limited to ${PRO_ENDPOINT_LIMIT} webhook endpoints. Upgrade to Elite for unlimited.`,
-        limit: PRO_ENDPOINT_LIMIT,
+        details: {
+          message: `Pro is limited to ${PRO_ENDPOINT_LIMIT} webhook endpoints. Upgrade to Elite for unlimited.`,
+          limit: PRO_ENDPOINT_LIMIT,
+        },
       });
     }
   }
