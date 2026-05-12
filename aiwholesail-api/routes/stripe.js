@@ -323,59 +323,73 @@ router.get('/subscription', authenticate, asyncHandler(async (req, res) => {
     }
   }
 
-  // CRITICAL — third wipe vector (caught after PR #192 + PR #193 shipped).
+  // CRITICAL — third wipe vector (caught after PR #192 + #193 shipped).
   //
-  // When Stripe shows no live subscription for the customer (true for every
-  // in-app DB trialer and every manual Elite grant), the loop above leaves
-  // hasActiveSub=false and all the *_End fields null. The UPSERT below
-  // would then write those NULLs back to the DB, wiping the locally-managed
-  // trial / Elite row. The useSubscription frontend hook calls this
-  // endpoint on every page load, so this wipe fires within seconds of any
-  // affected user opening the app.
-  //
-  // Confirmed reproduction (2026-05-12):
+  // The useSubscription React hook calls this endpoint on every authenticated
+  // page load. The original handler unconditionally UPSERTed whatever it got
+  // back from stripe.subscriptions.list() — including the empty case (which
+  // is true for every in-app DB trialer and every manual Elite grant). That
+  // wiped the locally-managed trial/Elite row within seconds of any affected
+  // user opening the app. Confirmed reproduction (2026-05-12):
   //   - Test user with active Pro trial (trial_end = 2026-05-19)
   //   - Single GET /api/stripe/subscription
-  //   - Row immediately wiped to (NULL, false, false, NULL, NULL)
+  //   - Row wiped to (NULL, false, false, NULL, NULL)
   //
-  // Fix mirrors PR #192's reconciler logic: if the local DB row already
-  // shows an active trial (trial_end > now) or an active manual grant
-  // (subscription_end > now), preserve it and return the DB state. Only
-  // proceed to the destructive UPSERT when Stripe is the authoritative
-  // source of truth (live sub exists OR local row is genuinely expired).
-  const localRow = dbSub.rows[0];
-  const now = new Date();
-  const localTrialActive = !!(localRow?.is_trial && localRow?.trial_end && new Date(localRow.trial_end) > now);
-  const localSubActive = !!(localRow?.subscription_end && new Date(localRow.subscription_end) > now);
+  // Two-layer fix (combined from PR #194 + PR #195):
+  //   1. If Stripe shows no live subs AND the local row has an active trial
+  //      OR future subscription_end, preserve the row and return its state.
+  //      Skip the UPSERT entirely.
+  //   2. If Stripe shows no live subs AND local state is also expired,
+  //      use a lighter UPDATE that preserves subscription_tier as a
+  //      historical breadcrumb (matches the PR #193 middleware pattern).
+  //      Setting subscribed=false + is_trial=false is enough to gate.
+  if (!hasActiveSub && dbSub.rows.length > 0) {
+    const localRow = dbSub.rows[0];
+    const now = new Date();
+    const trialStillActive = !!(localRow.is_trial && localRow.trial_end && new Date(localRow.trial_end) > now);
+    const subStillActive = !!(localRow.subscription_end && new Date(localRow.subscription_end) > now);
 
-  if (!hasActiveSub && (localTrialActive || localSubActive)) {
-    console.log(`[Stripe] GET /subscription: ${user.email} — Stripe 0 subs but local active state (trial=${localTrialActive} sub=${localSubActive}). Preserving DB row.`);
-    return res.json({
-      subscribed: localRow.subscribed,
-      subscription_tier: localRow.subscription_tier,
-      subscription_end: localRow.subscription_end,
-      is_trial: localRow.is_trial,
-      trial_start: localRow.trial_start,
-      trial_end: localRow.trial_end,
-    });
+    if (trialStillActive || subStillActive) {
+      console.log(`[Stripe] GET /subscription: ${user.email} — Stripe 0 live subs but local state active (trial=${trialStillActive} sub=${subStillActive}). Preserving.`);
+      return res.json({
+        subscribed: localRow.subscribed,
+        subscription_tier: localRow.subscription_tier,
+        subscription_end: localRow.subscription_end,
+        is_trial: localRow.is_trial,
+        trial_start: localRow.trial_start,
+        trial_end: localRow.trial_end,
+      });
+    }
   }
 
-  // Update database — safe path: either Stripe confirms an active sub, or
-  // local state is already expired so writing nulls is correct.
-  await query(
-    `INSERT INTO subscribers (email, user_id, stripe_customer_id, subscribed, subscription_tier, subscription_end, is_trial, trial_start, trial_end, updated_at)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())
-     ON CONFLICT (email) DO UPDATE SET
-       stripe_customer_id = EXCLUDED.stripe_customer_id,
-       subscribed = EXCLUDED.subscribed,
-       subscription_tier = EXCLUDED.subscription_tier,
-       subscription_end = EXCLUDED.subscription_end,
-       is_trial = EXCLUDED.is_trial,
-       trial_start = EXCLUDED.trial_start,
-       trial_end = EXCLUDED.trial_end,
-       updated_at = NOW()`,
-    [user.email, user.id, customerId, hasActiveSub, subscriptionTier, subscriptionEnd, isOnTrial, trialStart, trialEnd]
-  );
+  // Update database — split by case so genuine downgrades preserve the
+  // tier breadcrumb.
+  if (hasActiveSub) {
+    await query(
+      `INSERT INTO subscribers (email, user_id, stripe_customer_id, subscribed, subscription_tier, subscription_end, is_trial, trial_start, trial_end, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())
+       ON CONFLICT (email) DO UPDATE SET
+         stripe_customer_id = EXCLUDED.stripe_customer_id,
+         subscribed = EXCLUDED.subscribed,
+         subscription_tier = EXCLUDED.subscription_tier,
+         subscription_end = EXCLUDED.subscription_end,
+         is_trial = EXCLUDED.is_trial,
+         trial_start = EXCLUDED.trial_start,
+         trial_end = EXCLUDED.trial_end,
+         updated_at = NOW()`,
+      [user.email, user.id, customerId, hasActiveSub, subscriptionTier, subscriptionEnd, isOnTrial, trialStart, trialEnd]
+    );
+  } else {
+    await query(
+      `UPDATE subscribers
+         SET stripe_customer_id = $2,
+             subscribed = false,
+             is_trial = false,
+             updated_at = NOW()
+       WHERE email = $1`,
+      [user.email, customerId]
+    );
+  }
 
   res.json({
     subscribed: hasActiveSub,
