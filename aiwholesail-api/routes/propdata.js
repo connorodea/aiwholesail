@@ -28,6 +28,10 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 // without bloating the node process — eviction is FIFO via Map insertion order.
 const CACHE_MAX = 500;
 const CACHE_TTL_MS = 60 * 60 * 1000;
+// Delta endpoints are polled for freshness — a 1h cache would mask newly added
+// inventory between polls with an identical `since` cursor. 60s lets the proxy
+// absorb burst polling without hiding new records for long.
+const DELTA_CACHE_TTL_MS = 60 * 1000;
 const cache = new Map();
 
 function cacheKey(path, params) {
@@ -48,12 +52,20 @@ function cacheGet(key) {
   return entry.body;
 }
 
-function cacheSet(key, body) {
+function cacheSet(key, body, ttlMs = CACHE_TTL_MS) {
   if (cache.size >= CACHE_MAX) {
     const oldest = cache.keys().next().value;
     cache.delete(oldest);
   }
-  cache.set(key, { body, expiresAt: Date.now() + CACHE_TTL_MS });
+  cache.set(key, { body, expiresAt: Date.now() + ttlMs });
+}
+
+// Cheap ISO 8601 guard. PropData's delta endpoints require a parseable
+// timestamp; anything else just wastes upstream quota.
+function isIso8601(s) {
+  if (typeof s !== 'string' || s.length < 10) return false;
+  const d = new Date(s);
+  return !Number.isNaN(d.getTime());
 }
 
 // Per-user rate limit for PropData. Bumped from 5 → 60 after PR #183's
@@ -93,7 +105,7 @@ async function callUpstream(endpoint, params, timeoutMs) {
   }
 }
 
-async function proxy(req, res, endpoint, allowedParams) {
+async function proxy(req, res, endpoint, allowedParams, options = {}) {
   const requestId = crypto.randomBytes(6).toString('hex');
   res.set('X-PropData-RequestId', requestId);
 
@@ -110,6 +122,15 @@ async function proxy(req, res, endpoint, allowedParams) {
   for (const key of allowedParams) {
     const v = req.query[key];
     if (v !== undefined && v !== '') params[key] = String(v);
+  }
+
+  if (options.requiredParams) {
+    for (const key of options.requiredParams) {
+      if (!params[key]) return res.status(400).json({ error: `${key} is required` });
+    }
+  }
+  if (params.since && !isIso8601(params.since)) {
+    return res.status(400).json({ error: 'since must be ISO 8601' });
   }
 
   const key = cacheKey(endpoint, params);
@@ -158,7 +179,8 @@ async function proxy(req, res, endpoint, allowedParams) {
   }));
 
   // Cache only OK responses. NO_COVERAGE responses may resolve tomorrow.
-  if (result.ok) cacheSet(key, result.body);
+  // Delta endpoints pass a shorter ttlMs via options so polling sees fresh data.
+  if (result.ok) cacheSet(key, result.body, options.ttlMs);
 
   res.set('X-PropData-Cache', 'MISS');
   res.set('X-PropData-Code', result.code);
@@ -177,6 +199,17 @@ router.get('/geocode',       authenticate, asyncHandler((req, res) => proxy(req,
 router.get('/property',      authenticate, asyncHandler((req, res) => proxy(req, res, '/v1/property', [
   'zip', 'address', 'apn', 'owner', 'absentee_only', 'limit',
 ])));
+
+// Delta endpoints — return only records added/updated since the given ISO 8601
+// timestamp. Cursor-paginated. Short TTL so polling loops see fresh inventory.
+const DELTA_PARAMS = ['since', 'zip', 'cursor', 'limit'];
+const DELTA_OPTS = { ttlMs: DELTA_CACHE_TTL_MS, requiredParams: ['since'] };
+
+router.get('/property/delta',       authenticate, asyncHandler((req, res) =>
+  proxy(req, res, '/v1/property/delta', DELTA_PARAMS, DELTA_OPTS)));
+
+router.get('/preforeclosure/delta', authenticate, asyncHandler((req, res) =>
+  proxy(req, res, '/v1/preforeclosure/delta', DELTA_PARAMS, DELTA_OPTS)));
 
 // Zillow autocomplete — different RapidAPI host but SAME marketplace subscription.
 // Migrated here so the key never leaves the backend.
