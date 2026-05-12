@@ -11,6 +11,7 @@ import { mapPropDataListToUnified, type PropDataEnrichment } from '@/lib/unified
 import { resolveLocation } from '@/lib/locationResolver';
 import { topZipsInState } from '@/lib/topZipsByState';
 import { fanOutZipSearch, MAX_ZIPS_PER_SEARCH } from '@/lib/zip-search';
+import { OwnerSkipTraceButton } from '@/components/OwnerSkipTraceButton';
 import { Search, MapPin, User, Mail, Building, RefreshCw, Download, Flame, ShieldCheck, Sparkles, TrendingUp } from 'lucide-react';
 
 /**
@@ -435,9 +436,14 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
                     </div>
 
                     <div className="p-3 bg-primary/5 rounded-lg border border-primary/10 space-y-2">
-                      <div className="flex items-center gap-2">
-                        <User className="h-4 w-4 text-primary" />
-                        <span className="font-medium text-sm break-all">{rec.owner?.name || 'Unknown owner'}</span>
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <User className="h-4 w-4 text-primary flex-shrink-0" />
+                          <span className="font-medium text-sm break-all">{rec.owner?.name || 'Unknown owner'}</span>
+                        </div>
+                        <div className="flex-shrink-0">
+                          <OwnerSkipTraceButton owner={rec.owner} />
+                        </div>
                       </div>
                       {mailingAddr(rec) && (
                         <div className="flex items-start gap-2 text-sm">
