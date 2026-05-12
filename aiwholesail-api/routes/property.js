@@ -434,4 +434,53 @@ router.post('/photos', optionalAuth, asyncHandler(async (req, res) => {
   }
 }));
 
+/**
+ * GET /api/property/by-zpid?zpid=<id>
+ * Resolve a single property from the spread-alert cache so email deep-links
+ * (`/app?zpid=…`) can open the property modal without re-running a full
+ * Zillow search. The cache row is populated by the spread-alert worker at
+ * the moment the email is sent, so the row is guaranteed to exist for any
+ * zpid linked in a recent alert email.
+ *
+ * Returns Property-shape JSON ready for setSelectedProperty().
+ */
+router.get('/by-zpid', authenticate, asyncHandler(async (req, res) => {
+  const { zpid } = req.query;
+  if (!zpid || typeof zpid !== 'string') {
+    return res.status(400).json({ error: 'zpid query param required' });
+  }
+
+  const result = await query(
+    `SELECT zpid, address, price, zestimate, bedrooms, bathrooms, sqft,
+            property_type, days_on_market, listing_url, image_url
+     FROM property_search_cache
+     WHERE zpid = $1
+     ORDER BY last_seen_at DESC NULLS LAST
+     LIMIT 1`,
+    [zpid]
+  );
+
+  if (result.rows.length === 0) {
+    return res.status(404).json({ error: 'Property not in cache', zpid });
+  }
+
+  const r = result.rows[0];
+  const property = {
+    id: r.zpid,
+    zpid: r.zpid,
+    address: r.address || '',
+    price: Number(r.price) || 0,
+    zestimate: r.zestimate != null ? Number(r.zestimate) : undefined,
+    bedrooms: r.bedrooms ?? undefined,
+    bathrooms: r.bathrooms != null ? Number(r.bathrooms) : undefined,
+    sqft: r.sqft ?? undefined,
+    propertyType: r.property_type || undefined,
+    daysOnMarket: r.days_on_market ?? undefined,
+    status: 'forSale',
+    images: r.image_url ? [r.image_url] : [],
+  };
+
+  res.json({ property });
+}));
+
 module.exports = router;
