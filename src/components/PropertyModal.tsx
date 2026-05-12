@@ -281,9 +281,9 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-full max-w-7xl h-[100dvh] sm:h-auto sm:max-h-[95vh] overflow-hidden p-0 bg-gradient-to-br from-background via-background to-muted/5 border-0 sm:border-2 border-border/50 shadow-2xl rounded-none sm:rounded-2xl flex flex-col">
+      <DialogContent className="w-full max-w-7xl h-[100dvh] sm:h-[90vh] sm:max-h-[90vh] overflow-hidden p-0 bg-gradient-to-br from-background via-background to-muted/5 border-0 sm:border-2 border-border/50 shadow-2xl rounded-none sm:rounded-2xl flex flex-col">
         {/* Header */}
-        <DialogHeader className="relative p-4 sm:p-5 lg:p-6 pb-3 sm:pb-4 border-b border-border/30 backdrop-blur-sm overflow-hidden flex-shrink-0">
+        <DialogHeader className="relative p-4 sm:p-5 lg:p-6 pb-3 sm:pb-4 border-b border-border/30 backdrop-blur-sm overflow-hidden shrink-0">
           {/* Optional hero image with darkening gradient */}
           {propertyImage && (
             <>
@@ -465,10 +465,9 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
         </DialogHeader>
 
         {/* Content */}
-        <div className="flex-1 min-h-0 overflow-hidden">
-          <Tabs defaultValue="overview" className="w-full h-full flex flex-col min-h-0">
-            <div className="flex-shrink-0 px-3 sm:px-8 pt-3 sm:pt-5 pb-3 sm:pb-4 border-b border-border/30 bg-gradient-to-r from-muted/5 to-transparent overflow-x-auto scrollbar-none">
-              <TabsList className="inline-flex w-auto min-w-full bg-muted/30 rounded-xl p-1 backdrop-blur-sm gap-1">
+        <Tabs defaultValue="overview" className="flex-1 flex flex-col min-h-0 w-full">
+            <div className="shrink-0 px-3 sm:px-8 pt-3 sm:pt-5 pb-3 sm:pb-4 border-b border-border/30 bg-gradient-to-r from-muted/5 to-transparent overflow-x-auto scrollbar-none">
+              <TabsList className="inline-flex w-auto min-w-full bg-muted/30 rounded-xl p-1 backdrop-blur-sm gap-1 shrink-0">
                 <TabsTrigger value="overview" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_0_1px_rgba(6,182,212,0.25),0_2px_8px_rgba(0,0,0,0.4)] rounded-lg transition-all duration-200 text-xs font-medium px-3 h-8">
                   <Home className="h-3.5 w-3.5" />
                   Overview
@@ -524,8 +523,8 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
               </TabsList>
             </div>
 
-            <TabsContent value="overview" className="flex-1 overflow-auto mt-0">
-              <div className="p-3 sm:p-6 space-y-5 sm:space-y-8">
+            <TabsContent value="overview" className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-6 mt-0">
+              <div className="space-y-5 sm:space-y-8">
                 {/* Rental estimate — top-line stat. Renders null if Zillow
                     doesn't have rental data for the property, so the overview
                     layout is unchanged for properties without it. */}
@@ -659,42 +658,42 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
               </div>
             </TabsContent>
 
-            <TabsContent value="investment" className="flex-1 overflow-auto p-3 sm:p-6 mt-0">
+            <TabsContent value="investment" className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-6 mt-0">
               <InvestmentCalculator property={displayProperty} />
             </TabsContent>
 
-            <TabsContent value="arv" className="flex-1 overflow-auto p-3 sm:p-6 mt-0">
+            <TabsContent value="arv" className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-6 mt-0">
               <ARVCalculator property={displayProperty} />
             </TabsContent>
 
-            <TabsContent value="comps" className="flex-1 overflow-auto p-3 sm:p-6 mt-0">
+            <TabsContent value="comps" className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-6 mt-0">
               <AIRankedComps property={displayProperty} />
             </TabsContent>
 
-            <TabsContent value="tools" className="flex-1 overflow-auto p-3 sm:p-6 mt-0">
+            <TabsContent value="tools" className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-6 mt-0">
               <PropertyMortgageSection property={displayProperty} />
               <div className="my-6 border-t border-border/40" />
               <PropertyToolsTab property={displayProperty} />
             </TabsContent>
 
-            <TabsContent value="price-history" className="flex-1 overflow-auto p-3 sm:p-6 mt-0 space-y-6">
+            <TabsContent value="price-history" className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-6 mt-0 space-y-6">
               <PriceHistoryChart property={displayProperty} />
               <ZestimateHistoryChart property={displayProperty} />
             </TabsContent>
 
-            <TabsContent value="taxes" className="flex-1 overflow-auto p-3 sm:p-6 mt-0">
+            <TabsContent value="taxes" className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-6 mt-0">
               <TaxCarryingCosts property={displayProperty} />
             </TabsContent>
 
-            <TabsContent value="schools" className="flex-1 overflow-auto p-3 sm:p-6 mt-0">
+            <TabsContent value="schools" className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-6 mt-0">
               <PropertySchoolsTab property={displayProperty} />
             </TabsContent>
 
-            <TabsContent value="neighborhood" className="flex-1 overflow-auto p-3 sm:p-6 mt-0">
+            <TabsContent value="neighborhood" className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-6 mt-0">
               <PropertyNeighborhoodTab property={displayProperty} />
             </TabsContent>
 
-            <TabsContent value="details" className="flex-1 overflow-auto p-3 sm:p-6 mt-0">
+            <TabsContent value="details" className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-6 mt-0">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <Card className="border-border hover:shadow-md transition-shadow">
                   <CardHeader className="pb-4">
@@ -999,19 +998,18 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
               )}
             </TabsContent>
 
-            <TabsContent value="photos" className="flex-1 overflow-auto p-3 sm:p-6 mt-0">
+            <TabsContent value="photos" className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-6 mt-0">
               <PhotosGallery property={displayProperty} />
             </TabsContent>
 
-            <TabsContent value="photo-analysis" className="flex-1 overflow-auto p-3 sm:p-6 mt-0">
+            <TabsContent value="photo-analysis" className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-6 mt-0">
               <AIPhotoAnalysis property={displayProperty} />
             </TabsContent>
 
-            <TabsContent value="ai-analysis" className="flex-1 overflow-auto p-3 sm:p-6 mt-0">
+            <TabsContent value="ai-analysis" className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-6 mt-0">
               <AIPropertyAnalyzer property={displayProperty} />
             </TabsContent>
-          </Tabs>
-        </div>
+        </Tabs>
       </DialogContent>
       {/* AI Listing Copy generator — sibling Dialog */}
       <ListingDescriptionGenerator
