@@ -17,6 +17,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useSubscription } from '@/hooks/useSubscription';
 import { OwnerDetailModal } from '@/components/OwnerDetailModal';
+import { OffMarketPropertyModal } from '@/components/OffMarketPropertyModal';
 import { skipTrace } from '@/lib/api-client';
 import { Link } from 'react-router-dom';
 import { Search, MapPin, User, Mail, Building, RefreshCw, Download, Flame, ShieldCheck, Sparkles, TrendingUp, AlertTriangle, CalendarClock, X, CheckSquare, Lock } from 'lucide-react';
@@ -207,6 +208,9 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
   // Default OFF, dogfood for cpodea5 via feature_flag_users override.
   const { enabled: ownerDetailEnabled } = useFeatureFlag('off-market-owner-detail');
   const [openOwner, setOpenOwner] = useState<PropDataPropertyRecord | null>(null);
+  // Phase 6 — off-market property detail modal. PropData-shaped, no Zillow surface.
+  const { enabled: propertyModalEnabled } = useFeatureFlag('off-market-property-modal');
+  const [openProperty, setOpenProperty] = useState<PropDataPropertyRecord | null>(null);
   // Phase 3 — bulk skip-trace. Flag-gated and tier-gated (Pro/Elite).
   // When enabled, each result card gets a checkbox; selected records can be
   // bulk-skip-traced in parallel (concurrency 4) from a floating toolbar.
@@ -912,7 +916,18 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
                       <div className="flex-1 min-w-0">
                         <h4 className="font-semibold flex items-start gap-2">
                           <MapPin className="h-4 w-4 mt-0.5 text-primary flex-shrink-0" />
-                          <span className="break-words">{joinAddr(rec)}</span>
+                          {propertyModalEnabled ? (
+                            <button
+                              type="button"
+                              onClick={() => setOpenProperty(rec)}
+                              className="break-words text-left hover:text-cyan-300 hover:underline underline-offset-2 transition-colors"
+                              title="View full property detail"
+                            >
+                              {joinAddr(rec)}
+                            </button>
+                          ) : (
+                            <span className="break-words">{joinAddr(rec)}</span>
+                          )}
                         </h4>
                         <p className="text-xs text-muted-foreground ml-6 mt-0.5">
                           {[rec.county_name, rec.state].filter(Boolean).join(', ')}
@@ -1013,6 +1028,18 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
           onClose={() => setOpenOwner(null)}
           owner={openOwner.owner || {}}
           fallbackZip={openOwner.address?.zip}
+        />
+      )}
+
+      {/* Off-market property detail modal — flag-gated via
+          off-market-property-modal. Trigger is the property address
+          button in each result card. PropData-shaped detail view
+          (separate from Zillow-shaped PropertyModal). */}
+      {openProperty && (
+        <OffMarketPropertyModal
+          isOpen={!!openProperty}
+          onClose={() => setOpenProperty(null)}
+          property={openProperty}
         />
       )}
     </div>
