@@ -147,10 +147,16 @@ async function refreshAccessToken(): Promise<boolean> {
 
 // ============ AUTH API ============
 export const auth = {
-  signUp: async (email: string, password: string, fullName?: string, phoneNumber?: string): Promise<ApiResponse<{ user: User } & AuthTokens>> => {
+  signUp: async (
+    email: string,
+    password: string,
+    fullName?: string,
+    phoneNumber?: string,
+    attribution?: Record<string, string | undefined>,
+  ): Promise<ApiResponse<{ user: User } & AuthTokens>> => {
     const response = await apiFetch<{ user: User } & AuthTokens>('/api/auth/signup', {
       method: 'POST',
-      body: JSON.stringify({ email, password, fullName, phoneNumber }),
+      body: JSON.stringify({ email, password, fullName, phoneNumber, attribution }),
     });
 
     if (response.data) {

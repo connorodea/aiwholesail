@@ -139,6 +139,30 @@ router.post('/checkout', authenticate, [
 
   const frontendUrl = process.env.FRONTEND_URL || 'https://aiwholesail.com';
 
+  // Marketing-attribution metadata — pulled from the users row (populated
+  // at signup). Propagated to BOTH the Checkout Session and the resulting
+  // Subscription so paid conversions can be sliced by ad set in Stripe
+  // (and so the Meta CAPI webhook handler can read them from the
+  // subscription object when sending Purchase events).
+  let attrMetadata = {};
+  if (user?.id) {
+    try {
+      const u = await query(
+        `SELECT utm_source, utm_medium, utm_campaign, utm_content, utm_term,
+                fbclid, gclid
+           FROM users WHERE id = $1 LIMIT 1`,
+        [user.id]
+      );
+      if (u.rows[0]) {
+        for (const [k, v] of Object.entries(u.rows[0])) {
+          if (v) attrMetadata[k] = String(v).slice(0, 500);
+        }
+      }
+    } catch (err) {
+      console.warn('[Stripe] attribution lookup failed (non-fatal):', err.message);
+    }
+  }
+
   // Stripe rejects requests that set BOTH `customer` and `customer_email`
   // ("You may only specify one of these parameters"). When we have a known
   // customer id, omit the email — Stripe uses the customer's stored email.
@@ -179,8 +203,18 @@ router.post('/checkout', authenticate, [
     metadata: {
       company_name: 'AI Wholesail',
       guest_checkout: String(guestCheckout || false),
-      user_id: user?.id || ''
-    }
+      user_id: user?.id || '',
+      ...attrMetadata,
+    },
+    // Also tag the resulting Subscription with the same attribution so
+    // webhook handlers (Meta CAPI Purchase event in Layer 2) can read it
+    // straight off the subscription object without an extra DB call.
+    subscription_data: {
+      metadata: {
+        user_id: user?.id || '',
+        ...attrMetadata,
+      },
+    },
   });
 
   console.log('[Stripe] Checkout session created', { sessionId: session.id });

@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import apiClient, { auth, onAuthStateChange, User, stripe } from '@/lib/api-client';
 import { validatePassword, validateEmail, logSecurityEvent } from '@/lib/security';
 import { logSecurityEventEnhanced } from '@/lib/security-enhanced';
+import { getAttribution } from '@/lib/marketing-attribution';
 
 interface AuthContextType {
   user: User | null;
@@ -52,7 +53,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     try {
-      const response = await auth.signUp(email.trim().toLowerCase(), password, fullName?.trim(), phoneNumber?.trim());
+      // First-touch attribution captured on the very first landing; sent
+      // with the signup so the backend can persist + propagate to Stripe.
+      const attribution = getAttribution() || undefined;
+      const response = await auth.signUp(
+        email.trim().toLowerCase(),
+        password,
+        fullName?.trim(),
+        phoneNumber?.trim(),
+        attribution as Record<string, string | undefined> | undefined,
+      );
 
       if (response.error) {
         logSecurityEvent('signup_failed', { reason: response.error, email: email.substring(0, 3) + '***' });
