@@ -1,0 +1,15 @@
+[Unit]
+Description=Run AIWholesail funnel-metrics digest daily
+
+[Timer]
+# Daily at 09:30 UTC — 15 min after the subscriber-health audit (09:15)
+# and 30 min after health-monitor's green-ping window. Random delay to
+# spread Stripe + Resend API calls when multiple cron-like jobs run
+# at the same minute on the host.
+OnCalendar=*-*-* 09:30:00
+Persistent=true
+AccuracySec=1m
+RandomizedDelaySec=2m
+
+[Install]
+WantedBy=timers.target
