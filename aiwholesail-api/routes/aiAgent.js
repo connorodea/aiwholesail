@@ -19,6 +19,7 @@ const express = require('express');
 const { authenticate } = require('../middleware/auth');
 const { asyncHandler } = require('../middleware/errorHandler');
 const { attachSubscription, requireTierWithLimit } = require('../middleware/subscription');
+const { checkLlmBudget } = require('../middleware/llmBudget');
 const { logEvent, EVENTS } = require('../lib/events');
 const { runRouter } = require('../lib/agent/router');
 const {
@@ -59,6 +60,7 @@ router.post(
   '/chat',
   authenticate,
   attachSubscription,
+  checkLlmBudget(),
   requireTierWithLimit({
     eventType: 'ai_agent_chat',
     proMonthly: 100,

@@ -6,6 +6,7 @@ const { authenticate } = require('../middleware/auth');
 const { asyncHandler, logSecurityEvent } = require('../middleware/errorHandler');
 const { checkDatabaseRateLimit } = require('../middleware/rateLimit');
 const { attachSubscription, requireElite, requireTierWithLimit } = require('../middleware/subscription');
+const { checkLlmBudget } = require('../middleware/llmBudget');
 const { logEvent, EVENTS } = require('../lib/events');
 const {
   callClaude,
@@ -26,6 +27,7 @@ const RAPIDAPI_KEY = process.env.RAPIDAPI_KEY;
 router.post('/property-analysis',
   authenticate,
   attachSubscription,
+  checkLlmBudget(),
   requireTierWithLimit({ eventType: 'ai_property_analysis', proMonthly: 10, featureLabel: 'AI property analysis' }),
   [body('property').optional().isObject(), body('csv_data').optional().isArray(), body('market').optional().isString()],
 asyncHandler(async (req, res) => {
@@ -119,7 +121,7 @@ Current property overview: ${JSON.stringify(property, null, 2)}`;
   }
 
   // Call Claude with tools
-  const aiResponse = await callClaudeWithTools(systemPrompt, messages, tools);
+  const aiResponse = await callClaudeWithTools(systemPrompt, messages, tools, { userId: req.user.id, endpoint: '/api/ai/property-analysis' });
 
   // Handle tool calls if any
   if (aiResponse.content?.some(content => content.type === 'tool_use')) {
@@ -140,7 +142,7 @@ Current property overview: ${JSON.stringify(property, null, 2)}`;
     messages.push({ role: 'assistant', content: aiResponse.content });
     messages.push({ role: 'user', content: toolResults });
 
-    const finalResponse = await callClaudeWithTools(systemPrompt, messages, tools);
+    const finalResponse = await callClaudeWithTools(systemPrompt, messages, tools, { userId: req.user.id, endpoint: '/api/ai/property-analysis' });
 
     await logSecurityEvent('ai_analysis_complete', {
       userId: req.user.id,
@@ -174,7 +176,7 @@ Current property overview: ${JSON.stringify(property, null, 2)}`;
  * POST /api/ai/lead-scoring
  * AI-powered lead scoring
  */
-router.post('/lead-scoring', authenticate, [
+router.post('/lead-scoring', authenticate, attachSubscription, checkLlmBudget(), [
   body('property').optional().isObject(), body('csv_data').optional().isArray(), body('market').optional().isString()
 ], asyncHandler(async (req, res) => {
   const errors = validationResult(req);
@@ -206,7 +208,7 @@ Please return a JSON object with the following structure:
   "analysis": "<detailed analysis text>"
 }`;
 
-  const aiResponse = await callClaude(LEAD_SCORING_PROMPT, userMessage);
+  const aiResponse = await callClaude(LEAD_SCORING_PROMPT, userMessage, { userId: req.user.id, endpoint: '/api/ai/lead-scoring' });
   const responseText = aiResponse.content[0]?.text || '';
 
   // Try to extract JSON from response
@@ -260,7 +262,7 @@ Please return a JSON object with the following structure:
  * POST /api/ai/wholesale-analyzer
  * Wholesale deal analysis
  */
-router.post('/wholesale-analyzer', authenticate, [
+router.post('/wholesale-analyzer', authenticate, attachSubscription, checkLlmBudget(), [
   body('property').optional().isObject(), body('csv_data').optional().isArray(), body('market').optional().isString()
 ], asyncHandler(async (req, res) => {
   const errors = validationResult(req);
@@ -393,7 +395,7 @@ ${JSON.stringify(candidates, null, 2)}
 Return JSON only.`;
 
     try {
-      const batchResponse = await callClaude(BATCH_SYSTEM, batchMessage, { maxTokens: 8000, timeoutMs: 120000 });
+      const batchResponse = await callClaude(BATCH_SYSTEM, batchMessage, { maxTokens: 8000, timeoutMs: 120000, userId: req.user.id, endpoint: '/api/ai/wholesale-analyzer:batch' });
       const batchText = batchResponse.content?.[0]?.text || '';
       // Strip any accidental markdown fences before sending to frontend
       const cleaned = batchText.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/i, '').trim();
@@ -419,7 +421,7 @@ ${arv ? `Estimated ARV: $${arv}` : ''}
 
 Provide a comprehensive wholesale deal analysis including MAO calculation, profit potential, and recommendation.`;
 
-  const aiResponse = await callClaude(WHOLESALE_ANALYSIS_PROMPT, userMessage);
+  const aiResponse = await callClaude(WHOLESALE_ANALYSIS_PROMPT, userMessage, { userId: req.user.id, endpoint: '/api/ai/wholesale-analyzer' });
   const responseText = aiResponse.content[0]?.text || '';
 
   // Save to wholesale_deals table
@@ -448,7 +450,7 @@ Provide a comprehensive wholesale deal analysis including MAO calculation, profi
  * POST /api/ai/damage-detection
  * AI-powered property damage detection from photos
  */
-router.post('/damage-detection', authenticate, [
+router.post('/damage-detection', authenticate, attachSubscription, checkLlmBudget(), [
   body('photos').isArray().withMessage('Photos array required'),
   body('zpid').notEmpty().withMessage('Property ZPID required')
 ], asyncHandler(async (req, res) => {
@@ -499,7 +501,7 @@ Photo URLs: ${photos.slice(0, 5).join(', ')}
 
 Based on the property age, type, and available data, provide an estimated condition assessment.`;
 
-  const aiResponse = await callClaude(systemPrompt, userMessage);
+  const aiResponse = await callClaude(systemPrompt, userMessage, { userId: req.user.id, endpoint: '/api/ai/damage-detection' });
   const responseText = aiResponse.content[0]?.text || '';
 
   // Save assessment
@@ -524,7 +526,7 @@ Based on the property age, type, and available data, provide an estimated condit
  * POST /api/ai/deal-analysis
  * Quick deal analysis
  */
-router.post('/deal-analysis', authenticate, [
+router.post('/deal-analysis', authenticate, attachSubscription, checkLlmBudget(), [
   body('zillowUrl').optional().isURL(),
   body('address').optional().isString()
 ], asyncHandler(async (req, res) => {
@@ -550,7 +552,7 @@ Provide a quick wholesale deal assessment with:
 3. Deal potential (1-10 score)
 4. Key considerations`;
 
-  const aiResponse = await callClaude(WHOLESALE_ANALYSIS_PROMPT, userMessage);
+  const aiResponse = await callClaude(WHOLESALE_ANALYSIS_PROMPT, userMessage, { userId: req.user.id, endpoint: '/api/ai/deal-analysis' });
 
   res.json({
     response: aiResponse.content[0]?.text || 'Analysis complete',
@@ -562,7 +564,7 @@ Provide a quick wholesale deal assessment with:
  * POST /api/ai/chat
  * General AI chat for property questions
  */
-router.post('/chat', authenticate, [
+router.post('/chat', authenticate, attachSubscription, checkLlmBudget(), [
   body('message').notEmpty().withMessage('Message required')
 ], asyncHandler(async (req, res) => {
   const errors = validationResult(req);
@@ -589,7 +591,7 @@ Be helpful, concise, and provide actionable advice.`;
     { role: 'user', content: message }
   ];
 
-  const aiResponse = await callClaudeWithTools(systemPrompt, messages, []);
+  const aiResponse = await callClaudeWithTools(systemPrompt, messages, [], { userId: req.user.id, endpoint: '/api/ai/chat' });
 
   res.json({
     response: aiResponse.content[0]?.text || '',
@@ -604,6 +606,7 @@ Be helpful, concise, and provide actionable advice.`;
 router.post('/photo-analysis',
   authenticate,
   attachSubscription,
+  checkLlmBudget(),
   requireTierWithLimit({ eventType: 'photo_analysis', proMonthly: 10, featureLabel: 'AI photo analysis' }),
   [
   body('property').optional().isObject(), body('csv_data').optional().isArray(), body('market').optional().isString(),
@@ -686,6 +689,15 @@ IMPORTANT: Respond ONLY with valid JSON in this exact structure (no markdown, no
     });
 
     const responseText = response.data.choices?.[0]?.message?.content || '';
+
+    // Direct axios call — bypasses services/openai.js, so write the ledger
+    // manually. logLlmUsage handles its own errors.
+    require('../lib/llm-usage').logLlmUsage({
+      userId: req.user.id,
+      endpoint: '/api/ai/photo-analysis',
+      model: response.data?.model || 'gpt-4.1',
+      usage: response.data?.usage,
+    });
 
     // Parse JSON from response
     let analysisData;
@@ -942,7 +954,7 @@ const RANK_DEALS_SCHEMA = {
   additionalProperties: false,
 };
 
-router.post('/rank-deals', authenticate, [
+router.post('/rank-deals', authenticate, attachSubscription, checkLlmBudget(), [
   body('properties').isArray({ min: 1 }).withMessage('properties array required (1-25 entries)'),
 ], asyncHandler(async (req, res) => {
   const errors = validationResult(req);
@@ -1006,6 +1018,8 @@ router.post('/rank-deals', authenticate, [
             strict: true,
           },
         },
+        userId: req.user.id,
+        endpoint: '/api/ai/rank-deals',
       }
     );
 
@@ -1065,6 +1079,7 @@ router.post('/rank-deals', authenticate, [
 router.post('/rank-comps',
   authenticate,
   attachSubscription,
+  checkLlmBudget(),
   requireTierWithLimit({ eventType: 'ai_rank_comps', proMonthly: 25, featureLabel: 'AI-ranked comps' }),
   [
   body('zpid').optional().isString(),
@@ -1187,6 +1202,8 @@ Pick fewer than 6 only if the pool genuinely lacks good matches. Order by score 
       maxTokens: 4000,
       temperature: 0.3, // low — we want consistent, defensible picks
       timeoutMs: 90_000,
+      userId: req.user.id,
+      endpoint: '/api/ai/rank-comps',
     });
   } catch (err) {
     console.error('[rank-comps] Claude call failed:', err.response?.data || err.message);
@@ -1257,6 +1274,7 @@ Pick fewer than 6 only if the pool genuinely lacks good matches. Order by score 
 router.post('/listing-description',
   authenticate,
   attachSubscription,
+  checkLlmBudget(),
   requireTierWithLimit({ eventType: 'ai_listing_description', proMonthly: 25, featureLabel: 'AI listing description' }),
   [
     body('property').isObject().withMessage('property required'),
@@ -1315,6 +1333,8 @@ Write the listing copy now. JSON only.`;
         maxTokens: 1500,
         temperature: 0.5,
         timeoutMs: 60_000,
+        userId: req.user.id,
+        endpoint: '/api/ai/listing-description',
       });
     } catch (err) {
       console.error('[listing-description] Claude call failed:', err.response?.data || err.message);

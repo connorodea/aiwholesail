@@ -1,7 +1,31 @@
 const axios = require('axios');
+const { logLlmUsage } = require('../lib/llm-usage');
 
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+
+/**
+ * Internal helper: write the LLM ledger row if the caller passed both
+ * `userId` and `endpoint` in options. Backward-compatible — callers that
+ * don't pass them get a no-op (worker scripts, unit tests, etc.).
+ *
+ * Fire-and-forget; logLlmUsage handles its own errors.
+ */
+function _maybeLogUsage(options, responseData, fallbackModel) {
+  if (!options || !options.userId || !options.endpoint) return;
+  const usage = responseData?.usage;
+  if (!usage) return;
+  // Prefer the actual served model returned by upstream (e.g. dated
+  // variants like 'claude-haiku-4-5-20251001') over the requested alias —
+  // the ledger should reflect what was billed.
+  const model = responseData?.model || fallbackModel;
+  logLlmUsage({
+    userId: options.userId,
+    endpoint: options.endpoint,
+    model,
+    usage,
+  });
+}
 
 /**
  * Call Anthropic Claude API
@@ -36,6 +60,7 @@ async function callClaude(systemPrompt, userMessage, options = {}) {
     }
   );
 
+  _maybeLogUsage(options, response.data, model);
   return response.data;
 }
 
@@ -68,6 +93,7 @@ async function callClaudeWithTools(systemPrompt, messages, tools, options = {}) 
     }
   );
 
+  _maybeLogUsage(options, response.data, model);
   return response.data;
 }
 
@@ -106,6 +132,7 @@ async function callOpenAI(messages, options = {}) {
     }
   );
 
+  _maybeLogUsage(options, response.data, model);
   return response.data;
 }
 
