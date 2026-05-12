@@ -171,10 +171,18 @@ async function sendAlertEmail(userEmail, location, deals, userOptions = {}) {
     ? `${minutesAgo} minute${minutesAgo > 1 ? 's' : ''} ago`
     : `${Math.round(minutesAgo / 60)} hour${Math.round(minutesAgo / 60) > 1 ? 's' : ''} ago`;
 
-  // /app already routes ?zpid=<id> into the property modal — deep-link the
-  // address tap so users land on the deal in-context.
+  // Primary card link → Zillow (fastest path to see the property; works without
+  // login and gives the user photos + listing details immediately). The
+  // listing_url stored at search time is always absolute (verified across all
+  // 22.8K cached rows); zpid pattern is the fallback when the field is missing.
+  // Secondary action → /app for AI analysis / comps.
+  const zillowUrl = (d) => {
+    if (d.listing_url && /^https?:\/\//.test(d.listing_url)) return d.listing_url;
+    if (d.listing_url && d.listing_url.startsWith('/')) return `https://www.zillow.com${d.listing_url}`;
+    if (d.zpid) return `https://www.zillow.com/homedetails/${encodeURIComponent(d.zpid)}_zpid/`;
+    return null;
+  };
   const appPropUrl = (zpid) => `https://aiwholesail.com/app?zpid=${encodeURIComponent(zpid)}&utm_source=alert-email`;
-  const zillowUrl = (d) => d.listing_url || (d.zpid ? `https://www.zillow.com/homedetails/${encodeURIComponent(d.zpid)}_zpid/` : null);
 
   // One card per deal — image left, content right (stacks naturally on
   // narrow widths since each cell is its own table).
@@ -197,17 +205,18 @@ async function sendAlertEmail(userEmail, location, deals, userOptions = {}) {
       ? `<span style="display:inline-block;background:rgba(245,158,11,0.12);color:#f59e0b;font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;letter-spacing:0.05em;text-transform:uppercase;margin-left:8px;">New · ${dom}d</span>`
       : '';
 
-    const propUrl = appPropUrl(d.zpid || '');
     const zUrl = zillowUrl(d);
+    const appUrl = appPropUrl(d.zpid || '');
+    const primaryUrl = zUrl || appUrl;  // Zillow first; fall back to in-app if no zpid
 
     const imgCell = d.image_url
       ? `<td valign="top" width="120" style="padding-right:14px;width:120px;">
-           <a href="${propUrl}" style="text-decoration:none;display:block;">
+           <a href="${primaryUrl}" style="text-decoration:none;display:block;">
              <img src="${d.image_url}" alt="" width="120" height="90" style="display:block;width:120px;height:90px;object-fit:cover;border-radius:8px;border:1px solid #1a1a1a;" />
            </a>
          </td>`
       : `<td valign="top" width="120" style="padding-right:14px;width:120px;">
-           <a href="${propUrl}" style="text-decoration:none;display:block;">
+           <a href="${primaryUrl}" style="text-decoration:none;display:block;">
              <table cellpadding="0" cellspacing="0" border="0" width="120" style="width:120px;height:90px;background:#111;border-radius:8px;border:1px solid #1a1a1a;">
                <tr><td align="center" style="color:#525252;font-size:11px;height:90px;">No photo</td></tr>
              </table>
@@ -223,7 +232,7 @@ async function sendAlertEmail(userEmail, location, deals, userOptions = {}) {
               <td valign="top">
                 <table width="100%" cellpadding="0" cellspacing="0" border="0">
                   <tr><td style="padding-bottom:6px;">
-                    <a href="${propUrl}" style="color:#ffffff;font-size:15px;font-weight:600;line-height:1.3;text-decoration:none;">${addr}</a>
+                    <a href="${primaryUrl}" style="color:#ffffff;font-size:15px;font-weight:600;line-height:1.3;text-decoration:none;">${addr}</a>
                     ${domBadge}
                   </td></tr>
                   ${specsText ? `<tr><td style="color:#737373;font-size:12px;padding-bottom:8px;">${specsText}</td></tr>` : ''}
@@ -247,8 +256,8 @@ async function sendAlertEmail(userEmail, location, deals, userOptions = {}) {
                           ${spreadPct > 0 ? `<span style="color:#16a34a;font-weight:600;font-size:11px;margin-left:6px;">${spreadPct}% under</span>` : ''}
                         </td>
                         <td style="padding-left:10px;">
-                          <a href="${propUrl}" style="color:#06b6d4;font-weight:600;font-size:12px;text-decoration:none;">View →</a>
-                          ${zUrl ? `<span style="color:#262626;padding:0 6px;">·</span><a href="${zUrl}" style="color:#525252;font-weight:500;font-size:12px;text-decoration:none;">Zillow</a>` : ''}
+                          ${zUrl ? `<a href="${zUrl}" style="color:#06b6d4;font-weight:600;font-size:12px;text-decoration:none;">View on Zillow →</a>` : ''}
+                          ${d.zpid ? `<span style="color:#262626;padding:0 6px;">·</span><a href="${appUrl}" style="color:#525252;font-weight:500;font-size:12px;text-decoration:none;">Analyze</a>` : ''}
                         </td>
                       </tr>
                     </table>
@@ -314,7 +323,7 @@ async function sendAlertEmail(userEmail, location, deals, userOptions = {}) {
                 ${firstName ? `Hey ${firstName} — ${deals.length} new ${deals.length > 1 ? 'deals' : 'deal'} for you` : `${deals.length} new ${deals.length > 1 ? 'deals' : 'deal'} just hit your alert`}
               </td></tr>
               <tr><td style="color:#a3a3a3;font-size:14px;line-height:1.6;padding-bottom:20px;">
-                Listed at <strong style="color:#ffffff;">$30K+ under Zestimate</strong> in <strong style="color:#ffffff;">${location}</strong>. Tap any property to open it in your dashboard.
+                Listed at <strong style="color:#ffffff;">$30K+ under Zestimate</strong> in <strong style="color:#ffffff;">${location}</strong>. Tap any property to view it on Zillow, or hit <strong style="color:#ffffff;">Analyze</strong> for the full AI breakdown.
               </td></tr>
             </table>
           </td></tr>
@@ -571,10 +580,14 @@ async function run() {
         }
 
         const userEmail = alert.email;
-        console.log(`  Alert ${alert.id} (${alert.location}): ${deals.rows.length} new deals for ${userEmail}${alert.phone_number ? ` + SMS to ${alert.phone_number}` : ''}`);
+        console.log(`  Alert ${alert.id} (${alert.location}): ${deals.rows.length} new deals for ${userEmail}`);
 
         let emailSent = false;
-        let smsSent = false;
+        // SMS is intentionally disabled — Twilio credentials are not active and
+        // the SMS UI was removed from the product. Keeping the phone_number
+        // column + sendSMS() helper in place so we can re-enable later without
+        // a schema migration. For now, alerts ship via email only.
+        const smsSent = false;
 
         // Always send email alert
         try {
@@ -586,34 +599,7 @@ async function run() {
           stats.errors.push(`email to ${userEmail}: ${emailErr.message}`);
         }
 
-        // Send SMS if phone number exists (optional)
-        if (alert.phone_number) {
-          try {
-            const topDeals = deals.rows.slice(0, 3);
-            const dealLines = topDeals.map(d =>
-              `${d.address || 'Unknown'}: $${(d.price / 1000).toFixed(0)}K list / $${(d.zestimate / 1000).toFixed(0)}K Zest = +$${(d.spread / 1000).toFixed(0)}K`
-            );
-
-            const smsBody = [
-              `AIWholesail Alert!`,
-              `${deals.rows.length} new +$${(minSpread / 1000).toFixed(0)}K spread deals in ${alert.location}:`,
-              '',
-              ...dealLines,
-              deals.rows.length > 3 ? `...and ${deals.rows.length - 3} more` : '',
-              '',
-              'aiwholesail.com/app',
-            ].filter(Boolean).join('\n');
-
-            await sendSMS(alert.phone_number, smsBody);
-            smsSent = true;
-            console.log(`    SMS sent to ${alert.phone_number}`);
-          } catch (smsErr) {
-            console.error(`    Failed to send SMS to ${alert.phone_number}: ${smsErr.message}`);
-            stats.errors.push(`sms to ${alert.phone_number}: ${smsErr.message}`);
-          }
-        }
-
-        if (emailSent || smsSent) {
+        if (emailSent) {
           stats.alerts++;
         }
 

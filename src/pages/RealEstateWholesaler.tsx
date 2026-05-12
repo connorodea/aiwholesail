@@ -11,8 +11,7 @@ import { applyPreEnrichmentToggles } from '@/lib/property-filters';
 import { scoreAllProperties, filterMotivatedSellers, MIN_MOTIVATED_SCORE } from '@/lib/motivated-seller-score';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { User, Download, Bell, MessageSquare, GitCompareArrows, Check } from 'lucide-react';
-import { communications } from '@/lib/api-client';
+import { User, Download, Bell, GitCompareArrows, Check } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useLeads } from '@/hooks/useLeads';
@@ -84,9 +83,6 @@ export default function RealEstateWholesaler() {
   // Effective mode is what the render path actually reads. When the flag
   // is off, force on-market — independent of stored state or URL.
   const effectiveSearchMode = unifiedSearchEnabled ? searchMode : 'on-market';
-  const [showSmsAlert, setShowSmsAlert] = useState(false);
-  const [smsPhone, setSmsPhone] = useState('');
-  const [sendingSms, setSendingSms] = useState(false);
   const [compareMode, setCompareMode] = useState(false);
   const [compareSelected, setCompareSelected] = useState<Property[]>([]);
   const [showComparison, setShowComparison] = useState(false);
@@ -739,62 +735,9 @@ export default function RealEstateWholesaler() {
                         </Button>
                       )}
 
-                      {/* SMS Alert for deals */}
-                      {properties.some(p => p.price && p.zestimate && (p.zestimate - p.price) >= 30000) && (
-                        <Button
-                          onClick={() => setShowSmsAlert(!showSmsAlert)}
-                          variant={showSmsAlert ? 'default' : 'outline'}
-                          size="sm"
-                          className="gap-2 h-9 px-4 text-sm font-medium smooth-transition"
-                        >
-                          <MessageSquare className="h-4 w-4" />
-                          SMS Alert
-                        </Button>
-                      )}
                     </div>
                   )}
                 </div>
-
-                {/* SMS Alert Input */}
-                {showSmsAlert && (
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-3 p-4 bg-white/[0.02] rounded-xl border border-border">
-                    <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <MessageSquare className="h-5 w-5 text-primary flex-shrink-0" />
-                      <Input
-                        placeholder="Your phone number (e.g., +1234567890)"
-                        value={smsPhone}
-                        onChange={(e) => setSmsPhone(e.target.value)}
-                        className="flex-1 sm:max-w-xs bg-background h-11 sm:h-10"
-                      />
-                    </div>
-                    <Button
-                      size="sm"
-                      className="w-full sm:w-auto h-11 sm:h-9"
-                      disabled={sendingSms || !smsPhone.trim()}
-                      onClick={async () => {
-                        const deals = properties.filter(p => p.price && p.zestimate && (p.zestimate - p.price) >= 30000);
-                        if (deals.length === 0) return;
-                        setSendingSms(true);
-                        try {
-                          const response = await communications.sendSpreadAlert(
-                            deals.map(d => ({ address: d.address, price: d.price, zestimate: d.zestimate })),
-                            lastSearchLocation,
-                            smsPhone
-                          );
-                          if ((response as any).error) throw new Error((response as any).error);
-                          toast.success(`SMS alert sent with ${deals.length} deals!`);
-                          setShowSmsAlert(false);
-                        } catch (err: any) {
-                          toast.error(err.message || 'Failed to send SMS alert');
-                        } finally {
-                          setSendingSms(false);
-                        }
-                      }}
-                    >
-                      {sendingSms ? 'Sending...' : `Send ${properties.filter(p => p.price && p.zestimate && (p.zestimate - p.price) >= 30000).length} Deals`}
-                    </Button>
-                  </div>
-                )}
 
                 <AITopPicksSection
                   properties={visibleProperties}
