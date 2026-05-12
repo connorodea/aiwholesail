@@ -14,6 +14,7 @@ const { betaZodTool } = require('@anthropic-ai/sdk/helpers/beta/zod');
 const { runSubagent } = require('../subagentRunner');
 const { zillowSearch } = require('../tools/zillowSearch');
 const { wholesaleDealMath } = require('../tools/wholesaleDealMath');
+const { INJECTION_GUARDRAIL } = require('../../llm-prompt-safety');
 
 const SUBAGENT_PROMPT = `You are the Deal Hunter, a specialist that finds the best wholesale real-estate deals in a given market.
 
@@ -26,7 +27,7 @@ Rules:
 - For each surfaced deal, return a search_result block (Zillow URL) + a one-line summary that includes: address, list price, zestimate, spread $/% , bedrooms/baths/sqft, days on market.
 - End with a 1-2 sentence overall summary ("Best deal is X with $40K spread...").
 - Never fabricate listings, prices, or zpids. If zillow_search returns 0, say so plainly.
-- Hard cap at 6 tool calls. If you can't answer in 6, give what you have.`;
+- Hard cap at 6 tool calls. If you can't answer in 6, give what you have.${INJECTION_GUARDRAIL}`;
 
 const inputSchema = z.object({
   query: z.string().describe('User\'s natural-language deal-finding request. Pass through unmodified — e.g. "find me 3+ bed deals in 48371 under $400k".'),

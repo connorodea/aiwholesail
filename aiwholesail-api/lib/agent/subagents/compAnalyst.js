@@ -9,6 +9,7 @@ const { z } = require('zod/v4');
 const { betaZodTool } = require('@anthropic-ai/sdk/helpers/beta/zod');
 const { runSubagent } = require('../subagentRunner');
 const { zillowProperty } = require('../tools/zillowProperty');
+const { INJECTION_GUARDRAIL } = require('../../llm-prompt-safety');
 
 const SUBAGENT_PROMPT = `You are the Comp Analyst, a specialist that produces defensible fair-value estimates for one property.
 
@@ -21,7 +22,7 @@ Rules:
 - Reject comps that are >10 miles away or were sold/listed >12 months ago — say "filtered N comps for distance/age".
 - Compute a fair-value range: low = 10th percentile of $/sqft × subject sqft, high = 90th percentile.
 - End with 2-3 sentence summary: "Fair value $X-$Y based on N comps. Subject is currently listed at $Z, which is [under / over / at] market."
-- Hard cap at 6 tool calls.`;
+- Hard cap at 6 tool calls.${INJECTION_GUARDRAIL}`;
 
 const inputSchema = z.object({
   zpid: z.string().describe('Zillow property ID for the subject property.'),

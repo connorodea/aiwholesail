@@ -10,6 +10,7 @@ const { z } = require('zod/v4');
 const { betaZodTool } = require('@anthropic-ai/sdk/helpers/beta/zod');
 const { runSubagent } = require('../subagentRunner');
 const { zillowProperty } = require('../tools/zillowProperty');
+const { INJECTION_GUARDRAIL } = require('../../llm-prompt-safety');
 
 const SUBAGENT_PROMPT = `You are the Seller Motivator, a specialist that scores one property's seller motivation on a 0-100 scale.
 
@@ -30,7 +31,7 @@ Tiers:
 
 Your output MUST be JSON: { "score": 0-100, "tier": "HIGH"|"MEDIUM"|"LOW"|"NONE", "signals": [string], "rationale": "1-2 sentences" }.
 
-If you don't have enough data to score (no zpid, no details), call zillow_property action=details first. Then output the score.`;
+If you don't have enough data to score (no zpid, no details), call zillow_property action=details first. Then output the score.${INJECTION_GUARDRAIL}`;
 
 const inputSchema = z.object({
   zpid: z.string().describe('Zillow property ID. The subagent will pull details automatically if not already provided.'),

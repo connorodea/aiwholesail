@@ -7,6 +7,7 @@ const { asyncHandler, logSecurityEvent } = require('../middleware/errorHandler')
 const { checkDatabaseRateLimit } = require('../middleware/rateLimit');
 const { attachSubscription, requireElite, requireTierWithLimit } = require('../middleware/subscription');
 const { checkLlmBudget } = require('../middleware/llmBudget');
+const { wrapUserData, INJECTION_GUARDRAIL, PromptInjectionError } = require('../lib/llm-prompt-safety');
 const { logEvent, EVENTS } = require('../lib/events');
 const {
   callClaude,
@@ -99,15 +100,25 @@ asyncHandler(async (req, res) => {
     }
   ];
 
-  const systemPrompt = `${PROPERTY_ANALYSIS_PROMPT}
-
-Current property overview: ${JSON.stringify(property, null, 2)}`;
+  // Prompt-injection hardening: user-supplied `property` previously landed
+  // in the SYSTEM prompt (HIGH-risk). Now it goes into the user message
+  // wrapped in <user_data>. The guardrail telling the model not to follow
+  // instructions inside those tags is baked into PROPERTY_ANALYSIS_PROMPT
+  // via services/openai.js — see lib/llm-prompt-safety.INJECTION_GUARDRAIL.
+  const systemPrompt = PROPERTY_ANALYSIS_PROMPT;
 
   const messages = [];
 
   // Add conversation history
   conversationHistory.forEach(msg => {
     messages.push({ role: msg.role, content: msg.content });
+  });
+
+  // First user message: the structured property data, wrapped so the model
+  // can find it but treats it as untrusted input.
+  messages.push({
+    role: 'user',
+    content: `Here is the property to analyze:\n${wrapUserData('property', property)}`,
   });
 
   // Add current user message
@@ -193,7 +204,7 @@ router.post('/lead-scoring', authenticate, attachSubscription, checkLlmBudget(),
 
   const userMessage = `Analyze this property and provide lead scoring:
 
-Property Data: ${JSON.stringify(property, null, 2)}
+${wrapUserData('property', property)}
 
 Please return a JSON object with the following structure:
 {
@@ -386,11 +397,11 @@ Off-market rules:
 
     const BATCH_SYSTEM = allOffMarket ? BATCH_SYSTEM_OFFMARKET : BATCH_SYSTEM_ONMARKET;
 
-    const batchMessage = `Market: ${market || 'unspecified'}
+    const batchMessage = `Market: ${wrapUserData('market', market || 'unspecified')}
 Assumptions: target_fee=$${targetFee}, min_spread_pct=${minSpreadPct}, mao_rule_pct_of_arv=0.70, repair_cost_low_per_sqft=$${repairLow}, repair_cost_high_per_sqft=$${repairHigh}
 
 ${candidates.length} properties to analyze:
-${JSON.stringify(candidates, null, 2)}
+${wrapUserData('candidates', candidates)}
 
 Return JSON only.`;
 
@@ -415,9 +426,9 @@ Return JSON only.`;
 
   const userMessage = `Analyze this wholesale deal opportunity:
 
-Property Data: ${JSON.stringify(property, null, 2)}
-${repairEstimate ? `Estimated Repairs: $${repairEstimate}` : ''}
-${arv ? `Estimated ARV: $${arv}` : ''}
+${wrapUserData('property', property)}
+${repairEstimate ? `Estimated Repairs: $${Number(repairEstimate)}` : ''}
+${arv ? `Estimated ARV: $${Number(arv)}` : ''}
 
 Provide a comprehensive wholesale deal analysis including MAO calculation, profit potential, and recommendation.`;
 
@@ -490,14 +501,14 @@ router.post('/damage-detection', authenticate, attachSubscription, checkLlmBudge
 - Total estimated repair cost
 - Investment recommendation
 
-Return a structured analysis with specific findings and estimates.`;
+Return a structured analysis with specific findings and estimates.${INJECTION_GUARDRAIL}`;
 
   // For now, analyze based on property data (full image analysis would require OpenAI Vision)
-  const userMessage = `Property Details:
-${JSON.stringify(propertyData || {}, null, 2)}
+  const userMessage = `Property details:
+${wrapUserData('property', propertyData || {})}
 
-Number of photos to analyze: ${photos.length}
-Photo URLs: ${photos.slice(0, 5).join(', ')}
+Number of photos to analyze: ${Number(photos.length)}
+${wrapUserData('photo_urls', photos.slice(0, 5))}
 
 Based on the property age, type, and available data, provide an estimated condition assessment.`;
 
@@ -542,9 +553,9 @@ router.post('/deal-analysis', authenticate, attachSubscription, checkLlmBudget()
   }
 
   const userMessage = `Analyze this deal:
-${zillowUrl ? `Zillow URL: ${zillowUrl}` : ''}
-${address ? `Address: ${address}` : ''}
-${propertyData ? `Property Data: ${JSON.stringify(propertyData, null, 2)}` : ''}
+${zillowUrl ? wrapUserData('zillow_url', zillowUrl) : ''}
+${address ? wrapUserData('address', address) : ''}
+${propertyData ? wrapUserData('property', propertyData) : ''}
 
 Provide a quick wholesale deal assessment with:
 1. Estimated ARV
@@ -574,6 +585,10 @@ router.post('/chat', authenticate, attachSubscription, checkLlmBudget(), [
 
   const { message, context, conversationHistory = [] } = req.body;
 
+  // Prompt-injection hardening: previously `context` (user-supplied) was
+  // JSON.stringify'd into the SYSTEM prompt (HIGH-risk). Now context lives
+  // in a user message wrapped in <user_data> tags, and the system prompt
+  // is static + carries the guardrail.
   const systemPrompt = `You are AI Wholesail Assistant, an expert in real estate wholesaling. Help users with:
 - Property analysis and evaluation
 - Wholesale deal calculations
@@ -582,14 +597,15 @@ router.post('/chat', authenticate, attachSubscription, checkLlmBudget(), [
 - Skip tracing guidance
 - Marketing advice
 
-${context ? `Context: ${JSON.stringify(context)}` : ''}
-
-Be helpful, concise, and provide actionable advice.`;
+Be helpful, concise, and provide actionable advice.${INJECTION_GUARDRAIL}`;
 
   const messages = [
     ...conversationHistory.map(msg => ({ role: msg.role, content: msg.content })),
-    { role: 'user', content: message }
   ];
+  if (context) {
+    messages.push({ role: 'user', content: `Conversation context:\n${wrapUserData('context', context)}` });
+  }
+  messages.push({ role: 'user', content: message });
 
   const aiResponse = await callClaudeWithTools(systemPrompt, messages, [], { userId: req.user.id, endpoint: '/api/ai/chat' });
 
@@ -635,6 +651,9 @@ router.post('/photo-analysis',
     property.propertyType && `Property type: ${property.propertyType}`,
   ].filter(Boolean).join(', ');
 
+  // Prompt-injection hardening: previously `propertyDetails` (user-controlled
+  // address/bedrooms/sqft string) was interpolated into the SYSTEM prompt.
+  // Moved to the user message in a delimited block + guardrail in system.
   const systemPrompt = `You are an expert real estate property inspector and rehab cost estimator. Analyze these property photos and provide:
 1) Overall condition assessment (excellent/good/fair/poor)
 2) Specific issues visible (roof, siding, windows, flooring, kitchen, bathrooms, etc.)
@@ -642,7 +661,7 @@ router.post('/photo-analysis',
 4) Total estimated rehab cost range
 5) Recommended repairs prioritized by ROI
 
-Base estimates on current 2026 contractor rates. Property details: ${propertyDetails}
+Base estimates on current 2026 contractor rates.
 
 IMPORTANT: Respond ONLY with valid JSON in this exact structure (no markdown, no code fences):
 {
@@ -654,9 +673,12 @@ IMPORTANT: Respond ONLY with valid JSON in this exact structure (no markdown, no
   "totalRehabEstimate": { "low": <number>, "high": <number> },
   "prioritizedRepairs": ["<string>", ...],
   "investmentAdvice": "<string>"
-}`;
+}${INJECTION_GUARDRAIL}`;
 
-  const userMessage = `Please analyze these property photos and provide a detailed condition assessment with rehab cost estimates for the property at ${property.address || 'the provided address'}.`;
+  const userMessage = `Please analyze these property photos and provide a detailed condition assessment with rehab cost estimates.
+
+Property details (untrusted user input):
+${wrapUserData('property', propertyDetails)}`;
 
   // Limit to 4 images to stay within token limits
   const limitedUrls = imageUrls.slice(0, 4);
@@ -912,7 +934,7 @@ FALSE-POSITIVE signals (lower score, flag):
 - Brand-new construction with high spread = Zestimate is wrong, not a deal
 - Property type mismatch (e.g. land, mobile home — not wholesale-friendly)
 
-Output exactly the structured JSON requested. Be concise. Be honest — if a property looks risky, flag it.`;
+Output exactly the structured JSON requested. Be concise. Be honest — if a property looks risky, flag it.${INJECTION_GUARDRAIL}`;
 
 const RANK_DEALS_SCHEMA = {
   type: 'object',
@@ -998,7 +1020,7 @@ router.post('/rank-deals', authenticate, attachSubscription, checkLlmBudget(), [
     description: (p.description || '').slice(0, 600), // trim long descriptions
   }));
 
-  const userMessage = `Score these ${compact.length} candidates:\n\n${JSON.stringify(compact, null, 2)}`;
+  const userMessage = `Score these ${Number(compact.length)} candidates:\n\n${wrapUserData('candidates', compact)}`;
 
   try {
     const aiResponse = await callOpenAI(
@@ -1161,13 +1183,13 @@ router.post('/rank-comps',
   // 3) Ask Claude for structured top-6 + reasoning
   const systemPrompt = `You are a senior real estate appraiser specializing in wholesale-deal ARV valuation. You select comparable sales the way an experienced wholesaler would: prioritizing recency, proximity, sqft tightness, similar bed/bath/yearBuilt, and same property type. You explain your reasoning concisely and flag adjustments where the comp differs meaningfully from the subject.
 
-You MUST respond with valid JSON only — no preamble, no markdown, no code fences. Just the JSON object.`;
+You MUST respond with valid JSON only — no preamble, no markdown, no code fences. Just the JSON object.${INJECTION_GUARDRAIL}`;
 
   const userPrompt = `SUBJECT PROPERTY:
-${JSON.stringify(subject, null, 2)}
+${wrapUserData('subject', subject)}
 
-COMP POOL (${slimComps.length} candidates, each with index i):
-${JSON.stringify(slimComps, null, 2)}
+COMP POOL (${Number(slimComps.length)} candidates, each with index i):
+${wrapUserData('comps', slimComps)}
 
 TASK: Pick the top 6 best comps for ARV calculation on the subject property. Reply with this exact JSON shape:
 
@@ -1319,10 +1341,10 @@ Output strict JSON only:
   "headline": "<short headline, 6-10 words, no clickbait>",
   "description": "<2-3 short paragraphs of body copy, 80-180 words total>",
   "bullets": ["<5-8 short standalone selling points, each <14 words>"]
-}`;
+}${INJECTION_GUARDRAIL}`;
 
     const userPrompt = `PROPERTY:
-${JSON.stringify(slim, null, 2)}
+${wrapUserData('property', slim)}
 
 Write the listing copy now. JSON only.`;
 

@@ -9,6 +9,7 @@ const { betaZodTool } = require('@anthropic-ai/sdk/helpers/beta/zod');
 const { runSubagent } = require('../subagentRunner');
 const { zillowMarket } = require('../tools/zillowMarket');
 const { zillowSearch } = require('../tools/zillowSearch');
+const { INJECTION_GUARDRAIL } = require('../../llm-prompt-safety');
 
 const SUBAGENT_PROMPT = `You are the Market Watcher, a specialist that answers market-condition questions for one geography.
 
@@ -19,7 +20,7 @@ Rules:
 - If the user wants ZIP-level intel, also call zillow_search action=by_zipcode to see active inventory + days on market.
 - Keep your answer to 3 bullets + 1 verdict line: "Buyer's market" / "Seller's market" / "Balanced".
 - Cite the market_overview source URL.
-- Hard cap at 4 tool calls.`;
+- Hard cap at 4 tool calls.${INJECTION_GUARDRAIL}`;
 
 const inputSchema = z.object({
   location: z.string().describe('City, state, or ZIP. Examples: "Austin TX", "austin-tx", "48371", "Detroit MI".'),
