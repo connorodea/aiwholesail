@@ -1,8 +1,15 @@
 import { useState, useEffect, useCallback } from 'react';
 import { stripe as stripeApi } from '@/lib/api-client';
 import { useAuth } from '@/contexts/AuthContext';
+import {
+  type SubscriptionTier,
+  normalizeTier,
+  getCachedTier,
+  setCachedTier,
+  clearCachedTier,
+} from '@/lib/subscription-tier';
 
-export type SubscriptionTier = 'Pro' | 'Elite' | 'none';
+export type { SubscriptionTier };
 
 interface SubscriptionState {
   tier: SubscriptionTier;
@@ -15,72 +22,16 @@ interface SubscriptionState {
   refetch: () => Promise<void>;
 }
 
-const CACHE_KEY = 'aiwholesail_subscription_cache';
-const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
-
-interface CachedSubscription {
-  tier: SubscriptionTier;
-  /** Owner of this cache entry — must match the current user before we trust it.
-   *  Prevents a stale tier from user A leaking to user B on the same device. */
-  userId: string | null;
-  timestamp: number;
-}
-
-function getCached(currentUserId: string | null | undefined): SubscriptionTier | null {
-  try {
-    const raw = localStorage.getItem(CACHE_KEY);
-    if (!raw) return null;
-    const cached: CachedSubscription = JSON.parse(raw);
-    if (Date.now() - cached.timestamp > CACHE_TTL_MS) {
-      localStorage.removeItem(CACHE_KEY);
-      return null;
-    }
-    // Cache is keyed to the user that wrote it. If a different user (or signed-out
-    // state) is asking, treat the cache as miss.
-    if ((cached.userId ?? null) !== (currentUserId ?? null)) {
-      return null;
-    }
-    return cached.tier;
-  } catch {
-    return null;
-  }
-}
-
-function setCache(tier: SubscriptionTier, userId: string | null | undefined): void {
-  try {
-    localStorage.setItem(
-      CACHE_KEY,
-      JSON.stringify({ tier, userId: userId ?? null, timestamp: Date.now() } satisfies CachedSubscription)
-    );
-  } catch {
-    // Ignore storage errors
-  }
-}
-
-/** Explicitly drop the cache. Called on sign-out so the next sign-in starts fresh. */
+/** Explicitly drop the subscription cache. Called by `AuthContext.signOut`
+ *  so the next user signing in on this device starts from a clean read. */
 export function clearSubscriptionCache(): void {
-  try {
-    localStorage.removeItem(CACHE_KEY);
-  } catch {
-    // Ignore
-  }
-}
-
-/** Tier strings can drift in case (`'elite'`, `'ELITE'`, `'Premium'`). Normalize
- *  defensively before comparing so a manual SQL fix or legacy import can't
- *  silently demote a paying customer. */
-function normalizeTier(raw: unknown): SubscriptionTier {
-  if (typeof raw !== 'string') return 'none';
-  const t = raw.trim().toLowerCase();
-  if (t === 'elite' || t === 'premium') return 'Elite';
-  if (t === 'pro') return 'Pro';
-  return 'none';
+  clearCachedTier();
 }
 
 export function useSubscription(): SubscriptionState {
   const { user } = useAuth();
   const userId = user?.id ?? null;
-  const [tier, setTier] = useState<SubscriptionTier>(() => getCached(userId) || 'none');
+  const [tier, setTier] = useState<SubscriptionTier>(() => getCachedTier(userId) || 'none');
   const [isTrial, setIsTrial] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -98,12 +49,12 @@ export function useSubscription(): SubscriptionState {
         return;
       }
 
-      const data = response.data as any;
+      const data = response.data as { subscribed?: boolean; subscription_tier?: string; is_trial?: boolean; trial_end?: string | null } | undefined;
 
       if (!data || !data.subscribed) {
         setTier('none');
         setIsTrial(false);
-        setCache('none', userId);
+        setCachedTier('none', userId);
         setLoading(false);
         return;
       }
@@ -129,7 +80,7 @@ export function useSubscription(): SubscriptionState {
 
       setTier(resolvedTier);
       setIsTrial(trialActive);
-      setCache(resolvedTier, userId);
+      setCachedTier(resolvedTier, userId);
     } catch (err) {
       console.error('[useSubscription] Failed to fetch subscription:', err);
       setError('Failed to load subscription status');
@@ -151,7 +102,7 @@ export function useSubscription(): SubscriptionState {
     }
     // Seed from per-user cache before the network round-trip so the UI doesn't
     // flash "none" on every navigation.
-    const cached = getCached(userId);
+    const cached = getCachedTier(userId);
     if (cached) setTier(cached);
     fetchSubscription();
   }, [userId, fetchSubscription]);

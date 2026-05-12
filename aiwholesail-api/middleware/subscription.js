@@ -1,4 +1,5 @@
 const { query } = require('../config/database');
+const { normalizeTier } = require('../lib/subscriptionTier');
 
 /**
  * Subscription tier constants
@@ -96,31 +97,15 @@ const attachSubscription = async (req, res, next) => {
         return next();
       }
       // Active trial — resolve to the tier the user is trialing.
-      // Tier strings are normalized case-insensitively. A manual SQL fix or
-      // legacy import that wrote 'elite' / 'ELITE' would otherwise silently
-      // downgrade the user; the canonical Stripe write path uses 'Elite'/'Pro'
-      // so this is purely defensive.
-      const subTierNorm = typeof sub.subscription_tier === 'string'
-        ? sub.subscription_tier.trim().toLowerCase()
-        : '';
-      if (subTierNorm === 'elite' || subTierNorm === 'premium') {
-        tier = TIERS.ELITE;
-      } else if (subTierNorm === 'pro') {
-        tier = TIERS.PRO;
-      } else {
-        // No explicit trial tier set — default to TRIAL (Pro-equivalent rate limits)
-        tier = TIERS.TRIAL;
-      }
+      // normalizeTier handles case-insensitivity and the legacy 'Premium'
+      // alias for Elite. See aiwholesail-api/lib/subscriptionTier.js.
+      const normalized = normalizeTier(sub.subscription_tier);
+      tier = normalized === 'none' ? TIERS.TRIAL : normalized; // unset trial tier → TRIAL
     } else {
-      // Non-trial active subscription. Same case-normalization as above.
-      const subTierNorm = typeof sub.subscription_tier === 'string'
-        ? sub.subscription_tier.trim().toLowerCase()
-        : '';
-      if (subTierNorm === 'elite' || subTierNorm === 'premium') {
-        tier = TIERS.ELITE;
-      } else if (subTierNorm === 'pro') {
-        tier = TIERS.PRO;
-      }
+      // Non-trial active subscription. Same normalization. 'none' here means
+      // the row had an unknown tier string; leave as TIERS.NONE.
+      const normalized = normalizeTier(sub.subscription_tier);
+      if (normalized !== 'none') tier = normalized;
     }
 
     // Count today's searches for rate-limited tiers
