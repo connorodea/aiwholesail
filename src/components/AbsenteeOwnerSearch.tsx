@@ -7,8 +7,11 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { propDataAPI, type PropDataPropertyListResponse, type PropDataPropertyRecord } from '@/lib/propdata-api';
-import { mapPropDataListToUnified } from '@/lib/unifiedPropertyAdapters';
-import { Search, MapPin, User, Mail, Building, RefreshCw, Download, TrendingUp, Flame, ShieldCheck, Sparkles } from 'lucide-react';
+import { mapPropDataListToUnified, type PropDataEnrichment } from '@/lib/unifiedPropertyAdapters';
+import { resolveLocation } from '@/lib/locationResolver';
+import { topZipsInState } from '@/lib/topZipsByState';
+import { fanOutZipSearch, MAX_ZIPS_PER_SEARCH } from '@/lib/zip-search';
+import { Search, MapPin, User, Mail, Building, RefreshCw, Download, Flame, ShieldCheck, Sparkles, TrendingUp } from 'lucide-react';
 
 /**
  * sessionStorage key for handing off off-market UnifiedProperty[] records
@@ -102,11 +105,18 @@ function toCsv(records: PropDataPropertyRecord[]): string {
 }
 
 export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProps) {
-  const [zip, setZip] = useState(defaultZip);
+  // Free-form input: single ZIP, multi-ZIP list, "City, ST", "County, ST", or "ST".
+  // Resolved into a deduped ZIP fan-out list at search time.
+  const [locationInput, setLocationInput] = useState(defaultZip);
   const [limit, setLimit] = useState<number>(25);
   const [equityFilter, setEquityFilter] = useState<EquityFilter>('any');
   const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
   const [data, setData] = useState<PropDataPropertyListResponse | null>(null);
+  // The resolved label (e.g. "Detroit, MI (12 ZIPs)") shown above results.
+  const [resolvedLabel, setResolvedLabel] = useState<string>('');
+  // Sticky for handoff to the analyzer + CSV filename.
+  const [searchedZips, setSearchedZips] = useState<string[]>([]);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -120,30 +130,91 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
   const enrichment = data?.enrichment;
 
   const handleSearch = async () => {
-    const z = zip.trim();
-    if (!/^\d{5}$/.test(z)) {
-      toast({ title: 'Enter a 5-digit ZIP', description: `Got "${z || '(empty)'}".`, variant: 'destructive' });
+    const input = locationInput.trim();
+    if (!input) {
+      toast({ title: 'Enter a location', description: 'ZIP, "City, ST", "County, ST", or just "ST".', variant: 'destructive' });
       return;
     }
     setLoading(true);
+    setProgress(null);
     try {
-      const res = await propDataAPI.listAbsenteeOwners({ zip: z, limit });
-      if (res.error) {
-        toast({ title: 'No absentee owners returned', description: res.error, variant: 'destructive' });
+      const resolved = await resolveLocation(input, { topZipsInState });
+      if (!resolved || resolved.zips.length === 0) {
+        toast({ title: 'Could not resolve location', description: `"${input}" — try a 5-digit ZIP or "City, ST".`, variant: 'destructive' });
         setData({ properties: [], count: 0 });
+        setResolvedLabel('');
+        setSearchedZips([]);
         return;
       }
-      setData(res);
-      const n = res.properties?.length ?? 0;
-      toast({
-        title: n === 0 ? 'No absentee owners in this ZIP' : `${n} absentee owner${n === 1 ? '' : 's'}`,
-        description: n === 0 ? 'Coverage may be thin — try a nearby major-metro ZIP.' : 'Filter by equity and export to CSV for direct mail.',
+      setSearchedZips(resolved.zips);
+      setResolvedLabel(resolved.label);
+
+      // Per-ZIP call cap so a state-wide fan-out doesn't return thousands.
+      // For single-zip, honor the full user-selected limit. For fan-outs,
+      // divide by ZIP count, floor at 5/ZIP so each ZIP still gets meaningful
+      // coverage but the aggregate stays sane.
+      const perZipLimit = resolved.zips.length === 1
+        ? limit
+        : Math.max(5, Math.ceil(limit / Math.max(1, resolved.zips.length)));
+
+      setProgress({ done: 0, total: resolved.zips.length });
+      let completed = 0;
+      const batched = await fanOutZipSearch(resolved.zips, async (z) => {
+        try {
+          const res = await propDataAPI.listAbsenteeOwners({ zip: z, limit: perZipLimit });
+          completed += 1;
+          setProgress({ done: completed, total: resolved.zips.length });
+          return res;
+        } catch {
+          completed += 1;
+          setProgress({ done: completed, total: resolved.zips.length });
+          return null;
+        }
       });
+
+      // Merge results across ZIPs. Dedupe by parcel_id (defensive — PropData
+      // shouldn't return the same parcel from two ZIPs, but safer to assume
+      // it could).
+      const merged: PropDataPropertyRecord[] = [];
+      const seenParcels = new Set<string>();
+      let mergedEnrichment: PropDataEnrichment | undefined;
+      for (const batch of batched) {
+        const list = batch.result;
+        if (!list?.properties) continue;
+        if (!mergedEnrichment) mergedEnrichment = list.enrichment;
+        for (const rec of list.properties) {
+          const key = rec.parcel_id || `${rec.address?.street}|${rec.address?.zip}`;
+          if (seenParcels.has(key)) continue;
+          seenParcels.add(key);
+          merged.push(rec);
+        }
+      }
+
+      setData({
+        properties: merged.slice(0, limit),
+        count: merged.length,
+        enrichment: mergedEnrichment,
+      });
+      setProgress(null);
+
+      if (merged.length === 0) {
+        toast({
+          title: 'No absentee owners found',
+          description: `Searched ${resolved.zips.length} ZIP${resolved.zips.length === 1 ? '' : 's'} — coverage may be thin in this area.`,
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: `${Math.min(merged.length, limit)} absentee owner${merged.length === 1 ? '' : 's'} across ${resolved.zips.length} ZIP${resolved.zips.length === 1 ? '' : 's'}`,
+          description: 'Filter by equity, export to CSV, or send to the AI analyzer.',
+        });
+      }
     } catch (err) {
       console.error('[AbsenteeOwnerSearch]', err);
       toast({ title: 'Search failed', description: 'Could not fetch absentee owners.', variant: 'destructive' });
     } finally {
       setLoading(false);
+      setProgress(null);
     }
   };
 
@@ -161,7 +232,7 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
     });
     try {
       sessionStorage.setItem(OFFMARKET_ANALYZER_HANDOFF_KEY, JSON.stringify(unified));
-      sessionStorage.setItem(OFFMARKET_ANALYZER_HANDOFF_ZIP_KEY, zip.trim());
+      sessionStorage.setItem(OFFMARKET_ANALYZER_HANDOFF_ZIP_KEY, resolvedLabel || searchedZips.join(','));
     } catch (err) {
       console.error('[AbsenteeOwnerSearch] sessionStorage write failed', err);
       toast({ title: 'Could not hand off to analyzer', description: 'Storage quota?', variant: 'destructive' });
@@ -181,7 +252,8 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `absentee-owners-${zip.trim()}-${new Date().toISOString().slice(0, 10)}.csv`;
+    const slug = (resolvedLabel || searchedZips[0] || 'export').replace(/[^a-z0-9-]+/gi, '-').slice(0, 40);
+    a.download = `absentee-owners-${slug}-${new Date().toISOString().slice(0, 10)}.csv`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -202,52 +274,65 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex flex-col sm:flex-row gap-3">
-            <div className="flex-1 space-y-2">
-              <Label htmlFor="abs-zip">ZIP Code</Label>
+          <div className="flex flex-col gap-3">
+            <div className="space-y-2">
+              <Label htmlFor="abs-location">Location</Label>
               <Input
-                id="abs-zip"
-                value={zip}
-                onChange={(e) => setZip(e.target.value)}
-                placeholder="55101"
-                inputMode="numeric"
-                maxLength={5}
-                className="bg-background/50 font-mono"
+                id="abs-location"
+                value={locationInput}
+                onChange={(e) => setLocationInput(e.target.value)}
+                placeholder='ZIP (55101), multi-ZIP (55101, 55102, 55103), "Detroit, MI", "Oakland County, MI", or just "MI"'
+                className="bg-background/50"
                 onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
               />
+              <p className="text-xs text-muted-foreground">
+                Multi-ZIP / city / county / state all fan out across up to {MAX_ZIPS_PER_SEARCH} ZIPs.
+              </p>
             </div>
-            <div className="w-full sm:w-36 space-y-2">
-              <Label htmlFor="abs-limit">Max results</Label>
-              <select
-                id="abs-limit"
-                value={limit}
-                onChange={(e) => setLimit(Number(e.target.value))}
-                className="w-full h-10 px-3 rounded-md bg-background/50 border border-input text-sm"
-              >
-                {LIMIT_OPTIONS.map((n) => <option key={n} value={n}>{n}</option>)}
-              </select>
-            </div>
-            <div className="w-full sm:w-44 space-y-2">
-              <Label htmlFor="abs-equity">Min equity</Label>
-              <select
-                id="abs-equity"
-                value={equityFilter}
-                onChange={(e) => setEquityFilter(e.target.value as EquityFilter)}
-                className="w-full h-10 px-3 rounded-md bg-background/50 border border-input text-sm"
-              >
-                <option value="any">Any</option>
-                <option value="gte_40">≥ 40%</option>
-                <option value="gte_60">≥ 60%</option>
-                <option value="gte_80">≥ 80%</option>
-              </select>
-            </div>
-            <div className="flex items-end">
-              <Button onClick={handleSearch} disabled={loading} className="w-full sm:w-auto h-10">
-                {loading ? <RefreshCw className="h-4 w-4 animate-spin mr-2" /> : <Search className="h-4 w-4 mr-2" />}
-                {loading ? 'Searching…' : 'Search ZIP'}
-              </Button>
+
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="w-full sm:w-36 space-y-2">
+                <Label htmlFor="abs-limit">Max results</Label>
+                <select
+                  id="abs-limit"
+                  value={limit}
+                  onChange={(e) => setLimit(Number(e.target.value))}
+                  className="w-full h-10 px-3 rounded-md bg-background/50 border border-input text-sm"
+                >
+                  {LIMIT_OPTIONS.map((n) => <option key={n} value={n}>{n}</option>)}
+                </select>
+              </div>
+              <div className="w-full sm:w-44 space-y-2">
+                <Label htmlFor="abs-equity">Min equity</Label>
+                <select
+                  id="abs-equity"
+                  value={equityFilter}
+                  onChange={(e) => setEquityFilter(e.target.value as EquityFilter)}
+                  className="w-full h-10 px-3 rounded-md bg-background/50 border border-input text-sm"
+                >
+                  <option value="any">Any</option>
+                  <option value="gte_40">≥ 40%</option>
+                  <option value="gte_60">≥ 60%</option>
+                  <option value="gte_80">≥ 80%</option>
+                </select>
+              </div>
+              <div className="flex-1 flex items-end">
+                <Button onClick={handleSearch} disabled={loading} className="w-full sm:w-auto h-10">
+                  {loading ? <RefreshCw className="h-4 w-4 animate-spin mr-2" /> : <Search className="h-4 w-4 mr-2" />}
+                  {loading
+                    ? (progress ? `Searching ${progress.done}/${progress.total} ZIPs…` : 'Searching…')
+                    : 'Search'}
+                </Button>
+              </div>
             </div>
           </div>
+
+          {resolvedLabel && !loading && (data?.properties?.length ?? 0) >= 0 && (
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <MapPin className="h-3 w-3" />
+              <span>Searched: {resolvedLabel} · {searchedZips.length} ZIP{searchedZips.length === 1 ? '' : 's'}</span>
+            </div>
+          )}
 
           {enrichment && (data?.properties?.length ?? 0) > 0 && (
             <div className="flex flex-wrap gap-2 pt-1">
