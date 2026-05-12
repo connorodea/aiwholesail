@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-lakewood-co-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Lakewood CO: A Complete Investor's Guide for 2024",
+      "excerpt": "Lakewood, Colorado is one of the Denver metro's most overlooked markets for real estate investors — offering strong rental demand, flip opportunities, and wholesale deals just minutes from downtown. Here's everything you need to know to start finding profitable real estate deals in Lakewood CO.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-12T12:00:59.696Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Lakewood CO",
+        "Lakewood Colorado real estate investing",
+        "wholesale deals Lakewood CO",
+        "investment properties Lakewood Colorado",
+        "Denver metro real estate deals"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-evict-a-tenant-who-won-t-pay-rent-a-step-by-step-guide-for-landlords",
       "title": "How to Evict a Tenant Who Won't Pay Rent: A Step-by-Step Guide for Landlords",
       "excerpt": "Dealing with a non-paying tenant is one of the most stressful situations a landlord can face. This guide walks you through every step of the eviction process so you can protect your investment and move forward quickly.",
@@ -15,7 +32,7 @@
         "landlord eviction guide",
         "eviction notice"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "best-real-estate-podcasts-and-youtube-channels-for-beginners-2026-edition",
