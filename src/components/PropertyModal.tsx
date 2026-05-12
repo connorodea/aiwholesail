@@ -54,6 +54,9 @@ import { PropertyToolsTab } from './PropertyToolsTab';
 import { AIPhotoAnalysis } from './AIPhotoAnalysis';
 import { PropertySchoolsTab } from './PropertySchoolsTab';
 import { PropertyNeighborhoodTab } from './PropertyNeighborhoodTab';
+import { PropertyMortgageSection } from './PropertyMortgageSection';
+import { ZestimateHistoryChart } from './ZestimateHistoryChart';
+import { PropertyRentalEstimate } from './PropertyRentalEstimate';
 import { generateDealReport } from './DealReportPDF';
 import { generateBuyerPitch } from './BuyerPitchPDF';
 import { ListingDescriptionGenerator } from './ListingDescriptionGenerator';
@@ -522,6 +525,11 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
 
             <TabsContent value="overview" className="flex-1 overflow-auto mt-0">
               <div className="p-3 sm:p-6 space-y-5 sm:space-y-8">
+                {/* Rental estimate — top-line stat. Renders null if Zillow
+                    doesn't have rental data for the property, so the overview
+                    layout is unchanged for properties without it. */}
+                <PropertyRentalEstimate property={displayProperty} />
+
                 {/* Key Stats */}
                 {/* Compact key stats — uniform grid, missing values muted */}
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-2 sm:gap-3">
@@ -657,11 +665,14 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
             </TabsContent>
 
             <TabsContent value="tools" className="flex-1 overflow-auto p-3 sm:p-6 mt-0">
+              <PropertyMortgageSection property={displayProperty} />
+              <div className="my-6 border-t border-border/40" />
               <PropertyToolsTab property={displayProperty} />
             </TabsContent>
 
-            <TabsContent value="price-history" className="flex-1 overflow-auto p-3 sm:p-6 mt-0">
+            <TabsContent value="price-history" className="flex-1 overflow-auto p-3 sm:p-6 mt-0 space-y-6">
               <PriceHistoryChart property={displayProperty} />
+              <ZestimateHistoryChart property={displayProperty} />
             </TabsContent>
 
             <TabsContent value="taxes" className="flex-1 overflow-auto p-3 sm:p-6 mt-0">
