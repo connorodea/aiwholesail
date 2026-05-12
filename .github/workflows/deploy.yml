@@ -144,13 +144,12 @@ jobs:
             # Install any missing optional deps
             npm install resend twilio axios 2>/dev/null || true
             # Apply pending schema migrations BEFORE restarting so the new
-            # code never sees an old schema. On a fresh DB this runs every
-            # migration in order. On an existing DB without a _migrations
-            # table, the bootstrap branch marks all existing migrations as
-            # applied without re-running them. Failure here exits 1 →
+            # code never sees an old schema. The runner reads .env itself
+            # via `require('dotenv').config()` — we DON'T bash-source the
+            # .env file, because some values contain literal `$2` text
+            # (regex pattern, JWT format, etc.) which trips bash's `-u`
+            # flag with "unbound variable". Failure here exits 1 →
             # systemctl restart never runs → old process keeps serving.
-            # See scripts/migrate.js for the runner.
-            set -a; source /var/www/aiwholesail-api-staging/.env; set +a
             npm run migrate
             sudo systemctl restart aiwholesail-api-staging
             sleep 2
@@ -238,13 +237,12 @@ jobs:
             npm install --omit=dev 2>&1 | tail -3
             npm install resend twilio axios 2>/dev/null || true
             # Apply pending schema migrations BEFORE restarting so the new
-            # code never sees an old schema. On the first deploy after this
-            # PR lands, the runner detects an existing schema with no
-            # _migrations table and marks all 14+ migrations as already
-            # applied (without re-running them). Future deploys then apply
-            # only pending files. Failure here exits 1 → systemctl restart
-            # never runs → old process keeps serving old code.
-            set -a; source /var/www/aiwholesail-api/.env; set +a
+            # code never sees an old schema. The runner reads .env itself
+            # via `require('dotenv').config()` — we DON'T bash-source the
+            # .env file, because some values contain literal `$2` text
+            # (regex pattern, JWT format, etc.) which trips bash's `-u`
+            # flag with "unbound variable". Failure here exits 1 →
+            # systemctl restart never runs → old process keeps serving.
             npm run migrate
             sudo systemctl restart aiwholesail-api
             sleep 2
