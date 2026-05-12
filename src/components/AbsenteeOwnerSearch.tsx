@@ -13,6 +13,8 @@ import { topZipsInState } from '@/lib/topZipsByState';
 import { fanOutZipSearch, MAX_ZIPS_PER_SEARCH } from '@/lib/zip-search';
 import { OwnerSkipTraceButton } from '@/components/OwnerSkipTraceButton';
 import { Switch } from '@/components/ui/switch';
+import { useFeatureFlag } from '@/hooks/useFeatureFlag';
+import { OwnerDetailModal } from '@/components/OwnerDetailModal';
 import { Search, MapPin, User, Mail, Building, RefreshCw, Download, Flame, ShieldCheck, Sparkles, TrendingUp, AlertTriangle, CalendarClock, X } from 'lucide-react';
 
 /**
@@ -128,6 +130,10 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
   const [searchedZips, setSearchedZips] = useState<string[]>([]);
   const { toast } = useToast();
   const navigate = useNavigate();
+  // Phase 2 of the off-market roadmap — flag-gated owner portfolio modal.
+  // Default OFF, dogfood for cpodea5 via feature_flag_users override.
+  const { enabled: ownerDetailEnabled } = useFeatureFlag('off-market-owner-detail');
+  const [openOwner, setOpenOwner] = useState<PropDataPropertyRecord | null>(null);
 
   const filtered = useMemo(() => {
     const props = data?.properties || [];
@@ -620,7 +626,18 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
                       <div className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2 min-w-0">
                           <User className="h-4 w-4 text-primary flex-shrink-0" />
-                          <span className="font-medium text-sm break-all">{rec.owner?.name || 'Unknown owner'}</span>
+                          {ownerDetailEnabled && rec.owner?.name ? (
+                            <button
+                              type="button"
+                              onClick={() => setOpenOwner(rec)}
+                              className="font-medium text-sm break-all text-left hover:text-cyan-300 hover:underline underline-offset-2 transition-colors"
+                              title="View this owner's full parcel portfolio"
+                            >
+                              {rec.owner.name}
+                            </button>
+                          ) : (
+                            <span className="font-medium text-sm break-all">{rec.owner?.name || 'Unknown owner'}</span>
+                          )}
                         </div>
                         <div className="flex-shrink-0">
                           <OwnerSkipTraceButton owner={rec.owner} />
@@ -683,6 +700,17 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
             Loosen the filter or try a different ZIP.
           </CardContent>
         </Card>
+      )}
+
+      {/* Owner portfolio modal — flag-gated via off-market-owner-detail.
+          Trigger lives on the owner name button in each result card. */}
+      {openOwner && (
+        <OwnerDetailModal
+          isOpen={!!openOwner}
+          onClose={() => setOpenOwner(null)}
+          owner={openOwner.owner || {}}
+          fallbackZip={openOwner.address?.zip}
+        />
       )}
     </div>
   );
