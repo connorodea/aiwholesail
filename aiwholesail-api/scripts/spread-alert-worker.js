@@ -274,7 +274,7 @@ async function sendAlertEmail(userEmail, location, deals, userOptions = {}) {
           <tr><td style="padding:24px 28px 18px;border-bottom:1px solid #1a1a1a;">
             <table width="100%" cellpadding="0" cellspacing="0" border="0">
               <tr>
-                <td><img src="https://aiwholesail.com/logo-aiw-email.png" alt="AIWholesail" height="40" style="height:40px;width:auto;display:block;" /></td>
+                <td><img src="https://aiwholesail.com/logo-white.png" alt="AIWholesail" height="40" style="height:40px;width:auto;display:block;" /></td>
                 <td align="right" style="color:#525252;font-size:11px;">Deals found ${timeAgoText}</td>
               </tr>
             </table>

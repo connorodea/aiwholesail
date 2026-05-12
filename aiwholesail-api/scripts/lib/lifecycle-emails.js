@@ -10,7 +10,7 @@
  * table-based layout for Outlook compatibility).
  */
 
-const LOGO_URL = 'https://aiwholesail.com/logo-aiw-email.png';
+const LOGO_URL = 'https://aiwholesail.com/logo-white.png';
 const FOOTER_YEAR = new Date().getFullYear();
 const FOUNDER_EMAIL = 'connor@aiwholesail.com';
 const FOUNDER_PHONE = '248-881-4147';
