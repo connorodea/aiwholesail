@@ -112,12 +112,12 @@ export default function RealEstateWholesaler() {
     (async () => {
       try {
         const res = await propertyApi.getByZpid(zpidParam);
-        if (cancelled || !res?.property) return;
-        setSelectedProperty(res.property);
-        analytics.fire('email_deeplink_opened', {
-          zpid: zpidParam,
-          source: searchParams.get('utm_source') || undefined,
-        });
+        if (cancelled || !res?.data?.property) return;
+        setSelectedProperty(res.data.property);
+        analytics.emailDeeplinkOpened(
+          zpidParam,
+          searchParams.get('utm_source') || undefined
+        );
         // Clean the URL so a refresh doesn't re-trigger and so the modal can
         // be closed without leaving stale params behind.
         const next = new URLSearchParams(searchParams);
