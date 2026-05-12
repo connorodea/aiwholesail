@@ -3,6 +3,7 @@
  * Replaces Supabase client for self-hosted API on Hetzner
  */
 import { API_BASE_URL } from './platform';
+import type { Property } from '@/types/zillow';
 
 const API_URL = API_BASE_URL;
 
@@ -637,6 +638,13 @@ export const property = {
       method: 'POST',
       body: JSON.stringify({ zpid, address }),
     });
+  },
+
+  getByZpid: async (zpid: string) => {
+    return apiFetch<{ property: Property }>(
+      `/api/property/by-zpid?zpid=${encodeURIComponent(zpid)}`,
+      { method: 'GET' }
+    );
   },
 };
 

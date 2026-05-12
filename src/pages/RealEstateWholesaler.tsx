@@ -12,7 +12,7 @@ import { scoreAllProperties, filterMotivatedSellers, MIN_MOTIVATED_SCORE } from 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { User, Download, Bell, MessageSquare, GitCompareArrows, Check } from 'lucide-react';
-import { communications } from '@/lib/api-client';
+import { communications, property as propertyApi } from '@/lib/api-client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useLeads } from '@/hooks/useLeads';
@@ -100,6 +100,40 @@ export default function RealEstateWholesaler() {
   // Tracks whether we've already done the "first-cards-landed" scroll for the
   // current search. Reset on each new submit so a fresh search re-scrolls.
   const firstResultsShownRef = useRef(false);
+
+  // Email deep-link handler. The spread-alert worker emits links of the form
+  // `/app?zpid=<id>&utm_source=alert-email`; this effect resolves the zpid
+  // against the property_search_cache row written when the email was sent
+  // and auto-opens the property modal. Runs once on mount.
+  useEffect(() => {
+    const zpidParam = searchParams.get('zpid');
+    if (!zpidParam) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await propertyApi.getByZpid(zpidParam);
+        if (cancelled || !res?.data?.property) return;
+        setSelectedProperty(res.data.property);
+        analytics.emailDeeplinkOpened(
+          zpidParam,
+          searchParams.get('utm_source') || undefined
+        );
+        // Clean the URL so a refresh doesn't re-trigger and so the modal can
+        // be closed without leaving stale params behind.
+        const next = new URLSearchParams(searchParams);
+        next.delete('zpid');
+        next.delete('utm_source');
+        next.delete('utm_medium');
+        next.delete('utm_campaign');
+        setSearchParams(next, { replace: true });
+      } catch (err) {
+        console.error('[deeplink] zpid lookup failed:', zpidParam, err);
+        toast.error('Could not load that property — it may have expired from your alerts.');
+      }
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // A property is a confirmed non-deal when it has both a price and a
   // zestimate, and the price is at or above the zestimate. Properties still

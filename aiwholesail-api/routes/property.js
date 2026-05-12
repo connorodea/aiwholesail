@@ -7,6 +7,7 @@ const { asyncHandler } = require('../middleware/errorHandler');
 const { checkDatabaseRateLimit } = require('../middleware/rateLimit');
 const { attachSubscription, checkSearchLimit } = require('../middleware/subscription');
 const { logEvent, EVENTS } = require('../lib/events');
+const { mapCachedRowToProperty, validateZpid } = require('../lib/property-mapper');
 
 const router = express.Router();
 const RAPIDAPI_KEY = process.env.RAPIDAPI_KEY;
@@ -432,6 +433,39 @@ router.post('/photos', optionalAuth, asyncHandler(async (req, res) => {
     console.error('[Property] Photos error:', error.response?.data || error.message);
     res.status(500).json({ error: 'Failed to get property photos' });
   }
+}));
+
+/**
+ * GET /api/property/by-zpid?zpid=<id>
+ * Resolve a single property from the spread-alert cache so email deep-links
+ * (`/app?zpid=…`) can open the property modal without re-running a full
+ * Zillow search. The cache row is populated by the spread-alert worker at
+ * the moment the email is sent, so the row is guaranteed to exist for any
+ * zpid linked in a recent alert email.
+ *
+ * Returns Property-shape JSON ready for setSelectedProperty().
+ */
+router.get('/by-zpid', authenticate, asyncHandler(async (req, res) => {
+  const safeZpid = validateZpid(req.query.zpid);
+  if (!safeZpid) {
+    return res.status(400).json({ error: 'zpid query param required (digits only, 1-20 chars)' });
+  }
+
+  const result = await query(
+    `SELECT zpid, address, price, zestimate, bedrooms, bathrooms, sqft,
+            property_type, days_on_market, listing_url, image_url
+     FROM property_search_cache
+     WHERE zpid = $1
+     ORDER BY last_seen_at DESC NULLS LAST
+     LIMIT 1`,
+    [safeZpid]
+  );
+
+  if (result.rows.length === 0) {
+    return res.status(404).json({ error: 'Property not in cache', zpid: safeZpid });
+  }
+
+  res.json({ property: mapCachedRowToProperty(result.rows[0]) });
 }));
 
 module.exports = router;

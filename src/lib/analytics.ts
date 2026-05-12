@@ -265,6 +265,11 @@ export const analytics = {
     events.log('property_search', { location, ...(filters || {}) });
   },
 
+  /** User clicked a property link in an alert email and landed on /app?zpid=…; modal auto-opened. */
+  emailDeeplinkOpened(zpid: string, source?: string) {
+    fire('email_deeplink_opened', { zpid, source: source || 'unknown' });
+  },
+
   /** User views property details */
   viewProperty(propertyId: string, address: string, price?: number) {
     fire('view_item', {
