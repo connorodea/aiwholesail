@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-evict-a-tenant-who-won-t-pay-rent-a-step-by-step-guide-for-landlords",
+      "title": "How to Evict a Tenant Who Won't Pay Rent: A Step-by-Step Guide for Landlords",
+      "excerpt": "Dealing with a non-paying tenant is one of the most stressful situations a landlord can face. This guide walks you through every step of the eviction process so you can protect your investment and move forward quickly.",
+      "category": "Landlord",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-12T06:01:19.384Z",
+      "readTime": 7,
+      "tags": [
+        "how to evict a tenant who wont pay rent",
+        "eviction process",
+        "non-paying tenant",
+        "landlord eviction guide",
+        "eviction notice"
+      ],
+      "featured": true
+    },
+    {
       "slug": "best-real-estate-podcasts-and-youtube-channels-for-beginners-2026-edition",
       "title": "Best Real Estate Podcasts and YouTube Channels for Beginners (2026 Edition)",
       "excerpt": "Discover the top real estate podcasts and YouTube channels that help beginners learn wholesaling, flipping, and investing faster. We break down exactly what each show covers so you can start learning today.",
@@ -15,7 +32,7 @@
         "real estate investing podcast",
         "beginner real estate education"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-gainesville-fl-the-investor-s-complete-guide-for-2024",
