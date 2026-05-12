@@ -1,15 +1,19 @@
 import { useParams, Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { Badge } from '@/components/ui/badge';
 import {
   ArrowRight, MapPin, DollarSign, TrendingUp, Users,
   Home, Building2, Repeat, Hammer, ChevronRight, Calculator,
   BookOpen, Search, ThermometerSun, Zap,
-  Shield, CheckCircle,
+  Shield, CheckCircle, Calendar, Scale,
 } from 'lucide-react';
 import { SEOHead } from '@/components/SEOHead';
 import { PublicLayout } from '@/components/PublicLayout';
 import { Spotlight } from '@/components/ui/spotlight';
 import cities from '@/data/cities.json';
+import stateLaws from '@/data/state-laws.json';
+
+const LAST_UPDATED = '2026-05-12';
 
 interface City {
   slug: string;
@@ -23,6 +27,19 @@ interface City {
   topZips: string[];
   investorTypes: string[];
   marketTemp: string;
+}
+
+interface StateLaw {
+  slug: string;
+  state: string;
+  stateFull: string;
+  wholesalingLegal: boolean;
+  licenseRequired: boolean;
+  assignmentAllowed: boolean;
+  doubleCloseAllowed: boolean;
+  disclosureRequired: boolean;
+  notableRegulations: string;
+  keyStatutes: string;
 }
 
 const strategyDetails: Record<string, { icon: React.ReactNode; label: string; description: string }> = {
@@ -100,6 +117,8 @@ export default function MarketPage() {
 
   const related = getRelatedCities(city);
   const grossYield = ((city.avgRent * 12) / city.medianHomePrice * 100).toFixed(1);
+  const stateLaw = (stateLaws as StateLaw[]).find((s) => s.state === city.state);
+  const tempWord = (tempLabels[city.marketTemp] || city.marketTemp).toLowerCase().replace(' market', '');
 
   const stats = [
     { label: 'Median Home Price', value: formatCurrency(city.medianHomePrice), icon: DollarSign },
@@ -108,6 +127,72 @@ export default function MarketPage() {
     { label: 'Population', value: formatNumber(city.population), icon: Users },
     { label: 'Gross Rental Yield', value: `${grossYield}%`, icon: Building2 },
   ];
+
+  // 40-60 word self-contained answer block for AI extraction.
+  const marketSummary =
+    `${city.city}, ${city.stateFull} is a ${tempWord} real estate market with a median home price of ` +
+    `${formatCurrency(city.medianHomePrice)} and ${city.priceGrowth}% year-over-year price growth. ` +
+    `Average rent is $${city.avgRent.toLocaleString()}/month, producing a ${grossYield}% gross rental yield ` +
+    `across a population of ${formatNumber(city.population)}. The top investor strategies in ${city.city} ` +
+    `are ${city.investorTypes.map((t) => (t === 'wholesale' ? 'wholesaling' : t === 'flip' ? 'fix-and-flip' : 'buy-and-hold rentals')).join(', ')}.`;
+
+  // Structured data: Dataset (city stats) + Place (geo) for AI extraction.
+  const datasetJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Dataset',
+    name: `${city.city}, ${city.state} Real Estate Investment Market Data`,
+    description: marketSummary,
+    url: `https://aiwholesail.com/markets/${city.slug}`,
+    creator: {
+      '@type': 'Organization',
+      name: 'AIWholesail',
+      url: 'https://aiwholesail.com',
+    },
+    dateModified: LAST_UPDATED,
+    temporalCoverage: '2025/2026',
+    spatialCoverage: {
+      '@type': 'Place',
+      name: `${city.city}, ${city.state}`,
+      address: {
+        '@type': 'PostalAddress',
+        addressLocality: city.city,
+        addressRegion: city.state,
+        addressCountry: 'US',
+      },
+    },
+    keywords: [
+      `${city.city} real estate market`,
+      `${city.city} wholesale real estate`,
+      `${city.city} investment properties`,
+      `${city.stateFull} real estate investing`,
+      `median home price ${city.city}`,
+      `rental yield ${city.city}`,
+    ],
+    variableMeasured: [
+      { '@type': 'PropertyValue', name: 'Median Home Price', value: city.medianHomePrice, unitCode: 'USD' },
+      { '@type': 'PropertyValue', name: 'Average Monthly Rent', value: city.avgRent, unitText: 'USD/month' },
+      { '@type': 'PropertyValue', name: 'Year-over-Year Price Growth', value: city.priceGrowth, unitText: 'percent' },
+      { '@type': 'PropertyValue', name: 'Gross Rental Yield', value: parseFloat(grossYield), unitText: 'percent' },
+      { '@type': 'PropertyValue', name: 'Population', value: city.population },
+    ],
+    license: 'https://aiwholesail.com/terms',
+  };
+
+  const placeJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Place',
+    name: `${city.city}, ${city.state}`,
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: city.city,
+      addressRegion: city.state,
+      addressCountry: 'US',
+    },
+    containedInPlace: {
+      '@type': 'AdministrativeArea',
+      name: city.stateFull,
+    },
+  };
 
   return (
     <PublicLayout>
@@ -121,6 +206,14 @@ export default function MarketPage() {
           { name: `${city.city}, ${city.state}`, url: `https://aiwholesail.com/markets/${city.slug}` },
         ]}
       />
+
+      {/* Structured data: Dataset + Place — for AI Overviews / Perplexity / ChatGPT extraction */}
+      <Helmet>
+        <script type="application/ld+json">{JSON.stringify(datasetJsonLd)}</script>
+        <script type="application/ld+json">{JSON.stringify(placeJsonLd)}</script>
+        <meta name="last-modified" content={LAST_UPDATED} />
+        <meta property="article:modified_time" content={LAST_UPDATED} />
+      </Helmet>
 
       {/* ===== HERO ===== */}
       <section className="relative bg-gradient-to-b from-[#0a0a0a] via-[#0f0f0f] to-[#0a0a0a] text-white overflow-hidden">
@@ -148,6 +241,23 @@ export default function MarketPage() {
             AI-powered deal finding and market intelligence for {city.city}, {city.stateFull}.
             Median home price {formatCurrency(city.medianHomePrice)} with {city.priceGrowth}% annual growth.
           </p>
+          <p className="mt-6 inline-flex items-center gap-2 text-xs text-white/40">
+            <Calendar className="h-3 w-3" /> Last updated <time dateTime={LAST_UPDATED}>{LAST_UPDATED}</time>
+          </p>
+        </div>
+      </section>
+
+      {/* ===== AI-EXTRACTABLE SUMMARY ANSWER BLOCK ===== */}
+      <section className="py-12 px-4">
+        <div className="container mx-auto max-w-4xl">
+          <div className="border border-white/[0.05] bg-gradient-to-b from-neutral-900/50 to-transparent rounded-xl p-6 md:p-8">
+            <h2 className="text-sm font-semibold tracking-[0.15em] uppercase text-cyan-400 mb-3">
+              What is the {city.city} real estate market like?
+            </h2>
+            <p className="text-base md:text-lg text-white/80 font-light leading-relaxed">
+              {marketSummary}
+            </p>
+          </div>
         </div>
       </section>
 
@@ -238,6 +348,60 @@ export default function MarketPage() {
           </div>
         </div>
       </section>
+
+      {/* ===== WHOLESALING LEGALITY ===== */}
+      {stateLaw && (
+        <section className="py-16 px-4">
+          <div className="container mx-auto max-w-4xl">
+            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-4">Legality</p>
+            <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-white mb-6 max-w-2xl">
+              Is wholesaling legal in {city.city}, {city.state}?
+            </h2>
+            <div className="border border-white/[0.05] bg-gradient-to-b from-neutral-900/50 to-transparent rounded-xl p-6 md:p-8 space-y-4">
+              <p className="text-base md:text-lg text-white/80 font-light leading-relaxed">
+                {stateLaw.wholesalingLegal
+                  ? `Yes — wholesaling real estate is legal in ${stateLaw.stateFull}, including ${city.city}.`
+                  : `Wholesaling in ${stateLaw.stateFull} is restricted. Review the state statutes before structuring assignments in ${city.city}.`}
+                {' '}
+                {stateLaw.licenseRequired
+                  ? `${stateLaw.stateFull} requires a real estate license to wholesale.`
+                  : `A real estate license is not required to wholesale in ${stateLaw.stateFull}.`}
+                {' '}
+                {stateLaw.assignmentAllowed
+                  ? 'Assignment of contract is allowed.'
+                  : 'Assignment of contract is restricted — use a double-close structure.'}
+                {' '}
+                {stateLaw.disclosureRequired
+                  ? `Wholesalers must disclose their position as a principal in the transaction.`
+                  : `Explicit disclosure of intent to assign is not statutorily required, but is best practice.`}
+              </p>
+              <div className="grid sm:grid-cols-2 gap-3 pt-2">
+                <div className="flex items-start gap-2 text-sm text-white/70">
+                  <Scale className="h-4 w-4 text-cyan-400 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="font-medium text-white">Key statutes</p>
+                    <p className="text-white/60 font-light">{stateLaw.keyStatutes}</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2 text-sm text-white/70">
+                  <Shield className="h-4 w-4 text-cyan-400 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="font-medium text-white">Double-close allowed</p>
+                    <p className="text-white/60 font-light">{stateLaw.doubleCloseAllowed ? 'Yes' : 'No'}</p>
+                  </div>
+                </div>
+              </div>
+              <p className="text-xs text-white/40 pt-2 border-t border-white/[0.05]">
+                This is general guidance, not legal advice. Consult a licensed {stateLaw.stateFull} real estate attorney before structuring a deal.
+                {' '}
+                <Link to={`/laws/${stateLaw.slug}`} className="text-cyan-400 hover:text-cyan-300">
+                  Read the full {stateLaw.stateFull} wholesaling law guide →
+                </Link>
+              </p>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ===== INTERNAL LINKS ===== */}
       <section className="py-12 px-4">

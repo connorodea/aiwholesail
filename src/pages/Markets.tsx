@@ -1,15 +1,18 @@
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { Badge } from '@/components/ui/badge';
 import {
   ArrowRight, MapPin, Search, ChevronRight,
   ThermometerSun, DollarSign, TrendingUp, Filter, Zap,
-  Shield, CheckCircle,
+  Shield, CheckCircle, Calendar,
 } from 'lucide-react';
 import { SEOHead } from '@/components/SEOHead';
 import { PublicLayout } from '@/components/PublicLayout';
 import { Spotlight } from '@/components/ui/spotlight';
 import cities from '@/data/cities.json';
+
+const LAST_UPDATED = '2026-05-12';
 
 interface City {
   slug: string;
@@ -63,6 +66,60 @@ export default function Markets() {
     });
   }, [query, tempFilter]);
 
+  // Rank-by-yield ItemList for AI extraction. Top 25 by gross rental yield.
+  const rankedByYield = useMemo(() => {
+    return [...(cities as City[])]
+      .map((c) => ({
+        ...c,
+        yield: (c.avgRent * 12) / c.medianHomePrice,
+      }))
+      .sort((a, b) => b.yield - a.yield)
+      .slice(0, 25);
+  }, []);
+
+  const itemListJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: 'Top 25 US Real Estate Investment Markets by Gross Rental Yield',
+    description:
+      'AIWholesail ranks US metros by gross rental yield (annual rent divided by median home price) as a proxy for cash-flow potential. Updated quarterly.',
+    url: 'https://aiwholesail.com/markets',
+    numberOfItems: rankedByYield.length,
+    dateModified: LAST_UPDATED,
+    itemListElement: rankedByYield.map((c, idx) => ({
+      '@type': 'ListItem',
+      position: idx + 1,
+      url: `https://aiwholesail.com/markets/${c.slug}`,
+      name: `${c.city}, ${c.state}`,
+      item: {
+        '@type': 'Place',
+        name: `${c.city}, ${c.state}`,
+        address: {
+          '@type': 'PostalAddress',
+          addressLocality: c.city,
+          addressRegion: c.state,
+          addressCountry: 'US',
+        },
+        description: `Median ${c.medianHomePrice >= 1_000_000 ? `$${(c.medianHomePrice / 1_000_000).toFixed(2)}M` : `$${Math.round(c.medianHomePrice / 1_000)}K`}, ${c.priceGrowth}% YoY growth, ${(c.yield * 100).toFixed(1)}% gross rental yield.`,
+      },
+    })),
+  };
+
+  const collectionJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'US Real Estate Investment Markets',
+    description:
+      'Browse 50+ US real estate markets for wholesale, fix-and-flip, and buy-and-hold investing. Median home prices, rental yields, price growth, top ZIPs, and AI-powered deal scoring.',
+    url: 'https://aiwholesail.com/markets',
+    dateModified: LAST_UPDATED,
+    isPartOf: {
+      '@type': 'WebSite',
+      name: 'AIWholesail',
+      url: 'https://aiwholesail.com',
+    },
+  };
+
   return (
     <PublicLayout>
       <SEOHead
@@ -70,6 +127,12 @@ export default function Markets() {
         description="Browse 50+ US real estate markets for wholesale, flip, and rental investing. AI-powered market data, median home prices, growth rates, and top zip codes."
         keywords="wholesale real estate markets, US real estate investing, best cities for wholesaling, real estate market data, investment property markets, best cities to flip houses"
       />
+
+      <Helmet>
+        <script type="application/ld+json">{JSON.stringify(itemListJsonLd)}</script>
+        <script type="application/ld+json">{JSON.stringify(collectionJsonLd)}</script>
+        <meta name="last-modified" content={LAST_UPDATED} />
+      </Helmet>
 
       {/* ===== HERO ===== */}
       <section className="relative bg-gradient-to-b from-[#0a0a0a] via-[#0f0f0f] to-[#0a0a0a] text-white overflow-hidden">
@@ -86,6 +149,9 @@ export default function Markets() {
           <p className="text-lg md:text-xl text-white/50 max-w-2xl mx-auto leading-relaxed font-light">
             AI-powered market intelligence for the top 50 US metros.
             Median prices, growth rates, top zips, and investment strategies.
+          </p>
+          <p className="mt-6 inline-flex items-center gap-2 text-xs text-white/40">
+            <Calendar className="h-3 w-3" /> Last updated <time dateTime={LAST_UPDATED}>{LAST_UPDATED}</time>
           </p>
         </div>
       </section>
