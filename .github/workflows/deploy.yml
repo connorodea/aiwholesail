@@ -41,6 +41,13 @@ jobs:
       - name: Typecheck
         run: npx tsc --noEmit -p tsconfig.app.json
 
+      # Static guard: every callApi('X', ...) in src/lib/zillow-api.ts
+      # must reference a proxy-supported action. Catches the PR #207
+      # class of regression (callApi('walkScore') → 100% upstream reject)
+      # at PR time instead of in production.
+      - name: Lint Zillow proxy actions
+        run: node scripts/check-zillow-actions.mjs
+
       # Build with the correct API URL based on target branch
       - name: Build (staging)
         if: github.ref == 'refs/heads/staging' || (github.event_name == 'pull_request' && github.base_ref == 'staging')

@@ -8,6 +8,7 @@
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
+    "lint:zillow-actions": "node scripts/check-zillow-actions.mjs",
     "preview": "vite preview"
   },
   "dependencies": {
