@@ -164,7 +164,13 @@ router.post('/', authenticate, [
     [
       req.user.id,
       location,
-      propertyTypes || null,
+      // Default to all 4 property types when client doesn't pass any
+      // (SaveSearchAsAlertDialog and other quick-save flows don't include
+      // propertyTypes). Storing NULL crashes the alerts page render —
+      // `alert.property_types.join(', ')` throws on null.
+      (Array.isArray(propertyTypes) && propertyTypes.length > 0)
+        ? propertyTypes
+        : ['Houses', 'Townhomes', 'Multi-family', 'Condos/Co-ops'],
       minBedrooms || null,
       maxBedrooms || null,
       minBathrooms || null,

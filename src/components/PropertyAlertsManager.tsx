@@ -231,15 +231,21 @@ export const PropertyAlertsManager = () => {
     return criteria.length > 0 ? criteria.join(', ') : 'No specific criteria';
   };
 
+  // Tier values are 'Elite' ($99) and 'Pro' ($49) — the legacy 'Premium'
+  // string is kept in the comparison for backward-compat with any row
+  // that still has the old value, but new resolutions always normalize
+  // to 'Elite'.
+  const isElite = subscription?.subscription_tier === 'Elite' || subscription?.subscription_tier === 'Premium';
+
   const getMaxAlerts = () => {
-    if (!subscription?.subscribed) return 1; // Free tier: 1 alert
-    if (subscription?.subscription_tier === 'Premium') return 999; // $99 plan: unlimited
-    return 5; // $49 plan: 5 alerts
+    if (!subscription?.subscribed) return 1;        // Free tier: 1 alert
+    if (isElite) return 999;                         // Elite ($99): unlimited
+    return 5;                                        // Pro ($49): 5 alerts
   };
 
   const getUpdateFrequency = () => {
     if (!subscription?.subscribed) return 'Manual only';
-    if (subscription?.subscription_tier === 'Premium') return 'Every 4 hours';
+    if (isElite) return 'Every 4 hours';
     return 'Every 24 hours';
   };
 
@@ -266,8 +272,8 @@ export const PropertyAlertsManager = () => {
           </p>
           <div className="flex items-center gap-4 mt-2 text-sm">
             <span className="text-muted-foreground">
-              Plan: {subscription?.subscribed ? 
-                (subscription?.subscription_tier === 'Premium' ? 'Premium ($99/month)' : 'Basic ($49/month)') :
+              Plan: {subscription?.subscribed ?
+                (isElite ? 'Elite ($99/month)' : 'Pro ($49/month)') :
                 'Free'
               }
             </span>
@@ -450,7 +456,7 @@ export const PropertyAlertsManager = () => {
                       </div>
                       <div className="flex items-center gap-2">
                         <Home className="h-4 w-4" />
-                        <span>{alert.property_types.join(', ')}</span>
+                        <span>{(alert.property_types && alert.property_types.length > 0) ? alert.property_types.join(', ') : 'All property types'}</span>
                       </div>
                       {alert.last_alert_sent && (
                         <div className="flex items-center gap-2 mt-1">
