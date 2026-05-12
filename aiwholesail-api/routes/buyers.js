@@ -373,6 +373,20 @@ router.post('/:id/outreach', authenticate, [
   }
 
   const buyer = buyerResult.rows[0];
+
+  // TCPA / CAN-SPAM gate. A buyer who clicked the unsubscribe link in a
+  // previous email has unsubscribed_at set; refuse to send anything else
+  // through this user's outreach path. Operator can confirm with the
+  // recipient and clear the column manually if it was a mistake.
+  if (buyer.unsubscribed_at) {
+    return res.status(400).json({
+      error: 'Buyer has unsubscribed',
+      code: 'BUYER_UNSUBSCRIBED',
+      message: 'This buyer opted out of receiving messages from you. They will need to resubscribe before you can contact them again through AIWholesail.',
+      unsubscribed_at: buyer.unsubscribed_at,
+    });
+  }
+
   const { deal, channels } = req.body;
   const results = [];
 
@@ -380,7 +394,16 @@ router.post('/:id/outreach', authenticate, [
   const price = deal.price || deal.propertyData?.price || '';
   const priceStr = price ? `$${Number(price).toLocaleString()}` : 'contact for price';
 
-  const message = `Hi ${buyer.first_name}, I have a deal you might be interested in: ${address} listed at ${priceStr}. Let me know if you'd like details!`;
+  // Per-buyer signed unsubscribe link. Same token works in email + SMS;
+  // CAN-SPAM requires the link to be functional for 30+ days (token TTL is 1y).
+  const { buildUnsubscribeUrl } = require('../lib/unsubscribe');
+  const unsubUrl = buildUnsubscribeUrl('buyer', buyer.id);
+
+  // SMS body — append a short opt-out line. Twilio considers any of "STOP /
+  // UNSUBSCRIBE / END / CANCEL" a hard opt-out automatically at the carrier
+  // layer, but providing an explicit link respects users on iMessage / WhatsApp
+  // bridges that don't honor STOP keywords reliably.
+  const message = `Hi ${buyer.first_name}, I have a deal you might be interested in: ${address} listed at ${priceStr}. Let me know if you'd like details! Reply STOP to opt out, or unsubscribe: ${unsubUrl}`;
 
   if (channels.includes('sms') && buyer.phone) {
     try {
@@ -427,7 +450,10 @@ router.post('/:id/outreach', authenticate, [
               Best regards,<br/>${senderName}
             </p>
             <hr style="border: none; border-top: 1px solid #262626; margin: 24px 0;" />
-            <p style="color: #525252; font-size: 12px;">Sent via AIWholesail.com</p>
+            <p style="color: #525252; font-size: 12px; line-height: 1.5;">
+              Sent via AIWholesail.com on behalf of ${senderName}.<br/>
+              <a href="${unsubUrl}" style="color: #525252; text-decoration: underline;">Unsubscribe from this sender's deal alerts.</a>
+            </p>
           </div>
         `,
       });

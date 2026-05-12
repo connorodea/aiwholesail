@@ -29,6 +29,7 @@ const webhookRoutes = require('./routes/webhooks');
 const propdataRoutes = require('./routes/propdata');
 const flagsRoutes = require('./routes/flags');
 const healthIntegrationsRoutes = require('./routes/healthIntegrations');
+const unsubscribeRoutes = require('./routes/unsubscribe');
 
 // Import middleware
 const { errorHandler } = require('./middleware/errorHandler');
@@ -134,6 +135,10 @@ app.use('/api/webhooks', webhookRoutes);
 app.use('/api/propdata', propdataRoutes);
 app.use('/api/flags', flagsRoutes);
 app.use('/api/health', healthIntegrationsRoutes);
+// Public unsubscribe endpoint — no auth, accessible from any email client.
+// Mounted before the catch-all utility routes so /api/unsubscribe/:token
+// resolves to its own handler.
+app.use('/api/unsubscribe', unsubscribeRoutes);
 app.use('/api', utilityRoutes);
 
 // Exec dashboard at /exec/* — served via the nginx vhost for
