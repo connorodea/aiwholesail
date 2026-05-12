@@ -81,16 +81,30 @@ export async function resolveLocation(
   }
 
   // 2. State alone — "MI" or "Michigan".
+  // Merge population-ranked ZIPs with state centroids. The pop-ranked file
+  // (zipcodes.json from PR #175) only covers ~1,000 US ZIPs nationwide, so
+  // some states have <5 entries (MN had 4 at time of writing). Filling the
+  // remainder from centroids ensures the user gets a full 25-ZIP fan-out
+  // when they search a whole state.
   const stateAlone = normalizeStateToken(raw);
   if (stateAlone) {
-    const top = opts.topZipsInState?.(stateAlone, MAX_ZIPS_PER_SEARCH);
-    if (top && top.length) {
-      return { zips: top, kind: 'state', label: `${stateAlone} (top ${top.length} ZIPs)` };
+    const top = opts.topZipsInState?.(stateAlone, MAX_ZIPS_PER_SEARCH) ?? [];
+    const merged: string[] = [...top];
+    const seen = new Set(merged);
+    if (merged.length < MAX_ZIPS_PER_SEARCH) {
+      const centroids = await zipsInState(stateAlone, MAX_ZIPS_PER_SEARCH);
+      for (const c of centroids) {
+        if (merged.length >= MAX_ZIPS_PER_SEARCH) break;
+        if (seen.has(c.zip)) continue;
+        merged.push(c.zip);
+        seen.add(c.zip);
+      }
     }
-    // Fallback: any centroids we have for the state, capped.
-    const fallback = await zipsInState(stateAlone, MAX_ZIPS_PER_SEARCH);
-    if (fallback.length) {
-      return { zips: fallback.map((c) => c.zip), kind: 'state', label: `${stateAlone}` };
+    if (merged.length) {
+      const label = top.length === merged.length
+        ? `${stateAlone} (top ${merged.length} by population)`
+        : `${stateAlone} (top ${top.length} by pop + ${merged.length - top.length} more)`;
+      return { zips: merged, kind: 'state', label };
     }
   }
 
