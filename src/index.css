@@ -265,6 +265,17 @@ All colors MUST be HSL.
     @apply bg-background border border-border focus:border-primary focus:ring-1 focus:ring-primary/20 transition-colors duration-200;
   }
 
+  /* Hide native number-input spinners — they look unbranded in the
+     dark UI and the up/down arrows clip the asymmetric layout. */
+  .no-spinner::-webkit-outer-spin-button,
+  .no-spinner::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  .no-spinner {
+    -moz-appearance: textfield;
+  }
+
   .smooth-transition {
     @apply transition-all duration-200 ease-out;
   }
