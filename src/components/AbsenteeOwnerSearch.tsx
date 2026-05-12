@@ -159,15 +159,30 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
 
       setProgress({ done: 0, total: resolved.zips.length });
       let completed = 0;
+      // Track per-ZIP outcomes so we can give the user an actionable failure
+      // message instead of a generic "coverage may be thin" toast.
+      const outcomes = { ok: 0, noCoverage: 0, rateLimited: 0, other: 0 };
       const batched = await fanOutZipSearch(resolved.zips, async (z) => {
         try {
           const res = await propDataAPI.listAbsenteeOwners({ zip: z, limit: perZipLimit });
           completed += 1;
           setProgress({ done: completed, total: resolved.zips.length });
+          // PropData returns { error, status } with HTTP 200 when a ZIP is
+          // outside their coverage. The client unwrap() throws on res.error
+          // so we shouldn't see this path here — but defensive.
+          if ((res as { error?: string; status?: number }).error) {
+            outcomes.noCoverage += 1;
+            return null;
+          }
+          outcomes.ok += 1;
           return res;
-        } catch {
+        } catch (err) {
           completed += 1;
           setProgress({ done: completed, total: resolved.zips.length });
+          const msg = err instanceof Error ? err.message.toLowerCase() : '';
+          if (msg.includes('rate limit')) outcomes.rateLimited += 1;
+          else if (msg.includes('coverage') || msg.includes('no property records')) outcomes.noCoverage += 1;
+          else outcomes.other += 1;
           return null;
         }
       });
@@ -198,15 +213,27 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
       setProgress(null);
 
       if (merged.length === 0) {
-        toast({
-          title: 'No absentee owners found',
-          description: `Searched ${resolved.zips.length} ZIP${resolved.zips.length === 1 ? '' : 's'} — coverage may be thin in this area.`,
-          variant: 'destructive',
-        });
+        // Pick the most informative explanation. Rate limited > coverage gap > generic.
+        let description: string;
+        if (outcomes.rateLimited > 0) {
+          description = `${outcomes.rateLimited} of ${resolved.zips.length} ZIPs hit rate-limit. Wait a minute and try again, or narrow the search.`;
+        } else if (outcomes.noCoverage === resolved.zips.length) {
+          description = `PropData has no parcel coverage in ${resolved.label} yet. Try a different state — Minnesota and Florida have rich data.`;
+        } else if (outcomes.noCoverage > 0) {
+          description = `${outcomes.noCoverage} of ${resolved.zips.length} ZIPs returned no coverage. Try a different state — Minnesota and Florida have rich data.`;
+        } else {
+          description = `Searched ${resolved.zips.length} ZIP${resolved.zips.length === 1 ? '' : 's'} — no absentee owners matched.`;
+        }
+        toast({ title: 'No absentee owners found', description, variant: 'destructive' });
       } else {
+        const okMsg = `${Math.min(merged.length, limit)} absentee owner${merged.length === 1 ? '' : 's'}`
+          + ` from ${outcomes.ok}/${resolved.zips.length} ZIP${resolved.zips.length === 1 ? '' : 's'}`;
+        const skipped = outcomes.noCoverage + outcomes.rateLimited;
         toast({
-          title: `${Math.min(merged.length, limit)} absentee owner${merged.length === 1 ? '' : 's'} across ${resolved.zips.length} ZIP${resolved.zips.length === 1 ? '' : 's'}`,
-          description: 'Filter by equity, export to CSV, or send to the AI analyzer.',
+          title: okMsg,
+          description: skipped > 0
+            ? `${skipped} ZIP${skipped === 1 ? '' : 's'} skipped (no coverage / rate-limited). Filter by equity, export, or send to AI.`
+            : 'Filter by equity, export to CSV, or send to the AI analyzer.',
         });
       }
     } catch (err) {
