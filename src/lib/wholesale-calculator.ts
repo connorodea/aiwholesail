@@ -129,28 +129,30 @@ export function sortPropertiesByWholesalePotential(properties: Property[]): Prop
       if (a.isQualifiedDeal && !b.isQualifiedDeal) return -1;
       if (!a.isQualifiedDeal && b.isQualifiedDeal) return 1;
 
-      // 2. Among qualified deals: sort by days on market ASC (newest first), then by spread DESC
+      // 2. Among qualified deals: SPREAD primary (user expectation — biggest
+      //    spread on top), days-on-market as a tiebreaker. Previously this
+      //    had days primary, which buried $200K-spread 30-day-old listings
+      //    under $30K-spread brand-new ones — user reported "highest spreads
+      //    aren't autopopulating to the top anymore".
       if (a.isQualifiedDeal && b.isQualifiedDeal) {
-        // Primary: shortest time on market first (newest listings)
-        if (a.daysOnMarket !== b.daysOnMarket) {
-          return a.daysOnMarket - b.daysOnMarket;
+        if (a.rawSpread !== b.rawSpread) {
+          return b.rawSpread - a.rawSpread;
         }
-        // Secondary: highest spread first
-        return b.rawSpread - a.rawSpread;
+        return a.daysOnMarket - b.daysOnMarket;
       }
 
-      // 3. Properties with positive spread (but < $30k) next
+      // 3. Properties with positive spread (but < $30k) next.
+      //    Same priority: spread primary, days-on-market tiebreaker.
       const aPositive = a.rawSpread > 0;
       const bPositive = b.rawSpread > 0;
       if (aPositive && !bPositive) return -1;
       if (!aPositive && bPositive) return 1;
 
       if (aPositive && bPositive) {
-        // Newest first, then highest spread
-        if (a.daysOnMarket !== b.daysOnMarket) {
-          return a.daysOnMarket - b.daysOnMarket;
+        if (a.rawSpread !== b.rawSpread) {
+          return b.rawSpread - a.rawSpread;
         }
-        return b.rawSpread - a.rawSpread;
+        return a.daysOnMarket - b.daysOnMarket;
       }
 
       // 4. Properties with zestimates next (even if negative spread)
