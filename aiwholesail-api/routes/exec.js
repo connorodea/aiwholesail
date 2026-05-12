@@ -205,7 +205,7 @@ function loginHtml(errBanner = '') {
   return pageShell('Sign in — AIWholesail Exec', `
 <div class="wrap" style="max-width:420px">
   <div style="text-align:center;margin-bottom:32px;padding-top:48px">
-    <img src="https://aiwholesail.com/logo-aiw-email.png" alt="AIWholesail" style="height:48px;width:auto"/>
+    <img src="https://aiwholesail.com/logo-white.png" alt="AIWholesail" style="height:48px;width:auto"/>
   </div>
   <div class="card" style="padding:28px">
     <h1 style="font-size:20px;margin:0 0 6px 0">Exec Dashboard</h1>
@@ -266,7 +266,7 @@ function dashboardHtml(s) {
 <div class="wrap">
   <div class="header">
     <div style="display:flex;align-items:center;gap:14px">
-      <img class="logo" src="https://aiwholesail.com/logo-aiw-email.png" alt="AIWholesail"/>
+      <img class="logo" src="https://aiwholesail.com/logo-white.png" alt="AIWholesail"/>
       <h1>Exec Dashboard</h1>
     </div>
     <div class="right">
