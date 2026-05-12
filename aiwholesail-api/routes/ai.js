@@ -286,9 +286,15 @@ router.post('/wholesale-analyzer', authenticate, [
 
     const candidates = csv_data.slice(0, maxCandidates);
 
-    // Strict JSON-only system prompt for batch mode — otherwise Claude returns
-    // prose and the frontend's JSON.parse fails silently into "0 deals".
-    const BATCH_SYSTEM = `You are an expert real estate wholesale deal analyzer. You MUST respond with valid JSON only — no prose, no markdown fences, no commentary before or after. The response must parse with JSON.parse.
+    // Branch the prompt by source. Off-market rows (PropData absentee owners
+    // sent from AbsenteeOwnerSearch via PR #182) have no list_price — the
+    // analyzer's spread-driven logic doesn't apply. Use market_value as the
+    // ARV anchor and emit a motivation_score per deal instead of relying on
+    // listing momentum signals.
+    const isOffMarket = candidates.some((c) => c?.source === 'off-market');
+    const allOffMarket = isOffMarket && candidates.every((c) => c?.source === 'off-market');
+
+    const BATCH_SYSTEM_ONMARKET = `You are an expert real estate wholesale deal analyzer. You MUST respond with valid JSON only — no prose, no markdown fences, no commentary before or after. The response must parse with JSON.parse.
 
 Output schema (return EXACTLY this shape):
 {
@@ -327,6 +333,56 @@ Rules:
 - deal_score 0-100: 80+ for strong margin, 50-79 solid, 30-49 marginal, <30 pass
 - one_liner: ≤120 chars, plain English, why this is/isn't a deal
 - Return ALL ${candidates.length} deals — none filtered out`;
+
+    const BATCH_SYSTEM_OFFMARKET = `You are an expert real estate wholesale deal analyzer working with OFF-MARKET county assessor data. The properties below are absentee-owner records from PropData — no list price, no listing agent. Owner mailing address differs from property address, so these are direct-mail prospects, not listings.
+
+You MUST respond with valid JSON only — no prose, no markdown fences, no commentary before or after. The response must parse with JSON.parse.
+
+Output schema (return EXACTLY this shape, keep field names for downstream compatibility):
+{
+  "market": string,
+  "analysis_timestamp": string (ISO-8601),
+  "assumptions": {
+    "target_fee": number,
+    "mao_rule_pct_of_arv": number,
+    "repair_cost_low_per_sqft": number,
+    "repair_cost_high_per_sqft": number
+  },
+  "deals": [
+    {
+      "rank": number,
+      "address": string,
+      "property_details": { "list_price": 0, "zestimate": number, "sqft": number, "beds": number, "baths": number },
+      "arv_calculation": { "estimated_arv": number, "method": string },
+      "repair_estimate": { "total_repair_estimate": number, "rationale": string },
+      "mao_calculation": { "mao": number, "mao_rounded": number },
+      "profit_analysis": {
+        "if_purchased_at_mao": { "recommended_assignment_fee": number, "estimated_wholesale_profit": number }
+      },
+      "deal_score": number,
+      "recommendation": "PURSUE" | "MAYBE" | "PASS",
+      "summary": { "one_liner": string, "motivation": string }
+    }
+  ]
+}
+
+Off-market rules:
+- list_price is ALWAYS 0 in the output — these properties are not listed
+- ARV: use the property's market_value field as the anchor. Adjust ±10% for sqft / year_built / condition signals. If market_value is absent or 0, fall back to land_value + improvement_value if available, else use 0.
+- "estimated_arv" is the ARV anchor described above; "zestimate" field in the output mirrors it (downstream consumers expect zestimate present even off-market).
+- Repair: sqft × repair_cost_low_per_sqft as floor, × repair_cost_high_per_sqft as ceiling. Off-market = no inspection signal — pick MIDPOINT to be conservative.
+- MAO = (ARV × mao_rule_pct_of_arv) − repairs − target_fee. Round to nearest $1,000 for the offer ceiling.
+- deal_score (0-100) is a MOTIVATION composite, not spread-driven. Use the equity_pct, years_held, and is_absentee_owner fields from the input. Heuristic:
+    * 80+ : equity_pct ≥ 70% AND years_held ≥ 10 (entrenched landlord, easy direct-mail target)
+    * 50-79: equity_pct ≥ 50% OR years_held ≥ 7
+    * 30-49: equity_pct ≥ 30%
+    * <30  : low-equity / recent purchase (less motivated)
+- recommendation: PURSUE for 70+, MAYBE for 40-69, PASS below.
+- one_liner: ≤120 chars, plain English, why this owner might sell (high equity, long hold, out-of-state, etc.)
+- motivation: 1 sentence on the specific outreach angle (e.g. "Owner held for 14 years with 78% equity — likely receptive to a cash offer to avoid the rehab burden").
+- Return ALL ${candidates.length} deals — none filtered out`;
+
+    const BATCH_SYSTEM = allOffMarket ? BATCH_SYSTEM_OFFMARKET : BATCH_SYSTEM_ONMARKET;
 
     const batchMessage = `Market: ${market || 'unspecified'}
 Assumptions: target_fee=$${targetFee}, min_spread_pct=${minSpreadPct}, mao_rule_pct_of_arv=0.70, repair_cost_low_per_sqft=$${repairLow}, repair_cost_high_per_sqft=$${repairHigh}
