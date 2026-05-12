@@ -360,10 +360,66 @@ export interface PropDataDeltaResponse<T> {
   [key: string]: any;
 }
 
+// ============ ERRORS ============
+
+/**
+ * Structured error codes mirrored from the backend proxy's
+ * propdata-normalizer.js. Keep this list in sync — adding a code here
+ * requires adding it server-side too, and vice versa.
+ */
+export type PropDataErrorCode =
+  | 'OK'
+  | 'NO_COVERAGE'       // PropData doesn't have parcel/market data for this region
+  | 'NOT_FOUND'         // The specific record doesn't exist
+  | 'RATE_LIMITED'      // We hit our per-user rate limit OR PropData rate-limited us
+  | 'UPSTREAM_ERROR'    // PropData / RapidAPI returned 5xx
+  | 'TIMEOUT'           // Upstream timed out
+  | 'NOT_CONFIGURED'    // Backend missing PROPDATA_RAPIDAPI_KEY
+  | 'NETWORK'           // ECONNRESET / DNS / etc
+  | 'UNKNOWN';          // Fallback when no code surfaces
+
+/**
+ * Rich PropData error that exposes the structured `code` from the backend
+ * so consumers (toast messages, retry logic, UI states) can branch
+ * cleanly without string-matching the error message.
+ *
+ * Replaces the prior `throw new Error(res.error)` pattern.
+ */
+export class PropDataError extends Error {
+  constructor(
+    message: string,
+    public readonly code: PropDataErrorCode,
+  ) {
+    super(message);
+    this.name = 'PropDataError';
+  }
+
+  /** Convenience: was this a coverage gap (vs an actual failure)? */
+  get isCoverageGap(): boolean {
+    return this.code === 'NO_COVERAGE' || this.code === 'NOT_FOUND';
+  }
+
+  /** Convenience: is a retry likely to help? */
+  get isTransient(): boolean {
+    return this.code === 'UPSTREAM_ERROR' || this.code === 'TIMEOUT' || this.code === 'NETWORK';
+  }
+}
+
 // ============ SERVICE ============
 
-function unwrap<T>(res: { data?: T; error?: string }): T {
-  if (res.error) throw new Error(res.error);
+const KNOWN_CODES: ReadonlySet<string> = new Set<PropDataErrorCode>([
+  'OK', 'NO_COVERAGE', 'NOT_FOUND', 'RATE_LIMITED',
+  'UPSTREAM_ERROR', 'TIMEOUT', 'NOT_CONFIGURED', 'NETWORK', 'UNKNOWN',
+]);
+
+function narrowCode(raw: string | undefined): PropDataErrorCode {
+  return raw && KNOWN_CODES.has(raw) ? (raw as PropDataErrorCode) : 'UNKNOWN';
+}
+
+function unwrap<T>(res: { data?: T; error?: string; code?: string }): T {
+  if (res.error) {
+    throw new PropDataError(res.error, narrowCode(res.code));
+  }
   // Strict-mode-safe "no data" fallback. Callers either get a real response
   // or an empty object — `unknown` is used as the intermediate because
   // `{}` isn't assignable to `T` in strict mode without it.

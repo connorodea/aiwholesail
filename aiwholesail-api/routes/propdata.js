@@ -1,14 +1,27 @@
 const express = require('express');
 const axios = require('axios');
+const crypto = require('crypto');
 const { authenticate } = require('../middleware/auth');
 const { asyncHandler } = require('../middleware/errorHandler');
 const { checkDatabaseRateLimit } = require('../middleware/rateLimit');
+const {
+  ERROR_CODES,
+  getEndpointTimeout,
+  normalizeUpstreamResponse,
+  isRetryableError,
+} = require('../lib/propdata-normalizer');
 
 const router = express.Router();
 
 const RAPIDAPI_KEY = process.env.PROPDATA_RAPIDAPI_KEY;
 const RAPIDAPI_HOST = process.env.PROPDATA_RAPIDAPI_HOST || 'propdata-real-estate-market-intelligence-api.p.rapidapi.com';
 const BASE_URL = `https://${RAPIDAPI_HOST}`;
+
+// Single retry for transient upstream errors (502/503/network). Idempotent
+// GETs only, which all PropData endpoints are. Sleep 200ms before retry
+// to give upstream a beat without holding the request too long.
+const RETRY_DELAY_MS = 200;
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // In-process LRU cache. Key = `${path}?${sortedParams}`. Value = { body, expiresAt }.
 // 1-hour TTL keeps RapidAPI quota healthy. 500 entry cap is enough for normal usage
@@ -61,9 +74,46 @@ function isIso8601(s) {
 // our plan tier) from any single user spamming. Cache hits don't count.
 const RATE_LIMIT_PER_MIN = 60;
 
+/** Single upstream attempt. Wraps axios to surface a uniform shape. */
+async function callUpstream(endpoint, params, timeoutMs) {
+  try {
+    const upstream = await axios.get(`${BASE_URL}${endpoint}`, {
+      params,
+      headers: {
+        'x-rapidapi-key': RAPIDAPI_KEY,
+        'x-rapidapi-host': RAPIDAPI_HOST,
+      },
+      timeout: timeoutMs,
+      validateStatus: () => true,
+    });
+    return normalizeUpstreamResponse(upstream);
+  } catch (err) {
+    if (err.code === 'ECONNABORTED') {
+      return {
+        ok: false,
+        status: 504,
+        code: ERROR_CODES.TIMEOUT,
+        body: { error: 'PropData upstream timeout', code: ERROR_CODES.TIMEOUT },
+      };
+    }
+    return {
+      ok: false,
+      status: 502,
+      code: ERROR_CODES.NETWORK,
+      body: { error: err.message || 'Network error', code: ERROR_CODES.NETWORK },
+    };
+  }
+}
+
 async function proxy(req, res, endpoint, allowedParams, options = {}) {
+  const requestId = crypto.randomBytes(6).toString('hex');
+  res.set('X-PropData-RequestId', requestId);
+
   if (!RAPIDAPI_KEY) {
-    return res.status(503).json({ error: 'PropData not configured' });
+    return res.status(503).json({
+      error: 'PropData not configured',
+      code: ERROR_CODES.NOT_CONFIGURED,
+    });
   }
 
   // Whitelist params: only forward keys the endpoint actually accepts, so a
@@ -92,34 +142,49 @@ async function proxy(req, res, endpoint, allowedParams, options = {}) {
 
   const rateLimit = await checkDatabaseRateLimit(req.user.id, 'propdata', RATE_LIMIT_PER_MIN, 1);
   if (!rateLimit.allowed) {
-    return res.status(429).json({ error: 'Rate limit exceeded. Try again in a minute.' });
-  }
-
-  try {
-    const upstream = await axios.get(`${BASE_URL}${endpoint}`, {
-      params,
-      headers: {
-        'x-rapidapi-key': RAPIDAPI_KEY,
-        'x-rapidapi-host': RAPIDAPI_HOST,
-      },
-      timeout: 15000,
-      validateStatus: () => true,
+    return res.status(429).json({
+      error: 'Rate limit exceeded. Try again in a minute.',
+      code: ERROR_CODES.RATE_LIMITED,
     });
-
-    // PropData often returns `{error, status: 404}` with HTTP 200. Don't cache
-    // those — the data may show up tomorrow.
-    const body = upstream.data;
-    if (upstream.status >= 200 && upstream.status < 300 && !body?.error) {
-      cacheSet(key, body, options.ttlMs);
-    }
-
-    res.set('X-PropData-Cache', 'MISS');
-    return res.status(upstream.status).json(body);
-  } catch (err) {
-    const msg = err.code === 'ECONNABORTED' ? 'PropData upstream timeout' : err.message;
-    console.error(`[propdata] ${endpoint} failed:`, msg);
-    return res.status(502).json({ error: msg });
   }
+
+  const timeoutMs = getEndpointTimeout(endpoint);
+  const startedAt = Date.now();
+
+  // Attempt 1
+  let result = await callUpstream(endpoint, params, timeoutMs);
+
+  // Single retry on transient upstream error / network blip. NO_COVERAGE,
+  // NOT_FOUND, RATE_LIMITED are never retried (won't help, would burn quota).
+  let retried = false;
+  if (isRetryableError(result) || result.code === ERROR_CODES.NETWORK) {
+    await sleep(RETRY_DELAY_MS);
+    result = await callUpstream(endpoint, params, timeoutMs);
+    retried = true;
+  }
+
+  const elapsedMs = Date.now() - startedAt;
+
+  // Single structured log line per request — greppable in production.
+  console.log(JSON.stringify({
+    component: 'propdata',
+    endpoint,
+    request_id: requestId,
+    user_id: req.user?.id,
+    code: result.code,
+    elapsed_ms: elapsedMs,
+    retried,
+    zip: params.zip,
+    state: params.state,
+  }));
+
+  // Cache only OK responses. NO_COVERAGE responses may resolve tomorrow.
+  // Delta endpoints pass a shorter ttlMs via options so polling sees fresh data.
+  if (result.ok) cacheSet(key, result.body, options.ttlMs);
+
+  res.set('X-PropData-Cache', 'MISS');
+  res.set('X-PropData-Code', result.code);
+  return res.status(result.status).json(result.body);
 }
 
 router.get('/health',        authenticate, asyncHandler((req, res) => proxy(req, res, '/v1/health', [])));
