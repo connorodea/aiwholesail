@@ -323,7 +323,45 @@ router.get('/subscription', authenticate, asyncHandler(async (req, res) => {
     }
   }
 
-  // Update database
+  // CRITICAL — third wipe vector (caught after PR #192 + PR #193 shipped).
+  //
+  // When Stripe shows no live subscription for the customer (true for every
+  // in-app DB trialer and every manual Elite grant), the loop above leaves
+  // hasActiveSub=false and all the *_End fields null. The UPSERT below
+  // would then write those NULLs back to the DB, wiping the locally-managed
+  // trial / Elite row. The useSubscription frontend hook calls this
+  // endpoint on every page load, so this wipe fires within seconds of any
+  // affected user opening the app.
+  //
+  // Confirmed reproduction (2026-05-12):
+  //   - Test user with active Pro trial (trial_end = 2026-05-19)
+  //   - Single GET /api/stripe/subscription
+  //   - Row immediately wiped to (NULL, false, false, NULL, NULL)
+  //
+  // Fix mirrors PR #192's reconciler logic: if the local DB row already
+  // shows an active trial (trial_end > now) or an active manual grant
+  // (subscription_end > now), preserve it and return the DB state. Only
+  // proceed to the destructive UPSERT when Stripe is the authoritative
+  // source of truth (live sub exists OR local row is genuinely expired).
+  const localRow = dbSub.rows[0];
+  const now = new Date();
+  const localTrialActive = !!(localRow?.is_trial && localRow?.trial_end && new Date(localRow.trial_end) > now);
+  const localSubActive = !!(localRow?.subscription_end && new Date(localRow.subscription_end) > now);
+
+  if (!hasActiveSub && (localTrialActive || localSubActive)) {
+    console.log(`[Stripe] GET /subscription: ${user.email} — Stripe 0 subs but local active state (trial=${localTrialActive} sub=${localSubActive}). Preserving DB row.`);
+    return res.json({
+      subscribed: localRow.subscribed,
+      subscription_tier: localRow.subscription_tier,
+      subscription_end: localRow.subscription_end,
+      is_trial: localRow.is_trial,
+      trial_start: localRow.trial_start,
+      trial_end: localRow.trial_end,
+    });
+  }
+
+  // Update database — safe path: either Stripe confirms an active sub, or
+  // local state is already expired so writing nulls is correct.
   await query(
     `INSERT INTO subscribers (email, user_id, stripe_customer_id, subscribed, subscription_tier, subscription_end, is_trial, trial_start, trial_end, updated_at)
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())
