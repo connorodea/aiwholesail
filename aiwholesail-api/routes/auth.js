@@ -68,13 +68,27 @@ router.post('/signup', [
   const saltRounds = 12;
   const passwordHash = await bcrypt.hash(password, saltRounds);
 
-  // Create user
+  // Create user.
+  // email_verified defaults to TRUE at signup. Verification was previously
+  // a separate click-to-verify step, but it never gated any feature — the
+  // app gave full Pro-trial access regardless of verification status. Audit
+  // (PR #200 era): 63/77 trial users were unverified but 32 of them were
+  // actively using the app, proving the gate was decorative and the 19.5%
+  // verified-rate was a measurement of "willingness to click homework",
+  // not an engagement signal.
+  //
+  // The verification token is still generated and stored so that legacy
+  // welcome emails already in users' inboxes (with the old verify CTA)
+  // continue to work as no-ops if clicked. The /verify-email/:token route
+  // is preserved for the same reason. No behavior change for downstream
+  // middleware — it only reads email_verified for display in the user
+  // payload.
   const userId = uuidv4();
   const verificationToken = uuidv4();
 
   await query(
-    `INSERT INTO users (id, email, password_hash, full_name, email_verification_token)
-     VALUES ($1, $2, $3, $4, $5)`,
+    `INSERT INTO users (id, email, password_hash, full_name, email_verification_token, email_verified)
+     VALUES ($1, $2, $3, $4, $5, true)`,
     [userId, normalizedEmail, passwordHash, fullName || null, verificationToken]
   );
 
@@ -340,20 +354,14 @@ router.post('/signup', [
 
                 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 28px;">
                   <tr><td style="color: #a3a3a3; font-size: 16px; line-height: 1.7;">
-                    Your 7-day Pro trial is live. Verify your email below to unlock full access — no credit card required.
+                    Your 7-day Pro trial is live — no credit card required. Jump in and start finding deals.
                   </td></tr>
                 </table>
 
-                <!-- Verify CTA -->
-                <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 14px;">
+                <!-- Open app CTA -->
+                <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 28px;">
                   <tr><td style="background-color: #06b6d4; border-radius: 8px; padding: 16px 36px; box-shadow: 0 2px 8px rgba(6,182,212,0.25);">
-                    <a href="${verifyUrl}" style="color: #000000; font-weight: 600; font-size: 16px; text-decoration: none; display: inline-block;">Verify email & start exploring</a>
-                  </td></tr>
-                </table>
-
-                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 28px;">
-                  <tr><td style="color: #525252; font-size: 12px; line-height: 1.5;">
-                    Verification link expires in 24 hours. Trouble with the button? <a href="${verifyUrl}" style="color: #06b6d4; text-decoration: none;">Open in browser</a>.
+                    <a href="${appUrl}/app" style="color: #000000; font-weight: 600; font-size: 16px; text-decoration: none; display: inline-block;">Open AIWholesail</a>
                   </td></tr>
                 </table>
 
