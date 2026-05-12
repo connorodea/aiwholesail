@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-syracuse-ny-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Syracuse NY: The Investor's Complete Guide for 2024",
+      "excerpt": "Syracuse, NY is quietly becoming one of the Northeast's most attractive markets for real estate investors, with low entry prices and strong rental demand. This guide covers the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Syracuse NY.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-12T18:01:05.622Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Syracuse NY",
+        "Syracuse NY real estate investing",
+        "wholesale real estate Syracuse",
+        "flip houses Syracuse",
+        "Syracuse rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-find-profitable-real-estate-deals-in-austin-tx-2024-investor-guide",
       "title": "How to Find Profitable Real Estate Deals in Austin TX (2024 Investor Guide)",
       "excerpt": "Austin's real estate market offers serious opportunity for investors who know where to look. This guide covers the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Austin TX.",
@@ -15,7 +32,7 @@
         "fix and flip Austin TX",
         "Austin rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-lakewood-co-a-complete-investor-s-guide-for-2024",
