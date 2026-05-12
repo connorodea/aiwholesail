@@ -464,17 +464,55 @@ async function reconcileCustomerSubscriptions(customerId) {
   const live = (list.data || []).filter(s => !['canceled', 'incomplete_expired'].includes(s.status));
 
   if (live.length === 0) {
-    // Truly no live subs — downgrade
+    // CRITICAL — must NOT wipe locally-managed state.
+    //
+    // Two cohorts get reconciled with zero live Stripe subs:
+    //   (a) Users on the in-app DB trial we created at signup. They have
+    //       a Stripe customer (created at signup) but never started a
+    //       Stripe subscription. Their trial lives in the subscribers
+    //       table, not in Stripe.
+    //   (b) Users we manually granted Elite via SQL (cpodea5, etc) with
+    //       subscription_end far in the future. No Stripe sub, but full
+    //       paid access.
+    //
+    // If this reconciler unconditionally wiped subscribed=false and
+    // subscription_tier=NULL for those users — which it did until this
+    // commit — it would silently kill their access mid-trial whenever
+    // Stripe fired a `customer.subscription.deleted` webhook (e.g.
+    // because the user opened Checkout and abandoned, causing Stripe to
+    // eventually expire the incomplete sub). That is exactly what
+    // wiped 20 users' trials and broke the manual Elite grants.
+    //
+    // Fix: read the local row first. If it shows an active trial or an
+    // active manual subscription_end, skip the downgrade entirely.
+    const existing = await query(
+      `SELECT is_trial, trial_end, subscription_end, subscription_tier
+         FROM subscribers WHERE email = $1`,
+      [email]
+    );
+    const row = existing.rows[0];
+    const now = new Date();
+    const trialStillActive = !!(row?.is_trial && row?.trial_end && new Date(row.trial_end) > now);
+    const subStillActive = !!(row?.subscription_end && new Date(row.subscription_end) > now);
+
+    if (trialStillActive || subStillActive) {
+      console.log(`[Stripe] reconcile: ${email} — Stripe shows 0 live subs but local state is active (trial=${trialStillActive} sub=${subStillActive}). Preserving.`);
+      return;
+    }
+
+    // Genuine downgrade — user is past trial AND has no live Stripe sub.
+    // We preserve subscription_tier as a historical breadcrumb (so the
+    // UI can show "Your previous plan was Pro" upgrade nudges); the
+    // (subscribed=false, is_trial=false) pair is enough to gate features.
     await query(
       `UPDATE subscribers SET
          subscribed = false,
-         subscription_tier = NULL,
          is_trial = false,
          updated_at = NOW()
        WHERE email = $1`,
       [email]
     );
-    console.log(`[Stripe] reconcile: no live subs for ${email} — downgraded`);
+    console.log(`[Stripe] reconcile: no live subs for ${email}, local trial/sub also expired — downgraded`);
     return;
   }
 
