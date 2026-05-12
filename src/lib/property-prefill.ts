@@ -13,6 +13,7 @@
 import type { Property } from '@/types/zillow';
 import { useSearchParams } from 'react-router-dom';
 import { useMemo } from 'react';
+import { useInModal } from './in-modal-context';
 
 export interface PrefillBag {
   // Identity
@@ -105,7 +106,10 @@ export function decodePrefill(encoded: string | null | undefined): PrefillBag | 
 export function usePrefill(): PrefillBag | null {
   const [params] = useSearchParams();
   const raw = params.get('prefill');
-  return useMemo(() => decodePrefill(raw), [raw]);
+  // When rendered inside the property modal, prefer the context-supplied
+  // PrefillBag — there's no navigation, so URL params are empty.
+  const { prefill: ctxPrefill } = useInModal();
+  return useMemo(() => ctxPrefill ?? decodePrefill(raw), [raw, ctxPrefill]);
 }
 
 /**
