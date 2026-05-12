@@ -1,0 +1,15 @@
+[Unit]
+Description=Run AIWholesail subscriber health audit daily
+
+[Timer]
+# Daily at 09:15 UTC — 15 min after health-monitor's green-ping window
+# (09:00 UTC), so subscriber drift digest lands right after the daily
+# infra summary. Slight randomization to avoid Stripe API thundering
+# herd if multiple cron-like jobs run at exactly the same minute.
+OnCalendar=*-*-* 09:15:00
+Persistent=true
+AccuracySec=1m
+RandomizedDelaySec=2m
+
+[Install]
+WantedBy=timers.target

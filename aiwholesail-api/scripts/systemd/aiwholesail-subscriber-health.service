@@ -1,0 +1,30 @@
+[Unit]
+Description=AIWholesail daily subscriber health audit (DB↔Stripe drift detection)
+After=network-online.target postgresql.service
+Wants=network-online.target postgresql.service
+
+[Service]
+Type=oneshot
+User=root
+WorkingDirectory=/var/www/aiwholesail-api
+EnvironmentFile=/var/www/aiwholesail-api/.env
+TimeoutStartSec=300
+ExecStart=/usr/bin/node scripts/subscriber-health-audit.js
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=aiwholesail-subscriber-health
+Nice=15
+
+# Hardening — matches other aiwholesail-* units
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateTmp=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictNamespaces=true
+LockPersonality=true
+RestrictRealtime=true
+SystemCallArchitectures=native
+ReadWritePaths=/var/www/aiwholesail-api /var/log
