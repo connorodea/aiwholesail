@@ -39,6 +39,11 @@ const TIMEOUT_MS = 10_000;
 const AUTODISABLE_THRESHOLD = 20;
 // Exponential backoff for the (future) retry worker
 const RETRY_DELAYS_MS = [60_000, 300_000, 1_800_000]; // 1m, 5m, 30m
+// After a secret rotation, sign payloads with BOTH the new and previous
+// secret for this many ms. Subscribers can verify against either while
+// they re-deploy. After this window expires the previous_secret column
+// is implicitly stale — deliver() only sends the new-secret signature.
+const ROTATION_GRACE_MS = 24 * 60 * 60 * 1000;
 
 function newSecret() {
   return crypto.randomBytes(32).toString('hex');
@@ -67,6 +72,18 @@ function envelope(eventType, data) {
 async function deliver(endpoint, eventType, payload, attempt = 1) {
   const body = JSON.stringify(envelope(eventType, payload));
   const signature = sign(body, endpoint.secret);
+  // Dual-sign during the rotation grace window. The previous secret is
+  // cleared from the row implicitly: deliver() just stops including the
+  // -Previous header once secret_rotated_at is older than the grace.
+  // (We don't actively wipe previous_secret from the DB — it's harmless
+  // there and a cron-cleanup of stale columns is out of scope.)
+  let previousSignature = null;
+  if (endpoint.previous_secret && endpoint.secret_rotated_at) {
+    const rotatedAtMs = new Date(endpoint.secret_rotated_at).getTime();
+    if (Number.isFinite(rotatedAtMs) && (Date.now() - rotatedAtMs) < ROTATION_GRACE_MS) {
+      previousSignature = sign(body, endpoint.previous_secret);
+    }
+  }
   const started = Date.now();
 
   let status = 0;
@@ -108,15 +125,19 @@ async function deliver(endpoint, eventType, payload, attempt = 1) {
   try {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+    const headers = {
+      'Content-Type': 'application/json',
+      'User-Agent': 'AIWholesail-Webhooks/1.0',
+      'X-AIWholesail-Event': eventType,
+      'X-AIWholesail-Delivery': crypto.randomUUID(),
+      'X-AIWholesail-Signature': signature,
+    };
+    if (previousSignature) {
+      headers['X-AIWholesail-Signature-Previous'] = previousSignature;
+    }
     const res = await fetch(endpoint.url, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'User-Agent': 'AIWholesail-Webhooks/1.0',
-        'X-AIWholesail-Event': eventType,
-        'X-AIWholesail-Delivery': crypto.randomUUID(),
-        'X-AIWholesail-Signature': signature,
-      },
+      headers,
       body,
       signal: controller.signal,
     });
@@ -192,7 +213,7 @@ async function deliver(endpoint, eventType, payload, attempt = 1) {
 function dispatchEvent(userId, eventType, payload) {
   if (!userId || !eventType) return;
   query(
-    `SELECT id, url, secret, events
+    `SELECT id, url, secret, events, previous_secret, secret_rotated_at
        FROM webhook_endpoints
       WHERE user_id = $1
         AND active = true
