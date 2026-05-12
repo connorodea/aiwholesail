@@ -19,6 +19,16 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  // Strip console.log / .debug / .info / .trace from production bundles.
+  // `pure` tells esbuild these calls have no side effects, so the
+  // minifier dead-code-eliminates them. console.warn / .error are
+  // intentionally NOT marked pure — those are real prod-debug signals
+  // that get hooked by error trackers (Sentry-style) and shouldn't be
+  // stripped. From D6 tech debt: '[AIWholesaleAnalyzer] Enriched X/Y'
+  // and friends were shipping to user browsers. Dev keeps everything.
+  esbuild: {
+    pure: mode === 'production' ? ['console.log', 'console.debug', 'console.info', 'console.trace'] : [],
+  },
   build: {
     // Enable CSS code splitting so each route only loads its own CSS
     cssCodeSplit: true,
