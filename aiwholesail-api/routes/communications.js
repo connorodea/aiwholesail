@@ -6,6 +6,7 @@ const { query } = require('../config/database');
 const { authenticate } = require('../middleware/auth');
 const { asyncHandler, logSecurityEvent } = require('../middleware/errorHandler');
 const { checkDatabaseRateLimit } = require('../middleware/rateLimit');
+const { apiUrl } = require('../lib/env-urls');
 
 const router = express.Router();
 
@@ -240,7 +241,7 @@ router.post('/call/make', authenticate, [
       new URLSearchParams({
         To: to.replace(/[^\d+]/g, ''),
         From: fromNumber,
-        Url: `${process.env.API_URL || 'https://api.aiwholesail.com'}/api/communications/call/answer`
+        Url: `${apiUrl()}/api/communications/call/answer`
       }).toString(),
       {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },

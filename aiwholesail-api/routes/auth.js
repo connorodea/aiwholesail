@@ -9,6 +9,7 @@ const { asyncHandler, AppError, logSecurityEvent } = require('../middleware/erro
 const { checkDatabaseRateLimit } = require('../middleware/rateLimit');
 const { getClient } = require('../config/database');
 const { clientIp } = require('../lib/clientIp');
+const { apiUrl, appUrl, frontendUrl } = require('../lib/env-urls');
 
 const { Resend } = require('resend');
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -377,8 +378,8 @@ router.post('/signup', [
   }
 
   // Send welcome + verification email via Resend
-  const verifyUrl = `${process.env.API_URL || 'https://api.aiwholesail.com'}/api/auth/verify-email/${verificationToken}`;
-  const appUrl = process.env.APP_URL || 'https://aiwholesail.com';
+  const verifyUrl = `${apiUrl()}/api/auth/verify-email/${verificationToken}`;
+  const appUrlValue = appUrl();
   const firstName = fullName ? fullName.split(' ')[0] : '';
   const trialEndDisplay = trialEnd.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
   try {
@@ -420,7 +421,7 @@ router.post('/signup', [
                 <!-- Open app CTA -->
                 <table cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 28px;">
                   <tr><td style="background-color: #06b6d4; border-radius: 8px; padding: 16px 36px; box-shadow: 0 2px 8px rgba(6,182,212,0.25);">
-                    <a href="${appUrl}/app" style="color: #000000; font-weight: 600; font-size: 16px; text-decoration: none; display: inline-block;">Open AIWholesail</a>
+                    <a href="${appUrlValue}/app" style="color: #000000; font-weight: 600; font-size: 16px; text-decoration: none; display: inline-block;">Open AIWholesail</a>
                   </td></tr>
                 </table>
 
@@ -507,7 +508,7 @@ router.post('/signup', [
                           <table cellpadding="0" cellspacing="0" border="0">
                             <tr><td style="color: #ffffff; font-size: 13px; font-weight: 600; padding-bottom: 4px;">1. Run your first search</td></tr>
                             <tr><td style="color: #a3a3a3; font-size: 12px; line-height: 1.5; padding-bottom: 10px;">Pick a market and we'll surface listings priced under Zestimate.</td></tr>
-                            <tr><td><a href="${appUrl}/app" style="color: #06b6d4; font-size: 12px; font-weight: 600; text-decoration: none;">Search properties &rarr;</a></td></tr>
+                            <tr><td><a href="${appUrlValue}/app" style="color: #06b6d4; font-size: 12px; font-weight: 600; text-decoration: none;">Search properties &rarr;</a></td></tr>
                           </table>
                         </td></tr>
                       </table>
@@ -518,7 +519,7 @@ router.post('/signup', [
                           <table cellpadding="0" cellspacing="0" border="0">
                             <tr><td style="color: #ffffff; font-size: 13px; font-weight: 600; padding-bottom: 4px;">2. Set up alerts</td></tr>
                             <tr><td style="color: #a3a3a3; font-size: 12px; line-height: 1.5; padding-bottom: 10px;">Save a search as an alert — we'll email you the moment new deals hit.</td></tr>
-                            <tr><td><a href="${appUrl}/app/alerts" style="color: #06b6d4; font-size: 12px; font-weight: 600; text-decoration: none;">Create alert &rarr;</a></td></tr>
+                            <tr><td><a href="${appUrlValue}/app/alerts" style="color: #06b6d4; font-size: 12px; font-weight: 600; text-decoration: none;">Create alert &rarr;</a></td></tr>
                           </table>
                         </td></tr>
                       </table>
@@ -529,7 +530,7 @@ router.post('/signup', [
                           <table cellpadding="0" cellspacing="0" border="0">
                             <tr><td style="color: #ffffff; font-size: 13px; font-weight: 600; padding-bottom: 4px;">3. Browse top deals</td></tr>
                             <tr><td style="color: #a3a3a3; font-size: 12px; line-height: 1.5; padding-bottom: 10px;">See the highest-spread listings across our 264 covered markets.</td></tr>
-                            <tr><td><a href="${appUrl}/app/deals" style="color: #06b6d4; font-size: 12px; font-weight: 600; text-decoration: none;">View deals &rarr;</a></td></tr>
+                            <tr><td><a href="${appUrlValue}/app/deals" style="color: #06b6d4; font-size: 12px; font-weight: 600; text-decoration: none;">View deals &rarr;</a></td></tr>
                           </table>
                         </td></tr>
                       </table>
@@ -837,7 +838,7 @@ router.post('/forgot-password', [
   );
 
   // Send password reset email via Resend
-  const resetUrl = `${process.env.FRONTEND_URL || 'https://aiwholesail.com'}/auth?mode=reset&token=${resetToken}`;
+  const resetUrl = `${frontendUrl()}/auth?mode=reset&token=${resetToken}`;
   try {
     const resetResult = await resend.emails.send({
       from: 'AIWholesail <noreply@aiwholesail.com>',
@@ -1019,8 +1020,7 @@ router.get('/verify-email/:token', asyncHandler(async (req, res) => {
   if (result.rows.length === 0) {
     await logSecurityEvent('email_verify_invalid_token', { token: token.substring(0, 8) + '***' }, null, req);
     // Redirect to auth page with error
-    const frontendUrl = process.env.FRONTEND_URL || 'https://aiwholesail.com';
-    return res.redirect(`${frontendUrl}/auth?verified=false&error=invalid_token`);
+    return res.redirect(`${frontendUrl()}/auth?verified=false&error=invalid_token`);
   }
 
   const user = result.rows[0];
@@ -1034,8 +1034,7 @@ router.get('/verify-email/:token', asyncHandler(async (req, res) => {
   await logSecurityEvent('email_verified', { email: user.email.substring(0, 3) + '***' }, user.id, req);
 
   // Redirect to frontend auth page with verified=true
-  const frontendUrl = process.env.FRONTEND_URL || 'https://aiwholesail.com';
-  res.redirect(`${frontendUrl}/auth?verified=true`);
+  res.redirect(`${frontendUrl()}/auth?verified=true`);
 }));
 
 /**
@@ -1257,7 +1256,7 @@ router.get('/trial-upgrade', asyncHandler(async (req, res) => {
     customerId = existingCustomers.data[0].id;
   }
 
-  const frontendUrl = process.env.FRONTEND_URL || 'https://aiwholesail.com';
+  const frontendUrlValue = frontendUrl();
   const session = await stripe.checkout.sessions.create({
     customer: customerId,
     customer_email: customerId ? undefined : user.email,
@@ -1270,8 +1269,8 @@ router.get('/trial-upgrade', asyncHandler(async (req, res) => {
         end_behavior: { missing_payment_method: 'cancel' },
       },
     },
-    success_url: `${frontendUrl}/success?session_id={CHECKOUT_SESSION_ID}&from=trial-upgrade`,
-    cancel_url: `${frontendUrl}/pricing`,
+    success_url: `${frontendUrlValue}/success?session_id={CHECKOUT_SESSION_ID}&from=trial-upgrade`,
+    cancel_url: `${frontendUrlValue}/pricing`,
     metadata: {
       company_name: 'AI Wholesail',
       user_id: user.id,

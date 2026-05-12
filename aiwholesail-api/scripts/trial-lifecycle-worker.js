@@ -38,7 +38,12 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const resend = new Resend(process.env.RESEND_API_KEY);
 const DRY_RUN = process.argv.includes('--dry-run');
 const FROM = 'AIWholesail <noreply@aiwholesail.com>';
-const API_URL = process.env.API_URL || 'https://api.aiwholesail.com';
+// Fail-loud in production if API_URL isn't set (was silently falling back
+// to the prod URL — meaning a dev/staging worker would embed prod links
+// in its emails). Worker startup script: a thrown error here exits 1
+// before any DB read, so an unset env stops the cron from ever sending.
+const { apiUrl } = require('../lib/env-urls');
+const API_URL = apiUrl();
 const JWT_SECRET = process.env.JWT_SECRET;
 
 if (!JWT_SECRET) {
