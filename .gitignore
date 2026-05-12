@@ -12,6 +12,30 @@ dist
 dist-ssr
 *.local
 
+# Env files (any depth)
+.env
+.env.*
+!.env.example
+
+# bun lockfile — repo standardizes on npm; bun.lockb adds noise
+bun.lockb
+
+# macOS Finder duplicate-file artifacts (Cmd+D copies)
+# These slip in via syncthing and add bundle noise; reject at git layer.
+* 2.*
+* 3.*
+* copy.*
+* copy 2.*
+
+# Capacitor / native build outputs (when iOS/Android scaffolding is added)
+ios/App/build/
+ios/App/Pods/
+ios/App/Podfile.lock
+android/app/build/
+android/build/
+android/.gradle/
+android/local.properties
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
