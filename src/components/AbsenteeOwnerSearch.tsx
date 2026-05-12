@@ -13,9 +13,13 @@ import { topZipsInState } from '@/lib/topZipsByState';
 import { fanOutZipSearch, MAX_ZIPS_PER_SEARCH } from '@/lib/zip-search';
 import { OwnerSkipTraceButton } from '@/components/OwnerSkipTraceButton';
 import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useFeatureFlag } from '@/hooks/useFeatureFlag';
+import { useSubscription } from '@/hooks/useSubscription';
 import { OwnerDetailModal } from '@/components/OwnerDetailModal';
-import { Search, MapPin, User, Mail, Building, RefreshCw, Download, Flame, ShieldCheck, Sparkles, TrendingUp, AlertTriangle, CalendarClock, X } from 'lucide-react';
+import { skipTrace } from '@/lib/api-client';
+import { Link } from 'react-router-dom';
+import { Search, MapPin, User, Mail, Building, RefreshCw, Download, Flame, ShieldCheck, Sparkles, TrendingUp, AlertTriangle, CalendarClock, X, CheckSquare, Lock } from 'lucide-react';
 
 /**
  * sessionStorage key for handing off off-market UnifiedProperty[] records
@@ -134,6 +138,15 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
   // Default OFF, dogfood for cpodea5 via feature_flag_users override.
   const { enabled: ownerDetailEnabled } = useFeatureFlag('off-market-owner-detail');
   const [openOwner, setOpenOwner] = useState<PropDataPropertyRecord | null>(null);
+  // Phase 3 — bulk skip-trace. Flag-gated and tier-gated (Pro/Elite).
+  // When enabled, each result card gets a checkbox; selected records can be
+  // bulk-skip-traced in parallel (concurrency 4) from a floating toolbar.
+  const { enabled: bulkSkipTraceEnabled } = useFeatureFlag('off-market-bulk-skiptrace');
+  const { isPro, isElite } = useSubscription();
+  const canBulkSkipTrace = isPro || isElite;
+  const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
+  const [bulkRunning, setBulkRunning] = useState(false);
+  const [bulkProgress, setBulkProgress] = useState<{ done: number; total: number } | null>(null);
 
   const filtered = useMemo(() => {
     const props = data?.properties || [];
@@ -331,6 +344,110 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
       setLoading(false);
       setProgress(null);
     }
+  };
+
+  /**
+   * Stable key for selection — parcel_id preferred, falls back to address
+   * triple. Same shape used elsewhere in this file for dedup.
+   */
+  const selectionKey = (rec: PropDataPropertyRecord): string =>
+    rec.parcel_id || `${rec.address?.street || ''}|${rec.address?.zip || ''}|${rec.owner?.name || ''}`;
+
+  const toggleSelection = (rec: PropDataPropertyRecord) => {
+    const key = selectionKey(rec);
+    setSelectedKeys((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  };
+
+  const selectAllVisible = () => {
+    setSelectedKeys(new Set(filtered.map(selectionKey)));
+  };
+
+  const clearSelection = () => setSelectedKeys(new Set());
+
+  /**
+   * Phase 3 bulk skip-trace runner.
+   *
+   * For each selected record:
+   *   1. Build a byaddress skip-trace query (street + citystatezip)
+   *   2. Fire skipTrace.search(...) — gated server-side on Pro/Elite + quota
+   *   3. Concurrency 4 so we don't hammer the upstream
+   *   4. Per-call outcome counted (ok / no-match / quota / error)
+   *   5. Toast progress + final summary
+   *
+   * Each NON-cached call counts against the user's monthly quota (server
+   * enforces; client doesn't double-check). If the user runs out mid-batch,
+   * remaining records are skipped with a quota-exceeded counter.
+   */
+  const handleBulkSkipTrace = async () => {
+    if (!canBulkSkipTrace) {
+      toast({
+        title: 'Pro / Elite feature',
+        description: 'Bulk skip-tracing requires a Pro or Elite subscription.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    const targets = filtered.filter((rec) => selectedKeys.has(selectionKey(rec)));
+    if (targets.length === 0) return;
+    setBulkRunning(true);
+    setBulkProgress({ done: 0, total: targets.length });
+    const outcomes = { ok: 0, noMatch: 0, quotaExceeded: 0, error: 0 };
+    let completed = 0;
+    const concurrency = Math.min(4, targets.length);
+    let cursor = 0;
+    const workers = Array.from({ length: concurrency }, async () => {
+      while (cursor < targets.length) {
+        const i = cursor++;
+        const rec = targets[i];
+        const street = rec.address?.street;
+        const citystatezip = [rec.address?.city, rec.state, rec.address?.zip].filter(Boolean).join(', ');
+        if (!street || !citystatezip) {
+          outcomes.error += 1;
+          completed += 1;
+          setBulkProgress({ done: completed, total: targets.length });
+          continue;
+        }
+        try {
+          const r = await skipTrace.search({ searchType: 'byaddress', street, citystatezip });
+          if (r.error) {
+            if (r.code === 'QUOTA_EXCEEDED') {
+              outcomes.quotaExceeded += 1;
+            } else {
+              outcomes.error += 1;
+            }
+          } else if ((r.data?.resultCount ?? 0) === 0) {
+            outcomes.noMatch += 1;
+          } else {
+            outcomes.ok += 1;
+          }
+        } catch {
+          outcomes.error += 1;
+        }
+        completed += 1;
+        setBulkProgress({ done: completed, total: targets.length });
+      }
+    });
+    await Promise.all(workers);
+    setBulkRunning(false);
+    setBulkProgress(null);
+    // Summary toast. Lead with the headline (matches found) and surface
+    // remaining counts so the user knows why some inputs didn't yield.
+    const summary = [
+      `${outcomes.ok} matched`,
+      outcomes.noMatch > 0 ? `${outcomes.noMatch} no match` : null,
+      outcomes.quotaExceeded > 0 ? `${outcomes.quotaExceeded} quota` : null,
+      outcomes.error > 0 ? `${outcomes.error} errored` : null,
+    ].filter(Boolean).join(' · ');
+    toast({
+      title: `Bulk skip-trace complete (${targets.length})`,
+      description: `${summary}. View matches in Skip Trace history.`,
+    });
+    // Keep the selection — user may want to retry quota/error rows after waiting.
   };
 
   /**
@@ -598,14 +715,90 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
             </div>
           </div>
 
+          {/* Phase 3 bulk-action toolbar — sticky-feeling. Only renders
+              when the bulk-skip-trace flag is enabled AND at least one
+              record is selected. Tier-gated CTA: Pro/Elite click runs
+              the bulk fire; lower-tier users see an upgrade nudge. */}
+          {bulkSkipTraceEnabled && selectedKeys.size > 0 && (
+            <Card className="border-cyan-500/40 bg-cyan-500/[0.04]">
+              <CardContent className="py-3 px-4 flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-3 text-sm">
+                  <CheckSquare className="h-4 w-4 text-cyan-400" />
+                  <span className="font-medium">{selectedKeys.size} selected</span>
+                  {bulkRunning && bulkProgress && (
+                    <span className="text-xs text-muted-foreground">
+                      · skip-tracing {bulkProgress.done}/{bulkProgress.total}…
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <button
+                    type="button"
+                    onClick={selectAllVisible}
+                    disabled={bulkRunning}
+                    className="text-xs text-cyan-400 hover:text-cyan-300 disabled:opacity-50"
+                  >
+                    Select all {filtered.length}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={clearSelection}
+                    disabled={bulkRunning}
+                    className="text-xs text-muted-foreground hover:text-foreground disabled:opacity-50 inline-flex items-center gap-1"
+                  >
+                    <X className="h-3 w-3" /> Clear
+                  </button>
+                  {canBulkSkipTrace ? (
+                    <Button
+                      onClick={handleBulkSkipTrace}
+                      disabled={bulkRunning}
+                      size="sm"
+                      className="h-9 bg-cyan-500 hover:bg-cyan-400 text-cyan-950 disabled:opacity-50"
+                    >
+                      {bulkRunning ? (
+                        <RefreshCw className="h-4 w-4 animate-spin mr-2" />
+                      ) : (
+                        <Search className="h-4 w-4 mr-2" />
+                      )}
+                      Skip-trace {selectedKeys.size}
+                    </Button>
+                  ) : (
+                    <Link to="/pricing">
+                      <Button size="sm" variant="outline" className="h-9 border-amber-500/40 text-amber-300">
+                        <Lock className="h-3 w-3 mr-2" />
+                        Upgrade to bulk skip-trace
+                      </Button>
+                    </Link>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {filtered.map((rec, idx) => {
               const equityPct = rec.equity?.equity_pct;
               const highEquity = (equityPct ?? 0) >= 60;
+              const key = selectionKey(rec);
+              const isSelected = selectedKeys.has(key);
               return (
-                <Card key={rec.parcel_id || idx} className="simple-card">
+                <Card
+                  key={rec.parcel_id || idx}
+                  className={`simple-card transition-colors ${isSelected ? 'ring-2 ring-cyan-500/40 bg-cyan-500/[0.02]' : ''}`}
+                >
                   <CardContent className="pt-6 space-y-4">
                     <div className="flex items-start justify-between gap-3">
+                      {/* Phase 3 checkbox — only renders when bulk-skip-trace
+                          is flag-enabled. Pure additive surface; hidden for
+                          users without the flag. */}
+                      {bulkSkipTraceEnabled && (
+                        <Checkbox
+                          checked={isSelected}
+                          onCheckedChange={() => toggleSelection(rec)}
+                          className="mt-1 shrink-0"
+                          aria-label={`Select ${rec.owner?.name || 'owner'}`}
+                        />
+                      )}
                       <div className="flex-1 min-w-0">
                         <h4 className="font-semibold flex items-start gap-2">
                           <MapPin className="h-4 w-4 mt-0.5 text-primary flex-shrink-0" />
