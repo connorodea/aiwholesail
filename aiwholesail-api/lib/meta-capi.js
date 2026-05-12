@@ -114,12 +114,22 @@ async function sendPurchaseEvent(args) {
     payload.test_event_code = process.env.META_CAPI_TEST_EVENT_CODE;
   }
 
+  // Hard timeout on the Meta call. Without this, a Graph-API hang would
+  // chain the Stripe webhook to its 30s ceiling and trigger up to 3
+  // retries — duplicate-event spam (Meta dedupes but our webhook queue
+  // backs up). 10s is well above Meta's p99 latency in normal
+  // operation.
+  const TIMEOUT_MS = 10_000;
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), TIMEOUT_MS);
+
   try {
     const url = `${META_API}/${pixelId}/events?access_token=${encodeURIComponent(token)}`;
     const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
+      signal: ctrl.signal,
     });
     const body = await res.json().catch(() => ({}));
     if (!res.ok) {
@@ -127,7 +137,12 @@ async function sendPurchaseEvent(args) {
     }
     return { ok: true, status: res.status, response: body };
   } catch (err) {
+    if (err?.name === 'AbortError') {
+      return { ok: false, error: `Meta CAPI timeout (>${TIMEOUT_MS}ms)` };
+    }
     return { ok: false, error: err?.message || String(err) };
+  } finally {
+    clearTimeout(timer);
   }
 }
 
