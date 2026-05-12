@@ -37,6 +37,13 @@ const { rateLimiter } = require('./middleware/rateLimit');
 const app = express();
 const PORT = process.env.PORT || 3202;
 
+// Trust exactly one proxy hop (nginx). Required so req.ip resolves to the
+// real client behind the LB instead of 127.0.0.1, which would otherwise
+// make every IP-keyed rate limit (signin, exec login) effectively unlimited.
+// Value `1` (not `true`) is deliberate — `true` trusts all hops and can be
+// spoofed by a client that controls any header X-Forwarded-For prefix.
+app.set('trust proxy', 1);
+
 // Security middleware
 app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" },

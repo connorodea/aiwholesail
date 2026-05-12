@@ -30,8 +30,11 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { Pool } = require('pg');
 const Stripe = require('stripe');
+const { Resend } = require('resend');
 const { computeFunnelStats } = require('../lib/funnel-stats');
-const { asyncHandler } = require('../middleware/errorHandler');
+const { asyncHandler, logSecurityEvent } = require('../middleware/errorHandler');
+const { checkDatabaseRateLimit } = require('../middleware/rateLimit');
+const { clientIp } = require('../lib/clientIp');
 
 const router = express.Router();
 
@@ -105,9 +108,12 @@ router.get('/', (req, res) => {
 
 router.get('/login', (req, res) => {
   const err = req.query.error;
-  const errBanner = err === '1'
-    ? `<div style="background:#7f1d1d;border:1px solid #b91c1c;color:#fecaca;padding:10px 14px;border-radius:8px;margin-bottom:18px;font-size:13px;">Wrong email or password.</div>`
-    : '';
+  let errBanner = '';
+  if (err === '1') {
+    errBanner = `<div style="background:#7f1d1d;border:1px solid #b91c1c;color:#fecaca;padding:10px 14px;border-radius:8px;margin-bottom:18px;font-size:13px;">Wrong email or password.</div>`;
+  } else if (err === 'ratelimit') {
+    errBanner = `<div style="background:#7f1d1d;border:1px solid #b91c1c;color:#fecaca;padding:10px 14px;border-radius:8px;margin-bottom:18px;font-size:13px;">Too many sign-in attempts. Try again in 10 minutes.</div>`;
+  }
   res.set('Content-Type', 'text/html; charset=utf-8').send(loginHtml(errBanner));
 });
 
@@ -121,18 +127,75 @@ router.post('/login', express.urlencoded({ extended: false }), asyncHandler(asyn
     ));
   }
 
+  // Throttle BEFORE bcrypt.compare so the rate-limit gate doesn't introduce a
+  // timing oracle of its own (DB hit is faster than bcrypt). Tight budget here
+  // because this is a single-user admin surface — brute-force has no legitimate
+  // upper bound.
+  const ip = clientIp(req);
+  const ipLimit = await checkDatabaseRateLimit(ip, 'exec-login', 5, 10);
+  if (!ipLimit.allowed) {
+    await logSecurityEvent('exec_login_rate_limit_exceeded', { ip }, null, req);
+    return res.redirect('/login?error=ratelimit');
+  }
+
   // Constant-time-ish comparison via bcrypt regardless of email match —
   // avoids a username-enumeration timing oracle.
   const passwordOk = await bcrypt.compare(password, PASSWORD_HASH);
   const emailOk = email === ALLOWED_EMAIL;
 
   if (!emailOk || !passwordOk) {
+    // Secondary counter for brute-force alerting. Independent of the throttle
+    // bucket so an attacker can't suppress the alert by spacing attempts.
+    // After 10 failures in 1h from a single IP, fire one heads-up email to
+    // the operator. Fire-and-forget — don't block the response.
+    fireBruteForceAlertIfNeeded(ip, email, req).catch(err => {
+      console.error('[Exec] Brute-force alert dispatch failed:', err.message);
+    });
     return res.redirect('/login?error=1');
   }
 
   setSessionCookie(res, email);
   res.redirect('/dashboard');
 }));
+
+/**
+ * Increment a separate counter for failed exec logins per IP per 1h window.
+ * When the failed count crosses the alert threshold (10), email the operator
+ * once per window. The counter increment is the alert signal — we read the
+ * remaining-attempts return value and fire on the boundary.
+ */
+async function fireBruteForceAlertIfNeeded(ip, attemptedEmail, req) {
+  const ALERT_THRESHOLD = 10;
+  const WINDOW_MIN = 60;
+  // Treat this counter as 1000-max so checkDatabaseRateLimit always returns
+  // allowed=true; we only care about the per-window counter for alerting.
+  const counter = await checkDatabaseRateLimit(ip, 'exec-login-failures', 1000, WINDOW_MIN);
+  // remaining = max - count_so_far; count_so_far = 1000 - remaining.
+  const failuresInWindow = 1000 - counter.remaining;
+  if (failuresInWindow !== ALERT_THRESHOLD) return; // alert once on crossing the boundary
+
+  await logSecurityEvent('exec_login_brute_force_alert', {
+    ip,
+    attempted_email_prefix: attemptedEmail.substring(0, 3) + '***',
+    failures_in_last_hour: failuresInWindow,
+  }, null, req);
+
+  if (!process.env.RESEND_API_KEY) return;
+  const resend = new Resend(process.env.RESEND_API_KEY);
+  await resend.emails.send({
+    from: 'AIWholesail Security <noreply@aiwholesail.com>',
+    to: 'connor@upscaledinc.com',
+    subject: `[Security] Exec dashboard: ${failuresInWindow} failed logins from ${ip} in the last hour`,
+    text: [
+      `${failuresInWindow} failed exec dashboard logins from IP ${ip} in the last hour.`,
+      `Most recent attempted email: ${attemptedEmail.substring(0, 3) + '***'}`,
+      `Time: ${new Date().toISOString()}`,
+      ``,
+      `This is an automated alert. Rate-limit gate (5 attempts / 10 min) remains active.`,
+      `If this looks legitimate (e.g. password reset in flight), ignore. Otherwise consider blocking the IP at the nginx layer.`,
+    ].join('\n'),
+  });
+}
 
 router.post('/logout', (req, res) => {
   res.clearCookie(COOKIE_NAME, { path: '/' });
