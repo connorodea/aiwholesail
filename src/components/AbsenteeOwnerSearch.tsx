@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
-import { propDataAPI, type PropDataPropertyListResponse, type PropDataPropertyRecord } from '@/lib/propdata-api';
+import { propDataAPI, PropDataError, type PropDataPropertyListResponse, type PropDataPropertyRecord } from '@/lib/propdata-api';
 import { mapPropDataListToUnified, type PropDataEnrichment } from '@/lib/unifiedPropertyAdapters';
 import { resolveLocation } from '@/lib/locationResolver';
 import { topZipsInState } from '@/lib/topZipsByState';
@@ -197,7 +197,11 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
       let completed = 0;
       // Track per-ZIP outcomes so we can give the user an actionable failure
       // message instead of a generic "coverage may be thin" toast.
-      const outcomes = { ok: 0, noCoverage: 0, rateLimited: 0, other: 0 };
+      // Classify each ZIP's outcome by PropDataError.code (PR #236).
+      // Pre-#236 this was string-matching err.message, which was brittle
+      // — message wording drift would silently break the classification
+      // and we'd lose visibility into why searches were failing.
+      const outcomes = { ok: 0, noCoverage: 0, rateLimited: 0, network: 0, other: 0 };
       const batched = await fanOutZipSearch(resolved.zips, async (z) => {
         try {
           const res = await propDataAPI.listAbsenteeOwners({ zip: z, limit: perZipLimit });
@@ -215,10 +219,14 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
         } catch (err) {
           completed += 1;
           setProgress({ done: completed, total: resolved.zips.length });
-          const msg = err instanceof Error ? err.message.toLowerCase() : '';
-          if (msg.includes('rate limit')) outcomes.rateLimited += 1;
-          else if (msg.includes('coverage') || msg.includes('no property records')) outcomes.noCoverage += 1;
-          else outcomes.other += 1;
+          if (err instanceof PropDataError) {
+            if (err.code === 'RATE_LIMITED') outcomes.rateLimited += 1;
+            else if (err.isCoverageGap) outcomes.noCoverage += 1;
+            else if (err.isTransient) outcomes.network += 1;
+            else outcomes.other += 1;
+          } else {
+            outcomes.other += 1;
+          }
           return null;
         }
       });
@@ -249,10 +257,14 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
       setProgress(null);
 
       if (merged.length === 0) {
-        // Pick the most informative explanation. Rate limited > coverage gap > generic.
+        // Pick the most informative explanation. Priority order reflects
+        // user actionability: rate-limit (just wait) > network/transient
+        // (try again) > coverage gap (try a different state) > generic.
         let description: string;
         if (outcomes.rateLimited > 0) {
           description = `${outcomes.rateLimited} of ${resolved.zips.length} ZIPs hit rate-limit. Wait a minute and try again, or narrow the search.`;
+        } else if (outcomes.network > 0 && outcomes.noCoverage === 0) {
+          description = `${outcomes.network} of ${resolved.zips.length} ZIPs hit a temporary upstream error. Try again in a moment.`;
         } else if (outcomes.noCoverage === resolved.zips.length) {
           description = `PropData has no parcel coverage in ${resolved.label} yet. Try a different state — Minnesota and Florida have rich data.`;
         } else if (outcomes.noCoverage > 0) {
@@ -264,17 +276,51 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
       } else {
         const okMsg = `${Math.min(merged.length, limit)} absentee owner${merged.length === 1 ? '' : 's'}`
           + ` from ${outcomes.ok}/${resolved.zips.length} ZIP${resolved.zips.length === 1 ? '' : 's'}`;
-        const skipped = outcomes.noCoverage + outcomes.rateLimited;
+        const skipped = outcomes.noCoverage + outcomes.rateLimited + outcomes.network;
         toast({
           title: okMsg,
           description: skipped > 0
-            ? `${skipped} ZIP${skipped === 1 ? '' : 's'} skipped (no coverage / rate-limited). Filter by equity, export, or send to AI.`
+            ? `${skipped} ZIP${skipped === 1 ? '' : 's'} skipped (no coverage / rate-limited / transient). Filter by equity, export, or send to AI.`
             : 'Filter by equity, export to CSV, or send to the AI analyzer.',
         });
       }
     } catch (err) {
+      // Top-level catch — only fires when the whole search throws
+      // (location resolver, sessionStorage, etc.). Per-ZIP errors are
+      // captured in `outcomes` above. Branch on PropDataError code for
+      // a specific message; fall through to generic for anything else.
       console.error('[AbsenteeOwnerSearch]', err);
-      toast({ title: 'Search failed', description: 'Could not fetch absentee owners.', variant: 'destructive' });
+      if (err instanceof PropDataError) {
+        if (err.isCoverageGap) {
+          toast({
+            title: 'No PropData coverage',
+            description: 'PropData doesn’t have parcel data for this region yet. Minnesota and Florida have rich coverage.',
+            variant: 'destructive',
+          });
+        } else if (err.code === 'RATE_LIMITED') {
+          toast({
+            title: 'Rate limit hit',
+            description: 'You’ve made too many off-market searches in a short window. Wait a minute and try again.',
+            variant: 'destructive',
+          });
+        } else if (err.isTransient) {
+          toast({
+            title: 'PropData temporarily unavailable',
+            description: 'Upstream had a hiccup. Try again in a moment — usually clears in under a minute.',
+            variant: 'destructive',
+          });
+        } else if (err.code === 'NOT_CONFIGURED') {
+          toast({
+            title: 'Off-market search not configured',
+            description: 'Backend is missing PropData credentials. Contact support.',
+            variant: 'destructive',
+          });
+        } else {
+          toast({ title: 'Search failed', description: err.message, variant: 'destructive' });
+        }
+      } else {
+        toast({ title: 'Search failed', description: 'Could not fetch absentee owners.', variant: 'destructive' });
+      }
     } finally {
       setLoading(false);
       setProgress(null);
