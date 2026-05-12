@@ -1,0 +1,15 @@
+{
+  "generated": "2026-05-12",
+  "host": "aiwholesail.com",
+  "keyFirst8": "26e378b7",
+  "verificationFile": "https://aiwholesail.com/26e378b77d6235b3e600b59b74a62b14ccf9a6dbd8d491fb9a6128690c2bab98.txt",
+  "submittedCount": 20,
+  "batches": [
+    {
+      "batch": 1,
+      "size": 20,
+      "httpStatus": 202,
+      "ok": true
+    }
+  ]
+}

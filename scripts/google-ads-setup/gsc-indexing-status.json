@@ -1,0 +1,159 @@
+{
+  "generated": "2026-05-12",
+  "site": "sc-domain:aiwholesail.com",
+  "sitemapsListedBefore": [
+    {
+      "path": "https://aiwholesail.com/sitemap.xml",
+      "lastSubmitted": "2026-05-04T00:22:06.323Z",
+      "isPending": false,
+      "isSitemapsIndex": false,
+      "type": "sitemap",
+      "lastDownloaded": "2026-05-11T00:46:41.581Z",
+      "warnings": "0",
+      "errors": "0",
+      "contents": [
+        {
+          "type": "web",
+          "submitted": "6150",
+          "indexed": "0"
+        }
+      ]
+    }
+  ],
+  "sitemapsSubmitted": [
+    {
+      "url": "https://aiwholesail.com/sitemap.xml",
+      "httpStatus": 204,
+      "ok": true
+    },
+    {
+      "url": "https://aiwholesail.com/sitemap-index.xml",
+      "httpStatus": 204,
+      "ok": true
+    }
+  ],
+  "urlInspections": [
+    {
+      "url": "https://aiwholesail.com/reviews/propstream-review",
+      "verdict": "PASS",
+      "coverage": "Submitted and indexed",
+      "indexingState": "INDEXING_ALLOWED",
+      "lastCrawl": "2026-05-03T19:27:10Z",
+      "userCanonical": "https://aiwholesail.com/reviews/propstream-review",
+      "googleCanonical": "https://aiwholesail.com/reviews/propstream-review",
+      "mobileVerdict": "VERDICT_UNSPECIFIED",
+      "richResults": [
+        "Breadcrumbs",
+        "Review snippets"
+      ]
+    },
+    {
+      "url": "https://aiwholesail.com/app",
+      "verdict": "PASS",
+      "coverage": "Submitted and indexed",
+      "indexingState": "INDEXING_ALLOWED",
+      "lastCrawl": "2026-05-06T05:50:45Z",
+      "userCanonical": "—",
+      "googleCanonical": "https://aiwholesail.com/app",
+      "mobileVerdict": "VERDICT_UNSPECIFIED",
+      "richResults": []
+    },
+    {
+      "url": "https://aiwholesail.com/invest/rental/jefferson-city-mo",
+      "verdict": "PASS",
+      "coverage": "Submitted and indexed",
+      "indexingState": "INDEXING_ALLOWED",
+      "lastCrawl": "2026-05-04T13:49:17Z",
+      "userCanonical": "—",
+      "googleCanonical": "https://aiwholesail.com/invest/rental/jefferson-city-mo",
+      "mobileVerdict": "VERDICT_UNSPECIFIED",
+      "richResults": []
+    },
+    {
+      "url": "https://aiwholesail.com/invest/brrrr/greenville-sc",
+      "verdict": "PASS",
+      "coverage": "Submitted and indexed",
+      "indexingState": "INDEXING_ALLOWED",
+      "lastCrawl": "2026-05-04T22:59:35Z",
+      "userCanonical": "—",
+      "googleCanonical": "https://aiwholesail.com/invest/brrrr/greenville-sc",
+      "mobileVerdict": "VERDICT_UNSPECIFIED",
+      "richResults": []
+    },
+    {
+      "url": "https://aiwholesail.com/reviews/privy-review",
+      "verdict": "PASS",
+      "coverage": "Submitted and indexed",
+      "indexingState": "INDEXING_ALLOWED",
+      "lastCrawl": "2026-05-03T19:40:29Z",
+      "userCanonical": "https://aiwholesail.com/reviews/privy-review",
+      "googleCanonical": "https://aiwholesail.com/reviews/privy-review",
+      "mobileVerdict": "VERDICT_UNSPECIFIED",
+      "richResults": [
+        "Breadcrumbs",
+        "Review snippets"
+      ]
+    },
+    {
+      "url": "https://aiwholesail.com/reviews/freedomsoft-review",
+      "verdict": "PASS",
+      "coverage": "Submitted and indexed",
+      "indexingState": "INDEXING_ALLOWED",
+      "lastCrawl": "2026-05-03T00:10:30Z",
+      "userCanonical": "https://aiwholesail.com/reviews/freedomsoft-review",
+      "googleCanonical": "https://aiwholesail.com/reviews/freedomsoft-review",
+      "mobileVerdict": "VERDICT_UNSPECIFIED",
+      "richResults": [
+        "Breadcrumbs",
+        "Review snippets"
+      ]
+    },
+    {
+      "url": "https://aiwholesail.com/deals/tax-delinquent/chesapeake-va",
+      "verdict": "PASS",
+      "coverage": "Submitted and indexed",
+      "indexingState": "INDEXING_ALLOWED",
+      "lastCrawl": "2026-05-04T10:15:37Z",
+      "userCanonical": "—",
+      "googleCanonical": "https://aiwholesail.com/deals/tax-delinquent/chesapeake-va",
+      "mobileVerdict": "VERDICT_UNSPECIFIED",
+      "richResults": []
+    },
+    {
+      "url": "https://www.aiwholesail.com/",
+      "verdict": "PASS",
+      "coverage": "Submitted and indexed",
+      "indexingState": "INDEXING_ALLOWED",
+      "lastCrawl": "2026-05-06T07:37:28Z",
+      "userCanonical": "—",
+      "googleCanonical": "https://www.aiwholesail.com/",
+      "mobileVerdict": "VERDICT_UNSPECIFIED",
+      "richResults": []
+    },
+    {
+      "url": "https://aiwholesail.com/invest/wholesale/jacksonville-fl",
+      "verdict": "PASS",
+      "coverage": "Submitted and indexed",
+      "indexingState": "INDEXING_ALLOWED",
+      "lastCrawl": "2026-05-03T20:12:24Z",
+      "userCanonical": "—",
+      "googleCanonical": "https://aiwholesail.com/invest/wholesale/jacksonville-fl",
+      "mobileVerdict": "VERDICT_UNSPECIFIED",
+      "richResults": []
+    },
+    {
+      "url": "https://aiwholesail.com/reviews/batchleads-review",
+      "verdict": "PASS",
+      "coverage": "Submitted and indexed",
+      "indexingState": "INDEXING_ALLOWED",
+      "lastCrawl": "2026-05-06T22:36:54Z",
+      "userCanonical": "https://aiwholesail.com/reviews/batchleads-review",
+      "googleCanonical": "https://aiwholesail.com/reviews/batchleads-review",
+      "mobileVerdict": "VERDICT_UNSPECIFIED",
+      "richResults": [
+        "Breadcrumbs",
+        "Review snippets"
+      ]
+    }
+  ]
+}

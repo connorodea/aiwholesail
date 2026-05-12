@@ -9,8 +9,11 @@ import { SEOHead } from '@/components/SEOHead';
 import { PublicLayout } from '@/components/PublicLayout';
 import { Spotlight } from '@/components/ui/spotlight';
 import competitors from '@/data/competitors.json';
+import softwareReviews from '@/data/software-reviews.json';
 
 const LAST_UPDATED = '2026-05-12';
+
+const reviewSlugs = new Set((softwareReviews as Array<{ slug: string }>).map((r) => r.slug));
 
 interface CompetitorFAQ {
   q: string;
@@ -369,6 +372,28 @@ export default function ComparisonPage() {
                 </div>
               ))}
             </div>
+          </div>
+        </section>
+      )}
+
+      {/* ===== CROSS-LINK TO /reviews/ DETAIL ===== */}
+      {reviewSlugs.has(`${comp.slug}-review`) && (
+        <section className="py-10 px-4">
+          <div className="container mx-auto max-w-4xl">
+            <Link
+              to={`/reviews/${comp.slug}-review`}
+              className="block border border-cyan-500/20 bg-gradient-to-r from-cyan-500/[0.08] to-transparent rounded-xl p-6 md:p-7 hover:border-cyan-400/40 transition-colors group"
+            >
+              <p className="text-xs font-semibold tracking-[0.15em] uppercase text-cyan-400 mb-2">
+                Deep-dive review
+              </p>
+              <h3 className="text-xl md:text-2xl font-bold tracking-tight text-white mb-2">
+                Read our full {comp.name} review →
+              </h3>
+              <p className="text-sm md:text-base text-white/70 font-light leading-relaxed group-hover:text-white/90 transition-colors">
+                Overview, pricing, pros and cons, features, and a 1–5 verdict on whether {comp.name} is worth it.
+              </p>
+            </Link>
           </div>
         </section>
       )}

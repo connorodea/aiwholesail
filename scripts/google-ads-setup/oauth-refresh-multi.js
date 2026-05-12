@@ -26,7 +26,8 @@ const PORT = 9876;
 const REDIRECT_URI = `http://localhost:${PORT}/callback`;
 const SCOPES = [
   'https://www.googleapis.com/auth/adwords',
-  'https://www.googleapis.com/auth/webmasters.readonly',
+  // Full webmasters (read+write) so we can submit sitemaps, not just read GSC.
+  'https://www.googleapis.com/auth/webmasters',
 ].join(' ');
 const TOKEN_PATH = path.join(process.env.HOME, '.config/gcloud/aiw-oauth-tokens.json');
 const ADS_YAML_PATH = path.join(process.env.HOME, '.config/gcloud/google-ads.yaml');
@@ -70,7 +71,7 @@ async function main() {
   const { clientId, clientSecret } = readClientCreds();
   console.log('=== AIWholesail OAuth Refresh — Ads + GSC ===');
   console.log('Client ID: ' + clientId.slice(0, 20) + '...');
-  console.log('Scopes:    adwords + webmasters.readonly');
+  console.log('Scopes:    adwords + webmasters');
 
   const verifier = crypto.randomBytes(32).toString('base64url');
   const challenge = crypto.createHash('sha256').update(verifier).digest('base64url');

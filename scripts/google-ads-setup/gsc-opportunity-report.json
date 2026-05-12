@@ -1,0 +1,570 @@
+{
+  "generated": "2026-05-12",
+  "site": "sc-domain:aiwholesail.com",
+  "windowDays": 90,
+  "totals": {
+    "uniqueQueries": 242,
+    "totalClicks": 3,
+    "totalImpressions": 1112,
+    "avgCtr": 0.27,
+    "avgPosition": 17.8
+  },
+  "buckets": {
+    "strikingDistance": [
+      {
+        "query": "is propstream worth it",
+        "clicks": 0,
+        "impressions": 434,
+        "ctr": 0,
+        "position": 9.8
+      },
+      {
+        "query": "wholesail login",
+        "clicks": 1,
+        "impressions": 136,
+        "ctr": 0.74,
+        "position": 5.7
+      }
+    ],
+    "snippetRewrite": [
+      {
+        "query": "is propstream worth it",
+        "clicks": 0,
+        "impressions": 434,
+        "ctr": 0,
+        "position": 9.8
+      }
+    ],
+    "topClicks": [
+      {
+        "query": "tax delinquent real estate",
+        "clicks": 1,
+        "impressions": 1,
+        "ctr": 100,
+        "position": 11
+      },
+      {
+        "query": "tax lien properties",
+        "clicks": 1,
+        "impressions": 5,
+        "ctr": 20,
+        "position": 8.2
+      },
+      {
+        "query": "wholesail login",
+        "clicks": 1,
+        "impressions": 136,
+        "ctr": 0.74,
+        "position": 5.7
+      },
+      {
+        "query": "\"real estate brokerage relationships act\" rcw 18.86",
+        "clicks": 0,
+        "impressions": 1,
+        "ctr": 0,
+        "position": 9
+      },
+      {
+        "query": "absentee owner",
+        "clicks": 0,
+        "impressions": 1,
+        "ctr": 0,
+        "position": 13
+      },
+      {
+        "query": "absentee owner property management florida",
+        "clicks": 0,
+        "impressions": 4,
+        "ctr": 0,
+        "position": 38.8
+      },
+      {
+        "query": "ai for wholesaling real estate",
+        "clicks": 0,
+        "impressions": 1,
+        "ctr": 0,
+        "position": 26
+      },
+      {
+        "query": "ai wholesale",
+        "clicks": 0,
+        "impressions": 9,
+        "ctr": 0,
+        "position": 67.6
+      },
+      {
+        "query": "ai wholesale real estate",
+        "clicks": 0,
+        "impressions": 2,
+        "ctr": 0,
+        "position": 13.5
+      },
+      {
+        "query": "anchorage foreclosures",
+        "clicks": 0,
+        "impressions": 1,
+        "ctr": 0,
+        "position": 66
+      },
+      {
+        "query": "assignment contract real estate",
+        "clicks": 0,
+        "impressions": 1,
+        "ctr": 0,
+        "position": 87
+      },
+      {
+        "query": "assignment of contract",
+        "clicks": 0,
+        "impressions": 1,
+        "ctr": 0,
+        "position": 89
+      },
+      {
+        "query": "average real estate wholesale deal in corpus christi tx",
+        "clicks": 0,
+        "impressions": 5,
+        "ctr": 0,
+        "position": 6
+      },
+      {
+        "query": "average real estate wholesale deal in fort worth tx",
+        "clicks": 0,
+        "impressions": 2,
+        "ctr": 0,
+        "position": 10
+      },
+      {
+        "query": "average real estate wholesale deal in plano tx",
+        "clicks": 0,
+        "impressions": 4,
+        "ctr": 0,
+        "position": 6.3
+      },
+      {
+        "query": "average real estate wholesale deal in san antonio tx",
+        "clicks": 0,
+        "impressions": 5,
+        "ctr": 0,
+        "position": 9.8
+      },
+      {
+        "query": "average rent in vancouver wa",
+        "clicks": 0,
+        "impressions": 1,
+        "ctr": 0,
+        "position": 48
+      },
+      {
+        "query": "avoid foreclosure arvada",
+        "clicks": 0,
+        "impressions": 1,
+        "ctr": 0,
+        "position": 30
+      },
+      {
+        "query": "avoid foreclosure kc",
+        "clicks": 0,
+        "impressions": 1,
+        "ctr": 0,
+        "position": 77
+      },
+      {
+        "query": "avoid foreclosure sell today jacksonville",
+        "clicks": 0,
+        "impressions": 1,
+        "ctr": 0,
+        "position": 67
+      },
+      {
+        "query": "avoid foreclosure thornton",
+        "clicks": 0,
+        "impressions": 1,
+        "ctr": 0,
+        "position": 40
+      },
+      {
+        "query": "back taxes land for sale",
+        "clicks": 0,
+        "impressions": 1,
+        "ctr": 0,
+        "position": 9
+      },
+      {
+        "query": "bacthleads",
+        "clicks": 0,
+        "impressions": 2,
+        "ctr": 0,
+        "position": 30.5
+      },
+      {
+        "query": "bank owned homes bismarck nd",
+        "clicks": 0,
+        "impressions": 1,
+        "ctr": 0,
+        "position": 69
+      },
+      {
+        "query": "batch lead",
+        "clicks": 0,
+        "impressions": 3,
+        "ctr": 0,
+        "position": 38
+      }
+    ],
+    "topImpressions": [
+      {
+        "query": "is propstream worth it",
+        "clicks": 0,
+        "impressions": 434,
+        "ctr": 0,
+        "position": 9.8
+      },
+      {
+        "query": "wholesail login",
+        "clicks": 1,
+        "impressions": 136,
+        "ctr": 0.74,
+        "position": 5.7
+      },
+      {
+        "query": "propstream",
+        "clicks": 0,
+        "impressions": 36,
+        "ctr": 0,
+        "position": 28.4
+      },
+      {
+        "query": "propstream reviews",
+        "clicks": 0,
+        "impressions": 22,
+        "ctr": 0,
+        "position": 18.6
+      },
+      {
+        "query": "propstream pricing",
+        "clicks": 0,
+        "impressions": 15,
+        "ctr": 0,
+        "position": 31.9
+      },
+      {
+        "query": "freedomsoft reviews",
+        "clicks": 0,
+        "impressions": 12,
+        "ctr": 0,
+        "position": 19.1
+      },
+      {
+        "query": "freedomsoft price",
+        "clicks": 0,
+        "impressions": 10,
+        "ctr": 0,
+        "position": 34.9
+      },
+      {
+        "query": "freedomsoft pricing",
+        "clicks": 0,
+        "impressions": 10,
+        "ctr": 0,
+        "position": 26.6
+      },
+      {
+        "query": "freedomsoft review",
+        "clicks": 0,
+        "impressions": 10,
+        "ctr": 0,
+        "position": 16.7
+      },
+      {
+        "query": "propstream software",
+        "clicks": 0,
+        "impressions": 10,
+        "ctr": 0,
+        "position": 27.8
+      },
+      {
+        "query": "ai wholesale",
+        "clicks": 0,
+        "impressions": 9,
+        "ctr": 0,
+        "position": 67.6
+      },
+      {
+        "query": "reikit",
+        "clicks": 0,
+        "impressions": 9,
+        "ctr": 0,
+        "position": 27.4
+      },
+      {
+        "query": "roofstock review",
+        "clicks": 0,
+        "impressions": 9,
+        "ctr": 0,
+        "position": 51.1
+      },
+      {
+        "query": "batchleads",
+        "clicks": 0,
+        "impressions": 8,
+        "ctr": 0,
+        "position": 30.8
+      },
+      {
+        "query": "propstream review",
+        "clicks": 0,
+        "impressions": 8,
+        "ctr": 0,
+        "position": 21.5
+      },
+      {
+        "query": "delinquent tax properties",
+        "clicks": 0,
+        "impressions": 7,
+        "ctr": 0,
+        "position": 8.3
+      },
+      {
+        "query": "what is propstream",
+        "clicks": 0,
+        "impressions": 7,
+        "ctr": 0,
+        "position": 29.3
+      },
+      {
+        "query": "real estate wholesalers jacksonville fl",
+        "clicks": 0,
+        "impressions": 6,
+        "ctr": 0,
+        "position": 31.3
+      },
+      {
+        "query": "rentometer alternative",
+        "clicks": 0,
+        "impressions": 6,
+        "ctr": 0,
+        "position": 42.5
+      },
+      {
+        "query": "tax lien properties",
+        "clicks": 1,
+        "impressions": 5,
+        "ctr": 20,
+        "position": 8.2
+      },
+      {
+        "query": "average real estate wholesale deal in corpus christi tx",
+        "clicks": 0,
+        "impressions": 5,
+        "ctr": 0,
+        "position": 6
+      },
+      {
+        "query": "average real estate wholesale deal in san antonio tx",
+        "clicks": 0,
+        "impressions": 5,
+        "ctr": 0,
+        "position": 9.8
+      },
+      {
+        "query": "propstream free trial",
+        "clicks": 0,
+        "impressions": 5,
+        "ctr": 0,
+        "position": 41.2
+      },
+      {
+        "query": "wholesale real estate jacksonville fl",
+        "clicks": 0,
+        "impressions": 5,
+        "ctr": 0,
+        "position": 25.6
+      },
+      {
+        "query": "absentee owner property management florida",
+        "clicks": 0,
+        "impressions": 4,
+        "ctr": 0,
+        "position": 38.8
+      }
+    ]
+  },
+  "topPages": [
+    {
+      "page": "https://aiwholesail.com/reviews/propstream-review",
+      "clicks": 0,
+      "impressions": 595,
+      "ctr": 0,
+      "position": 13.4
+    },
+    {
+      "page": "https://aiwholesail.com/app",
+      "clicks": 1,
+      "impressions": 153,
+      "ctr": 0.65,
+      "position": 5.7
+    },
+    {
+      "page": "https://aiwholesail.com/invest/rental/jefferson-city-mo",
+      "clicks": 0,
+      "impressions": 96,
+      "ctr": 0,
+      "position": 5.5
+    },
+    {
+      "page": "https://aiwholesail.com/invest/brrrr/greenville-sc",
+      "clicks": 0,
+      "impressions": 77,
+      "ctr": 0,
+      "position": 2.5
+    },
+    {
+      "page": "https://aiwholesail.com/reviews/privy-review",
+      "clicks": 0,
+      "impressions": 76,
+      "ctr": 0,
+      "position": 8.9
+    },
+    {
+      "page": "https://aiwholesail.com/reviews/freedomsoft-review",
+      "clicks": 0,
+      "impressions": 68,
+      "ctr": 0,
+      "position": 20
+    },
+    {
+      "page": "https://aiwholesail.com/deals/tax-delinquent/chesapeake-va",
+      "clicks": 1,
+      "impressions": 53,
+      "ctr": 1.89,
+      "position": 9.6
+    },
+    {
+      "page": "https://www.aiwholesail.com/",
+      "clicks": 3,
+      "impressions": 32,
+      "ctr": 9.38,
+      "position": 31.4
+    },
+    {
+      "page": "https://aiwholesail.com/invest/wholesale/jacksonville-fl",
+      "clicks": 0,
+      "impressions": 32,
+      "ctr": 0,
+      "position": 24.5
+    },
+    {
+      "page": "https://aiwholesail.com/reviews/batchleads-review",
+      "clicks": 0,
+      "impressions": 32,
+      "ctr": 0,
+      "position": 29.2
+    },
+    {
+      "page": "https://aiwholesail.com/deals/tax-delinquent/greenville-sc",
+      "clicks": 1,
+      "impressions": 24,
+      "ctr": 4.17,
+      "position": 13.8
+    },
+    {
+      "page": "https://aiwholesail.com/reviews/roofstock-review",
+      "clicks": 0,
+      "impressions": 22,
+      "ctr": 0,
+      "position": 27.8
+    },
+    {
+      "page": "https://aiwholesail.com/deals/tax-delinquent/fargo-nd",
+      "clicks": 0,
+      "impressions": 19,
+      "ctr": 0,
+      "position": 7.7
+    },
+    {
+      "page": "https://aiwholesail.com/invest/distressed/greenville-sc",
+      "clicks": 0,
+      "impressions": 17,
+      "ctr": 0,
+      "position": 3.4
+    },
+    {
+      "page": "https://aiwholesail.com/laws/pennsylvania",
+      "clicks": 0,
+      "impressions": 17,
+      "ctr": 0,
+      "position": 11.2
+    },
+    {
+      "page": "https://aiwholesail.com/laws/alabama",
+      "clicks": 0,
+      "impressions": 15,
+      "ctr": 0,
+      "position": 7.5
+    },
+    {
+      "page": "https://aiwholesail.com/laws/new-jersey",
+      "clicks": 0,
+      "impressions": 15,
+      "ctr": 0,
+      "position": 10.2
+    },
+    {
+      "page": "https://aiwholesail.com/markets/washington-dc",
+      "clicks": 0,
+      "impressions": 15,
+      "ctr": 0,
+      "position": 16.3
+    },
+    {
+      "page": "https://aiwholesail.com/markets/san-antonio-tx",
+      "clicks": 0,
+      "impressions": 14,
+      "ctr": 0,
+      "position": 18
+    },
+    {
+      "page": "https://aiwholesail.com/deals/tax-delinquent/everett-wa",
+      "clicks": 0,
+      "impressions": 13,
+      "ctr": 0,
+      "position": 13.8
+    },
+    {
+      "page": "https://aiwholesail.com/laws/arkansas",
+      "clicks": 0,
+      "impressions": 12,
+      "ctr": 0,
+      "position": 7.3
+    },
+    {
+      "page": "https://aiwholesail.com/laws/illinois",
+      "clicks": 0,
+      "impressions": 12,
+      "ctr": 0,
+      "position": 8.6
+    },
+    {
+      "page": "https://aiwholesail.com/laws/michigan",
+      "clicks": 0,
+      "impressions": 12,
+      "ctr": 0,
+      "position": 9.8
+    },
+    {
+      "page": "https://aiwholesail.com/vs/rentometer",
+      "clicks": 0,
+      "impressions": 11,
+      "ctr": 0,
+      "position": 32.4
+    },
+    {
+      "page": "https://aiwholesail.com/tools/holding-cost-calculator",
+      "clicks": 0,
+      "impressions": 10,
+      "ctr": 0,
+      "position": 5.6
+    }
+  ]
+}

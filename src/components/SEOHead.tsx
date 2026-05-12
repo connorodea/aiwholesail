@@ -35,7 +35,17 @@ export function SEOHead({
   if (inModal) return null;
 
   const fullTitle = title.includes('AI Wholesail') ? title : `${title} | AI Wholesail`;
-  const currentUrl = canonicalUrl || (typeof window !== 'undefined' ? window.location.href : '');
+  // Always compute a self-canonical so GSC doesn't have to guess.
+  // Strips query string + fragment, normalizes to the apex (non-www) host,
+  // drops trailing slash on non-root paths.
+  const computedCanonical = (() => {
+    if (canonicalUrl) return canonicalUrl;
+    if (typeof window === 'undefined') return 'https://aiwholesail.com/';
+    const pathOnly = window.location.pathname || '/';
+    const cleanPath = pathOnly.length > 1 ? pathOnly.replace(/\/+$/, '') : '/';
+    return 'https://aiwholesail.com' + cleanPath;
+  })();
+  const currentUrl = computedCanonical;
 
   return (
     <Helmet>
@@ -43,7 +53,7 @@ export function SEOHead({
       <title>{fullTitle}</title>
       <meta name="description" content={description} />
       <meta name="keywords" content={keywords} />
-      {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
+      <link rel="canonical" href={computedCanonical} />
       
       {/* Viewport and Mobile */}
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />

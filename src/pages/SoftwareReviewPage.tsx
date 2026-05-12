@@ -427,6 +427,26 @@ export default function SoftwareReviewPage() {
         </div>
       </section>
 
+      {/* ===== CROSS-LINK TO /vs/ PAGE ===== */}
+      <section className="py-10 px-4">
+        <div className="container mx-auto max-w-4xl">
+          <Link
+            to={`/vs/${review.slug.replace(/-review$/, '')}`}
+            className="block border border-cyan-500/20 bg-gradient-to-r from-cyan-500/[0.08] to-transparent rounded-xl p-6 md:p-7 hover:border-cyan-400/40 transition-colors group"
+          >
+            <p className="text-xs font-semibold tracking-[0.15em] uppercase text-cyan-400 mb-2">
+              Side-by-side comparison
+            </p>
+            <h3 className="text-xl md:text-2xl font-bold tracking-tight text-white mb-2">
+              AIWholesail vs {review.name} →
+            </h3>
+            <p className="text-sm md:text-base text-white/70 font-light leading-relaxed group-hover:text-white/90 transition-colors">
+              Direct head-to-head: features, pricing, and which is better for wholesalers, flippers, and buy-and-hold investors.
+            </p>
+          </Link>
+        </div>
+      </section>
+
       {/* ===== FAQ ===== */}
       <section className="py-16 px-4">
         <div className="container mx-auto max-w-4xl">
