@@ -1007,6 +1007,10 @@ export const propdata = {
     absentee_only?: boolean;
     limit?: number;
   }) => apiFetch<any>(`/api/propdata/property${buildQuery(p)}`),
+  propertyDelta: (p: { since: string; zip?: string; cursor?: string; limit?: number }) =>
+    apiFetch<any>(`/api/propdata/property/delta${buildQuery(p)}`),
+  preforeclosureDelta: (p: { since: string; zip?: string; cursor?: string; limit?: number }) =>
+    apiFetch<any>(`/api/propdata/preforeclosure/delta${buildQuery(p)}`),
   // Zillow autocomplete via the shared RapidAPI key — also backend-proxied.
   zillowAutocomplete: (query: string) =>
     apiFetch<any>(`/api/propdata/zillow-autocomplete${buildQuery({ query })}`),

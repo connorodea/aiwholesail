@@ -319,6 +319,47 @@ export interface PropDataCompsResponse {
   [key: string]: any;
 }
 
+// Delta endpoints — return records added/updated since a given timestamp.
+// Cursor-paginated; same record shape as the base endpoint plus a `_delta` block.
+export type PropDataDeltaChangeType = 'created' | 'updated';
+
+export interface PropDataDeltaMeta {
+  change_type?: PropDataDeltaChangeType;
+  changed_at?: string;
+  changed_fields?: string[];
+  [key: string]: any;
+}
+
+export interface PropDataPropertyDeltaRecord extends PropDataPropertyRecord {
+  _delta?: PropDataDeltaMeta;
+}
+
+export interface PropDataPreforeclosureRecord {
+  parcel_id?: string;
+  address?: { street?: string; city?: string; state?: string; zip?: string };
+  owner?: { name?: string };
+  case_number?: string;
+  filing_date?: string;
+  default_amount?: number;
+  auction_date?: string;
+  source?: string;
+  [key: string]: any;
+}
+
+export interface PropDataPreforeclosureDeltaRecord extends PropDataPreforeclosureRecord {
+  _delta?: PropDataDeltaMeta;
+}
+
+export interface PropDataDeltaResponse<T> {
+  count?: number;
+  next_cursor?: string | null;
+  has_more?: boolean;
+  properties?: T[];
+  records?: T[];
+  error?: string;
+  [key: string]: any;
+}
+
 // ============ SERVICE ============
 
 function unwrap<T>(res: { data?: T; error?: string }): T {
@@ -367,6 +408,24 @@ class PropDataAPI {
       absentee_only: true,
       limit: params.limit ?? 25,
     }));
+  }
+
+  async getPropertyDelta(params: {
+    since: string;
+    zip?: string;
+    cursor?: string;
+    limit?: number;
+  }): Promise<PropDataDeltaResponse<PropDataPropertyDeltaRecord>> {
+    return unwrap(await backend.propertyDelta(params));
+  }
+
+  async getPreforeclosureDelta(params: {
+    since: string;
+    zip?: string;
+    cursor?: string;
+    limit?: number;
+  }): Promise<PropDataDeltaResponse<PropDataPreforeclosureDeltaRecord>> {
+    return unwrap(await backend.preforeclosureDelta(params));
   }
 
   async getRentEstimate(params: {
