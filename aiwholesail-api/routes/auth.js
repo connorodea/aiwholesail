@@ -46,8 +46,30 @@ router.post('/signup', [
     return res.status(400).json({ error: 'Validation failed', errors: errors.array() });
   }
 
-  const { email, password, fullName, phoneNumber } = req.body;
+  const { email, password, fullName, phoneNumber, attribution } = req.body;
   const normalizedEmail = email.toLowerCase().trim();
+
+  // Marketing attribution. Always an object (possibly empty). Defensive
+  // pick — the frontend should only send known fields, but never trust
+  // a client. Truncate long strings to fit DB column lengths.
+  const attr = (attribution && typeof attribution === 'object') ? attribution : {};
+  const clean = (v, max) => (typeof v === 'string' && v.length > 0) ? v.slice(0, max) : null;
+  const marketingFields = {
+    utm_source:   clean(attr.utm_source,   128),
+    utm_medium:   clean(attr.utm_medium,   128),
+    utm_campaign: clean(attr.utm_campaign, 255),
+    utm_content:  clean(attr.utm_content,  255),
+    utm_term:     clean(attr.utm_term,     255),
+    fbclid:       clean(attr.fbclid,       512),
+    gclid:        clean(attr.gclid,        512),
+    landing_url:  clean(attr.landing_url,  2000),
+    referrer:     clean(attr.referrer,     2000),
+    first_visit_at: (typeof attr.first_visit_at === 'string' && /^\d{4}-\d{2}-\d{2}T/.test(attr.first_visit_at))
+      ? attr.first_visit_at : null,
+    // fbp / fbc are NOT persisted to the DB (they're cookies meant to be
+    // re-read at CAPI-send time, not stored long-term). They round-trip
+    // via the user's browser cookies for the Layer-2 Meta CAPI call.
+  };
 
   // Validate password strength
   if (!PASSWORD_REGEX.test(password)) {
@@ -87,9 +109,21 @@ router.post('/signup', [
   const verificationToken = uuidv4();
 
   await query(
-    `INSERT INTO users (id, email, password_hash, full_name, email_verification_token, email_verified)
-     VALUES ($1, $2, $3, $4, $5, true)`,
-    [userId, normalizedEmail, passwordHash, fullName || null, verificationToken]
+    `INSERT INTO users (
+       id, email, password_hash, full_name, email_verification_token, email_verified,
+       utm_source, utm_medium, utm_campaign, utm_content, utm_term,
+       fbclid, gclid, landing_url, referrer, first_visit_at
+     )
+     VALUES ($1, $2, $3, $4, $5, true,
+             $6, $7, $8, $9, $10,
+             $11, $12, $13, $14, $15)`,
+    [
+      userId, normalizedEmail, passwordHash, fullName || null, verificationToken,
+      marketingFields.utm_source, marketingFields.utm_medium,
+      marketingFields.utm_campaign, marketingFields.utm_content, marketingFields.utm_term,
+      marketingFields.fbclid, marketingFields.gclid,
+      marketingFields.landing_url, marketingFields.referrer, marketingFields.first_visit_at,
+    ]
   );
 
   // Generate tokens
@@ -130,6 +164,17 @@ router.post('/signup', [
   try {
     // Reuse an existing Stripe customer if one already exists for this email
     // (e.g. the user previously did a guest checkout before signing up).
+    // Marketing-attribution metadata for Stripe — only include keys that
+    // have values, since Stripe truncates and we want a clean dashboard.
+    const attrMetadata = {};
+    if (marketingFields.utm_source)   attrMetadata.utm_source   = marketingFields.utm_source;
+    if (marketingFields.utm_medium)   attrMetadata.utm_medium   = marketingFields.utm_medium;
+    if (marketingFields.utm_campaign) attrMetadata.utm_campaign = marketingFields.utm_campaign;
+    if (marketingFields.utm_content)  attrMetadata.utm_content  = marketingFields.utm_content;
+    if (marketingFields.utm_term)     attrMetadata.utm_term     = marketingFields.utm_term;
+    if (marketingFields.fbclid)       attrMetadata.fbclid       = marketingFields.fbclid;
+    if (marketingFields.gclid)        attrMetadata.gclid        = marketingFields.gclid;
+
     const existing = await stripe.customers.list({ email: normalizedEmail, limit: 1 });
     let stripeCustomerId;
     if (existing.data.length > 0) {
@@ -145,6 +190,7 @@ router.post('/signup', [
           source: 'trial_signup',
           trial_started_at: new Date().toISOString(),
           trial_ends_at: trialEnd.toISOString(),
+          ...attrMetadata,
         },
       });
     } else {
@@ -157,6 +203,7 @@ router.post('/signup', [
           source: 'trial_signup',
           trial_started_at: new Date().toISOString(),
           trial_ends_at: trialEnd.toISOString(),
+          ...attrMetadata,
         },
       });
       stripeCustomerId = stripeCustomer.id;
