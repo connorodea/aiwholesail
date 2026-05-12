@@ -18,6 +18,7 @@ import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { useSubscription } from '@/hooks/useSubscription';
 import { OwnerDetailModal } from '@/components/OwnerDetailModal';
 import { OffMarketPropertyModal } from '@/components/OffMarketPropertyModal';
+import { HeatmapView, type HeatPoint } from '@/components/HeatmapView';
 import { skipTrace } from '@/lib/api-client';
 import { Link } from 'react-router-dom';
 import { Search, MapPin, User, Mail, Building, RefreshCw, Download, Flame, ShieldCheck, Sparkles, TrendingUp, AlertTriangle, CalendarClock, X, CheckSquare, Lock } from 'lucide-react';
@@ -211,6 +212,10 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
   // Phase 6 — off-market property detail modal. PropData-shaped, no Zillow surface.
   const { enabled: propertyModalEnabled } = useFeatureFlag('off-market-property-modal');
   const [openProperty, setOpenProperty] = useState<PropDataPropertyRecord | null>(null);
+  // Phase 7 — density heatmap. Equity-weighted heatpoints for off-market.
+  // Same flag powers the on-market heatmap toggle in PropertyMap.
+  const { enabled: heatmapEnabled } = useFeatureFlag('density-heatmap');
+  const [heatmapOpen, setHeatmapOpen] = useState(false);
   // Phase 3 — bulk skip-trace. Flag-gated and tier-gated (Pro/Elite).
   // When enabled, each result card gets a checkbox; selected records can be
   // bulk-skip-traced in parallel (concurrency 4) from a floating toolbar.
@@ -885,6 +890,51 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
                     </Link>
                   )}
                 </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Phase 7 — equity-weighted heatmap. Flag-gated. Toggleable so
+              the map stays out of the way when not wanted. Falls back to a
+              "no coordinates" notice when PropData records lack lat/lng. */}
+          {heatmapEnabled && (
+            <Card className="border-border/60">
+              <CardContent className="p-3">
+                <button
+                  type="button"
+                  onClick={() => setHeatmapOpen((o) => !o)}
+                  className="w-full flex items-center justify-between gap-2 text-sm font-medium hover:text-cyan-300 transition-colors"
+                >
+                  <span className="flex items-center gap-2">
+                    <Flame className="h-4 w-4 text-amber-400" />
+                    Equity heatmap
+                    <span className="text-xs text-muted-foreground font-normal">· {filtered.length} parcel{filtered.length === 1 ? '' : 's'}</span>
+                  </span>
+                  <span className="text-[10px] text-muted-foreground uppercase tracking-wider">
+                    {heatmapOpen ? 'Hide' : 'Show'}
+                  </span>
+                </button>
+                {heatmapOpen && (
+                  <div className="mt-3">
+                    <HeatmapView
+                      points={filtered.map<HeatPoint>((rec) => {
+                        // PropData inline lat/lng — surfaced via the `[key: string]: any`
+                        // catch-all on PropDataPropertyRecord. Records without coords are
+                        // filtered out inside HeatmapView.
+                        const looseRec = rec as unknown as Record<string, unknown>;
+                        const lat = Number(looseRec.latitude ?? looseRec.lat ?? 0);
+                        const lng = Number(looseRec.longitude ?? looseRec.lng ?? 0);
+                        const equityPct = rec.equity?.equity_pct ?? 0;
+                        // Normalize equity 0-100 → 0-1 with a floor so even
+                        // low-equity records still contribute to density.
+                        const intensity = Math.max(0.2, Math.min(1, equityPct / 100));
+                        return { lat, lng, intensity };
+                      })}
+                      pointsLabel="parcel"
+                      height={420}
+                    />
+                  </div>
+                )}
               </CardContent>
             </Card>
           )}

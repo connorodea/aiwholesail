@@ -1,8 +1,11 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Property } from '@/types/zillow';
+import { useFeatureFlag } from '@/hooks/useFeatureFlag';
+import { HeatmapView, type HeatPoint } from '@/components/HeatmapView';
+import { Flame, MapPin as MapPinIcon } from 'lucide-react';
 
 // Fix default marker icon issue with bundlers (Leaflet assets not found)
 // We use custom colored SVG markers instead, so this is just a fallback
@@ -76,10 +79,33 @@ function FitBounds({ properties }: { properties: Property[] }) {
 }
 
 export function PropertyMap({ properties, onSelectProperty }: PropertyMapProps) {
+  // Phase 7 — density heatmap. Same flag as off-market heatmap. When
+  // enabled, a toggle appears next to the legend; switches between
+  // marker view (existing) and spread-weighted heat density.
+  const { enabled: heatmapEnabled } = useFeatureFlag('density-heatmap');
+  const [view, setView] = useState<'markers' | 'heat'>('markers');
   const mappableProperties = useMemo(
     () => properties.filter(p => p.latitude && p.longitude),
     [properties]
   );
+
+  // Heat points: each mappable property weighted by its price-spread
+  // vs Zestimate. Positive spread = potential wholesale margin.
+  // Normalize to 0-1 with a min-floor so weak signals still register.
+  const heatPoints = useMemo<HeatPoint[]>(() => {
+    if (mappableProperties.length === 0) return [];
+    // Find max positive spread in the set to scale the gradient.
+    const spreads = mappableProperties.map((p) => {
+      if (!p.price || !p.zestimate) return 0;
+      return Math.max(0, p.zestimate - p.price);
+    });
+    const maxSpread = Math.max(...spreads, 1);
+    return mappableProperties.map((p, i) => ({
+      lat: p.latitude!,
+      lng: p.longitude!,
+      intensity: Math.max(0.2, spreads[i] / maxSpread),
+    }));
+  }, [mappableProperties]);
 
   const center: [number, number] = useMemo(() => {
     if (mappableProperties.length === 0) return [39.8283, -98.5795]; // Center of US
@@ -106,27 +132,60 @@ export function PropertyMap({ properties, onSelectProperty }: PropertyMapProps) 
 
   return (
     <div className="space-y-3">
-      {/* Legend */}
-      <div className="flex items-center gap-4 text-xs text-neutral-400">
-        <span className="flex items-center gap-1.5">
-          <span className="w-3 h-3 rounded-full bg-green-600 inline-block" />
-          $30K+ spread
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="w-3 h-3 rounded-full bg-yellow-500 inline-block" />
-          Positive spread
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="w-3 h-3 rounded-full bg-red-600 inline-block" />
-          Negative spread
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="w-3 h-3 rounded-full bg-gray-500 inline-block" />
-          No data
-        </span>
+      {/* Header row — legend + view toggle (heatmap flag-gated) */}
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div className="flex items-center gap-4 text-xs text-neutral-400">
+          {view === 'markers' ? (
+            <>
+              <span className="flex items-center gap-1.5">
+                <span className="w-3 h-3 rounded-full bg-green-600 inline-block" />
+                $30K+ spread
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="w-3 h-3 rounded-full bg-yellow-500 inline-block" />
+                Positive spread
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="w-3 h-3 rounded-full bg-red-600 inline-block" />
+                Negative spread
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="w-3 h-3 rounded-full bg-gray-500 inline-block" />
+                No data
+              </span>
+            </>
+          ) : (
+            <span className="text-neutral-400">Heat intensity reflects price-vs-Zestimate spread (red = strongest wholesale margin)</span>
+          )}
+        </div>
+        {heatmapEnabled && (
+          <div className="inline-flex items-center gap-0 rounded-md border border-white/[0.08] overflow-hidden text-xs">
+            <button
+              type="button"
+              onClick={() => setView('markers')}
+              className={`px-3 py-1 flex items-center gap-1.5 transition-colors ${
+                view === 'markers' ? 'bg-cyan-500/10 text-cyan-300' : 'text-neutral-400 hover:text-white'
+              }`}
+            >
+              <MapPinIcon className="h-3 w-3" /> Markers
+            </button>
+            <button
+              type="button"
+              onClick={() => setView('heat')}
+              className={`px-3 py-1 flex items-center gap-1.5 transition-colors ${
+                view === 'heat' ? 'bg-cyan-500/10 text-cyan-300' : 'text-neutral-400 hover:text-white'
+              }`}
+            >
+              <Flame className="h-3 w-3" /> Heatmap
+            </button>
+          </div>
+        )}
       </div>
 
-      {/* Map container */}
+      {/* Map container — heatmap view OR existing marker view */}
+      {view === 'heat' && heatmapEnabled ? (
+        <HeatmapView points={heatPoints} height={500} pointsLabel="property" />
+      ) : (
       <div className="rounded-2xl overflow-hidden border border-white/[0.06]" style={{ height: '500px' }}>
         <MapContainer
           center={center}
@@ -184,6 +243,7 @@ export function PropertyMap({ properties, onSelectProperty }: PropertyMapProps) 
           ))}
         </MapContainer>
       </div>
+      )}
 
       <p className="text-xs text-neutral-500">
         Showing {mappableProperties.length} of {properties.length} properties on map
