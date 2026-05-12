@@ -38,10 +38,22 @@ function fire(eventName: string, params?: Record<string, any>) {
   }
 }
 
-/** Fire a Facebook Pixel standard event (only if fbq is loaded) */
-function fireFbq(eventName: string, params?: Record<string, any>) {
+/**
+ * Fire a Facebook Pixel standard event (only if fbq is loaded).
+ *
+ * If `eventId` is provided, it's passed as fbq's third "options" arg —
+ * Meta uses this as the deduplication key against server-side CAPI
+ * events with the same `event_id`. Critical for the trial→paid
+ * conversion to NOT double-count between client-side Pixel fire and
+ * the Layer 2 server-side CAPI Purchase event (PR #218).
+ *
+ * See: developers.facebook.com/docs/marketing-api/conversions-api/deduplicate-pixel-and-server-events
+ */
+function fireFbq(eventName: string, params?: Record<string, any>, eventId?: string) {
   if (typeof window !== 'undefined' && typeof window.fbq === 'function') {
-    if (params) {
+    if (eventId) {
+      window.fbq('track', eventName, params || {}, { eventID: eventId });
+    } else if (params) {
       window.fbq('track', eventName, params);
     } else {
       window.fbq('track', eventName);
@@ -159,18 +171,21 @@ export const analytics = {
         quantity: 1,
       }],
     });
+    // Stripe Checkout Session ID is the shared dedup key between this
+    // client-side fire and the Layer 2 server-side CAPI Purchase event
+    // (PR #218). The server-side handler resolves session_id from the
+    // invoice and uses the same value as Meta's `event_id`. With both
+    // sides matching, Meta dedupes — no double-count.
     fireFbq('Purchase', {
       content_name: plan,
       content_ids: [itemId],
       content_type: 'subscription',
       currency: 'USD',
       value: price,
-      // Same event_id as the server-side CAPI fire (Stripe event.id)
-      // would go here once we wire the success page to read the Stripe
-      // session metadata. Leaving as a future-improvement note.
-    });
+    }, transactionId);
     // Subscribe is Meta's dedicated SaaS subscription event — fires
     // alongside Purchase so either can be used as the optimization event.
+    // Same `event_id` so server-side Subscribe (if/when added) dedupes too.
     fireFbq('Subscribe', {
       content_name: plan,
       content_ids: [itemId],
@@ -178,7 +193,7 @@ export const analytics = {
       currency: 'USD',
       value: price,
       predicted_ltv: price * 12,
-    });
+    }, transactionId);
   },
 
   /** User reaches the pricing page (high-intent ViewContent for FB optimization) */
