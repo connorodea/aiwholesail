@@ -65,4 +65,39 @@ function normalizeTier(raw) {
   return 'none';
 }
 
-module.exports = { resolveTierFromPrice, normalizeTier };
+/**
+ * Should this subscribers row be preserved against a Stripe-driven wipe?
+ *
+ * Returns true when the local row encodes state that Stripe doesn't know
+ * about — an active in-app DB trial, OR a future subscription_end (manual
+ * Elite grant, custom comp, lifetime, etc). The three Stripe-facing code
+ * paths — webhook reconciler, GET /subscription, attachSubscription
+ * middleware — must skip the "wipe to NULL" branch when this returns true.
+ *
+ * @param {object|null|undefined} row - subscribers row (as read from DB)
+ * @param {Date|number} [now=Date.now()] - clock injection point for tests
+ * @returns {boolean}
+ *
+ * Bug guarded:
+ *   The "20 wiped trials" incident (PRs #192, #193, #194, #196). Three
+ *   independent code paths each had their own inline version of this check.
+ *   This shared predicate prevents drift if any of them is rewritten.
+ */
+function isLocallyManaged(row, now = new Date()) {
+  if (!row) return false;
+  const nowMs = now instanceof Date ? now.getTime() : Number(now);
+  if (!Number.isFinite(nowMs)) return false;
+
+  const trialStillActive = !!(
+    row.is_trial &&
+    row.trial_end &&
+    new Date(row.trial_end).getTime() > nowMs
+  );
+  const subStillActive = !!(
+    row.subscription_end &&
+    new Date(row.subscription_end).getTime() > nowMs
+  );
+  return trialStillActive || subStillActive;
+}
+
+module.exports = { resolveTierFromPrice, normalizeTier, isLocallyManaged };
