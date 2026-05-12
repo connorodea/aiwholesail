@@ -77,8 +77,8 @@ export default {
 				}
 			},
 			fontFamily: {
-				'sans': ['Inter', 'system-ui', 'sans-serif'],
-				'brand': ['Space Grotesk', 'Inter', 'system-ui', 'sans-serif'],
+				'sans': ['Montserrat', 'system-ui', 'sans-serif'],
+				'brand': ['Montserrat', 'system-ui', 'sans-serif'],
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
