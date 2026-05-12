@@ -57,6 +57,7 @@ import { PropertyNeighborhoodTab } from './PropertyNeighborhoodTab';
 import { PropertyMortgageSection } from './PropertyMortgageSection';
 import { ZestimateHistoryChart } from './ZestimateHistoryChart';
 import { PropertyRentalEstimate } from './PropertyRentalEstimate';
+import { ListingAgentProfile } from './ListingAgentProfile';
 import { generateDealReport } from './DealReportPDF';
 import { generateBuyerPitch } from './BuyerPitchPDF';
 import { ListingDescriptionGenerator } from './ListingDescriptionGenerator';
@@ -529,6 +530,12 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                     doesn't have rental data for the property, so the overview
                     layout is unchanged for properties without it. */}
                 <PropertyRentalEstimate property={displayProperty} />
+
+                {/* Listing agent rich profile — collapsed by default so the
+                    4 agent endpoints (details / listings / sold / reviews)
+                    only fire when the user expands. Renders null if we
+                    can't resolve a Zillow agent username from the property. */}
+                <ListingAgentProfile property={displayProperty} />
 
                 {/* Key Stats */}
                 {/* Compact key stats — uniform grid, missing values muted */}
