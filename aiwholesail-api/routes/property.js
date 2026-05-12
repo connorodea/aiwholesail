@@ -8,6 +8,10 @@ const { checkDatabaseRateLimit } = require('../middleware/rateLimit');
 const { attachSubscription, checkSearchLimit } = require('../middleware/subscription');
 const { logEvent, EVENTS } = require('../lib/events');
 const { mapCachedRowToProperty, validateZpid } = require('../lib/property-mapper');
+const { geocodeMany, normalizeAddress } = require('../lib/geocode');
+
+const PROPDATA_RAPIDAPI_HOST = process.env.PROPDATA_RAPIDAPI_HOST || 'propdata-real-estate-market-intelligence-api.p.rapidapi.com';
+const PROPDATA_RAPIDAPI_KEY = process.env.PROPDATA_RAPIDAPI_KEY || RAPIDAPI_KEY;
 
 const router = express.Router();
 const RAPIDAPI_KEY = process.env.RAPIDAPI_KEY;
@@ -466,6 +470,70 @@ router.get('/by-zpid', authenticate, asyncHandler(async (req, res) => {
   }
 
   res.json({ property: mapCachedRowToProperty(result.rows[0]) });
+}));
+
+/**
+ * POST /api/property/heatmap-coords
+ *
+ * Body: { records: [{ parcel_id, address: { street, city, zip } }, ...] }
+ *
+ * Returns the same records enriched with `lat` / `lng` from the
+ * geocode_cache (migration 015) — falling back to PropData /v1/geocode
+ * for cache misses, with results persisted so the next call is a pure
+ * cache hit. Used by the off-market heatmap (Phase 7) to plot absentee
+ * search results on a map.
+ *
+ * Capped at 200 records per call to bound upstream fan-out cost. The
+ * absentee search UI uses limit ≤100 today so this is comfortable
+ * headroom without enabling abuse.
+ */
+router.post('/heatmap-coords', authenticate, asyncHandler(async (req, res) => {
+  const records = req.body?.records;
+  if (!Array.isArray(records)) {
+    return res.status(400).json({ error: 'records array required' });
+  }
+  if (records.length === 0) {
+    return res.json({ records: [], stats: { hits: 0, misses: 0, failed: 0 } });
+  }
+  if (records.length > 200) {
+    return res.status(400).json({ error: 'max 200 records per call' });
+  }
+
+  const rateLimit = await checkDatabaseRateLimit(req.user.id, 'heatmap-coords', 30, 1);
+  if (!rateLimit.allowed) {
+    return res.status(429).json({ error: 'Rate limit exceeded' });
+  }
+
+  // Inject the upstream geocoder. Pure-function geocodeMany takes a fetcher
+  // so it can be tested without RapidAPI; the real fetcher calls PropData.
+  const fetchGeocoder = async (addressParts) => {
+    const address = normalizeAddress(addressParts);
+    if (!address) return null;
+    const upstream = await axios.get(`https://${PROPDATA_RAPIDAPI_HOST}/v1/geocode`, {
+      params: { address },
+      headers: {
+        'x-rapidapi-key': PROPDATA_RAPIDAPI_KEY,
+        'x-rapidapi-host': PROPDATA_RAPIDAPI_HOST,
+      },
+      timeout: 8000,
+      validateStatus: () => true,
+    });
+    if (upstream.status !== 200 || !upstream.data) return null;
+    // PropData has two response shapes: nested `results: [{lat, lng}]`
+    // or flat `{lat, lng}`. Handle both.
+    const flat = upstream.data;
+    if (typeof flat.lat === 'number' && typeof flat.lng === 'number') {
+      return { lat: flat.lat, lng: flat.lng, formatted_address: flat.formatted_address };
+    }
+    const first = Array.isArray(flat.results) ? flat.results[0] : null;
+    if (first && typeof first.lat === 'number' && typeof first.lng === 'number') {
+      return { lat: first.lat, lng: first.lng, formatted_address: first.formatted_address };
+    }
+    return null;
+  };
+
+  const stats = await geocodeMany(records, { query }, fetchGeocoder);
+  res.json({ records, stats });
 }));
 
 module.exports = router;
