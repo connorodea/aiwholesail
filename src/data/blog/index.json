@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-minneapolis-mn-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Minneapolis MN: The Investor's Complete Guide for 2024",
+      "excerpt": "Minneapolis is one of the Midwest's most underrated markets for real estate investors, offering strong rental demand, affordable entry points, and consistent appreciation. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Minneapolis MN.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-12T18:01:18.484Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Minneapolis MN",
+        "Minneapolis real estate investing",
+        "wholesale deals Minneapolis",
+        "Minneapolis rental properties",
+        "fix and flip Minneapolis"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-syracuse-ny-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Syracuse NY: The Investor's Complete Guide for 2024",
       "excerpt": "Syracuse, NY is quietly becoming one of the Northeast's most attractive markets for real estate investors, with low entry prices and strong rental demand. This guide covers the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Syracuse NY.",
@@ -15,7 +32,7 @@
         "flip houses Syracuse",
         "Syracuse rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-find-profitable-real-estate-deals-in-austin-tx-2024-investor-guide",
