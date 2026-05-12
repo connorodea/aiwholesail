@@ -4,9 +4,11 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const cookieParser = require('cookie-parser');
 
 // Import routes
 const authRoutes = require('./routes/auth');
+const execRoutes = require('./routes/exec');
 const leadsRoutes = require('./routes/leads');
 const favoritesRoutes = require('./routes/favorites');
 const alertsRoutes = require('./routes/alerts');
@@ -82,6 +84,7 @@ app.use((req, res, next) => {
   return express.json({ limit: '10mb' })(req, res, next);
 });
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(cookieParser());
 
 // Logging
 if (process.env.NODE_ENV !== 'production') {
@@ -123,6 +126,13 @@ app.use('/api/webhooks', webhookRoutes);
 app.use('/api/propdata', propdataRoutes);
 app.use('/api/flags', flagsRoutes);
 app.use('/api', utilityRoutes);
+
+// Exec dashboard at /exec/* — served via the nginx vhost for
+// exec.aiwholesail.com which proxies `/foo` → `/exec/foo` here.
+// The route handles its own auth (single-user JWT cookie) AND
+// restricts itself to the exec vhost so /exec/* on api.aiwholesail.com
+// 404s instead of exposing the dashboard publicly.
+app.use('/exec', execRoutes);
 
 // Handle 404
 app.use((req, res) => {

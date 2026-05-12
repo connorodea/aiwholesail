@@ -1,0 +1,30 @@
+[Unit]
+Description=AIWholesail daily funnel-metrics digest (SLI rollup → operator email)
+After=network-online.target postgresql.service
+Wants=network-online.target postgresql.service
+
+[Service]
+Type=oneshot
+User=root
+WorkingDirectory=/var/www/aiwholesail-api
+EnvironmentFile=/var/www/aiwholesail-api/.env
+TimeoutStartSec=300
+ExecStart=/usr/bin/node scripts/funnel-metrics.js
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=aiwholesail-funnel-metrics
+Nice=15
+
+# Hardening — matches other aiwholesail-* one-shots
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateTmp=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictNamespaces=true
+LockPersonality=true
+RestrictRealtime=true
+SystemCallArchitectures=native
+ReadWritePaths=/var/www/aiwholesail-api /var/log
