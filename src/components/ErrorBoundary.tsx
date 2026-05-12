@@ -52,7 +52,6 @@ export class ErrorBoundary extends Component<Props, State> {
     // Single point of truth for render errors — paste this whole line when
     // reporting a bug and the maintainer has a stack to work from.
     // Prefixed for grep-ability.
-    // eslint-disable-next-line no-console
     console.error(
       `[ErrorBoundary${this.props.label ? `:${this.props.label}` : ''}]`,
       error,

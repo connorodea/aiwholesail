@@ -66,7 +66,7 @@ export default function Counties() {
 
   const filtered = useMemo(() => {
     const q = query.toLowerCase().trim();
-    let results = (counties as County[]).filter((c) => {
+    const results = (counties as County[]).filter((c) => {
       const matchesQuery =
         !q ||
         c.name.toLowerCase().includes(q) ||
