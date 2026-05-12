@@ -73,6 +73,13 @@ function isIso8601(s) {
 // seconds. 60/min still protects the shared RapidAPI quota (~1k/min at
 // our plan tier) from any single user spamming. Cache hits don't count.
 const RATE_LIMIT_PER_MIN = 60;
+// Delta endpoints serve polling loops (alert workers, discovery loops).
+// The 60s cache TTL already makes repeated polls cheap, so we give the
+// polling bucket double the budget — a single user can run ~20-30
+// concurrent polling loops at a 30s cadence without throttling. Polling
+// keyed to its own bucket so it doesn't starve the interactive UI's
+// /market / /property / /comps calls.
+const RATE_LIMIT_DELTA_PER_MIN = 120;
 
 /** Single upstream attempt. Wraps axios to surface a uniform shape. */
 async function callUpstream(endpoint, params, timeoutMs) {
@@ -140,7 +147,12 @@ async function proxy(req, res, endpoint, allowedParams, options = {}) {
     return res.json(cached);
   }
 
-  const rateLimit = await checkDatabaseRateLimit(req.user.id, 'propdata', RATE_LIMIT_PER_MIN, 1);
+  // Bucket keyed per workflow so a polling loop on /property/delta can't
+  // starve the user's interactive UI calls (and vice versa). Default is
+  // the interactive 'propdata' bucket; delta routes opt in via DELTA_OPTS.
+  const bucket = options.rateLimitBucket || 'propdata';
+  const bucketMax = options.rateLimitMax || RATE_LIMIT_PER_MIN;
+  const rateLimit = await checkDatabaseRateLimit(req.user.id, bucket, bucketMax, 1);
   if (!rateLimit.allowed) {
     return res.status(429).json({
       error: 'Rate limit exceeded. Try again in a minute.',
@@ -203,7 +215,14 @@ router.get('/property',      authenticate, asyncHandler((req, res) => proxy(req,
 // Delta endpoints — return only records added/updated since the given ISO 8601
 // timestamp. Cursor-paginated. Short TTL so polling loops see fresh inventory.
 const DELTA_PARAMS = ['since', 'zip', 'cursor', 'limit'];
-const DELTA_OPTS = { ttlMs: DELTA_CACHE_TTL_MS, requiredParams: ['since'] };
+const DELTA_OPTS = {
+  ttlMs: DELTA_CACHE_TTL_MS,
+  requiredParams: ['since'],
+  // Polling loops live in their own bucket so they don't compete with
+  // interactive UI calls. See RATE_LIMIT_DELTA_PER_MIN above for the math.
+  rateLimitBucket: 'propdata-delta',
+  rateLimitMax: RATE_LIMIT_DELTA_PER_MIN,
+};
 
 router.get('/property/delta',       authenticate, asyncHandler((req, res) =>
   proxy(req, res, '/v1/property/delta', DELTA_PARAMS, DELTA_OPTS)));
