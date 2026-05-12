@@ -140,6 +140,19 @@ async function proxy(req, res, endpoint, allowedParams, options = {}) {
     return res.status(400).json({ error: 'since must be ISO 8601' });
   }
 
+  // Cap `limit` defensively. Upstream may clamp internally, but a client
+  // requesting limit=10000 still wastes a quota tick and an upstream call
+  // before clamping happens. 500 is generous for the delta + list endpoints
+  // (default page size is ~100). Non-numeric or invalid → drop the param.
+  if (params.limit !== undefined) {
+    const parsed = parseInt(params.limit, 10);
+    if (!Number.isFinite(parsed) || parsed <= 0) {
+      delete params.limit;
+    } else {
+      params.limit = String(Math.min(parsed, 500));
+    }
+  }
+
   const key = cacheKey(endpoint, params);
   const cached = cacheGet(key);
   if (cached) {
