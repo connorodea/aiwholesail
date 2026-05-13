@@ -1249,7 +1249,7 @@ router.get('/trial-upgrade', asyncHandler(async (req, res) => {
     const isPaid = r.subscribed && !r.is_trial &&
       (!r.subscription_end || new Date(r.subscription_end) > new Date());
     if (isPaid) {
-      return res.redirect(302, `${frontendUrl()}/account?notice=already-subscribed`);
+      return res.redirect(302, `${frontendUrl()}/app/account?notice=already-subscribed`);
     }
   }
 
