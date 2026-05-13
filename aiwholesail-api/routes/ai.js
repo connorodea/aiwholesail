@@ -9,6 +9,7 @@ const { attachSubscription, requireElite, requireTierWithLimit } = require('../m
 const { checkLlmBudget } = require('../middleware/llmBudget');
 const { wrapUserData, INJECTION_GUARDRAIL, PromptInjectionError } = require('../lib/llm-prompt-safety');
 const { logEvent, EVENTS } = require('../lib/events');
+const { withZillowFallback } = require('../lib/zillowFallback');
 const {
   callClaude,
   callClaudeWithTools,
@@ -794,17 +795,26 @@ async function executeToolCall(toolName, input) {
 }
 
 async function getDetailedPropertyInfo(address) {
-  const response = await axios.get(
-    `https://zillow-working-api.p.rapidapi.com/pro/byaddress`,
-    {
-      params: { propertyaddress: address },
-      headers: {
-        'x-rapidapi-key': RAPIDAPI_KEY,
-        'x-rapidapi-host': 'zillow-working-api.p.rapidapi.com'
-      }
-    }
+  // RapidAPI primary, scrape.do `propertyDetails` fallback. Throws on
+  // any non-2xx so withZillowFallback can flip to the scraper.
+  return withZillowFallback(
+    async () => {
+      const r = await axios.get(
+        `https://zillow-working-api.p.rapidapi.com/pro/byaddress`,
+        {
+          params: { propertyaddress: address },
+          headers: {
+            'x-rapidapi-key': RAPIDAPI_KEY,
+            'x-rapidapi-host': 'zillow-working-api.p.rapidapi.com'
+          }
+        }
+      );
+      if (r.status >= 400) throw new Error(`RapidAPI HTTP ${r.status}`);
+      return r.data;
+    },
+    'propertyDetails',
+    { address }
   );
-  return response.data;
 }
 
 async function getPriceHistory(zpid, address) {
@@ -815,17 +825,28 @@ async function getPriceHistory(zpid, address) {
   if (zpid) params.byzpid = zpid;
   if (address) params.byaddress = address;
 
-  const response = await axios.get(
-    'https://zillow-working-api.p.rapidapi.com/graph_charts',
-    {
-      params,
-      headers: {
-        'x-rapidapi-key': RAPIDAPI_KEY,
-        'x-rapidapi-host': 'zillow-working-api.p.rapidapi.com'
-      }
-    }
+  // RapidAPI primary, scrape.do `zestimateHistory` fallback. The action
+  // name matches `which: 'zestimate_history'` — for `price_history` the
+  // handler would be `priceHistory`, but this function only asks for
+  // zestimate history per the hardcoded `which` param.
+  return withZillowFallback(
+    async () => {
+      const r = await axios.get(
+        'https://zillow-working-api.p.rapidapi.com/graph_charts',
+        {
+          params,
+          headers: {
+            'x-rapidapi-key': RAPIDAPI_KEY,
+            'x-rapidapi-host': 'zillow-working-api.p.rapidapi.com'
+          }
+        }
+      );
+      if (r.status >= 400) throw new Error(`RapidAPI HTTP ${r.status}`);
+      return r.data;
+    },
+    'zestimateHistory',
+    { zpid, address }
   );
-  return response.data;
 }
 
 async function getComparableSales(zpid, address) {
@@ -833,17 +854,25 @@ async function getComparableSales(zpid, address) {
   if (zpid) params.byzpid = zpid;
   if (address) params.byaddress = address;
 
-  const response = await axios.get(
-    'https://zillow-working-api.p.rapidapi.com/comparable_homes',
-    {
-      params,
-      headers: {
-        'x-rapidapi-key': RAPIDAPI_KEY,
-        'x-rapidapi-host': 'zillow-working-api.p.rapidapi.com'
-      }
-    }
+  // RapidAPI primary, scrape.do `comps` fallback.
+  return withZillowFallback(
+    async () => {
+      const r = await axios.get(
+        'https://zillow-working-api.p.rapidapi.com/comparable_homes',
+        {
+          params,
+          headers: {
+            'x-rapidapi-key': RAPIDAPI_KEY,
+            'x-rapidapi-host': 'zillow-working-api.p.rapidapi.com'
+          }
+        }
+      );
+      if (r.status >= 400) throw new Error(`RapidAPI HTTP ${r.status}`);
+      return r.data;
+    },
+    'comps',
+    { zpid, address }
   );
-  return response.data;
 }
 
 function calculateWholesaleMetrics(input) {
