@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Navigate, useLocation } from 'react-router-dom';
-import { Loader2 } from 'lucide-react';
 import { isNative } from '@/lib/platform';
+import { RotatingOrganicLoader } from '@/components/OrganicLoader';
 import { initPurchases, identifyUser, hasAnySubscription } from '@/lib/purchases';
 import { NativePaywall } from './NativePaywall';
 import { TrialExpiredModal } from './TrialExpiredModal';
@@ -55,8 +55,8 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   if (loading || checkingSubscription) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-muted/20 to-accent/5">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <div className="flex flex-col items-center gap-4 text-foreground">
+          <RotatingOrganicLoader size={88} aria-label={loading ? 'Checking authentication' : 'Checking subscription'} />
           <p className="text-muted-foreground">
             {loading ? 'Checking authentication...' : 'Checking subscription...'}
           </p>

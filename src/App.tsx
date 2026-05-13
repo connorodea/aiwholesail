@@ -8,6 +8,7 @@ import { HelmetProvider } from 'react-helmet-async';
 import { AuthProvider } from "@/contexts/AuthContext";
 import { SecurityProvider } from "@/components/SecurityProvider";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { OrganicFullPageLoader } from "@/components/OrganicLoader";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { FacebookPixel } from "@/components/FacebookPixel";
 import { SEOHead } from "@/components/SEOHead";
@@ -134,7 +135,7 @@ const App = () => (
               <ScrollToTop />
               <GoogleAnalytics />
               <FacebookPixel />
-              <Suspense fallback={<div className="min-h-screen bg-[#08090a]" />}>
+              <Suspense fallback={<OrganicFullPageLoader />}>
               <ErrorBoundary label="app-routes">
               <Routes>
                 <Route path="/" element={<Landing />} />
