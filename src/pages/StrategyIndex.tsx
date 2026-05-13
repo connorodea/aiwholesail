@@ -1,17 +1,20 @@
 import { useParams, Link } from 'react-router-dom';
 import { useState, useMemo } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { Badge } from '@/components/ui/badge';
 import {
   ArrowRight, MapPin, ChevronRight, Search,
   Building2, Repeat, Hammer, ThermometerSun, RefreshCw,
   BookOpen, Calculator,
   Shield, CheckCircle, FileKey, Handshake, Gavel,
-  AlertTriangle, Receipt, Scale, UserX, Wrench,
+  AlertTriangle, Receipt, Scale, UserX, Wrench, Calendar,
 } from 'lucide-react';
 import { SEOHead } from '@/components/SEOHead';
 import { PublicLayout } from '@/components/PublicLayout';
 import { Spotlight } from '@/components/ui/spotlight';
 import cities from '@/data/cities.json';
+
+const LAST_UPDATED = '2026-05-12';
 
 interface City {
   slug: string;
@@ -231,13 +234,60 @@ export default function StrategyIndex() {
   const warmCities = filteredCities.filter((c) => c.marketTemp === 'warm');
   const coolCities = filteredCities.filter((c) => c.marketTemp === 'cool');
 
+  const canonical = `https://aiwholesail.com/invest/${validStrategy}`;
+
+  // Top 15 cities by yield for the ItemList. Falls back to alphabetical
+  // when yield calculation isn't meaningful (e.g. tax-lien).
+  const topByYield = useMemo(() => {
+    return [...allCities]
+      .map((c) => ({
+        ...c,
+        yieldVal: (c.avgRent * 12) / c.medianHomePrice,
+      }))
+      .sort((a, b) => b.yieldVal - a.yieldVal)
+      .slice(0, 15);
+  }, [allCities]);
+
+  const collectionJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: `${meta.fullLabel} — ${totalCities} US Markets`,
+    description: `${meta.fullLabel} opportunities ranked across ${totalCities} U.S. real estate markets.`,
+    url: canonical,
+    dateModified: LAST_UPDATED,
+    isPartOf: { '@type': 'WebSite', name: 'AIWholesail', url: 'https://aiwholesail.com' },
+  };
+
+  const itemListJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: `Top US Markets for ${meta.label}`,
+    description: `Top 15 U.S. metros for ${meta.label.toLowerCase()} ranked by gross rental yield.`,
+    url: canonical,
+    numberOfItems: topByYield.length,
+    dateModified: LAST_UPDATED,
+    itemListElement: topByYield.map((c, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      url: `https://aiwholesail.com/invest/${validStrategy}/${c.slug}`,
+      name: `${meta.label} in ${c.city}, ${c.state}`,
+    })),
+  };
+
   return (
     <PublicLayout>
       <SEOHead
         title={`${meta.fullLabel}: Find Deals in ${totalCities} Markets`}
         description={`${meta.fullLabel} opportunities across ${totalCities} US markets. ${meta.description} Browse cities by market temperature, median price, and growth rate.`}
         keywords={`${meta.fullLabel.toLowerCase()}, ${meta.label.toLowerCase()} real estate, ${meta.label.toLowerCase()} investing, ${meta.label.toLowerCase()} properties, real estate ${meta.label.toLowerCase()} markets, best cities for ${meta.label.toLowerCase()}`}
+        canonicalUrl={canonical}
       />
+
+      <Helmet>
+        <script type="application/ld+json">{JSON.stringify(collectionJsonLd)}</script>
+        <script type="application/ld+json">{JSON.stringify(itemListJsonLd)}</script>
+        <meta name="last-modified" content={LAST_UPDATED} />
+      </Helmet>
 
       {/* ===== HERO ===== */}
       <section className="relative bg-gradient-to-b from-[#0a0a0a] via-[#0f0f0f] to-[#0a0a0a] text-white overflow-hidden">

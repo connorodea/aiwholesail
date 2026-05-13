@@ -1,16 +1,19 @@
 import { useParams, Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { Badge } from '@/components/ui/badge';
 import {
   ArrowRight, MapPin, DollarSign, TrendingUp, Users,
   Home, Building2, Repeat, Hammer, ChevronRight, Calculator,
   BookOpen, ThermometerSun, Zap, Target, BarChart3,
   Shield, CheckCircle, RefreshCw, FileKey, Handshake,
-  Gavel, AlertTriangle, Receipt, Scale, UserX, Wrench,
+  Gavel, AlertTriangle, Receipt, Scale, UserX, Wrench, Calendar,
 } from 'lucide-react';
 import { SEOHead } from '@/components/SEOHead';
 import { PublicLayout } from '@/components/PublicLayout';
 import { Spotlight } from '@/components/ui/spotlight';
 import cities from '@/data/cities.json';
+
+const LAST_UPDATED = '2026-05-12';
 
 interface City {
   slug: string;
@@ -440,13 +443,118 @@ export default function CityStrategyPage() {
     { label: 'Population', value: formatNumber(city.population), icon: Users },
   ];
 
+  const canonical = `https://aiwholesail.com/invest/${validStrategy}/${city.slug}`;
+
+  // 40-60 word AI-extractable answer.
+  const summary =
+    `${meta.label} in ${city.city}, ${city.stateFull} works because ` +
+    `${meta.whyItWorks(city).split('.')[0].toLowerCase()}. ` +
+    `Median home price is ${formatCurrency(city.medianHomePrice)}, year-over-year ` +
+    `price growth is ${city.priceGrowth}%, and average rent is $${city.avgRent.toLocaleString()}/month. ` +
+    `This is a ${(tempLabels[city.marketTemp] || city.marketTemp).toLowerCase()} market.`;
+
+  // Auto-generated 4-FAQ block per strategy × city.
+  const faqs = [
+    {
+      q: `Is ${meta.label.toLowerCase()} profitable in ${city.city}?`,
+      a: meta.whyItWorks(city) +
+        ` AIWholesail's free ${meta.toolLabel} runs the math automatically — try it at aiwholesail.com${meta.toolPath}.`,
+    },
+    {
+      q: `How much money do I need to start ${meta.label.toLowerCase()} in ${city.city}?`,
+      a: validStrategy === 'wholesale'
+        ? `Wholesaling needs $0–$2,000 for marketing and a $100–$500 earnest money deposit. No purchase capital required — you assign the contract to a cash buyer for an assignment fee.`
+        : validStrategy === 'flip'
+        ? `Plan for ~25% of ${city.city}'s median price (${formatCurrency(city.medianHomePrice * 0.25)}) for down payment + closing, plus ${formatCurrency(city.medianHomePrice * 0.15)}+ for rehab and 4–6 months of holding costs. Most ${city.city} flippers use hard money at 8–14% interest.`
+        : validStrategy === 'rental' || validStrategy === 'brrrr'
+        ? `Conventional rental purchase in ${city.city} needs 20–25% down on the median ${formatCurrency(city.medianHomePrice)} home = ${formatCurrency(city.medianHomePrice * 0.20)}–${formatCurrency(city.medianHomePrice * 0.25)}, plus 3% closing. DSCR loans use the same down payment but qualify on property cash flow.`
+        : `Capital requirements vary by deal. For ${meta.label.toLowerCase()} in ${city.city} at the median ${formatCurrency(city.medianHomePrice)} price point, plan for 10–25% down depending on financing type and your role in the transaction.`,
+    },
+    {
+      q: `Is ${meta.label.toLowerCase()} legal in ${city.stateFull}?`,
+      a: `Yes — ${meta.label.toLowerCase()} is legal in ${city.stateFull}. ` +
+        (['wholesale', 'subject-to', 'seller-financing'].includes(validStrategy)
+          ? `${city.stateFull} has specific assignment-of-contract and disclosure rules; check aiwholesail.com/laws/${city.stateFull.toLowerCase().replace(/\s+/g, '-')} for the current statutes and consult a local real estate attorney before structuring deals.`
+          : `Standard real estate purchase and financing rules apply. Check aiwholesail.com/laws/${city.stateFull.toLowerCase().replace(/\s+/g, '-')} for state-specific tax, foreclosure, and landlord-tenant rules.`),
+    },
+    {
+      q: `How long does a typical ${meta.label.toLowerCase()} deal take in ${city.city}?`,
+      a: validStrategy === 'wholesale'
+        ? `21–45 days from contract to close is typical in ${city.city}. The seller signs, you have 7–14 days inspection contingency to find a buyer, then 14–30 more days for the buyer's due diligence and close.`
+        : validStrategy === 'flip'
+        ? `${city.city} flips typically run 4–6 months end-to-end: 30 days to close on acquisition, 60–120 days for rehab, 30–60 days on market and through closing.`
+        : validStrategy === 'pre-foreclosure'
+        ? `Pre-foreclosure properties in ${city.city} have a 90–120 day window between Notice of Default and auction. Investors typically close within 30 days from initial seller contact when motivated sellers want speed.`
+        : validStrategy === 'probate'
+        ? `Probate purchases in ${city.city} typically take 6–12 months because the estate must go through court. Some states (and some counties within ${city.stateFull}) move faster via summary probate procedures.`
+        : `Most ${meta.label.toLowerCase()} transactions in ${city.city} close in 30–60 days from offer to keys, depending on financing type and inspection contingencies.`,
+    },
+  ];
+
+  const articleJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: `${meta.heroTitle(city.city + ', ' + city.state)}`,
+    description: meta.description,
+    url: canonical,
+    image: 'https://aiwholesail.com/og-image.png',
+    author: { '@type': 'Organization', name: 'AIWholesail', url: 'https://aiwholesail.com' },
+    publisher: {
+      '@type': 'Organization',
+      name: 'AIWholesail',
+      logo: { '@type': 'ImageObject', url: 'https://aiwholesail.com/logo-aiw.png' },
+    },
+    datePublished: LAST_UPDATED,
+    dateModified: LAST_UPDATED,
+    mainEntityOfPage: { '@type': 'WebPage', '@id': canonical },
+    keywords: `${meta.label.toLowerCase()} ${city.city}, ${validStrategy} ${city.stateFull}, real estate investing ${city.city}, ${meta.label.toLowerCase()} strategy`,
+    about: { '@type': 'Place', name: `${city.city}, ${city.state}` },
+  };
+
+  const faqJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  };
+
+  const placeJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Place',
+    name: `${city.city}, ${city.state}`,
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: city.city,
+      addressRegion: city.state,
+      addressCountry: 'US',
+    },
+  };
+
   return (
     <PublicLayout>
       <SEOHead
         title={`${meta.heroTitle(`${city.city}, ${city.state}`)} -- Market Data & Strategy Guide`}
         description={`${meta.heroTitle(`${city.city}, ${city.stateFull}`)}. Median price ${formatCurrency(city.medianHomePrice)}, ${city.priceGrowth}% growth, avg rent $${city.avgRent.toLocaleString()}/mo. AI-powered market intelligence for ${meta.label.toLowerCase()} investors.`}
         keywords={`${meta.label.toLowerCase()} ${city.city}, ${city.city} ${city.state} ${validStrategy}, ${validStrategy} real estate ${city.city}, ${city.city} investment properties, ${meta.label.toLowerCase()} ${city.stateFull}`}
+        canonicalUrl={canonical}
+        breadcrumbs={[
+          { name: 'Home', url: 'https://aiwholesail.com' },
+          { name: 'Strategies', url: `https://aiwholesail.com/invest/${validStrategy}` },
+          { name: meta.label, url: `https://aiwholesail.com/invest/${validStrategy}` },
+          { name: `${city.city}, ${city.state}`, url: canonical },
+        ]}
       />
+
+      <Helmet>
+        <script type="application/ld+json">{JSON.stringify(articleJsonLd)}</script>
+        <script type="application/ld+json">{JSON.stringify(faqJsonLd)}</script>
+        <script type="application/ld+json">{JSON.stringify(placeJsonLd)}</script>
+        <meta name="last-modified" content={LAST_UPDATED} />
+        <meta property="article:modified_time" content={LAST_UPDATED} />
+      </Helmet>
 
       {/* ===== HERO ===== */}
       <section className="relative bg-gradient-to-b from-[#0a0a0a] via-[#0f0f0f] to-[#0a0a0a] text-white overflow-hidden">
@@ -481,6 +589,23 @@ export default function CityStrategyPage() {
           <p className="text-lg md:text-xl text-white/50 max-w-2xl mx-auto leading-relaxed font-light">
             {meta.description}
           </p>
+          <p className="mt-6 inline-flex items-center gap-2 text-xs text-white/40">
+            <Calendar className="h-3 w-3" /> Last updated <time dateTime={LAST_UPDATED}>{LAST_UPDATED}</time>
+          </p>
+        </div>
+      </section>
+
+      {/* ===== AI-EXTRACTABLE ANSWER BLOCK ===== */}
+      <section className="py-10 px-4">
+        <div className="container mx-auto max-w-4xl">
+          <div className="border border-white/[0.05] bg-gradient-to-b from-neutral-900/50 to-transparent rounded-xl p-6 md:p-8">
+            <h2 className="text-sm font-semibold tracking-[0.15em] uppercase text-cyan-400 mb-3">
+              {meta.label} in {city.city} — at a glance
+            </h2>
+            <p className="text-base md:text-lg text-white/80 font-light leading-relaxed">
+              {summary}
+            </p>
+          </div>
         </div>
       </section>
 
@@ -627,6 +752,27 @@ export default function CityStrategyPage() {
                   </div>
                 </div>
               </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== FAQ ===== */}
+      <section className="py-16 px-4">
+        <div className="container mx-auto max-w-3xl">
+          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-4">FAQ</p>
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-white mb-10">
+            Common questions about {meta.label.toLowerCase()} in {city.city}.
+          </h2>
+          <div className="space-y-4">
+            {faqs.map((f, i) => (
+              <div
+                key={i}
+                className="border border-white/[0.05] bg-gradient-to-b from-neutral-900/50 to-transparent rounded-xl p-6"
+              >
+                <h3 className="text-base md:text-lg font-semibold text-white mb-2">{f.q}</h3>
+                <p className="text-sm md:text-base text-white/70 font-light leading-relaxed">{f.a}</p>
+              </div>
             ))}
           </div>
         </div>
