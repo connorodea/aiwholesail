@@ -181,9 +181,12 @@ const JUNK_TRAILING_TOKENS = new Set([
   'ticker', 'twitter', 'youtube',
 ]);
 const JUNK_TRAILING_BIGRAMS = new Set([
-  'phone number', 'stock price', 'is it legit', 'is it real',
-  'is it good', 'is it scam', 'office location', 'sign in',
+  'phone number', 'stock price', 'office location', 'sign in',
   'log in', 'company size', 'revenue 2026', 'net worth',
+]);
+const JUNK_TRAILING_TRIGRAMS = new Set([
+  'is it legit', 'is it real', 'is it good', 'is it scam',
+  'is it safe', 'is it worth',
 ]);
 // Allowlist bigrams override single-token blocks. Catches legit REI queries
 // that happen to end in a flagged token (FSBO, absentee owner, calculator-by-address).
@@ -199,7 +202,9 @@ function isJunkKeyword(text) {
   if (tokens.length === 0) return false;
   const last = tokens[tokens.length - 1];
   const bigram = tokens.length >= 2 ? tokens.slice(-2).join(' ') : '';
+  const trigram = tokens.length >= 3 ? tokens.slice(-3).join(' ') : '';
   if (bigram && JUNK_TRAILING_ALLOWLIST_BIGRAMS.has(bigram)) return false;
+  if (trigram && JUNK_TRAILING_TRIGRAMS.has(trigram)) return true;
   if (JUNK_TRAILING_TOKENS.has(last)) return true;
   if (bigram && JUNK_TRAILING_BIGRAMS.has(bigram)) return true;
   return false;

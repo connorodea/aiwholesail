@@ -193,6 +193,11 @@ test('isJunkKeyword filters RapidAPI expansion noise (careers, jobs, ceo, etc.)'
   assert.equal(isJunkKeyword('PropStream ceo'), true);
   assert.equal(isJunkKeyword('AIWholesail linkedin'), true);
   assert.equal(isJunkKeyword('REI investor employment'), true);
+  // 3-token trailing phrases — must match too
+  assert.equal(isJunkKeyword('high equity property leads is it good'), true);
+  assert.equal(isJunkKeyword('PropStream is it legit'), true);
+  assert.equal(isJunkKeyword('BatchLeads is it real'), true);
+  assert.equal(isJunkKeyword('DealMachine is it scam'), true);
   // Real estate terms that LOOK adjacent but ARE valid content seeds — must pass through.
   assert.equal(isJunkKeyword('PropStream review'), false);
   assert.equal(isJunkKeyword('PropStream alternative'), false);
