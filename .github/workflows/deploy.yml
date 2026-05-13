@@ -48,6 +48,20 @@ jobs:
       - name: Lint Zillow proxy actions
         run: node scripts/check-zillow-actions.mjs
 
+      # Run API test suite — gates regression-guards (PR #287, TD-002) and
+      # the broader 236-test suite. Tests must pass before any deploy job
+      # runs (those jobs `needs: ci`).
+      # Runs in ~2s; ~30s for npm ci on a cold cache (cached via Node setup).
+      # Was a HIGH-severity tech debt item (TD-011) — CI used to run typecheck
+      # + build only, leaving the test suite decorative.
+      - name: Install API dependencies
+        working-directory: aiwholesail-api
+        run: npm ci
+
+      - name: Run API tests
+        working-directory: aiwholesail-api
+        run: npm test
+
       # Build with the correct API URL based on target branch
       - name: Build (staging)
         if: github.ref == 'refs/heads/staging' || (github.event_name == 'pull_request' && github.base_ref == 'staging')
