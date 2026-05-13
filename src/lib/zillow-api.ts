@@ -222,6 +222,12 @@ export class ZillowAPI {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
     };
+    // /api/zillow/proxy is authenticate-gated; legacy /zillow/zillow used
+    // x-api-key. Send both — backend ignores whichever isn't applicable.
+    // Without this, search() against the new proxy 401s and surfaces as
+    // "Zillow API request failed: 401" to the user.
+    const accessToken = tokenStorage.getAccessToken();
+    if (accessToken) headers['Authorization'] = `Bearer ${accessToken}`;
     if (ZILLOW_API_KEY) headers['x-api-key'] = ZILLOW_API_KEY;
 
     const response = await fetch(ZILLOW_API_URL, {
