@@ -1,4 +1,5 @@
 import { useParams, Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import {
   ArrowRight, ChevronRight, MapPin, Home, Calendar, Ruler,
   DollarSign, Clock, Lightbulb, TrendingUp, Target,
@@ -8,6 +9,8 @@ import { SEOHead } from '@/components/SEOHead';
 import { PublicLayout } from '@/components/PublicLayout';
 import { Spotlight } from '@/components/ui/spotlight';
 import dealExamples from '@/data/deal-examples.json';
+
+const LAST_UPDATED = '2026-05-12';
 
 interface DealNumbers {
   mao: number;
@@ -168,19 +171,84 @@ export default function DealExamplePage() {
     if (typeof nums.cashOnCashReturn === 'number') financialRows.push({ label: 'Cash-on-Cash Return', value: formatPercent(nums.cashOnCashReturn as number), highlight: true });
   }
 
+  const canonical = `https://aiwholesail.com/deals/examples/${deal.slug}`;
+
+  // 40-60 word AI-extractable summary leading with the headline numbers.
+  const summary =
+    `${badge.label} deal: ${deal.beds}BR/${deal.baths}BA ${deal.propertyType.toLowerCase()} in ${deal.city}, ${deal.state}. ` +
+    `Purchased at $${deal.purchasePrice.toLocaleString()}, ARV $${deal.arv.toLocaleString()}, rehab $${deal.rehabCost.toLocaleString()}. ` +
+    `Total profit: $${deal.totalProfit.toLocaleString()} in ${deal.holdingPeriod}. ` +
+    `Financing: ${deal.financingUsed}. Lead source: ${deal.howFound}. Key lesson: ${deal.keyLesson}`;
+
+  const faqs = [
+    {
+      q: `What was the total profit on this ${badge.label.toLowerCase()} deal?`,
+      a: `Total profit: $${deal.totalProfit.toLocaleString()} on a ${deal.beds}BR/${deal.baths}BA ${deal.propertyType.toLowerCase()} in ${deal.city}, ${deal.state}. Purchase: $${deal.purchasePrice.toLocaleString()}. ARV: $${deal.arv.toLocaleString()}. Rehab: $${deal.rehabCost.toLocaleString()}. Held for ${deal.holdingPeriod}.`,
+    },
+    {
+      q: `How was this deal found?`,
+      a: `Lead source: ${deal.howFound}. Most investors stack 2-3 lead sources (distress lists, driving for dollars, direct mail, AI alerts) to maintain consistent deal flow. AIWholesail surfaces ${deal.city} deals with $30K+ spreads automatically — see /tools.`,
+    },
+    {
+      q: `What financing was used?`,
+      a: `${deal.financingUsed}. Different deal structures fit different financing — hard money for fast flips, DSCR loans for buy-and-hold, conventional for owner-occupied. Calculate your monthly payment options at /tools/mortgage-calculator.`,
+    },
+    {
+      q: `What's the key takeaway from this deal?`,
+      a: deal.keyLesson,
+    },
+  ];
+
+  const articleJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: deal.title,
+    description: summary,
+    url: canonical,
+    image: 'https://aiwholesail.com/og-image.png',
+    author: { '@type': 'Organization', name: 'AIWholesail', url: 'https://aiwholesail.com' },
+    publisher: {
+      '@type': 'Organization',
+      name: 'AIWholesail',
+      logo: { '@type': 'ImageObject', url: 'https://aiwholesail.com/logo-aiw.png' },
+    },
+    datePublished: LAST_UPDATED,
+    dateModified: LAST_UPDATED,
+    mainEntityOfPage: { '@type': 'WebPage', '@id': canonical },
+    about: { '@type': 'Place', name: `${deal.city}, ${deal.state}` },
+    articleSection: 'Case Study',
+  };
+
+  const faqJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  };
+
   return (
     <PublicLayout>
       <SEOHead
         title={`${deal.title} -- Full Financial Breakdown | AIWholesail`}
         description={`Real ${badge.label.toLowerCase()} deal case study in ${deal.city}, ${deal.state}. ${deal.propertyType}, ${deal.beds}BR/${deal.baths}BA. Full numbers, timeline, and lessons learned.`}
         keywords={`${deal.strategy} deal example, ${deal.city} real estate deal, ${deal.propertyType.toLowerCase()} investment, ${badge.label.toLowerCase()} case study, real estate deal breakdown ${deal.city}`}
-        canonicalUrl={`https://aiwholesail.com/deals/examples/${deal.slug}`}
+        canonicalUrl={canonical}
         breadcrumbs={[
           { name: 'Home', url: 'https://aiwholesail.com' },
           { name: 'Deal Examples', url: 'https://aiwholesail.com/deals/examples' },
-          { name: deal.title, url: `https://aiwholesail.com/deals/examples/${deal.slug}` },
+          { name: deal.title, url: canonical },
         ]}
       />
+
+      <Helmet>
+        <script type="application/ld+json">{JSON.stringify(articleJsonLd)}</script>
+        <script type="application/ld+json">{JSON.stringify(faqJsonLd)}</script>
+        <meta name="last-modified" content={LAST_UPDATED} />
+        <meta property="article:modified_time" content={LAST_UPDATED} />
+      </Helmet>
 
       {/* ===== HERO ===== */}
       <section className="relative bg-gradient-to-b from-[#0a0a0a] via-[#0f0f0f] to-[#0a0a0a] text-white overflow-hidden">
@@ -212,6 +280,23 @@ export default function DealExamplePage() {
           <p className="text-lg md:text-xl text-white/50 max-w-2xl mx-auto leading-relaxed font-light">
             Full financial breakdown, step-by-step timeline, and key lessons from this real-world {badge.label.toLowerCase()} deal.
           </p>
+          <p className="mt-6 inline-flex items-center gap-2 text-xs text-white/40">
+            <Calendar className="h-3 w-3" /> Last updated <time dateTime={LAST_UPDATED}>{LAST_UPDATED}</time>
+          </p>
+        </div>
+      </section>
+
+      {/* ===== AI-EXTRACTABLE ANSWER BLOCK ===== */}
+      <section className="py-10 px-4">
+        <div className="container mx-auto max-w-4xl">
+          <div className="border border-white/[0.05] bg-gradient-to-b from-neutral-900/50 to-transparent rounded-xl p-6 md:p-8">
+            <h2 className="text-sm font-semibold tracking-[0.15em] uppercase text-cyan-400 mb-3">
+              Deal recap
+            </h2>
+            <p className="text-base md:text-lg text-white/80 font-light leading-relaxed">
+              {summary}
+            </p>
+          </div>
         </div>
       </section>
 
@@ -367,6 +452,27 @@ export default function DealExamplePage() {
                 </p>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== FAQ ===== */}
+      <section className="py-16 px-4">
+        <div className="container mx-auto max-w-3xl">
+          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-4">FAQ</p>
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-white mb-10">
+            Common questions about this deal.
+          </h2>
+          <div className="space-y-4">
+            {faqs.map((f, i) => (
+              <div
+                key={i}
+                className="border border-white/[0.05] bg-gradient-to-b from-neutral-900/50 to-transparent rounded-xl p-6"
+              >
+                <h3 className="text-base md:text-lg font-semibold text-white mb-2">{f.q}</h3>
+                <p className="text-sm md:text-base text-white/70 font-light leading-relaxed">{f.a}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
