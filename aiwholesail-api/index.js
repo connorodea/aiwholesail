@@ -33,10 +33,14 @@ const flagsRoutes = require('./routes/flags');
 const healthIntegrationsRoutes = require('./routes/healthIntegrations');
 const unsubscribeRoutes = require('./routes/unsubscribe');
 const adminRoutes = require('./routes/admin');
+const agentsRoutes = require('./routes/agents');
+const campaignsRoutes = require('./routes/campaigns');
 
 // Import middleware
 const { errorHandler } = require('./middleware/errorHandler');
 const { rateLimiter } = require('./middleware/rateLimit');
+const { requireFlag } = require('./lib/featureFlags');
+const { authenticate } = require('./middleware/auth');
 
 const app = express();
 const PORT = process.env.PORT || 3202;
@@ -164,6 +168,11 @@ app.use('/api/property', propertyRoutes);
 app.use('/api/zillow', zillowRoutes);
 app.use('/api/communications', communicationsRoutes);
 app.use('/api/buyers', buyersRoutes);
+// Phase 2 dogfood — agents + campaigns are flag-gated. The requireFlag
+// middleware 404s for any user without 'email-campaigns-v2' enabled
+// (see migration 025_email_campaigns_v2_flag.sql).
+app.use('/api/agents', authenticate, requireFlag('email-campaigns-v2'), agentsRoutes);
+app.use('/api/campaigns', authenticate, requireFlag('email-campaigns-v2'), campaignsRoutes);
 app.use('/api/sequences', sequencesRoutes);
 app.use('/api/contracts', contractsRoutes);
 app.use('/api/contact', contactRoutes);
