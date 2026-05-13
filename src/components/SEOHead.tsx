@@ -77,11 +77,14 @@ export function SEOHead({
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={ogImage} />
       
-      {/* Security Headers */}
+      {/* Security Headers
+       * Only CSP and Referrer-Policy are valid as <meta> tags. Browsers IGNORE
+       * X-Frame-Options, X-Content-Type-Options, and X-XSS-Protection meta tags
+       * (and log them as console errors, dragging Best Practices score down).
+       * Those three should be set as HTTP response headers via nginx/Cloudflare
+       * configuration. See marketing/LIGHTHOUSE_REPORT_2026-05-12.md.
+       */}
       <meta httpEquiv="Content-Security-Policy" content={generateCSPHeader()} />
-      <meta httpEquiv="X-Content-Type-Options" content="nosniff" />
-      <meta httpEquiv="X-Frame-Options" content="DENY" />
-      <meta httpEquiv="X-XSS-Protection" content="1; mode=block" />
       <meta httpEquiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
       
       {/* Preconnect to Supabase API (font preconnects are in index.html) */}
