@@ -481,6 +481,27 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
       const isV2Selection = leadTypesV2Enabled && selectedLeadTypes.size > 0;
       const resultNoun = isV2Selection ? 'off-market lead' : 'absentee owner';
 
+      // Fire-and-forget search-summary log → backend emits a structured
+      // journald line that the off-market routing monitor reads to
+      // compute SLI-1 (endpoint diversity) and SLI-3 (empty-result rate).
+      // Failure-tolerant: search UX is already complete, the log is
+      // pure observability.
+      const endpointsDispatched: string[] = [];
+      if (searchPlan.property !== null) endpointsDispatched.push('property');
+      if (searchPlan.preforeclosure !== null) endpointsDispatched.push('preforeclosure');
+      void fetch('/api/offmarket-search-log', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          lead_types_selected: [...selectedLeadTypes],
+          endpoints_dispatched: endpointsDispatched,
+          result_count: filteredMerged.length,
+          region_label: resolved.label,
+          search_id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        }),
+      }).catch(() => { /* observability is best-effort */ });
+
       if (merged.length === 0) {
         // Reorder outcome priority so rate-limit only dominates when it
         // actually drove the failure (not when 24 ZIPs returned OK-empty
