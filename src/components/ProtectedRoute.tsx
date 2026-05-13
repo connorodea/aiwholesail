@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Navigate, useLocation } from 'react-router-dom';
+import { Loader2 } from 'lucide-react';
 import { isNative } from '@/lib/platform';
 import { RotatingOrganicLoader } from '@/components/OrganicLoader';
+import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { initPurchases, identifyUser, hasAnySubscription } from '@/lib/purchases';
 import { NativePaywall } from './NativePaywall';
 import { TrialExpiredModal } from './TrialExpiredModal';
@@ -17,6 +19,9 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const [checkingSubscription, setCheckingSubscription] = useState(isNative);
   const [hasSubscription, setHasSubscription] = useState(false);
   const [showPaywall, setShowPaywall] = useState(false);
+  // Flag-gated rollout (PR #342). OFF = original Loader2 icon, ON = rotating
+  // organic loader. cpodea5 dogfood = ON via 026_organic_loaders_flag.sql.
+  const { enabled: organicLoadersEnabled } = useFeatureFlag('organic_loaders');
 
   // On native: init RevenueCat and check subscription after auth
   useEffect(() => {
@@ -56,7 +61,11 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-muted/20 to-accent/5">
         <div className="flex flex-col items-center gap-4 text-foreground">
-          <RotatingOrganicLoader size={88} aria-label={loading ? 'Checking authentication' : 'Checking subscription'} />
+          {organicLoadersEnabled ? (
+            <RotatingOrganicLoader size={88} aria-label={loading ? 'Checking authentication' : 'Checking subscription'} />
+          ) : (
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          )}
           <p className="text-muted-foreground">
             {loading ? 'Checking authentication...' : 'Checking subscription...'}
           </p>
