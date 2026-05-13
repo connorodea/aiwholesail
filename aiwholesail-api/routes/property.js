@@ -10,6 +10,7 @@ const { logEvent, EVENTS } = require('../lib/events');
 const { mapCachedRowToProperty, validateZpid } = require('../lib/property-mapper');
 const { geocodeMany, normalizeAddress } = require('../lib/geocode');
 const { autocomplete: zillowAutocompleteScrapeDo } = require('../lib/scrapers/zillowAutocompleteScrapeDo');
+const { withZillowFallback } = require('../lib/zillowFallback');
 
 const RAPIDAPI_KEY = process.env.RAPIDAPI_KEY;
 const PROPDATA_RAPIDAPI_HOST = process.env.PROPDATA_RAPIDAPI_HOST || 'propdata-real-estate-market-intelligence-api.p.rapidapi.com';
@@ -61,22 +62,30 @@ router.post('/zillow/search', authenticate, attachSubscription, checkSearchLimit
   if (fsbo) params.isForSaleByOwner = 'true';
 
   try {
-    const response = await axios.get(
-      'https://zillow-working-api.p.rapidapi.com/search/byaddress',
-      {
-        params,
-        headers: {
-          'x-rapidapi-key': RAPIDAPI_KEY,
-          'x-rapidapi-host': 'zillow-working-api.p.rapidapi.com'
-        }
-      }
+    const data = await withZillowFallback(
+      async () => {
+        const r = await axios.get(
+          'https://zillow-working-api.p.rapidapi.com/search/byaddress',
+          {
+            params,
+            headers: {
+              'x-rapidapi-key': RAPIDAPI_KEY,
+              'x-rapidapi-host': 'zillow-working-api.p.rapidapi.com'
+            }
+          }
+        );
+        if (r.status >= 400) throw new Error(`RapidAPI HTTP ${r.status}`);
+        return r.data;
+      },
+      'search',
+      { location, page, status: 'forSale' }
     );
 
     logEvent(req.user?.id, EVENTS.PROPERTY_SEARCH, {
       location, page: Number(page), status, has_filters: !!(bedrooms || bathrooms || minPrice || maxPrice || propertyType || fsbo),
     });
 
-    res.json(response.data);
+    res.json(data);
   } catch (error) {
     console.error('[Property] Zillow search error:', error.response?.data || error.message);
     res.status(500).json({ error: 'Failed to search properties' });
@@ -105,15 +114,23 @@ router.post('/zillow/details', optionalAuth, asyncHandler(async (req, res) => {
     if (zpid) params.zpid = zpid;
     if (address) params.propertyaddress = address;
 
-    const response = await axios.get(
-      'https://zillow-working-api.p.rapidapi.com/pro/byaddress',
-      {
-        params,
-        headers: {
-          'x-rapidapi-key': RAPIDAPI_KEY,
-          'x-rapidapi-host': 'zillow-working-api.p.rapidapi.com'
-        }
-      }
+    const data = await withZillowFallback(
+      async () => {
+        const r = await axios.get(
+          'https://zillow-working-api.p.rapidapi.com/pro/byaddress',
+          {
+            params,
+            headers: {
+              'x-rapidapi-key': RAPIDAPI_KEY,
+              'x-rapidapi-host': 'zillow-working-api.p.rapidapi.com'
+            }
+          }
+        );
+        if (r.status >= 400) throw new Error(`RapidAPI HTTP ${r.status}`);
+        return r.data;
+      },
+      'propertyDetails',
+      { zpid, address }
     );
 
     logEvent(req.user?.id, EVENTS.PROPERTY_VIEWED, {
@@ -121,7 +138,7 @@ router.post('/zillow/details', optionalAuth, asyncHandler(async (req, res) => {
       address_present: !!address,
     });
 
-    res.json(response.data);
+    res.json(data);
   } catch (error) {
     console.error('[Property] Zillow details error:', error.response?.data || error.message);
     res.status(500).json({ error: 'Failed to get property details' });
@@ -162,25 +179,38 @@ router.post('/intelligence', authenticate, asyncHandler(async (req, res) => {
     if (zpid) params.zpid = zpid;
     if (address) params.propertyaddress = address;
 
-    const [propertyData, taxData] = await Promise.all([
-      axios.get('https://zillow-working-api.p.rapidapi.com/pro/byaddress', {
-        params,
-        headers: {
-          'x-rapidapi-key': RAPIDAPI_KEY,
-          'x-rapidapi-host': 'zillow-working-api.p.rapidapi.com'
-        }
-      }).catch(() => ({ data: {} })),
-      axios.get('https://zillow-working-api.p.rapidapi.com/tax', {
-        params,
-        headers: {
-          'x-rapidapi-key': RAPIDAPI_KEY,
-          'x-rapidapi-host': 'zillow-working-api.p.rapidapi.com'
-        }
-      }).catch(() => ({ data: {} }))
+    const [data, tax] = await Promise.all([
+      withZillowFallback(
+        async () => {
+          const r = await axios.get('https://zillow-working-api.p.rapidapi.com/pro/byaddress', {
+            params,
+            headers: {
+              'x-rapidapi-key': RAPIDAPI_KEY,
+              'x-rapidapi-host': 'zillow-working-api.p.rapidapi.com'
+            }
+          });
+          if (r.status >= 400) throw new Error(`RapidAPI HTTP ${r.status}`);
+          return r.data;
+        },
+        'propertyDetails',
+        { zpid, address }
+      ).catch(() => ({})),
+      withZillowFallback(
+        async () => {
+          const r = await axios.get('https://zillow-working-api.p.rapidapi.com/tax', {
+            params,
+            headers: {
+              'x-rapidapi-key': RAPIDAPI_KEY,
+              'x-rapidapi-host': 'zillow-working-api.p.rapidapi.com'
+            }
+          });
+          if (r.status >= 400) throw new Error(`RapidAPI HTTP ${r.status}`);
+          return r.data;
+        },
+        'taxes',
+        { zpid, address }
+      ).catch(() => ({}))
     ]);
-
-    const data = propertyData.data || {};
-    const tax = taxData.data || {};
 
     // Build property intelligence record
     const intelligence = {
@@ -341,20 +371,28 @@ router.post('/off-market', authenticate, asyncHandler(async (req, res) => {
     if (filters.maxPrice) params.price_max = filters.maxPrice;
     if (filters.propertyType) params.home_type = filters.propertyType;
 
-    const response = await axios.get(
-      'https://zillow-working-api.p.rapidapi.com/search/foreclosures',
-      {
-        params,
-        headers: {
-          'x-rapidapi-key': RAPIDAPI_KEY,
-          'x-rapidapi-host': 'zillow-working-api.p.rapidapi.com'
-        }
-      }
+    const data = await withZillowFallback(
+      async () => {
+        const r = await axios.get(
+          'https://zillow-working-api.p.rapidapi.com/search/foreclosures',
+          {
+            params,
+            headers: {
+              'x-rapidapi-key': RAPIDAPI_KEY,
+              'x-rapidapi-host': 'zillow-working-api.p.rapidapi.com'
+            }
+          }
+        );
+        if (r.status >= 400) throw new Error(`RapidAPI HTTP ${r.status}`);
+        return r.data;
+      },
+      'foreclosures',
+      { location, page: 1 }
     );
 
     res.json({
-      properties: response.data?.results || [],
-      count: response.data?.totalResultCount || 0,
+      properties: data?.results || [],
+      count: data?.totalResultCount || 0,
       filters: {
         location,
         radius,
@@ -388,18 +426,26 @@ router.post('/comps', authenticate, asyncHandler(async (req, res) => {
     if (zpid) params.byzpid = zpid;
     if (address) params.byaddress = address;
 
-    const response = await axios.get(
-      'https://zillow-working-api.p.rapidapi.com/comparable_homes',
-      {
-        params,
-        headers: {
-          'x-rapidapi-key': RAPIDAPI_KEY,
-          'x-rapidapi-host': 'zillow-working-api.p.rapidapi.com'
-        }
-      }
+    const data = await withZillowFallback(
+      async () => {
+        const r = await axios.get(
+          'https://zillow-working-api.p.rapidapi.com/comparable_homes',
+          {
+            params,
+            headers: {
+              'x-rapidapi-key': RAPIDAPI_KEY,
+              'x-rapidapi-host': 'zillow-working-api.p.rapidapi.com'
+            }
+          }
+        );
+        if (r.status >= 400) throw new Error(`RapidAPI HTTP ${r.status}`);
+        return r.data;
+      },
+      'comps',
+      { zpid, address }
     );
 
-    res.json(response.data);
+    res.json(data);
   } catch (error) {
     console.error('[Property] Comps error:', error.response?.data || error.message);
     res.status(500).json({ error: 'Failed to get comparable sales' });
@@ -422,18 +468,26 @@ router.post('/photos', optionalAuth, asyncHandler(async (req, res) => {
     if (zpid) params.zpid = zpid;
     if (address) params.propertyaddress = address;
 
-    const response = await axios.get(
-      'https://zillow-working-api.p.rapidapi.com/photos',
-      {
-        params,
-        headers: {
-          'x-rapidapi-key': RAPIDAPI_KEY,
-          'x-rapidapi-host': 'zillow-working-api.p.rapidapi.com'
-        }
-      }
+    const data = await withZillowFallback(
+      async () => {
+        const r = await axios.get(
+          'https://zillow-working-api.p.rapidapi.com/photos',
+          {
+            params,
+            headers: {
+              'x-rapidapi-key': RAPIDAPI_KEY,
+              'x-rapidapi-host': 'zillow-working-api.p.rapidapi.com'
+            }
+          }
+        );
+        if (r.status >= 400) throw new Error(`RapidAPI HTTP ${r.status}`);
+        return r.data;
+      },
+      'photos',
+      { zpid, address }
     );
 
-    res.json(response.data);
+    res.json(data);
   } catch (error) {
     console.error('[Property] Photos error:', error.response?.data || error.message);
     res.status(500).json({ error: 'Failed to get property photos' });
