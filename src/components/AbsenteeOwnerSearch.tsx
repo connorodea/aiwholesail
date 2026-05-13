@@ -27,7 +27,22 @@ import { OwnerDetailModal } from '@/components/OwnerDetailModal';
 import { OffMarketPropertyModal } from '@/components/OffMarketPropertyModal';
 import { skipTrace } from '@/lib/api-client';
 import { Link } from 'react-router-dom';
-import { Search, MapPin, User, Mail, Building, RefreshCw, Download, Flame, ShieldCheck, Sparkles, TrendingUp, AlertTriangle, CalendarClock, X, CheckSquare, Lock } from 'lucide-react';
+import {
+  Search, MapPin, User, Mail, Building, RefreshCw, Download, Flame, ShieldCheck, Sparkles,
+  TrendingUp, AlertTriangle, CalendarClock, X, CheckSquare, Lock,
+  Home, Gavel, Coins, TrendingDown, Crown, Trees, Banknote, type LucideIcon,
+} from 'lucide-react';
+
+/**
+ * Local icon map for the matched-lead-type badges on result cards.
+ * Mirrors the chip-side ICON_MAP in LeadTypeChips.tsx but covers ALL 12
+ * LEAD_TYPES icons — keeps tree-shaking friendly (explicit imports) and
+ * avoids cross-imports. Unknown keys fall back to Home.
+ */
+const LEAD_TYPE_CARD_ICON_MAP: Record<string, LucideIcon> = {
+  Home, Flame, Gavel, AlertTriangle, TrendingUp, Coins, TrendingDown,
+  RefreshCw, CalendarClock, Crown, Trees, Banknote,
+};
 
 /**
  * sessionStorage key for handing off off-market UnifiedProperty[] records
@@ -1041,6 +1056,42 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
                         </Badge>
                       )}
                     </div>
+
+                    {leadTypesV2Enabled && (() => {
+                      // Local widening: tagRecordWithLeadTypes attaches
+                      // matchedLeadTypes at runtime; the source type is
+                      // intentionally untouched.
+                      const matched = (rec as PropDataPropertyRecord & { matchedLeadTypes?: string[] })
+                        .matchedLeadTypes ?? [];
+                      const visible = matched.filter((s) => s !== 'pre-foreclosure');
+                      if (visible.length === 0) return null;
+                      const shown = visible.slice(0, 3);
+                      const overflow = visible.length - shown.length;
+                      return (
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          {shown.map((slug) => {
+                            const lt = LEAD_TYPES.find((x) => x.slug === slug);
+                            if (!lt) return null;
+                            const Icon = LEAD_TYPE_CARD_ICON_MAP[lt.icon] ?? Home;
+                            return (
+                              <Badge
+                                key={slug}
+                                variant="outline"
+                                className={`text-[10px] gap-1 ${lt.badgeColor}`}
+                              >
+                                <Icon className="h-2.5 w-2.5" aria-hidden="true" />
+                                {lt.label}
+                              </Badge>
+                            );
+                          })}
+                          {overflow > 0 && (
+                            <Badge variant="outline" className="text-[10px] border-cyan-500/40 text-cyan-300">
+                              +{overflow} more
+                            </Badge>
+                          )}
+                        </div>
+                      );
+                    })()}
 
                     <div className="p-3 bg-primary/5 rounded-lg border border-primary/10 space-y-2">
                       <div className="flex items-center justify-between gap-2">
