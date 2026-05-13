@@ -1,48 +1,49 @@
 /**
- * Server-side wrapper around the standalone /zillow proxy (port 3201).
+ * Server-side wrapper around the Zillow scrape stack.
  *
- * The proxy lives at /root/zillow-api on hetznerCO and exposes 27 actions
- * (search, property/*, valuation/*, agent/*, market, mortgage). All agent
- * tools route through this single function so we have one place to add
- * timeouts, retries, rate-limiting, and observability.
+ * The legacy RapidAPI proxy lives at /root/zillow-api on hetznerCO (port 3201)
+ * and exposes 27 actions (search, property/*, valuation/*, agent/*, market,
+ * mortgage). All agent tools route through this single function so we have
+ * one place to add timeouts, retries, rate-limiting, and observability.
  *
- * Env required on the API process:
+ * Env required on the API process (still used in the fallback path):
  *   ZILLOW_PROXY_URL     default: http://127.0.0.1:3201/zillow
  *   ZILLOW_PROXY_SECRET  must match the proxy's API_SECRET env var
  *
- * Two scrape.do entry points layered on top of the RapidAPI proxy:
+ * Backend order (changed 2026-05-13 — PR #321):
  *
- *   1. PRIMARY swap (flag-gated, dogfood / cost-cutover)
- *      When `feature_flag_globals.zillow_scrape_do` is enabled for the
- *      caller AND the action has a scrape.do handler, we go to scrape.do
- *      FIRST. On any failure we fall through to RapidAPI.
+ *   1. PRIMARY: scrape.do
+ *      For any action with a handler in SCRAPE_DO_ACTIONS we try the self-
+ *      hosted scrape.do scraper FIRST, unconditionally. No flag check, no
+ *      cohort gating. RapidAPI's zillow-working-api has been returning 500
+ *      on every call for weeks and scrape.do was already serving 100% of
+ *      traffic via the fallback path — flipping the order cuts ~2.5s of
+ *      latency off every search.
  *
- *   2. FALLBACK (for ALL users, no flag check)
- *      When RapidAPI returns an error (5xx, network, success=false) AND
- *      the action has a scrape.do handler, we try scrape.do as a last
- *      resort. This keeps the product up when RapidAPI is degraded.
+ *   2. FALLBACK: RapidAPI proxy (callRapidApiProxy → :3201)
+ *      Only fires when scrape.do throws. Kept as a safety net so that if
+ *      scrape.do ever has an outage AND RapidAPI is back up we have a path
+ *      to serve the user. Will be removed entirely once RapidAPI is
+ *      decommissioned.
  *
- * Net effect:
- *   - Cpodea5 dogfood account → scrape.do primary, RapidAPI fallback
- *   - All other 124 customers → RapidAPI primary, scrape.do fallback
- *   - Both modes preserve the same return shape; callers don't need to
- *     branch on which backend answered.
+ *   3. On both failure → throw the scrape.do error (since scrape.do is the
+ *      new primary, its error is what the caller should see).
+ *
+ * Actions NOT in SCRAPE_DO_ACTIONS skip step 1 and go straight to RapidAPI.
  */
 
 const axios = require('axios');
-const { isEnabled } = require('../featureFlags');
 const zillowScrapeDo = require('../scrapers/zillowScrapeDo');
 
 const PROXY_URL = process.env.ZILLOW_PROXY_URL || 'http://127.0.0.1:3201/zillow';
 const PROXY_SECRET = process.env.ZILLOW_PROXY_SECRET || '';
 const TIMEOUT_MS = 20000;
-const FLAG_SLUG = 'zillow_scrape_do';
 
 // Action → scrape.do handler. Maps the upstream proxy's action names to
-// our self-hosted scraper. Anything not in this map skips scrape.do (both
-// primary AND fallback). Naming covers both the old proxy's camelCase and
-// a few legacy spellings used by the per-property tool so the agent tools
-// keep working without edits.
+// our self-hosted scraper. Anything not in this map skips scrape.do and
+// goes straight to the RapidAPI fallback. Naming covers both the old
+// proxy's camelCase and a few legacy spellings used by the per-property
+// tool so the agent tools keep working without edits.
 const SCRAPE_DO_ACTIONS = {
   // Detail-class:
   propertyDetails: zillowScrapeDo.propertyDetails,
@@ -59,6 +60,12 @@ const SCRAPE_DO_ACTIONS = {
   zestimateHistory: zillowScrapeDo.zestimateHistory,
   schools: zillowScrapeDo.schools,
   comps: zillowScrapeDo.comps,
+  // Wholesale-specific detail slices added 2026-05:
+  walkScore: zillowScrapeDo.walkScore,
+  climateRisk: zillowScrapeDo.climateRisk,
+  openHouses: zillowScrapeDo.openHouses,
+  rentalComps: zillowScrapeDo.rentalComps,
+  recentlySoldNearby: zillowScrapeDo.recentlySoldNearby,
   // Search-class:
   search: zillowScrapeDo.search,
   searchByAddress: zillowScrapeDo.searchByAddress,
@@ -70,6 +77,8 @@ const SCRAPE_DO_ACTIONS = {
   recentlySold: zillowScrapeDo.recentlySold,
   foreclosures: zillowScrapeDo.foreclosures,
   fsbo: zillowScrapeDo.fsbo,
+  comingSoon: zillowScrapeDo.comingSoon,
+  auctionListings: zillowScrapeDo.auctionListings,
   // Value / agent / market / mortgage:
   mortgageRates: zillowScrapeDo.mortgageRates,
   // mortgageCalculator is pure math — exposed for symmetry but the proxy
@@ -114,61 +123,52 @@ async function callRapidApiProxy(action, searchParams) {
   return resp.data?.data ?? resp.data;
 }
 
+// `options` is kept in the signature for caller compatibility (was used for
+// per-user flag gating before PR #321). Now unused — leave the param so we
+// don't churn the 30+ caller sites; future args (timeout, retries) will reuse
+// the slot.
 async function proxyZillow(action, searchParams = {}, options = {}) {
   const handler = SCRAPE_DO_ACTIONS[action];
 
-  // ─── 1. PRIMARY swap (flag-gated dogfood) ───────────────────────────
-  // Only fires for users whose feature_flag_users row says enabled=true,
-  // or once we flip the global rollout. Default behaviour for all 124
-  // non-dogfood users: skip this block entirely.
+  // ─── 1. PRIMARY: scrape.do (unconditional for actions in SCRAPE_DO_ACTIONS) ───
+  // No flag check, no cohort gating — scrape.do is the unconditional primary
+  // for every supported action. RapidAPI has been returning 500 on every
+  // call for weeks; this just stops us from waiting on a known-dead service.
   if (handler) {
-    let useScrapeDoPrimary = false;
-    try {
-      useScrapeDoPrimary = await isEnabled(options.userId || null, FLAG_SLUG);
-    } catch (err) {
-      console.warn(`[zillowProxy] flag lookup failed: ${err.message}`);
-    }
-    if (useScrapeDoPrimary) {
-      try {
-        return await handler(searchParams);
-      } catch (err) {
-        console.warn(
-          `[zillowProxy] scrape.do PRIMARY ${action} failed, falling back to RapidAPI: ${err.message}`
-        );
-        // Fall through to the RapidAPI path below.
-      }
-    }
-  }
-
-  // ─── 2. RapidAPI primary path ───────────────────────────────────────
-  let rapidErr = null;
-  try {
-    return await callRapidApiProxy(action, searchParams);
-  } catch (err) {
-    rapidErr = err;
-  }
-
-  // ─── 3. FALLBACK to scrape.do (for ALL users, no flag check) ────────
-  // RapidAPI is down or returned an error envelope. If we have a scrape.do
-  // handler for this action, try it as a last resort so the product stays
-  // up. No per-user gating — this is a resilience layer.
-  if (handler) {
+    let scrapeErr = null;
     try {
       const data = await handler(searchParams);
+      console.log(`[zillowProxy] ${action} served from scrape.do (primary)`);
+      return data;
+    } catch (err) {
+      scrapeErr = err;
       console.warn(
-        `[zillowProxy] RapidAPI ${action} failed (${rapidErr.message}); served from scrape.do fallback`
+        `[zillowProxy] scrape.do PRIMARY ${action} failed, falling back to RapidAPI: ${err.message}`
+      );
+    }
+
+    // ─── 2. FALLBACK: RapidAPI proxy ────────────────────────────────────
+    // Last-resort safety net in case scrape.do has a transient outage. If
+    // this also fails we throw the ORIGINAL scrape.do error (since scrape.do
+    // is the new primary, that's the error the caller should reason about).
+    try {
+      const data = await callRapidApiProxy(action, searchParams);
+      console.warn(
+        `[zillowProxy] scrape.do ${action} failed (${scrapeErr.message}); served from RapidAPI fallback`
       );
       return data;
-    } catch (scrapeErr) {
+    } catch (rapidErr) {
       console.warn(
-        `[zillowProxy] both backends failed for ${action}: rapid=${rapidErr.message}; scrape=${scrapeErr.message}`
+        `[zillowProxy] both backends failed for ${action}: scrape=${scrapeErr.message}; rapid=${rapidErr.message}`
       );
-      // fall through to throw the original RapidAPI error so callers see
-      // the same shape they always have when both providers are down.
+      throw scrapeErr;
     }
   }
 
-  throw rapidErr;
+  // ─── Action not in SCRAPE_DO_ACTIONS → straight to RapidAPI ──────────
+  // No scrape.do handler exists for this action, so there's nothing to
+  // primary on. Hit RapidAPI directly and let its error bubble.
+  return callRapidApiProxy(action, searchParams);
 }
 
 module.exports = { proxyZillow, SCRAPE_DO_ACTIONS, callRapidApiProxy };

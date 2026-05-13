@@ -27,8 +27,11 @@ const {
   marketStatsUrl,
   mortgageCalculator,
   searchByUrl,
+  findWalkScore,
+  findClimateRisk,
   ZillowScrapeError,
 } = require('../../lib/scrapers/zillowScrapeDo');
+const { looksLikeCaptcha } = require('../../lib/scrapers/scrapeDoClient');
 
 // Build a minimal HTML page with a valid __NEXT_DATA__ blob whose shape
 // matches Zillow's current SSR cache: componentProps.gdpClientCache is a
@@ -191,19 +194,245 @@ test('mapPropertyToRapidApiShape', async (t) => {
 
 // ───────────────────────── Search helpers ─────────────────────────
 
-test('searchUrlForLocation', () => {
-  assert.equal(
-    searchUrlForLocation('Austin, TX'),
-    'https://www.zillow.com/homes/austin-tx_rb/'
-  );
-  assert.equal(
-    searchUrlForLocation('78737'),
-    'https://www.zillow.com/homes/78737_rb/'
-  );
-  assert.equal(
-    searchUrlForLocation('  Oxford, MI 48371  '),
-    'https://www.zillow.com/homes/oxford-mi-48371_rb/'
-  );
+test('searchUrlForLocation', async (t) => {
+  // ── Baseline / happy path ─────────────────────────────────────────────────
+  await t.test('basic city+state slug', () => {
+    assert.equal(
+      searchUrlForLocation('Austin, TX'),
+      'https://www.zillow.com/homes/austin-tx_rb/'
+    );
+  });
+
+  await t.test('ZIP-only slug', () => {
+    assert.equal(
+      searchUrlForLocation('78737'),
+      'https://www.zillow.com/homes/78737_rb/'
+    );
+  });
+
+  await t.test('trims leading/trailing whitespace', () => {
+    assert.equal(
+      searchUrlForLocation('  Oxford, MI 48371  '),
+      'https://www.zillow.com/homes/oxford-mi-48371_rb/'
+    );
+  });
+
+  await t.test('lowercase input is unaffected', () => {
+    assert.equal(
+      searchUrlForLocation('austin, tx'),
+      'https://www.zillow.com/homes/austin-tx_rb/'
+    );
+  });
+
+  await t.test('all-uppercase acronym is unaffected (no spurious hyphen)', () => {
+    assert.equal(
+      searchUrlForLocation('USA'),
+      'https://www.zillow.com/homes/usa_rb/'
+    );
+  });
+
+  // ── Compound-case split (De/Du/La → hyphenated) ───────────────────────────
+  // Zillow's canonical slugs insert a hyphen at internal case-breaks for
+  // words like DeKalb, DuPage, LaPorte.  Confirmed live 2026-05-13.
+  await t.test('DeKalb → de-kalb (case-break hyphen)', () => {
+    assert.equal(
+      searchUrlForLocation('DeKalb County, AL'),
+      'https://www.zillow.com/homes/de-kalb-county-al_rb/'
+    );
+  });
+
+  await t.test('DuPage → du-page (case-break hyphen)', () => {
+    assert.equal(
+      searchUrlForLocation('DuPage County, IL'),
+      'https://www.zillow.com/homes/du-page-county-il_rb/'
+    );
+  });
+
+  await t.test('LaPorte → la-porte (case-break hyphen)', () => {
+    assert.equal(
+      searchUrlForLocation('LaPorte, IN'),
+      'https://www.zillow.com/homes/la-porte-in_rb/'
+    );
+  });
+
+  await t.test('LaGrange → la-grange (case-break hyphen)', () => {
+    assert.equal(
+      searchUrlForLocation('LaGrange, GA'),
+      'https://www.zillow.com/homes/la-grange-ga_rb/'
+    );
+  });
+
+  // ── Mc/Mac prefix — NO hyphen inserted ────────────────────────────────────
+  // Zillow treats McKinney, McAllen, MacDonough as single words.
+  // "mc-kinney-tx" returns 0 listResults; "mckinney-tx" returns 2,021.
+  // Confirmed live 2026-05-13.  The camelCase regex is suppressed for Mc/Mac.
+  await t.test('McKinney → mckinney (Mc prefix — no split)', () => {
+    assert.equal(
+      searchUrlForLocation('McKinney, TX'),
+      'https://www.zillow.com/homes/mckinney-tx_rb/'
+    );
+  });
+
+  await t.test('MacDonough → macdonough (Mac prefix — no split)', () => {
+    assert.equal(
+      searchUrlForLocation('MacDonough, GA'),
+      'https://www.zillow.com/homes/macdonough-ga_rb/'
+    );
+  });
+
+  await t.test('McAllen → mcallen (Mc prefix — no split)', () => {
+    assert.equal(
+      searchUrlForLocation('McAllen, TX'),
+      'https://www.zillow.com/homes/mcallen-tx_rb/'
+    );
+  });
+
+  // ── Period stripping (St., Dr., etc.) ─────────────────────────────────────
+  // "st." → "st" — the dot is noise; Zillow's slug uses bare "st".
+  await t.test('St. Louis → st-louis (period stripped)', () => {
+    assert.equal(
+      searchUrlForLocation('St. Louis, MO'),
+      'https://www.zillow.com/homes/st-louis-mo_rb/'
+    );
+  });
+
+  await t.test('St. Paul → st-paul (period stripped)', () => {
+    assert.equal(
+      searchUrlForLocation('St. Paul, MN'),
+      'https://www.zillow.com/homes/st-paul-mn_rb/'
+    );
+  });
+
+  await t.test('St Louis (no period) → st-louis', () => {
+    assert.equal(
+      searchUrlForLocation('St Louis, MO'),
+      'https://www.zillow.com/homes/st-louis-mo_rb/'
+    );
+  });
+
+  await t.test('Saint Louis → saint-louis (unabbreviated)', () => {
+    assert.equal(
+      searchUrlForLocation('Saint Louis, MO'),
+      'https://www.zillow.com/homes/saint-louis-mo_rb/'
+    );
+  });
+
+  // ── Apostrophe stripping ──────────────────────────────────────────────────
+  // Zillow tolerates apostrophes but the clean stripped form is canonical.
+  await t.test("O'Fallon → ofallon (apostrophe stripped)", () => {
+    assert.equal(
+      searchUrlForLocation("O'Fallon, MO"),
+      'https://www.zillow.com/homes/ofallon-mo_rb/'
+    );
+  });
+
+  await t.test("L'Anse → lanse (apostrophe stripped)", () => {
+    assert.equal(
+      searchUrlForLocation("L'Anse, MI"),
+      'https://www.zillow.com/homes/lanse-mi_rb/'
+    );
+  });
+
+  await t.test("St. Mary's County → st-marys-county (period + apostrophe stripped)", () => {
+    assert.equal(
+      searchUrlForLocation("St. Mary's County, MD"),
+      'https://www.zillow.com/homes/st-marys-county-md_rb/'
+    );
+  });
+
+  // iOS auto-correct silently replaces ASCII apostrophes with U+2019 (RIGHT
+  // SINGLE QUOTATION MARK) — "O'Fallon" typed on an iPhone arrives at the
+  // backend as "O’Fallon". The regex only stripped ASCII apostrophe,
+  // letting the smart quote through unchanged → produced "o%E2%80%99fallon"
+  // in the URL, which Zillow does NOT recognise. Real-world iOS bug.
+  await t.test("O’Fallon (smart-quote U+2019) → ofallon", () => {
+    assert.equal(
+      searchUrlForLocation("O’Fallon, MO"),
+      'https://www.zillow.com/homes/ofallon-mo_rb/'
+    );
+  });
+
+  // Also strip the LEFT SINGLE QUOTATION MARK U+2018 (some keyboards / autocorrect
+  // emit this one too, e.g. when the apostrophe begins a word like 'twas).
+  await t.test('left smart quote U+2018 also stripped', () => {
+    assert.equal(
+      searchUrlForLocation('‘Twas County, ME'),
+      'https://www.zillow.com/homes/twas-county-me_rb/'
+    );
+  });
+
+  // Modifier-letter apostrophe U+02BC shows up in transliterated indigenous
+  // place names (e.g. Hawaiʻi, Kaʻu) — safest to also strip.
+  await t.test('modifier-letter apostrophe U+02BC stripped', () => {
+    assert.equal(
+      searchUrlForLocation('Kaʻu County, HI'),
+      'https://www.zillow.com/homes/kau-county-hi_rb/'
+    );
+  });
+
+  // ── Accent / diacritic normalization ─────────────────────────────────────
+  // "San José" → "san-jose". Confirmed live: both forms return same results
+  // but the ASCII form is canonical and avoids downstream encoding issues.
+  await t.test('San José → san-jose (accent normalized)', () => {
+    assert.equal(
+      searchUrlForLocation('San José, CA'),
+      'https://www.zillow.com/homes/san-jose-ca_rb/'
+    );
+  });
+
+  // ── ZIP+4 stripping ───────────────────────────────────────────────────────
+  // "78737-1234" → "78737". ZIP+4 format returns 0 listResults on Zillow.
+  // Confirmed live 2026-05-13: 78737-1234 → 0 results; 78737 → 192 results.
+  await t.test('ZIP+4 stripped to 5-digit ZIP', () => {
+    assert.equal(
+      searchUrlForLocation('78737-1234'),
+      'https://www.zillow.com/homes/78737_rb/'
+    );
+  });
+
+  // ── Pre-hyphenated city names (hyphen preserved, not doubled) ────────────
+  await t.test('Winston-Salem pre-hyphen preserved', () => {
+    assert.equal(
+      searchUrlForLocation('Winston-Salem, NC'),
+      'https://www.zillow.com/homes/winston-salem-nc_rb/'
+    );
+  });
+
+  await t.test('Wilkes-Barre pre-hyphen preserved', () => {
+    assert.equal(
+      searchUrlForLocation('Wilkes-Barre, PA'),
+      'https://www.zillow.com/homes/wilkes-barre-pa_rb/'
+    );
+  });
+
+  await t.test('Spring-Grove pre-hyphen preserved', () => {
+    assert.equal(
+      searchUrlForLocation('Spring-Grove, IL'),
+      'https://www.zillow.com/homes/spring-grove-il_rb/'
+    );
+  });
+
+  // ── State-only / unusual shapes (handled gracefully) ─────────────────────
+  await t.test('state abbreviation only', () => {
+    assert.equal(
+      searchUrlForLocation('TX'),
+      'https://www.zillow.com/homes/tx_rb/'
+    );
+  });
+
+  await t.test('full state name', () => {
+    assert.equal(
+      searchUrlForLocation('California'),
+      'https://www.zillow.com/homes/california_rb/'
+    );
+  });
+
+  await t.test('multi-word with "or" (Truth or Consequences → t-or-c)', () => {
+    assert.equal(
+      searchUrlForLocation('T or C, NM'),
+      'https://www.zillow.com/homes/t-or-c-nm_rb/'
+    );
+  });
 });
 
 test('findListResults + findTotalResultCount', async (t) => {
@@ -617,5 +846,304 @@ test('findMarketStats + normalizeMarketStats', async (t) => {
 
   await t.test('returns null for non-object', () => {
     assert.equal(normalizeMarketStats(null), null);
+  });
+});
+
+// ───────────────────────── HOA / parking / heating-cooling ─────────────────
+
+test('mapPropertyToRapidApiShape — resoFacts hoists', async (t) => {
+  await t.test('hoists HOA monthly fee + computes annual from monthly frequency', () => {
+    const out = mapPropertyToRapidApiShape({
+      zpid: 1,
+      streetAddress: '1 St', city: 'Austin', state: 'TX', zipcode: '78701',
+      price: 400000,
+      resoFacts: { hoaFee: 250, hoaFeeFrequency: 'Monthly' },
+    });
+    assert.equal(out.monthlyHoaFee, 250);
+    assert.equal(out.hoaFeeFrequency, 'Monthly');
+    assert.equal(out.hoaAnnualAmount, 3000);
+  });
+
+  await t.test('passes through hoaFee when frequency is Annual (no x12)', () => {
+    const out = mapPropertyToRapidApiShape({
+      zpid: 1,
+      streetAddress: '1 St', city: 'Austin', state: 'TX', zipcode: '78701',
+      price: 400000,
+      resoFacts: { hoaFee: 1200, hoaFeeFrequency: 'Annually' },
+    });
+    assert.equal(out.hoaAnnualAmount, 1200);
+  });
+
+  await t.test('extracts yearRenovated from resoFacts.yearBuiltEffective', () => {
+    const out = mapPropertyToRapidApiShape({
+      zpid: 1,
+      streetAddress: '1 St', city: 'a', state: 'b', zipcode: 'c',
+      price: 1,
+      yearBuilt: 1965,
+      resoFacts: { yearBuiltEffective: 2018 },
+    });
+    assert.equal(out.yearBuilt, 1965);
+    assert.equal(out.yearRenovated, 2018);
+  });
+
+  await t.test('extracts parking + lot features + heating/cooling arrays', () => {
+    const out = mapPropertyToRapidApiShape({
+      zpid: 1,
+      streetAddress: '1 St', city: 'a', state: 'b', zipcode: 'c',
+      price: 1,
+      resoFacts: {
+        parkingCapacity: 2,
+        parkingFeatures: ['Garage', 'Attached'],
+        hasGarage: true,
+        heating: ['Forced Air', 'Gas'],
+        cooling: ['Central Air'],
+        lotFeatures: ['Corner Lot', 'Cul-de-sac'],
+        lotSizeDimensions: '60 x 120',
+      },
+    });
+    assert.equal(out.parkingCapacity, 2);
+    assert.deepEqual(out.parkingFeatures, ['Garage', 'Attached']);
+    assert.equal(out.hasGarage, true);
+    assert.deepEqual(out.heating, ['Forced Air', 'Gas']);
+    assert.deepEqual(out.cooling, ['Central Air']);
+    assert.deepEqual(out.lotFeatures, ['Corner Lot', 'Cul-de-sac']);
+    assert.equal(out.lotSizeDimensions, '60 x 120');
+  });
+
+  await t.test('coerces string heating/cooling into an array of one', () => {
+    const out = mapPropertyToRapidApiShape({
+      zpid: 1,
+      streetAddress: '1 St', city: 'a', state: 'b', zipcode: 'c',
+      price: 1,
+      resoFacts: { heating: 'Electric', cooling: 'Window Units' },
+    });
+    assert.deepEqual(out.heating, ['Electric']);
+    assert.deepEqual(out.cooling, ['Window Units']);
+  });
+});
+
+test('mapPropertyToRapidApiShape — listing agent from attributionInfo', async (t) => {
+  await t.test('hoists agent + brokerage + phone from attributionInfo', () => {
+    const out = mapPropertyToRapidApiShape({
+      zpid: 1,
+      streetAddress: '1 St', city: 'a', state: 'b', zipcode: 'c',
+      price: 1,
+      attributionInfo: {
+        agentName: 'Jane Doe',
+        agentEmail: 'jane@acme.com',
+        agentPhoneNumber: '555-0100',
+        agentLicenseNumber: 'TX-9876',
+        brokerName: 'Acme Realty',
+        brokerPhoneNumber: '555-0200',
+        mlsId: 'AUS-12345',
+        mlsName: 'ABoR',
+      },
+    });
+    assert.equal(out.listingAgent.name, 'Jane Doe');
+    assert.equal(out.listingAgent.phone, '555-0100');
+    assert.equal(out.listingAgent.brokerage, 'Acme Realty');
+    assert.equal(out.listingAgent.licenseNumber, 'TX-9876');
+    assert.equal(out.listingAgent.mlsId, 'AUS-12345');
+  });
+
+  await t.test('listingAgent is undefined when no attributionInfo', () => {
+    const out = mapPropertyToRapidApiShape({
+      zpid: 1, streetAddress: '1 St', city: 'a', state: 'b', zipcode: 'c', price: 1,
+    });
+    assert.equal(out.listingAgent, undefined);
+  });
+});
+
+test('mapPropertyToRapidApiShape — open houses', async (t) => {
+  await t.test('extracts openHouses + nextOpenHouse from openHouseSchedule', () => {
+    const out = mapPropertyToRapidApiShape({
+      zpid: 1,
+      streetAddress: '1 St', city: 'a', state: 'b', zipcode: 'c', price: 1,
+      openHouseSchedule: [
+        { startTime: '2026-05-20T17:00:00Z', endTime: '2026-05-20T19:00:00Z' },
+        { startTime: '2026-05-21T15:00:00Z', endTime: '2026-05-21T17:00:00Z' },
+      ],
+    });
+    assert.equal(out.openHouses.length, 2);
+    assert.equal(out.nextOpenHouse.startTime, '2026-05-20T17:00:00Z');
+  });
+
+  await t.test('openHouses is undefined when no schedule', () => {
+    const out = mapPropertyToRapidApiShape({
+      zpid: 1, streetAddress: '1 St', city: 'a', state: 'b', zipcode: 'c', price: 1,
+    });
+    assert.equal(out.openHouses, undefined);
+    assert.equal(out.nextOpenHouse, undefined);
+  });
+});
+
+test('mapPropertyToRapidApiShape — price reduction signal', async (t) => {
+  await t.test('detects price drop from priceHistory', () => {
+    const out = mapPropertyToRapidApiShape({
+      zpid: 1, streetAddress: '1', city: 'a', state: 'b', zipcode: 'c', price: 380000,
+      priceHistory: [
+        { date: '2026-05-10', price: 380000, event: 'Price change' },
+        { date: '2026-04-01', price: 420000, event: 'Listed for sale' },
+      ],
+    });
+    assert.equal(out.isPriceReduced, true);
+    assert.equal(out.priceReduction.amount, 40000);
+    assert.equal(out.priceReduction.previousPrice, 420000);
+    assert.equal(out.priceReduction.currentPrice, 380000);
+  });
+
+  await t.test('no reduction when only one price history event', () => {
+    const out = mapPropertyToRapidApiShape({
+      zpid: 1, streetAddress: '1', city: 'a', state: 'b', zipcode: 'c', price: 380000,
+      priceHistory: [{ date: '2026-04-01', price: 380000, event: 'Listed for sale' }],
+    });
+    assert.equal(out.priceReduction, undefined);
+  });
+
+  await t.test('no reduction when latest price is HIGHER than previous', () => {
+    const out = mapPropertyToRapidApiShape({
+      zpid: 1, streetAddress: '1', city: 'a', state: 'b', zipcode: 'c', price: 450000,
+      priceHistory: [
+        { date: '2026-05-10', price: 450000 },
+        { date: '2026-04-01', price: 420000 },
+      ],
+    });
+    assert.equal(out.priceReduction, undefined);
+  });
+});
+
+test('mapPropertyToRapidApiShape — foreclosure stage', async (t) => {
+  await t.test('REO trumps everything', () => {
+    const out = mapPropertyToRapidApiShape({
+      zpid: 1, streetAddress: '1', city: 'a', state: 'b', zipcode: 'c', price: 1,
+      isReo: true, isForeclosure: true, isPreForeclosureAuction: true,
+    });
+    assert.equal(out.foreclosureStage, 'REO');
+  });
+
+  await t.test('AUCTION wins over PRE_FORECLOSURE', () => {
+    const out = mapPropertyToRapidApiShape({
+      zpid: 1, streetAddress: '1', city: 'a', state: 'b', zipcode: 'c', price: 1,
+      isPreForeclosureAuction: true, isPreForeclosure: true,
+    });
+    assert.equal(out.foreclosureStage, 'AUCTION');
+  });
+
+  await t.test('plain isForeclosure → FORECLOSURE', () => {
+    const out = mapPropertyToRapidApiShape({
+      zpid: 1, streetAddress: '1', city: 'a', state: 'b', zipcode: 'c', price: 1,
+      isForeclosure: true,
+    });
+    assert.equal(out.foreclosureStage, 'FORECLOSURE');
+  });
+
+  await t.test('no flags → stage is undefined', () => {
+    const out = mapPropertyToRapidApiShape({
+      zpid: 1, streetAddress: '1', city: 'a', state: 'b', zipcode: 'c', price: 1,
+    });
+    assert.equal(out.foreclosureStage, undefined);
+  });
+
+  await t.test('extracts foreclosure financial fields', () => {
+    const out = mapPropertyToRapidApiShape({
+      zpid: 1, streetAddress: '1', city: 'a', state: 'b', zipcode: 'c', price: 1,
+      foreclosure: {
+        isForeclosure: true,
+        unpaidBalance: 285000,
+        auctionDate: '2026-06-15',
+        pastDueBalance: 18500,
+      },
+    });
+    assert.equal(out.foreclosureAmount, 285000);
+    assert.equal(out.foreclosureAuctionDate, '2026-06-15');
+    assert.equal(out.foreclosurePastDueBalance, 18500);
+  });
+});
+
+// ───────────────────────── Walk / transit / bike scores ─────────────
+
+test('findWalkScore', async (t) => {
+  await t.test('pulls walkscore / transit_score / bikescore (nested shape)', () => {
+    const out = findWalkScore({
+      walkScore: { walkscore: 78, description: 'Very Walkable' },
+      transitScore: { transit_score: 45, description: 'Some Transit' },
+      bikeScore: { bikescore: 62, description: 'Bikeable' },
+    });
+    assert.equal(out.walkScore, 78);
+    assert.equal(out.walkDescription, 'Very Walkable');
+    assert.equal(out.transitScore, 45);
+    assert.equal(out.bikeScore, 62);
+  });
+
+  await t.test('accepts flat numeric shape', () => {
+    const out = findWalkScore({ walkScore: 42 });
+    assert.equal(out.walkScore, 42);
+    assert.equal(out.transitScore, undefined);
+  });
+
+  await t.test('returns null when no scores present', () => {
+    assert.equal(findWalkScore({}), null);
+    assert.equal(findWalkScore(null), null);
+  });
+});
+
+// ───────────────────────── Climate risk ─────────────────────────────
+
+test('findClimateRisk', async (t) => {
+  await t.test('pulls flood/fire/heat/wind/drought from climate sources', () => {
+    const out = findClimateRisk({
+      climate: {
+        floodSources: {
+          primary: [{ riskScore: { value: 7, label: 'Major', max: 10 }, probability: 0.42 }],
+          insuranceRecommendation: 'recommended',
+        },
+        fireSources: {
+          primary: [{ riskScore: { value: 3, label: 'Moderate', max: 10 } }],
+        },
+        heatSources: { riskScore: { value: 8, label: 'Severe', max: 10 } },
+        windSources: { value: 2, label: 'Minor' },
+      },
+    });
+    assert.equal(out.flood.value, 7);
+    assert.equal(out.flood.label, 'Major');
+    assert.equal(out.flood.probability, 0.42);
+    assert.equal(out.flood.insuranceRecommendation, 'recommended');
+    assert.equal(out.fire.value, 3);
+    assert.equal(out.heat.value, 8);
+    assert.equal(out.wind.value, 2);
+  });
+
+  await t.test('returns null when climate object missing', () => {
+    assert.equal(findClimateRisk({}), null);
+    assert.equal(findClimateRisk({ climate: {} }), null);
+  });
+});
+
+// ───────────────────────── Captcha detection ─────────────────────────
+
+test('looksLikeCaptcha', async (t) => {
+  await t.test('detects PerimeterX captcha gate', () => {
+    assert.equal(looksLikeCaptcha('<html><body>Please verify you are a human</body></html>'), true);
+    assert.equal(looksLikeCaptcha('<div id="px-captcha"></div>'), true);
+  });
+
+  await t.test('detects Incapsula block', () => {
+    assert.equal(looksLikeCaptcha('Request unsuccessful. Incapsula incident ID'), true);
+  });
+
+  await t.test('detects Pardon Our Interruption / Access Denied gates', () => {
+    assert.equal(looksLikeCaptcha('Pardon Our Interruption'), true);
+    assert.equal(looksLikeCaptcha('Access Denied — please contact'), true);
+  });
+
+  await t.test('passes through normal HTML', () => {
+    const realPage = '<html><body><h1>For Sale</h1><script id="__NEXT_DATA__">{}</script></body></html>';
+    assert.equal(looksLikeCaptcha(realPage), false);
+  });
+
+  await t.test('handles non-string / empty input', () => {
+    assert.equal(looksLikeCaptcha(null), false);
+    assert.equal(looksLikeCaptcha(''), false);
+    assert.equal(looksLikeCaptcha(undefined), false);
   });
 });

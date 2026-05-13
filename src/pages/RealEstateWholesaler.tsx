@@ -501,6 +501,16 @@ export default function RealEstateWholesaler() {
             onClick: () => navigate('/pricing'),
           },
         });
+      } else if (errorMessage === 'NOT_AUTHENTICATED' || errorMessage.includes('NOT_AUTHENTICATED')) {
+        // Thrown by ZillowAPI when the access token is missing/expired.
+        // Surface a sign-in CTA instead of the opaque "401" toast that
+        // cpodea5 hit on 2026-05-13.
+        toast.error('Your session has expired. Please sign in to search.', {
+          action: {
+            label: 'Sign in',
+            onClick: () => navigate('/auth?mode=signin'),
+          },
+        });
       } else {
         toast.error(errorMessage);
       }

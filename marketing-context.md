@@ -34,7 +34,7 @@
 - **Current solutions fall short:**
   - PropStream → data warehouse, no AI scoring or spread surfacing
   - DealMachine → driving-for-dollars only
-  - BatchLeads → lead lists + skip tracing, but no analysis or scoring
+  - BatchLeads → *acquired by PropStream in July 2025* — lead lists + skip tracing, now consolidated into the PropStream bundle. The standalone competitive angle is gone; AIWholesail now competes with PropStream's combined ~$200/mo PropStream + BatchLeads + BatchDialer stack rather than 3 separate $79–99/mo tools.
   - BiggerPockets → education and forums, not tools
   - Zillow/Redfin → built for consumers, not investors (no spread, no pipeline)
 - **Cost of not solving:** Missing 5-10 deals/month, overpaying $20-50K when ARV math is wrong, 20+ hours/week on manual research that AI can do in minutes
@@ -45,7 +45,7 @@
 |-----------|----------|----------|---------------|
 | PropStream | Comprehensive data, skip tracing | $99/mo, no AI scoring, no auto spread | AI deal scoring + auto spread + skip tracing at $49 (Elite all-in $99) |
 | DealMachine | D4D mobile UX | Limited to D4D, no analysis | Full deal lifecycle: find → analyze → close |
-| BatchLeads | Lead lists, skip tracing | No deal analysis, no scoring | AI analysis + ARV + comps + skip tracing |
+| BatchLeads *(now part of PropStream — acquired Jul 2025)* | Lead lists, skip tracing | No deal analysis, no scoring; consolidation muddied the per-tool value prop | AI analysis + ARV + comps + skip tracing in one $49/mo plan vs ~$200/mo PropStream bundle |
 | BiggerPockets | Education, community | No tools, no deal finding | Tools + deal finding + AI |
 | Zillow / Redfin | Consumer search UI | Not built for investors | Investor lens: spreads, pipeline, AI |
 

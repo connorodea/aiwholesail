@@ -123,8 +123,45 @@ export async function apiFetch<T>(
   }
 }
 
-// Refresh access token
+// Single-flight refresh — multiple concurrent 401s must share one /refresh call.
+//
+// Why this exists (session-lifetime regression, May 2026):
+//   The backend rotates the refresh token on every /refresh call (revokes the
+//   old row, issues a new one). If two requests race a refresh:
+//     T0  R1 + R2 both read RT1 from localStorage.
+//     T1  R1 POSTs /refresh — backend revokes RT1, returns AT2 + RT2 (200).
+//     T2  R1 writes AT2 + RT2.
+//     T3  R2 POSTs /refresh with the now-revoked RT1 — backend returns 401.
+//     T4  R2 receives 401 → apiFetch clears tokenStorage → wipes AT2 + RT2.
+//   Net effect: a user whose session was working seconds ago is now permanently
+//   401'd until they reload + re-sign-in. We saw this in production with a
+//   real paying customer (timeline: 14:13 signin → 14:15:14 200s → 14:15:56
+//   signout 401 → all subsequent calls 401).
+//
+//   The fix is a per-tab mutex: every caller awaits the same in-flight
+//   promise. Only one /refresh fires per refresh-token generation. Losers do
+//   not exist.
+//
+// Why this isn't a backend fix: refresh-token rotation is correct security
+// hygiene (defense against token theft / replay). The race lives in the
+// client — the client must serialize its own refresh attempts.
+let refreshPromise: Promise<boolean> | null = null;
+
 async function refreshAccessToken(): Promise<boolean> {
+  // Coalesce concurrent calls onto the same in-flight promise.
+  if (refreshPromise) return refreshPromise;
+
+  refreshPromise = doRefresh().finally(() => {
+    // Clear the gate AFTER the promise settles so a fresh 401 minutes later
+    // can start a new refresh. If we cleared synchronously the second caller
+    // would re-enter doRefresh() with the just-revoked refresh token.
+    refreshPromise = null;
+  });
+
+  return refreshPromise;
+}
+
+async function doRefresh(): Promise<boolean> {
   const refreshToken = tokenStorage.getRefreshToken();
   if (!refreshToken) return false;
 
@@ -138,6 +175,21 @@ async function refreshAccessToken(): Promise<boolean> {
     if (!response.ok) return false;
 
     const data = await response.json();
+
+    // Defensive: NEVER overwrite a stored token with a falsy value. If the
+    // server responded 200 but the body is malformed (empty body, missing
+    // accessToken, network truncation), writing localStorage.setItem(KEY,
+    // undefined) stores the string "undefined" — every subsequent request
+    // would then send `Authorization: Bearer undefined` and 401-loop. Bail
+    // out and let the caller decide what to do (apiFetch will clear() and
+    // force a sign-in, which is the correct UX for an unrecoverable refresh).
+    if (typeof data?.accessToken !== 'string' || data.accessToken.length === 0) {
+      return false;
+    }
+    if (typeof data?.refreshToken !== 'string' || data.refreshToken.length === 0) {
+      return false;
+    }
+
     tokenStorage.setAccessToken(data.accessToken);
     tokenStorage.setRefreshToken(data.refreshToken);
     return true;
@@ -145,6 +197,13 @@ async function refreshAccessToken(): Promise<boolean> {
     return false;
   }
 }
+
+// Test-only escape hatch: drains the in-flight refresh promise so unit tests
+// don't bleed state across cases. Not exported from the package barrel — only
+// the test file imports it via the file path.
+export const __test = {
+  resetRefreshState: () => { refreshPromise = null; },
+};
 
 // ============ AUTH API ============
 export const auth = {

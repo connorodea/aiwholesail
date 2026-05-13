@@ -18,6 +18,9 @@
  *   8. Disk usage (/, /var)
  *   9. Memory usage
  *  10. Load average (1-min)
+ *  11. SCRAPE_DO_API_TOKEN env var present (fallback dies silently if missing)
+ *  12. scrape.do success rate over the last 60 min (warn <90%, fail <70%)
+ *  13. Feature flags zillow_scrape_do + skip_trace_tps still ON @ 100% rollout
  *
  * Email is sent only when:
  *   - any signal is 'fail'
@@ -209,6 +212,106 @@ function checkLoad() {
   }
 }
 
+// scrape.do success rate thresholds (last 60 min)
+const SCRAPE_DO_WARN_PCT = 90;
+const SCRAPE_DO_FAIL_PCT = 70;
+
+function checkScrapeDoToken() {
+  // Without this token the scrape.do fallback is silently dead — every call
+  // would fail auth and route back to RapidAPI. We want to know immediately.
+  const token = process.env.SCRAPE_DO_API_TOKEN;
+  if (!token || !token.trim()) {
+    return {
+      name: 'scrape.do token',
+      status: 'fail',
+      detail: 'SCRAPE_DO_API_TOKEN env var missing or empty',
+    };
+  }
+  return { name: 'scrape.do token', status: 'ok', detail: 'env var present' };
+}
+
+async function checkScrapeDoSuccessRate() {
+  try {
+    const r = await pool.query(
+      `SELECT
+         COUNT(*)::int                                AS total,
+         COUNT(*) FILTER (WHERE success)::int        AS ok
+       FROM scrape_provider_metrics
+       WHERE provider LIKE 'scrape-do%'
+         AND created_at >= NOW() - INTERVAL '60 minutes'`
+    );
+    const { total, ok } = r.rows[0];
+    if (total === 0) {
+      // No calls at all in the last hour. With flags at 100% this could mean
+      // zero user activity OR the call path is broken. Don't alarm hard — warn
+      // so a sustained run of zeros gets noticed during the 2/warn email rule.
+      return {
+        name: 'scrape.do success (60m)',
+        status: 'warn',
+        detail: 'no scrape-do calls in last 60 min',
+      };
+    }
+    const pct = (ok / total) * 100;
+    const status =
+      pct < SCRAPE_DO_FAIL_PCT ? 'fail' :
+      pct < SCRAPE_DO_WARN_PCT ? 'warn' : 'ok';
+    return {
+      name: 'scrape.do success (60m)',
+      status,
+      detail: `${ok}/${total} ok (${pct.toFixed(1)}%)`,
+    };
+  } catch (e) {
+    return {
+      name: 'scrape.do success (60m)',
+      status: 'warn',
+      detail: `query failed: ${e.message.slice(0, 200)}`,
+    };
+  }
+}
+
+async function checkScrapeDoFlags() {
+  // Both flags were promoted to enabled=true, rollout_pct=100 after the
+  // dogfood window closed. If either has been rolled back, somebody pulled
+  // the trigger and we want a signal — not a silent revert to RapidAPI.
+  try {
+    const r = await pool.query(
+      `SELECT slug, enabled, rollout_pct
+         FROM feature_flag_globals
+        WHERE slug IN ('zillow_scrape_do', 'skip_trace_tps')`
+    );
+    const expected = ['zillow_scrape_do', 'skip_trace_tps'];
+    const bySlug = new Map(r.rows.map((row) => [row.slug, row]));
+    const issues = [];
+    for (const slug of expected) {
+      const row = bySlug.get(slug);
+      if (!row) {
+        issues.push(`${slug} missing`);
+        continue;
+      }
+      if (!row.enabled) issues.push(`${slug} enabled=false`);
+      else if (row.rollout_pct !== 100) issues.push(`${slug} rollout_pct=${row.rollout_pct}`);
+    }
+    if (issues.length === 0) {
+      return {
+        name: 'scrape.do feature flags',
+        status: 'ok',
+        detail: 'zillow_scrape_do + skip_trace_tps @ 100%',
+      };
+    }
+    return {
+      name: 'scrape.do feature flags',
+      status: 'warn',
+      detail: issues.join('; '),
+    };
+  } catch (e) {
+    return {
+      name: 'scrape.do feature flags',
+      status: 'warn',
+      detail: `query failed: ${e.message.slice(0, 200)}`,
+    };
+  }
+}
+
 // ============ EMAIL ============
 
 function shouldEmail(results) {
@@ -309,11 +412,13 @@ async function main() {
 
   const results = [];
   // Run async + sync checks in parallel where independent
-  const [api, frontend, db, signups] = await Promise.all([
+  const [api, frontend, db, signups, scrapeRate, scrapeFlags] = await Promise.all([
     checkApi(),
     checkFrontend(),
     checkDatabase(),
     checkRecentSignups(),
+    checkScrapeDoSuccessRate(),
+    checkScrapeDoFlags(),
   ]);
   results.push(api, frontend, db, signups);
   results.push(checkBlogFreshness());
@@ -322,6 +427,9 @@ async function main() {
   results.push(checkDisk());
   results.push(checkMemory());
   results.push(checkLoad());
+  results.push(checkScrapeDoToken());
+  results.push(scrapeRate);
+  results.push(scrapeFlags);
 
   // Print summary to journal
   for (const r of results) {

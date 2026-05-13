@@ -8,7 +8,8 @@
     "ads": "node keyword-research-gaps.js",
     "gsc": "node gsc-opportunity-report.js",
     "all": "node oauth-refresh-multi.js && node keyword-research-gaps.js && node gsc-opportunity-report.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "kw": "node seo-kw-research.js"
   },
   "keywords": [],
   "author": "",

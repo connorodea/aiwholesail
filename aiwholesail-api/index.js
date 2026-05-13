@@ -55,36 +55,68 @@ app.use(helmet({
   xContentTypeOptions: false // Handled by Nginx global config
 }));
 
-// CORS configuration
-const corsOrigins = process.env.CORS_ORIGINS
-  ? process.env.CORS_ORIGINS.split(',')
-  : ['https://aiwholesail.com', 'https://www.aiwholesail.com'];
+// CORS configuration — locked to known origins.
+//
+// WHY: chunks are served with cache-control: max-age=31536000, immutable.
+// A stale bundle that still calls https://api.aiwholesail.com/* cross-origin
+// would previously get a silent 200/drop on Facebook/Instagram in-app WebKit.
+// By rejecting unknown origins with an explicit 403 + CORS error, DevTools
+// surfaces the breakage immediately instead of silently dropping the request.
+//
+// Vary: Origin is added below so shared caches never serve a response intended
+// for one origin to a different origin.
+const ALLOWED_CORS_ORIGINS = new Set([
+  'https://aiwholesail.com',
+  'https://staging.aiwholesail.com',
+  'http://localhost:5173', // Vite dev server
+]);
 
-// In development only, also allow localhost
-if (process.env.NODE_ENV === 'development') {
-  corsOrigins.push('http://localhost:3000', 'http://localhost:5173', 'http://localhost:8080');
+function buildCorsOptions() {
+  return {
+    origin: (origin, callback) => {
+      // Allow requests with no origin (curl, server-to-server, Stripe webhooks).
+      // The Stripe webhook path also validates the signature, so this is safe.
+      if (!origin) return callback(null, true);
+
+      if (ALLOWED_CORS_ORIGINS.has(origin)) {
+        callback(null, true);
+      } else {
+        const err = new Error('Not allowed by CORS');
+        err.status = 403;
+        callback(err);
+      }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    // x-api-key is sent by VITE_ZILLOW_API_KEY in the browser bundle.
+    // Without it here the preflight returns 204 but the actual request
+    // is blocked by the browser — a separate silent-failure vector.
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'X-Requested-With',
+      'Accept',
+      'Origin',
+      'X-Client-Info',
+      'x-api-key',
+    ],
+  };
 }
 
-app.use(cors({
-  origin: (origin, callback) => {
-    // Allow requests with no origin (mobile apps, server-to-server, curl)
-    if (!origin) return callback(null, true);
+const corsMiddleware = cors(buildCorsOptions());
 
-    if (corsOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      const err = new Error('Not allowed by CORS');
-      err.status = 403;
-      callback(err);
-    }
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin', 'X-Client-Info']
-}));
+// Attach Vary: Origin so HTTP caches (CDN, nginx proxy_cache) never serve
+// a response for one origin to a different origin.
+app.use((req, res, next) => {
+  res.vary('Origin');
+  next();
+});
 
-// Handle preflight requests
-app.options('*', cors());
+app.use(corsMiddleware);
+
+// Preflight: use the same tightened config — NOT a bare cors() call, which
+// would accept any origin and undo the lock above.
+app.options('*', corsMiddleware);
 
 // Request parsing — skip JSON body parsing for the Stripe webhook so the route
 // handler can verify the raw body signature. Stripe's constructEvent() needs
@@ -170,7 +202,7 @@ app.use(errorHandler);
 app.listen(PORT, () => {
   console.log(`[Server] AIWholesail API running on port ${PORT}`);
   console.log(`[Server] Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`[Server] CORS origins: ${corsOrigins.join(', ')}`);
+  console.log(`[Server] CORS origins: ${[...ALLOWED_CORS_ORIGINS].join(', ')}`);
 });
 
 // Handle uncaught exceptions
