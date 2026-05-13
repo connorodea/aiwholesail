@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-canton-oh-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Canton OH: A Complete Investor's Guide for 2024",
+      "excerpt": "Canton, Ohio is quietly becoming one of the Midwest's most attractive markets for real estate investors, with low entry prices and strong rental demand. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Canton OH.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-13T12:02:21.467Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Canton OH",
+        "Canton Ohio real estate investing",
+        "wholesale deals Canton Ohio",
+        "investment properties Canton OH",
+        "Canton OH rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-naperville-il-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Naperville IL: The Investor's Complete Guide for 2024",
       "excerpt": "Naperville, IL is one of the Chicago metro's most sought-after suburbs for real estate investors, offering strong rental demand, appreciating home values, and hidden wholesale opportunities. This guide breaks down the local market, best neighborhoods, and practical strategies to find profitable deals in Naperville.",
@@ -15,7 +32,7 @@
         "fix and flip Naperville",
         "Naperville rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "lease-option-vs-seller-financing-which-is-better-for-real-estate-investors",
