@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Shadow-compare-zillow output (per-run JSON + markdown reports — disk-only,
+# never committed; see aiwholesail-api/scripts/shadow-compare-zillow.js)
+aiwholesail-api/scripts/shadow-compare-output/
