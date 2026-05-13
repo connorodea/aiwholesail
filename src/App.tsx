@@ -11,17 +11,6 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { OrganicFullPageLoader } from "@/components/OrganicLoader";
 import { useFeatureFlag } from "@/hooks/useFeatureFlag";
 
-/**
- * Suspense fallback shown while React lazy-loads a route chunk. Flag-gated:
- * ON = full-screen organic loader (rotating), OFF = the original blank dark
- * panel. Wrapped in a component because Suspense `fallback` renders BEFORE
- * any child, so we need a hook-bearing component to read the flag.
- */
-function RouteSuspenseFallback() {
-  const { enabled } = useFeatureFlag('organic_loaders');
-  if (enabled) return <OrganicFullPageLoader />;
-  return <div className="min-h-screen bg-[#08090a]" />;
-}
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { FacebookPixel } from "@/components/FacebookPixel";
 import { SEOHead } from "@/components/SEOHead";
@@ -124,6 +113,18 @@ const Lenders = lazy(() => import("./pages/Lenders"));
 const LenderPage = lazy(() => import("./pages/LenderPage"));
 
 const queryClient = new QueryClient();
+
+/**
+ * Suspense fallback shown while React lazy-loads a route chunk. Flag-gated:
+ * ON = full-screen organic loader (rotating), OFF = the original blank dark
+ * panel. Wrapped in a component because Suspense `fallback` renders BEFORE
+ * any child, so we need a hook-bearing component to read the flag.
+ */
+function RouteSuspenseFallback() {
+  const { enabled } = useFeatureFlag('organic_loaders');
+  if (enabled) return <OrganicFullPageLoader />;
+  return <div className="min-h-screen bg-[#08090a]" />;
+}
 
 function ScrollToTop() {
   const { pathname } = useLocation();
