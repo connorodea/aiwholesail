@@ -221,15 +221,24 @@ export class ZillowAPI {
   }
 
   private async fetchPageViaHetzner(params: PropertySearchParams, page: number) {
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    };
     // /api/zillow/proxy is authenticate-gated; legacy /zillow/zillow used
     // x-api-key. Send both — backend ignores whichever isn't applicable.
     // Without this, search() against the new proxy 401s and surfaces as
     // "Zillow API request failed: 401" to the user.
+    //
+    // GATE: if there's no access token, don't fire the request at all —
+    // it would 401 unconditionally and surface as a generic error toast
+    // with no recovery path. Throw a typed NOT_AUTHENTICATED so callers
+    // can render a "Sign in to search" CTA instead. See cpodea5 incident
+    // 2026-05-13: expired session → bundle fired search → ugly 401 toast.
     const accessToken = tokenStorage.getAccessToken();
-    if (accessToken) headers['Authorization'] = `Bearer ${accessToken}`;
+    if (!accessToken) {
+      throw new Error('NOT_AUTHENTICATED');
+    }
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${accessToken}`,
+    };
     if (ZILLOW_API_KEY) headers['x-api-key'] = ZILLOW_API_KEY;
 
     const response = await fetch(ZILLOW_API_URL, {
@@ -694,14 +703,21 @@ export class ZillowAPI {
   }
 
   private async callApiViaHetzner(action: string, searchParams?: any): Promise<any> {
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    };
     // The new /api/zillow/proxy endpoint requires bearer auth; the legacy
     // /zillow/zillow path used x-api-key. Send the bearer when we have one
     // and the x-api-key when the env override points at the legacy URL.
+    //
+    // GATE: same auth-gate logic as fetchPageViaHetzner — fail fast with
+    // a typed error instead of letting the backend 401 surface as an
+    // opaque "Zillow API request failed: 401" toast.
     const accessToken = tokenStorage.getAccessToken();
-    if (accessToken) headers['Authorization'] = `Bearer ${accessToken}`;
+    if (!accessToken) {
+      throw new Error('NOT_AUTHENTICATED');
+    }
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${accessToken}`,
+    };
     if (ZILLOW_API_KEY) headers['x-api-key'] = ZILLOW_API_KEY;
 
     const response = await fetch(ZILLOW_API_URL, {
@@ -845,8 +861,26 @@ export class ZillowAPI {
 
         // Hetzner fallback: batch endpoint
         if (!chunkSuccess) {
+          // NOTE: ZILLOW_API_URL is /api/zillow/proxy post-#313, so this
+          // replace() is a no-op and the resulting path is
+          // /api/zillow/proxy/batch-zestimates — which is the route that
+          // PR #314 added on the backend. Working coincidence; left as-is
+          // to match the backend handler.
           const ZILLOW_BASE = ZILLOW_API_URL.replace(/\/zillow$/, '');
           const batchHeaders: Record<string, string> = { 'Content-Type': 'application/json' };
+          // Backend batch-zestimates route is auth-gated. Without a Bearer
+          // the whole chunk 401s and every zpid gets marked unavailable.
+          // Gate: if no token, skip the fetch entirely and mark the chunk
+          // as null (non-fatal — caller already tolerates missing data).
+          const batchToken = tokenStorage.getAccessToken();
+          if (!batchToken) {
+            for (const zpid of chunk) {
+              allZestimates[zpid] = null;
+            }
+            onProgress?.(Math.min(i + chunk.length, allZpids.length), allZpids.length);
+            continue;
+          }
+          batchHeaders['Authorization'] = `Bearer ${batchToken}`;
           if (ZILLOW_API_KEY) batchHeaders['x-api-key'] = ZILLOW_API_KEY;
 
           try {
