@@ -6,13 +6,15 @@ import { tokenStorage } from '@/lib/api-client';
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://ztgsevhzbeywytoqlsbf.supabase.co';
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || '';
 
-// Fallback to Hetzner API if Supabase is not configured
-// Default to our Express API's /api/zillow/proxy route, which wraps proxyZillow
-// (RapidAPI primary + scrape.do fallback). The old default pointed at the
-// standalone proxy on port 3201 directly — that path bypassed the fallback,
-// so when RapidAPI quota expired the frontend saw raw 500s. Env override
-// preserved for staging/local where users may want the bare proxy.
-const ZILLOW_API_URL = import.meta.env.VITE_ZILLOW_API_URL || 'https://api.aiwholesail.com/api/zillow/proxy';
+// Default to SAME-ORIGIN `/api/zillow/proxy` so the call doesn't trigger a
+// CORS preflight. This works around the Facebook/Instagram in-app browser
+// CORS bug where OPTIONS preflight succeeds (204) but the follow-up POST
+// is silently dropped — the user sees "Load failed" with no recourse.
+// Nginx vhost on aiwholesail.com forwards /api/* to the local Express
+// backend (port 3202), so this is identical to hitting api.aiwholesail.com
+// directly except no cross-origin, no preflight, no in-app browser quirks.
+// Env override preserved for staging/local.
+const ZILLOW_API_URL = import.meta.env.VITE_ZILLOW_API_URL || '/api/zillow/proxy';
 const ZILLOW_API_KEY = import.meta.env.VITE_ZILLOW_API_KEY || '';
 
 // Supabase edge function is available but currently returns errors.
