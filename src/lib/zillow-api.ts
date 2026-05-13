@@ -1,12 +1,18 @@
 import { PropertySearchParams, Property, ZillowAPIResponse } from '@/types/zillow';
 import { supabase } from '@/integrations/supabase/client';
+import { tokenStorage } from '@/lib/api-client';
 
 // Supabase Edge Function for Zillow data
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://ztgsevhzbeywytoqlsbf.supabase.co';
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || '';
 
 // Fallback to Hetzner API if Supabase is not configured
-const ZILLOW_API_URL = import.meta.env.VITE_ZILLOW_API_URL || 'https://api.aiwholesail.com/zillow/zillow';
+// Default to our Express API's /api/zillow/proxy route, which wraps proxyZillow
+// (RapidAPI primary + scrape.do fallback). The old default pointed at the
+// standalone proxy on port 3201 directly — that path bypassed the fallback,
+// so when RapidAPI quota expired the frontend saw raw 500s. Env override
+// preserved for staging/local where users may want the bare proxy.
+const ZILLOW_API_URL = import.meta.env.VITE_ZILLOW_API_URL || 'https://api.aiwholesail.com/api/zillow/proxy';
 const ZILLOW_API_KEY = import.meta.env.VITE_ZILLOW_API_KEY || '';
 
 // Supabase edge function is available but currently returns errors.
@@ -683,6 +689,11 @@ export class ZillowAPI {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
     };
+    // The new /api/zillow/proxy endpoint requires bearer auth; the legacy
+    // /zillow/zillow path used x-api-key. Send the bearer when we have one
+    // and the x-api-key when the env override points at the legacy URL.
+    const accessToken = tokenStorage.getAccessToken();
+    if (accessToken) headers['Authorization'] = `Bearer ${accessToken}`;
     if (ZILLOW_API_KEY) headers['x-api-key'] = ZILLOW_API_KEY;
 
     const response = await fetch(ZILLOW_API_URL, {
