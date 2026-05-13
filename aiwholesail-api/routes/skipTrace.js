@@ -37,9 +37,7 @@ const { attachSubscription, TIERS } = require('../middleware/subscription');
 const { logEvent, EVENTS } = require('../lib/events');
 const { callV2Fallback, SUPPORTED_FALLBACKS } = require('../lib/skip-trace-v2');
 const tps = require('../lib/scrapers/truePeopleSearch');
-const { isEnabled } = require('../lib/featureFlags');
 
-const TPS_FLAG_SLUG = 'skip_trace_tps';
 // Search-types we have a TPS implementation for. Mirrors SUPPORTED_FALLBACKS
 // but stays in this file so the source of truth lives next to the TPS call.
 const TPS_SUPPORTED = new Set(['byaddress', 'bynameaddress']);
@@ -318,40 +316,37 @@ router.post(
       });
     }
 
-    // ─── Try TPS primary (flag-gated) ───
-    // When `skip_trace_tps` is on for this user, we hit TruePeopleSearch via
-    // scrape.do instead of RapidAPI for the supported search-types. Failure
-    // here is silent — we fall through to the existing RapidAPI primary so
-    // users never see a hard error during cutover.
+    // ─── PRIMARY: TPS via scrape.do (unconditional for supported types) ───
+    // Changed 2026-05-13 (PR #321): TPS is now the unconditional primary for
+    // searchTypes it supports (byaddress, bynameaddress). RapidAPI V1 + V2
+    // become fallbacks. No flag check — skip_trace_tps is deprecated and
+    // RapidAPI's skip-tracing-working-api has been failing every call.
     let upstreamStatus = 0;
     let upstreamData = null;
     let upstreamError = null;
     let providerUsed = 'v1';
 
-    let useTps = false;
     if (TPS_SUPPORTED.has(searchType)) {
-      try {
-        useTps = await isEnabled(userId, TPS_FLAG_SLUG);
-      } catch (err) {
-        console.warn(`[skip-trace] flag lookup failed: ${err.message}`);
-      }
-    }
-    if (useTps) {
       const tpsData = await callTpsPrimary(searchType, params);
-      if (tpsData && Array.isArray(tpsData.people) && tpsData.people.length >= 0) {
+      if (tpsData && Array.isArray(tpsData.people)) {
         upstreamData = tpsData;
         upstreamStatus = 200;
         providerUsed = 'tps';
       }
     }
 
-    // ─── Call primary upstream (skip-tracing-working-api) ───
+    // ─── FALLBACK 1: RapidAPI V1 (skip-tracing-working-api) ───
+    // Only fires when TPS didn't answer (handler missing or TPS threw). The
+    // legacy RapidAPI primary path is preserved here so non-TPS search-types
+    // (byname, byphone, byemail) keep working — they never had a TPS path.
     if (!upstreamData) {
       try {
         const upstream = await callUpstream(config.path, params);
         upstreamStatus = upstream.status;
         if (upstream.status >= 200 && upstream.status < 300) {
           upstreamData = upstream.data;
+          // Provider stays 'v1' (default initial value) — TPS didn't answer
+          // so the RapidAPI V1 path did.
         } else {
           upstreamError = typeof upstream.data === 'string'
             ? upstream.data.slice(0, 500)
@@ -363,19 +358,19 @@ router.post(
       }
     }
 
-    // ─── V2 fallback (skip-tracing-api) ───
-    // Only fires when primary genuinely failed AND the searchType has a
-    // V2 equivalent (byaddress / bynameaddress only). Treats:
+    // ─── FALLBACK 2: RapidAPI V2 (skip-tracing-api) ───
+    // Only fires when V1 genuinely failed AND the searchType has a V2
+    // equivalent (byaddress / bynameaddress only). Treats:
     //   - HTTP 5xx, timeout, network error  → fallback
     //   - HTTP 200 + empty results          → DO NOT fallback (real "no match")
     // Both providers count against the same RapidAPI account quota; the
     // user's monthly skip_trace_lookups counter increments once regardless
     // of which provider answered.
-    const primaryFailed =
+    const v1Failed =
       !upstreamData &&
       (upstreamStatus === 0 || upstreamStatus >= 500);
-    if (primaryFailed && SUPPORTED_FALLBACKS.includes(searchType)) {
-      console.warn(`[skip-trace] primary failed (status=${upstreamStatus}), trying V2 fallback for ${searchType}`);
+    if (v1Failed && SUPPORTED_FALLBACKS.includes(searchType)) {
+      console.warn(`[skip-trace] V1 fallback failed (status=${upstreamStatus}), trying V2 fallback for ${searchType}`);
       const v2 = await callV2Fallback({
         searchType,
         params,
@@ -390,20 +385,6 @@ router.post(
         console.log(`[skip-trace] V2 fallback succeeded for ${searchType}`);
       } else {
         console.warn(`[skip-trace] V2 fallback also failed: ${v2.error}`);
-      }
-    }
-
-    // FALLBACK: if both V1 and V2 are down, try TPS as a last resort, even
-    // for users who don't have skip_trace_tps enabled. Resilience layer — no
-    // flag check. Only fires for searchTypes TPS knows about.
-    if (!upstreamData && TPS_SUPPORTED.has(searchType)) {
-      console.warn(`[skip-trace] both RapidAPI providers failed, trying TPS final fallback`);
-      const tpsData = await callTpsPrimary(searchType, params);
-      if (tpsData && Array.isArray(tpsData.people)) {
-        upstreamData = tpsData;
-        upstreamStatus = 200;
-        upstreamError = null;
-        providerUsed = 'tps-fallback';
       }
     }
 
