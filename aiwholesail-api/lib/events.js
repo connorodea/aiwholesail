@@ -39,7 +39,29 @@ const EVENTS = Object.freeze({
   FIRST_FAVORITE: 'first_favorite',
   // Cost-control / abuse signals
   LLM_BUDGET_EXCEEDED: 'llm_budget_exceeded',   // user hit their tier's monthly LLM cost cap
+  // Checkout funnel — server-side counterpart to GA4 `begin_checkout` / `purchase`.
+  // Server-side is the source of truth: ad-blockers + CSP issues can mask GA4
+  // but never these. Diff (CHECKOUT_SESSION_CREATED - CHECKOUT_SESSION_COMPLETED)
+  // = real abandonment count. CHECKOUT_SESSION_EXPIRED fires when Stripe
+  // sends checkout.session.expired (24h after creation if no completion).
+  CHECKOUT_SESSION_CREATED:   'checkout_session_created',
+  CHECKOUT_SESSION_COMPLETED: 'checkout_session_completed',
+  CHECKOUT_SESSION_EXPIRED:   'checkout_session_expired',
 });
+
+/**
+ * Skip event logging for synthetic test traffic. Heuristic — matches the
+ * e2e test emails (e2e-*, test-*) and the `*@aiwholesail.com` internal
+ * domain (cpodea5 is one of ours but uses gmail.com, so this only kills
+ * the obvious synthetic patterns). Keeps the funnel numbers clean.
+ */
+function isSyntheticEmail(email) {
+  if (typeof email !== 'string') return false;
+  const e = email.toLowerCase();
+  if (e.startsWith('e2e-') || e.startsWith('test-')) return true;
+  if (e.endsWith('@aiwholesail.com')) return true;
+  return false;
+}
 
 /**
  * Log a user event. Fire-and-forget — never throws, never blocks the request.
@@ -62,4 +84,4 @@ function logEvent(userId, eventType, properties = {}) {
   });
 }
 
-module.exports = { logEvent, EVENTS };
+module.exports = { logEvent, EVENTS, isSyntheticEmail };
