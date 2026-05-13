@@ -15,7 +15,7 @@
  *     {
  *       provider: 'scrape-do-zillow',  // or 'rapidapi-zillow', 'scrape-do-tps', ...
  *       action: 'propertyDetails',     // short string action label
- *       callKind: 'primary',           // 'primary' | 'fallback' | 'dogfood-primary'
+ *       callKind: 'primary',           // 'primary' | 'fallback'
  *       userId: req.user?.id ?? null,
  *     },
  *     () => actuallyFetchTheThing(zpid),
@@ -30,10 +30,10 @@
  * callKind vocabulary:
  *   - primary              the first backend we tried
  *   - fallback             we tried this because primary failed
- *   - dogfood-primary      primary, but only because the user was in the
- *                          flag-gated dogfood cohort (so we can compute
- *                          success-rate cleanly for the cohort vs the
- *                          all-users fallback path)
+ *
+ * (The 'dogfood-primary' value was retired 2026-05-13 along with the
+ * zillow_scrape_do flag — scrape.do is now the unconditional primary so the
+ * cohort distinction is no longer meaningful.)
  */
 
 const { query } = require('../../config/database');
@@ -110,7 +110,7 @@ function scheduleInsert(row) {
  * @param {object} meta
  * @param {string} meta.provider   one of the provider vocabulary values
  * @param {string} meta.action     short action label
- * @param {string} meta.callKind   'primary' | 'fallback' | 'dogfood-primary'
+ * @param {string} meta.callKind   'primary' | 'fallback'
  * @param {string|null} [meta.userId]  null for anonymous / background jobs
  * @param {Function} fn  async function to execute
  * @returns {Promise<any>}
