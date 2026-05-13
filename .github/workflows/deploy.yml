@@ -195,6 +195,11 @@ jobs:
             # flag with "unbound variable". Failure here exits 1 →
             # systemctl restart never runs → old process keeps serving.
             npm run migrate
+            # Reset prior failure state — required when a previous deploy crashed
+            # the unit and systemd hit its start-limit-burst cap. Without this,
+            # `restart` is a no-op against a `failed` unit (live incident
+            # 2026-05-13, ~17 min outage after PR #321 hot-fix couldn't recover).
+            sudo systemctl reset-failed aiwholesail-api-staging || true
             sudo systemctl restart aiwholesail-api-staging
             sleep 2
             if systemctl is-active --quiet aiwholesail-api-staging; then
@@ -324,6 +329,11 @@ jobs:
             # flag with "unbound variable". Failure here exits 1 →
             # systemctl restart never runs → old process keeps serving.
             npm run migrate
+            # Reset prior failure state — required when a previous deploy crashed
+            # the unit and systemd hit its start-limit-burst cap. Without this,
+            # `restart` is a no-op against a `failed` unit (live incident
+            # 2026-05-13, ~17 min outage after PR #321 hot-fix couldn't recover).
+            sudo systemctl reset-failed aiwholesail-api || true
             sudo systemctl restart aiwholesail-api
             sleep 2
             if systemctl is-active --quiet aiwholesail-api; then
