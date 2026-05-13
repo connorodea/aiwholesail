@@ -1,14 +1,17 @@
 import { useState, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import {
   ArrowRight, ChevronRight, MapPin, DollarSign, Clock,
   Wrench, Calculator, Lightbulb, Users, CheckSquare,
-  Square, ArrowUpDown,
+  Square, ArrowUpDown, Calendar,
 } from 'lucide-react';
 import { SEOHead } from '@/components/SEOHead';
 import { PublicLayout } from '@/components/PublicLayout';
 import { Spotlight } from '@/components/ui/spotlight';
 import rehabCosts from '@/data/rehab-costs.json';
+
+const LAST_UPDATED = '2026-05-12';
 
 interface RehabCategory {
   name: string;
@@ -140,19 +143,86 @@ export default function RehabCostPage() {
     .sort((a, b) => Math.abs(a.avgCostPerSqft - city.avgCostPerSqft) - Math.abs(b.avgCostPerSqft - city.avgCostPerSqft))
     .slice(0, 6);
 
+  const canonical = `https://aiwholesail.com/rehab-costs/${city.slug}`;
+
+  // Build 40-60 word AI-extractable answer block.
+  const summary =
+    `Rehab costs in ${city.city}, ${city.state} average $${city.avgCostPerSqft}/sqft with ${city.laborRate.toLowerCase()} labor rates. ` +
+    `Permits typically cost ${city.permitCost}. Across 15 renovation categories — kitchen, bathroom, flooring, roof, HVAC, electrical, plumbing, exterior — ` +
+    `${city.city} flippers should budget 15% contingency on top of line-item estimates.`;
+
+  const faqs = [
+    {
+      q: `What's the average rehab cost per square foot in ${city.city}?`,
+      a: `${city.city}, ${city.state} averages $${city.avgCostPerSqft}/sqft for residential rehab. Cosmetic-only rehabs run $15-25/sqft; medium rehabs (kitchen + baths + flooring + paint) $30-50/sqft; full gut rehabs $60-120/sqft. ${city.city}'s ${city.laborRate.toLowerCase()} labor rates mean ${city.laborRate === 'High' ? 'budget toward the upper end of these ranges' : city.laborRate === 'Low' ? 'budget at the lower end of these ranges' : 'budget mid-range'}.`,
+    },
+    {
+      q: `How much do kitchen renovations cost in ${city.city}?`,
+      a: (() => {
+        const kitchen = city.categories.find((c: RehabCategory) => /kitchen/i.test(c.name));
+        if (kitchen) return `Kitchen renovations in ${city.city} run $${kitchen.low.toLocaleString()}–$${kitchen.high.toLocaleString()}, typically taking ${kitchen.avgDays} days. Costs vary based on cabinet quality, appliance grade, and counter material. Use the calculator on this page to estimate.`;
+        return `Kitchen rehabs in ${city.city} typically run $15,000-$45,000 depending on cabinet, appliance, and counter quality. Plan 14-21 days.`;
+      })(),
+    },
+    {
+      q: `Do I need a permit to rehab a property in ${city.city}?`,
+      a: `Permit costs in ${city.city} typically run ${city.permitCost}. Most cosmetic work (paint, flooring, fixtures) does NOT require a permit. Structural work, electrical, plumbing, HVAC changes, and additions DO require permits — and selling a property with un-permitted work can blow up at closing. Always pull permits for systems work.`,
+    },
+    {
+      q: `How accurate are these rehab cost estimates?`,
+      a: `Line-item estimates are accurate to ±25% for typical residential rehabs. Final variance depends on contractor selection, surprises (foundation, septic, mold), and seasonal labor availability. Get 2-3 contractor bids before closing on a flip. Use AIWholesail's Rehab Estimator at /tools/rehab-estimator to model your specific scope.`,
+    },
+  ];
+
+  const articleJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: `Rehab Costs in ${city.city}, ${city.state}`,
+    description: summary,
+    url: canonical,
+    image: 'https://aiwholesail.com/og-image.png',
+    author: { '@type': 'Organization', name: 'AIWholesail', url: 'https://aiwholesail.com' },
+    publisher: {
+      '@type': 'Organization',
+      name: 'AIWholesail',
+      logo: { '@type': 'ImageObject', url: 'https://aiwholesail.com/logo-aiw.png' },
+    },
+    datePublished: LAST_UPDATED,
+    dateModified: LAST_UPDATED,
+    mainEntityOfPage: { '@type': 'WebPage', '@id': canonical },
+    about: { '@type': 'Place', name: `${city.city}, ${city.state}` },
+  };
+
+  const faqJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  };
+
   return (
     <PublicLayout>
       <SEOHead
         title={`Rehab Costs in ${city.city}, ${city.state} -- 2026 Investor Guide | AIWholesail`}
         description={`Complete rehab cost breakdown for ${city.city}, ${city.state}. Average $${city.avgCostPerSqft}/sqft, ${city.laborRate} labor rates, permit costs ${city.permitCost}. 15 renovation categories with low/high estimates for house flippers.`}
         keywords={`rehab costs ${city.city}, renovation costs ${city.city} ${city.state}, house flip rehab budget ${city.city}, contractor costs ${city.city}, kitchen renovation cost ${city.city}, bathroom renovation cost ${city.city}`}
-        canonicalUrl={`https://aiwholesail.com/rehab-costs/${city.slug}`}
+        canonicalUrl={canonical}
         breadcrumbs={[
           { name: 'Home', url: 'https://aiwholesail.com' },
           { name: 'Rehab Costs', url: 'https://aiwholesail.com/rehab-costs' },
-          { name: `${city.city}, ${city.state}`, url: `https://aiwholesail.com/rehab-costs/${city.slug}` },
+          { name: `${city.city}, ${city.state}`, url: canonical },
         ]}
       />
+
+      <Helmet>
+        <script type="application/ld+json">{JSON.stringify(articleJsonLd)}</script>
+        <script type="application/ld+json">{JSON.stringify(faqJsonLd)}</script>
+        <meta name="last-modified" content={LAST_UPDATED} />
+        <meta property="article:modified_time" content={LAST_UPDATED} />
+      </Helmet>
 
       {/* ===== HERO ===== */}
       <section className="relative bg-gradient-to-b from-[#0a0a0a] via-[#0f0f0f] to-[#0a0a0a] text-white overflow-hidden">
@@ -202,6 +272,23 @@ export default function RehabCostPage() {
               <p className="text-2xl font-bold text-white">{city.timeline}</p>
               <p className="text-xs text-neutral-500 mt-1">Typical Timeline</p>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== AI-EXTRACTABLE ANSWER BLOCK ===== */}
+      <section className="py-10 px-4">
+        <div className="container mx-auto max-w-4xl">
+          <div className="border border-white/[0.05] bg-gradient-to-b from-neutral-900/50 to-transparent rounded-xl p-6 md:p-8">
+            <div className="flex items-center justify-between gap-3 mb-3 flex-wrap">
+              <h2 className="text-sm font-semibold tracking-[0.15em] uppercase text-cyan-400">
+                Rehab costs in {city.city} — at a glance
+              </h2>
+              <span className="inline-flex items-center gap-2 text-xs text-white/40">
+                <Calendar className="h-3 w-3" /> Updated <time dateTime={LAST_UPDATED}>{LAST_UPDATED}</time>
+              </span>
+            </div>
+            <p className="text-base md:text-lg text-white/80 font-light leading-relaxed">{summary}</p>
           </div>
         </div>
       </section>
@@ -381,6 +468,27 @@ export default function RehabCostPage() {
             >
               Open Rehab Estimator <ArrowRight className="h-4 w-4" />
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== FAQ ===== */}
+      <section className="py-16 px-4">
+        <div className="container mx-auto max-w-3xl">
+          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-4">FAQ</p>
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-white mb-10">
+            Common questions about rehab costs in {city.city}.
+          </h2>
+          <div className="space-y-4">
+            {faqs.map((f, i) => (
+              <div
+                key={i}
+                className="border border-white/[0.05] bg-gradient-to-b from-neutral-900/50 to-transparent rounded-xl p-6"
+              >
+                <h3 className="text-base md:text-lg font-semibold text-white mb-2">{f.q}</h3>
+                <p className="text-sm md:text-base text-white/70 font-light leading-relaxed">{f.a}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>

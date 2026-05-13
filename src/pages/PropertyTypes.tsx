@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { Badge } from '@/components/ui/badge';
 import {
   ArrowRight, ChevronRight, Shield, CheckCircle,
@@ -9,6 +10,8 @@ import { SEOHead } from '@/components/SEOHead';
 import { PublicLayout } from '@/components/PublicLayout';
 import { Spotlight } from '@/components/ui/spotlight';
 import propertyTypes from '@/data/property-types.json';
+
+const LAST_UPDATED = '2026-05-12';
 
 interface PropertyType {
   slug: string;
@@ -40,6 +43,31 @@ const iconMap: Record<string, React.ReactNode> = {
 
 export default function PropertyTypes() {
   const allTypes = propertyTypes as PropertyType[];
+  const canonical = 'https://aiwholesail.com/property-types';
+
+  const collectionJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'Real Estate Property Types',
+    description: `Compare ${allTypes.length} property types for real estate investing — returns, financing, and best markets for each.`,
+    url: canonical,
+    dateModified: LAST_UPDATED,
+    isPartOf: { '@type': 'WebSite', name: 'AIWholesail', url: 'https://aiwholesail.com' },
+  };
+
+  const itemListJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: 'Real Estate Property Types',
+    numberOfItems: allTypes.length,
+    url: canonical,
+    itemListElement: allTypes.map((pt, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      url: `https://aiwholesail.com/property-types/${pt.slug}`,
+      name: pt.name,
+    })),
+  };
 
   return (
     <PublicLayout>
@@ -47,11 +75,18 @@ export default function PropertyTypes() {
         title="Property Types for Real Estate Investing -- Compare Returns & Strategies"
         description="Compare 8 real estate property types — multifamily, single-family, land, mobile homes, self-storage, office, retail, and mixed-use. Returns, financing, and market data."
         keywords="real estate property types, investment property types, multifamily investing, single family investing, self storage investing, commercial real estate"
+        canonicalUrl={canonical}
         breadcrumbs={[
           { name: 'Home', url: 'https://aiwholesail.com' },
-          { name: 'Property Types', url: 'https://aiwholesail.com/property-types' },
+          { name: 'Property Types', url: canonical },
         ]}
       />
+
+      <Helmet>
+        <script type="application/ld+json">{JSON.stringify(collectionJsonLd)}</script>
+        <script type="application/ld+json">{JSON.stringify(itemListJsonLd)}</script>
+        <meta name="last-modified" content={LAST_UPDATED} />
+      </Helmet>
 
       {/* ===== HERO ===== */}
       <section className="relative bg-gradient-to-b from-[#0a0a0a] via-[#0f0f0f] to-[#0a0a0a] text-white overflow-hidden">

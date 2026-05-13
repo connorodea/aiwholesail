@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { Badge } from '@/components/ui/badge';
 import {
   ArrowRight, Search, ChevronRight, Scale, Shield,
@@ -8,6 +9,8 @@ import {
 import { SEOHead } from '@/components/SEOHead';
 import { PublicLayout } from '@/components/PublicLayout';
 import stateLaws from '@/data/state-laws.json';
+
+const LAST_UPDATED = '2026-05-12';
 
 interface StateLaw {
   slug: string;
@@ -59,13 +62,51 @@ export default function StateLaws() {
     });
   }, [query, licenseFilter]);
 
+  const canonical = 'https://aiwholesail.com/laws';
+  const allLaws = stateLaws as StateLaw[];
+
+  const collectionJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'Real Estate Wholesaling Laws by State',
+    description: 'State-by-state guide to real estate wholesaling, license requirements, assignment rules, foreclosure types, and tax considerations across all 50 US states + DC.',
+    url: canonical,
+    dateModified: LAST_UPDATED,
+    isPartOf: { '@type': 'WebSite', name: 'AIWholesail', url: 'https://aiwholesail.com' },
+  };
+
+  const itemListJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: 'Wholesaling Laws by US State',
+    numberOfItems: allLaws.length,
+    url: canonical,
+    itemListElement: allLaws.map((law, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      url: `https://aiwholesail.com/laws/${law.slug}`,
+      name: `Wholesaling Laws in ${law.stateFull}`,
+    })),
+  };
+
   return (
     <PublicLayout>
       <SEOHead
         title="Wholesaling Laws by State -- Real Estate Investor Legal Guide 2026"
         description="Comprehensive state-by-state guide to real estate wholesaling laws. License requirements, assignment rules, foreclosure types, tax considerations, and investor tips for all 50 US states + DC."
         keywords="wholesaling laws by state, real estate wholesaling legal, state wholesaling regulations, wholesale real estate license requirements, assignment of contract laws, foreclosure laws by state"
+        canonicalUrl={canonical}
+        breadcrumbs={[
+          { name: 'Home', url: 'https://aiwholesail.com' },
+          { name: 'State Laws', url: canonical },
+        ]}
       />
+
+      <Helmet>
+        <script type="application/ld+json">{JSON.stringify(collectionJsonLd)}</script>
+        <script type="application/ld+json">{JSON.stringify(itemListJsonLd)}</script>
+        <meta name="last-modified" content={LAST_UPDATED} />
+      </Helmet>
 
       {/* ===== HERO ===== */}
       <section className="relative bg-gradient-to-b from-[#0a0a0a] via-[#0f0f0f] to-[#0a0a0a] text-white overflow-hidden">
