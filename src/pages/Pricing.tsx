@@ -140,8 +140,13 @@ export default function Pricing() {
   return (
     <PublicLayout>
       <SEOHead
-        title="Pricing Plans"
+        title="AIWholesail Pricing — $49 Pro, $99 Elite, 7-Day Free Trial"
         description="Choose the perfect AIWholesail plan for your real estate business. Start with a 7-day free trial. Pro at $49/month or Elite at $99/month."
+        canonicalUrl="https://aiwholesail.com/pricing"
+        breadcrumbs={[
+          { name: 'Home', url: 'https://aiwholesail.com' },
+          { name: 'Pricing', url: 'https://aiwholesail.com/pricing' },
+        ]}
         noIndex={false}
       />
 
