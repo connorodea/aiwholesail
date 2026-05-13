@@ -71,12 +71,56 @@ jobs:
           retention-days: 1
 
   # ---------------------------------------------------------------------------
-  # Job 2: Deploy Staging — push to staging branch
+  # Job 2: Syntax Gate — node --check every .js file in aiwholesail-api/
+  #
+  # Runs on every push/PR (same triggers as ci). Catches ReferenceErrors and
+  # syntax errors that TypeScript's type-checker ignores because they live in
+  # plain JS files (the API is Node.js/CommonJS, not compiled TypeScript).
+  #
+  # This gate would have caught PR #315 (corsOrigins ReferenceError) before
+  # it hit production, because `node --check` parses the file and validates
+  # top-level identifier references without executing the module.
+  #
+  # Ordering: needs: ci ensures the artifact upload finished, and puts this
+  # gate between CI and both deploy jobs so a syntax failure aborts deploy.
+  # ---------------------------------------------------------------------------
+  syntax-check:
+    name: Syntax gate (node --check)
+    runs-on: ubuntu-latest
+    needs: ci
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: node --check all API JS files
+        # Excludes node_modules and test/ directories.
+        # find -print0 + xargs -0 handles filenames with spaces safely.
+        # -n1 means one file per node invocation so the first failure
+        # surfaces the exact filename rather than a combined error blob.
+        run: |
+          set -euo pipefail
+          echo "Checking all .js files in aiwholesail-api/ for syntax errors..."
+          find aiwholesail-api \
+            -name "*.js" \
+            -not -path "*/node_modules/*" \
+            -not -path "*/test/*" \
+            -print0 \
+          | xargs -0 -n1 node --check
+          echo "Syntax gate passed — no errors found."
+
+  # ---------------------------------------------------------------------------
+  # Job 3: Deploy Staging — push to staging branch
   # ---------------------------------------------------------------------------
   deploy-staging:
     name: Deploy to Staging
     runs-on: ubuntu-latest
-    needs: ci
+    needs: [ci, syntax-check]
     if: github.ref == 'refs/heads/staging' && github.event_name == 'push'
 
     steps:
@@ -164,13 +208,34 @@ jobs:
             echo "Staging deployment complete at $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
           DEPLOY
 
+      # Lightweight HTTP health probe for staging — no auto-rollback, but
+      # fail the job visibly if the staging API never comes up within 60s.
+      - name: Health probe (staging)
+        run: |
+          set -euo pipefail
+          echo "Probing staging health endpoint..."
+          MAX=30; attempt=0
+          until [[ "${attempt}" -ge "${MAX}" ]]; do
+            attempt=$(( attempt + 1 ))
+            code=$(ssh hetzner_co \
+              "curl --silent --max-time 3 --output /dev/null --write-out '%{http_code}' http://localhost:3202/health 2>/dev/null || echo 000")
+            if [[ "${code}" == "200" ]]; then
+              echo "Staging healthy (HTTP 200) on attempt ${attempt}."
+              exit 0
+            fi
+            echo "Attempt ${attempt}/${MAX}: HTTP ${code} — waiting 2s"
+            sleep 2
+          done
+          echo "ERROR: Staging API did not return HTTP 200 within 60s."
+          exit 1
+
   # ---------------------------------------------------------------------------
-  # Job 3: Deploy Production — push to main branch
+  # Job 4: Deploy Production — push to main branch
   # ---------------------------------------------------------------------------
   deploy-production:
     name: Deploy to Production
     runs-on: ubuntu-latest
-    needs: ci
+    needs: [ci, syntax-check]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
 
     steps:
@@ -211,6 +276,21 @@ jobs:
             LogLevel ERROR
           EOF
           chmod 600 ~/.ssh/config
+
+      # -----------------------------------------------------------------------
+      # Capture the pre-deploy SHA BEFORE rsync overwrites any files on VPS.
+      # This is the SHA we roll back to if /health never comes up after
+      # the new version is deployed. Must run BEFORE the rsync steps.
+      # The VPS is a git repo — rsync ships updated JS files but does NOT
+      # run `git pull`, so git rev-parse HEAD reflects the last-known-good
+      # commit that corresponds to the current node_modules on disk.
+      # -----------------------------------------------------------------------
+      - name: Capture pre-deploy SHA on production
+        id: capture_sha
+        run: |
+          PREV_SHA=$(ssh hetzner_co "cd /var/www/aiwholesail-api && git rev-parse HEAD 2>/dev/null || echo 'unknown'")
+          echo "prev_sha=${PREV_SHA}" >> "$GITHUB_OUTPUT"
+          echo "Pre-deploy SHA: ${PREV_SHA}"
 
       # Deploy frontend to production
       - name: Rsync frontend to production
@@ -256,3 +336,48 @@ jobs:
             sudo systemctl reload nginx
             echo "Production deployment complete at $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
           DEPLOY
+
+      # -----------------------------------------------------------------------
+      # Post-deploy health probe + auto-rollback
+      #
+      # Uploads health-probe-or-rollback.sh to the VPS and runs it.
+      # The script polls https://api.aiwholesail.com/health for up to 60s
+      # (30 attempts × 2s). On success it exits 0 and this step passes.
+      # On timeout it:
+      #   1. git reset --hard to PREV_SHA
+      #   2. npm ci --omit=dev
+      #   3. systemctl restart aiwholesail-api
+      #   4. Sends a Resend alert email
+      #   5. exits 1 — failing this step and the whole job
+      #
+      # RESEND_API_KEY must be set as a GitHub Secret (same key the API uses
+      # at runtime via its own .env — we pass it as an env var here so the
+      # rollback script can call Resend's REST API directly without dotenv).
+      # -----------------------------------------------------------------------
+      - name: Health probe and auto-rollback on failure
+        env:
+          PREV_SHA: ${{ steps.capture_sha.outputs.prev_sha }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+        run: |
+          set -euo pipefail
+
+          # Copy the rollback script to the VPS
+          scp -i ~/.ssh/deploy_key \
+              -o StrictHostKeyChecking=no \
+              .github/scripts/health-probe-or-rollback.sh \
+              "${{ secrets.HETZNER_CO_USER }}@${{ secrets.HETZNER_CO_HOST }}:/tmp/health-probe-or-rollback.sh"
+
+          # Execute it remotely, passing all required args.
+          # Note: RESEND_API_KEY is passed as an env variable on the SSH
+          # command line (not echoed in logs). The script receives it as $5.
+          ssh hetzner_co \
+            "chmod +x /tmp/health-probe-or-rollback.sh && \
+             RESEND_KEY='${RESEND_API_KEY}' bash -c '\
+               /tmp/health-probe-or-rollback.sh \
+                 /var/www/aiwholesail-api \
+                 aiwholesail-api \
+                 http://localhost:3202/health \
+                 \"${PREV_SHA}\" \
+                 \"\$RESEND_KEY\" \
+                 cpodea5@gmail.com\
+             '"
