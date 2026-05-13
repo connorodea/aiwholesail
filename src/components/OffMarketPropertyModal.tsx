@@ -80,6 +80,49 @@ interface NeighborhoodData {
   };
 }
 
+/**
+ * Trimmed shape for the market-trends panel. PropData /v1/market returns
+ * a kitchen-sink object (ZORI, Realtor, Redfin, HUD FMR, Census, FHFA,
+ * FRED, FEMA, schools, safety) — we only surface the 4-6 KVs that
+ * matter for the off-market analysis pass. Caller still has the full
+ * payload available via the propDataAPI client if a future enrichment
+ * tab wants the rest.
+ */
+interface MarketData {
+  realtor?: { median_list_price?: number; days_on_market?: number; new_listings?: number; price_per_sqft?: number };
+  redfin?: { median_sale_price?: number; sale_to_list_ratio?: number; months_of_supply?: number };
+  fhfa?: { hpi_1yr?: number };
+  fred?: { mortgage_rate_30yr?: number };
+}
+
+/** /v1/estimate response shape — handle both flat + nested. */
+interface RentData {
+  rent_low?: number;
+  rent_mid?: number;
+  rent_high?: number;
+  confidence?: number;
+  estimate?: {
+    monthly_low?: number;
+    monthly_mid?: number;
+    monthly_high?: number;
+    confidence_pct?: number;
+  };
+}
+
+/** /v1/comps response — only the trimmed fields we render. */
+interface CompsData {
+  results?: Array<{
+    address?: string;
+    sale_price?: number | null;
+    sale_date?: string | null;
+    distance_miles?: number | null;
+    sqft?: number | null;
+    bedrooms?: number | null;
+    bathrooms?: number | null;
+  }>;
+  count?: number;
+}
+
 export function OffMarketPropertyModal({ isOpen, onClose, property }: OffMarketPropertyModalProps) {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -87,12 +130,27 @@ export function OffMarketPropertyModal({ isOpen, onClose, property }: OffMarketP
   // button that opens the portfolio view. Falls back to plain text
   // when off (no link, just the name).
   const { enabled: ownerDetailEnabled } = useFeatureFlag('off-market-owner-detail');
+  // Phase 7 enrichment — fans out to /v1/market + /v1/comps + /v1/estimate
+  // when the modal opens. Default OFF, dogfood for cpodea5. Each fetch is
+  // independent + parallel; partial failures don't block the other panels.
+  const { enabled: enrichmentEnabled } = useFeatureFlag('propdata-enrichment');
   const [openOwner, setOpenOwner] = useState<PropDataPropertyRecord | null>(null);
 
   const zip = property?.address?.zip;
   const [nb, setNb] = useState<NeighborhoodData | null>(null);
   const [nbLoading, setNbLoading] = useState(false);
   const [nbError, setNbError] = useState<string | null>(null);
+
+  // Enrichment state — three parallel lazy fetches gated on flag + zip.
+  const [market, setMarket] = useState<MarketData | null>(null);
+  const [marketLoading, setMarketLoading] = useState(false);
+  const [marketError, setMarketError] = useState<string | null>(null);
+  const [rent, setRent] = useState<RentData | null>(null);
+  const [rentLoading, setRentLoading] = useState(false);
+  const [rentError, setRentError] = useState<string | null>(null);
+  const [comps, setComps] = useState<CompsData | null>(null);
+  const [compsLoading, setCompsLoading] = useState(false);
+  const [compsError, setCompsError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isOpen || !zip) {
@@ -122,6 +180,72 @@ export function OffMarketPropertyModal({ isOpen, onClose, property }: OffMarketP
       cancelled = true;
     };
   }, [isOpen, zip]);
+
+  // Phase 7 enrichment — parallel lazy fetch for market trends, comps,
+  // rent estimate. Only fires when the flag is enabled AND the modal is
+  // open AND we have a ZIP. Each call is independent: a coverage gap on
+  // one panel doesn't block the others. Partial-success is normal here
+  // (a vacant land parcel has no rent estimate, comps may be thin in
+  // rural markets, etc.).
+  useEffect(() => {
+    if (!enrichmentEnabled || !isOpen || !zip || !property) {
+      setMarket(null);
+      setRent(null);
+      setComps(null);
+      return;
+    }
+    let cancelled = false;
+    const beds = property.characteristics?.bedrooms ?? null;
+    const address = [property.address?.street, property.address?.city, property.address?.zip].filter(Boolean).join(', ');
+
+    setMarketLoading(true);
+    setMarketError(null);
+    propDataAPI.getMarketProfile({ zip })
+      .then((d) => { if (!cancelled) setMarket(d as MarketData); })
+      .catch((err) => {
+        if (cancelled) return;
+        setMarketError(err instanceof PropDataError && err.isCoverageGap
+          ? 'No market data for this ZIP yet.'
+          : 'Could not load market trends.');
+      })
+      .finally(() => { if (!cancelled) setMarketLoading(false); });
+
+    // Rent estimate only meaningful when we know how many beds — otherwise
+    // we'd query for default '3' bed and mislead the user. Skip silently.
+    if (beds != null && beds > 0) {
+      setRentLoading(true);
+      setRentError(null);
+      propDataAPI.getRentEstimate({ zip, beds: String(beds) })
+        .then((d) => { if (!cancelled) setRent(d as RentData); })
+        .catch((err) => {
+          if (cancelled) return;
+          setRentError(err instanceof PropDataError && err.isCoverageGap
+            ? 'No rent data for this ZIP yet.'
+            : 'Could not load rent estimate.');
+        })
+        .finally(() => { if (!cancelled) setRentLoading(false); });
+    } else {
+      setRent(null);
+      setRentError(null);
+      setRentLoading(false);
+    }
+
+    if (address) {
+      setCompsLoading(true);
+      setCompsError(null);
+      propDataAPI.getComps({ zip, address, limit: 5, radius: 1 })
+        .then((d) => { if (!cancelled) setComps(d as CompsData); })
+        .catch((err) => {
+          if (cancelled) return;
+          setCompsError(err instanceof PropDataError && err.isCoverageGap
+            ? 'No comps for this address.'
+            : 'Could not load comps.');
+        })
+        .finally(() => { if (!cancelled) setCompsLoading(false); });
+    }
+
+    return () => { cancelled = true; };
+  }, [enrichmentEnabled, isOpen, zip, property]);
 
   const stats = useMemo(() => {
     if (!property) return null;
@@ -328,6 +452,143 @@ export function OffMarketPropertyModal({ isOpen, onClose, property }: OffMarketP
                 </Card>
               )}
             </Section>
+
+            {/* Phase 7 enrichment — flag-gated. Three new sections fed by
+                /v1/market, /v1/comps, /v1/estimate fan-out in parallel
+                on modal open. Each renders independently: a missing
+                section just means PropData has no coverage for that
+                signal in this ZIP, not a bug. */}
+            {enrichmentEnabled && (
+              <>
+                {/* Market trends — /v1/market */}
+                <Section title="Market trends" icon={TrendingUp}>
+                  {marketLoading && (
+                    <Card className="border-border/60">
+                      <CardContent className="p-3 space-y-2">
+                        <Skeleton className="h-4 w-1/3" />
+                        <Skeleton className="h-4 w-2/3" />
+                      </CardContent>
+                    </Card>
+                  )}
+                  {marketError && !marketLoading && (
+                    <Card className="border-border/60">
+                      <CardContent className="p-3 text-sm text-muted-foreground flex items-center gap-2">
+                        <AlertTriangle className="h-3 w-3" /> {marketError}
+                      </CardContent>
+                    </Card>
+                  )}
+                  {!marketLoading && !marketError && market && (
+                    <Card className="border-border/60">
+                      <CardContent className="p-3 grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
+                        <KV label="Median list" value={fmtCurrency(market.realtor?.median_list_price)} />
+                        <KV label="Median sale" value={fmtCurrency(market.redfin?.median_sale_price)} />
+                        <KV label="$ / sqft" value={fmtCurrency(market.realtor?.price_per_sqft)} />
+                        <KV label="Days on market" value={market.realtor?.days_on_market != null ? `${market.realtor.days_on_market}` : '—'} />
+                        <KV label="Sale-to-list" value={market.redfin?.sale_to_list_ratio != null ? `${Math.round(market.redfin.sale_to_list_ratio * 100)}%` : '—'} />
+                        <KV label="Months of supply" value={market.redfin?.months_of_supply != null ? `${market.redfin.months_of_supply.toFixed(1)}` : '—'} />
+                        <KV label="HPI 1-yr" value={market.fhfa?.hpi_1yr != null ? `${(market.fhfa.hpi_1yr * 100).toFixed(1)}%` : '—'} />
+                        <KV label="Mortgage 30-yr" value={market.fred?.mortgage_rate_30yr != null ? `${market.fred.mortgage_rate_30yr.toFixed(2)}%` : '—'} />
+                      </CardContent>
+                    </Card>
+                  )}
+                </Section>
+
+                {/* Rent estimate — /v1/estimate. Only renders when we have
+                    a bedroom count; otherwise the panel would show a
+                    misleading 3-br default. */}
+                <Section title="Rent estimate" icon={Receipt}>
+                  {rentLoading && (
+                    <Card className="border-border/60">
+                      <CardContent className="p-3 space-y-2">
+                        <Skeleton className="h-4 w-1/3" />
+                        <Skeleton className="h-4 w-1/2" />
+                      </CardContent>
+                    </Card>
+                  )}
+                  {rentError && !rentLoading && (
+                    <Card className="border-border/60">
+                      <CardContent className="p-3 text-sm text-muted-foreground flex items-center gap-2">
+                        <AlertTriangle className="h-3 w-3" /> {rentError}
+                      </CardContent>
+                    </Card>
+                  )}
+                  {!rentLoading && !rentError && rent && (
+                    <Card className="border-border/60">
+                      <CardContent className="p-3 grid grid-cols-3 gap-3 text-sm">
+                        <KV label="Low" value={fmtCurrency(rent.estimate?.monthly_low ?? rent.rent_low)} />
+                        <KV label="Mid" value={fmtCurrency(rent.estimate?.monthly_mid ?? rent.rent_mid)} accent />
+                        <KV label="High" value={fmtCurrency(rent.estimate?.monthly_high ?? rent.rent_high)} />
+                        {(rent.estimate?.confidence_pct != null || rent.confidence != null) && (
+                          <div className="col-span-3 pt-1 border-t border-border/40 text-xs text-muted-foreground">
+                            Confidence: {rent.estimate?.confidence_pct ?? Math.round((rent.confidence ?? 0) * 100)}%
+                            {property.characteristics?.bedrooms != null && ` · ${property.characteristics.bedrooms}-bedroom basis`}
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  )}
+                  {!rentLoading && !rentError && !rent && property.characteristics?.bedrooms == null && (
+                    <Card className="border-border/60">
+                      <CardContent className="p-3 text-xs text-muted-foreground">
+                        Rent estimate requires a bedroom count — not in PropData for this parcel.
+                      </CardContent>
+                    </Card>
+                  )}
+                </Section>
+
+                {/* Comparable sales — /v1/comps. Up to 5 within 1 mile. */}
+                <Section title="Recent comps" icon={Building}>
+                  {compsLoading && (
+                    <Card className="border-border/60">
+                      <CardContent className="p-3 space-y-2">
+                        <Skeleton className="h-4 w-2/3" />
+                        <Skeleton className="h-4 w-1/2" />
+                      </CardContent>
+                    </Card>
+                  )}
+                  {compsError && !compsLoading && (
+                    <Card className="border-border/60">
+                      <CardContent className="p-3 text-sm text-muted-foreground flex items-center gap-2">
+                        <AlertTriangle className="h-3 w-3" /> {compsError}
+                      </CardContent>
+                    </Card>
+                  )}
+                  {!compsLoading && !compsError && comps && (comps.results?.length ?? 0) > 0 && (
+                    <Card className="border-border/60">
+                      <CardContent className="p-0">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="text-xs text-muted-foreground border-b border-border/40">
+                              <th className="text-left p-2 font-normal">Address</th>
+                              <th className="text-right p-2 font-normal">Sold</th>
+                              <th className="text-right p-2 font-normal">Sqft</th>
+                              <th className="text-right p-2 font-normal">Date</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {comps.results!.slice(0, 5).map((c, i) => (
+                              <tr key={i} className="border-b border-border/20 last:border-0">
+                                <td className="p-2 truncate max-w-[220px]">{c.address || '—'}</td>
+                                <td className="p-2 text-right font-medium">{fmtCurrency(c.sale_price)}</td>
+                                <td className="p-2 text-right text-muted-foreground">{c.sqft != null ? c.sqft.toLocaleString() : '—'}</td>
+                                <td className="p-2 text-right text-muted-foreground">{fmtDate(c.sale_date)}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </CardContent>
+                    </Card>
+                  )}
+                  {!compsLoading && !compsError && comps && (comps.results?.length ?? 0) === 0 && (
+                    <Card className="border-border/60">
+                      <CardContent className="p-3 text-xs text-muted-foreground">
+                        No comparable sales found within 1 mile.
+                      </CardContent>
+                    </Card>
+                  )}
+                </Section>
+              </>
+            )}
           </div>
 
           {/* CTA footer */}
