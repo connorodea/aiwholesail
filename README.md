@@ -4,6 +4,12 @@
 
 **URL**: https://lovable.dev/projects/5517ce0d-fb4d-4d20-b50b-87cd9b6b6e36
 
+## Architecture
+
+- **Frontend** — Vite + React + TypeScript + shadcn-ui + Tailwind (this repo, deployed via Lovable / Vercel).
+- **API** — `aiwholesail-api/` (Node + Express, systemd on `hetznerCO`, port 3202). See `aiwholesail-api/.env.example` for required env vars.
+- **Self-hosted Zillow + skip-trace via scrape.do** — replaces the paid RapidAPI providers as both a flag-gated primary and an always-on resilience fallback. See `docs/runbooks/scrape-do-operations.md` for flag flips, monitoring, rollback, and the cost playbook.
+
 ## How can I edit this code?
 
 There are several ways of editing your application.
