@@ -337,6 +337,36 @@ test('searchUrlForLocation', async (t) => {
     );
   });
 
+  // iOS auto-correct silently replaces ASCII apostrophes with U+2019 (RIGHT
+  // SINGLE QUOTATION MARK) — "O'Fallon" typed on an iPhone arrives at the
+  // backend as "O’Fallon". The regex only stripped ASCII apostrophe,
+  // letting the smart quote through unchanged → produced "o%E2%80%99fallon"
+  // in the URL, which Zillow does NOT recognise. Real-world iOS bug.
+  await t.test("O’Fallon (smart-quote U+2019) → ofallon", () => {
+    assert.equal(
+      searchUrlForLocation("O’Fallon, MO"),
+      'https://www.zillow.com/homes/ofallon-mo_rb/'
+    );
+  });
+
+  // Also strip the LEFT SINGLE QUOTATION MARK U+2018 (some keyboards / autocorrect
+  // emit this one too, e.g. when the apostrophe begins a word like 'twas).
+  await t.test('left smart quote U+2018 also stripped', () => {
+    assert.equal(
+      searchUrlForLocation('‘Twas County, ME'),
+      'https://www.zillow.com/homes/twas-county-me_rb/'
+    );
+  });
+
+  // Modifier-letter apostrophe U+02BC shows up in transliterated indigenous
+  // place names (e.g. Hawaiʻi, Kaʻu) — safest to also strip.
+  await t.test('modifier-letter apostrophe U+02BC stripped', () => {
+    assert.equal(
+      searchUrlForLocation('Kaʻu County, HI'),
+      'https://www.zillow.com/homes/kau-county-hi_rb/'
+    );
+  });
+
   // ── Accent / diacritic normalization ─────────────────────────────────────
   // "San José" → "san-jose". Confirmed live: both forms return same results
   // but the ASCII form is canonical and avoids downstream encoding issues.
