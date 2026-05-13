@@ -53,9 +53,14 @@ const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KE
  * morgan output, uncaught stack traces) — the parser drops them.
  */
 function readLogsSince(minutes) {
+  // Run as `journalctl` (no sudo). The systemd unit runs this script as
+  // User=root, but NoNewPrivileges=true (also in the unit) blocks sudo
+  // from escalating even from root → root, so the sudo invocation here
+  // would fail with "PERM_SUDOERS". Since we're already root, no sudo
+  // is needed for journalctl in the first place.
   try {
     const raw = execSync(
-      `sudo journalctl -u aiwholesail-api --since "${minutes} min ago" -o cat --no-pager`,
+      `journalctl -u aiwholesail-api --since "${minutes} min ago" -o cat --no-pager`,
       { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 },
     );
     return raw.split('\n').filter(Boolean);
