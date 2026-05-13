@@ -177,15 +177,6 @@ export function SearchLoadingState({ progress, status }: SearchLoadingStateProps
           0% { background-position: 200% 0; }
           100% { background-position: -200% 0; }
         }
-        @keyframes breathe {
-          0%, 100% { transform: scale(1); }
-          50% { transform: scale(1.05); }
-        }
-        @keyframes orbit {
-          0% { transform: rotate(0deg) translateX(44px) rotate(0deg); opacity: 0.8; }
-          50% { opacity: 0.3; }
-          100% { transform: rotate(360deg) translateX(44px) rotate(-360deg); opacity: 0.8; }
-        }
         @keyframes loadingGlow {
           0% { opacity: 0.15; }
           100% { opacity: 0.35; }

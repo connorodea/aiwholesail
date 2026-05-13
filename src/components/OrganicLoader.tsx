@@ -23,7 +23,7 @@
  * Animations are all CSS keyframes injected once via a <style> tag scoped
  * by an ID prefix; the same file mounted twice won't double-inject.
  */
-import { useMemo } from 'react';
+import { useId, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 
 const CYAN = '#00c4c8';
@@ -690,8 +690,10 @@ export function OrganicLoader({
   ensureKeyframes();
   const clamped = Math.max(1, Math.min(32, id | 0));
   // Stable per-instance id so filter URLs don't collide if multiple loaders
-  // of the same type are rendered on the page at once.
-  const uid = useMemo(() => `ol-${clamped}-${Math.random().toString(36).slice(2, 8)}`, [clamped]);
+  // of the same type are rendered on the page at once. useId() is SSR-safe
+  // and gives identical ids on server + client (no hydration mismatch).
+  const reactId = useId();
+  const uid = useMemo(() => `ol${reactId.replace(/[^a-zA-Z0-9]/g, '')}-${clamped}`, [reactId, clamped]);
 
   return (
     <span
