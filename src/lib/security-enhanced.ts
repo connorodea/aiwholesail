@@ -195,6 +195,22 @@ export function checkSessionTimeout(lastActivity: number, timeoutMinutes: number
 
 /**
  * Generate secure Content Security Policy
+ *
+ * Delivered via <meta http-equiv="Content-Security-Policy"> from SEOHead.tsx.
+ *
+ * NOTE: `frame-ancestors` is intentionally omitted. Per spec
+ * (https://www.w3.org/TR/CSP3/#directive-frame-ancestors) browsers MUST
+ * ignore `frame-ancestors` delivered via <meta>. Clickjacking protection
+ * for the main site must be delivered as an HTTP response header from
+ * nginx (see deploy/nginx/aiwholesail.com.conf for the recommended
+ * `Content-Security-Policy: frame-ancestors 'none'` and `X-Frame-Options:
+ * DENY` headers).
+ *
+ * `connect-src` includes the three modern GA4 collect endpoints:
+ *   - analytics.google.com           (primary GA4 /g/collect)
+ *   - stats.g.doubleclick.net        (GA4 /g/collect when Google Signals on)
+ *   - www.google.com                 (GA4 /g/collect + ads conversion pings)
+ * Without these GA4 events are CSP-blocked and attribution data is lost.
  */
 export function generateCSPHeader(): string {
   return [
@@ -203,12 +219,11 @@ export function generateCSPHeader(): string {
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com",
     "img-src 'self' data: https: blob:",
-    "connect-src 'self' https://api.aiwholesail.com https://staging-api.aiwholesail.com https://api.anthropic.com https://api.openai.com https://*.rapidapi.com https://api.stripe.com https://js.stripe.com https://www.google-analytics.com https://*.supabase.co https://connect.facebook.net https://www.facebook.com",
+    "connect-src 'self' https://api.aiwholesail.com https://staging-api.aiwholesail.com https://api.anthropic.com https://api.openai.com https://*.rapidapi.com https://api.stripe.com https://js.stripe.com https://www.google-analytics.com https://analytics.google.com https://stats.g.doubleclick.net https://www.google.com https://*.supabase.co https://connect.facebook.net https://www.facebook.com",
     "frame-src 'self' https://js.stripe.com https://hooks.stripe.com https://www.loom.com https://www.youtube.com https://player.vimeo.com",
     "object-src 'none'",
     "base-uri 'self'",
-    "form-action 'self'",
-    "frame-ancestors 'none'"
+    "form-action 'self'"
   ].join('; ');
 }
 
