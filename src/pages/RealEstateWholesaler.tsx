@@ -534,7 +534,7 @@ export default function RealEstateWholesaler() {
                 <p className="text-base sm:text-lg md:text-xl text-neutral-400 font-light max-w-2xl mx-auto leading-relaxed">
                   {effectiveSearchMode === 'on-market'
                     ? 'Discover undervalued listings with AI-powered analysis and comprehensive market data'
-                    : 'Find absentee landlords with equity — the highest-converting direct-mail segment'}
+                    : 'Search off-market properties — absentee owners, pre-foreclosure, tax delinquent, high equity, and more'}
                 </p>
               </div>
 

@@ -671,27 +671,15 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
         <CardHeader className="pb-4">
           <CardTitle className="flex items-center gap-2 text-xl">
             <Flame className="h-5 w-5 text-amber-400" />
-            Absentee Owner Search
+            {leadTypesV2Enabled ? 'Off-Market Property Search' : 'Absentee Owner Search'}
           </CardTitle>
           <p className="text-sm text-muted-foreground">
-            Find landlords whose mailing address is different from the property — the highest-converting direct-mail segment.
+            {leadTypesV2Enabled
+              ? 'Search off-market properties using motivation signals — 12 lead types backed by deed-level data. Combine signals to narrow the list.'
+              : 'Find landlords whose mailing address is different from the property — the highest-converting direct-mail segment.'}
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* v2 lead-type chip selector — multi-select. Picks one or more
-              PropStream-parity off-market lead types (absentee, pre-
-              foreclosure, tax delinquent, high equity, etc.). Default
-              ['absentee'] preserves the legacy single-mode behaviour. */}
-          {leadTypesV2Enabled && (
-            <div className="pb-2 border-b border-border/60">
-              <LeadTypeChips
-                leadTypes={LEAD_TYPES}
-                selected={selectedLeadTypes}
-                onChange={setSelectedLeadTypes}
-                userTier={userTier}
-              />
-            </div>
-          )}
           <div className="flex flex-col gap-3">
             <div className="space-y-2">
               <Label htmlFor="abs-location">Location</Label>
@@ -707,6 +695,22 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
                 Multi-ZIP / city / county / state all fan out across up to {MAX_ZIPS_PER_SEARCH} ZIPs.
               </p>
             </div>
+
+            {/* v2 lead-type chip selector — sits BELOW the Location input so
+                the user picks WHERE first, then narrows BY motivation signal.
+                Multi-select: combine signals to narrow the list (OR semantics
+                applied client-side after the primary-source fetch). Default
+                ['absentee'] preserves the legacy single-mode behaviour. */}
+            {leadTypesV2Enabled && (
+              <div className="pt-1">
+                <LeadTypeChips
+                  leadTypes={LEAD_TYPES}
+                  selected={selectedLeadTypes}
+                  onChange={setSelectedLeadTypes}
+                  userTier={userTier}
+                />
+              </div>
+            )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-2">
@@ -821,7 +825,11 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
             ) : (
               <>
                 <Search className="h-5 w-5 mr-2 transition-transform group-hover:scale-110" />
-                Search absentee owners
+                {leadTypesV2Enabled
+                  ? selectedLeadTypes.size === 1
+                    ? `Search ${LEAD_TYPES.find(l => l.slug === [...selectedLeadTypes][0])?.label.toLowerCase() || 'off-market'}`
+                    : `Search off-market (${selectedLeadTypes.size} lead types)`
+                  : 'Search absentee owners'}
               </>
             )}
           </Button>
