@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ai } from '@/lib/api-client';
+import { ai, tokenStorage } from '@/lib/api-client';
 import { useToast } from '@/hooks/use-toast';
 
 const ZILLOW_API_URL = import.meta.env.VITE_ZILLOW_API_URL || 'https://api.aiwholesail.com/zillow';
@@ -109,9 +109,16 @@ const AdvancedAIDealCalculator: React.FC<AdvancedAIDealCalculatorProps> = ({
 
     setLoadingPhotos(true);
     try {
+      // /api/zillow/proxy is auth-gated (PR #306). Attach the Bearer when
+      // we have one — same pattern as fetchPageViaHetzner in zillow-api.ts.
+      // Without this the photos fetch always 401s.
+      const accessToken = tokenStorage.getAccessToken();
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (accessToken) headers['Authorization'] = `Bearer ${accessToken}`;
+
       const response = await fetch(ZILLOW_API_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           action: 'photos',
           searchParams: { zpid }
