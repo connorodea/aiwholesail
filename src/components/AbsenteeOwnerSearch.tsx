@@ -441,9 +441,16 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
         if (!list?.properties) continue;
         if (!mergedEnrichment) mergedEnrichment = list.enrichment;
         for (const rec of list.properties) {
-          const key = rec.parcel_id || `${rec.address?.street}|${rec.address?.zip}`;
-          if (seenParcels.has(key)) continue;
-          seenParcels.add(key);
+          // Dedupe only by parcel_id. The prior `address|zip` fallback was
+          // unsafe with the dual-feed fan-out: if both the property and
+          // preforeclosure feeds returned the same address without a
+          // parcel_id, one record would be silently dropped. Better to risk
+          // an occasional visible duplicate (rare — PropData almost always
+          // emits parcel_id) than to silently lose a lead.
+          if (rec.parcel_id) {
+            if (seenParcels.has(rec.parcel_id)) continue;
+            seenParcels.add(rec.parcel_id);
+          }
           merged.push(rec);
         }
       }
@@ -548,7 +555,7 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
           toast({ title: 'Search failed', description: err.message, variant: 'destructive' });
         }
       } else {
-        toast({ title: 'Search failed', description: 'Could not fetch absentee owners.', variant: 'destructive' });
+        toast({ title: 'Search failed', description: 'Could not fetch off-market leads.', variant: 'destructive' });
       }
     } finally {
       setLoading(false);
