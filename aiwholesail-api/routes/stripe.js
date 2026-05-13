@@ -7,6 +7,7 @@ const { asyncHandler, logSecurityEvent } = require('../middleware/errorHandler')
 const { sendPurchaseEvent } = require('../lib/meta-capi');
 const { resolveTierFromPrice } = require('../lib/tier-resolver');
 const { frontendUrl } = require('../lib/env-urls');
+const { logEvent, EVENTS, isSyntheticEmail } = require('../lib/events');
 
 const router = express.Router();
 
@@ -186,6 +187,18 @@ router.post('/checkout', authenticate, [
       },
     },
   });
+
+  // Server-side funnel event — counterpart to GA4 begin_checkout. Filters
+  // synthetic test emails (e2e-*, test-*, *@aiwholesail.com) so the funnel
+  // numbers reflect real users only. Fire-and-forget.
+  if (user?.id && !isSyntheticEmail(customerEmail)) {
+    logEvent(user.id, EVENTS.CHECKOUT_SESSION_CREATED, {
+      session_id: session.id,
+      price_id: actualPriceId,
+      mode: 'subscription',
+      guest_checkout: !!guestCheckout,
+    });
+  }
 
   console.log('[Stripe] Checkout session created', { sessionId: session.id });
 
@@ -442,6 +455,34 @@ router.post('/webhook', express.raw({ type: 'application/json' }), asyncHandler(
     case 'checkout.session.completed': {
       const session = event.data.object;
       await handleCheckoutCompleted(session);
+      // Server-side funnel close — pairs with CHECKOUT_SESSION_CREATED.
+      // Diff = real abandonment. Filter synthetic emails.
+      const userId = session.metadata?.user_id || session.subscription_details?.metadata?.user_id;
+      const sessionEmail = session.customer_email || session.customer_details?.email;
+      if (userId && !isSyntheticEmail(sessionEmail)) {
+        logEvent(userId, EVENTS.CHECKOUT_SESSION_COMPLETED, {
+          session_id: session.id,
+          amount_total: session.amount_total,
+          mode: session.mode,
+        });
+      }
+      break;
+    }
+
+    case 'checkout.session.expired': {
+      // Stripe fires this 24h after creation if the user never finished
+      // checkout. Logged so we can compute abandonment rate from our own
+      // events table without relying on the Stripe Events API.
+      const session = event.data.object;
+      const userId = session.metadata?.user_id;
+      const sessionEmail = session.customer_email || session.customer_details?.email;
+      if (userId && !isSyntheticEmail(sessionEmail)) {
+        logEvent(userId, EVENTS.CHECKOUT_SESSION_EXPIRED, {
+          session_id: session.id,
+          amount_total: session.amount_total,
+          mode: session.mode,
+        });
+      }
       break;
     }
 
