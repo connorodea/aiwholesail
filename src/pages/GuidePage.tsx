@@ -8,6 +8,7 @@ import {
 import { SEOHead } from '@/components/SEOHead';
 import { PublicLayout } from '@/components/PublicLayout';
 import { Spotlight } from '@/components/ui/spotlight';
+import { ExitIntentModal } from '@/components/ExitIntentModal';
 import guides from '@/data/guides.json';
 
 interface GuideSection {
@@ -201,8 +202,13 @@ export default function GuidePage() {
       }
     : null;
 
+  // Highest-impression content page per 2026-05-11 GSC pull. Gated on slug so
+  // we don't slap an email-capture modal on every guide — only this pillar.
+  const showExitIntent = guide.slug === 'finding-motivated-sellers';
+
   return (
     <PublicLayout>
+      {showExitIntent && <ExitIntentModal source="finding-motivated-sellers" />}
       <SEOHead
         title={guide.title}
         description={guide.description}
