@@ -437,7 +437,14 @@ function searchUrlForLocation(location) {
   s = s.replace(/\./g, '');
 
   // ── Step 4: Apostrophe stripping ──
-  s = s.replace(/[''`]/g, '');
+  // Covers ASCII apostrophe ('), backtick (`), and Unicode quote variants
+  // that iOS auto-correct, smart-quote-enabled keyboards, and transliterated
+  // place names emit:
+  //   U+2018 LEFT SINGLE QUOTATION MARK (e.g. ‘Twas)
+  //   U+2019 RIGHT SINGLE QUOTATION MARK (e.g. O’Fallon — iOS replaces ASCII)
+  //   U+02BB HAWAIIAN OKINA (e.g. Kaʻu, Hawaiʻi — Hawaiian place names)
+  //   U+02BC MODIFIER LETTER APOSTROPHE (related but distinct codepoint)
+  s = s.replace(/['`‘’ʻʼ]/g, '');
 
   // ── Step 5: CamelCase → hyphenated, EXCEPT Mc/Mac prefixes ──
   // Temporarily protect Mc[A-Z] and Mac[A-Z] by replacing them with a
