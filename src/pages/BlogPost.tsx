@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { Badge } from '@/components/ui/badge';
 import {
   ArrowLeft, Clock, Calendar, User, Tag, ArrowRight, Zap,
@@ -93,13 +94,97 @@ export default function BlogPost() {
     day: 'numeric',
   });
 
+  const canonical = `https://aiwholesail.com/blog/${article.slug}`;
+  const publishedISO = new Date(article.publishedAt).toISOString();
+  const wordCount = article.sections
+    .map((s) => (s.content || '') + ' ' + ((s.items || []).join(' ')))
+    .join(' ')
+    .split(/\s+/)
+    .filter(Boolean).length;
+
+  // Article schema with structured author + publisher.
+  const articleJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: article.title,
+    description: article.metaDescription || article.excerpt,
+    url: canonical,
+    image: 'https://aiwholesail.com/og-image.png',
+    author: {
+      '@type': article.author === 'AIWholesail' || article.author === 'AIWholesail Team' ? 'Organization' : 'Person',
+      name: article.author,
+      url: 'https://aiwholesail.com',
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'AIWholesail',
+      url: 'https://aiwholesail.com',
+      logo: { '@type': 'ImageObject', url: 'https://aiwholesail.com/logo-aiw.png' },
+    },
+    datePublished: publishedISO,
+    dateModified: publishedISO,
+    mainEntityOfPage: { '@type': 'WebPage', '@id': canonical },
+    articleSection: article.category,
+    keywords: (article.metaKeywords || article.tags.join(', ')),
+    wordCount,
+  };
+
+  // Build a FAQ schema from sections that look like Q&A — common pattern in
+  // automated blog content where headings end with a question mark.
+  const inferredFaqs: { q: string; a: string }[] = [];
+  for (let i = 0; i < article.sections.length - 1; i++) {
+    const s = article.sections[i];
+    if ((s.type === 'heading' || s.type === 'subheading') && s.content && s.content.trim().endsWith('?')) {
+      // Find the next paragraph(s) that follow.
+      const answers: string[] = [];
+      for (let j = i + 1; j < article.sections.length; j++) {
+        const n = article.sections[j];
+        if (n.type === 'heading' || n.type === 'subheading') break;
+        if (n.type === 'paragraph' && n.content) answers.push(n.content);
+        if (answers.length >= 2) break;
+      }
+      if (answers.length > 0) {
+        inferredFaqs.push({ q: s.content.trim(), a: answers.join(' ') });
+      }
+    }
+    if (inferredFaqs.length >= 8) break;
+  }
+
+  const faqJsonLd = inferredFaqs.length > 0
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: inferredFaqs.map((f) => ({
+          '@type': 'Question',
+          name: f.q,
+          acceptedAnswer: { '@type': 'Answer', text: f.a },
+        })),
+      }
+    : null;
+
   return (
     <PublicLayout>
       <SEOHead
         title={article.title}
         description={article.metaDescription || article.excerpt}
         keywords={article.metaKeywords || article.tags.join(', ')}
+        canonicalUrl={canonical}
+        breadcrumbs={[
+          { name: 'Home', url: 'https://aiwholesail.com' },
+          { name: 'Blog', url: 'https://aiwholesail.com/blog' },
+          { name: article.category, url: 'https://aiwholesail.com/blog' },
+          { name: article.title, url: canonical },
+        ]}
       />
+
+      <Helmet>
+        <script type="application/ld+json">{JSON.stringify(articleJsonLd)}</script>
+        {faqJsonLd && <script type="application/ld+json">{JSON.stringify(faqJsonLd)}</script>}
+        <meta property="article:published_time" content={publishedISO} />
+        <meta property="article:modified_time" content={publishedISO} />
+        <meta property="article:section" content={article.category} />
+        {article.tags.map((t) => <meta key={t} property="article:tag" content={t} />)}
+      </Helmet>
 
       {/* ===== HERO HEADER ===== */}
       <section className="relative bg-gradient-to-b from-[#0a0a0a] via-[#0f0f0f] to-[#0a0a0a] text-white overflow-hidden">
