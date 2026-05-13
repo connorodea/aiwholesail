@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { PropertySearchParams } from '@/types/zillow';
 import { Search, Home, Bed, Bath, DollarSign, TrendingDown, MessageSquare, Gavel, Building2, AlertTriangle, Flame, Sparkles, Lock, Radius, SlidersHorizontal, Check } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -129,6 +129,7 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
                       value={searchParams.location}
                       onChange={(value) => updateParam('location', value)}
                       required={true}
+                      hideHelperText={tidied}
                     />
                   </div>
                   {multiLocationEnabled && (
@@ -371,14 +372,17 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
             const activeCount = filterDefs.filter((f) => f.checked).length;
 
             if (variant === 'compact') {
-              /* Variant C — collapse filters into a slide-in Sheet.
-                 Form's vertical footprint drops dramatically; active
-                 count is surfaced in the trigger so users see at a
-                 glance what's applied. */
+              /* Variant C — collapse filters into a Popover anchored to
+                 the trigger button. The pop-up floats over the search
+                 form right where the user clicked, instead of sliding
+                 in from the side of the viewport. PopoverContent uses
+                 `align="end"` so it visually right-aligns with the
+                 trigger but extends leftward, staying inside the form
+                 card on common widths. */
               return (
                 <div className="border-t border-border/60 pt-4 sm:pt-5">
-                  <Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
-                    <SheetTrigger asChild>
+                  <Popover open={filtersOpen} onOpenChange={setFiltersOpen}>
+                    <PopoverTrigger asChild>
                       <Button
                         type="button"
                         variant="outline"
@@ -400,16 +404,21 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
                           {activeCount === 0 ? 'None' : `${activeCount}/${filterDefs.length}`}
                         </span>
                       </Button>
-                    </SheetTrigger>
-                    <SheetContent side="right" className="sm:max-w-md">
-                      <SheetHeader>
-                        <SheetTitle>Filters</SheetTitle>
-                      </SheetHeader>
-                      <div className="mt-6">
-                        <FilterPillGrid filters={filterDefs} />
+                    </PopoverTrigger>
+                    <PopoverContent
+                      align="center"
+                      sideOffset={8}
+                      className="w-[calc(100vw-2rem)] sm:w-[520px] p-4 bg-background border-border/80 shadow-xl"
+                    >
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="text-sm font-medium">Filters</h4>
+                        {activeCount > 0 && (
+                          <span className="text-xs text-cyan-400">{activeCount} active</span>
+                        )}
                       </div>
-                    </SheetContent>
-                  </Sheet>
+                      <FilterPillGrid filters={filterDefs} />
+                    </PopoverContent>
+                  </Popover>
                 </div>
               );
             }
