@@ -19,6 +19,7 @@ import { resolveLocation } from '@/lib/locationResolver';
 import { topZipsInState } from '@/lib/topZipsByState';
 import { fanOutZipSearch, MAX_ZIPS_PER_SEARCH } from '@/lib/zip-search';
 import { OwnerSkipTraceButton } from '@/components/OwnerSkipTraceButton';
+import { LocationAutocomplete } from '@/components/LocationAutocomplete';
 import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useFeatureFlag } from '@/hooks/useFeatureFlag';
@@ -695,13 +696,19 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
           <div className="flex flex-col gap-3">
             <div className="space-y-2">
               <Label htmlFor="abs-location">Location</Label>
-              <Input
-                id="abs-location"
+              <LocationAutocomplete
+                inputId="abs-location"
                 value={locationInput}
-                onChange={(e) => setLocationInput(e.target.value)}
-                placeholder='ZIP (55101), multi-ZIP (55101, 55102, 55103), "Detroit, MI", "Oakland County, MI", or just "MI"'
-                className="bg-background/50"
-                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                onChange={setLocationInput}
+                onSelect={() => {
+                  // Auto-fire the search when the user commits a Zillow
+                  // suggestion — matches Google Places' "select-to-search"
+                  // pattern and skips the extra Enter press.
+                  handleSearch();
+                }}
+                placeholder='ZIP (55101), multi-ZIP, "Detroit, MI", "Oakland County, MI", or just "MI"'
+                hideLabel
+                hideHelperText
               />
               <p className="text-xs text-muted-foreground">
                 Multi-ZIP / city / county / state all fan out across up to {MAX_ZIPS_PER_SEARCH} ZIPs.
