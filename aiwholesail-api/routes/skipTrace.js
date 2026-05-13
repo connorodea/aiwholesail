@@ -393,6 +393,20 @@ router.post(
       }
     }
 
+    // FALLBACK: if both V1 and V2 are down, try TPS as a last resort, even
+    // for users who don't have skip_trace_tps enabled. Resilience layer — no
+    // flag check. Only fires for searchTypes TPS knows about.
+    if (!upstreamData && TPS_SUPPORTED.has(searchType)) {
+      console.warn(`[skip-trace] both RapidAPI providers failed, trying TPS final fallback`);
+      const tpsData = await callTpsPrimary(searchType, params);
+      if (tpsData && Array.isArray(tpsData.people)) {
+        upstreamData = tpsData;
+        upstreamStatus = 200;
+        upstreamError = null;
+        providerUsed = 'tps-fallback';
+      }
+    }
+
     const peoIds = extractPeoIds(upstreamData);
     const resultCount = countResults(upstreamData);
 
