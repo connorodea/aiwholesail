@@ -10,6 +10,7 @@ import { PublicLayout } from '@/components/PublicLayout';
 import { Spotlight } from '@/components/ui/spotlight';
 import competitors from '@/data/competitors.json';
 import softwareReviews from '@/data/software-reviews.json';
+import { buildComparisonTitle, buildComparisonDescription } from '@/lib/seo/comparison-meta';
 
 const LAST_UPDATED = '2026-05-12';
 
@@ -133,8 +134,8 @@ export default function ComparisonPage() {
   return (
     <PublicLayout>
       <SEOHead
-        title={`AIWholesail vs ${comp.name} -- Honest Comparison (${LAST_UPDATED})`}
-        description={`AIWholesail vs ${comp.name}: ${comp.summary?.slice(0, 155) || `Compare features, pricing, and use cases. AIWholesail starts at $49/mo with AI deal scoring; ${comp.name} is ${comp.pricing}.`}`}
+        title={buildComparisonTitle(comp, LAST_UPDATED)}
+        description={buildComparisonDescription(comp, LAST_UPDATED)}
         keywords={`AIWholesail vs ${comp.name}, ${comp.name} alternative, ${comp.name} competitor, best wholesale real estate software, ${comp.name} review, better than ${comp.name}`}
         canonicalUrl={canonical}
         breadcrumbs={[
