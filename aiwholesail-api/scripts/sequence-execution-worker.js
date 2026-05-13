@@ -51,7 +51,15 @@ function renderTemplate(template, vars) {
 }
 
 function buildVariables(row) {
-  const userVars = row.variables && typeof row.variables === 'object' ? row.variables : {};
+  // Three sources, increasing precedence:
+  //   1. auto-derived from the recipient row (lead_first_name, etc.)
+  //   2. lead_sequences.variables — set when the sequence was assigned
+  //      (legacy single-lead UI path)
+  //   3. campaign_targets.target_variables — set by the campaign builder
+  //      when fanning out to a buyers/agents/CSV audience. This is the
+  //      most specific source and wins when both are present.
+  const sequenceVars = row.sequence_variables && typeof row.sequence_variables === 'object' ? row.sequence_variables : {};
+  const campaignVars = row.campaign_variables && typeof row.campaign_variables === 'object' ? row.campaign_variables : {};
   const firstName = row.lead_first_name || '';
   const lastName = row.lead_last_name || '';
   const fullName = [firstName, lastName].filter(Boolean).join(' ').trim();
@@ -60,10 +68,9 @@ function buildVariables(row) {
     first_name: firstName || 'there',
     lead_name: fullName || firstName || '',
     property_address: row.property_address || '',
-    your_name: userVars.your_name || '',
+    your_name: sequenceVars.your_name || campaignVars.your_name || '',
   };
-  // user-supplied variables win over auto-derived defaults
-  return { ...auto, ...userVars };
+  return { ...auto, ...sequenceVars, ...campaignVars };
 }
 
 async function tableExists(tableName) {
@@ -72,6 +79,14 @@ async function tableExists(tableName) {
 }
 
 async function fetchPending() {
+  // Campaigns target buyers/agents/CSV rows that do NOT have a leads row,
+  // so lead_sequences.lead_id is nullable since migration 024. Use LEFT
+  // JOINs and COALESCE the recipient fields out of (in order): the leads
+  // table (legacy single-lead assignment), the campaign_targets row that
+  // dispatched this lead_sequence (bulk-campaign launch), or — fallback —
+  // the lead_sequences.variables JSONB. The COALESCE order means a real
+  // leads row wins if present, otherwise the campaign target, otherwise
+  // whatever the campaign UI stored as merge vars.
   const { rows } = await pool.query(`
     SELECT
       e.id AS execution_id,
@@ -82,19 +97,25 @@ async function fetchPending() {
       s.subject AS step_subject,
       s.message_template,
       ls.user_id,
-      ls.variables,
+      ls.variables AS sequence_variables,
       ls.status AS sequence_status,
       l.id AS lead_id,
-      l.email AS lead_email,
-      l.phone AS lead_phone,
-      l.first_name AS lead_first_name,
-      l.last_name AS lead_last_name
+      COALESCE(l.email,      ct.target_email,                       ls.variables->>'email')      AS lead_email,
+      COALESCE(l.phone,      ct.target_phone,                       ls.variables->>'phone')      AS lead_phone,
+      COALESCE(l.first_name,
+               split_part(ct.target_name, ' ', 1),
+               ls.variables->>'first_name')                                                       AS lead_first_name,
+      COALESCE(l.last_name,
+               NULLIF(substring(ct.target_name from position(' ' in ct.target_name) + 1), ''),
+               ls.variables->>'last_name')                                                        AS lead_last_name,
+      ct.target_variables                                                                          AS campaign_variables
     FROM sequence_executions e
     JOIN lead_sequences ls ON ls.id = e.lead_sequence_id
     JOIN sequence_steps s
       ON s.sequence_template_id = ls.sequence_template_id
      AND s.step_order = e.step_order
-    JOIN leads l ON l.id = ls.lead_id
+    LEFT JOIN leads l           ON l.id = ls.lead_id
+    LEFT JOIN campaign_targets ct ON ct.lead_sequence_id = ls.id
     WHERE e.status = 'pending'
       AND e.scheduled_date <= NOW()
       AND ls.status = 'active'
