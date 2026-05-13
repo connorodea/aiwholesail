@@ -30,6 +30,7 @@ const propdataRoutes = require('./routes/propdata');
 const flagsRoutes = require('./routes/flags');
 const healthIntegrationsRoutes = require('./routes/healthIntegrations');
 const unsubscribeRoutes = require('./routes/unsubscribe');
+const adminRoutes = require('./routes/admin');
 
 // Import middleware
 const { errorHandler } = require('./middleware/errorHandler');
@@ -139,6 +140,9 @@ app.use('/api/health', healthIntegrationsRoutes);
 // Mounted before the catch-all utility routes so /api/unsubscribe/:token
 // resolves to its own handler.
 app.use('/api/unsubscribe', unsubscribeRoutes);
+// Admin-only endpoints (operator allowlist; see routes/admin.js for auth).
+// Mounted before the catch-all utility routes so /api/admin/* resolves here.
+app.use('/api/admin', adminRoutes);
 app.use('/api', utilityRoutes);
 
 // Exec dashboard at /exec/* — served via the nginx vhost for
