@@ -17,6 +17,7 @@ const {
   LEAD_SCORING_PROMPT,
   WHOLESALE_ANALYSIS_PROMPT
 } = require('../services/openai');
+const { proxyZillow } = require('../lib/agent/zillowProxy');
 
 const router = express.Router();
 const RAPIDAPI_KEY = process.env.RAPIDAPI_KEY;
@@ -1114,34 +1115,30 @@ router.post('/rank-comps',
   const { zpid, address, subject } = req.body;
   if (!zpid && !address) return res.status(400).json({ error: 'zpid or address required' });
 
-  if (!RAPIDAPI_KEY) {
-    return res.status(503).json({ error: 'Comps service not configured' });
-  }
-
-  // 1) Pull the comp pool from Zillow (same source as ComparableSalesTable)
+  // Comp pool comes from our internal Zillow proxy (port 3201, action: 'comps')
+  // — same source ComparableSalesTable uses successfully. The prior direct
+  // call to `zillow-working-api.p.rapidapi.com/comparable_homes` failed
+  // because that's a different RapidAPI subscription we don't have. Routing
+  // through proxyZillow gives us: shared key + caching + the 27 known-
+  // supported actions allowlist (PR #211 guard).
   let compPool = [];
   try {
     const params = {};
-    if (zpid) params.byzpid = zpid;
-    if (address) params.byaddress = address;
-    const r = await axios.get(
-      'https://zillow-working-api.p.rapidapi.com/comparable_homes',
-      {
-        params,
-        headers: {
-          'x-rapidapi-key': RAPIDAPI_KEY,
-          'x-rapidapi-host': 'zillow-working-api.p.rapidapi.com',
-        },
-        timeout: 30_000,
-      }
-    );
-    // The RapidAPI response shape varies; normalize defensively
-    const payload = r.data || {};
+    if (zpid) params.zpid = zpid;
+    if (address) params.address = address;
+    // Geo hints help upstream rank by proximity when no zpid resolves.
+    if (subject?.latitude) params.lat = subject.latitude;
+    if (subject?.longitude) params.lng = subject.longitude;
+    const data = await proxyZillow('comps', params);
+    // The proxy returns a normalized shape; defensively pull from the
+    // common keys it surfaces.
+    const payload = data || {};
     compPool = payload.comparableHomes || payload.comparable_homes ||
-               payload.comparables || payload.comps || payload.data || [];
+               payload.comparables || payload.comps || payload.data?.comps ||
+               payload.data?.comparables || (Array.isArray(payload.data) ? payload.data : []) || [];
     if (!Array.isArray(compPool)) compPool = [];
   } catch (err) {
-    console.error('[rank-comps] Zillow comps fetch failed:', err.response?.data || err.message);
+    console.error('[rank-comps] Zillow proxy comps fetch failed:', err.message);
     return res.status(502).json({
       error: 'Could not fetch comparable sales from upstream',
       message: 'Try again in a moment.',
