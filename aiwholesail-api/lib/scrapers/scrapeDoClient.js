@@ -14,8 +14,17 @@
  *   super=true          — premium residential pool (slower, fewer blocks)
  *   customHeaders=true  — forward our Headers verbatim (needed for POSTs)
  *
- * Failure modes we treat as retryable: HTTP 429, 502, 503, 504, network errors.
- * Anything else (400, 401, 403, 404, 410) is surfaced as a hard error.
+ * Failure modes we treat as retryable: HTTP 429, 502, 503, 504, network errors,
+ * and a bounded retry on HTTP 400 when the body looks like scrape.do's
+ * concurrent-request-limit / transient-proxy response (NOT a malformed URL).
+ * Anything else (401, 403, 404, 410, hard 400) is surfaced immediately.
+ *
+ * Why bounded 400 retry: production log analysis shows ~1 in 3 scrape.do
+ * calls returning 400 with bodies like "Concurrent request limit reached"
+ * or "Failed to get response from target" — both transient. Retrying these
+ * once with backoff lifts our successful-fetch rate without burning tokens
+ * on genuinely-bad URLs (those usually 400 with "Invalid url" / "Invalid
+ * token" — those bodies are excluded from retry).
  */
 
 const axios = require('axios');
@@ -24,6 +33,19 @@ const SCRAPE_DO_BASE = 'https://api.scrape.do';
 const DEFAULT_TIMEOUT_MS = 30_000;
 const DEFAULT_MAX_RETRIES = 2;
 const RETRY_BACKOFF_MS = 1500;
+// Cap on 400 retries — these are billed even when transient, so we don't
+// want to fan them out as wide as the normal 5xx/429 budget.
+const MAX_400_RETRIES = 1;
+
+// scrape.do 400 bodies that look transient (worth retrying). Anything not
+// matching these is treated as a permanent client-side error.
+const TRANSIENT_400_PATTERNS = [
+  /concurrent request limit/i,
+  /failed to get response/i,
+  /rate.?limit/i,
+  /timeout/i,
+  /try again/i,
+];
 
 // Captcha / soft-block markers. When scrape.do returns 200 but the page body
 // is a captcha gate (Zillow uses PerimeterX), we transparently retry once
@@ -75,6 +97,12 @@ function getToken() {
 
 function isRetryableStatus(status) {
   return status === 429 || status === 502 || status === 503 || status === 504;
+}
+
+function isTransient400(body) {
+  if (typeof body !== 'string' || body.length === 0) return false;
+  const snippet = body.slice(0, 500);
+  return TRANSIENT_400_PATTERNS.some((re) => re.test(snippet));
 }
 
 function buildQuery(targetUrl, opts) {
@@ -134,7 +162,13 @@ async function scrape(targetUrl, opts = {}) {
   }
 
   let lastErr = null;
-  for (let attempt = 1; attempt <= maxRetries + 1; attempt += 1) {
+  let retries400 = 0;
+  // Loop bound includes the 400 retry budget so the bounded-400 path still
+  // gets its retry when callers pass a tight maxRetries (e.g. autocomplete
+  // uses maxRetries:0 to keep latency down — but should still survive a
+  // single transient 400).
+  const maxAttempts = maxRetries + 1 + MAX_400_RETRIES;
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
     let res;
     try {
       res = await axios(axiosConfig);
@@ -189,6 +223,24 @@ async function scrape(targetUrl, opts = {}) {
       continue;
     }
 
+    // Bounded 400 retry — only when the body matches a known-transient
+    // pattern (concurrent-limit / proxy-timeout). Capped separately from
+    // the 5xx budget to avoid spending tokens on genuinely-bad requests.
+    if (
+      res.status === 400 &&
+      retries400 < MAX_400_RETRIES &&
+      isTransient400(res.data)
+    ) {
+      retries400 += 1;
+      lastErr = new ScrapeDoError(`scrape.do HTTP 400 (transient)`, {
+        status: 400,
+        attempts: attempt,
+        upstream: typeof res.data === 'string' ? res.data.slice(0, 200) : undefined,
+      });
+      await sleep(RETRY_BACKOFF_MS * attempt);
+      continue;
+    }
+
     throw new ScrapeDoError(`scrape.do HTTP ${res.status}`, {
       status: res.status,
       attempts: attempt,
@@ -208,6 +260,7 @@ module.exports = {
   ScrapeDoError,
   buildQuery,
   isRetryableStatus,
+  isTransient400,
   looksLikeCaptcha,
   CAPTCHA_MARKERS,
 };
