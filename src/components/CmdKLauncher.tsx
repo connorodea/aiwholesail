@@ -18,20 +18,9 @@ import { useLocation } from "react-router-dom";
 const INTRO_KEY = "aiw_cmdk_intro_seen";
 
 function isAppRoute(pathname: string): boolean {
-  // Show the FAB on all in-product routes — anything under /app, /analyzer, etc.
+  // Show the FAB on all in-product routes — everything lives under /app/*.
   // Hide on marketing pages so logged-out flows aren't cluttered.
-  return (
-    pathname.startsWith("/app") ||
-    pathname.startsWith("/analyzer") ||
-    pathname.startsWith("/leads") ||
-    pathname.startsWith("/favorites") ||
-    pathname.startsWith("/alerts") ||
-    pathname.startsWith("/buyers") ||
-    pathname.startsWith("/sequences") ||
-    pathname.startsWith("/contracts") ||
-    pathname.startsWith("/settings") ||
-    pathname.startsWith("/dashboard")
-  );
+  return pathname.startsWith("/app");
 }
 
 export function CmdKLauncher() {
