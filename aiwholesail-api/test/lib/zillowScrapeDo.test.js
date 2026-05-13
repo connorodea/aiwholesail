@@ -191,19 +191,215 @@ test('mapPropertyToRapidApiShape', async (t) => {
 
 // ───────────────────────── Search helpers ─────────────────────────
 
-test('searchUrlForLocation', () => {
-  assert.equal(
-    searchUrlForLocation('Austin, TX'),
-    'https://www.zillow.com/homes/austin-tx_rb/'
-  );
-  assert.equal(
-    searchUrlForLocation('78737'),
-    'https://www.zillow.com/homes/78737_rb/'
-  );
-  assert.equal(
-    searchUrlForLocation('  Oxford, MI 48371  '),
-    'https://www.zillow.com/homes/oxford-mi-48371_rb/'
-  );
+test('searchUrlForLocation', async (t) => {
+  // ── Baseline / happy path ─────────────────────────────────────────────────
+  await t.test('basic city+state slug', () => {
+    assert.equal(
+      searchUrlForLocation('Austin, TX'),
+      'https://www.zillow.com/homes/austin-tx_rb/'
+    );
+  });
+
+  await t.test('ZIP-only slug', () => {
+    assert.equal(
+      searchUrlForLocation('78737'),
+      'https://www.zillow.com/homes/78737_rb/'
+    );
+  });
+
+  await t.test('trims leading/trailing whitespace', () => {
+    assert.equal(
+      searchUrlForLocation('  Oxford, MI 48371  '),
+      'https://www.zillow.com/homes/oxford-mi-48371_rb/'
+    );
+  });
+
+  await t.test('lowercase input is unaffected', () => {
+    assert.equal(
+      searchUrlForLocation('austin, tx'),
+      'https://www.zillow.com/homes/austin-tx_rb/'
+    );
+  });
+
+  await t.test('all-uppercase acronym is unaffected (no spurious hyphen)', () => {
+    assert.equal(
+      searchUrlForLocation('USA'),
+      'https://www.zillow.com/homes/usa_rb/'
+    );
+  });
+
+  // ── Compound-case split (De/Du/La → hyphenated) ───────────────────────────
+  // Zillow's canonical slugs insert a hyphen at internal case-breaks for
+  // words like DeKalb, DuPage, LaPorte.  Confirmed live 2026-05-13.
+  await t.test('DeKalb → de-kalb (case-break hyphen)', () => {
+    assert.equal(
+      searchUrlForLocation('DeKalb County, AL'),
+      'https://www.zillow.com/homes/de-kalb-county-al_rb/'
+    );
+  });
+
+  await t.test('DuPage → du-page (case-break hyphen)', () => {
+    assert.equal(
+      searchUrlForLocation('DuPage County, IL'),
+      'https://www.zillow.com/homes/du-page-county-il_rb/'
+    );
+  });
+
+  await t.test('LaPorte → la-porte (case-break hyphen)', () => {
+    assert.equal(
+      searchUrlForLocation('LaPorte, IN'),
+      'https://www.zillow.com/homes/la-porte-in_rb/'
+    );
+  });
+
+  await t.test('LaGrange → la-grange (case-break hyphen)', () => {
+    assert.equal(
+      searchUrlForLocation('LaGrange, GA'),
+      'https://www.zillow.com/homes/la-grange-ga_rb/'
+    );
+  });
+
+  // ── Mc/Mac prefix — NO hyphen inserted ────────────────────────────────────
+  // Zillow treats McKinney, McAllen, MacDonough as single words.
+  // "mc-kinney-tx" returns 0 listResults; "mckinney-tx" returns 2,021.
+  // Confirmed live 2026-05-13.  The camelCase regex is suppressed for Mc/Mac.
+  await t.test('McKinney → mckinney (Mc prefix — no split)', () => {
+    assert.equal(
+      searchUrlForLocation('McKinney, TX'),
+      'https://www.zillow.com/homes/mckinney-tx_rb/'
+    );
+  });
+
+  await t.test('MacDonough → macdonough (Mac prefix — no split)', () => {
+    assert.equal(
+      searchUrlForLocation('MacDonough, GA'),
+      'https://www.zillow.com/homes/macdonough-ga_rb/'
+    );
+  });
+
+  await t.test('McAllen → mcallen (Mc prefix — no split)', () => {
+    assert.equal(
+      searchUrlForLocation('McAllen, TX'),
+      'https://www.zillow.com/homes/mcallen-tx_rb/'
+    );
+  });
+
+  // ── Period stripping (St., Dr., etc.) ─────────────────────────────────────
+  // "st." → "st" — the dot is noise; Zillow's slug uses bare "st".
+  await t.test('St. Louis → st-louis (period stripped)', () => {
+    assert.equal(
+      searchUrlForLocation('St. Louis, MO'),
+      'https://www.zillow.com/homes/st-louis-mo_rb/'
+    );
+  });
+
+  await t.test('St. Paul → st-paul (period stripped)', () => {
+    assert.equal(
+      searchUrlForLocation('St. Paul, MN'),
+      'https://www.zillow.com/homes/st-paul-mn_rb/'
+    );
+  });
+
+  await t.test('St Louis (no period) → st-louis', () => {
+    assert.equal(
+      searchUrlForLocation('St Louis, MO'),
+      'https://www.zillow.com/homes/st-louis-mo_rb/'
+    );
+  });
+
+  await t.test('Saint Louis → saint-louis (unabbreviated)', () => {
+    assert.equal(
+      searchUrlForLocation('Saint Louis, MO'),
+      'https://www.zillow.com/homes/saint-louis-mo_rb/'
+    );
+  });
+
+  // ── Apostrophe stripping ──────────────────────────────────────────────────
+  // Zillow tolerates apostrophes but the clean stripped form is canonical.
+  await t.test("O'Fallon → ofallon (apostrophe stripped)", () => {
+    assert.equal(
+      searchUrlForLocation("O'Fallon, MO"),
+      'https://www.zillow.com/homes/ofallon-mo_rb/'
+    );
+  });
+
+  await t.test("L'Anse → lanse (apostrophe stripped)", () => {
+    assert.equal(
+      searchUrlForLocation("L'Anse, MI"),
+      'https://www.zillow.com/homes/lanse-mi_rb/'
+    );
+  });
+
+  await t.test("St. Mary's County → st-marys-county (period + apostrophe stripped)", () => {
+    assert.equal(
+      searchUrlForLocation("St. Mary's County, MD"),
+      'https://www.zillow.com/homes/st-marys-county-md_rb/'
+    );
+  });
+
+  // ── Accent / diacritic normalization ─────────────────────────────────────
+  // "San José" → "san-jose". Confirmed live: both forms return same results
+  // but the ASCII form is canonical and avoids downstream encoding issues.
+  await t.test('San José → san-jose (accent normalized)', () => {
+    assert.equal(
+      searchUrlForLocation('San José, CA'),
+      'https://www.zillow.com/homes/san-jose-ca_rb/'
+    );
+  });
+
+  // ── ZIP+4 stripping ───────────────────────────────────────────────────────
+  // "78737-1234" → "78737". ZIP+4 format returns 0 listResults on Zillow.
+  // Confirmed live 2026-05-13: 78737-1234 → 0 results; 78737 → 192 results.
+  await t.test('ZIP+4 stripped to 5-digit ZIP', () => {
+    assert.equal(
+      searchUrlForLocation('78737-1234'),
+      'https://www.zillow.com/homes/78737_rb/'
+    );
+  });
+
+  // ── Pre-hyphenated city names (hyphen preserved, not doubled) ────────────
+  await t.test('Winston-Salem pre-hyphen preserved', () => {
+    assert.equal(
+      searchUrlForLocation('Winston-Salem, NC'),
+      'https://www.zillow.com/homes/winston-salem-nc_rb/'
+    );
+  });
+
+  await t.test('Wilkes-Barre pre-hyphen preserved', () => {
+    assert.equal(
+      searchUrlForLocation('Wilkes-Barre, PA'),
+      'https://www.zillow.com/homes/wilkes-barre-pa_rb/'
+    );
+  });
+
+  await t.test('Spring-Grove pre-hyphen preserved', () => {
+    assert.equal(
+      searchUrlForLocation('Spring-Grove, IL'),
+      'https://www.zillow.com/homes/spring-grove-il_rb/'
+    );
+  });
+
+  // ── State-only / unusual shapes (handled gracefully) ─────────────────────
+  await t.test('state abbreviation only', () => {
+    assert.equal(
+      searchUrlForLocation('TX'),
+      'https://www.zillow.com/homes/tx_rb/'
+    );
+  });
+
+  await t.test('full state name', () => {
+    assert.equal(
+      searchUrlForLocation('California'),
+      'https://www.zillow.com/homes/california_rb/'
+    );
+  });
+
+  await t.test('multi-word with "or" (Truth or Consequences → t-or-c)', () => {
+    assert.equal(
+      searchUrlForLocation('T or C, NM'),
+      'https://www.zillow.com/homes/t-or-c-nm_rb/'
+    );
+  });
 });
 
 test('findListResults + findTotalResultCount', async (t) => {

@@ -371,14 +371,103 @@ const STATUS_TO_ZILLOW = {
  * Build the canonical /homes/<location>_rb/ URL Zillow uses for any
  * location-string search. The slug is forgiving — Zillow's frontend
  * normalizes "Austin, TX 78701" → "austin-tx-78701".
+ *
+ * Slug normalization pipeline (confirmed live 2026-05-13):
+ *
+ * 1. Compound-case split (camelCase → hyphenated):
+ *    Zillow's slugs include a hyphen at the internal case-break for words
+ *    like "DeKalb" → "de-kalb" and "DuPage" → "du-page". The `[a-z][A-Z]`
+ *    regex catches these. Acronyms ("USA") are unaffected.
+ *
+ *    EXCEPTION — Mc/Mac prefixes: "McKinney" → "mckinney" (NOT "mc-kinney"),
+ *    "MacDonough" → "macdonough". These are single-word proper nouns in
+ *    Zillow's index. We suppress the split by temporarily replacing
+ *    "Mc[A-Z]" and "Mac[A-Z]" before running the general camelCase regex,
+ *    then restoring. Confirmed live: mc-kinney-tx returns 0 results;
+ *    mckinney-tx returns 2,021.
+ *
+ * 2. Accent / diacritic normalization:
+ *    "San José" → "san-jose". Unicode NFKD decomposition + strip combining
+ *    marks. Zillow accepts the URL-encoded accent but the normalized form
+ *    is canonical and more robust across proxy layers.
+ *
+ * 3. Period stripping:
+ *    "St. Louis" → "st-louis". The period is removed before spacing is
+ *    collapsed. Zillow tolerates the dot in practice but the clean form
+ *    is more stable.
+ *
+ * 4. Apostrophe stripping:
+ *    "O'Fallon" → "ofallon", "St. Mary's" → "st-marys". Zillow accepts
+ *    the apostrophe in the slug but it degrades gracefully either way.
+ *    Stripping produces the cleaner canonical form.
+ *
+ * 5. ZIP+4 stripping:
+ *    "78737-1234" → "78737". The four-digit extension is not a valid
+ *    Zillow search target and produces no listResults. Confirmed live.
+ *
+ * 6. Double-hyphen collapse + leading/trailing trim:
+ *    Any combination of the above transformations that would produce "--"
+ *    or a leading/trailing "-" is collapsed/trimmed.
+ *
+ * Failure-mode patterns discovered during live probe (2026-05-13):
+ *   - Mc/Mac prefix: McKinney → mc-kinney (0 results) vs mckinney (2,021)
+ *   - ZIP+4: 78737-1234 → 0 results; strip to 78737 → 192 results
+ *   - Accents: san-jos%C3%A9-ca works but san-jose-ca is cleaner/canonical
+ *   - Full address: "123 Main St, Austin TX" → slug has no listResults (expected)
+ *   - "MacDonough, GA" (user typo): slug correct for the typo but no Zillow page;
+ *     real city is "McDonough, GA" → cannot fix typos
+ *   - "TX" / "California" (state-only): returns results (500k+), handled correctly
+ *
+ * @param {string} location  Free-form: "City, ST", ZIP, "State", etc.
+ * @returns {string}  Full https://www.zillow.com/homes/<slug>_rb/ URL
  */
 function searchUrlForLocation(location) {
-  const slug = String(location)
+  // ── Step 1: Unicode NFKD normalization → strip combining marks (accents) ──
+  // "San José" → "San Jose"
+  let s = String(location)
     .trim()
+    .normalize('NFKD')
+    .replace(/[̀-ͯ]/g, ''); // strip combining diacritical marks
+
+  // ── Step 2: ZIP+4 stripping — "78737-1234" → "78737" ──
+  // A hyphen flanked by exactly 5 digits on the left and 4 on the right is a ZIP+4.
+  s = s.replace(/\b(\d{5})-\d{4}\b/g, '$1');
+
+  // ── Step 3: Period stripping (St., Dr., etc.) ──
+  s = s.replace(/\./g, '');
+
+  // ── Step 4: Apostrophe stripping ──
+  s = s.replace(/[''`]/g, '');
+
+  // ── Step 5: CamelCase → hyphenated, EXCEPT Mc/Mac prefixes ──
+  // Temporarily protect Mc[A-Z] and Mac[A-Z] by replacing them with a
+  // placeholder that has no lowercase→uppercase transition, then restore.
+  //
+  // We use a two-pass approach:
+  //   a) Replace Mc/Mac followed by uppercase with a placeholder sequence
+  //      that survives the camelCase regex untouched.
+  //   b) Run the general [a-z][A-Z] → $1-$2 replacement.
+  //   c) Restore the placeholders (they're already lowercase-safe).
+  //
+  // Placeholder: "__MC__X" where X is the capital letter. After lowercasing
+  // in step 6 the whole thing becomes "mcx" as intended.
+  s = s
+    .replace(/\bMac(?=[A-Z])/g, '\x00MAC\x00')
+    .replace(/\bMc(?=[A-Z])/g, '\x00MC\x00')
+    .replace(/([a-z])([A-Z])/g, '$1-$2')       // general camelCase split
+    .replace(/\x00MAC\x00/g, 'Mac')
+    .replace(/\x00MC\x00/g, 'Mc');
+
+  // ── Step 6: Lowercase + strip commas + collapse spaces → hyphens ──
+  s = s
     .toLowerCase()
     .replace(/,/g, '')
     .replace(/\s+/g, '-');
-  return `${ZILLOW_BASE}/homes/${encodeURIComponent(slug)}_rb/`;
+
+  // ── Step 7: Collapse multiple hyphens + trim leading/trailing ──
+  s = s.replace(/-{2,}/g, '-').replace(/^-+|-+$/g, '');
+
+  return `${ZILLOW_BASE}/homes/${encodeURIComponent(s)}_rb/`;
 }
 
 /**
