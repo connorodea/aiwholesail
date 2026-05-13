@@ -25,6 +25,36 @@ const DEFAULT_TIMEOUT_MS = 30_000;
 const DEFAULT_MAX_RETRIES = 2;
 const RETRY_BACKOFF_MS = 1500;
 
+// Captcha / soft-block markers. When scrape.do returns 200 but the page body
+// is a captcha gate (Zillow uses PerimeterX), we transparently retry once
+// with render=true (5x cost) which executes JS and gets past the JS-only
+// challenge. Don't make render=true the default — only the retry path.
+const CAPTCHA_MARKERS = [
+  'Please verify you are a human',
+  'verify you are human',
+  'Press &amp; hold to confirm',
+  'px-captcha',
+  '/_Incapsula_Resource',
+  'Access Denied',
+  'Request unsuccessful. Incapsula',
+  'Pardon Our Interruption',
+  'Are you a robot',
+];
+
+/**
+ * Heuristic: does this response body look like a soft-block / captcha?
+ * Public for testing.
+ */
+function looksLikeCaptcha(body) {
+  if (typeof body !== 'string' || body.length === 0) return false;
+  // Cap the scan — captcha gates are <30KB; if we got a long real page, skip.
+  const slice = body.length > 50_000 ? body.slice(0, 50_000) : body;
+  for (const m of CAPTCHA_MARKERS) {
+    if (slice.includes(m)) return true;
+  }
+  return false;
+}
+
 class ScrapeDoError extends Error {
   constructor(message, { status = 0, attempts = 1, upstream } = {}) {
     super(message);
@@ -121,11 +151,31 @@ async function scrape(targetUrl, opts = {}) {
     }
 
     if (res.status >= 200 && res.status < 300) {
+      // Captcha detection: scrape.do returns 200 with a captcha body when the
+      // target served one. Retry ONCE with render=true (5x cost) to JIT past
+      // the JS challenge. Operators can grep for "render-mode retry" logs to
+      // monitor cost overrun from this path.
+      if (
+        !opts.render &&
+        !opts.__renderRetried &&
+        looksLikeCaptcha(res.data)
+      ) {
+        // Log so cost overruns from render=true escalation are visible.
+        console.warn(
+          `[scrapeDo] captcha detected on ${targetUrl}; retrying with render-mode (5x cost)`
+        );
+        return scrape(targetUrl, {
+          ...opts,
+          render: true,
+          __renderRetried: true,
+        });
+      }
       return {
         status: res.status,
         data: res.data,
         headers: res.headers,
         attempts: attempt,
+        renderRetried: !!opts.__renderRetried,
       };
     }
 
@@ -158,4 +208,6 @@ module.exports = {
   ScrapeDoError,
   buildQuery,
   isRetryableStatus,
+  looksLikeCaptcha,
+  CAPTCHA_MARKERS,
 };
