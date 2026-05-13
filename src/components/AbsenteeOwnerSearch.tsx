@@ -1,4 +1,11 @@
 import { lazy, Suspense, useMemo, useState } from 'react';
+import { LeadTypeChips } from '@/components/LeadTypeChips';
+import {
+  LEAD_TYPES,
+  applyLeadFilters,
+  getServerParamsForLeads,
+  tagRecordWithLeadTypes,
+} from '@/lib/lead-types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -224,6 +231,17 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
   // lazily so users without the flag never download ~80KB of map code.
   const { enabled: heatmapEnabled } = useFeatureFlag('off-market-heatmap');
   const [view, setView] = useState<'list' | 'map'>('list');
+  // Phase 1 — off-market lead-type chips. Flag-gated; when on, the user picks
+  // one or more PropStream-parity lead types (absentee, pre-foreclosure, tax-
+  // delinquent, high-equity, free-and-clear, etc.) and the search routes to
+  // the right PropData endpoint + applies client-side predicates. Default
+  // selection is ['absentee'] for backward compat — same results as the
+  // pre-v2 behaviour.
+  const { enabled: leadTypesV2Enabled } = useFeatureFlag('off-market-search-v2');
+  const [selectedLeadTypes, setSelectedLeadTypes] = useState<Set<string>>(
+    new Set(['absentee'])
+  );
+  const userTier: 'free' | 'pro' | 'elite' = isElite ? 'elite' : isPro ? 'pro' : 'free';
   const HeatmapLazy = useMemo(
     () => lazy(() => import('@/components/OffMarketHeatmap').then(m => ({ default: m.OffMarketHeatmap }))),
     []
@@ -302,9 +320,22 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
       // — message wording drift would silently break the classification
       // and we'd lose visibility into why searches were failing.
       const outcomes = { ok: 0, noCoverage: 0, rateLimited: 0, network: 0, other: 0 };
+      // v2: pick endpoint + server params from selected lead types. v1 keeps
+      // the legacy absentee_only=true call. v2 with default selection
+      // (['absentee']) maps to the same call, so the migration is silent.
+      const serverPlan = leadTypesV2Enabled
+        ? getServerParamsForLeads([...selectedLeadTypes])
+        : { primarySource: 'property' as const, absentee_only: true };
+
       const batched = await fanOutZipSearch(resolved.zips, async (z) => {
         try {
-          const res = await propDataAPI.listAbsenteeOwners({ zip: z, limit: perZipLimit });
+          const res = serverPlan.primarySource === 'preforeclosure'
+            ? await propDataAPI.listPreforeclosures({ zip: z, limit: perZipLimit })
+            : await propDataAPI.listProperties({
+                zip: z,
+                limit: perZipLimit,
+                absentee_only: serverPlan.absentee_only,
+              });
           completed += 1;
           setProgress({ done: completed, total: resolved.zips.length });
           // PropData returns { error, status } with HTTP 200 when a ZIP is
@@ -349,9 +380,23 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
         }
       }
 
+      // v2: apply lead-type client predicates over the merged set BEFORE
+      // truncating to `limit`. OR semantics across selected slugs — a parcel
+      // passes if it matches ANY chosen lead type. v1 behaviour preserved
+      // when flag is off (no filter applied).
+      const filteredMerged = leadTypesV2Enabled && selectedLeadTypes.size > 0
+        ? applyLeadFilters(merged, [...selectedLeadTypes])
+        : merged;
+      // Tag matched lead types for badge rendering on result cards. Cheap —
+      // 12 predicate evals per record. Skipped when flag is off so the
+      // legacy card-render path doesn't read undefined props.
+      const tagged = leadTypesV2Enabled
+        ? tagRecordWithLeadTypes(filteredMerged)
+        : filteredMerged;
+
       setData({
-        properties: merged.slice(0, limit),
-        count: merged.length,
+        properties: tagged.slice(0, limit),
+        count: filteredMerged.length,
         enrichment: mergedEnrichment,
       });
       setProgress(null);
@@ -618,6 +663,20 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
+          {/* v2 lead-type chip selector — multi-select. Picks one or more
+              PropStream-parity off-market lead types (absentee, pre-
+              foreclosure, tax delinquent, high equity, etc.). Default
+              ['absentee'] preserves the legacy single-mode behaviour. */}
+          {leadTypesV2Enabled && (
+            <div className="pb-2 border-b border-border/60">
+              <LeadTypeChips
+                leadTypes={LEAD_TYPES}
+                selected={selectedLeadTypes}
+                onChange={setSelectedLeadTypes}
+                userTier={userTier}
+              />
+            </div>
+          )}
           <div className="flex flex-col gap-3">
             <div className="space-y-2">
               <Label htmlFor="abs-location">Location</Label>

@@ -466,6 +466,41 @@ class PropDataAPI {
     }));
   }
 
+  /**
+   * Off-market-search-v2 generic property lookup. Same /v1/property endpoint
+   * as listAbsenteeOwners but with absentee_only optional — used when the
+   * user picks lead types that don't require absentee (e.g. Tax Delinquent
+   * across all properties, not just landlords). Lead-type client filters
+   * narrow the result set further.
+   */
+  async listProperties(params: {
+    zip: string;
+    limit?: number;
+    absentee_only?: boolean;
+  }): Promise<PropDataPropertyListResponse> {
+    return unwrap(await backend.property({
+      zip: params.zip,
+      absentee_only: params.absentee_only,
+      limit: params.limit ?? 25,
+    }));
+  }
+
+  /**
+   * Interactive pre-foreclosure feed for a single ZIP. Wraps the cursor-
+   * paginated /v1/preforeclosure/delta endpoint with a 30-day-window
+   * default. Used by the off-market-search-v2 Pre-Foreclosure + Auctions
+   * lead types.
+   */
+  async listPreforeclosures(params: {
+    zip: string;
+    limit?: number;
+  }): Promise<PropDataPropertyListResponse> {
+    return unwrap(await backend.preforeclosure({
+      zip: params.zip,
+      limit: params.limit ?? 25,
+    }));
+  }
+
   async getPropertyDelta(params: {
     since: string;
     zip?: string;

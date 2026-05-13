@@ -1,0 +1,13 @@
+week_starting,traffic_total,traffic_organic,traffic_direct,traffic_paid,traffic_referral,trial_starts,trial_starts_pct,trial_to_paid,trial_to_paid_pct,paid_active,paid_churned,mrr,arr,notes
+2026-05-12,,,,,,,,,,,,,,Baseline week — populate from GA4 + Stripe Sightglass
+2026-05-19,,,,,,,,,,,,,,
+2026-05-26,,,,,,,,,,,,,,
+2026-06-02,,,,,,,,,,,,,,Re-audit GSC — measure schema sprint lift
+2026-06-09,,,,,,,,,,,,,,
+2026-06-16,,,,,,,,,,,,,,
+2026-06-23,,,,,,,,,,,,,,
+2026-06-30,,,,,,,,,,,,,,Re-audit content gaps — what's still missing
+2026-07-07,,,,,,,,,,,,,,
+2026-07-14,,,,,,,,,,,,,,
+2026-07-21,,,,,,,,,,,,,,
+2026-07-28,,,,,,,,,,,,,,Q2 close — directory submissions checkpoint

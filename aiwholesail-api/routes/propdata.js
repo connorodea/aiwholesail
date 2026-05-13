@@ -243,6 +243,27 @@ router.get('/property/delta',       authenticate, asyncHandler((req, res) =>
 router.get('/preforeclosure/delta', authenticate, asyncHandler((req, res) =>
   proxy(req, res, '/v1/preforeclosure/delta', DELTA_PARAMS, DELTA_OPTS)));
 
+// On-demand pre-foreclosure lookup for interactive UI (lead-types
+// multi-select, Phase 1). Wraps the cursor-paginated /preforeclosure/delta
+// endpoint with a sane default `since` (30 days ago) so the UI doesn't have
+// to track cursors. Routed through the INTERACTIVE rate-limit bucket and
+// the 60-min cache TTL — the UI doesn't need second-by-second freshness
+// the polling workers care about.
+const PREFORECLOSURE_LOOKUP_DAYS = 30;
+router.get('/preforeclosure', authenticate, asyncHandler((req, res) => {
+  // Default `since` to N days ago if the caller didn't supply one. Mutating
+  // req.query is fine — Express gives us a per-request object. We deliberately
+  // do NOT touch `cursor` here; on-demand calls take the first page.
+  if (!req.query.since) {
+    const sinceDate = new Date(Date.now() - PREFORECLOSURE_LOOKUP_DAYS * 24 * 60 * 60 * 1000);
+    req.query.since = sinceDate.toISOString();
+  }
+  return proxy(req, res, '/v1/preforeclosure/delta', ['since', 'zip', 'limit'], {
+    requiredParams: ['zip'],
+    // Interactive bucket + 60-min TTL — this is UI fetch, not polling.
+  });
+}));
+
 // Zillow autocomplete — different RapidAPI host but SAME marketplace subscription.
 // Migrated here so the key never leaves the backend.
 router.get('/zillow-autocomplete', authenticate, asyncHandler(async (req, res) => {

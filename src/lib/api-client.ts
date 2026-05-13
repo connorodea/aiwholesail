@@ -1019,6 +1019,11 @@ export const propdata = {
     apiFetch<any>(`/api/propdata/property/delta${buildQuery(p)}`),
   preforeclosureDelta: (p: { since: string; zip?: string; cursor?: string; limit?: number }) =>
     apiFetch<any>(`/api/propdata/preforeclosure/delta${buildQuery(p)}`),
+  // Interactive on-demand wrapper around /preforeclosure/delta. Backend defaults
+  // `since` to 30 days ago; no cursor (UI calls aren't polling). Used by
+  // off-market-search-v2 when Pre-Foreclosure or Auctions lead types are picked.
+  preforeclosure: (p: { zip: string; limit?: number }) =>
+    apiFetch<any>(`/api/propdata/preforeclosure${buildQuery(p)}`),
   // Zillow autocomplete via the shared RapidAPI key — also backend-proxied.
   zillowAutocomplete: (query: string) =>
     apiFetch<any>(`/api/propdata/zillow-autocomplete${buildQuery({ query })}`),
