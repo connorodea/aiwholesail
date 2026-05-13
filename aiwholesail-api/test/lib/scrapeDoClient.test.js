@@ -119,4 +119,41 @@ test('scrapeDoClient', async (t) => {
       restore();
     }
   });
+
+  await t.test('isTransient400 only scans first 500 chars (snippet cap)', () => {
+    const { mod, restore } = loadClientWithMockAxios(async () => ({ status: 200, data: '', headers: {} }));
+    try {
+      const padding = 'x'.repeat(600);
+      // Transient phrase past the 500-char cap MUST NOT match — otherwise an
+      // attacker / target site could append a transient-looking phrase to a
+      // genuine error body and force us into wasted retries.
+      assert.equal(mod.isTransient400(`${padding} concurrent request limit`), false);
+      // Same phrase inside the cap DOES match.
+      assert.equal(mod.isTransient400('error: concurrent request limit reached'), true);
+    } finally {
+      restore();
+    }
+  });
+
+  await t.test('400 retry budget is independent from 5xx budget', async () => {
+    let calls = 0;
+    const axiosMock = async () => {
+      calls += 1;
+      // Sequence: 503 → 400-transient → 200. With maxRetries:1 the 5xx
+      // budget covers the first retry; the 400-transient slot covers the
+      // second. Confirms the two counters do not cannibalize each other.
+      if (calls === 1) return { status: 503, data: 'unavailable', headers: {} };
+      if (calls === 2) return { status: 400, data: 'Concurrent request limit reached', headers: {} };
+      return { status: 200, data: 'ok', headers: {} };
+    };
+    const { mod, restore } = loadClientWithMockAxios(axiosMock);
+    try {
+      const res = await mod.scrape('https://example.com', { maxRetries: 1 });
+      assert.equal(res.status, 200);
+      assert.equal(calls, 3);
+      assert.equal(res.attempts, 3);
+    } finally {
+      restore();
+    }
+  });
 });
