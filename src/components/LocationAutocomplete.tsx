@@ -28,6 +28,13 @@ interface LocationAutocompleteProps {
   onValidationChange?: (isValid: boolean, message?: string) => void;
   placeholder?: string;
   required?: boolean;
+  /**
+   * Suppress the built-in "Search by state, city, ZIP code…" helper text
+   * below the input. Set when a parent provides its own consolidated
+   * helper line (e.g. PropertySearch v3 tidied variants), so the two
+   * lines don't stack and read as redundant noise.
+   */
+  hideHelperText?: boolean;
 }
 
 // List of US state names and abbreviations
@@ -119,7 +126,8 @@ export function LocationAutocomplete({
   onChange,
   onValidationChange,
   placeholder = "e.g., Charlotte, NC or Oakland County, MI or 90210",
-  required = false
+  required = false,
+  hideHelperText = false,
 }: LocationAutocompleteProps) {
   const [zillowSuggestions, setZillowSuggestions] = useState<ZillowSuggestion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -243,9 +251,11 @@ export function LocationAutocomplete({
         </Alert>
       )}
 
-      <p className="text-xs text-muted-foreground">
-        Search by state, city, ZIP code, or county. Examples: "MI", "Detroit, MI", or "Oakland County, MI"
-      </p>
+      {!hideHelperText && (
+        <p className="text-xs text-muted-foreground">
+          Search by state, city, ZIP code, or county. Examples: "MI", "Detroit, MI", or "Oakland County, MI"
+        </p>
+      )}
     </div>
   );
 }
