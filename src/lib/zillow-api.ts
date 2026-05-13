@@ -1033,6 +1033,11 @@ export class ZillowAPI {
                   l.closingDate ||
                   null,
                 zpid: l.zpid || null,
+                // Preserve lat/lng for the map view — the comps action in
+                // zillowScrapeDo now surfaces these on the homeRecommendations
+                // shape, and the recently-sold search fallback always had them.
+                latitude: l.latitude ?? l.latLong?.latitude ?? null,
+                longitude: l.longitude ?? l.latLong?.longitude ?? null,
                 distance,
               };
             })

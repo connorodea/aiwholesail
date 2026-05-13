@@ -37,7 +37,8 @@ import {
   Loader2,
   Zap,
   GraduationCap,
-  Trees
+  Trees,
+  Map as MapIcon
 } from 'lucide-react';
 import { calculateWholesalePotential } from '@/lib/wholesale-calculator';
 import { zillowAPI } from '@/lib/zillow-api';
@@ -54,6 +55,7 @@ import { PropertyToolsTab } from './PropertyToolsTab';
 import { AIPhotoAnalysis } from './AIPhotoAnalysis';
 import { PropertySchoolsTab } from './PropertySchoolsTab';
 import { PropertyNeighborhoodTab } from './PropertyNeighborhoodTab';
+import { PropertyMapTab } from './PropertyMapTab';
 import { PropertyMortgageSection } from './PropertyMortgageSection';
 import { ZestimateHistoryChart } from './ZestimateHistoryChart';
 import { PropertyRentalEstimate } from './PropertyRentalEstimate';
@@ -504,6 +506,10 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                   <Trees className="h-3.5 w-3.5" />
                   Neighborhood
                 </TabsTrigger>
+                <TabsTrigger value="map" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_0_1px_rgba(6,182,212,0.25),0_2px_8px_rgba(0,0,0,0.4)] rounded-lg transition-all duration-200 text-xs font-medium px-3 h-8">
+                  <MapIcon className="h-3.5 w-3.5" />
+                  Map
+                </TabsTrigger>
                 <TabsTrigger value="photos" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_0_1px_rgba(6,182,212,0.25),0_2px_8px_rgba(0,0,0,0.4)] rounded-lg transition-all duration-200 text-xs font-medium px-3 h-8">
                   <Image className="h-3.5 w-3.5" />
                   Photos
@@ -691,6 +697,10 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
 
             <TabsContent value="neighborhood" className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-6 mt-0">
               <PropertyNeighborhoodTab property={displayProperty} />
+            </TabsContent>
+
+            <TabsContent value="map" className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-6 mt-0">
+              <PropertyMapTab property={displayProperty} />
             </TabsContent>
 
             <TabsContent value="details" className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-6 mt-0">

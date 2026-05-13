@@ -15,6 +15,19 @@ const {
   mapPropertyToRapidApiShape,
   mapListingToSummary,
   searchUrlForLocation,
+  buildSearchQueryState,
+  boundsFromCenterRadius,
+  findZestimateHistory,
+  findMortgageRates,
+  normalizeMortgageRate,
+  findAgentProfile,
+  normalizeAgentProfile,
+  findMarketStats,
+  normalizeMarketStats,
+  marketStatsUrl,
+  mortgageCalculator,
+  searchByUrl,
+  ZillowScrapeError,
 } = require('../../lib/scrapers/zillowScrapeDo');
 
 // Build a minimal HTML page with a valid __NEXT_DATA__ blob whose shape
@@ -279,5 +292,330 @@ test('mapListingToSummary', async (t) => {
   await t.test('returns null for non-object input', () => {
     assert.equal(mapListingToSummary(null), null);
     assert.equal(mapListingToSummary('x'), null);
+  });
+
+  await t.test('extracts top-level latitude/longitude (homeRecommendations shape)', () => {
+    // comps come back as homeRecommendations.homes items with flat lat/lng,
+    // not the latLong object that listResults uses. Required for the map view.
+    const out = mapListingToSummary({
+      zpid: 100,
+      address: '7 Pine Ct, Plano, TX',
+      price: 410000,
+      bedrooms: 4,
+      bathrooms: 3,
+      latitude: 33.0198,
+      longitude: -96.6989,
+    });
+    assert.equal(out.zpid, '100');
+    assert.equal(out.latitude, 33.0198);
+    assert.equal(out.longitude, -96.6989);
+  });
+});
+
+// ───────────────────────── Coordinate / bounds search ─────────────────────────
+
+test('boundsFromCenterRadius', async (t) => {
+  await t.test('expands center to N/S/E/W by ~radius_mi', () => {
+    const b = boundsFromCenterRadius(30.0, -97.0, 1);
+    // 1 mile = ~1/69 of a degree latitude
+    assert.ok(b.north > 30 && b.north < 30.02);
+    assert.ok(b.south < 30 && b.south > 29.98);
+    // Longitude delta is larger near the equator (cos≈0.866 at lat=30)
+    assert.ok(b.east > -97 && b.east < -96.98);
+    assert.ok(b.west < -97 && b.west > -97.02);
+  });
+
+  await t.test('caps radius at a sensible minimum to avoid degenerate bounds', () => {
+    const b = boundsFromCenterRadius(30.0, -97.0, 0);
+    // 0-radius collapses to the cap; bounds should still be a valid rectangle
+    assert.ok(b.north > b.south);
+    assert.ok(b.east > b.west);
+  });
+});
+
+test('buildSearchQueryState', async (t) => {
+  await t.test('serialises bounds + empty filterState as valid JSON', () => {
+    const sqs = buildSearchQueryState({ north: 30.1, south: 29.9, east: -96.9, west: -97.1 });
+    const parsed = JSON.parse(sqs);
+    assert.equal(parsed.mapBounds.north, 30.1);
+    assert.equal(parsed.mapBounds.south, 29.9);
+    assert.equal(parsed.isMapVisible, true);
+    assert.deepEqual(parsed.filterState, {});
+  });
+
+  await t.test('encodes recentlySold status into the expected isXxx flag soup', () => {
+    const sqs = buildSearchQueryState(
+      { north: 1, south: 0, east: 1, west: 0 },
+      { status: 'recentlySold' }
+    );
+    const parsed = JSON.parse(sqs);
+    // Zillow's frontend toggles a constellation of isXxx flags when you flip
+    // to the "Sold" tab — we must mirror that to get sold results back.
+    assert.equal(parsed.filterState.isRecentlySold.value, true);
+    assert.equal(parsed.filterState.isForSaleByAgent.value, false);
+    assert.equal(parsed.filterState.isForSaleByOwner.value, false);
+  });
+
+  await t.test('encodes price + beds filters when provided', () => {
+    const sqs = buildSearchQueryState(
+      { north: 1, south: 0, east: 1, west: 0 },
+      { priceMin: 100000, priceMax: 500000, bedsMin: 3 }
+    );
+    const parsed = JSON.parse(sqs);
+    assert.equal(parsed.filterState.price.min, 100000);
+    assert.equal(parsed.filterState.price.max, 500000);
+    assert.equal(parsed.filterState.beds.min, 3);
+  });
+});
+
+test('searchByUrl SSRF guards', async (t) => {
+  await t.test('throws on non-zillow hostname', async () => {
+    await assert.rejects(
+      () => searchByUrl('https://attacker.example.com/internal'),
+      (e) => e instanceof ZillowScrapeError && /www\.zillow\.com/.test(e.message)
+    );
+  });
+
+  await t.test('throws on non-https protocol', async () => {
+    await assert.rejects(
+      () => searchByUrl('http://www.zillow.com/homes/austin-tx_rb/'),
+      (e) => e instanceof ZillowScrapeError && /https/.test(e.message)
+    );
+  });
+
+  await t.test('throws on malformed URL', async () => {
+    await assert.rejects(
+      () => searchByUrl('not a url'),
+      (e) => e instanceof ZillowScrapeError && /invalid URL/.test(e.message)
+    );
+  });
+
+  await t.test('throws when called without a url argument', async () => {
+    await assert.rejects(
+      () => searchByUrl(),
+      (e) => e instanceof ZillowScrapeError && /url string/.test(e.message)
+    );
+  });
+});
+
+// ───────────────────────── Zestimate history ─────────────────────────
+
+test('findZestimateHistory', async (t) => {
+  await t.test('pulls points from homeValueChartData "This home" series', () => {
+    const record = {
+      homeValueChartData: [
+        {
+          name: 'This home',
+          points: [
+            { x: 1577836800000, y: 350000 }, // 2020-01-01
+            { x: 1609459200000, y: 380000 }, // 2021-01-01
+          ],
+        },
+        { name: 'Local', points: [{ x: 1577836800000, y: 400000 }] },
+      ],
+    };
+    const series = findZestimateHistory(record);
+    assert.equal(series.length, 2);
+    assert.equal(series[0].value, 350000);
+    assert.ok(series[0].date.startsWith('2020-01-01'));
+    assert.equal(series[1].value, 380000);
+  });
+
+  await t.test('returns null when no history-shaped node present', () => {
+    assert.equal(findZestimateHistory({}), null);
+    assert.equal(findZestimateHistory({ zestimate: 500000 }), null);
+  });
+
+  await t.test('handles flat {date, value} fallback array', () => {
+    const record = {
+      zestimateHistory: [{ date: '2020-01-01', value: 100000 }, { date: '2021-01-01', value: 120000 }],
+    };
+    const series = findZestimateHistory(record);
+    assert.equal(series.length, 2);
+    assert.equal(series[1].value, 120000);
+  });
+});
+
+// ───────────────────────── Mortgage ─────────────────────────
+
+test('mortgageCalculator (pure math)', async (t) => {
+  await t.test('PMT on a standard 30-year fixed', () => {
+    // $400K @ 7% / 30yr → ~$2,661/mo industry-standard
+    const r = mortgageCalculator({ price: 400000, down: 0, term: 30, rate: 7 });
+    assert.equal(r.months, 360);
+    assert.ok(r.monthlyPayment > 2650 && r.monthlyPayment < 2670);
+    assert.ok(r.totalInterest > 0);
+    assert.equal(r.principal, 400000);
+  });
+
+  await t.test('handles 0% interest (no division by zero)', () => {
+    const r = mortgageCalculator({ price: 120000, down: 0, term: 10, rate: 0 });
+    assert.equal(r.monthlyPayment, 1000); // 120000 / 120 months
+    assert.equal(r.totalInterest, 0);
+  });
+
+  await t.test('subtracts down payment from principal', () => {
+    const r = mortgageCalculator({ price: 500000, down: 100000, term: 30, rate: 6 });
+    assert.equal(r.principal, 400000);
+  });
+
+  await t.test('returns optional amortization schedule when requested', () => {
+    const r = mortgageCalculator({ price: 100000, down: 0, term: 1, rate: 6, schedule: true });
+    assert.equal(r.schedule.length, 12);
+    assert.equal(r.schedule[0].month, 1);
+    // Final-month balance should be ~0 (within rounding)
+    assert.ok(r.schedule[11].balance < 1);
+  });
+
+  await t.test('throws ZillowScrapeError on bad args', () => {
+    assert.throws(
+      () => mortgageCalculator({ price: 0, term: 30, rate: 7 }),
+      (e) => e instanceof ZillowScrapeError && /positive numeric/.test(e.message)
+    );
+    assert.throws(
+      () => mortgageCalculator({ price: 100000, term: -1, rate: 7 }),
+      ZillowScrapeError
+    );
+    assert.throws(
+      () => mortgageCalculator({ price: 100000, term: 30 }),
+      ZillowScrapeError
+    );
+  });
+});
+
+test('findMortgageRates + normalizeMortgageRate', async (t) => {
+  await t.test('pulls lenderQuotes from componentProps.rateTable', () => {
+    const nextData = {
+      props: {
+        pageProps: {
+          componentProps: {
+            rateTable: {
+              lenderQuotes: [
+                { lenderName: 'Big Bank', apr: 7.25, rate: 7.0, points: 0.5 },
+                { lenderName: 'Local CU', apr: 6.99, rate: 6.875, points: 1.0 },
+              ],
+            },
+          },
+        },
+      },
+    };
+    const raw = findMortgageRates(nextData);
+    assert.equal(raw.length, 2);
+    const first = normalizeMortgageRate(raw[0]);
+    assert.equal(first.lender, 'Big Bank');
+    assert.equal(first.apr, 7.25);
+    assert.equal(first.rate, 7.0);
+    assert.equal(first.points, 0.5);
+  });
+
+  await t.test('normalizes alternate field names (interestRate, name)', () => {
+    const out = normalizeMortgageRate({
+      name: 'Discount Lender',
+      apr: 6.5,
+      interestRate: 6.25,
+      totalFees: 1500,
+    });
+    assert.equal(out.lender, 'Discount Lender');
+    assert.equal(out.rate, 6.25);
+    assert.equal(out.feesAmount, 1500);
+  });
+
+  await t.test('returns null for non-object', () => {
+    assert.equal(normalizeMortgageRate(null), null);
+  });
+});
+
+// ───────────────────────── Agent profile ─────────────────────────
+
+test('findAgentProfile + normalizeAgentProfile', async (t) => {
+  await t.test('pulls agentProfile from pageProps and normalizes', () => {
+    const nextData = {
+      props: {
+        pageProps: {
+          agentProfile: {
+            firstName: 'Jane',
+            lastName: 'Doe',
+            fullName: 'Jane Doe',
+            brokerage: 'Acme Realty',
+            phone: '555-0100',
+            rating: 4.7,
+            reviewCount: 42,
+            recentListings: [
+              { zpid: 1, address: '1 St', price: 100000 },
+              { zpid: 2, address: '2 St', price: 200000 },
+            ],
+          },
+        },
+      },
+    };
+    const node = findAgentProfile(nextData);
+    assert.ok(node);
+    const out = normalizeAgentProfile(node);
+    assert.equal(out.name, 'Jane Doe');
+    assert.equal(out.brokerage, 'Acme Realty');
+    assert.equal(out.phone, '555-0100');
+    assert.equal(out.rating, 4.7);
+    assert.equal(out.reviewCount, 42);
+    assert.equal(out.recentListings.length, 2);
+    assert.equal(out.recentListings[0].zpid, '1');
+  });
+
+  await t.test('returns null when no agent-shaped node exists', () => {
+    assert.equal(findAgentProfile({ props: { pageProps: {} } }), null);
+    assert.equal(normalizeAgentProfile(null), null);
+  });
+});
+
+// ───────────────────────── Market stats / region ─────────────────────────
+
+test('marketStatsUrl', () => {
+  assert.equal(
+    marketStatsUrl('Austin, TX'),
+    'https://www.zillow.com/austin-tx/home-values/'
+  );
+  assert.equal(
+    marketStatsUrl('78737', 'zip'),
+    'https://www.zillow.com/home-values/78737/'
+  );
+});
+
+test('findMarketStats + normalizeMarketStats', async (t) => {
+  await t.test('pulls regionInfo and normalises typical-home-value + MoM/YoY', () => {
+    const nextData = {
+      props: {
+        pageProps: {
+          componentProps: {
+            regionInfo: {
+              regionName: 'Austin, TX',
+              regionType: 'city',
+              typicalHomeValue: 540000,
+              monthOverMonthChange: -0.4,
+              yearOverYearChange: 1.2,
+              medianDaysOnMarket: 48,
+            },
+          },
+        },
+      },
+    };
+    const node = findMarketStats(nextData);
+    assert.ok(node);
+    const out = normalizeMarketStats(node);
+    assert.equal(out.regionName, 'Austin, TX');
+    assert.equal(out.typicalHomeValue, 540000);
+    assert.equal(out.momChangePct, -0.4);
+    assert.equal(out.yoyChangePct, 1.2);
+    assert.equal(out.medianDaysOnMarket, 48);
+  });
+
+  await t.test('falls back to deep search for region-shaped nodes', () => {
+    const nextData = {
+      foo: { bar: { something: { typicalHomeValue: 300000, regionName: 'Some City' } } },
+    };
+    const node = findMarketStats(nextData);
+    assert.equal(node.typicalHomeValue, 300000);
+  });
+
+  await t.test('returns null for non-object', () => {
+    assert.equal(normalizeMarketStats(null), null);
   });
 });

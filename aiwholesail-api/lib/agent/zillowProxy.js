@@ -51,16 +51,28 @@ const SCRAPE_DO_ACTIONS = {
   taxes: zillowScrapeDo.taxes,
   priceHistory: zillowScrapeDo.priceHistory,
   zestimate: zillowScrapeDo.zestimate,
+  zestimateHistory: zillowScrapeDo.zestimateHistory,
   schools: zillowScrapeDo.schools,
   comps: zillowScrapeDo.comps,
   // Search-class:
   search: zillowScrapeDo.search,
   searchByAddress: zillowScrapeDo.searchByAddress,
+  searchByCoordinates: zillowScrapeDo.searchByCoordinates,
+  searchByBounds: zillowScrapeDo.searchByBounds,
+  searchByUrl: zillowScrapeDo.searchByUrl,
   forSale: zillowScrapeDo.forSale,
   forRent: zillowScrapeDo.forRent,
   recentlySold: zillowScrapeDo.recentlySold,
   foreclosures: zillowScrapeDo.foreclosures,
   fsbo: zillowScrapeDo.fsbo,
+  // Value / agent / market / mortgage:
+  mortgageRates: zillowScrapeDo.mortgageRates,
+  // mortgageCalculator is pure math — exposed for symmetry but the proxy
+  // can also short-circuit and call it directly without falling through
+  // to RapidAPI (no upstream call is needed).
+  mortgageCalculator: zillowScrapeDo.mortgageCalculator,
+  agentProfile: zillowScrapeDo.agentProfile,
+  marketStats: zillowScrapeDo.marketStats,
 };
 
 /**
