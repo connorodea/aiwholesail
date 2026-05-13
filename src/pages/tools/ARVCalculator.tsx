@@ -1,6 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { SEOHead } from '@/components/SEOHead';
+import { CalculatorSchema } from '@/components/CalculatorSchema';
+import { CALCULATOR_METADATA } from '@/data/calculator-metadata';
 import { PublicLayout } from '@/components/PublicLayout';
 import { Slider } from '@/components/ui/slider';
 import { DollarSign, Ruler, Plus, X, ArrowRight, BarChart3, Target } from 'lucide-react';
@@ -93,6 +95,7 @@ export default function ARVCalculator() {
         keywords="arv calculator, after repair value calculator, property value estimator, real estate comps calculator, comparable sales analysis, fix and flip calculator"
       />
 
+      <CalculatorSchema {...CALCULATOR_METADATA['arv-calculator']} />
       {/* Hero */}
       <section className="pt-24 pb-8 px-4">
         <div className="container mx-auto max-w-5xl text-center">

@@ -1,6 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { SEOHead } from '@/components/SEOHead';
+import { CalculatorSchema } from '@/components/CalculatorSchema';
+import { CALCULATOR_METADATA } from '@/data/calculator-metadata';
 import { PublicLayout } from '@/components/PublicLayout';
 import { DollarSign, Sparkles, ChevronRight, TrendingUp, Info, Clock } from 'lucide-react';
 
@@ -62,6 +64,7 @@ export default function HoldingCostCalculator() {
         keywords="holding cost calculator, carrying cost calculator, real estate holding costs, fix and flip costs, property carrying costs, interest cost calculator, investor holding costs"
       />
 
+      <CalculatorSchema {...CALCULATOR_METADATA['holding-cost-calculator']} />
       {/* Hero */}
       <section className="pt-24 pb-8 px-4">
         <div className="container mx-auto text-center max-w-3xl">

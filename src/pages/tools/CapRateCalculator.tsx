@@ -1,6 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { SEOHead } from '@/components/SEOHead';
+import { CalculatorSchema } from '@/components/CalculatorSchema';
+import { CALCULATOR_METADATA } from '@/data/calculator-metadata';
 import { PublicLayout } from '@/components/PublicLayout';
 import { Building2, DollarSign, Sparkles, ChevronRight, TrendingUp, Info } from 'lucide-react';
 import { usePrefill } from '@/lib/property-prefill';
@@ -72,6 +74,7 @@ export default function CapRateCalculator() {
         keywords="cap rate calculator, capitalization rate calculator, noi calculator, gross rent multiplier, real estate cap rate, investment property calculator, rental property analysis"
       />
 
+      <CalculatorSchema {...CALCULATOR_METADATA['cap-rate-calculator']} />
       {/* Hero */}
       <section className="pt-24 pb-8 px-4">
         <div className="container mx-auto text-center max-w-3xl">

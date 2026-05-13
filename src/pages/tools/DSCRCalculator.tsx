@@ -1,6 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { SEOHead } from '@/components/SEOHead';
+import { CalculatorSchema } from '@/components/CalculatorSchema';
+import { CALCULATOR_METADATA } from '@/data/calculator-metadata';
 import { PublicLayout } from '@/components/PublicLayout';
 import { DollarSign, Sparkles, ChevronRight, TrendingUp, Info, Shield } from 'lucide-react';
 
@@ -74,6 +76,7 @@ export default function DSCRCalculator() {
         keywords="dscr calculator, debt service coverage ratio calculator, dscr loan calculator, investment property dscr, rental property dscr, dscr ratio calculator, real estate dscr"
       />
 
+      <CalculatorSchema {...CALCULATOR_METADATA['dscr-calculator']} />
       {/* Hero */}
       <section className="pt-24 pb-8 px-4">
         <div className="container mx-auto text-center max-w-3xl">

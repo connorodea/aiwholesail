@@ -1,6 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { SEOHead } from '@/components/SEOHead';
+import { CalculatorSchema } from '@/components/CalculatorSchema';
+import { CALCULATOR_METADATA } from '@/data/calculator-metadata';
 import { PublicLayout } from '@/components/PublicLayout';
 import { DollarSign, Sparkles, ChevronRight, TrendingUp, Info, Receipt } from 'lucide-react';
 
@@ -53,6 +55,7 @@ export default function WholesaleFeeCalculator() {
         keywords="wholesale fee calculator, assignment fee calculator, wholesale profit calculator, MAO calculator, 70 percent rule, real estate wholesale, wholesaling calculator"
       />
 
+      <CalculatorSchema {...CALCULATOR_METADATA['wholesale-fee-calculator']} />
       {/* Hero */}
       <section className="pt-24 pb-8 px-4">
         <div className="container mx-auto text-center max-w-3xl">

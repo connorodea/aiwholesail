@@ -1,6 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { SEOHead } from '@/components/SEOHead';
+import { CalculatorSchema } from '@/components/CalculatorSchema';
+import { CALCULATOR_METADATA } from '@/data/calculator-metadata';
 import { PublicLayout } from '@/components/PublicLayout';
 import { RefreshCw, DollarSign, TrendingUp, Sparkles, ChevronRight, Infinity, CheckCircle2, XCircle } from 'lucide-react';
 import { usePrefill } from '@/lib/property-prefill';
@@ -79,6 +81,7 @@ export default function BRRRRCalculator() {
         keywords="brrrr calculator, brrrr method calculator, buy rehab rent refinance repeat, brrrr analysis, real estate brrrr, brrrr investment calculator, rental property calculator"
       />
 
+      <CalculatorSchema {...CALCULATOR_METADATA['brrrr-calculator']} />
       {/* Hero */}
       <section className="pt-24 pb-8 px-4">
         <div className="container mx-auto text-center max-w-3xl">

@@ -1,6 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { SEOHead } from '@/components/SEOHead';
+import { CalculatorSchema } from '@/components/CalculatorSchema';
+import { CALCULATOR_METADATA } from '@/data/calculator-metadata';
 import { PublicLayout } from '@/components/PublicLayout';
 import { DollarSign, Percent, Clock, ArrowRight, CheckCircle2, XCircle, AlertTriangle, TrendingUp } from 'lucide-react';
 import { usePrefill } from '@/lib/property-prefill';
@@ -82,6 +84,7 @@ export default function WholesaleDealCalculator() {
         keywords="wholesale deal calculator, wholesale real estate calculator, MAO calculator, maximum allowable offer, assignment fee calculator, real estate wholesale, 70% rule calculator"
       />
 
+      <CalculatorSchema {...CALCULATOR_METADATA['wholesale-deal-calculator']} />
       {/* Hero */}
       <section className="pt-24 pb-8 px-4">
         <div className="container mx-auto max-w-5xl text-center">
