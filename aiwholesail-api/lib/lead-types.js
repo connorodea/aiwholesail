@@ -307,10 +307,60 @@ function getServerParamsForLeads(selectedSlugs) {
   return merged;
 }
 
+/**
+ * Build a dual-feed search plan from a chip selection.
+ *
+ * Replaces the single-feed `getServerParamsForLeads` for callers that
+ * need to fan out across BOTH property and preforeclosure feeds —
+ * the realistic case whenever the user selects a mix (e.g. Absentee +
+ * Pre-Foreclosure). The old function collapsed to one feed and silently
+ * dropped the other half of the selection.
+ *
+ * Returns:
+ *   {
+ *     property: { absentee_only?: boolean, ... } | null,
+ *     preforeclosure: {} | null,
+ *   }
+ *
+ * - `property` is `null` iff no selected lead type uses the property feed.
+ * - `preforeclosure` is `null` iff no selected lead type uses the
+ *   preforeclosure feed.
+ * - Empty/invalid input defaults to `{ property: {}, preforeclosure: null }`
+ *   so callers still get a usable single-feed plan.
+ *
+ * @param {string[]} selectedSlugs
+ * @returns {{ property: object|null, preforeclosure: object|null }}
+ */
+function getSearchPlanForLeads(selectedSlugs) {
+  if (!Array.isArray(selectedSlugs) || selectedSlugs.length === 0) {
+    return { property: {}, preforeclosure: null };
+  }
+  const selected = selectedSlugs
+    .map((slug) => LEAD_TYPE_BY_SLUG.get(slug))
+    .filter(Boolean);
+
+  const propertyLeads = selected.filter((lt) => lt.primarySource === 'property');
+  const preforeclosureLeads = selected.filter((lt) => lt.primarySource === 'preforeclosure');
+
+  let property = null;
+  if (propertyLeads.length > 0) {
+    property = {};
+    for (const lt of propertyLeads) {
+      if (lt.serverParams && typeof lt.serverParams === 'object') {
+        Object.assign(property, lt.serverParams);
+      }
+    }
+  }
+  const preforeclosure = preforeclosureLeads.length > 0 ? {} : null;
+
+  return { property, preforeclosure };
+}
+
 module.exports = {
   LEAD_TYPES,
   LEAD_TYPE_BY_SLUG,
   applyLeadFilters,
   tagRecordWithLeadTypes,
   getServerParamsForLeads,
+  getSearchPlanForLeads,
 };

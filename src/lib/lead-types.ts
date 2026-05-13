@@ -286,3 +286,44 @@ export function getServerParamsForLeads(
   }
   return merged;
 }
+
+export interface LeadSearchPlan {
+  /** Property-feed params, or null if no selected lead uses the property feed. */
+  property: LeadTypeServerParams | null;
+  /** Preforeclosure-feed params, or null if no selected lead uses that feed. */
+  preforeclosure: Record<string, unknown> | null;
+}
+
+/**
+ * Dual-feed planner that replaces `getServerParamsForLeads` for the
+ * off-market search component. The old single-feed planner collapsed
+ * mixed selections (e.g. Absentee + Pre-Foreclosure) to preforeclosure-
+ * only and silently dropped the property-feed leads — that broke
+ * off-market entirely whenever any preforeclosure-source lead was
+ * selected alongside the rest. See lead-types.test.js for the
+ * regression coverage.
+ */
+export function getSearchPlanForLeads(selectedSlugs: string[]): LeadSearchPlan {
+  if (!Array.isArray(selectedSlugs) || selectedSlugs.length === 0) {
+    return { property: {}, preforeclosure: null };
+  }
+  const selected = selectedSlugs
+    .map((slug) => LEAD_TYPE_BY_SLUG.get(slug))
+    .filter((lt): lt is LeadType => Boolean(lt));
+
+  const propertyLeads = selected.filter((lt) => lt.primarySource === 'property');
+  const preforeclosureLeads = selected.filter((lt) => lt.primarySource === 'preforeclosure');
+
+  let property: LeadTypeServerParams | null = null;
+  if (propertyLeads.length > 0) {
+    property = {};
+    for (const lt of propertyLeads) {
+      if (lt.serverParams && typeof lt.serverParams === 'object') {
+        Object.assign(property, lt.serverParams);
+      }
+    }
+  }
+  const preforeclosure = preforeclosureLeads.length > 0 ? {} : null;
+
+  return { property, preforeclosure };
+}

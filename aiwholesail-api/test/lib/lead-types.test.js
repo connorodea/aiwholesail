@@ -18,6 +18,7 @@ const {
   applyLeadFilters,
   tagRecordWithLeadTypes,
   getServerParamsForLeads,
+  getSearchPlanForLeads,
 } = require('../../lib/lead-types');
 
 // ─── Test fixtures ───────────────────────────────────────────────────────
@@ -452,5 +453,67 @@ test('getServerParamsForLeads', async (t) => {
   await t.test('non-array input → property source default', () => {
     assert.deepEqual(getServerParamsForLeads(null), { primarySource: 'property' });
     assert.deepEqual(getServerParamsForLeads(undefined), { primarySource: 'property' });
+  });
+});
+
+// ─── getSearchPlanForLeads ───────────────────────────────────────────────
+// Regression coverage for the dual-feed routing bug surfaced 2026-05-13:
+// selecting any preforeclosure-source lead would collapse the entire
+// search to the preforeclosure feed and silently drop all property-source
+// leads (absentee, tax-delinquent, high-equity, etc.). The new planner
+// returns both feed plans independently so callers can fan out per ZIP.
+
+test('getSearchPlanForLeads', async (t) => {
+  await t.test('empty input → property-only default', () => {
+    assert.deepEqual(getSearchPlanForLeads([]), { property: {}, preforeclosure: null });
+    assert.deepEqual(getSearchPlanForLeads(null), { property: {}, preforeclosure: null });
+    assert.deepEqual(getSearchPlanForLeads(undefined), { property: {}, preforeclosure: null });
+  });
+
+  await t.test('absentee alone → property only with absentee_only:true', () => {
+    const plan = getSearchPlanForLeads(['absentee']);
+    assert.deepEqual(plan.property, { absentee_only: true });
+    assert.equal(plan.preforeclosure, null);
+  });
+
+  await t.test('pre-foreclosure alone → preforeclosure only, no property', () => {
+    const plan = getSearchPlanForLeads(['pre-foreclosure']);
+    assert.equal(plan.property, null);
+    assert.deepEqual(plan.preforeclosure, {});
+  });
+
+  await t.test('mixed selection → BOTH feeds populated (the bug fix)', () => {
+    // This is the regression case: previously the whole query collapsed
+    // to preforeclosure-only and the 10 property-feed leads were dropped.
+    const plan = getSearchPlanForLeads(['absentee', 'pre-foreclosure']);
+    assert.deepEqual(plan.property, { absentee_only: true });
+    assert.deepEqual(plan.preforeclosure, {});
+  });
+
+  await t.test('all 12 lead types → BOTH feeds populated', () => {
+    // The actual user-reported scenario from 2026-05-13: user selected
+    // all 12 lead types on FL; old code routed all 25 ZIPs to
+    // preforeclosure-only and got ~zero results.
+    const allSlugs = LEAD_TYPES.map((lt) => lt.slug);
+    const plan = getSearchPlanForLeads(allSlugs);
+    assert.ok(plan.property !== null, 'property feed must be planned');
+    assert.ok(plan.preforeclosure !== null, 'preforeclosure feed must be planned');
+    // At least one property-feed lead carries absentee_only:true so the
+    // merged plan keeps that signal.
+    assert.equal(plan.property.absentee_only, true);
+  });
+
+  await t.test('multiple absentee-flag chips merge to one absentee_only:true', () => {
+    const plan = getSearchPlanForLeads(['absentee', 'tired-landlord', 'cash-buyer']);
+    assert.deepEqual(plan.property, { absentee_only: true });
+    assert.equal(plan.preforeclosure, null);
+  });
+
+  await t.test('unknown slug is silently dropped', () => {
+    const plan = getSearchPlanForLeads(['fake-slug']);
+    // No valid leads → no property plan, no preforeclosure plan.
+    // Callers fall back to a safe single property call themselves.
+    assert.equal(plan.property, null);
+    assert.equal(plan.preforeclosure, null);
   });
 });
