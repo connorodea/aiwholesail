@@ -29,6 +29,11 @@ interface SoftwareReview {
   };
   verdict: string;
   relatedReviews: string[];
+  // E-E-A-T enrichment (added 2026-05-12)
+  reviewedBy?: string;
+  reviewerTitle?: string;
+  reviewDate?: string;
+  officialUrl?: string;
 }
 
 // Generate AI-extractable answer + FAQs from review data (no editorial overhead).
@@ -137,7 +142,14 @@ export default function SoftwareReviewPage() {
       bestRating: 5,
       worstRating: 1,
     },
-    author: { '@type': 'Organization', name: 'AIWholesail', url: 'https://aiwholesail.com' },
+    author: review.reviewedBy
+      ? {
+          '@type': 'Person',
+          name: review.reviewedBy,
+          ...(review.reviewerTitle && { jobTitle: review.reviewerTitle }),
+          worksFor: { '@type': 'Organization', name: 'AIWholesail', url: 'https://aiwholesail.com' },
+        }
+      : { '@type': 'Organization', name: 'AIWholesail', url: 'https://aiwholesail.com' },
     itemReviewed: {
       '@type': 'SoftwareApplication',
       name: review.name,
@@ -207,8 +219,15 @@ export default function SoftwareReviewPage() {
           <div className="flex justify-center">
             <StarRating rating={review.rating} />
           </div>
-          <p className="mt-6 inline-flex items-center gap-2 text-xs text-white/40">
-            <Calendar className="h-3 w-3" /> Updated <time dateTime={LAST_UPDATED}>{LAST_UPDATED}</time>
+          {review.reviewedBy && (
+            <p className="mt-6 text-xs text-white/50">
+              Reviewed by{' '}
+              <span className="text-cyan-400 font-medium">{review.reviewedBy}</span>
+              {review.reviewerTitle && <span className="text-white/40"> · {review.reviewerTitle}</span>}
+            </p>
+          )}
+          <p className="mt-2 inline-flex items-center gap-2 text-xs text-white/40">
+            <Calendar className="h-3 w-3" /> Updated <time dateTime={review.reviewDate || LAST_UPDATED}>{review.reviewDate || LAST_UPDATED}</time>
           </p>
         </div>
       </section>
@@ -223,6 +242,19 @@ export default function SoftwareReviewPage() {
             <p className="text-base md:text-lg text-white/80 font-light leading-relaxed">
               {snippet}
             </p>
+            {review.officialUrl && (
+              <p className="mt-4 text-xs text-white/50">
+                Visit the {review.name} site:{' '}
+                <a
+                  href={review.officialUrl}
+                  target="_blank"
+                  rel="nofollow noopener noreferrer"
+                  className="text-cyan-400 hover:text-cyan-300 transition-colors underline"
+                >
+                  {review.officialUrl.replace(/^https?:\/\//, '').replace(/\/$/, '')}
+                </a>
+              </p>
+            )}
           </div>
         </div>
       </section>
@@ -423,6 +455,33 @@ export default function SoftwareReviewPage() {
                 Try AIWholesail Free <ArrowRight className="h-4 w-4" />
               </button>
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== HOW WE REVIEW + DISCLOSURE ===== */}
+      <section className="py-12 px-4">
+        <div className="container mx-auto max-w-4xl">
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="border border-white/[0.05] bg-gradient-to-b from-neutral-900/50 to-transparent rounded-xl p-6">
+              <h2 className="text-sm font-semibold tracking-[0.15em] uppercase text-cyan-400 mb-3">How we review</h2>
+              <p className="text-sm md:text-base text-white/70 font-light leading-relaxed">
+                We evaluate real estate investing software against 6 criteria: deal sourcing quality,
+                analysis depth (AI scoring, ARV, comps), workflow integration (skip tracing, contracts,
+                buyer matching), pricing per feature, ease of use, and support responsiveness. Ratings
+                are on a 1–5 scale weighted toward workflow integration and analysis — the two areas
+                most tools skimp on.
+              </p>
+            </div>
+            <div className="border border-white/[0.05] bg-gradient-to-b from-neutral-900/50 to-transparent rounded-xl p-6">
+              <h2 className="text-sm font-semibold tracking-[0.15em] uppercase text-cyan-400 mb-3">Disclosure</h2>
+              <p className="text-sm md:text-base text-white/70 font-light leading-relaxed">
+                AIWholesail.com is a competing real estate investing platform. We have written this
+                review to be honest about where {review.name} wins and where it falls short relative
+                to AIWholesail. We have no affiliate relationship with {review.name} and earn nothing
+                from clicks to their site. The official link above is unmonetized.
+              </p>
+            </div>
           </div>
         </div>
       </section>

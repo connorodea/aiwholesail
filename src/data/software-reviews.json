@@ -7,7 +7,7 @@
     "pricing": "$99/month",
     "founded": "2017",
     "bestFor": "Data-heavy investors who need skip tracing and nationwide property data access",
-    "overview": "PropStream is a property data platform that provides investors with access to over 155 million properties, including ownership information, tax records, mortgage data, and MLS comparables. It bundles skip tracing, list building, and marketing tools into a single subscription. While PropStream excels at raw data volume, it relies entirely on manual analysis -- there is no AI-powered deal scoring or automated spread calculation. At $99/month, it sits at a mid-to-high price point, and many users report a steep learning curve before they can effectively leverage all the data available.",
+    "overview": "PropStream is a property data platform that gives real estate investors access to over 155 million U.S. properties \u2014 ownership records, tax history, mortgage data, MLS comps, and lien information all in one searchable database. Launched in 2017 and now owned by Stewart Information Services, it bundles skip tracing, list building, and direct-mail tools into one $99/month subscription.\n\nWhere PropStream shines: raw data volume and granular list filters. The platform offers 120+ filters to slice and stack motivated-seller lists (pre-foreclosure plus tax-delinquent, plus high-equity, plus absentee, for example) \u2014 which is why high-volume list-pullers and cold-calling teams favor it.\n\nWhere it falls short: PropStream provides the data but does not analyze deals for you. There is no AI deal scoring, no automated spread surfacing (Zestimate minus list), and no integrated calculator workflow. You will export your list, run your own MAO math in spreadsheets, and decide which leads to call. For investors who want the platform to do the analysis, this is a major friction point.\n\nPricing is mid-to-high at $99/month with no lower-tier option, plus per-record skip-trace fees on top. Most users report a 2-4 week learning curve before they can productively use all the filters and reports. Solo wholesalers and flippers often find lower-priced alternatives (like AIWholesail at $49/month) offer enough data depth plus the analysis layer PropStream does not have.",
     "pros": [
       "Comprehensive nationwide property data covering 155M+ properties",
       "Built-in skip tracing at competitive per-record rates",
@@ -22,7 +22,15 @@
       "Skip tracing costs extra per record on top of subscription",
       "Data can be outdated in smaller or rural markets"
     ],
-    "features": ["Property data", "Skip tracing", "List building", "Comps", "Direct mail", "Lead generation", "Tax & mortgage data"],
+    "features": [
+      "Property data",
+      "Skip tracing",
+      "List building",
+      "Comps",
+      "Direct mail",
+      "Lead generation",
+      "Tax & mortgage data"
+    ],
     "vsAIWholesail": {
       "aiWholesailAdvantages": [
         "AI-powered deal scoring analyzes every property automatically",
@@ -38,7 +46,15 @@
       ]
     },
     "verdict": "PropStream is a solid choice if you want raw data volume and don't mind manual analysis. But for investors who want AI to surface the best deals automatically and calculate spreads instantly, AIWholesail delivers smarter deal-finding at a significantly lower price point.",
-    "relatedReviews": ["batchleads-review", "dealmachine-review", "privy-review"]
+    "relatedReviews": [
+      "batchleads-review",
+      "dealmachine-review",
+      "privy-review"
+    ],
+    "reviewedBy": "Connor O'Dea",
+    "reviewerTitle": "AIWholesail Founder \u00b7 8+ years in real estate investing tools",
+    "reviewDate": "2026-05-12",
+    "officialUrl": "https://www.propstream.com"
   },
   {
     "slug": "batchleads-review",
@@ -48,7 +64,7 @@
     "pricing": "$79/month",
     "founded": "2018",
     "bestFor": "Wholesalers who prioritize list stacking and skip tracing volume",
-    "overview": "BatchLeads is a lead generation platform designed for real estate investors who want to build targeted property lists, skip trace owners, and launch outreach campaigns. It offers list stacking, driving for dollars, and direct mail integrations. BatchLeads has grown quickly by focusing on the prospecting side of wholesaling. However, its analysis capabilities are limited -- there is no AI-powered deal scoring, and investors must manually evaluate every lead. Skip tracing is charged per record on top of the monthly subscription, which can drive costs up quickly for high-volume users.",
+    "overview": "BatchLeads is a high-volume lead generation and skip-tracing platform built for cold-callers and direct-mail operators. It bundles list stacking, skip tracing, dialer integration (CallTools, Mojo, Smarter Contact), and a basic CRM into a $79/month subscription. Founded in 2018 and acquired by BatchService in 2020, it is the go-to tool for wholesalers and investors running call-center-style acquisition.\n\nWhere BatchLeads shines: bulk operations. List stacking (combining 5+ filtered lists into one master file) is fast. Skip-trace volume is high, with competitive per-record rates. Integration with dialers means you can pull a list, skip-trace it, and start dialing within minutes. Teams running 500+ calls per day benefit most from this workflow.\n\nWhere it falls short: BatchLeads is a list and skip-trace tool, not an analysis platform. There is no AI deal scoring, no ARV estimation, no comparable sales engine, and no contract generation. The interface feels dated compared to modern SaaS, and the CRM is basic \u2014 most users export to a more capable CRM after the call. No integrated investment calculators.\n\nIf your acquisition motion is volume cold-calling, BatchLeads is well-priced and capable. If you want the platform to actually analyze the deals you generate \u2014 score them, calculate spread, model ARV \u2014 you will need a second tool. AIWholesail at $49/month covers that analysis gap while including 25 skip traces and 10 AI analyses per month.",
     "pros": [
       "Strong list stacking with multiple data filters",
       "Driving for dollars mobile feature for field prospecting",
@@ -63,7 +79,15 @@
       "Limited property condition assessment capabilities",
       "No integrated investment calculators or ARV tools"
     ],
-    "features": ["List stacking", "Skip tracing", "Driving for dollars", "Direct mail", "SMS campaigns", "Property owner data", "Lead management"],
+    "features": [
+      "List stacking",
+      "Skip tracing",
+      "Driving for dollars",
+      "Direct mail",
+      "SMS campaigns",
+      "Property owner data",
+      "Lead management"
+    ],
     "vsAIWholesail": {
       "aiWholesailAdvantages": [
         "AI scores every property automatically -- no manual analysis needed",
@@ -79,7 +103,15 @@
       ]
     },
     "verdict": "BatchLeads is a capable prospecting tool for list building and skip tracing, but it leaves the hardest part -- deal analysis -- entirely to you. AIWholesail automates the analysis with AI, scores deals instantly, and includes skip tracing in the subscription, making it a more complete and cost-effective solution.",
-    "relatedReviews": ["propstream-review", "dealmachine-review", "resimpli-review"]
+    "relatedReviews": [
+      "propstream-review",
+      "dealmachine-review",
+      "resimpli-review"
+    ],
+    "reviewedBy": "Connor O'Dea",
+    "reviewerTitle": "AIWholesail Founder \u00b7 8+ years in real estate investing tools",
+    "reviewDate": "2026-05-12",
+    "officialUrl": "https://www.batchleads.io"
   },
   {
     "slug": "dealmachine-review",
@@ -89,7 +121,7 @@
     "pricing": "$99/month",
     "founded": "2017",
     "bestFor": "Investors who actively drive neighborhoods looking for distressed properties",
-    "overview": "DealMachine pioneered the 'driving for dollars' approach with a mobile app that lets investors photograph distressed properties, instantly look up owner information, and send direct mail postcards. It has a loyal following among investors who prefer boots-on-the-ground prospecting. However, DealMachine is heavily focused on this single acquisition strategy. It lacks AI-powered analysis, deal scoring, or pipeline management. At $99/month plus per-piece direct mail costs, the total cost of ownership can climb quickly, especially for investors who want to scale beyond driving neighborhoods.",
+    "overview": "DealMachine is a driving-for-dollars (D4D) platform built around the mobile app \u2014 you drive neighborhoods, photograph distressed properties from your car, and the app pulls owner records and queues direct-mail or text outreach automatically. Founded in 2017 by David Lecko, it has grown into one of the best-known D4D tools in real estate investing.\n\nWhere DealMachine shines: D4D mobile UX is best-in-class. Vehicle-route tracking, photo capture, instant owner lookup, and direct-mail integration make it the right tool when your core acquisition motion is driving neighborhoods. Teams that run D4D campaigns at scale (5-50 drivers) particularly benefit from the route and quota tracking.\n\nWhere it falls short: DealMachine is a D4D specialist, not a full deal-lifecycle platform. There is no AI deal scoring, no comparable sales analysis, no contract generation, and no buyer disposition. You get a list of houses to mail or text \u2014 you take it from there in other tools. Pricing is $99/month base plus per-lead and direct-mail fees, which adds up fast at scale.\n\nFor investors whose acquisition is purely screen-based \u2014 alerts, MLS, distress signals \u2014 DealMachine has minimal value. Most successful investors who use DealMachine pair it with a second tool like AIWholesail to handle the analysis half of the workflow.",
     "pros": [
       "Best-in-class driving for dollars mobile experience",
       "Instant property owner lookup from the field",
@@ -104,7 +136,15 @@
       "No built-in deal pipeline or CRM management",
       "No comparable sales, ARV calculations, or investment analysis"
     ],
-    "features": ["Driving for dollars", "Owner lookup", "Direct mail", "Route tracking", "Property photos", "Postcard campaigns", "Mobile app"],
+    "features": [
+      "Driving for dollars",
+      "Owner lookup",
+      "Direct mail",
+      "Route tracking",
+      "Property photos",
+      "Postcard campaigns",
+      "Mobile app"
+    ],
     "vsAIWholesail": {
       "aiWholesailAdvantages": [
         "AI-powered deal scoring finds opportunities without driving",
@@ -120,7 +160,15 @@
       ]
     },
     "verdict": "DealMachine is excellent if driving for dollars is your primary strategy, but it's a one-trick pony at a premium price. AIWholesail finds distressed properties using AI across entire markets without requiring you to burn gas, and includes full analysis and pipeline tools at a third of the cost.",
-    "relatedReviews": ["batchleads-review", "propstream-review", "freedomsoft-review"]
+    "relatedReviews": [
+      "batchleads-review",
+      "propstream-review",
+      "freedomsoft-review"
+    ],
+    "reviewedBy": "Connor O'Dea",
+    "reviewerTitle": "AIWholesail Founder \u00b7 8+ years in real estate investing tools",
+    "reviewDate": "2026-05-12",
+    "officialUrl": "https://www.dealmachine.com"
   },
   {
     "slug": "privy-review",
@@ -145,7 +193,15 @@
       "No AI-powered deal scoring or automated analysis",
       "No skip tracing, outreach, or seller communication tools"
     ],
-    "features": ["MLS integration", "Investment overlays", "Comp analysis", "Deal alerts", "Strategy filters", "Return calculations", "Market data"],
+    "features": [
+      "MLS integration",
+      "Investment overlays",
+      "Comp analysis",
+      "Deal alerts",
+      "Strategy filters",
+      "Return calculations",
+      "Market data"
+    ],
     "vsAIWholesail": {
       "aiWholesailAdvantages": [
         "85% cheaper at $49/month versus $197/month",
@@ -161,7 +217,15 @@
       ]
     },
     "verdict": "Privy is powerful for MLS-connected investors but its $197/month price tag and requirement for MLS access make it inaccessible for many wholesalers. AIWholesail provides AI-powered analysis on both on-market and off-market deals at a fraction of the cost, without needing a real estate license.",
-    "relatedReviews": ["propstream-review", "mashvisor-review", "roofstock-review"]
+    "relatedReviews": [
+      "propstream-review",
+      "mashvisor-review",
+      "roofstock-review"
+    ],
+    "reviewedBy": "Connor O'Dea",
+    "reviewerTitle": "AIWholesail Founder \u00b7 8+ years in real estate investing tools",
+    "reviewDate": "2026-05-12",
+    "officialUrl": "https://www.privy.pro"
   },
   {
     "slug": "resimpli-review",
@@ -186,7 +250,15 @@
       "No built-in comparable sales or ARV calculations",
       "Reporting dashboards lack depth for advanced analytics"
     ],
-    "features": ["CRM", "Phone system", "SMS messaging", "Drip campaigns", "KPI dashboard", "List management", "Lead tracking"],
+    "features": [
+      "CRM",
+      "Phone system",
+      "SMS messaging",
+      "Drip campaigns",
+      "KPI dashboard",
+      "List management",
+      "Lead tracking"
+    ],
     "vsAIWholesail": {
       "aiWholesailAdvantages": [
         "AI deal scoring included -- no manual property analysis needed",
@@ -202,7 +274,15 @@
       ]
     },
     "verdict": "REsimpli is a solid investor CRM with strong communication features, but it requires you to do all the deal analysis manually. AIWholesail combines AI-powered deal scoring with CRM capabilities, automates property analysis, and includes communication tools without per-usage charges.",
-    "relatedReviews": ["investorfuse-review", "podio-review", "freedomsoft-review"]
+    "relatedReviews": [
+      "investorfuse-review",
+      "podio-review",
+      "freedomsoft-review"
+    ],
+    "reviewedBy": "Connor O'Dea",
+    "reviewerTitle": "AIWholesail Founder \u00b7 8+ years in real estate investing tools",
+    "reviewDate": "2026-05-12",
+    "officialUrl": "https://www.resimpli.com"
   },
   {
     "slug": "investorfuse-review",
@@ -227,7 +307,15 @@
       "No skip tracing, direct mail, or seller outreach tools",
       "Limited to lead management -- requires additional tools for a complete workflow"
     ],
-    "features": ["Lead pipelines", "Task automation", "Follow-up workflows", "Lead prioritization", "Integration hub", "Team management", "Activity tracking"],
+    "features": [
+      "Lead pipelines",
+      "Task automation",
+      "Follow-up workflows",
+      "Lead prioritization",
+      "Integration hub",
+      "Team management",
+      "Activity tracking"
+    ],
     "vsAIWholesail": {
       "aiWholesailAdvantages": [
         "Full investing platform with CRM, analysis, and sourcing at $49/month",
@@ -243,7 +331,15 @@
       ]
     },
     "verdict": "InvestorFuse does one thing well -- structured lead follow-up -- but at $149/month for CRM-only features, it is expensive for what you get. AIWholesail includes lead management alongside AI-powered deal scoring, property analysis, and outreach tools at a fifth of the price.",
-    "relatedReviews": ["resimpli-review", "podio-review", "freedomsoft-review"]
+    "relatedReviews": [
+      "resimpli-review",
+      "podio-review",
+      "freedomsoft-review"
+    ],
+    "reviewedBy": "Connor O'Dea",
+    "reviewerTitle": "AIWholesail Founder \u00b7 8+ years in real estate investing tools",
+    "reviewDate": "2026-05-12",
+    "officialUrl": "https://www.investorfuse.com"
   },
   {
     "slug": "carrot-review",
@@ -268,7 +364,15 @@
       "No skip tracing, outreach, or direct communication tools",
       "Premium themes and add-ons cost extra beyond base subscription"
     ],
-    "features": ["SEO websites", "Landing pages", "Blog tools", "Content marketing", "Conversion tracking", "A/B testing", "Lead capture forms"],
+    "features": [
+      "SEO websites",
+      "Landing pages",
+      "Blog tools",
+      "Content marketing",
+      "Conversion tracking",
+      "A/B testing",
+      "Lead capture forms"
+    ],
     "vsAIWholesail": {
       "aiWholesailAdvantages": [
         "Full deal-finding platform with AI analysis, not just a website builder",
@@ -284,7 +388,15 @@
       ]
     },
     "verdict": "Carrot is the gold standard for investor websites and inbound SEO, but it only solves one piece of the puzzle. If you want to find, analyze, and close deals now -- not wait months for SEO traffic -- AIWholesail's AI-powered deal scoring gets you there faster at a lower total cost.",
-    "relatedReviews": ["freedomsoft-review", "resimpli-review", "investorfuse-review"]
+    "relatedReviews": [
+      "freedomsoft-review",
+      "resimpli-review",
+      "investorfuse-review"
+    ],
+    "reviewedBy": "Connor O'Dea",
+    "reviewerTitle": "AIWholesail Founder \u00b7 8+ years in real estate investing tools",
+    "reviewDate": "2026-05-12",
+    "officialUrl": "https://carrot.com"
   },
   {
     "slug": "freedomsoft-review",
@@ -309,7 +421,16 @@
       "Phone and SMS cost extra per usage beyond base subscription",
       "Website builder produces generic-looking sites"
     ],
-    "features": ["CRM", "Website builder", "Phone system", "SMS", "Direct mail", "Deal management", "Lead generation", "Pipeline tracking"],
+    "features": [
+      "CRM",
+      "Website builder",
+      "Phone system",
+      "SMS",
+      "Direct mail",
+      "Deal management",
+      "Lead generation",
+      "Pipeline tracking"
+    ],
     "vsAIWholesail": {
       "aiWholesailAdvantages": [
         "85% cheaper at $49/month with smarter AI-powered features",
@@ -325,7 +446,15 @@
       ]
     },
     "verdict": "FreedomSoft tries to do everything but does not do AI. At $197/month with additional per-usage charges, you are paying a premium for breadth over intelligence. AIWholesail focuses on what matters -- finding and scoring great deals with AI -- at a fraction of the cost.",
-    "relatedReviews": ["resimpli-review", "investorfuse-review", "podio-review"]
+    "relatedReviews": [
+      "resimpli-review",
+      "investorfuse-review",
+      "podio-review"
+    ],
+    "reviewedBy": "Connor O'Dea",
+    "reviewerTitle": "AIWholesail Founder \u00b7 8+ years in real estate investing tools",
+    "reviewDate": "2026-05-12",
+    "officialUrl": "https://www.freedomsoft.com"
   },
   {
     "slug": "reikit-review",
@@ -350,7 +479,15 @@
       "No skip tracing or seller communication features",
       "Limited to analysis -- does not help you find or close deals"
     ],
-    "features": ["Deal analyzers", "Cash flow calculators", "Repair estimator", "Offer generator", "Property valuation", "Financial projections", "ROI analysis"],
+    "features": [
+      "Deal analyzers",
+      "Cash flow calculators",
+      "Repair estimator",
+      "Offer generator",
+      "Property valuation",
+      "Financial projections",
+      "ROI analysis"
+    ],
     "vsAIWholesail": {
       "aiWholesailAdvantages": [
         "AI-powered calculators that auto-populate property data automatically",
@@ -366,7 +503,15 @@
       ]
     },
     "verdict": "REIkit is a capable calculator suite for investors who already have deals to analyze. But if you need to find deals, score them with AI, and manage your pipeline, AIWholesail does everything REIkit does -- plus lead generation and AI scoring -- at a competitive price.",
-    "relatedReviews": ["dealcheck-review", "mashvisor-review", "propstream-review"]
+    "relatedReviews": [
+      "dealcheck-review",
+      "mashvisor-review",
+      "propstream-review"
+    ],
+    "reviewedBy": "Connor O'Dea",
+    "reviewerTitle": "AIWholesail Founder \u00b7 8+ years in real estate investing tools",
+    "reviewDate": "2026-05-12",
+    "officialUrl": "https://www.reikit.com"
   },
   {
     "slug": "mashvisor-review",
@@ -391,7 +536,15 @@
       "No AI deal scoring -- provides data without intelligent recommendations",
       "Property data limited to listed properties on major platforms"
     ],
-    "features": ["Airbnb analytics", "Rental estimates", "Market heatmaps", "Occupancy data", "Property search", "Neighborhood analysis", "Return comparisons"],
+    "features": [
+      "Airbnb analytics",
+      "Rental estimates",
+      "Market heatmaps",
+      "Occupancy data",
+      "Property search",
+      "Neighborhood analysis",
+      "Return comparisons"
+    ],
     "vsAIWholesail": {
       "aiWholesailAdvantages": [
         "Supports all strategies: wholesale, flip, rental, and Airbnb",
@@ -407,7 +560,15 @@
       ]
     },
     "verdict": "Mashvisor is a strong pick for rental and Airbnb investors who want occupancy and revenue data. But its narrow focus and annual billing make it limiting. AIWholesail covers all investment strategies with AI-powered scoring and flexible monthly pricing.",
-    "relatedReviews": ["stessa-review", "roofstock-review", "dealcheck-review"]
+    "relatedReviews": [
+      "stessa-review",
+      "roofstock-review",
+      "dealcheck-review"
+    ],
+    "reviewedBy": "Connor O'Dea",
+    "reviewerTitle": "AIWholesail Founder \u00b7 8+ years in real estate investing tools",
+    "reviewDate": "2026-05-12",
+    "officialUrl": "https://www.mashvisor.com"
   },
   {
     "slug": "stessa-review",
@@ -432,7 +593,15 @@
       "No lead generation, skip tracing, or seller outreach",
       "Limited to landlords -- no tools for wholesalers or flippers"
     ],
-    "features": ["Income tracking", "Expense categorization", "Tax reports", "Portfolio dashboard", "Bank feed sync", "Document storage", "Net cash flow analysis"],
+    "features": [
+      "Income tracking",
+      "Expense categorization",
+      "Tax reports",
+      "Portfolio dashboard",
+      "Bank feed sync",
+      "Document storage",
+      "Net cash flow analysis"
+    ],
     "vsAIWholesail": {
       "aiWholesailAdvantages": [
         "Full acquisition pipeline from deal sourcing to closing",
@@ -448,7 +617,15 @@
       ]
     },
     "verdict": "Stessa is an excellent free tool for tracking rental finances after acquisition. But it does not help you find, analyze, or acquire deals. AIWholesail fills the gap before Stessa picks up -- use AI to find great deals, then track them in Stessa if you choose.",
-    "relatedReviews": ["mashvisor-review", "roofstock-review", "dealcheck-review"]
+    "relatedReviews": [
+      "mashvisor-review",
+      "roofstock-review",
+      "dealcheck-review"
+    ],
+    "reviewedBy": "Connor O'Dea",
+    "reviewerTitle": "AIWholesail Founder \u00b7 8+ years in real estate investing tools",
+    "reviewDate": "2026-05-12",
+    "officialUrl": "https://www.stessa.com"
   },
   {
     "slug": "dealcheck-review",
@@ -473,7 +650,15 @@
       "Free tier is limited to a small number of analyses",
       "No skip tracing or marketing features"
     ],
-    "features": ["Deal analysis", "Rental calculator", "Flip calculator", "BRRRR calculator", "Comp lookup", "PDF reports", "Mobile app"],
+    "features": [
+      "Deal analysis",
+      "Rental calculator",
+      "Flip calculator",
+      "BRRRR calculator",
+      "Comp lookup",
+      "PDF reports",
+      "Mobile app"
+    ],
     "vsAIWholesail": {
       "aiWholesailAdvantages": [
         "AI automatically finds and scores deals -- not just analyzes them",
@@ -489,7 +674,15 @@
       ]
     },
     "verdict": "DealCheck is a great entry-level calculator for new investors on a budget. But as your business grows, you will need lead generation, AI scoring, and pipeline management that DealCheck does not offer. AIWholesail is the platform you graduate to when you are ready to scale.",
-    "relatedReviews": ["reikit-review", "mashvisor-review", "stessa-review"]
+    "relatedReviews": [
+      "reikit-review",
+      "mashvisor-review",
+      "stessa-review"
+    ],
+    "reviewedBy": "Connor O'Dea",
+    "reviewerTitle": "AIWholesail Founder \u00b7 8+ years in real estate investing tools",
+    "reviewDate": "2026-05-12",
+    "officialUrl": "https://www.dealcheck.io"
   },
   {
     "slug": "investorlift-review",
@@ -514,7 +707,15 @@
       "Does not help find deals -- only helps sell them",
       "Requires separate tools for a complete wholesaling workflow"
     ],
-    "features": ["Buyer network", "Deal blasts", "Engagement tracking", "Buyer analytics", "Deal distribution", "Speed-to-sell metrics", "CRM integrations"],
+    "features": [
+      "Buyer network",
+      "Deal blasts",
+      "Engagement tracking",
+      "Buyer analytics",
+      "Deal distribution",
+      "Speed-to-sell metrics",
+      "CRM integrations"
+    ],
     "vsAIWholesail": {
       "aiWholesailAdvantages": [
         "Full pipeline: find, analyze, AND dispose of deals in one platform",
@@ -530,7 +731,15 @@
       ]
     },
     "verdict": "InvestorLift is the best disposition-only tool in the market, but paying $147/month just to sell deals you found elsewhere is steep. AIWholesail includes buyer matching alongside AI deal sourcing and analysis -- the full pipeline at a lower price.",
-    "relatedReviews": ["resimpli-review", "freedomsoft-review", "podio-review"]
+    "relatedReviews": [
+      "resimpli-review",
+      "freedomsoft-review",
+      "podio-review"
+    ],
+    "reviewedBy": "Connor O'Dea",
+    "reviewerTitle": "AIWholesail Founder \u00b7 8+ years in real estate investing tools",
+    "reviewDate": "2026-05-12",
+    "officialUrl": "https://www.investorlift.com"
   },
   {
     "slug": "podio-review",
@@ -555,7 +764,15 @@
       "Per-user pricing gets expensive for teams of 3+ quickly",
       "No skip tracing, direct mail, or seller outreach features"
     ],
-    "features": ["Custom workspaces", "Task management", "Third-party integrations", "Customizable fields", "Team collaboration", "Workflow automation", "API access"],
+    "features": [
+      "Custom workspaces",
+      "Task management",
+      "Third-party integrations",
+      "Customizable fields",
+      "Team collaboration",
+      "Workflow automation",
+      "API access"
+    ],
     "vsAIWholesail": {
       "aiWholesailAdvantages": [
         "Purpose-built for real estate investors -- works out of the box",
@@ -571,7 +788,15 @@
       ]
     },
     "verdict": "Podio is the most flexible option but flexibility is also its biggest drawback. Most investors spend weeks setting it up and still lack property data and AI analysis. AIWholesail gives you a purpose-built platform that works on day one with zero configuration.",
-    "relatedReviews": ["resimpli-review", "investorfuse-review", "freedomsoft-review"]
+    "relatedReviews": [
+      "resimpli-review",
+      "investorfuse-review",
+      "freedomsoft-review"
+    ],
+    "reviewedBy": "Connor O'Dea",
+    "reviewerTitle": "AIWholesail Founder \u00b7 8+ years in real estate investing tools",
+    "reviewDate": "2026-05-12",
+    "officialUrl": "https://podio.com"
   },
   {
     "slug": "roofstock-review",
@@ -596,7 +821,15 @@
       "No AI deal analysis -- rely on their pre-packaged numbers",
       "Cannot use with outside properties or your own deals"
     ],
-    "features": ["Turnkey listings", "Property certification", "Financial projections", "Neighborhood ratings", "Inspection reports", "PM referrals", "Online closing"],
+    "features": [
+      "Turnkey listings",
+      "Property certification",
+      "Financial projections",
+      "Neighborhood ratings",
+      "Inspection reports",
+      "PM referrals",
+      "Online closing"
+    ],
     "vsAIWholesail": {
       "aiWholesailAdvantages": [
         "Find deals anywhere -- not limited to a curated marketplace",
@@ -612,6 +845,14 @@
       ]
     },
     "verdict": "Roofstock is ideal for passive investors who want hands-off turnkey rentals. But for active investors who want to source their own deals, control their margins, and use AI to find opportunities, AIWholesail provides the tools and independence that a marketplace model cannot.",
-    "relatedReviews": ["mashvisor-review", "stessa-review", "privy-review"]
+    "relatedReviews": [
+      "mashvisor-review",
+      "stessa-review",
+      "privy-review"
+    ],
+    "reviewedBy": "Connor O'Dea",
+    "reviewerTitle": "AIWholesail Founder \u00b7 8+ years in real estate investing tools",
+    "reviewDate": "2026-05-12",
+    "officialUrl": "https://www.roofstock.com"
   }
 ]
