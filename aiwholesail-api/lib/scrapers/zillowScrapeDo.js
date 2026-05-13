@@ -515,12 +515,31 @@ async function search(args = {}) {
   }
   const totalResultCount = findTotalResultCount(nextData);
   const results = listResults.map(mapListingToSummary).filter(Boolean);
+  // Pagination shape that the FRONTEND (src/lib/zillow-api.ts performSearch)
+  // expects: `total_pages` + `total_results` mirror the RapidAPI/standalone-
+  // proxy shape so the same iteration loop works regardless of which backend
+  // answered. Without these keys, performSearch defaults to 1 page and the
+  // user sees only the first ~40 of (potentially) hundreds of listings.
+  //
+  // Page-size derivation: prefer the actual results.length on this page
+  // (Zillow may return 40-41 depending on listing density) over a hardcoded
+  // constant. Falls back to 40 (Zillow's canonical page size) when the
+  // current page is empty.
+  const total = totalResultCount ?? results.length;
+  const pageSize = results.length > 0 ? results.length : 40;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
   return {
     location,
     status: z || 'ForSale',
     page: Number(page) || 1,
-    totalResultCount: totalResultCount ?? results.length,
+    totalResultCount: total,
+    // Frontend-compat pagination keys — additive, original keys preserved.
+    total_results: total,
+    total_pages: totalPages,
     results,
+    // Frontend processPropertyData() tries multiple keys (`searchResults`,
+    // `props`, `results`, `listings`, ...). `results` is already in the list,
+    // so no alias needed there.
   };
 }
 
