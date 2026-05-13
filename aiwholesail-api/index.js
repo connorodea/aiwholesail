@@ -27,6 +27,7 @@ const contactRoutes = require('./routes/contact');
 const utilityRoutes = require('./routes/utility');
 const skipTraceRoutes = require('./routes/skipTrace');
 const webhookRoutes = require('./routes/webhooks');
+const resendWebhookRoutes = require('./routes/resend-webhooks');
 const propdataRoutes = require('./routes/propdata');
 const flagsRoutes = require('./routes/flags');
 const healthIntegrationsRoutes = require('./routes/healthIntegrations');
@@ -118,12 +119,13 @@ app.use(corsMiddleware);
 // would accept any origin and undo the lock above.
 app.options('*', corsMiddleware);
 
-// Request parsing — skip JSON body parsing for the Stripe webhook so the route
-// handler can verify the raw body signature. Stripe's constructEvent() needs
-// the unmodified Buffer; if express.json() has already consumed it, signature
-// verification will fail with "no signatures found matching the expected signature".
+// Request parsing — skip JSON body parsing for webhook routes that verify
+// the raw body signature. Stripe's constructEvent() and Svix verification
+// (Resend) both need the unmodified Buffer; if express.json() has already
+// consumed it, signature verification will fail.
 app.use((req, res, next) => {
   if (req.originalUrl === '/api/stripe/webhook') return next();
+  if (req.originalUrl === '/api/webhooks/resend') return next();
   return express.json({ limit: '10mb' })(req, res, next);
 });
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
@@ -166,6 +168,10 @@ app.use('/api/sequences', sequencesRoutes);
 app.use('/api/contracts', contractsRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/skip-trace', skipTraceRoutes);
+// Resend inbound delivery webhook — mounted BEFORE the generic webhooks
+// router so /api/webhooks/resend resolves here. Uses raw-body verification
+// (see request-parsing block above for the JSON-parser skip).
+app.use('/api/webhooks/resend', resendWebhookRoutes);
 app.use('/api/webhooks', webhookRoutes);
 app.use('/api/propdata', propdataRoutes);
 app.use('/api/flags', flagsRoutes);

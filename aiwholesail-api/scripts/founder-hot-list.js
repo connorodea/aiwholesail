@@ -36,7 +36,7 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const resend = new Resend(process.env.RESEND_API_KEY);
 const DRY_RUN = process.argv.includes('--dry-run');
 
-const FROM = 'AIWholesail <noreply@aiwholesail.com>';
+const FROM = 'AIWholesail <noreply@notifications.aiwholesail.com>';
 const TO = process.env.FOUNDER_HOT_LIST_TO || 'connor@aiwholesail.com';
 const MIN_SCORE = 2;
 
