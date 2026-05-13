@@ -994,7 +994,18 @@ async function mortgageRates(args = {}) {
   const url = zip ? mortgageRatesUrlForZip(zip) : mortgageRatesUrlForState(state);
   let resp;
   try {
-    resp = await scrape(url, { headers: DEFAULT_HEADERS, geoCode: 'us', render: false });
+    // /mortgage-rates/* is heavily protected and the default residential
+    // pool returns 502 on most attempts (observed 2026-05). The premium
+    // pool (super=true) gets through. Pricing is 2x the standard call —
+    // acceptable for a marketing-page surface that we cache aggressively
+    // upstream.
+    resp = await scrape(url, {
+      headers: DEFAULT_HEADERS,
+      geoCode: 'us',
+      render: false,
+      super: true,
+      timeoutMs: 60_000,
+    });
   } catch (err) {
     if (err instanceof ScrapeDoError) {
       throw new ZillowScrapeError(`scrape.do fetch failed: ${err.message}`, {
@@ -1114,10 +1125,19 @@ function agentProfileUrl(slug) {
  * accept both and merge the meaningful keys.
  */
 function findAgentProfile(nextData) {
-  const direct = nextData?.props?.pageProps?.agentProfile || nextData?.props?.pageProps?.agent;
+  const pp = nextData?.props?.pageProps;
+  const direct = pp?.agentProfile || pp?.agent;
   if (direct && typeof direct === 'object') return direct;
+
+  // 2026-05 shape: /profile/<slug>/ pages embed the agent under `displayData`
+  // — the page is rendered from a single React tree, not Apollo. We accept
+  // it here and let the normaliser collapse the field-name drift.
+  if (pp?.displayData && typeof pp.displayData === 'object') {
+    return pp.displayData;
+  }
+
   // Sometimes the page nests it inside an Apollo cache JSON string
-  const cacheStr = nextData?.props?.pageProps?.apolloState;
+  const cacheStr = pp?.apolloState;
   if (cacheStr && typeof cacheStr === 'object') {
     for (const key of Object.keys(cacheStr)) {
       if (/^Agent[:_]/.test(key)) return cacheStr[key];
@@ -1131,8 +1151,12 @@ function deepFindAgentNode(node, depth = 0) {
   if (
     typeof node === 'object' &&
     !Array.isArray(node) &&
-    (node.firstName || node.fullName || node.displayName) &&
-    (node.brokerage || node.brokerName || node.businessName)
+    // Either {first/full/displayName + brokerage/broker/business} OR a
+    // node with profileDisplayName + recentSales/recentListings (the
+    // 2026-05 /profile/ shape).
+    ((node.firstName || node.fullName || node.displayName) &&
+      (node.brokerage || node.brokerName || node.businessName ||
+        node.recentListings || node.recentSales || node.profileDisplayName))
   ) {
     return node;
   }
@@ -1189,7 +1213,15 @@ async function agentProfile(args = {}) {
   const url = agentProfileUrl(slug);
   let resp;
   try {
-    resp = await scrape(url, { headers: DEFAULT_HEADERS, geoCode: 'us', render: false });
+    // Agent profile pages 502 on the default pool, similar to mortgage-rates.
+    // Use super=true to get a premium proxy through.
+    resp = await scrape(url, {
+      headers: DEFAULT_HEADERS,
+      geoCode: 'us',
+      render: false,
+      super: true,
+      timeoutMs: 60_000,
+    });
   } catch (err) {
     if (err instanceof ScrapeDoError) {
       throw new ZillowScrapeError(`scrape.do fetch failed: ${err.message}`, {
@@ -1230,13 +1262,37 @@ function marketStatsUrl(region, regionType) {
 
 function findMarketStats(nextData) {
   const cp = nextData?.props?.pageProps?.componentProps;
+  const pp = nextData?.props?.pageProps;
+
+  // 2026-05 shape: home-values pages expose data in two siblings —
+  // `zhviRegion` (the region itself) and `odpMarketAnalytics` (the stats).
+  // We merge them into one record so the downstream normaliser doesn't have
+  // to branch.
+  if (pp?.odpMarketAnalytics || pp?.zhviRegion) {
+    const merged = {
+      ...(pp.zhviRegion || {}),
+      ...(pp.odpMarketAnalytics || {}),
+      // Hoist deep-nested values so normalizeMarketStats sees them
+      typicalHomeValue:
+        pp.odpMarketAnalytics?.zhviLatest?.dataValue ??
+        pp.odpMarketAnalytics?.zhviYoY,
+      yoyChangePct: pp.odpMarketAnalytics?.zhviLatest?.zhviYoY,
+      medianListPrice: pp.odpMarketAnalytics?.mrktListingLatest?.medianListPrice,
+      medianSalePrice: pp.odpMarketAnalytics?.mrktSaleLatest?.medianSalePrice,
+      inventoryCount: pp.odpMarketAnalytics?.mrktListingLatest?.forSaleInventory,
+      regionName: pp.zhviRegion?.name || pp.requestedRegion?.name,
+      regionType: pp.zhviRegion?.regionTypeName,
+    };
+    return merged;
+  }
+
   const candidates = [
     cp?.regionInfo,
     cp?.region,
     cp?.marketStats,
     cp?.homeValueData,
-    nextData?.props?.pageProps?.region,
-    nextData?.props?.pageProps?.marketStats,
+    pp?.region,
+    pp?.marketStats,
   ];
   for (const c of candidates) {
     if (c && typeof c === 'object') return c;
@@ -1294,7 +1350,15 @@ async function marketStats(args = {}) {
   const url = marketStatsUrl(region, regionType);
   let resp;
   try {
-    resp = await scrape(url, { headers: DEFAULT_HEADERS, geoCode: 'us', render: false });
+    // /<region>/home-values/ is region-page heavy and 502s on the default
+    // pool; super=true gets through (observed 2026-05).
+    resp = await scrape(url, {
+      headers: DEFAULT_HEADERS,
+      geoCode: 'us',
+      render: false,
+      super: true,
+      timeoutMs: 60_000,
+    });
   } catch (err) {
     if (err instanceof ScrapeDoError) {
       throw new ZillowScrapeError(`scrape.do fetch failed: ${err.message}`, {
