@@ -60,6 +60,12 @@ const SCRAPE_DO_ACTIONS = {
   zestimateHistory: zillowScrapeDo.zestimateHistory,
   schools: zillowScrapeDo.schools,
   comps: zillowScrapeDo.comps,
+  // Wholesale-specific detail slices added 2026-05:
+  walkScore: zillowScrapeDo.walkScore,
+  climateRisk: zillowScrapeDo.climateRisk,
+  openHouses: zillowScrapeDo.openHouses,
+  rentalComps: zillowScrapeDo.rentalComps,
+  recentlySoldNearby: zillowScrapeDo.recentlySoldNearby,
   // Search-class:
   search: zillowScrapeDo.search,
   searchByAddress: zillowScrapeDo.searchByAddress,
@@ -71,6 +77,8 @@ const SCRAPE_DO_ACTIONS = {
   recentlySold: zillowScrapeDo.recentlySold,
   foreclosures: zillowScrapeDo.foreclosures,
   fsbo: zillowScrapeDo.fsbo,
+  comingSoon: zillowScrapeDo.comingSoon,
+  auctionListings: zillowScrapeDo.auctionListings,
   // Value / agent / market / mortgage:
   mortgageRates: zillowScrapeDo.mortgageRates,
   // mortgageCalculator is pure math — exposed for symmetry but the proxy

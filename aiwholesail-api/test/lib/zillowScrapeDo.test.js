@@ -27,8 +27,11 @@ const {
   marketStatsUrl,
   mortgageCalculator,
   searchByUrl,
+  findWalkScore,
+  findClimateRisk,
   ZillowScrapeError,
 } = require('../../lib/scrapers/zillowScrapeDo');
+const { looksLikeCaptcha } = require('../../lib/scrapers/scrapeDoClient');
 
 // Build a minimal HTML page with a valid __NEXT_DATA__ blob whose shape
 // matches Zillow's current SSR cache: componentProps.gdpClientCache is a
@@ -843,5 +846,304 @@ test('findMarketStats + normalizeMarketStats', async (t) => {
 
   await t.test('returns null for non-object', () => {
     assert.equal(normalizeMarketStats(null), null);
+  });
+});
+
+// ───────────────────────── HOA / parking / heating-cooling ─────────────────
+
+test('mapPropertyToRapidApiShape — resoFacts hoists', async (t) => {
+  await t.test('hoists HOA monthly fee + computes annual from monthly frequency', () => {
+    const out = mapPropertyToRapidApiShape({
+      zpid: 1,
+      streetAddress: '1 St', city: 'Austin', state: 'TX', zipcode: '78701',
+      price: 400000,
+      resoFacts: { hoaFee: 250, hoaFeeFrequency: 'Monthly' },
+    });
+    assert.equal(out.monthlyHoaFee, 250);
+    assert.equal(out.hoaFeeFrequency, 'Monthly');
+    assert.equal(out.hoaAnnualAmount, 3000);
+  });
+
+  await t.test('passes through hoaFee when frequency is Annual (no x12)', () => {
+    const out = mapPropertyToRapidApiShape({
+      zpid: 1,
+      streetAddress: '1 St', city: 'Austin', state: 'TX', zipcode: '78701',
+      price: 400000,
+      resoFacts: { hoaFee: 1200, hoaFeeFrequency: 'Annually' },
+    });
+    assert.equal(out.hoaAnnualAmount, 1200);
+  });
+
+  await t.test('extracts yearRenovated from resoFacts.yearBuiltEffective', () => {
+    const out = mapPropertyToRapidApiShape({
+      zpid: 1,
+      streetAddress: '1 St', city: 'a', state: 'b', zipcode: 'c',
+      price: 1,
+      yearBuilt: 1965,
+      resoFacts: { yearBuiltEffective: 2018 },
+    });
+    assert.equal(out.yearBuilt, 1965);
+    assert.equal(out.yearRenovated, 2018);
+  });
+
+  await t.test('extracts parking + lot features + heating/cooling arrays', () => {
+    const out = mapPropertyToRapidApiShape({
+      zpid: 1,
+      streetAddress: '1 St', city: 'a', state: 'b', zipcode: 'c',
+      price: 1,
+      resoFacts: {
+        parkingCapacity: 2,
+        parkingFeatures: ['Garage', 'Attached'],
+        hasGarage: true,
+        heating: ['Forced Air', 'Gas'],
+        cooling: ['Central Air'],
+        lotFeatures: ['Corner Lot', 'Cul-de-sac'],
+        lotSizeDimensions: '60 x 120',
+      },
+    });
+    assert.equal(out.parkingCapacity, 2);
+    assert.deepEqual(out.parkingFeatures, ['Garage', 'Attached']);
+    assert.equal(out.hasGarage, true);
+    assert.deepEqual(out.heating, ['Forced Air', 'Gas']);
+    assert.deepEqual(out.cooling, ['Central Air']);
+    assert.deepEqual(out.lotFeatures, ['Corner Lot', 'Cul-de-sac']);
+    assert.equal(out.lotSizeDimensions, '60 x 120');
+  });
+
+  await t.test('coerces string heating/cooling into an array of one', () => {
+    const out = mapPropertyToRapidApiShape({
+      zpid: 1,
+      streetAddress: '1 St', city: 'a', state: 'b', zipcode: 'c',
+      price: 1,
+      resoFacts: { heating: 'Electric', cooling: 'Window Units' },
+    });
+    assert.deepEqual(out.heating, ['Electric']);
+    assert.deepEqual(out.cooling, ['Window Units']);
+  });
+});
+
+test('mapPropertyToRapidApiShape — listing agent from attributionInfo', async (t) => {
+  await t.test('hoists agent + brokerage + phone from attributionInfo', () => {
+    const out = mapPropertyToRapidApiShape({
+      zpid: 1,
+      streetAddress: '1 St', city: 'a', state: 'b', zipcode: 'c',
+      price: 1,
+      attributionInfo: {
+        agentName: 'Jane Doe',
+        agentEmail: 'jane@acme.com',
+        agentPhoneNumber: '555-0100',
+        agentLicenseNumber: 'TX-9876',
+        brokerName: 'Acme Realty',
+        brokerPhoneNumber: '555-0200',
+        mlsId: 'AUS-12345',
+        mlsName: 'ABoR',
+      },
+    });
+    assert.equal(out.listingAgent.name, 'Jane Doe');
+    assert.equal(out.listingAgent.phone, '555-0100');
+    assert.equal(out.listingAgent.brokerage, 'Acme Realty');
+    assert.equal(out.listingAgent.licenseNumber, 'TX-9876');
+    assert.equal(out.listingAgent.mlsId, 'AUS-12345');
+  });
+
+  await t.test('listingAgent is undefined when no attributionInfo', () => {
+    const out = mapPropertyToRapidApiShape({
+      zpid: 1, streetAddress: '1 St', city: 'a', state: 'b', zipcode: 'c', price: 1,
+    });
+    assert.equal(out.listingAgent, undefined);
+  });
+});
+
+test('mapPropertyToRapidApiShape — open houses', async (t) => {
+  await t.test('extracts openHouses + nextOpenHouse from openHouseSchedule', () => {
+    const out = mapPropertyToRapidApiShape({
+      zpid: 1,
+      streetAddress: '1 St', city: 'a', state: 'b', zipcode: 'c', price: 1,
+      openHouseSchedule: [
+        { startTime: '2026-05-20T17:00:00Z', endTime: '2026-05-20T19:00:00Z' },
+        { startTime: '2026-05-21T15:00:00Z', endTime: '2026-05-21T17:00:00Z' },
+      ],
+    });
+    assert.equal(out.openHouses.length, 2);
+    assert.equal(out.nextOpenHouse.startTime, '2026-05-20T17:00:00Z');
+  });
+
+  await t.test('openHouses is undefined when no schedule', () => {
+    const out = mapPropertyToRapidApiShape({
+      zpid: 1, streetAddress: '1 St', city: 'a', state: 'b', zipcode: 'c', price: 1,
+    });
+    assert.equal(out.openHouses, undefined);
+    assert.equal(out.nextOpenHouse, undefined);
+  });
+});
+
+test('mapPropertyToRapidApiShape — price reduction signal', async (t) => {
+  await t.test('detects price drop from priceHistory', () => {
+    const out = mapPropertyToRapidApiShape({
+      zpid: 1, streetAddress: '1', city: 'a', state: 'b', zipcode: 'c', price: 380000,
+      priceHistory: [
+        { date: '2026-05-10', price: 380000, event: 'Price change' },
+        { date: '2026-04-01', price: 420000, event: 'Listed for sale' },
+      ],
+    });
+    assert.equal(out.isPriceReduced, true);
+    assert.equal(out.priceReduction.amount, 40000);
+    assert.equal(out.priceReduction.previousPrice, 420000);
+    assert.equal(out.priceReduction.currentPrice, 380000);
+  });
+
+  await t.test('no reduction when only one price history event', () => {
+    const out = mapPropertyToRapidApiShape({
+      zpid: 1, streetAddress: '1', city: 'a', state: 'b', zipcode: 'c', price: 380000,
+      priceHistory: [{ date: '2026-04-01', price: 380000, event: 'Listed for sale' }],
+    });
+    assert.equal(out.priceReduction, undefined);
+  });
+
+  await t.test('no reduction when latest price is HIGHER than previous', () => {
+    const out = mapPropertyToRapidApiShape({
+      zpid: 1, streetAddress: '1', city: 'a', state: 'b', zipcode: 'c', price: 450000,
+      priceHistory: [
+        { date: '2026-05-10', price: 450000 },
+        { date: '2026-04-01', price: 420000 },
+      ],
+    });
+    assert.equal(out.priceReduction, undefined);
+  });
+});
+
+test('mapPropertyToRapidApiShape — foreclosure stage', async (t) => {
+  await t.test('REO trumps everything', () => {
+    const out = mapPropertyToRapidApiShape({
+      zpid: 1, streetAddress: '1', city: 'a', state: 'b', zipcode: 'c', price: 1,
+      isReo: true, isForeclosure: true, isPreForeclosureAuction: true,
+    });
+    assert.equal(out.foreclosureStage, 'REO');
+  });
+
+  await t.test('AUCTION wins over PRE_FORECLOSURE', () => {
+    const out = mapPropertyToRapidApiShape({
+      zpid: 1, streetAddress: '1', city: 'a', state: 'b', zipcode: 'c', price: 1,
+      isPreForeclosureAuction: true, isPreForeclosure: true,
+    });
+    assert.equal(out.foreclosureStage, 'AUCTION');
+  });
+
+  await t.test('plain isForeclosure → FORECLOSURE', () => {
+    const out = mapPropertyToRapidApiShape({
+      zpid: 1, streetAddress: '1', city: 'a', state: 'b', zipcode: 'c', price: 1,
+      isForeclosure: true,
+    });
+    assert.equal(out.foreclosureStage, 'FORECLOSURE');
+  });
+
+  await t.test('no flags → stage is undefined', () => {
+    const out = mapPropertyToRapidApiShape({
+      zpid: 1, streetAddress: '1', city: 'a', state: 'b', zipcode: 'c', price: 1,
+    });
+    assert.equal(out.foreclosureStage, undefined);
+  });
+
+  await t.test('extracts foreclosure financial fields', () => {
+    const out = mapPropertyToRapidApiShape({
+      zpid: 1, streetAddress: '1', city: 'a', state: 'b', zipcode: 'c', price: 1,
+      foreclosure: {
+        isForeclosure: true,
+        unpaidBalance: 285000,
+        auctionDate: '2026-06-15',
+        pastDueBalance: 18500,
+      },
+    });
+    assert.equal(out.foreclosureAmount, 285000);
+    assert.equal(out.foreclosureAuctionDate, '2026-06-15');
+    assert.equal(out.foreclosurePastDueBalance, 18500);
+  });
+});
+
+// ───────────────────────── Walk / transit / bike scores ─────────────
+
+test('findWalkScore', async (t) => {
+  await t.test('pulls walkscore / transit_score / bikescore (nested shape)', () => {
+    const out = findWalkScore({
+      walkScore: { walkscore: 78, description: 'Very Walkable' },
+      transitScore: { transit_score: 45, description: 'Some Transit' },
+      bikeScore: { bikescore: 62, description: 'Bikeable' },
+    });
+    assert.equal(out.walkScore, 78);
+    assert.equal(out.walkDescription, 'Very Walkable');
+    assert.equal(out.transitScore, 45);
+    assert.equal(out.bikeScore, 62);
+  });
+
+  await t.test('accepts flat numeric shape', () => {
+    const out = findWalkScore({ walkScore: 42 });
+    assert.equal(out.walkScore, 42);
+    assert.equal(out.transitScore, undefined);
+  });
+
+  await t.test('returns null when no scores present', () => {
+    assert.equal(findWalkScore({}), null);
+    assert.equal(findWalkScore(null), null);
+  });
+});
+
+// ───────────────────────── Climate risk ─────────────────────────────
+
+test('findClimateRisk', async (t) => {
+  await t.test('pulls flood/fire/heat/wind/drought from climate sources', () => {
+    const out = findClimateRisk({
+      climate: {
+        floodSources: {
+          primary: [{ riskScore: { value: 7, label: 'Major', max: 10 }, probability: 0.42 }],
+          insuranceRecommendation: 'recommended',
+        },
+        fireSources: {
+          primary: [{ riskScore: { value: 3, label: 'Moderate', max: 10 } }],
+        },
+        heatSources: { riskScore: { value: 8, label: 'Severe', max: 10 } },
+        windSources: { value: 2, label: 'Minor' },
+      },
+    });
+    assert.equal(out.flood.value, 7);
+    assert.equal(out.flood.label, 'Major');
+    assert.equal(out.flood.probability, 0.42);
+    assert.equal(out.flood.insuranceRecommendation, 'recommended');
+    assert.equal(out.fire.value, 3);
+    assert.equal(out.heat.value, 8);
+    assert.equal(out.wind.value, 2);
+  });
+
+  await t.test('returns null when climate object missing', () => {
+    assert.equal(findClimateRisk({}), null);
+    assert.equal(findClimateRisk({ climate: {} }), null);
+  });
+});
+
+// ───────────────────────── Captcha detection ─────────────────────────
+
+test('looksLikeCaptcha', async (t) => {
+  await t.test('detects PerimeterX captcha gate', () => {
+    assert.equal(looksLikeCaptcha('<html><body>Please verify you are a human</body></html>'), true);
+    assert.equal(looksLikeCaptcha('<div id="px-captcha"></div>'), true);
+  });
+
+  await t.test('detects Incapsula block', () => {
+    assert.equal(looksLikeCaptcha('Request unsuccessful. Incapsula incident ID'), true);
+  });
+
+  await t.test('detects Pardon Our Interruption / Access Denied gates', () => {
+    assert.equal(looksLikeCaptcha('Pardon Our Interruption'), true);
+    assert.equal(looksLikeCaptcha('Access Denied — please contact'), true);
+  });
+
+  await t.test('passes through normal HTML', () => {
+    const realPage = '<html><body><h1>For Sale</h1><script id="__NEXT_DATA__">{}</script></body></html>';
+    assert.equal(looksLikeCaptcha(realPage), false);
+  });
+
+  await t.test('handles non-string / empty input', () => {
+    assert.equal(looksLikeCaptcha(null), false);
+    assert.equal(looksLikeCaptcha(''), false);
+    assert.equal(looksLikeCaptcha(undefined), false);
   });
 });

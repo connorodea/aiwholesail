@@ -162,6 +162,11 @@ function deepFindProperty(node, depth = 0) {
  * Map a parsed Zillow Property record to the field names the rest of the
  * codebase already consumes (the existing /pro/byaddress payload). Anything
  * the page didn't include comes through as undefined.
+ *
+ * Many of the wholesaler-critical fields (HOA, year renovated, parking,
+ * listing agent, open houses, foreclosure stage) live under `resoFacts` and
+ * `attributionInfo` in Zillow's __NEXT_DATA__. We hoist them to top-level so
+ * downstream consumers don't have to know about Zillow's internal shape.
  */
 function mapPropertyToRapidApiShape(p) {
   if (!p || typeof p !== 'object') return null;
@@ -179,6 +184,85 @@ function mapPropertyToRapidApiShape(p) {
       ? p.photos.map((ph) => ph?.url || ph).filter(Boolean)
       : [];
 
+  // ── HOA — top-level keys + resoFacts fallback (Zillow shipped both) ───
+  const resoFacts = (p.resoFacts && typeof p.resoFacts === 'object') ? p.resoFacts : {};
+  const monthlyHoaFee = p.monthlyHoaFee ?? p.hoaFee ?? resoFacts.hoaFee ?? undefined;
+  const hoaFeeFrequency =
+    p.hoaFeeFrequency ?? resoFacts.hoaFeeFrequency ?? undefined;
+  const hoaAnnualAmount =
+    monthlyHoaFee != null && (!hoaFeeFrequency || /month/i.test(String(hoaFeeFrequency)))
+      ? Number(monthlyHoaFee) * 12
+      : monthlyHoaFee != null && /year|annual/i.test(String(hoaFeeFrequency))
+        ? Number(monthlyHoaFee)
+        : undefined;
+
+  // ── Listing agent — `attributionInfo` is canonical (broker disclosure) ──
+  const attribution = (p.attributionInfo && typeof p.attributionInfo === 'object')
+    ? p.attributionInfo
+    : {};
+  const listingAgent = attribution.agentName
+    ? {
+        name: attribution.agentName,
+        email: attribution.agentEmail || undefined,
+        phone: attribution.agentPhoneNumber || undefined,
+        licenseNumber: attribution.agentLicenseNumber || undefined,
+        brokerage: attribution.brokerName || attribution.buyerBrokerName || undefined,
+        brokeragePhone: attribution.brokerPhoneNumber || undefined,
+        mlsId: attribution.mlsId || undefined,
+        mlsName: attribution.mlsName || undefined,
+      }
+    : undefined;
+
+  // ── Open houses — array of {startTime, endTime} entries ─────────────
+  const openHouses = Array.isArray(p.openHouseSchedule)
+    ? p.openHouseSchedule
+        .filter((oh) => oh && (oh.startTime || oh.startDate))
+        .map((oh) => ({
+          startTime: oh.startTime || oh.startDate || undefined,
+          endTime: oh.endTime || oh.endDate || undefined,
+          openHouseType: oh.openHouseType || undefined,
+        }))
+    : undefined;
+  const nextOpenHouse = openHouses && openHouses.length > 0 ? openHouses[0] : undefined;
+
+  // ── Price-reduction signal (wholesalers chase price-cut listings) ───
+  const priceReduction = (() => {
+    if (Array.isArray(p.priceHistory) && p.priceHistory.length > 1) {
+      // Find latest price-change event with a delta
+      const sorted = [...p.priceHistory].filter((h) => h && h.date)
+        .sort((a, b) => String(b.date).localeCompare(String(a.date)));
+      const last = sorted[0];
+      const prev = sorted[1];
+      if (last && prev && Number(last.price) < Number(prev.price)) {
+        return {
+          isPriceReduced: true,
+          amount: Number(prev.price) - Number(last.price),
+          changeDate: last.date,
+          previousPrice: Number(prev.price),
+          currentPrice: Number(last.price),
+        };
+      }
+    }
+    if (p.priceChange != null) {
+      return {
+        isPriceReduced: Number(p.priceChange) < 0,
+        amount: Math.abs(Number(p.priceChange)),
+        changeDate: p.priceChangeDate || undefined,
+      };
+    }
+    return undefined;
+  })();
+
+  // ── Foreclosure stage — Zillow distinguishes 4 phases ─────────────
+  const foreclosureStage = (() => {
+    const f = p.foreclosure || {};
+    if (p.isReo || f.isReo) return 'REO';
+    if (p.isAuction || p.isPreForeclosureAuction || f.isAuction) return 'AUCTION';
+    if (p.isPreForeclosure || f.isPreForeclosure) return 'PRE_FORECLOSURE';
+    if (p.isForeclosure || f.isForeclosure) return 'FORECLOSURE';
+    return undefined;
+  })();
+
   return {
     zpid: p.zpid != null ? String(p.zpid) : undefined,
     address: addressString || undefined,
@@ -193,10 +277,21 @@ function mapPropertyToRapidApiShape(p) {
     bathrooms: p.bathrooms ?? undefined,
     livingArea: p.livingArea ?? p.livingAreaValue ?? undefined,
     lotSize: p.lotSize ?? p.lotAreaValue ?? undefined,
+    lotSizeDimensions: resoFacts.lotSizeDimensions ?? undefined,
+    lotFeatures: Array.isArray(resoFacts.lotFeatures) ? resoFacts.lotFeatures : undefined,
     yearBuilt: p.yearBuilt ?? undefined,
+    // `yearBuiltEffective` is Zillow's "year renovated" — when the home was
+    // last substantially renovated. Often higher ARV signal than yearBuilt.
+    yearRenovated: resoFacts.yearBuiltEffective ?? p.yearBuiltEffective ?? undefined,
     homeType: p.homeType ?? p.propertyTypeDimension ?? undefined,
     homeStatus: p.homeStatus ?? undefined,
+    // Distinct from homeStatus; pendingDate when the home went pending.
+    pendingDate: p.pendingDate ?? resoFacts.contingency ?? undefined,
     daysOnZillow: p.daysOnZillow ?? undefined,
+    // `onMarketDate` is the original listing date; daysOnMarket is derived
+    // from it and may differ from daysOnZillow (relistings reset DoZ).
+    onMarketDate: p.onMarketDate ?? resoFacts.onMarketDate ?? undefined,
+    daysOnMarket: p.daysOnMarket ?? resoFacts.daysOnZillow ?? undefined,
     description: p.description || undefined,
     taxAssessedValue: p.taxAssessedValue ?? undefined,
     taxAnnualAmount: p.taxAnnualAmount ?? undefined,
@@ -208,6 +303,43 @@ function mapPropertyToRapidApiShape(p) {
     isAbsenteeOwner: p.isAbsenteeOwner ?? undefined,
     isForeclosure: p.isForeclosure ?? p.foreclosure?.isForeclosure ?? undefined,
     isPreForeclosureAuction: p.isPreForeclosureAuction ?? undefined,
+    foreclosureStage,
+    foreclosureAmount: p.foreclosureAmount ?? p.foreclosure?.unpaidBalance ?? undefined,
+    foreclosureAuctionDate:
+      p.foreclosureAuctionDate ?? p.foreclosure?.auctionDate ?? undefined,
+    foreclosurePastDueBalance:
+      p.foreclosurePastDueBalance ?? p.foreclosure?.pastDueBalance ?? undefined,
+    isTaxDelinquent: p.isTaxDelinquent ?? p.taxDelinquent ?? undefined,
+    // HOA (hoisted from resoFacts)
+    monthlyHoaFee: monthlyHoaFee != null ? Number(monthlyHoaFee) : undefined,
+    hoaFeeFrequency,
+    hoaAnnualAmount: hoaAnnualAmount != null ? Number(hoaAnnualAmount) : undefined,
+    // Parking
+    parkingCapacity:
+      resoFacts.parkingCapacity ?? resoFacts.garageParkingCapacity ?? p.parkingCapacity ?? undefined,
+    parkingFeatures: Array.isArray(resoFacts.parkingFeatures)
+      ? resoFacts.parkingFeatures
+      : undefined,
+    hasGarage: resoFacts.hasGarage ?? p.hasGarage ?? undefined,
+    // Heating / cooling
+    heating: Array.isArray(resoFacts.heating)
+      ? resoFacts.heating
+      : resoFacts.heating
+        ? [resoFacts.heating]
+        : undefined,
+    cooling: Array.isArray(resoFacts.cooling)
+      ? resoFacts.cooling
+      : resoFacts.cooling
+        ? [resoFacts.cooling]
+        : undefined,
+    // Listing agent
+    listingAgent,
+    // Open houses
+    openHouses,
+    nextOpenHouse,
+    // Price-reduction signal
+    priceReduction,
+    isPriceReduced: priceReduction?.isPriceReduced ?? undefined,
     photos,
     hdpUrl: p.hdpUrl
       ? p.hdpUrl.startsWith('http')
@@ -1513,6 +1645,369 @@ async function rentalEstimate(args = {}) {
   };
 }
 
+// ───────────────────────── New actions: walkScore / climate / open houses ─
+
+/**
+ * Pull walk / transit / bike scores from a Property record. Zillow embeds
+ * these under different keys depending on page version — accept any.
+ * Returns null when the page didn't include them (suburban listings often
+ * lack a transit score).
+ */
+function findWalkScore(record) {
+  if (!record || typeof record !== 'object') return null;
+  // The 2026 detail page surfaces this on the property itself
+  const walk = record.walkScore?.walkscore ?? record.walkScore ?? record.walkscore;
+  const transit = record.transitScore?.transit_score ?? record.transitScore ?? record.transit_score;
+  const bike = record.bikeScore?.bikescore ?? record.bikeScore ?? record.bikescore;
+  if (walk == null && transit == null && bike == null) return null;
+  return {
+    walkScore: walk != null ? Number(walk) : undefined,
+    walkDescription: record.walkScore?.description ?? undefined,
+    transitScore: transit != null ? Number(transit) : undefined,
+    transitDescription: record.transitScore?.description ?? undefined,
+    bikeScore: bike != null ? Number(bike) : undefined,
+    bikeDescription: record.bikeScore?.description ?? undefined,
+  };
+}
+
+/**
+ * Walk Score / Transit Score / Bike Score for a property. The data lives on
+ * the detail page; we reuse the existing detail-page scrape. Throws
+ * 'no_data_in_payload' when Zillow stripped the scores (some listings).
+ *
+ * @param {{zpid?: string, address?: string}} args
+ */
+async function walkScore(args = {}) {
+  const { zpid, address } = args;
+  if (!zpid && !address) {
+    throw new ZillowScrapeError('walkScore requires zpid or address', { reason: 'bad_args' });
+  }
+  const url = zpid ? detailUrlForZpid(zpid) : detailUrlForAddress(address);
+  let resp;
+  try {
+    resp = await scrape(url, { headers: DEFAULT_HEADERS, geoCode: 'us', render: false });
+  } catch (err) {
+    if (err instanceof ScrapeDoError) {
+      throw new ZillowScrapeError(`scrape.do fetch failed: ${err.message}`, {
+        status: err.status,
+        action: 'walkScore',
+        reason: 'fetch_failed',
+      });
+    }
+    throw err;
+  }
+  const nextData = extractNextData(resp.data);
+  const record = findPropertyRecord(nextData);
+  if (!record) {
+    throw new ZillowScrapeError('Could not locate Property in __NEXT_DATA__', {
+      action: 'walkScore',
+      reason: 'no_property_in_payload',
+    });
+  }
+  const scores = findWalkScore(record);
+  if (!scores) {
+    throw new ZillowScrapeError('No walk/transit/bike score on this listing', {
+      action: 'walkScore',
+      reason: 'no_data_in_payload',
+    });
+  }
+  return {
+    zpid: record.zpid != null ? String(record.zpid) : zpid,
+    ...scores,
+  };
+}
+
+/**
+ * Pull climate-risk scores (flood/fire/heat/wind/drought) from a Property
+ * record. Zillow added these in 2024 and they sit under `climate.<hazard>Sources`
+ * with `riskScore.value` and `riskScore.label`.
+ */
+function findClimateRisk(record) {
+  if (!record || typeof record !== 'object') return null;
+  const c = record.climate;
+  if (!c || typeof c !== 'object') return null;
+  const pickRisk = (source) => {
+    if (!source || typeof source !== 'object') return undefined;
+    const primary = Array.isArray(source.primary) && source.primary[0]
+      ? source.primary[0]
+      : source;
+    const value = primary.riskScore?.value ?? primary.value;
+    const label = primary.riskScore?.label ?? primary.label;
+    const max = primary.riskScore?.max ?? primary.max;
+    if (value == null && label == null) return undefined;
+    return {
+      value: value != null ? Number(value) : undefined,
+      label,
+      max: max != null ? Number(max) : undefined,
+      probability: primary.probability ?? undefined,
+      insuranceRecommendation: source.insuranceRecommendation ?? undefined,
+    };
+  };
+  const out = {
+    flood: pickRisk(c.floodSources),
+    fire: pickRisk(c.fireSources),
+    heat: pickRisk(c.heatSources),
+    wind: pickRisk(c.windSources),
+    drought: pickRisk(c.droughtSources),
+    air: pickRisk(c.airSources),
+  };
+  // Strip undefineds; bail if every hazard was missing.
+  const hasAny = Object.values(out).some((v) => v !== undefined);
+  return hasAny ? out : null;
+}
+
+/**
+ * Climate-risk scores for a property. Returns flood, fire, heat, wind,
+ * drought, and air-quality risk (each 0-10 scale with text label). Throws
+ * 'no_data_in_payload' when Zillow has not surfaced the climate widget on
+ * this listing (common for older detail pages).
+ *
+ * @param {{zpid?: string, address?: string}} args
+ */
+async function climateRisk(args = {}) {
+  const { zpid, address } = args;
+  if (!zpid && !address) {
+    throw new ZillowScrapeError('climateRisk requires zpid or address', { reason: 'bad_args' });
+  }
+  const url = zpid ? detailUrlForZpid(zpid) : detailUrlForAddress(address);
+  let resp;
+  try {
+    resp = await scrape(url, { headers: DEFAULT_HEADERS, geoCode: 'us', render: false });
+  } catch (err) {
+    if (err instanceof ScrapeDoError) {
+      throw new ZillowScrapeError(`scrape.do fetch failed: ${err.message}`, {
+        status: err.status,
+        action: 'climateRisk',
+        reason: 'fetch_failed',
+      });
+    }
+    throw err;
+  }
+  const nextData = extractNextData(resp.data);
+  const record = findPropertyRecord(nextData);
+  if (!record) {
+    throw new ZillowScrapeError('Could not locate Property in __NEXT_DATA__', {
+      action: 'climateRisk',
+      reason: 'no_property_in_payload',
+    });
+  }
+  const climate = findClimateRisk(record);
+  if (!climate) {
+    throw new ZillowScrapeError('No climate-risk data on this listing', {
+      action: 'climateRisk',
+      reason: 'no_data_in_payload',
+    });
+  }
+  return {
+    zpid: record.zpid != null ? String(record.zpid) : zpid,
+    climate,
+  };
+}
+
+/**
+ * Open-house schedule for a property. Slice of `propertyDetails` data —
+ * convenience wrapper so the agent-tool layer stays one-action-one-call.
+ *
+ * @param {{zpid?: string, address?: string}} args
+ */
+async function openHouses(args = {}) {
+  const d = await propertyDetails(args);
+  return {
+    zpid: d.zpid,
+    openHouses: d.openHouses || [],
+    nextOpenHouse: d.nextOpenHouse,
+  };
+}
+
+// ───────────────────────── Rental comps + nearby sales + coming soon ─
+
+/**
+ * Rental comps near a property. Reuses the detail-page scrape and pulls
+ * `comparableRentals` if present, falling back to filtering the existing
+ * `comps` by rental-status. Different from `comps` which returns sale comps.
+ *
+ * @param {{zpid?: string, address?: string}} args
+ */
+async function rentalComps(args = {}) {
+  const { zpid, address } = args;
+  if (!zpid && !address) {
+    throw new ZillowScrapeError('rentalComps requires zpid or address', { reason: 'bad_args' });
+  }
+  const url = zpid ? detailUrlForZpid(zpid) : detailUrlForAddress(address);
+  let resp;
+  try {
+    resp = await scrape(url, { headers: DEFAULT_HEADERS, geoCode: 'us', render: false });
+  } catch (err) {
+    if (err instanceof ScrapeDoError) {
+      throw new ZillowScrapeError(`scrape.do fetch failed: ${err.message}`, {
+        status: err.status,
+        action: 'rentalComps',
+        reason: 'fetch_failed',
+      });
+    }
+    throw err;
+  }
+  const nextData = extractNextData(resp.data);
+  const record = findPropertyRecord(nextData);
+  const rentals =
+    record?.comparableRentals ||
+    record?.rentalComparables ||
+    (Array.isArray(record?.homeRecommendations?.homes)
+      ? record.homeRecommendations.homes.filter(
+          (h) => h && (h.homeStatus === 'FOR_RENT' || h.rentZestimate != null)
+        )
+      : []);
+  if (!Array.isArray(rentals) || rentals.length === 0) {
+    throw new ZillowScrapeError('No rental comps on this listing', {
+      action: 'rentalComps',
+      reason: 'no_data_in_payload',
+    });
+  }
+  return {
+    zpid: record?.zpid != null ? String(record.zpid) : zpid,
+    rentZestimate: record?.rentZestimate,
+    comps: rentals.map(mapListingToSummary).filter(Boolean),
+  };
+}
+
+/**
+ * Recently sold listings in a N-mile radius of a property. Different from
+ * `comps` (Zillow's algorithmic "similar homes") — this is a pure geographic
+ * radius search. Useful for ARV when Zillow's own algo is conservative.
+ *
+ * Internally: fetch the detail page to get lat/lng, then run a coordinate
+ * search with status=recentlySold. Two scrape.do calls per invocation.
+ *
+ * @param {{zpid?: string, address?: string, radius_mi?: number}} args
+ */
+async function recentlySoldNearby(args = {}) {
+  const { zpid, address, radius_mi: radiusMi = 0.5 } = args;
+  if (!zpid && !address) {
+    throw new ZillowScrapeError('recentlySoldNearby requires zpid or address', {
+      reason: 'bad_args',
+    });
+  }
+  const d = await propertyDetails({ zpid, address });
+  const lat = d.latitude;
+  const lng = d.longitude;
+  if (lat == null || lng == null) {
+    throw new ZillowScrapeError(
+      'recentlySoldNearby: detail page missing lat/lng — cannot geo-search',
+      { action: 'recentlySoldNearby', reason: 'no_data_in_payload' }
+    );
+  }
+  const search = await searchByCoordinates({
+    lat,
+    lng,
+    radius_mi: Number(radiusMi) || 0.5,
+    status: 'recentlySold',
+  });
+  return {
+    zpid: d.zpid,
+    centerLat: lat,
+    centerLng: lng,
+    radiusMi: Number(radiusMi) || 0.5,
+    totalResultCount: search.totalResultCount,
+    results: search.results,
+  };
+}
+
+/**
+ * Coming-soon listings in a location. Zillow surfaces these on the same
+ * search URL with `_csl` flag (coming-soon listings). We build the
+ * searchQueryState with `isComingSoon=true` and the other isXxx flags
+ * forced false so we get only coming-soon.
+ *
+ * @param {{location: string, page?: number}} args
+ */
+async function comingSoon(args = {}) {
+  const { location, page } = args;
+  if (!location) {
+    throw new ZillowScrapeError('comingSoon requires location', { reason: 'bad_args' });
+  }
+  // We don't know exact bounds for the location — rely on the location-string
+  // URL and append the coming-soon filter via searchQueryState. Zillow accepts
+  // both forms. We use the simpler /homes/<location>_rb/ + searchQueryState
+  // overlay so we don't need to geocode the location first.
+  let url = `${searchUrlForLocation(location)}?searchQueryState=${encodeURIComponent(
+    JSON.stringify({
+      pagination: page && Number(page) > 1 ? { currentPage: Number(page) } : {},
+      isMapVisible: false,
+      isListVisible: true,
+      filterState: {
+        isComingSoon: { value: true },
+        isForSaleByAgent: { value: false },
+        isForSaleByOwner: { value: false },
+        isNewConstruction: { value: false },
+        isAuction: { value: false },
+        isForSaleForeclosure: { value: false },
+        isRecentlySold: { value: false },
+      },
+    })
+  )}`;
+  let resp;
+  try {
+    resp = await scrape(url, { headers: DEFAULT_HEADERS, geoCode: 'us', render: false });
+  } catch (err) {
+    if (err instanceof ScrapeDoError) {
+      throw new ZillowScrapeError(`scrape.do fetch failed: ${err.message}`, {
+        status: err.status,
+        action: 'comingSoon',
+        reason: 'fetch_failed',
+      });
+    }
+    throw err;
+  }
+  const nextData = extractNextData(resp.data);
+  const listResults = findListResults(nextData);
+  if (!Array.isArray(listResults)) {
+    throw new ZillowScrapeError('Could not locate listResults in __NEXT_DATA__', {
+      action: 'comingSoon',
+      reason: 'no_list_results',
+    });
+  }
+  const total = findTotalResultCount(nextData);
+  return {
+    location,
+    status: 'ComingSoon',
+    page: Number(page) || 1,
+    totalResultCount: total ?? listResults.length,
+    results: listResults.map(mapListingToSummary).filter(Boolean),
+  };
+}
+
+/**
+ * Auction listings in a location. Zillow exposes a `/auctions/` filter
+ * sub-path that pre-filters to auction-status only.
+ *
+ * @param {{location: string, page?: number}} args
+ */
+async function auctionListings(args = {}) {
+  const { location, page } = args;
+  if (!location) {
+    throw new ZillowScrapeError('auctionListings requires location', { reason: 'bad_args' });
+  }
+  // Use searchQueryState overlay; Zillow doesn't have a stable /auctions/
+  // sub-path URL across all locations so the searchQueryState route is more
+  // robust.
+  const url = `${searchUrlForLocation(location)}?searchQueryState=${encodeURIComponent(
+    JSON.stringify({
+      pagination: page && Number(page) > 1 ? { currentPage: Number(page) } : {},
+      isMapVisible: false,
+      isListVisible: true,
+      filterState: {
+        isAuction: { value: true },
+        isForSaleByAgent: { value: false },
+        isForSaleByOwner: { value: false },
+        isNewConstruction: { value: false },
+        isComingSoon: { value: false },
+        isRecentlySold: { value: false },
+      },
+    })
+  )}`;
+  return runSearchUrl(url, { location, status: 'Auction', page });
+}
+
 module.exports = {
   ZillowScrapeError,
   // Detail-class:
@@ -1525,6 +2020,11 @@ module.exports = {
   schools,
   comps,
   zestimateHistory,
+  walkScore,
+  climateRisk,
+  openHouses,
+  rentalComps,
+  recentlySoldNearby,
   // Search-class:
   search,
   searchByAddress,
@@ -1536,6 +2036,8 @@ module.exports = {
   recentlySold,
   foreclosures,
   fsbo,
+  comingSoon,
+  auctionListings,
   // Value / market / mortgage / agent:
   mortgageRates,
   mortgageCalculator,
@@ -1559,4 +2061,6 @@ module.exports = {
   findMarketStats,
   normalizeMarketStats,
   marketStatsUrl,
+  findWalkScore,
+  findClimateRisk,
 };
