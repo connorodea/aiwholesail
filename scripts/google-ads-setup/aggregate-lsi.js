@@ -16,6 +16,7 @@
  *   --min-score <n>      Override low-comp score threshold (default 0.3)
  *   --vl-min-vol <n>     Override very-low-comp volume threshold (default 50)
  *   --vl-max-cpc <n>     Override very-low-comp CPC ceiling (default 5)
+ *   --include-junk       Re-include brand+modifier noise (careers, ceo, salary, etc.)
  *
  * Outputs:
  *   - lsi-low-comp-queue.csv (columns: keyword, volume, cpc, competition, score,
@@ -167,20 +168,65 @@ function dedupe(rows) {
   return [...byKey.values()];
 }
 
+// ---- Junk-modifier stoplist. ----
+// RapidAPI's expansion endpoint returns brand+modifier noise that scores well
+// on the rank-difficulty side but has zero content angle for an REI SaaS:
+//   "PropStream careers", "BatchLeads ceo", "high equity property leads address".
+// These get filtered out by default; pass --include-junk to re-include them.
+const JUNK_TRAILING_TOKENS = new Set([
+  'address', 'addresses', 'careers', 'ceo', 'cfo',
+  'employment', 'employees', 'facebook', 'founder', 'founders',
+  'headquarters', 'hq', 'instagram', 'job', 'jobs', 'linkedin',
+  'owner', 'owners', 'salary', 'salaries',
+  'ticker', 'twitter', 'youtube',
+]);
+const JUNK_TRAILING_BIGRAMS = new Set([
+  'phone number', 'stock price', 'is it legit', 'is it real',
+  'is it good', 'is it scam', 'office location', 'sign in',
+  'log in', 'company size', 'revenue 2026', 'net worth',
+]);
+// Allowlist bigrams override single-token blocks. Catches legit REI queries
+// that happen to end in a flagged token (FSBO, absentee owner, calculator-by-address).
+const JUNK_TRAILING_ALLOWLIST_BIGRAMS = new Set([
+  'by owner', 'by owners', 'absentee owner', 'absentee owners',
+  'by address', 'with address', 'from address',
+]);
+
+function isJunkKeyword(text) {
+  if (!text) return false;
+  const k = String(text).toLowerCase().trim();
+  const tokens = k.split(/\s+/);
+  if (tokens.length === 0) return false;
+  const last = tokens[tokens.length - 1];
+  const bigram = tokens.length >= 2 ? tokens.slice(-2).join(' ') : '';
+  if (bigram && JUNK_TRAILING_ALLOWLIST_BIGRAMS.has(bigram)) return false;
+  if (JUNK_TRAILING_TOKENS.has(last)) return true;
+  if (bigram && JUNK_TRAILING_BIGRAMS.has(bigram)) return true;
+  return false;
+}
+
 // ---- Filters. ----
 function filterLowComp(rows, opts = {}) {
   const minVol = opts.minVol ?? DEFAULTS.minVol;
   const minScore = opts.minScore ?? DEFAULTS.minScore;
+  const includeJunk = opts.includeJunk === true;
   return rows.filter((r) =>
-    r.competition === 'low' && r.volume >= minVol && r.score >= minScore
+    r.competition === 'low' &&
+    r.volume >= minVol &&
+    r.score >= minScore &&
+    (includeJunk || !isJunkKeyword(r.keyword))
   );
 }
 
 function filterVeryLowComp(rows, opts = {}) {
   const minVol = opts.vlMinVol ?? DEFAULTS.vlMinVol;
   const maxCpc = opts.vlMaxCpc ?? DEFAULTS.vlMaxCpc;
+  const includeJunk = opts.includeJunk === true;
   return rows.filter((r) =>
-    r.competition === 'low' && r.volume >= minVol && r.cpc <= maxCpc
+    r.competition === 'low' &&
+    r.volume >= minVol &&
+    r.cpc <= maxCpc &&
+    (includeJunk || !isJunkKeyword(r.keyword))
   );
 }
 
@@ -296,6 +342,7 @@ function parseArgs(argv) {
       case '--min-score': opts.minScore = Number(next); i++; break;
       case '--vl-min-vol': opts.vlMinVol = Number(next); i++; break;
       case '--vl-max-cpc': opts.vlMaxCpc = Number(next); i++; break;
+      case '--include-junk': opts.includeJunk = true; break;
       default: break;
     }
   }
@@ -336,5 +383,6 @@ module.exports = {
   toQueueRows,
   toQueueCsv,
   buildSummary,
+  isJunkKeyword,
   DEFAULTS,
 };

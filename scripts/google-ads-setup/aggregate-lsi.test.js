@@ -18,6 +18,7 @@ const {
   toQueueRows,
   toQueueCsv,
   buildSummary,
+  isJunkKeyword,
 } = require('./aggregate-lsi.js');
 
 // ---- Fixture: a synthetic rolling CSV matching seo-kw-rolling.csv columns.
@@ -179,4 +180,52 @@ test('buildSummary returns markdown including totals and tier counts', () => {
   assert.match(md, /Very-low-comp tier:\s*3/);
   // Page type breakdown
   assert.match(md, /By suggested_page_type/i);
+});
+
+test('isJunkKeyword filters RapidAPI expansion noise (careers, jobs, ceo, etc.)', () => {
+  // Real RapidAPI expansion artifacts seen in the 2026-05-13 batch.
+  // They game the score but have no content angle for a real estate investing SaaS.
+  assert.equal(isJunkKeyword('high equity property leads careers'), true);
+  assert.equal(isJunkKeyword('high equity property leads jobs'), true);
+  assert.equal(isJunkKeyword('high equity property leads address'), true);
+  assert.equal(isJunkKeyword('high equity property leads headquarters'), true);
+  assert.equal(isJunkKeyword('PropStream phone number'), true);
+  assert.equal(isJunkKeyword('PropStream ceo'), true);
+  assert.equal(isJunkKeyword('AIWholesail linkedin'), true);
+  assert.equal(isJunkKeyword('REI investor employment'), true);
+  // Real estate terms that LOOK adjacent but ARE valid content seeds — must pass through.
+  assert.equal(isJunkKeyword('PropStream review'), false);
+  assert.equal(isJunkKeyword('PropStream alternative'), false);
+  assert.equal(isJunkKeyword('PropStream pricing'), false);
+  assert.equal(isJunkKeyword('wholesale real estate income'), false);
+  assert.equal(isJunkKeyword('how to wholesale real estate'), false);
+  assert.equal(isJunkKeyword('best cities for real estate investing'), false);
+  // Core REI terms that end in tokens flagged by an over-broad stoplist — must pass through.
+  // These are real intent: "for sale by owner" (FSBO), absentee-owner lists, address-lookup tools.
+  assert.equal(isJunkKeyword('absentee owner'), false);
+  assert.equal(isJunkKeyword('for sale by owner'), false);
+  assert.equal(isJunkKeyword('homes for sale by owner'), false);
+  assert.equal(isJunkKeyword('arv calculator by address'), false);
+  assert.equal(isJunkKeyword('property lookup by address'), false);
+});
+
+test('filterLowComp drops junk keywords by default', () => {
+  const rows = [
+    { keyword: 'wholesale real estate', volume: 5400, cpc: 12, competition: 'low', score: 3.5 },
+    { keyword: 'PropStream careers', volume: 2800, cpc: 14, competition: 'low', score: 2.8 },
+    { keyword: 'high equity property leads jobs', volume: 2700, cpc: 13, competition: 'low', score: 2.7 },
+    { keyword: 'how to wholesale real estate', volume: 1300, cpc: 8, competition: 'low', score: 2.1 },
+  ];
+  const out = filterLowComp(rows);
+  assert.equal(out.length, 2);
+  assert.deepEqual(out.map((r) => r.keyword).sort(), ['how to wholesale real estate', 'wholesale real estate']);
+});
+
+test('filterLowComp can opt out of junk filter via includeJunk=true', () => {
+  const rows = [
+    { keyword: 'wholesale real estate', volume: 5400, cpc: 12, competition: 'low', score: 3.5 },
+    { keyword: 'PropStream careers', volume: 2800, cpc: 14, competition: 'low', score: 2.8 },
+  ];
+  const out = filterLowComp(rows, { includeJunk: true });
+  assert.equal(out.length, 2);
 });
