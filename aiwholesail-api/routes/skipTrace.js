@@ -36,6 +36,41 @@ const { asyncHandler } = require('../middleware/errorHandler');
 const { attachSubscription, TIERS } = require('../middleware/subscription');
 const { logEvent, EVENTS } = require('../lib/events');
 const { callV2Fallback, SUPPORTED_FALLBACKS } = require('../lib/skip-trace-v2');
+const tps = require('../lib/scrapers/truePeopleSearch');
+const { isEnabled } = require('../lib/featureFlags');
+
+const TPS_FLAG_SLUG = 'skip_trace_tps';
+// Search-types we have a TPS implementation for. Mirrors SUPPORTED_FALLBACKS
+// but stays in this file so the source of truth lives next to the TPS call.
+const TPS_SUPPORTED = new Set(['byaddress', 'bynameaddress']);
+
+/**
+ * Call TruePeopleSearch via scrape.do. Returns the V1-shaped payload
+ * (people: [...]) the rest of the route already expects, or null if TPS
+ * couldn't answer (caller falls back to RapidAPI V1).
+ */
+async function callTpsPrimary(searchType, params) {
+  try {
+    if (searchType === 'byaddress') {
+      const out = await tps.byaddress({
+        street: params.street,
+        citystatezip: params.citystatezip,
+      });
+      return out;
+    }
+    if (searchType === 'bynameaddress') {
+      const out = await tps.bynameaddress({
+        name: params.name,
+        citystatezip: params.citystatezip,
+      });
+      return out;
+    }
+    return null;
+  } catch (err) {
+    console.warn(`[skip-trace] TPS primary failed (${searchType}): ${err.message}`);
+    return null;
+  }
+}
 
 const router = express.Router();
 
@@ -283,24 +318,49 @@ router.post(
       });
     }
 
-    // ─── Call primary upstream (skip-tracing-working-api) ───
+    // ─── Try TPS primary (flag-gated) ───
+    // When `skip_trace_tps` is on for this user, we hit TruePeopleSearch via
+    // scrape.do instead of RapidAPI for the supported search-types. Failure
+    // here is silent — we fall through to the existing RapidAPI primary so
+    // users never see a hard error during cutover.
     let upstreamStatus = 0;
     let upstreamData = null;
     let upstreamError = null;
     let providerUsed = 'v1';
-    try {
-      const upstream = await callUpstream(config.path, params);
-      upstreamStatus = upstream.status;
-      if (upstream.status >= 200 && upstream.status < 300) {
-        upstreamData = upstream.data;
-      } else {
-        upstreamError = typeof upstream.data === 'string'
-          ? upstream.data.slice(0, 500)
-          : JSON.stringify(upstream.data).slice(0, 500);
+
+    let useTps = false;
+    if (TPS_SUPPORTED.has(searchType)) {
+      try {
+        useTps = await isEnabled(userId, TPS_FLAG_SLUG);
+      } catch (err) {
+        console.warn(`[skip-trace] flag lookup failed: ${err.message}`);
       }
-    } catch (err) {
-      upstreamStatus = 0;
-      upstreamError = (err.message || 'unknown error').slice(0, 500);
+    }
+    if (useTps) {
+      const tpsData = await callTpsPrimary(searchType, params);
+      if (tpsData && Array.isArray(tpsData.people) && tpsData.people.length >= 0) {
+        upstreamData = tpsData;
+        upstreamStatus = 200;
+        providerUsed = 'tps';
+      }
+    }
+
+    // ─── Call primary upstream (skip-tracing-working-api) ───
+    if (!upstreamData) {
+      try {
+        const upstream = await callUpstream(config.path, params);
+        upstreamStatus = upstream.status;
+        if (upstream.status >= 200 && upstream.status < 300) {
+          upstreamData = upstream.data;
+        } else {
+          upstreamError = typeof upstream.data === 'string'
+            ? upstream.data.slice(0, 500)
+            : JSON.stringify(upstream.data).slice(0, 500);
+        }
+      } catch (err) {
+        upstreamStatus = 0;
+        upstreamError = (err.message || 'unknown error').slice(0, 500);
+      }
     }
 
     // ─── V2 fallback (skip-tracing-api) ───
@@ -439,19 +499,27 @@ router.get(
       });
     }
 
-    // Upstream call
+    // Upstream call. Content-addressed routing: TPS peo_ids contain letters
+    // or hyphens (e.g. "P5x9-aB2"), RapidAPI peo_ids are pure digits. So we
+    // can decide which backend to use from the id alone — no extra flag check.
     let upstreamStatus = 0;
     let upstreamData = null;
     let upstreamError = null;
+    const looksLikeTpsId = /[A-Za-z_-]/.test(peoId);
     try {
-      const upstream = await callUpstream('/search/detailsbyID', { peo_id: peoId });
-      upstreamStatus = upstream.status;
-      if (upstream.status >= 200 && upstream.status < 300) {
-        upstreamData = upstream.data;
+      if (looksLikeTpsId) {
+        upstreamData = await tps.detailsByPeoId(peoId);
+        upstreamStatus = 200;
       } else {
-        upstreamError = typeof upstream.data === 'string'
-          ? upstream.data.slice(0, 500)
-          : JSON.stringify(upstream.data).slice(0, 500);
+        const upstream = await callUpstream('/search/detailsbyID', { peo_id: peoId });
+        upstreamStatus = upstream.status;
+        if (upstream.status >= 200 && upstream.status < 300) {
+          upstreamData = upstream.data;
+        } else {
+          upstreamError = typeof upstream.data === 'string'
+            ? upstream.data.slice(0, 500)
+            : JSON.stringify(upstream.data).slice(0, 500);
+        }
       }
     } catch (err) {
       upstreamError = (err.message || 'unknown error').slice(0, 500);
