@@ -1,4 +1,5 @@
 import { useParams, Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { Badge } from '@/components/ui/badge';
 import {
   ArrowRight, ChevronRight, Shield, CheckCircle,
@@ -6,12 +7,14 @@ import {
   Building, Store, LayoutGrid,
   TrendingUp, DollarSign, BarChart3,
   MapPin, CreditCard, ThumbsUp, ThumbsDown,
-  Calculator, BookOpen,
+  Calculator, BookOpen, Calendar,
 } from 'lucide-react';
 import { SEOHead } from '@/components/SEOHead';
 import { PublicLayout } from '@/components/PublicLayout';
 import { Spotlight } from '@/components/ui/spotlight';
 import propertyTypes from '@/data/property-types.json';
+
+const LAST_UPDATED = '2026-05-12';
 
 interface PropertyType {
   slug: string;
@@ -68,18 +71,85 @@ export default function PropertyTypePage() {
     );
   }
 
+  const canonical = `https://aiwholesail.com/property-types/${pt.slug}`;
+
+  const summary =
+    `${pt.name} is a real estate investment category with typical cap rates of ${pt.typicalReturns.capRate}, ` +
+    `cash-on-cash returns of ${pt.typicalReturns.cashOnCash}, and annual appreciation of ${pt.typicalReturns.appreciation}. ` +
+    `${pt.investmentThesis} Best in markets like ${pt.bestMarkets.slice(0, 3).join(', ')}.`;
+
+  const faqs = [
+    {
+      q: `What are typical returns on ${pt.name.toLowerCase()}?`,
+      a: `${pt.name} typically delivers cap rates of ${pt.typicalReturns.capRate}, cash-on-cash returns of ${pt.typicalReturns.cashOnCash}, and ${pt.typicalReturns.appreciation} annual appreciation. Actual returns depend on market, financing, and operational execution — model conservatively before deploying capital.`,
+    },
+    {
+      q: `What financing options work for ${pt.name.toLowerCase()}?`,
+      a: `Common financing for ${pt.name.toLowerCase()}: ${pt.financingOptions.join(', ')}. AIWholesail's Mortgage Calculator and DSCR Calculator model each option's monthly payment so you can compare before approaching lenders.`,
+    },
+    {
+      q: `What are the pros of investing in ${pt.name.toLowerCase()}?`,
+      a: pt.prosAndCons.pros.slice(0, 4).join('; '),
+    },
+    {
+      q: `What are the cons or risks of ${pt.name.toLowerCase()}?`,
+      a: pt.prosAndCons.cons.slice(0, 4).join('; '),
+    },
+    {
+      q: `What markets are best for ${pt.name.toLowerCase()}?`,
+      a: `Top U.S. markets for ${pt.name.toLowerCase()}: ${pt.bestMarkets.join(', ')}. Browse market-specific data at /markets — every page shows median price, growth, cap rate, and population for the metro.`,
+    },
+  ];
+
+  const articleJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: pt.h1,
+    description: pt.description,
+    url: canonical,
+    image: 'https://aiwholesail.com/og-image.png',
+    author: { '@type': 'Organization', name: 'AIWholesail', url: 'https://aiwholesail.com' },
+    publisher: {
+      '@type': 'Organization',
+      name: 'AIWholesail',
+      logo: { '@type': 'ImageObject', url: 'https://aiwholesail.com/logo-aiw.png' },
+    },
+    datePublished: LAST_UPDATED,
+    dateModified: LAST_UPDATED,
+    mainEntityOfPage: { '@type': 'WebPage', '@id': canonical },
+    keywords: pt.keywords,
+  };
+
+  const faqJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  };
+
   return (
     <PublicLayout>
       <SEOHead
         title={`${pt.name} -- Real Estate Investing Guide`}
         description={pt.description}
         keywords={pt.keywords}
+        canonicalUrl={canonical}
         breadcrumbs={[
           { name: 'Home', url: 'https://aiwholesail.com' },
           { name: 'Property Types', url: 'https://aiwholesail.com/property-types' },
-          { name: pt.name, url: `https://aiwholesail.com/property-types/${pt.slug}` },
+          { name: pt.name, url: canonical },
         ]}
       />
+
+      <Helmet>
+        <script type="application/ld+json">{JSON.stringify(articleJsonLd)}</script>
+        <script type="application/ld+json">{JSON.stringify(faqJsonLd)}</script>
+        <meta name="last-modified" content={LAST_UPDATED} />
+        <meta property="article:modified_time" content={LAST_UPDATED} />
+      </Helmet>
 
       {/* ===== HERO ===== */}
       <section className="relative bg-gradient-to-b from-[#0a0a0a] via-[#0f0f0f] to-[#0a0a0a] text-white overflow-hidden">
@@ -113,6 +183,23 @@ export default function PropertyTypePage() {
           <p className="text-lg md:text-xl text-white/50 max-w-2xl mx-auto leading-relaxed font-light">
             {pt.description}
           </p>
+          <p className="mt-6 inline-flex items-center gap-2 text-xs text-white/40">
+            <Calendar className="h-3 w-3" /> Last updated <time dateTime={LAST_UPDATED}>{LAST_UPDATED}</time>
+          </p>
+        </div>
+      </section>
+
+      {/* ===== AI-EXTRACTABLE ANSWER BLOCK ===== */}
+      <section className="py-10 px-4">
+        <div className="container mx-auto max-w-4xl">
+          <div className="border border-white/[0.05] bg-gradient-to-b from-neutral-900/50 to-transparent rounded-xl p-6 md:p-8">
+            <h2 className="text-sm font-semibold tracking-[0.15em] uppercase text-cyan-400 mb-3">
+              What is {pt.name.toLowerCase()} real estate investing?
+            </h2>
+            <p className="text-base md:text-lg text-white/80 font-light leading-relaxed">
+              {summary}
+            </p>
+          </div>
         </div>
       </section>
 
@@ -308,6 +395,27 @@ export default function PropertyTypePage() {
                 ))}
               </ul>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== FAQ ===== */}
+      <section className="py-16 px-4">
+        <div className="container mx-auto max-w-3xl">
+          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-4">FAQ</p>
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-white mb-10">
+            Common questions about {pt.name.toLowerCase()}.
+          </h2>
+          <div className="space-y-4">
+            {faqs.map((f, i) => (
+              <div
+                key={i}
+                className="border border-white/[0.05] bg-gradient-to-b from-neutral-900/50 to-transparent rounded-xl p-6"
+              >
+                <h3 className="text-base md:text-lg font-semibold text-white mb-2">{f.q}</h3>
+                <p className="text-sm md:text-base text-white/70 font-light leading-relaxed">{f.a}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
