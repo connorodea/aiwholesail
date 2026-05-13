@@ -1,16 +1,19 @@
 import { useParams, Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { Badge } from '@/components/ui/badge';
 import {
   ArrowRight, MapPin, DollarSign, TrendingUp, Users,
   Home, ChevronRight, Calculator, BookOpen,
   ThermometerSun, Zap, Shield, CheckCircle, BarChart3,
   AlertTriangle, Receipt, Scale, UserX, Eye,
-  FileWarning, Tag, Clock, Target,
+  FileWarning, Tag, Clock, Target, Calendar,
 } from 'lucide-react';
 import { SEOHead } from '@/components/SEOHead';
 import { PublicLayout } from '@/components/PublicLayout';
 import { Spotlight } from '@/components/ui/spotlight';
 import cities from '@/data/cities.json';
+
+const LAST_UPDATED = '2026-05-12';
 
 interface City {
   slug: string;
@@ -386,13 +389,103 @@ export default function DistressPage() {
     { label: 'Population', value: formatNumber(city.population), icon: Users },
   ];
 
+  const canonical = `https://aiwholesail.com/deals/${distressType}/${city.slug}`;
+
+  // 40-60 word AI-extractable answer block.
+  const summary = (
+    `${dt.fullLabel} in ${city.city}, ${city.stateFull} are properties where ` +
+    `${dt.description.toLowerCase().split('.')[0].slice(0, 140)}... ` +
+    `With ${city.city}'s median home price of ${formatCurrency(city.medianHomePrice)} ` +
+    `and ${city.priceGrowth}% annual growth, ${dt.label.toLowerCase()} acquisitions ` +
+    `typically close at ${formatCurrency(city.medianHomePrice * 0.85)}-${formatCurrency(city.medianHomePrice * 0.90)} — ` +
+    `a ${formatCurrency(city.medianHomePrice * 0.10)}-${formatCurrency(city.medianHomePrice * 0.15)} discount to retail.`
+  );
+
+  // Auto-generated FAQs from city + distress data.
+  const faqs = [
+    {
+      q: `How do I find ${dt.label.toLowerCase()} properties in ${city.city}?`,
+      a: `Three sources work in ${city.city}: (1) AIWholesail's AI-driven alerts that flag ${dt.label.toLowerCase()} properties with $30K+ spreads, (2) county recorder public records — ${city.city} keeps these online for free, (3) bulk lists from PropStream or BatchLeads ($79-99/month). AIWholesail Pro is $49/month and includes 25 skip-trace lookups for owner contact.`,
+    },
+    {
+      q: `Is wholesaling ${dt.label.toLowerCase()} legal in ${city.stateFull}?`,
+      a: `Wholesaling — including assigning purchase contracts on distressed properties — is legal in ${city.stateFull} without a real estate license. Some states require disclosure of intent to assign. See aiwholesail.com/laws/${city.stateFull.toLowerCase().replace(/\s+/g, '-')} for state-specific rules and consult a local attorney before structuring deals.`,
+    },
+    {
+      q: `What's the average discount on ${dt.label.toLowerCase()} deals in ${city.city}?`,
+      a: `${dt.label} deals in ${city.city} typically close at 10-15% below market value — about ${formatCurrency(city.medianHomePrice * 0.10)} to ${formatCurrency(city.medianHomePrice * 0.15)} on a median ${formatCurrency(city.medianHomePrice)} home. Larger discounts (20%+) are possible on the most distressed properties but require speed, cash close, and willingness to take title with cosmetic-to-heavy rehab.`,
+    },
+    {
+      q: `How much can I make on a ${dt.label.toLowerCase()} deal in ${city.city}?`,
+      a: `Wholesalers in ${city.city} typically earn $5K-$15K per assignment fee on ${dt.label.toLowerCase()} deals. Fix-and-flip operators net $30K-$60K per project after rehab and holding costs. Buy-and-hold landlords add ${formatCurrency(Math.round(city.avgRent * 12 - city.medianHomePrice * 0.85 * 0.075))} to portfolio annual cash flow per unit at current ${city.city} rents.`,
+    },
+  ];
+
+  // Structured data — Article + FAQPage + Place
+  const articleJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: `${dt.fullLabel} in ${city.city}, ${city.state}`,
+    description: dt.description,
+    url: canonical,
+    image: 'https://aiwholesail.com/og-image.png',
+    author: { '@type': 'Organization', name: 'AIWholesail', url: 'https://aiwholesail.com' },
+    publisher: {
+      '@type': 'Organization',
+      name: 'AIWholesail',
+      logo: { '@type': 'ImageObject', url: 'https://aiwholesail.com/logo-aiw.png' },
+    },
+    datePublished: LAST_UPDATED,
+    dateModified: LAST_UPDATED,
+    mainEntityOfPage: { '@type': 'WebPage', '@id': canonical },
+    keywords: `${dt.label.toLowerCase()} ${city.city}, distressed properties ${city.city}, motivated sellers ${city.city}, ${dt.label.toLowerCase()} real estate ${city.state}`,
+    about: { '@type': 'Place', name: `${city.city}, ${city.state}` },
+  };
+
+  const faqJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  };
+
+  const placeJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Place',
+    name: `${city.city}, ${city.state}`,
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: city.city,
+      addressRegion: city.state,
+      addressCountry: 'US',
+    },
+  };
+
   return (
     <PublicLayout>
       <SEOHead
         title={`${dt.fullLabel} in ${city.city}, ${city.state} -- Deal Signals & Market Data`}
         description={`Find ${dt.label.toLowerCase()} properties in ${city.city}, ${city.stateFull}. Median price ${formatCurrency(city.medianHomePrice)}, ${city.priceGrowth}% growth. AI-powered distress signals for real estate investors.`}
         keywords={`${dt.label.toLowerCase()} ${city.city}, ${dt.label.toLowerCase()} properties ${city.state}, ${dt.label.toLowerCase()} deals ${city.city}, distressed properties ${city.city}, motivated sellers ${city.city} ${city.state}`}
+        canonicalUrl={canonical}
+        breadcrumbs={[
+          { name: 'Home', url: 'https://aiwholesail.com' },
+          { name: 'Deals', url: 'https://aiwholesail.com/deals' },
+          { name: dt.label, url: `https://aiwholesail.com/deals/${distressType}` },
+          { name: `${city.city}, ${city.state}`, url: canonical },
+        ]}
       />
+
+      <Helmet>
+        <script type="application/ld+json">{JSON.stringify(articleJsonLd)}</script>
+        <script type="application/ld+json">{JSON.stringify(faqJsonLd)}</script>
+        <script type="application/ld+json">{JSON.stringify(placeJsonLd)}</script>
+        <meta name="last-modified" content={LAST_UPDATED} />
+        <meta property="article:modified_time" content={LAST_UPDATED} />
+      </Helmet>
 
       {/* ===== HERO ===== */}
       <section className="relative bg-gradient-to-b from-[#0a0a0a] via-[#0f0f0f] to-[#0a0a0a] text-white overflow-hidden">
@@ -427,6 +520,23 @@ export default function DistressPage() {
           <p className="text-lg md:text-xl text-white/50 max-w-2xl mx-auto leading-relaxed font-light">
             {dt.description}
           </p>
+          <p className="mt-6 inline-flex items-center gap-2 text-xs text-white/40">
+            <Calendar className="h-3 w-3" /> Last updated <time dateTime={LAST_UPDATED}>{LAST_UPDATED}</time>
+          </p>
+        </div>
+      </section>
+
+      {/* ===== AI-EXTRACTABLE ANSWER BLOCK ===== */}
+      <section className="py-10 px-4">
+        <div className="container mx-auto max-w-4xl">
+          <div className="border border-white/[0.05] bg-gradient-to-b from-neutral-900/50 to-transparent rounded-xl p-6 md:p-8">
+            <h2 className="text-sm font-semibold tracking-[0.15em] uppercase text-cyan-400 mb-3">
+              How to find {dt.label.toLowerCase()} in {city.city}
+            </h2>
+            <p className="text-base md:text-lg text-white/80 font-light leading-relaxed">
+              {summary}
+            </p>
+          </div>
         </div>
       </section>
 
@@ -619,6 +729,27 @@ export default function DistressPage() {
                   </div>
                 </div>
               </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== FAQ ===== */}
+      <section className="py-16 px-4">
+        <div className="container mx-auto max-w-3xl">
+          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-4">FAQ</p>
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-white mb-10">
+            Common questions about {dt.label.toLowerCase()} in {city.city}.
+          </h2>
+          <div className="space-y-4">
+            {faqs.map((f, i) => (
+              <div
+                key={i}
+                className="border border-white/[0.05] bg-gradient-to-b from-neutral-900/50 to-transparent rounded-xl p-6"
+              >
+                <h3 className="text-base md:text-lg font-semibold text-white mb-2">{f.q}</h3>
+                <p className="text-sm md:text-base text-white/70 font-light leading-relaxed">{f.a}</p>
+              </div>
             ))}
           </div>
         </div>

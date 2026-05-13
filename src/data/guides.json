@@ -774,47 +774,47 @@
     "distressClusters": [
       {
         "name": "Pre-Foreclosure",
-        "url": "/distress/pre-foreclosure",
+        "url": "/deals/pre-foreclosure",
         "description": "Notice of default filed but pre-auction. Highest-urgency seller signal."
       },
       {
         "name": "Tax Delinquent",
-        "url": "/distress/tax-delinquent",
+        "url": "/deals/tax-delinquent",
         "description": "Property tax overdue 1+ years. Often older owners without estate plan."
       },
       {
         "name": "Probate",
-        "url": "/distress/probate",
+        "url": "/deals/probate",
         "description": "Inherited property in probate court. Heirs typically want cash + speed."
       },
       {
         "name": "Code Violations",
-        "url": "/distress/code-violations",
+        "url": "/deals/code-violations",
         "description": "City citations for property condition. Owner faces fines or condemnation."
       },
       {
         "name": "Absentee Owners",
-        "url": "/distress/absentee-owners",
+        "url": "/deals/absentee-owners",
         "description": "Owner doesn't live at the property. Higher willingness to sell."
       },
       {
         "name": "Vacant Properties",
-        "url": "/distress/vacant-properties",
+        "url": "/deals/vacant-properties",
         "description": "Utilities off, mail piled up. Often the absentee/distressed overlap."
       },
       {
         "name": "High Equity",
-        "url": "/distress/high-equity",
+        "url": "/deals/high-equity",
         "description": "Owner has 50%+ equity. Room for a discounted cash offer."
       },
       {
         "name": "Expired Listings",
-        "url": "/distress/expired-listings",
+        "url": "/deals/expired-listings",
         "description": "MLS listing that didn't sell. Owner is open to alternative deal structures."
       },
       {
         "name": "FSBO",
-        "url": "/distress/fsbo",
+        "url": "/deals/fsbo",
         "description": "For Sale By Owner \u2014 already shopping, often without a buyer."
       }
     ],
