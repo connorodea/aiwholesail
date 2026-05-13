@@ -202,7 +202,7 @@ app.use(errorHandler);
 app.listen(PORT, () => {
   console.log(`[Server] AIWholesail API running on port ${PORT}`);
   console.log(`[Server] Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`[Server] CORS origins: ${corsOrigins.join(', ')}`);
+  console.log(`[Server] CORS origins: ${[...ALLOWED_CORS_ORIGINS].join(', ')}`);
 });
 
 // Handle uncaught exceptions
