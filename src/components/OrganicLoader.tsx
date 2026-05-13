@@ -211,6 +211,11 @@ function ensureKeyframes() {
   document.head.appendChild(tag);
 }
 
+// Inject the keyframes once at module import — moved out of the render path
+// (was called from inside <OrganicLoader> body, which mutated document.head
+// during render). Idempotent and SSR-safe via the typeof-document guard.
+ensureKeyframes();
+
 /* -------------------------------------------------------------------------- */
 /*  Goo filter — extracted so each SVG references a per-instance unique id    */
 /* -------------------------------------------------------------------------- */
@@ -687,8 +692,9 @@ export function OrganicLoader({
   className,
   'aria-label': ariaLabel = 'Loading',
 }: OrganicLoaderProps) {
-  ensureKeyframes();
-  const clamped = Math.max(1, Math.min(32, id | 0));
+  // TS already enforces id: number, so the previous defensive `id | 0` truncation
+  // was redundant. Just clamp to the valid range and round once.
+  const clamped = Math.max(1, Math.min(32, Math.round(id)));
   // Stable per-instance id so filter URLs don't collide if multiple loaders
   // of the same type are rendered on the page at once. useId() is SSR-safe
   // and gives identical ids on server + client (no hydration mismatch).
@@ -732,16 +738,18 @@ export function OrganicFullPageLoader({
   message,
   category = 'all',
   size = 140,
+  'aria-label': ariaLabel,
 }: {
   message?: string;
   category?: LoaderCategory;
   size?: number;
+  'aria-label'?: string;
 }) {
   return (
     <div
       className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#0A0A0A] text-white"
       role="status"
-      aria-label={message || 'Loading'}
+      aria-label={ariaLabel || message || 'Loading'}
     >
       <div
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gradient-to-br from-primary/15 via-cyan-500/8 to-transparent rounded-full blur-[120px] animate-pulse pointer-events-none"
