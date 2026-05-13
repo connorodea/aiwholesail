@@ -467,8 +467,8 @@ export default function DistressPage() {
   return (
     <PublicLayout>
       <SEOHead
-        title={`${dt.fullLabel} in ${city.city}, ${city.state} -- Deal Signals & Market Data`}
-        description={`Find ${dt.label.toLowerCase()} properties in ${city.city}, ${city.stateFull}. Median price ${formatCurrency(city.medianHomePrice)}, ${city.priceGrowth}% growth. AI-powered distress signals for real estate investors.`}
+        title={`${dt.fullLabel} in ${city.city}, ${city.state}: How to Find Them (${new Date().getFullYear()})`}
+        description={`Find ${dt.label.toLowerCase()} properties in ${city.city}, ${city.stateFull}. Live lists, owner skip tracing, AI deal scoring, and contract templates. Median home ${formatCurrency(city.medianHomePrice)}, ${city.priceGrowth}% YoY growth. Start free, no credit card.`}
         keywords={`${dt.label.toLowerCase()} ${city.city}, ${dt.label.toLowerCase()} properties ${city.state}, ${dt.label.toLowerCase()} deals ${city.city}, distressed properties ${city.city}, motivated sellers ${city.city} ${city.state}`}
         canonicalUrl={canonical}
         breadcrumbs={[

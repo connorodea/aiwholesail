@@ -536,8 +536,8 @@ export default function CityStrategyPage() {
   return (
     <PublicLayout>
       <SEOHead
-        title={`${meta.heroTitle(`${city.city}, ${city.state}`)} -- Market Data & Strategy Guide`}
-        description={`${meta.heroTitle(`${city.city}, ${city.stateFull}`)}. Median price ${formatCurrency(city.medianHomePrice)}, ${city.priceGrowth}% growth, avg rent $${city.avgRent.toLocaleString()}/mo. AI-powered market intelligence for ${meta.label.toLowerCase()} investors.`}
+        title={`${meta.heroTitle(`${city.city}, ${city.state}`)}: Median ${formatCurrency(city.medianHomePrice)}, ${city.priceGrowth}% Growth (${new Date().getFullYear()})`}
+        description={`${meta.heroTitle(`${city.city}, ${city.stateFull}`)}: median home ${formatCurrency(city.medianHomePrice)}, ${city.priceGrowth}% YoY growth, avg rent $${city.avgRent.toLocaleString()}/mo. AI-scored ${meta.label.toLowerCase()} deals + free calculator. Start a 7-day trial, no credit card.`}
         keywords={`${meta.label.toLowerCase()} ${city.city}, ${city.city} ${city.state} ${validStrategy}, ${validStrategy} real estate ${city.city}, ${city.city} investment properties, ${meta.label.toLowerCase()} ${city.stateFull}`}
         canonicalUrl={canonical}
         breadcrumbs={[
