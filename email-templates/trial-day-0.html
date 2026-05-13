@@ -1,0 +1,89 @@
+<!--
+  Subject: {{first_name}}, your AIWholesail trial just ended (saved deals still here)
+  Trigger: At trial expiration. Sent within 1 hour of expiry.
+  Goal: Restore CTA. Reassurance that data is saved. No guilt.
+  Variables: {{first_name}}, {{saved_deals_count}}, {{primary_cta_url}}, {{unsubscribe_url}}
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your AIWholesail trial just ended — restore in 1 click</title>
+  <style>
+    body, table, td, p, a { margin: 0; padding: 0; }
+    img { border: 0; display: block; }
+    @media only screen and (max-width: 600px) {
+      .container { width: 100% !important; }
+      .content { padding: 24px !important; }
+      .cta-button { width: 100% !important; padding: 16px !important; font-size: 16px !important; }
+    }
+  </style>
+</head>
+<body style="margin: 0; padding: 0; background-color: #0a0a0a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">
+  <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background: #0a0a0a; padding: 40px 0;">
+    <tr><td align="center">
+      <table class="container" cellpadding="0" cellspacing="0" border="0" width="600" style="max-width: 600px; background-color: #0f0f0f; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); overflow: hidden;">
+
+        <tr><td style="padding: 32px 40px 16px 40px; text-align: center;">
+          <img src="https://aiwholesail.com/logo-aiw-email.png" alt="AIWholesail" width="180">
+        </td></tr>
+
+        <tr><td style="padding: 16px 40px 24px 40px; text-align: center;">
+          <h1 style="color: #ffffff; font-size: 28px; font-weight: 700; line-height: 1.2; margin: 0;">Your trial just ended.</h1>
+          <p style="color: rgba(255,255,255,0.6); font-size: 16px; margin: 16px 0 0 0; line-height: 1.5;">{{first_name}}, your {{saved_deals_count}} saved deals are still here. One click to restore.</p>
+        </td></tr>
+
+        <tr><td class="content" style="padding: 8px 40px 24px 40px;">
+          <p style="color: rgba(255,255,255,0.85); font-size: 16px; line-height: 1.6; margin: 0 0 16px 0;">
+            No pressure. Here's where things stand:
+          </p>
+
+          <ul style="color: rgba(255,255,255,0.75); font-size: 15px; line-height: 1.8; padding-left: 20px; margin: 0 0 24px 0;">
+            <li><strong style="color: #ffffff;">Your data is safe.</strong> Saved deals, alerts, skip-traces, calculator history — all archived. We keep it for 30 days.</li>
+            <li><strong style="color: #ffffff;">Restoration is 1 click.</strong> Pick a plan and your old setup comes back instantly.</li>
+            <li><strong style="color: #ffffff;">You weren't charged.</strong> No card on file. No surprise bill.</li>
+          </ul>
+
+          <p style="color: rgba(255,255,255,0.85); font-size: 16px; line-height: 1.6; margin: 0 0 24px 0;">
+            If you're still evaluating tools, that's fine — text me at <a href="tel:+12488814147" style="color: #06b6d4;">248-881-4147</a> and I'll honestly tell you whether AIWholesail fits your motion.
+          </p>
+
+          <p style="color: rgba(255,255,255,0.85); font-size: 16px; line-height: 1.6; margin: 0 0 24px 0;">
+            If you're ready to keep going, here:
+          </p>
+        </td></tr>
+
+        <tr><td style="padding: 0 40px 16px 40px; text-align: center;">
+          <a href="{{primary_cta_url}}" class="cta-button"
+             style="display: inline-block; background-color: #06b6d4; color: #000000; text-decoration: none; padding: 18px 40px; border-radius: 8px; font-weight: 700; font-size: 16px;">
+            Restore my account — $49/mo
+          </a>
+          <p style="color: rgba(255,255,255,0.4); font-size: 13px; margin: 12px 0 0 0;">
+            7-day refund window. Cancel anytime self-serve.
+          </p>
+        </td></tr>
+
+        <tr><td style="padding: 16px 40px 32px 40px; border-top: 1px solid rgba(255,255,255,0.06);">
+          <p style="color: rgba(255,255,255,0.6); font-size: 14px; line-height: 1.6; margin: 24px 0 0 0;">
+            <strong style="color: #ffffff;">P.S.</strong> If AIWholesail wasn't the right fit, I'd genuinely like to know why. Reply to this email or text me — even one sentence helps me improve the tool.
+          </p>
+          <p style="color: rgba(255,255,255,0.4); font-size: 13px; line-height: 1.5; margin: 24px 0 0 0;">
+            — Connor O'Dea, Founder<br>
+            <a href="tel:+12488814147" style="color: #06b6d4; text-decoration: none;">248-881-4147</a> · <a href="mailto:connor@aiwholesail.com" style="color: #06b6d4; text-decoration: none;">connor@aiwholesail.com</a>
+          </p>
+        </td></tr>
+
+        <tr><td style="background-color: #0a0a0a; padding: 24px 40px; text-align: center; border-top: 1px solid rgba(255,255,255,0.05);">
+          <p style="color: rgba(255,255,255,0.4); font-size: 12px; margin: 0; line-height: 1.5;">
+            AIWholesail · AI-powered real estate investing<br>
+            <a href="{{unsubscribe_url}}" style="color: rgba(255,255,255,0.5); text-decoration: underline;">Unsubscribe</a>
+            · <a href="https://aiwholesail.com" style="color: rgba(255,255,255,0.5); text-decoration: underline;">aiwholesail.com</a>
+          </p>
+        </td></tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>

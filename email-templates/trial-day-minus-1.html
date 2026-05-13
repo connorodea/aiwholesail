@@ -1,0 +1,95 @@
+<!--
+  Subject: {{first_name}}, your AIWholesail trial ends tomorrow
+  Trigger: T-24 hours from trial expiration.
+  Goal: Urgency without panic. Reinforce price + risk reversal.
+  Variables required:
+    {{first_name}}, {{top_deal_score}}, {{top_deal_address}}, {{deals_above_80}},
+    {{primary_cta_url}}, {{unsubscribe_url}}
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your AIWholesail trial ends tomorrow</title>
+  <style>
+    body, table, td, p, a { margin: 0; padding: 0; }
+    img { border: 0; display: block; }
+    @media only screen and (max-width: 600px) {
+      .container { width: 100% !important; }
+      .content { padding: 24px !important; }
+      .cta-button { width: 100% !important; padding: 16px !important; font-size: 16px !important; }
+    }
+  </style>
+</head>
+<body style="margin: 0; padding: 0; background-color: #0a0a0a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;">
+  <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background: #0a0a0a; padding: 40px 0;">
+    <tr><td align="center">
+      <table class="container" cellpadding="0" cellspacing="0" border="0" width="600" style="max-width: 600px; background-color: #0f0f0f; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); overflow: hidden;">
+
+        <tr><td style="padding: 32px 40px 16px 40px; text-align: center;">
+          <img src="https://aiwholesail.com/logo-aiw-email.png" alt="AIWholesail" width="180">
+        </td></tr>
+
+        <tr><td style="padding: 16px 40px 24px 40px; text-align: center;">
+          <h1 style="color: #ffffff; font-size: 28px; font-weight: 700; line-height: 1.2; margin: 0;">Your trial ends tomorrow.</h1>
+          <p style="color: rgba(255,255,255,0.6); font-size: 16px; margin: 16px 0 0 0; line-height: 1.5;">{{first_name}}, here's a deal you'll lose access to at midnight.</p>
+        </td></tr>
+
+        <tr><td class="content" style="padding: 8px 40px 24px 40px;">
+          <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background: linear-gradient(135deg, rgba(6,182,212,0.12) 0%, rgba(6,182,212,0.04) 100%); border: 1px solid rgba(6,182,212,0.3); border-radius: 10px; margin-bottom: 24px;">
+            <tr><td style="padding: 24px;">
+              <p style="color: #06b6d4; font-size: 13px; font-weight: 600; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 0.1em;">Your highest-scoring deal</p>
+              <p style="color: #ffffff; font-size: 18px; font-weight: 600; margin: 0 0 8px 0; line-height: 1.4;">{{top_deal_address}}</p>
+              <p style="color: rgba(255,255,255,0.7); font-size: 14px; margin: 0; line-height: 1.5;">AI score: <strong style="color: #06b6d4;">{{top_deal_score}}/100</strong> — among the {{deals_above_80}} deals AIWholesail scored 80+ for you this week.</p>
+            </td></tr>
+          </table>
+
+          <p style="color: rgba(255,255,255,0.85); font-size: 16px; line-height: 1.6; margin: 0 0 16px 0;">
+            At midnight tomorrow, three things happen:
+          </p>
+
+          <ul style="color: rgba(255,255,255,0.75); font-size: 15px; line-height: 1.7; padding-left: 20px; margin: 0 0 24px 0;">
+            <li>Your alerts pause (AIWholesail stops scoring new deals matching your criteria)</li>
+            <li>Saved properties archive (still recoverable in the next 30 days)</li>
+            <li>Skip-trace and contract generation lock</li>
+          </ul>
+
+          <p style="color: rgba(255,255,255,0.85); font-size: 16px; line-height: 1.6; margin: 0 0 24px 0;">
+            <strong style="color: #ffffff;">Continue with Pro for $49/month</strong> — that's less than what most investors spend on a single direct-mail campaign. No contract. Cancel anytime self-serve. Pro-rated refund within 7 days.
+          </p>
+        </td></tr>
+
+        <tr><td style="padding: 16px 40px 24px 40px; text-align: center;">
+          <a href="{{primary_cta_url}}" class="cta-button"
+             style="display: inline-block; background-color: #06b6d4; color: #000000; text-decoration: none; padding: 18px 40px; border-radius: 8px; font-weight: 700; font-size: 16px;">
+            Keep my access — $49/mo
+          </a>
+          <p style="color: rgba(255,255,255,0.4); font-size: 13px; margin: 12px 0 0 0;">
+            <a href="https://aiwholesail.com/pricing" style="color: #06b6d4; text-decoration: underline;">Compare Pro vs Elite</a> · <a href="{{primary_cta_url}}&plan=elite" style="color: #06b6d4; text-decoration: underline;">Or unlock Elite — $99/mo</a>
+          </p>
+        </td></tr>
+
+        <tr><td style="padding: 0 40px 32px 40px; border-top: 1px solid rgba(255,255,255,0.06);">
+          <p style="color: rgba(255,255,255,0.6); font-size: 14px; line-height: 1.6; margin: 24px 0 0 0;">
+            <strong style="color: #ffffff;">P.S.</strong> Most AIWholesail customers close their first deal within 60–90 days of paying. The $49/mo pays for itself on assignment fee #1 (typical: $5K–$15K).
+          </p>
+          <p style="color: rgba(255,255,255,0.4); font-size: 13px; line-height: 1.5; margin: 24px 0 0 0;">
+            — Connor O'Dea, Founder<br>
+            <a href="tel:+12488814147" style="color: #06b6d4; text-decoration: none;">248-881-4147</a> · <a href="mailto:connor@aiwholesail.com" style="color: #06b6d4; text-decoration: none;">connor@aiwholesail.com</a>
+          </p>
+        </td></tr>
+
+        <tr><td style="background-color: #0a0a0a; padding: 24px 40px; text-align: center; border-top: 1px solid rgba(255,255,255,0.05);">
+          <p style="color: rgba(255,255,255,0.4); font-size: 12px; margin: 0; line-height: 1.5;">
+            AIWholesail · AI-powered real estate investing<br>
+            <a href="{{unsubscribe_url}}" style="color: rgba(255,255,255,0.5); text-decoration: underline;">Unsubscribe</a>
+            · <a href="https://aiwholesail.com" style="color: rgba(255,255,255,0.5); text-decoration: underline;">aiwholesail.com</a>
+          </p>
+        </td></tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>
