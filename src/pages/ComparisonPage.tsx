@@ -33,6 +33,11 @@ interface Competitor {
   notIdealFor?: string;
   verdict?: string;
   faqs?: CompetitorFAQ[];
+  // Set when the competitor has been acquired by another company —
+  // renders as a banner so visitors understand the current landscape.
+  acquiredBy?: string;
+  acquiredDate?: string;
+  acquisitionNote?: string;
 }
 
 interface FeatureRow {
@@ -167,6 +172,22 @@ export default function ComparisonPage() {
           </p>
         </div>
       </section>
+
+      {/* ===== ACQUISITION BANNER (when applicable) ===== */}
+      {comp.acquiredBy && (
+        <section className="py-6 px-4">
+          <div className="container mx-auto max-w-4xl">
+            <div className="border border-amber-500/30 bg-gradient-to-r from-amber-500/[0.08] to-transparent rounded-xl p-5 md:p-6">
+              <p className="text-xs font-semibold tracking-[0.15em] uppercase text-amber-400 mb-2">
+                Heads up — {comp.name} was acquired
+              </p>
+              <p className="text-sm md:text-base text-white/80 font-light leading-relaxed">
+                {comp.acquisitionNote || `${comp.name} was acquired by ${comp.acquiredBy} in ${comp.acquiredDate}. It is now part of the ${comp.acquiredBy} product line.`}
+              </p>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ===== AI-EXTRACTABLE ANSWER BLOCK ===== */}
       {comp.summary && (
