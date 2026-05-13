@@ -162,10 +162,78 @@ function evaluateEndpointDiversity(events, { minSample = 5, singleEndpointPctThr
   };
 }
 
+/**
+ * Roll up a list of monitor_alerts rows into an at-a-glance dashboard
+ * summary. Used by the exec dashboard's "Last 24h monitor alerts" panel
+ * (see migrations/021_monitor_alerts.sql for the table shape).
+ *
+ * Pure function — caller queries the DB and passes the rows. Tolerant
+ * of partial rows so a malformed DB row can't crash the dashboard.
+ *
+ * @param {Array<{sli:string, severity:string, fired_at:string|Date}>} rows
+ * @returns {{
+ *   total: number,
+ *   red: number,
+ *   yellow: number,
+ *   green: number,
+ *   last_fired_at: string|null,
+ *   most_recent_sli: string|null,
+ * }}
+ */
+function summarizeRecentAlerts(rows) {
+  const empty = {
+    total: 0,
+    red: 0,
+    yellow: 0,
+    green: 0,
+    last_fired_at: null,
+    most_recent_sli: null,
+  };
+  if (!Array.isArray(rows)) return empty;
+
+  let total = 0;
+  let red = 0;
+  let yellow = 0;
+  let green = 0;
+  let mostRecentTs = -Infinity;
+  let mostRecentIso = null;
+  let mostRecentSli = null;
+
+  for (const row of rows) {
+    if (!row || typeof row.sli !== 'string' || typeof row.severity !== 'string') continue;
+    if (row.fired_at == null) continue;
+    const ts = row.fired_at instanceof Date
+      ? row.fired_at.getTime()
+      : Date.parse(row.fired_at);
+    if (!Number.isFinite(ts)) continue;
+
+    total += 1;
+    if (row.severity === 'red') red += 1;
+    else if (row.severity === 'yellow') yellow += 1;
+    else if (row.severity === 'green') green += 1;
+
+    if (ts > mostRecentTs) {
+      mostRecentTs = ts;
+      mostRecentIso = new Date(ts).toISOString();
+      mostRecentSli = row.sli;
+    }
+  }
+
+  return {
+    total,
+    red,
+    yellow,
+    green,
+    last_fired_at: mostRecentIso,
+    most_recent_sli: mostRecentSli,
+  };
+}
+
 module.exports = {
   parsePropDataLog,
   evaluateFeedRatio,
   evaluateUser429Burst,
   evaluateEmptyResultRate,
   evaluateEndpointDiversity,
+  summarizeRecentAlerts,
 };
