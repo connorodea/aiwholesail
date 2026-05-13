@@ -1,0 +1,149 @@
+# LSI seed keywords for AIWholesail programmatic keyword research
+#
+# Each line = one seed fed to the RapidAPI seo-keyword-research endpoint via
+# `node scripts/google-ads-setup/seo-kw-research.js --batch this-file`.
+# The wrapper paces requests at 1.5s/seed. ~110 seeds => ~3 min total.
+#
+# Coverage map (mirrors marketing-context.md personas + keyword-silos.json):
+#   Wholesaling, Fix & flip, BRRRR / rentals, Distress signals,
+#   Skip tracing / outreach, Financing, Calculators, State laws,
+#   Markets, Beginner, Software / tools.
+#
+# Lines starting with `#` and blank lines are ignored by the batch runner.
+
+# ---- Wholesaling (core strategy) ----
+wholesale real estate
+wholesaling real estate
+assignment of contract real estate
+real estate assignment fee
+motivated sellers
+real estate wholesaling for beginners
+wholesale real estate contract
+double closing wholesale
+how to wholesale real estate
+real estate wholesale buyers list
+cash buyers list real estate
+wholesale real estate no money down
+virtual wholesaling real estate
+
+# ---- Fix & Flip ----
+how to flip houses
+house flipping for beginners
+fix and flip
+ARV real estate
+70 percent rule house flipping
+rehab budget house flip
+house flipping checklist
+estimate rehab costs
+flip house comps
+scope of work house flip
+
+# ---- BRRRR & Rentals ----
+BRRRR method
+BRRRR strategy
+rental property investing
+buy and hold real estate
+cash flow rental property
+cap rate rental property
+1 percent rule rental
+50 percent rule rental
+cash on cash return
+rental property analysis
+DSCR loan
+turnkey rental property
+short term rental investing
+airbnb investing
+multifamily investing
+
+# ---- Distress signals (lead sources) ----
+pre foreclosure leads
+tax delinquent properties
+probate real estate leads
+vacant property leads
+absentee owner list
+code violation properties
+high equity property leads
+divorce real estate leads
+expired listings real estate
+zombie foreclosure
+inherited property for sale
+notice of default real estate
+
+# ---- Skip tracing & outreach ----
+skip tracing real estate
+real estate skip tracing software
+direct mail real estate
+yellow letters real estate
+cold calling real estate
+driving for dollars
+real estate cold calling scripts
+RVM ringless voicemail real estate
+SMS marketing real estate investors
+real estate text blast
+
+# ---- Financing ----
+hard money loan
+hard money lender real estate
+DSCR loan investment property
+owner financing real estate
+seller financing real estate
+subject to real estate
+private money lender
+investment property loan
+fix and flip loan
+conventional investment property loan
+real estate line of credit
+HELOC investment property
+no doc investor loan
+
+# ---- Calculators & tools ----
+cap rate calculator
+BRRRR calculator
+MAO calculator real estate
+rental property calculator
+fix and flip calculator
+mortgage calculator investment property
+cash flow calculator real estate
+ARV calculator
+seller financing calculator
+rehab cost calculator
+
+# ---- State laws & compliance ----
+wholesaling real estate laws by state
+is wholesaling real estate legal
+real estate investor license
+wholesale real estate license requirements
+real estate assignment contract legal
+real estate disclosure laws
+landlord tenant law
+
+# ---- Best markets ----
+best cities for real estate investing
+best states for real estate investing
+best markets for cash flow real estate
+best markets for house flipping
+best markets for wholesaling
+real estate market analysis
+emerging real estate markets
+cheapest places to buy rental property
+
+# ---- Beginner / education ----
+real estate investing for beginners
+how to start investing in real estate
+real estate investing with no money
+passive real estate investing
+real estate investing books
+real estate investing courses
+real estate mentor
+
+# ---- Software / tools / comparisons ----
+PropStream alternative
+PropStream review
+DealMachine alternative
+BatchLeads alternative
+real estate investor CRM
+real estate investing software
+real estate lead generation software
+property data software
+real estate comps software
+foreclosure listings software
