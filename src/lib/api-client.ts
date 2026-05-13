@@ -646,7 +646,38 @@ export const property = {
       { method: 'GET' }
     );
   },
+
+  /**
+   * Address typeahead — backend proxies Zillow's public suggestions API
+   * through scrape.do so suggestions match listings that actually exist
+   * on Zillow. Used by LocationAutocomplete.tsx. Anonymous-OK
+   * (optionalAuth on the server), so the marketing-site demo can call it
+   * before sign-up.
+   */
+  autocomplete: async (q: string, limit?: number) => {
+    const params: Record<string, string | number> = { q };
+    if (limit) params.limit = limit;
+    return apiFetch<{ suggestions: AutocompleteSuggestion[] }>(
+      `/api/property/autocomplete${buildQuery(params)}`,
+      { method: 'GET' }
+    );
+  },
 };
+
+/**
+ * Flat suggestion shape returned by GET /api/property/autocomplete.
+ * Matches the normalizer in aiwholesail-api/lib/scrapers/zillowAutocompleteScrapeDo.js.
+ */
+export interface AutocompleteSuggestion {
+  display: string;
+  address: string;
+  city: string;
+  state: string;
+  zip: string;
+  zpid?: string;
+  type: 'region' | 'address';
+  regionType?: string;
+}
 
 // ============ COMMUNICATIONS API ============
 export const communications = {

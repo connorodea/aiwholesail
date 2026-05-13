@@ -1,30 +1,20 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useId, useCallback } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { MapPin, Loader2, AlertTriangle } from 'lucide-react';
-import { zillowAPI } from '@/lib/zillow-api';
-
-interface ZillowSuggestion {
-  display: string;
-  type: string;
-  region_type?: string;
-  city?: string;
-  state?: string;
-  county?: string;
-}
-
-// Keep old interface for backwards compat
-interface LocationSuggestion {
-  place_name: string;
-  center: [number, number];
-  place_type: string[];
-  context?: Array<{ id: string; text: string }>;
-}
+import { MapPin, Loader2, AlertTriangle, Home, Building2 } from 'lucide-react';
+import { property as propertyApi, type AutocompleteSuggestion } from '@/lib/api-client';
 
 interface LocationAutocompleteProps {
   value: string;
   onChange: (value: string) => void;
+  /**
+   * Fired when the user *commits* a suggestion (click or Enter on a
+   * highlighted row). Distinct from `onChange` so callers can trigger a
+   * search instead of waiting for a separate button press. Optional — if
+   * not provided we only update the input value.
+   */
+  onSelect?: (suggestion: AutocompleteSuggestion) => void;
   onValidationChange?: (isValid: boolean, message?: string) => void;
   placeholder?: string;
   required?: boolean;
@@ -35,6 +25,17 @@ interface LocationAutocompleteProps {
    * lines don't stack and read as redundant noise.
    */
   hideHelperText?: boolean;
+  /**
+   * Optional `id` for the underlying input — needed when the parent
+   * wires an external `<Label htmlFor=...>`. Defaults to "location" for
+   * the component's own built-in label.
+   */
+  inputId?: string;
+  /**
+   * If true, hide the component's own MapPin-labelled "Location" label
+   * (the parent provides its own).
+   */
+  hideLabel?: boolean;
 }
 
 // List of US state names and abbreviations
@@ -59,9 +60,7 @@ const STATE_ABBREVIATIONS = Object.values(US_STATES);
 // Check if a value is just a state name or abbreviation
 function isStateOnly(value: string): boolean {
   const trimmed = value.trim().toLowerCase();
-  // Check if it's a full state name
   if (US_STATES[trimmed]) return true;
-  // Check if it's a state abbreviation (2 letters, no other content)
   if (trimmed.length === 2 && STATE_ABBREVIATIONS.includes(trimmed.toUpperCase())) return true;
   return false;
 }
@@ -69,20 +68,15 @@ function isStateOnly(value: string): boolean {
 // Check if it's a county search without a state
 function isCountyWithoutState(value: string): boolean {
   const trimmed = value.trim().toLowerCase();
-  // Check if it contains "county" but no state identifier
   if (!trimmed.includes('county')) return false;
 
-  // Check if it has a comma (indicating state might be included)
   const parts = trimmed.split(',').map(p => p.trim());
   if (parts.length >= 2) {
-    // Check if second part is a state
     const possibleState = parts[1].toLowerCase();
     if (US_STATES[possibleState] || STATE_ABBREVIATIONS.includes(possibleState.toUpperCase())) {
-      return false; // Has a valid state
+      return false;
     }
-    // Check if it ends with "united states" or similar
     if (possibleState === 'united states' || possibleState === 'usa' || possibleState === 'us') {
-      // Check if there's a state before that
       if (parts.length >= 3) {
         const stateCheck = parts[1].toLowerCase();
         if (US_STATES[stateCheck] || STATE_ABBREVIATIONS.includes(stateCheck.toUpperCase())) {
@@ -92,11 +86,9 @@ function isCountyWithoutState(value: string): boolean {
     }
   }
 
-  // No valid state found with county
   return true;
 }
 
-// Validation result type
 interface LocationValidation {
   isValid: boolean;
   warning: 'state-only' | 'county-no-state' | null;
@@ -104,12 +96,8 @@ interface LocationValidation {
 }
 
 function validateLocation(value: string): LocationValidation {
-  // State-wide searches are supported (e.g., "MI" or "Michigan")
   if (isStateOnly(value)) {
-    return {
-      isValid: true,
-      warning: null
-    };
+    return { isValid: true, warning: null };
   }
   if (isCountyWithoutState(value)) {
     return {
@@ -121,22 +109,57 @@ function validateLocation(value: string): LocationValidation {
   return { isValid: true, warning: null };
 }
 
+/**
+ * Human-readable label for the row's secondary line. Region rows get the
+ * specific Zillow regionType (city / zipcode / county / neighborhood);
+ * address rows simply say "Address".
+ */
+function describeSuggestion(s: AutocompleteSuggestion): string {
+  if (s.type === 'address') return 'Address';
+  if (s.regionType) {
+    // Zillow uses lowercase regionType strings — Title-case them for the UI.
+    const map: Record<string, string> = {
+      city: 'City',
+      zipcode: 'ZIP code',
+      county: 'County',
+      neighborhood: 'Neighborhood',
+      state: 'State',
+      community: 'Community',
+      school: 'School',
+    };
+    return map[s.regionType] || s.regionType;
+  }
+  return 'Region';
+}
+
 export function LocationAutocomplete({
   value,
   onChange,
+  onSelect,
   onValidationChange,
   placeholder = "e.g., Charlotte, NC or Oakland County, MI or 90210",
   required = false,
   hideHelperText = false,
+  inputId,
+  hideLabel = false,
 }: LocationAutocompleteProps) {
-  const [zillowSuggestions, setZillowSuggestions] = useState<ZillowSuggestion[]>([]);
+  const reactId = useId();
+  const id = inputId || `location-${reactId}`;
+  const listboxId = `${id}-listbox`;
+
+  const [suggestions, setSuggestions] = useState<AutocompleteSuggestion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [activeIndex, setActiveIndex] = useState<number>(-1);
   const [validationState, setValidationState] = useState<LocationValidation>({ isValid: true, warning: null });
-  const debounceRef = useRef<NodeJS.Timeout>();
-  const inputRef = useRef<HTMLInputElement>(null);
 
-  // Check for invalid input patterns
+  // Refs for debounce, click-outside detection, request-staleness guard.
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const containerRef = useRef<HTMLDivElement>(null);
+  // Bumped on every fetch so a slow earlier request can't clobber a fresh one.
+  const fetchSeqRef = useRef(0);
+
+  // Trip the parent validator on every value change.
   useEffect(() => {
     const validation = validateLocation(value);
     setValidationState(validation);
@@ -145,101 +168,197 @@ export function LocationAutocomplete({
     }
   }, [value, onValidationChange]);
 
-  const fetchSuggestions = async (query: string) => {
-    if (!query.trim() || query.length < 2) {
-      setZillowSuggestions([]);
+  // Reset the active row whenever the suggestion list changes — otherwise
+  // a stale index could land on a different suggestion after a fresh fetch.
+  useEffect(() => {
+    setActiveIndex(-1);
+  }, [suggestions]);
+
+  const fetchSuggestions = useCallback(async (query: string) => {
+    const trimmed = query.trim();
+    if (trimmed.length < 2) {
+      setSuggestions([]);
       return;
     }
-
+    const seq = ++fetchSeqRef.current;
     setIsLoading(true);
     try {
-      const results = await zillowAPI.autocomplete(query);
-      setZillowSuggestions(results);
-    } catch (error) {
-      console.error('Error fetching location suggestions:', error);
-      setZillowSuggestions([]);
+      const res = await propertyApi.autocomplete(trimmed, 8);
+      // Bail if a newer request already started — prevents the flicker
+      // where a slow response for "aus" overwrites a fast one for "austin".
+      if (seq !== fetchSeqRef.current) return;
+      if (res.error) {
+        setSuggestions([]);
+      } else {
+        const data = res.data as { suggestions?: AutocompleteSuggestion[] } | undefined;
+        setSuggestions(Array.isArray(data?.suggestions) ? data!.suggestions! : []);
+      }
+    } catch {
+      if (seq === fetchSeqRef.current) setSuggestions([]);
     } finally {
-      setIsLoading(false);
+      if (seq === fetchSeqRef.current) setIsLoading(false);
     }
-  };
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     onChange(newValue);
     setShowSuggestions(true);
 
-    // Debounce API calls
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current);
-    }
-
+    if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       fetchSuggestions(newValue);
     }, 300);
   };
 
-  const handleSuggestionClick = (suggestion: ZillowSuggestion) => {
-    // Use the display value directly - Zillow already formats it as "City, ST"
-    onChange(suggestion.display);
-    setZillowSuggestions([]);
+  const commitSuggestion = (s: AutocompleteSuggestion) => {
+    onChange(s.display);
+    setSuggestions([]);
     setShowSuggestions(false);
+    setActiveIndex(-1);
+    if (onSelect) onSelect(s);
   };
 
-  // Close suggestions when clicking outside
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!showSuggestions || suggestions.length === 0) {
+      // Even with the menu closed, hitting ArrowDown should re-open it if
+      // we already have cached suggestions — matches Google Places UX.
+      if (e.key === 'ArrowDown' && suggestions.length > 0) {
+        setShowSuggestions(true);
+        setActiveIndex(0);
+        e.preventDefault();
+      }
+      return;
+    }
+
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        setActiveIndex((prev) => (prev + 1) % suggestions.length);
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        setActiveIndex((prev) => (prev <= 0 ? suggestions.length - 1 : prev - 1));
+        break;
+      case 'Enter':
+        if (activeIndex >= 0 && activeIndex < suggestions.length) {
+          e.preventDefault();
+          commitSuggestion(suggestions[activeIndex]);
+        }
+        // If nothing is highlighted, let the form's own Enter handler run.
+        break;
+      case 'Escape':
+        e.preventDefault();
+        setShowSuggestions(false);
+        setActiveIndex(-1);
+        break;
+      case 'Tab':
+        // Closing on Tab matches WAI-ARIA combobox guidance.
+        setShowSuggestions(false);
+        break;
+      default:
+        break;
+    }
+  };
+
+  // Close suggestions when clicking outside.
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (inputRef.current && !inputRef.current.contains(event.target as Node)) {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
         setShowSuggestions(false);
       }
     };
-
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Cancel any pending debounced fetch on unmount — prevents a setState
+  // on an unmounted component if the parent unmounts mid-keystroke.
+  useEffect(() => () => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+  }, []);
+
+  const open = showSuggestions && suggestions.length > 0;
+  const activeOptionId = activeIndex >= 0 ? `${listboxId}-opt-${activeIndex}` : undefined;
+
   return (
     <div className="space-y-2">
-      <Label htmlFor="location" className="flex items-center gap-2">
-        <MapPin className="h-4 w-4 text-primary" />
-        Location
-      </Label>
+      {!hideLabel && (
+        <Label htmlFor={id} className="flex items-center gap-2">
+          <MapPin className="h-4 w-4 text-primary" />
+          Location
+        </Label>
+      )}
 
-      <div className="relative" ref={inputRef}>
-        <div className="relative">
+      <div className="relative" ref={containerRef}>
+        <div
+          className="relative"
+          role="combobox"
+          aria-expanded={open}
+          aria-controls={listboxId}
+          aria-haspopup="listbox"
+          aria-owns={listboxId}
+        >
           <Input
-            id="location"
+            id={id}
             value={value}
             onChange={handleInputChange}
+            onKeyDown={handleKeyDown}
             placeholder={placeholder}
             className="bg-background/50 pr-8"
             required={required}
             onFocus={() => setShowSuggestions(true)}
+            autoComplete="off"
+            aria-autocomplete="list"
+            aria-controls={listboxId}
+            aria-activedescendant={activeOptionId}
           />
           {isLoading && (
-            <Loader2 className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
+            <Loader2 className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" aria-hidden="true" />
           )}
         </div>
 
-        {showSuggestions && zillowSuggestions.length > 0 && (
-          <div className="absolute z-50 w-full mt-1 bg-background border border-border rounded-md shadow-lg max-h-60 overflow-y-auto">
-            {zillowSuggestions.map((suggestion, index) => (
-              <button
-                key={index}
-                type="button"
-                className="w-full px-3 py-2 text-left hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none border-b border-border last:border-b-0"
-                onClick={() => handleSuggestionClick(suggestion)}
+        {/* Always-rendered listbox keeps the aria-controls reference valid;
+            we just hide it visually when there's nothing to show. */}
+        <ul
+          id={listboxId}
+          role="listbox"
+          className={
+            open
+              ? 'absolute z-50 w-full mt-1 bg-background border border-border rounded-md shadow-lg max-h-72 overflow-y-auto py-1'
+              : 'sr-only'
+          }
+        >
+          {suggestions.map((s, index) => {
+            const isActive = index === activeIndex;
+            const Icon = s.type === 'address' ? Home : Building2;
+            return (
+              <li
+                key={`${s.display}-${index}`}
+                id={`${listboxId}-opt-${index}`}
+                role="option"
+                aria-selected={isActive}
+                className={`px-3 py-2 cursor-pointer flex items-center gap-2 border-b border-border last:border-b-0 ${
+                  isActive ? 'bg-accent text-accent-foreground' : 'hover:bg-accent/60'
+                }`}
+                onMouseDown={(e) => {
+                  // mousedown beats the input's blur — keeps focus on the input
+                  // so the parent form's submit-on-enter behaviour still works
+                  // after the user clicks.
+                  e.preventDefault();
+                  commitSuggestion(s);
+                }}
+                onMouseEnter={() => setActiveIndex(index)}
               >
-                <div className="flex items-center gap-2">
-                  <MapPin className="h-3 w-3 text-muted-foreground flex-shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <span className="text-sm font-medium truncate block">{suggestion.display}</span>
-                    <span className="text-xs text-muted-foreground">{suggestion.region_type || suggestion.type}</span>
-                  </div>
+                <Icon className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" aria-hidden="true" />
+                <div className="flex-1 min-w-0">
+                  <span className="text-sm font-medium truncate block">{s.display}</span>
+                  <span className="text-xs text-muted-foreground">{describeSuggestion(s)}</span>
                 </div>
-              </button>
-            ))}
-          </div>
-        )}
+              </li>
+            );
+          })}
+        </ul>
       </div>
 
       {validationState.warning === 'county-no-state' && (
@@ -253,7 +372,7 @@ export function LocationAutocomplete({
 
       {!hideHelperText && (
         <p className="text-xs text-muted-foreground">
-          Search by state, city, ZIP code, or county. Examples: "MI", "Detroit, MI", or "Oakland County, MI"
+          Search by state, city, ZIP code, address, or county. Examples: "MI", "Detroit, MI", "1600 Pennsylvania Ave", or "90210"
         </p>
       )}
     </div>
