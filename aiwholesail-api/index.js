@@ -67,6 +67,7 @@ app.use(helmet({
 // for one origin to a different origin.
 const ALLOWED_CORS_ORIGINS = new Set([
   'https://aiwholesail.com',
+  'https://www.aiwholesail.com', // user reached login here on 2026-05-13 → CORS preflight 403
   'https://staging.aiwholesail.com',
   'http://localhost:5173', // Vite dev server
 ]);
