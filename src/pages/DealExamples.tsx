@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import {
   ArrowRight, Search, ChevronRight, Filter,
   DollarSign, MapPin, Home, TrendingUp, Repeat, Key, FileText,
@@ -8,6 +9,8 @@ import { SEOHead } from '@/components/SEOHead';
 import { PublicLayout } from '@/components/PublicLayout';
 import { Spotlight } from '@/components/ui/spotlight';
 import dealExamples from '@/data/deal-examples.json';
+
+const LAST_UPDATED = '2026-05-12';
 
 interface DealNumbers {
   mao: number;
@@ -153,18 +156,50 @@ export default function DealExamples() {
     };
   }, [deals]);
 
+  const canonical = 'https://aiwholesail.com/deals/examples';
+
+  const collectionJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'Real Estate Deal Examples & Case Studies',
+    description: `${stats.totalDeals} real-world real estate deal case studies — wholesale, flip, BRRRR, rental, and creative financing — with full financial breakdowns across ${stats.citiesCovered}+ U.S. cities.`,
+    url: canonical,
+    dateModified: LAST_UPDATED,
+    isPartOf: { '@type': 'WebSite', name: 'AIWholesail', url: 'https://aiwholesail.com' },
+  };
+
+  const itemListJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: 'Real Estate Deal Examples',
+    numberOfItems: deals.length,
+    url: canonical,
+    itemListElement: deals.map((d, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      url: `https://aiwholesail.com/deals/examples/${d.slug}`,
+      name: d.title,
+    })),
+  };
+
   return (
     <PublicLayout>
       <SEOHead
         title="Real Estate Deal Examples & Case Studies | AIWholesail"
         description={`Browse ${stats.totalDeals} real-world real estate deal examples with full financial breakdowns. Wholesale, flip, BRRRR, rental, and creative financing case studies across ${stats.citiesCovered}+ cities.`}
         keywords="real estate deal examples, wholesale deal case study, fix and flip example, BRRRR deal breakdown, real estate investment case studies, wholesale deal numbers, flip profit breakdown"
-        canonicalUrl="https://aiwholesail.com/deals/examples"
+        canonicalUrl={canonical}
         breadcrumbs={[
           { name: 'Home', url: 'https://aiwholesail.com' },
-          { name: 'Deal Examples', url: 'https://aiwholesail.com/deals/examples' },
+          { name: 'Deal Examples', url: canonical },
         ]}
       />
+
+      <Helmet>
+        <script type="application/ld+json">{JSON.stringify(collectionJsonLd)}</script>
+        <script type="application/ld+json">{JSON.stringify(itemListJsonLd)}</script>
+        <meta name="last-modified" content={LAST_UPDATED} />
+      </Helmet>
 
       {/* ===== HERO ===== */}
       <section className="relative bg-gradient-to-b from-[#0a0a0a] via-[#0f0f0f] to-[#0a0a0a] text-white overflow-hidden">
