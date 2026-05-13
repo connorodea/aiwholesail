@@ -4,6 +4,7 @@ import { SEOHead } from '@/components/SEOHead';
 import { CalculatorSchema } from '@/components/CalculatorSchema';
 import { CALCULATOR_METADATA } from '@/data/calculator-metadata';
 import { PublicLayout } from '@/components/PublicLayout';
+import { useInModal } from '@/lib/in-modal-context';
 import { DollarSign, Percent, ArrowRight, Wallet, TrendingUp, TrendingDown, Building2 } from 'lucide-react';
 
 const fmt = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
@@ -11,6 +12,7 @@ const fmtDecimal = new Intl.NumberFormat('en-US', { style: 'currency', currency:
 const fmtPct = (v: number) => `${v.toFixed(2)}%`;
 
 export default function CashFlowCalculator() {
+  const { inModal } = useInModal();
   const [purchasePrice, setPurchasePrice] = useState(250000);
   const [downPaymentPercent, setDownPaymentPercent] = useState(25);
   const [interestRate, setInterestRate] = useState(7.0);
@@ -104,25 +106,9 @@ export default function CashFlowCalculator() {
       />
 
       <CalculatorSchema {...CALCULATOR_METADATA['cash-flow-calculator']} />
-      {/* Hero */}
-      <section className="pt-24 pb-8 px-4">
-        <div className="container mx-auto max-w-5xl text-center">
-          <span className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full bg-cyan-500/10 text-cyan-400 mb-4">
-            <Wallet className="h-3 w-3" />
-            Free Tool
-          </span>
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4 text-white">
-            Cash Flow Calculator
-          </h1>
-          <p className="text-lg text-neutral-400 font-light max-w-2xl mx-auto">
-            Analyze any rental property's cash flow, returns, and expense breakdown. See monthly and annual numbers, cash-on-cash return, cap rate, and gross rent multiplier in real time.
-          </p>
-        </div>
-      </section>
-
       {/* Calculator */}
-      <section className="pb-16 px-4">
-        <div className="container mx-auto max-w-5xl">
+      <section className={inModal ? 'px-0' : 'pt-10 pb-16 px-4'}>
+        <div className={inModal ? '' : 'container mx-auto max-w-5xl'}>
           <div className="grid lg:grid-cols-2 gap-8">
 
             {/* Inputs */}
@@ -339,8 +325,24 @@ export default function CashFlowCalculator() {
             </div>
           </div>
 
+          {!inModal && (
+          <>
+          {/* About this tool (moved below the calculator so the tool loads first) */}
+          <div className="mt-16 space-y-4 text-center">
+            <span className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full bg-cyan-500/10 text-cyan-400">
+              <Wallet className="h-3 w-3" />
+              Free Tool
+            </span>
+            <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-white">
+              Cash Flow Calculator
+            </h1>
+            <p className="text-base text-neutral-400 font-light max-w-2xl mx-auto">
+              Analyze any rental property's cash flow, returns, and expense breakdown. See monthly and annual numbers, cash-on-cash return, cap rate, and gross rent multiplier in real time.
+            </p>
+          </div>
+
           {/* Educational Section */}
-          <div className="mt-16 space-y-12">
+          <div className="mt-12 space-y-12">
             <div className="border-t border-white/[0.06]" />
             <div className="max-w-3xl mx-auto space-y-8">
               <h2 className="text-2xl font-bold tracking-tight text-white">How to Use This Cash Flow Calculator</h2>
@@ -382,6 +384,8 @@ export default function CashFlowCalculator() {
               </Link>
             </div>
           </div>
+          </>
+          )}
         </div>
       </section>
     </PublicLayout>

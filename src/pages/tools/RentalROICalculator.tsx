@@ -4,6 +4,7 @@ import { SEOHead } from '@/components/SEOHead';
 import { CalculatorSchema } from '@/components/CalculatorSchema';
 import { CALCULATOR_METADATA } from '@/data/calculator-metadata';
 import { PublicLayout } from '@/components/PublicLayout';
+import { useInModal } from '@/lib/in-modal-context';
 import { DollarSign, Sparkles, ChevronRight, TrendingUp, Info, Building2 } from 'lucide-react';
 
 const fmt = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
@@ -12,6 +13,7 @@ const fmtPct = (n: number) => `${n.toFixed(2)}%`;
 const fmtGrm = (n: number) => `${n.toFixed(1)}x`;
 
 export default function RentalROICalculator() {
+  const { inModal } = useInModal();
   const [purchasePrice, setPurchasePrice] = useState(250000);
   const [downPaymentPct, setDownPaymentPct] = useState(25);
   const [interestRate, setInterestRate] = useState(7);
@@ -124,25 +126,10 @@ export default function RentalROICalculator() {
       />
 
       <CalculatorSchema {...CALCULATOR_METADATA['rental-roi-calculator']} />
-      {/* Hero */}
-      <section className="pt-24 pb-8 px-4">
-        <div className="container mx-auto text-center max-w-3xl">
-          <span className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full bg-cyan-500/10 text-cyan-400 mb-4">
-            <Building2 className="h-3 w-3" />
-            Free Tool
-          </span>
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4 text-white">
-            Rental ROI <span className="text-cyan-400">Calculator</span>
-          </h1>
-          <p className="text-lg text-neutral-400 font-light max-w-2xl mx-auto">
-            Calculate monthly cash flow, cash-on-cash return, cap rate, and total ROI with appreciation. See a full 5-year projection for your rental property.
-          </p>
-        </div>
-      </section>
 
       {/* Calculator */}
-      <section className="pb-16 px-4">
-        <div className="container mx-auto max-w-6xl">
+      <section className={inModal ? 'px-0' : 'pt-10 pb-16 px-4'}>
+        <div className={inModal ? '' : 'container mx-auto max-w-6xl'}>
           <div className="grid lg:grid-cols-5 gap-8">
 
             {/* Inputs */}
@@ -371,27 +358,45 @@ export default function RentalROICalculator() {
                   </div>
                 </div>
 
-                {/* CTA */}
-                <div className="mt-6 border border-white/[0.05] bg-cyan-500/5 rounded-xl p-6">
-                  <div className="flex items-start gap-3">
-                    <Sparkles className="h-5 w-5 text-cyan-400 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <p className="font-medium text-sm text-white mb-1">Want AI to analyze rental ROI across your pipeline?</p>
-                      <p className="text-xs text-neutral-400 mb-3">AIWholesail calculates cash-on-cash return, cap rate, and cash flow for every property automatically using real-time rental data.</p>
-                      <Link to="/pricing" className="inline-flex items-center gap-1 bg-cyan-500 hover:bg-cyan-400 text-black font-semibold px-4 py-2 rounded-md text-sm transition-colors">
-                        Try AIWholesail Free
-                        <ChevronRight className="h-4 w-4" />
-                      </Link>
+                {!inModal && (
+                  <div className="mt-6 border border-white/[0.05] bg-cyan-500/5 rounded-xl p-6">
+                    <div className="flex items-start gap-3">
+                      <Sparkles className="h-5 w-5 text-cyan-400 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="font-medium text-sm text-white mb-1">Want AI to analyze rental ROI across your pipeline?</p>
+                        <p className="text-xs text-neutral-400 mb-3">AIWholesail calculates cash-on-cash return, cap rate, and cash flow for every property automatically using real-time rental data.</p>
+                        <Link to="/pricing" className="inline-flex items-center gap-1 bg-cyan-500 hover:bg-cyan-400 text-black font-semibold px-4 py-2 rounded-md text-sm transition-colors">
+                          Try AIWholesail Free
+                          <ChevronRight className="h-4 w-4" />
+                        </Link>
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Educational Section */}
+      {!inModal && (
+        <section className="pb-10 px-4">
+          <div className="container mx-auto max-w-3xl text-center space-y-4">
+            <span className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full bg-cyan-500/10 text-cyan-400">
+              <Building2 className="h-3 w-3" />
+              Free Tool
+            </span>
+            <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-white">
+              Rental ROI Calculator
+            </h1>
+            <p className="text-base text-neutral-400 font-light max-w-2xl mx-auto">
+              Calculate monthly cash flow, cash-on-cash return, cap rate, and total ROI with appreciation. See a full 5-year projection for your rental property.
+            </p>
+          </div>
+        </section>
+      )}
+
+      {!inModal && (
       <section className="pb-20 px-4">
         <div className="container mx-auto max-w-4xl">
           <div className="border border-white/[0.05] bg-gradient-to-b from-neutral-900/50 to-transparent rounded-xl p-6 md:p-8">
@@ -433,6 +438,7 @@ export default function RentalROICalculator() {
           </div>
         </div>
       </section>
+      )}
     </PublicLayout>
   );
 }
