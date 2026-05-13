@@ -29,6 +29,7 @@ const utilityRoutes = require('./routes/utility');
 const skipTraceRoutes = require('./routes/skipTrace');
 const webhookRoutes = require('./routes/webhooks');
 const propdataRoutes = require('./routes/propdata');
+const usHousingRoutes = require('./routes/usHousing');
 const flagsRoutes = require('./routes/flags');
 const healthIntegrationsRoutes = require('./routes/healthIntegrations');
 const unsubscribeRoutes = require('./routes/unsubscribe');
@@ -171,6 +172,7 @@ app.use('/api/contact', contactRoutes);
 app.use('/api/skip-trace', skipTraceRoutes);
 app.use('/api/webhooks', webhookRoutes);
 app.use('/api/propdata', propdataRoutes);
+app.use('/api/us-housing', usHousingRoutes);
 app.use('/api/flags', flagsRoutes);
 app.use('/api/health', healthIntegrationsRoutes);
 // Public unsubscribe endpoint — no auth, accessible from any email client.

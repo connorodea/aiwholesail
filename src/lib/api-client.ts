@@ -1119,6 +1119,18 @@ export const propdata = {
     apiFetch<any>(`/api/propdata/zillow-autocomplete${buildQuery({ query })}`),
 };
 
+// US Housing Market Data (apimaker) — selectively proxied: only the 3
+// endpoints net-new vs Zillow Scraper / PropData. See aiwholesail-api/
+// routes/usHousing.js for the full integration rationale.
+export const usHousing = {
+  walkAndTransitScore: (zpid: string | number) =>
+    apiFetch<any>(`/api/us-housing/walkAndTransitScore${buildQuery({ zpid })}`),
+  propertyByCoordinates: (p: { lat: number; long: number; radius?: number }) =>
+    apiFetch<any>(`/api/us-housing/propertyByCoordinates${buildQuery(p)}`),
+  valueHistoryLocalHomeValues: (zpid: string | number) =>
+    apiFetch<any>(`/api/us-housing/valueHistory/localHomeValues${buildQuery({ zpid })}`),
+};
+
 // Default export for convenience
 const apiClient = {
   auth,
@@ -1138,6 +1150,7 @@ const apiClient = {
   webhooks,
   utility,
   propdata,
+  usHousing,
   onAuthStateChange,
 };
 
