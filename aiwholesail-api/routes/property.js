@@ -10,11 +10,11 @@ const { logEvent, EVENTS } = require('../lib/events');
 const { mapCachedRowToProperty, validateZpid } = require('../lib/property-mapper');
 const { geocodeMany, normalizeAddress } = require('../lib/geocode');
 
+const RAPIDAPI_KEY = process.env.RAPIDAPI_KEY;
 const PROPDATA_RAPIDAPI_HOST = process.env.PROPDATA_RAPIDAPI_HOST || 'propdata-real-estate-market-intelligence-api.p.rapidapi.com';
 const PROPDATA_RAPIDAPI_KEY = process.env.PROPDATA_RAPIDAPI_KEY || RAPIDAPI_KEY;
 
 const router = express.Router();
-const RAPIDAPI_KEY = process.env.RAPIDAPI_KEY;
 
 /**
  * POST /api/property/zillow/search
