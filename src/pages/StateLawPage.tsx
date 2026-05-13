@@ -1,14 +1,17 @@
 import { useParams, Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { Badge } from '@/components/ui/badge';
 import {
   ArrowRight, Scale, ChevronRight, Gavel, Shield,
   CheckCircle, XCircle, DollarSign, Home, FileText,
-  BookOpen, MapPin, Building2, AlertTriangle, Info,
+  BookOpen, MapPin, Building2, AlertTriangle, Info, Calendar,
 } from 'lucide-react';
 import { SEOHead } from '@/components/SEOHead';
 import { PublicLayout } from '@/components/PublicLayout';
 import stateLaws from '@/data/state-laws.json';
 import cities from '@/data/cities.json';
+
+const LAST_UPDATED = '2026-05-12';
 
 interface StateLaw {
   slug: string;
@@ -115,13 +118,90 @@ export default function StateLawPage() {
   const stateCities = getStateCities(law.state);
   const stateMarketSlug = slugifyState(law.stateFull);
 
+  const canonical = `https://aiwholesail.com/laws/${law.slug}`;
+
+  // 40-60 word AI-extractable answer block. Leads with the direct YES/NO.
+  const summary =
+    `${law.wholesalingLegal ? 'Yes — wholesaling real estate is legal in ' : 'Wholesaling has restrictions in '}` +
+    `${law.stateFull}${law.licenseRequired ? ', but ' + law.stateFull + ' requires a real estate license' : ' without a real estate license required'}. ` +
+    `${law.assignmentAllowed ? 'Assignment of contract is allowed; ' : 'Assignment of contract is restricted; '}` +
+    `${law.disclosureRequired ? 'wholesalers must disclose their position as a principal in the transaction. ' : 'explicit disclosure is best practice but not statutorily required. '}` +
+    `Foreclosure is ${law.foreclosureType} with a typical timeline of ${law.foreclosureTimeline}. ` +
+    `${law.landlordFriendly ? law.stateFull + ' is generally landlord-friendly.' : law.stateFull + ' has tenant-friendly protections — review carefully.'}`;
+
+  const faqs = [
+    {
+      q: `Is wholesaling real estate legal in ${law.stateFull}?`,
+      a: `${law.wholesalingLegal ? 'Yes, wholesaling is legal in ' + law.stateFull + '.' : 'Wholesaling in ' + law.stateFull + ' has restrictions — review state statutes carefully.'} ${law.licenseRequired ? 'A real estate license IS required to wholesale.' : 'No real estate license is required to wholesale.'} ${law.assignmentAllowed ? 'Assignment of contract is allowed.' : 'Assignment of contract is restricted — use a double-close structure.'} ${law.disclosureRequired ? 'Wholesalers must disclose their position as a principal in the transaction.' : 'Explicit disclosure of intent to assign is not statutorily required but is best practice.'} This is general guidance — consult a licensed ${law.stateFull} real estate attorney before structuring deals.`,
+    },
+    {
+      q: `Do I need a real estate license to wholesale in ${law.stateFull}?`,
+      a: `${law.licenseRequired ? law.stateFull + ' DOES require a real estate license to wholesale real estate.' : law.stateFull + ' does NOT require a real estate license to wholesale.'} ${law.notableRegulations}`,
+    },
+    {
+      q: `What's the foreclosure process in ${law.stateFull}?`,
+      a: `${law.stateFull} uses a ${law.foreclosureType} foreclosure process. Typical timeline from default to sale: ${law.foreclosureTimeline}. ${law.foreclosureType === 'non-judicial' ? 'Non-judicial foreclosures are faster and don\'t require court action — good for distressed-property investors who want fresh inventory turning over quickly.' : 'Judicial foreclosures require court action and take longer — gives investors more time to reach pre-foreclosure homeowners before the sale.'}`,
+    },
+    {
+      q: `Is ${law.stateFull} landlord-friendly?`,
+      a: `${law.landlordFriendly ? law.stateFull + ' is generally considered landlord-friendly with faster eviction timelines and limited tenant protections.' : law.stateFull + ' has stronger tenant protections — buy-and-hold landlords should review state-specific eviction rules and rent regulation before underwriting deals.'} Property tax rate is ${(law.propertyTaxRate * 100).toFixed(2)}% of assessed value. LLC filing fee: $${law.llcFilingFee}; annual fee: $${law.llcAnnualFee}.`,
+    },
+    {
+      q: `What's the LLC filing cost for real estate investing in ${law.stateFull}?`,
+      a: `Initial LLC filing fee in ${law.stateFull} is $${law.llcFilingFee}. Annual maintenance/franchise fee is $${law.llcAnnualFee}. ${law.homesteadExemption ? law.stateFull + ' has a homestead exemption that can shield equity in your primary residence from creditors.' : law.stateFull + ' does NOT have a homestead exemption — equity in your primary residence is not protected from creditors.'} ${law.transferTax ? 'Real estate transfer tax applies on title transfers.' : 'No state real estate transfer tax.'}`,
+    },
+  ];
+
+  const articleJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: `Wholesaling Laws in ${law.stateFull}`,
+    description: summary,
+    url: canonical,
+    image: 'https://aiwholesail.com/og-image.png',
+    author: { '@type': 'Organization', name: 'AIWholesail', url: 'https://aiwholesail.com' },
+    publisher: {
+      '@type': 'Organization',
+      name: 'AIWholesail',
+      logo: { '@type': 'ImageObject', url: 'https://aiwholesail.com/logo-aiw.png' },
+    },
+    datePublished: LAST_UPDATED,
+    dateModified: LAST_UPDATED,
+    mainEntityOfPage: { '@type': 'WebPage', '@id': canonical },
+    keywords: `${law.stateFull} wholesaling laws, ${law.stateFull} real estate wholesale, ${law.state} assignment of contract, ${law.stateFull} real estate license, ${law.stateFull} foreclosure laws`,
+    about: { '@type': 'AdministrativeArea', name: law.stateFull },
+  };
+
+  const faqJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  };
+
   return (
     <PublicLayout>
       <SEOHead
         title={`Wholesaling Laws in ${law.stateFull} -- Real Estate Investor Legal Guide 2026`}
         description={`Complete legal guide to real estate wholesaling in ${law.stateFull}. License requirements, assignment rules, foreclosure process, tax considerations, and investor tips for ${law.state} wholesalers.`}
         keywords={`${law.stateFull} wholesaling laws, ${law.stateFull} real estate wholesale, ${law.state} assignment of contract, ${law.stateFull} real estate license, ${law.stateFull} foreclosure laws, ${law.stateFull} landlord tenant laws, wholesale real estate ${law.stateFull}`}
+        canonicalUrl={canonical}
+        breadcrumbs={[
+          { name: 'Home', url: 'https://aiwholesail.com' },
+          { name: 'State Laws', url: 'https://aiwholesail.com/laws' },
+          { name: law.stateFull, url: canonical },
+        ]}
       />
+
+      <Helmet>
+        <script type="application/ld+json">{JSON.stringify(articleJsonLd)}</script>
+        <script type="application/ld+json">{JSON.stringify(faqJsonLd)}</script>
+        <meta name="last-modified" content={LAST_UPDATED} />
+        <meta property="article:modified_time" content={LAST_UPDATED} />
+      </Helmet>
 
       {/* ===== HERO ===== */}
       <section className="relative bg-gradient-to-b from-[#0a0a0a] via-[#0f0f0f] to-[#0a0a0a] text-white overflow-hidden">
@@ -148,6 +228,26 @@ export default function StateLawPage() {
             Complete legal guide for real estate wholesalers and investors operating in {law.stateFull} ({law.state}).
             License requirements, assignment rules, and compliance guidance.
           </p>
+          <p className="mt-6 inline-flex items-center gap-2 text-xs text-white/40">
+            <Calendar className="h-3 w-3" /> Last updated <time dateTime={LAST_UPDATED}>{LAST_UPDATED}</time>
+          </p>
+        </div>
+      </section>
+
+      {/* ===== AI-EXTRACTABLE ANSWER BLOCK ===== */}
+      <section className="py-10 px-4">
+        <div className="container mx-auto max-w-4xl">
+          <div className="border border-white/[0.05] bg-gradient-to-b from-neutral-900/50 to-transparent rounded-xl p-6 md:p-8">
+            <h2 className="text-sm font-semibold tracking-[0.15em] uppercase text-cyan-400 mb-3">
+              Is wholesaling legal in {law.stateFull}?
+            </h2>
+            <p className="text-base md:text-lg text-white/80 font-light leading-relaxed">
+              {summary}
+            </p>
+            <p className="mt-4 text-xs text-white/40">
+              General guidance, not legal advice. Consult a licensed {law.stateFull} real estate attorney before structuring deals.
+            </p>
+          </div>
         </div>
       </section>
 
@@ -485,6 +585,27 @@ export default function StateLawPage() {
                 {law.investorNotes}
               </p>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== FAQ ===== */}
+      <section className="py-16 px-4">
+        <div className="container mx-auto max-w-3xl">
+          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-4">FAQ</p>
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-white mb-10">
+            Common questions about {law.stateFull} real estate law.
+          </h2>
+          <div className="space-y-4">
+            {faqs.map((f, i) => (
+              <div
+                key={i}
+                className="border border-white/[0.05] bg-gradient-to-b from-neutral-900/50 to-transparent rounded-xl p-6"
+              >
+                <h3 className="text-base md:text-lg font-semibold text-white mb-2">{f.q}</h3>
+                <p className="text-sm md:text-base text-white/70 font-light leading-relaxed">{f.a}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
