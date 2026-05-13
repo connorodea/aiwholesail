@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-sell-a-condemned-house-for-cash-and-actually-make-money",
+      "title": "How to Sell a Condemned House for Cash (And Actually Make Money)",
+      "excerpt": "A condemned property doesn't have to be a dead end. Learn how to sell a condemned house for cash, what buyers are looking for, and how to maximize your payout even when a home is unlivable.",
+      "category": "Motivation",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-13T06:00:56.501Z",
+      "readTime": 7,
+      "tags": [
+        "sell condemned house for cash",
+        "condemned property sale",
+        "cash buyer condemned home",
+        "sell uninhabitable house",
+        "distressed property sale"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-minneapolis-mn-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Minneapolis MN: The Investor's Complete Guide for 2024",
       "excerpt": "Minneapolis is one of the Midwest's most underrated markets for real estate investors, offering strong rental demand, affordable entry points, and consistent appreciation. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Minneapolis MN.",
@@ -15,7 +32,7 @@
         "Minneapolis rental properties",
         "fix and flip Minneapolis"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-syracuse-ny-the-investor-s-complete-guide-for-2024",
