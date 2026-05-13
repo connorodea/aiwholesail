@@ -1,8 +1,55 @@
-# SendGrid HTML Email Templates
+# AIWholesail HTML Email Templates
 
-This folder contains professionally designed HTML email templates for AI Wholesail that can be copied and pasted directly into SendGrid's Design Editor.
+This folder contains email templates for AI Wholesail that can be copied into SendGrid, Resend, Postmark, or similar.
 
-## Templates Included
+## Trial Lifecycle Templates (added 2026-05-12)
+
+The 5-step trial-lifecycle sequence identified in `marketing/EMAIL_LIFECYCLE_AUDIT_2026-05-12.md` as the highest-revenue email gap (estimated 8–18 percentage point lift to trial-to-paid).
+
+| File | Trigger | Suggested subject line |
+|---|---|---|
+| `_trial-base.html` | — | Template scaffold for new lifecycle emails |
+| `trial-day-minus-2.html` | T-48h before trial expires | `{{first_name}}, 2 days left in your AIWholesail trial` |
+| `trial-day-minus-1.html` | T-24h before expiration | `{{first_name}}, your AIWholesail trial ends tomorrow` |
+| `trial-day-0.html` | At trial expiration | `Your AIWholesail trial just ended (saved deals still here)` |
+| `trial-day-plus-3.html` | 3 days post-expiration, no plan | `30% off your first 2 months of AIWholesail` |
+| `trial-day-plus-14.html` | 14 days post-expiration, no plan | `Heads up — we're closing your AIWholesail data in 16 days` |
+
+### Trigger plan
+
+Recommended infrastructure: **Stripe webhooks → Supabase edge function → Resend send**. The `subscription.trial_will_end` event fires 72h before expiration (configurable) — use it to schedule the day -2 and day -1 sends. For post-expiration sends, a Supabase cron checks daily for trials that hit T+0, T+3, T+14.
+
+Variables expected in every lifecycle template:
+- `{{first_name}}` (required)
+- `{{primary_cta_url}}` (Stripe Checkout link with plan + UTM tags)
+- `{{unsubscribe_url}}` (Resend / SendGrid auto-injects this in some flows)
+
+Additional per-template variables:
+- **Day -2:** `{{deals_scored}}`, `{{calculators_used}}`, `{{top_market}}`
+- **Day -1:** `{{top_deal_score}}`, `{{top_deal_address}}`, `{{deals_above_80}}`
+- **Day 0:** `{{saved_deals_count}}`
+- **Day +14:** `{{saved_deals_count}}`
+
+### Style guide for new lifecycle emails
+
+Match the visual identity of these templates:
+- 600px max width, table-based layout (Outlook compatibility)
+- Dark background `#0a0a0a` with `#0f0f0f` card and `rgba(255,255,255,0.05)` borders
+- Brand cyan `#06b6d4` for CTAs, links, accent text
+- Founder signature with phone (248-881-4147) and email
+- Plain-text fallback recommended for filter avoidance
+
+### Subject-line patterns
+
+Use these from `marketing/EMAIL_LIFECYCLE_AUDIT_2026-05-12.md`:
+- Direct value: `{{first_name}}, your AIWholesail trial ends tomorrow`
+- Specific number: `23 deals scored 80+ in {{user_city}} this week`
+- Founder voice: `Quick note from Connor (founder)`
+- Avoid: "Don't miss out", "Last chance", excessive emoji, all-caps anything
+
+---
+
+## Transactional Templates (existing)
 
 ### 1. Property Alert Template (`property-alert-template.html`)
 - **Purpose**: Notify users when a new property matches their alert criteria
