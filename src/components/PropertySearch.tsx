@@ -5,8 +5,9 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { PropertySearchParams } from '@/types/zillow';
-import { Search, Home, Bed, Bath, DollarSign, TrendingDown, MessageSquare, Gavel, Building2, AlertTriangle, Flame, Sparkles, Lock, Radius } from 'lucide-react';
+import { Search, Home, Bed, Bath, DollarSign, TrendingDown, MessageSquare, Gavel, Building2, AlertTriangle, Flame, Sparkles, Lock, Radius, SlidersHorizontal, Check } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { LocationAutocomplete } from './LocationAutocomplete';
 import { CountyBrowserDialog } from './CountyBrowserDialog';
@@ -41,6 +42,25 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
   // While the flag fetch is in flight we render v1 — no skeleton needed,
   // v1 is the safe legacy layout already on prod.
   const { enabled: layoutV2Enabled } = useFeatureFlag('main-search-layout-v2');
+  // V3 aesthetic refresh — TWO flag-gated variants for dogfooding:
+  //   tightEnabled    — keep all controls visible but drop field-label
+  //                     icon noise, consolidate scattered helper text,
+  //                     collapse 5 filter rows into a 2-col pill grid.
+  //   compactEnabled  — strictly stronger: takes tight, then ALSO collapses
+  //                     the filters section into a single "Filters (N)"
+  //                     trigger that opens a slide-in Sheet. Cuts the
+  //                     form to roughly half its current vertical height.
+  // When both are on, compactEnabled wins. When neither is on, the legacy
+  // v1/v2 layout renders byte-for-byte unchanged.
+  const { enabled: tightEnabled } = useFeatureFlag('property-search-tight');
+  const { enabled: compactEnabled } = useFeatureFlag('property-search-compact');
+  const variant: 'legacy' | 'tight' | 'compact' = compactEnabled
+    ? 'compact'
+    : tightEnabled
+      ? 'tight'
+      : 'legacy';
+  const tidied = variant !== 'legacy';
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -97,9 +117,11 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-            {layoutV2Enabled ? (
-              /* v2 layout: Location + radius side-by-side, tightened copy.
-                 Gated on useFeatureFlag('main-search-layout-v2'). */
+            {layoutV2Enabled || tidied ? (
+              /* v2 layout (also used by the v3 tidied variants): Location +
+                 radius side-by-side with tightened copy. Tidied variants
+                 ALSO consolidate the multiple helper lines into a single
+                 muted hint. */
               <div className="sm:col-span-2">
                 <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 sm:items-start">
                   <div className="flex-1 min-w-0">
@@ -136,11 +158,22 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
                   )}
                 </div>
 
-                <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
-                  {multiLocationEnabled && (
-                    <span className="text-muted-foreground">
-                      Tip: paste multiple ZIPs (<span className="font-mono">33101, 33102, 33125</span>) to search several at once.
-                    </span>
+                <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                  {tidied ? (
+                    /* Tidied: one muted line. Removes the redundant
+                       "Search by state, city, ZIP, or county" instructional
+                       text that previously floated right-aligned below the
+                       input; the example syntax in the placeholder carries
+                       that load now. */
+                    multiLocationEnabled && (
+                      <span>State, city, ZIP, or county · paste multiple ZIPs (<span className="font-mono">33101, 33102</span>) to fan out</span>
+                    )
+                  ) : (
+                    multiLocationEnabled && (
+                      <span>
+                        Tip: paste multiple ZIPs (<span className="font-mono">33101, 33102, 33125</span>) to search several at once.
+                      </span>
+                    )
                   )}
                   <button
                     type="button"
@@ -219,8 +252,8 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
 
             {/* Property Type — full width, anchors the row */}
             <div className="space-y-2 sm:col-span-2">
-              <Label className="flex items-center gap-2">
-                <Home className="h-4 w-4 text-primary" />
+              <Label className={tidied ? 'text-sm font-medium text-muted-foreground' : 'flex items-center gap-2'}>
+                {!tidied && <Home className="h-4 w-4 text-primary" />}
                 Property Type
               </Label>
               <Select value={searchParams.homeType} onValueChange={(value) => updateParam('homeType', value)}>
@@ -239,8 +272,8 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
 
             {/* Bedrooms Min */}
             <div className="space-y-2">
-              <Label className="flex items-center gap-2">
-                <Bed className="h-4 w-4 text-primary" />
+              <Label className={tidied ? 'text-sm font-medium text-muted-foreground' : 'flex items-center gap-2'}>
+                {!tidied && <Bed className="h-4 w-4 text-primary" />}
                 Min Bedrooms
               </Label>
               <Select value={searchParams.bed_min || 'any'} onValueChange={(value) => updateParam('bed_min', value === 'any' ? undefined : value)}>
@@ -260,8 +293,8 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
 
             {/* Bathrooms */}
             <div className="space-y-2">
-              <Label className="flex items-center gap-2">
-                <Bath className="h-4 w-4 text-primary" />
+              <Label className={tidied ? 'text-sm font-medium text-muted-foreground' : 'flex items-center gap-2'}>
+                {!tidied && <Bath className="h-4 w-4 text-primary" />}
                 Min Bathrooms
               </Label>
               <Select value={searchParams.bathrooms || 'any'} onValueChange={(value) => updateParam('bathrooms', value === 'any' ? undefined : value)}>
@@ -283,8 +316,8 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
                 hanging alone on the right (visual asymmetry the v1 layout
                 had). The two inputs share one label band. */}
             <div className="space-y-2 sm:col-span-2">
-              <Label className="flex items-center gap-2">
-                <DollarSign className="h-4 w-4 text-primary" />
+              <Label className={tidied ? 'text-sm font-medium text-muted-foreground flex items-baseline gap-2' : 'flex items-center gap-2'}>
+                {!tidied && <DollarSign className="h-4 w-4 text-primary" />}
                 Price range
                 <span className="text-xs text-muted-foreground font-normal ml-1">USD</span>
               </Label>
@@ -320,91 +353,113 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
 
           </div>
 
-          {/* Filters — uniform card-style toggle rows, eyebrow label,
-              subtle hover state. Motivated Sellers gets a brighter cyan
-              wash when enabled (premium accent) but matches the others
-              when off so the section reads as one unified list. */}
-          <div className="border-t border-border/60 pt-4 sm:pt-5 space-y-3">
-            <div className="flex items-center justify-between">
-              <h3 className="text-[11px] font-semibold tracking-[0.14em] text-muted-foreground uppercase">
-                Filters
-              </h3>
-              <span className="text-[10px] text-muted-foreground/70">
-                Refine your results
-              </span>
-            </div>
+          {/* Filters — three rendering paths based on variant:
+                legacy:  full-width ToggleRow stack (current prod)
+                tight:   2-col FilterPill grid (variant A — visible)
+                compact: single "Filters (N)" trigger → Sheet (variant C)
+              Filter state is identical in all three; only the affordance
+              changes. Motivated Sellers gets a brighter cyan wash when
+              enabled (premium accent) in every variant. */}
+          {(() => {
+            const filterDefs = buildFilterDefs(
+              searchParams,
+              setSearchParams,
+              updateParam,
+              allowedForProFeatures,
+              toast,
+            );
+            const activeCount = filterDefs.filter((f) => f.checked).length;
 
-            <div className="space-y-2">
-              <ToggleRow
-                id="auction-toggle"
-                icon={Gavel}
-                label="Hide Auction Properties"
-                description="Filter out auction listings"
-                checked={searchParams.auctionOnly || false}
-                onCheckedChange={(checked) => setSearchParams(prev => ({ ...prev, auctionOnly: checked }))}
-              />
-              <ToggleRow
-                id="foreclosure-toggle"
-                icon={AlertTriangle}
-                label="Hide Foreclosure Properties"
-                description="Filter out foreclosure listings"
-                checked={searchParams.hideForeclosures || false}
-                onCheckedChange={(checked) => setSearchParams(prev => ({ ...prev, hideForeclosures: checked }))}
-              />
-              <ToggleRow
-                id="wholesale-toggle"
-                icon={TrendingDown}
-                iconClass="text-success"
-                label="Most Profitable Only"
-                description="Only properties priced below their Zestimate"
-                checked={searchParams.wholesaleOnly || false}
-                onCheckedChange={(checked) => updateParam('wholesaleOnly', checked)}
-              />
-              <ToggleRow
-                id="fsbo-toggle"
-                icon={Building2}
-                label="FSBO Properties Only"
-                description="Show only For Sale By Owner listings"
-                checked={searchParams.fsboOnly || false}
-                onCheckedChange={(checked) => updateParam('fsboOnly', checked)}
-              />
+            if (variant === 'compact') {
+              /* Variant C — collapse filters into a slide-in Sheet.
+                 Form's vertical footprint drops dramatically; active
+                 count is surfaced in the trigger so users see at a
+                 glance what's applied. */
+              return (
+                <div className="border-t border-border/60 pt-4 sm:pt-5">
+                  <Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
+                    <SheetTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full justify-between h-11"
+                      >
+                        <span className="flex items-center gap-2 text-sm font-medium">
+                          <SlidersHorizontal className="h-4 w-4" />
+                          Filters
+                          {activeCount > 0 && (
+                            <Badge
+                              variant="secondary"
+                              className="text-[10px] gap-1 bg-cyan-500/15 text-cyan-300 border-cyan-500/30"
+                            >
+                              {activeCount} active
+                            </Badge>
+                          )}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {activeCount === 0 ? 'None' : `${activeCount}/${filterDefs.length}`}
+                        </span>
+                      </Button>
+                    </SheetTrigger>
+                    <SheetContent side="right" className="sm:max-w-md">
+                      <SheetHeader>
+                        <SheetTitle>Filters</SheetTitle>
+                      </SheetHeader>
+                      <div className="mt-6">
+                        <FilterPillGrid filters={filterDefs} />
+                      </div>
+                    </SheetContent>
+                  </Sheet>
+                </div>
+              );
+            }
 
-              {/* Motivated Sellers — premium tier, accent when active */}
-              <ToggleRow
-                id="motivated-toggle"
-                icon={Flame}
-                iconClass="text-cyan-400"
-                accent
-                active={!!searchParams.motivatedSellersOnly}
-                label={
-                  <span className="flex items-center gap-1.5">
-                    Motivated Sellers Only
-                    <Badge variant="secondary" className="text-[9px] gap-0.5 bg-cyan-500/10 text-cyan-400 border-cyan-500/30">
-                      <Sparkles className="h-2 w-2" /> Pro / Elite
-                    </Badge>
-                    {!allowedForProFeatures && <Lock className="h-3 w-3 text-muted-foreground" />}
+            if (variant === 'tight') {
+              /* Variant A — keep filters visible but as a compact 2-col
+                 pill grid. Each pill is its own toggle target with a
+                 clear active state; descriptions are surfaced via title
+                 tooltip rather than always-visible body copy. */
+              return (
+                <div className="border-t border-border/60 pt-4 sm:pt-5 space-y-3">
+                  <h3 className="text-sm font-medium text-muted-foreground">
+                    Filters {activeCount > 0 && <span className="text-cyan-400">· {activeCount} active</span>}
+                  </h3>
+                  <FilterPillGrid filters={filterDefs} />
+                </div>
+              );
+            }
+
+            /* Legacy — unchanged production rendering */
+            return (
+              <div className="border-t border-border/60 pt-4 sm:pt-5 space-y-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-[11px] font-semibold tracking-[0.14em] text-muted-foreground uppercase">
+                    Filters
+                  </h3>
+                  <span className="text-[10px] text-muted-foreground/70">
+                    Refine your results
                   </span>
-                }
-                description={
-                  allowedForProFeatures
-                    ? 'FSBO + days-on-market + price cuts + Make Me Move signals'
-                    : <>Combine off-market signals into one filtered view. <Link to="/pricing" className="text-cyan-400 hover:underline">Upgrade</Link></>
-                }
-                checked={searchParams.motivatedSellersOnly || false}
-                disabled={!allowedForProFeatures}
-                onCheckedChange={(checked) => {
-                  if (!allowedForProFeatures) {
-                    toast({
-                      title: 'Pro / Elite feature',
-                      description: 'Upgrade to Pro or Elite to use the motivated-seller pipeline.',
-                    });
-                    return;
-                  }
-                  updateParam('motivatedSellersOnly', checked);
-                }}
-              />
-            </div>
-          </div>
+                </div>
+                <div className="space-y-2">
+                  {filterDefs.map((f) => (
+                    <ToggleRow
+                      key={f.id}
+                      id={f.id}
+                      icon={f.icon}
+                      iconClass={f.iconClass}
+                      label={f.label}
+                      description={f.description}
+                      checked={f.checked}
+                      onCheckedChange={f.onCheckedChange}
+                      disabled={f.disabled}
+                      accent={f.accent}
+                      active={f.checked}
+                    />
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
 
           <Button
             type="submit"
@@ -428,6 +483,187 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
         </form>
       </CardContent>
     </Card>
+  );
+}
+
+/**
+ * Filter definitions extracted from the JSX render so all 3 layout
+ * variants (legacy rows, tight pills, compact sheet) share one source
+ * of truth for filter state + handlers. Returned in display order.
+ */
+function buildFilterDefs(
+  searchParams: PropertySearchParams,
+  setSearchParams: React.Dispatch<React.SetStateAction<PropertySearchParams>>,
+  updateParam: (key: keyof PropertySearchParams, value: string | boolean) => void,
+  allowedForProFeatures: boolean,
+  toast: ReturnType<typeof useToast>['toast'],
+): Array<{
+  id: string;
+  icon: React.ComponentType<{ className?: string }>;
+  iconClass?: string;
+  label: React.ReactNode;
+  shortLabel: string;
+  description: React.ReactNode;
+  checked: boolean;
+  onCheckedChange: (checked: boolean) => void;
+  disabled?: boolean;
+  accent?: boolean;
+}> {
+  return [
+    {
+      id: 'auction-toggle',
+      icon: Gavel,
+      label: 'Hide Auction Properties',
+      shortLabel: 'Hide auctions',
+      description: 'Filter out auction listings',
+      checked: !!searchParams.auctionOnly,
+      onCheckedChange: (checked) => setSearchParams((prev) => ({ ...prev, auctionOnly: checked })),
+    },
+    {
+      id: 'foreclosure-toggle',
+      icon: AlertTriangle,
+      label: 'Hide Foreclosure Properties',
+      shortLabel: 'Hide foreclosures',
+      description: 'Filter out foreclosure listings',
+      checked: !!searchParams.hideForeclosures,
+      onCheckedChange: (checked) => setSearchParams((prev) => ({ ...prev, hideForeclosures: checked })),
+    },
+    {
+      id: 'wholesale-toggle',
+      icon: TrendingDown,
+      iconClass: 'text-success',
+      label: 'Most Profitable Only',
+      shortLabel: 'Most profitable',
+      description: 'Only properties priced below their Zestimate',
+      checked: !!searchParams.wholesaleOnly,
+      onCheckedChange: (checked) => updateParam('wholesaleOnly', checked),
+    },
+    {
+      id: 'fsbo-toggle',
+      icon: Building2,
+      label: 'FSBO Properties Only',
+      shortLabel: 'FSBO only',
+      description: 'Show only For Sale By Owner listings',
+      checked: !!searchParams.fsboOnly,
+      onCheckedChange: (checked) => updateParam('fsboOnly', checked),
+    },
+    {
+      id: 'motivated-toggle',
+      icon: Flame,
+      iconClass: 'text-cyan-400',
+      accent: true,
+      label: (
+        <span className="flex items-center gap-1.5">
+          Motivated Sellers Only
+          <Badge variant="secondary" className="text-[9px] gap-0.5 bg-cyan-500/10 text-cyan-400 border-cyan-500/30">
+            <Sparkles className="h-2 w-2" /> Pro / Elite
+          </Badge>
+          {!allowedForProFeatures && <Lock className="h-3 w-3 text-muted-foreground" />}
+        </span>
+      ),
+      shortLabel: 'Motivated sellers',
+      description: allowedForProFeatures
+        ? 'FSBO + days-on-market + price cuts + Make Me Move signals'
+        : (
+          <>
+            Combine off-market signals into one filtered view.{' '}
+            <Link to="/pricing" className="text-cyan-400 hover:underline">Upgrade</Link>
+          </>
+        ),
+      checked: !!searchParams.motivatedSellersOnly,
+      disabled: !allowedForProFeatures,
+      onCheckedChange: (checked) => {
+        if (!allowedForProFeatures) {
+          toast({
+            title: 'Pro / Elite feature',
+            description: 'Upgrade to Pro or Elite to use the motivated-seller pipeline.',
+          });
+          return;
+        }
+        updateParam('motivatedSellersOnly', checked);
+      },
+    },
+  ];
+}
+
+/**
+ * Compact pill-style filter grid — used by both the `tight` (always
+ * visible) and `compact` (inside Sheet) variants. Each filter is a
+ * clickable button with explicit active state; long-form description
+ * surfaces via `title` tooltip + `aria-label` so screen readers still
+ * receive the full context.
+ *
+ * Two columns on sm+, single column on mobile. Motivated Sellers spans
+ * both columns so the Pro/Elite badge + upgrade copy has room to breathe.
+ */
+function FilterPillGrid({
+  filters,
+}: {
+  filters: ReturnType<typeof buildFilterDefs>;
+}) {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+      {filters.map((f) => {
+        const isMotivated = f.id === 'motivated-toggle';
+        const description = typeof f.description === 'string' ? f.description : undefined;
+        const accentActive = f.accent && f.checked;
+        return (
+          <button
+            key={f.id}
+            type="button"
+            id={f.id}
+            onClick={() => f.onCheckedChange(!f.checked)}
+            disabled={f.disabled}
+            title={description}
+            aria-pressed={f.checked}
+            aria-label={f.shortLabel}
+            className={[
+              'group flex items-center justify-between gap-2 rounded-lg border px-3 py-2.5 text-left transition-all duration-150',
+              isMotivated ? 'sm:col-span-2' : '',
+              f.disabled ? 'opacity-60 cursor-not-allowed' : 'hover:bg-background/40',
+              accentActive
+                ? 'border-cyan-500/60 bg-cyan-500/[0.08] shadow-[0_0_0_1px_rgba(6,182,212,0.2)]'
+                : f.checked
+                  ? 'border-cyan-500/50 bg-cyan-500/[0.05]'
+                  : 'border-border/60 hover:border-border',
+            ].join(' ')}
+          >
+            <span className="flex items-center gap-2.5 min-w-0">
+              <f.icon
+                className={[
+                  'h-4 w-4 shrink-0 transition-colors',
+                  f.checked ? 'text-cyan-300' : f.iconClass || 'text-muted-foreground',
+                ].join(' ')}
+              />
+              <span className="flex flex-col min-w-0">
+                <span className={[
+                  'text-sm font-medium leading-tight truncate',
+                  f.checked ? 'text-foreground' : 'text-muted-foreground',
+                ].join(' ')}>
+                  {f.label}
+                </span>
+                {isMotivated && (
+                  <span className="text-[11px] text-muted-foreground/80 leading-snug mt-0.5">
+                    {f.description}
+                  </span>
+                )}
+              </span>
+            </span>
+            <span
+              className={[
+                'shrink-0 h-5 w-5 rounded-full border flex items-center justify-center transition-all',
+                f.checked
+                  ? 'border-cyan-400 bg-cyan-400 text-cyan-950'
+                  : 'border-border/60 text-transparent group-hover:border-border',
+              ].join(' ')}
+              aria-hidden="true"
+            >
+              <Check className="h-3 w-3" />
+            </span>
+          </button>
+        );
+      })}
+    </div>
   );
 }
 
