@@ -1,6 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { SEOHead } from '@/components/SEOHead';
+import { CalculatorSchema } from '@/components/CalculatorSchema';
+import { CALCULATOR_METADATA } from '@/data/calculator-metadata';
 import { PublicLayout } from '@/components/PublicLayout';
 import { Slider } from '@/components/ui/slider';
 import { Target, DollarSign, Sparkles, ChevronRight, BarChart3 } from 'lucide-react';
@@ -50,6 +52,7 @@ export default function OfferPriceCalculator() {
         keywords="70 percent rule calculator, mao calculator real estate, maximum allowable offer calculator, wholesale offer calculator, 70% rule, real estate offer calculator, flip deal calculator"
       />
 
+      <CalculatorSchema {...CALCULATOR_METADATA['offer-price-calculator']} />
       {/* Hero */}
       <section className="pt-24 pb-8 px-4">
         <div className="container mx-auto text-center max-w-3xl">

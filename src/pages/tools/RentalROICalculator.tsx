@@ -1,6 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { SEOHead } from '@/components/SEOHead';
+import { CalculatorSchema } from '@/components/CalculatorSchema';
+import { CALCULATOR_METADATA } from '@/data/calculator-metadata';
 import { PublicLayout } from '@/components/PublicLayout';
 import { DollarSign, Sparkles, ChevronRight, TrendingUp, Info, Building2 } from 'lucide-react';
 
@@ -121,6 +123,7 @@ export default function RentalROICalculator() {
         keywords="rental roi calculator, cash on cash return calculator, rental property calculator, cap rate calculator, rental cash flow calculator, investment property roi, real estate return calculator"
       />
 
+      <CalculatorSchema {...CALCULATOR_METADATA['rental-roi-calculator']} />
       {/* Hero */}
       <section className="pt-24 pb-8 px-4">
         <div className="container mx-auto text-center max-w-3xl">

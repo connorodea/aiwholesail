@@ -1,6 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { SEOHead } from '@/components/SEOHead';
+import { CalculatorSchema } from '@/components/CalculatorSchema';
+import { CALCULATOR_METADATA } from '@/data/calculator-metadata';
 import { PublicLayout } from '@/components/PublicLayout';
 import { Hammer, DollarSign, Sparkles, ChevronRight, AlertTriangle } from 'lucide-react';
 import { usePrefill } from '@/lib/property-prefill';
@@ -118,6 +120,7 @@ export default function RehabEstimator() {
         keywords="rehab cost estimator, renovation cost calculator, rehab budget calculator, property renovation costs, fix and flip cost estimator, real estate rehab costs"
       />
 
+      <CalculatorSchema {...CALCULATOR_METADATA['rehab-estimator']} />
       {/* Hero */}
       <section className="pt-24 pb-8 px-4">
         <div className="container mx-auto text-center max-w-3xl">

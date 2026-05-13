@@ -1,6 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { SEOHead } from '@/components/SEOHead';
+import { CalculatorSchema } from '@/components/CalculatorSchema';
+import { CALCULATOR_METADATA } from '@/data/calculator-metadata';
 import { PublicLayout } from '@/components/PublicLayout';
 import { Home, DollarSign, Percent, Shield, Building2, ArrowRight } from 'lucide-react';
 
@@ -87,6 +89,7 @@ export default function MortgageCalculator() {
         keywords="mortgage calculator, monthly mortgage payment, amortization schedule, home loan calculator, mortgage interest calculator, real estate calculator"
       />
 
+      <CalculatorSchema {...CALCULATOR_METADATA['mortgage-calculator']} />
       {/* Hero */}
       <section className="pt-24 pb-8 px-4">
         <div className="container mx-auto max-w-5xl text-center">

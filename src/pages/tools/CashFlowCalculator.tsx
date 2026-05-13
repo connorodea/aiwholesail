@@ -1,6 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { SEOHead } from '@/components/SEOHead';
+import { CalculatorSchema } from '@/components/CalculatorSchema';
+import { CALCULATOR_METADATA } from '@/data/calculator-metadata';
 import { PublicLayout } from '@/components/PublicLayout';
 import { DollarSign, Percent, ArrowRight, Wallet, TrendingUp, TrendingDown, Building2 } from 'lucide-react';
 
@@ -101,6 +103,7 @@ export default function CashFlowCalculator() {
         keywords="cash flow calculator, rental property calculator, cash on cash return calculator, cap rate calculator, rental income calculator, investment property analysis, real estate ROI calculator"
       />
 
+      <CalculatorSchema {...CALCULATOR_METADATA['cash-flow-calculator']} />
       {/* Hero */}
       <section className="pt-24 pb-8 px-4">
         <div className="container mx-auto max-w-5xl text-center">
