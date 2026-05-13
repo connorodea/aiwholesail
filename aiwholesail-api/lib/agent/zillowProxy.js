@@ -51,6 +51,11 @@ const SCRAPE_DO_ACTIONS = {
   taxes: zillowScrapeDo.taxes,
   priceHistory: zillowScrapeDo.priceHistory,
   zestimate: zillowScrapeDo.zestimate,
+  // `rentalEstimate` action is what the frontend's enrichWithZestimates
+  // sends for batch rent lookups. Maps to propertyDetails on the scraper
+  // side (Zillow's detail page exposes both sale + rent Zestimates from
+  // the same __NEXT_DATA__ blob).
+  rentalEstimate: zillowScrapeDo.rentalEstimate,
   zestimateHistory: zillowScrapeDo.zestimateHistory,
   schools: zillowScrapeDo.schools,
   comps: zillowScrapeDo.comps,

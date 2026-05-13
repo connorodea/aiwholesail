@@ -57,4 +57,59 @@ router.post('/proxy', authenticate, asyncHandler(async (req, res) => {
   }
 }));
 
+/**
+ * POST /api/zillow/proxy/batch-zestimates
+ *
+ * Frontend `enrichWithZestimates` (src/lib/zillow-api.ts) computes the
+ * batch URL by stripping a trailing `/zillow` from ZILLOW_API_URL and
+ * appending `/batch-zestimates`. After PR #313 switched the URL to
+ * `/api/zillow/proxy`, that regex no longer matches and the resulting
+ * path becomes `/api/zillow/proxy/batch-zestimates` — which had no
+ * route until now (live 404s for every search that completed).
+ *
+ * This handler fans out to proxyZillow('zestimate', {zpid}) per zpid
+ * with bounded concurrency (8) so a 50-zpid batch finishes in ~3-5s
+ * instead of 20+s sequential. Failed zpids resolve to null; the
+ * caller already tolerates that.
+ *
+ * Body:   { zpids: string[] }       (max 100 per call)
+ * Reply:  { success: true, data: { [zpid]: number|null } }
+ */
+router.post('/proxy/batch-zestimates', authenticate, asyncHandler(async (req, res) => {
+  const zpids = Array.isArray(req.body?.zpids) ? req.body.zpids.filter((z) => typeof z === 'string' && z) : null;
+  if (!zpids || zpids.length === 0) {
+    return res.status(400).json({ success: false, error: 'zpids array required' });
+  }
+  if (zpids.length > 100) {
+    return res.status(400).json({ success: false, error: 'max 100 zpids per batch' });
+  }
+
+  const rateLimit = await checkDatabaseRateLimit(req.user.id, 'zillow-proxy', 60, 1);
+  if (!rateLimit.allowed) {
+    return res.status(429).json({ success: false, error: 'Rate limit exceeded' });
+  }
+
+  // Concurrency-bounded fan-out. The standalone proxy + scrape.do both
+  // get hit per-zpid; 8 in flight gives ~4s wall-clock for 50 zpids
+  // without blowing the upstream rate limits.
+  const CONCURRENCY = 8;
+  const data = {};
+  let idx = 0;
+  const workers = new Array(Math.min(CONCURRENCY, zpids.length)).fill(0).map(async () => {
+    while (idx < zpids.length) {
+      const zpid = zpids[idx++];
+      try {
+        const r = await proxyZillow('zestimate', { zpid }, { userId: req.user.id });
+        // Normalize: proxy returns either {zestimate: N} or N directly.
+        data[zpid] = typeof r === 'number' ? r : (r?.zestimate ?? r?.value ?? null);
+      } catch (err) {
+        // Single-zpid failure shouldn't kill the batch.
+        data[zpid] = null;
+      }
+    }
+  });
+  await Promise.all(workers);
+  res.json({ success: true, data });
+}));
+
 module.exports = router;

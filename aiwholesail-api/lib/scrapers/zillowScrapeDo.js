@@ -1399,6 +1399,24 @@ async function marketStats(args = {}) {
   return normalizeMarketStats(record);
 }
 
+// `rentalEstimate` is the action name the frontend uses when it wants
+// the rent estimate for a property. Zillow's detail page exposes both
+// the sale Zestimate AND the Rent Zestimate from the same JSON blob, so
+// `propertyDetails` carries both — we just re-key under the action name
+// the caller expects. Without this alias the action falls through to
+// the RapidAPI primary; if that quota'd out, the user saw 500s.
+async function rentalEstimate(args = {}) {
+  const r = await propertyDetails(args);
+  return {
+    zpid: r?.zpid,
+    rentZestimate: r?.rentZestimate ?? null,
+    rentZestimateLow: r?.rentZestimateLow ?? null,
+    rentZestimateHigh: r?.rentZestimateHigh ?? null,
+    // Preserve the rest so callers that read other fields don't break.
+    ...r,
+  };
+}
+
 module.exports = {
   ZillowScrapeError,
   // Detail-class:
@@ -1407,6 +1425,7 @@ module.exports = {
   taxes,
   priceHistory,
   zestimate,
+  rentalEstimate,
   schools,
   comps,
   zestimateHistory,
