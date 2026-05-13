@@ -186,6 +186,44 @@ export default function Pricing() {
             }
           })}
         </script>
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "How does the AIWholesail 7-day free trial work?",
+                "acceptedAnswer": { "@type": "Answer", "text": "Sign up with email — no credit card required. You get full access for 7 days. On day 7, AIWholesail asks for a card to continue. If you don't convert, your account stays accessible read-only for 30 days." }
+              },
+              {
+                "@type": "Question",
+                "name": "Can I cancel my AIWholesail subscription anytime?",
+                "acceptedAnswer": { "@type": "Answer", "text": "Yes. Cancel self-serve in Account → Subscription, anytime. Cancellation takes effect at the end of the current billing cycle." }
+              },
+              {
+                "@type": "Question",
+                "name": "Does AIWholesail offer refunds?",
+                "acceptedAnswer": { "@type": "Answer", "text": "Pro-rated refunds within 7 days of charge for any reason. Beyond 7 days we evaluate case-by-case — most legitimate refund requests are honored." }
+              },
+              {
+                "@type": "Question",
+                "name": "Can I switch between AIWholesail Pro and Elite?",
+                "acceptedAnswer": { "@type": "Answer", "text": "Upgrade from Pro to Elite anytime — Stripe pro-rates the difference. Downgrade Elite to Pro at the end of your current billing cycle." }
+              },
+              {
+                "@type": "Question",
+                "name": "Is there an AIWholesail annual plan or discount?",
+                "acceptedAnswer": { "@type": "Answer", "text": "Monthly billing only at this time. Founders can request custom annual pricing by emailing connor@aiwholesail.com — typically a 15-20% discount." }
+              },
+              {
+                "@type": "Question",
+                "name": "What's the difference between AIWholesail Pro and Elite?",
+                "acceptedAnswer": { "@type": "Answer", "text": "Pro ($49/mo): 10 searches/day, 5 alert locations, 25 skip traces/month, 10 AI analyses/month. Elite ($99/mo): unlimited searches and analysis, 200 skip traces/month, real-time 4-hour updates, priority founder-direct support." }
+              }
+            ]
+          })}
+        </script>
       </Helmet>
 
       {/* ===== HERO ===== */}
@@ -322,6 +360,52 @@ export default function Pricing() {
 
       {/* Fade dark to white */}
       <div className="h-24 bg-gradient-to-b from-background to-background" />
+
+      {/* ===== PRICING FAQ ===== */}
+      <motion.section className="py-16 px-4" {...sectionFadeIn}>
+        <div className="container mx-auto max-w-3xl">
+          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-4 text-center">Pricing FAQ</p>
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-center mb-10">
+            Questions about pricing.
+          </h2>
+          <div className="space-y-4">
+            {[
+              {
+                q: 'How does the 7-day free trial work?',
+                a: 'Sign up with email — no credit card required. You get full access to every feature on the plan you pick for 7 days. On day 7, we ask for a card to continue. If you don\'t convert, your account stays accessible (read-only) for 30 days in case you change your mind.',
+              },
+              {
+                q: 'Can I cancel anytime?',
+                a: 'Yes. Cancel self-serve in Account → Subscription, anytime. Cancellation takes effect at the end of the current billing cycle. We will not block your cancellation — if you try and can\'t, email connor@aiwholesail.com directly.',
+              },
+              {
+                q: 'Do you offer refunds?',
+                a: 'Pro-rated refunds within 7 days of charge for any reason. Beyond 7 days we evaluate case-by-case — most legitimate refund requests are honored. Email connor@aiwholesail.com with the Stripe receipt.',
+              },
+              {
+                q: 'Can I switch between Pro and Elite?',
+                a: 'Upgrade from Pro to Elite anytime — Stripe pro-rates the difference. Downgrade Elite to Pro at the end of your current billing cycle (so you don\'t lose features mid-month). Switches are immediate in the app.',
+              },
+              {
+                q: 'Is there an annual plan or discount?',
+                a: 'Monthly billing only at this time. Founders can request custom annual pricing by emailing connor@aiwholesail.com — we typically discount 15-20% for annual on Elite.',
+              },
+              {
+                q: 'What\'s the difference between Pro and Elite again?',
+                a: 'Pro ($49/mo): 10 searches/day, 5 alert locations, 25 skip traces/month, 10 AI analyses/month. Elite ($99/mo): unlimited searches and analysis, 200 skip traces/month, real-time updates every 4 hours, priority founder-direct support. Detailed comparison above.',
+              },
+            ].map((f, i) => (
+              <div
+                key={i}
+                className="border border-foreground/[0.06] bg-foreground/[0.02] rounded-xl p-6"
+              >
+                <h3 className="text-base md:text-lg font-semibold text-foreground mb-2">{f.q}</h3>
+                <p className="text-sm md:text-base text-foreground/70 font-light leading-relaxed">{f.a}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </motion.section>
 
       {/* ===== CTA -- LIGHT ===== */}
       <motion.section className="py-24 px-4" {...sectionFadeIn}>
