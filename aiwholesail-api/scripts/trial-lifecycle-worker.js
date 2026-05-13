@@ -123,8 +123,9 @@ const MILESTONES = [
       JOIN subscribers s ON s.user_id = u.id
       LEFT JOIN trial_lifecycle_emails_sent e
         ON e.user_id = u.id AND e.email_type = 'day_zero'
-      WHERE s.trial_end BETWEEN NOW() - INTERVAL '24 hours' AND NOW() + INTERVAL '5 minutes'
+      WHERE s.trial_end BETWEEN NOW() - INTERVAL '24 hours' AND NOW()
         AND e.id IS NULL
+        AND s.is_trial = true
     `,
     render: renderDayZero,
   },

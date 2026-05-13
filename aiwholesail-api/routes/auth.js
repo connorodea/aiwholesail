@@ -1233,6 +1233,26 @@ router.get('/trial-upgrade', asyncHandler(async (req, res) => {
     return res.status(404).send('User not found');
   }
   const user = userResult.rows[0];
+
+  // Paid-user gate: if this user already has a paid subscription, do NOT
+  // create a second checkout session. Stripe would happily create a second
+  // subscription and double-charge them. Send them to /account instead.
+  // Trigger: paid user clicks an old magic-link from before they converted,
+  // or webhook lag causes a day_zero email to fire after they paid.
+  const subRow = await query(
+    `SELECT subscribed, is_trial, subscription_end
+       FROM subscribers WHERE user_id = $1 LIMIT 1`,
+    [user.id]
+  );
+  if (subRow.rows.length > 0) {
+    const r = subRow.rows[0];
+    const isPaid = r.subscribed && !r.is_trial &&
+      (!r.subscription_end || new Date(r.subscription_end) > new Date());
+    if (isPaid) {
+      return res.redirect(302, `${frontendUrl()}/account?notice=already-subscribed`);
+    }
+  }
+
   const plan = decoded.plan === 'Elite' ? 'Elite' : 'Pro';
   const targetAmount = plan === 'Elite' ? 9900 : 4900;
 
