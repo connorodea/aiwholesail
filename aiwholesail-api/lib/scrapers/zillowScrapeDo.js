@@ -371,10 +371,25 @@ const STATUS_TO_ZILLOW = {
  * Build the canonical /homes/<location>_rb/ URL Zillow uses for any
  * location-string search. The slug is forgiving — Zillow's frontend
  * normalizes "Austin, TX 78701" → "austin-tx-78701".
+ *
+ * Compound-case names need a hyphen at the internal case-break BEFORE
+ * lowercasing. Zillow's canonical slugs:
+ *   "DeKalb County, AL"  → "de-kalb-county-al"  (NOT "dekalb-county-al")
+ *   "McKinney, TX"       → "mc-kinney-tx"
+ *   "LaGrange, GA"       → "la-grange-ga"
+ * Without the case-break insertion, the page renders but the search
+ * results widget is absent — Zillow doesn't recognise the location and
+ * scraping fails with `no_list_results`.
+ *
+ * Discovered live on 2026-05-13 against DeKalb County, AL (real customer
+ * search). The `[a-z][A-Z]` regex handles all the common "MacXxxx"
+ * compound-name patterns. Acronyms like "USA" with no internal lowercase
+ * are unaffected.
  */
 function searchUrlForLocation(location) {
   const slug = String(location)
     .trim()
+    .replace(/([a-z])([A-Z])/g, '$1-$2')
     .toLowerCase()
     .replace(/,/g, '')
     .replace(/\s+/g, '-');

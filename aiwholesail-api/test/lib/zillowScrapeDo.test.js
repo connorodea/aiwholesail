@@ -204,6 +204,32 @@ test('searchUrlForLocation', () => {
     searchUrlForLocation('  Oxford, MI 48371  '),
     'https://www.zillow.com/homes/oxford-mi-48371_rb/'
   );
+
+  // Compound-case names: Zillow inserts a hyphen at the internal case-break.
+  // Without this normalization the page loads but listResults is missing
+  // (Zillow doesn't recognise "dekalb-county-al" — only "de-kalb-county-al").
+  // Confirmed live 2026-05-13 against a real customer search.
+  assert.equal(
+    searchUrlForLocation('DeKalb County, AL'),
+    'https://www.zillow.com/homes/de-kalb-county-al_rb/'
+  );
+  assert.equal(
+    searchUrlForLocation('McKinney, TX'),
+    'https://www.zillow.com/homes/mc-kinney-tx_rb/'
+  );
+  assert.equal(
+    searchUrlForLocation('LaGrange, GA'),
+    'https://www.zillow.com/homes/la-grange-ga_rb/'
+  );
+  // All-uppercase strings (acronyms) and lowercase strings are unaffected:
+  assert.equal(
+    searchUrlForLocation('USA'),
+    'https://www.zillow.com/homes/usa_rb/'
+  );
+  assert.equal(
+    searchUrlForLocation('austin, tx'),
+    'https://www.zillow.com/homes/austin-tx_rb/'
+  );
 });
 
 test('findListResults + findTotalResultCount', async (t) => {
