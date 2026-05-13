@@ -11,7 +11,8 @@ import { applyPreEnrichmentToggles } from '@/lib/property-filters';
 import { scoreAllProperties, filterMotivatedSellers, MIN_MOTIVATED_SCORE } from '@/lib/motivated-seller-score';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { User, Download, Bell, MessageSquare, GitCompareArrows, Check } from 'lucide-react';
+import { User, Download, Bell, MessageSquare, GitCompareArrows, Check, LayoutGrid, Map as MapIcon } from 'lucide-react';
+import { lazy, Suspense } from 'react';
 import { communications, property as propertyApi } from '@/lib/api-client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useFavorites } from '@/hooks/useFavorites';
@@ -43,6 +44,12 @@ import { SaveSearchAsAlertDialog } from '@/components/SaveSearchAsAlertDialog';
 import { AlertOnboardingBanner } from '@/components/AlertOnboardingBanner';
 import { TrialCountdownBanner } from '@/components/TrialCountdownBanner';
 import { SearchLoadingState } from '@/components/SearchLoadingState';
+// PropertyMap is heavy (Leaflet + react-leaflet + leaflet.heat ≈ 80KB
+// gzipped). Lazy-load so the markers view only pays the bundle cost
+// when the user explicitly switches to it.
+const PropertyMapLazy = lazy(() =>
+  import('@/components/PropertyMap').then((m) => ({ default: m.PropertyMap }))
+);
 import { RealtimeProgressBar } from '@/components/RealtimeProgressBar';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
@@ -70,6 +77,12 @@ export default function RealEstateWholesaler() {
   // bookmarks to /app?mode=off-market degrade silently to the legacy view
   // instead of breaking.
   const { enabled: unifiedSearchEnabled } = useFeatureFlag('unified-search');
+  // On-market heatmap toggle. Same flag PropertyMap reads internally —
+  // we re-check here to gate the toggle UI (Cards vs Map) so users
+  // without the flag never see the toggle (and the heavy PropertyMap
+  // chunk is never lazy-loaded).
+  const { enabled: onMarketHeatmapEnabled } = useFeatureFlag('on-market-heatmap');
+  const [resultsView, setResultsView] = useState<'cards' | 'map'>('cards');
 
   const [searchParams, setSearchParams] = useSearchParams();
   const urlMode = searchParams.get('mode') === 'off-market' ? 'off-market' : 'on-market';
@@ -665,6 +678,36 @@ export default function RealEstateWholesaler() {
 
                   {user && properties.length > 0 && (
                     <div className="flex items-center gap-2 flex-wrap -mx-4 px-4 sm:mx-0 sm:px-0 overflow-x-auto sm:overflow-visible scrollbar-none">
+                      {/* Cards / Map toggle — flag-gated. Map view lazy-loads
+                          the PropertyMap chunk (Leaflet + leaflet.heat).
+                          When user has the on-market-heatmap flag, they can
+                          flip to the heatmap inside the map view. */}
+                      {onMarketHeatmapEnabled && (
+                        <div className="inline-flex items-center h-9 rounded-md border border-border overflow-hidden text-sm font-medium" role="group" aria-label="Results view">
+                          <button
+                            type="button"
+                            onClick={() => setResultsView('cards')}
+                            className={`px-3 h-9 flex items-center gap-1.5 transition-colors ${
+                              resultsView === 'cards'
+                                ? 'bg-cyan-500/10 text-cyan-400'
+                                : 'bg-transparent text-neutral-400 hover:text-neutral-200'
+                            }`}
+                          >
+                            <LayoutGrid className="h-4 w-4" /> Cards
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setResultsView('map')}
+                            className={`px-3 h-9 flex items-center gap-1.5 border-l border-border transition-colors ${
+                              resultsView === 'map'
+                                ? 'bg-cyan-500/10 text-cyan-400'
+                                : 'bg-transparent text-neutral-400 hover:text-neutral-200'
+                            }`}
+                          >
+                            <MapIcon className="h-4 w-4" /> Map
+                          </button>
+                        </div>
+                      )}
                       <div
                         className={`flex items-center gap-2 h-9 px-3 rounded-md border text-sm font-medium smooth-transition ${
                           hideNegativeSpreads
@@ -835,7 +878,26 @@ export default function RealEstateWholesaler() {
                   onSelectProperty={setSelectedProperty}
                 />
 
-                <div className="property-grid">
+                {/* Map view — replaces the card grid when toggled. Lazy-loaded
+                    so the Leaflet bundle only pays its weight on demand. The
+                    PropertyMap component itself contains the Markers ↔ Heatmap
+                    sub-toggle (also flag-gated by `on-market-heatmap`). */}
+                {onMarketHeatmapEnabled && resultsView === 'map' && (
+                  <Suspense
+                    fallback={
+                      <div className="flex items-center justify-center h-[500px] rounded-2xl border border-white/[0.06] bg-white/[0.02] text-sm text-neutral-400">
+                        Loading map…
+                      </div>
+                    }
+                  >
+                    <PropertyMapLazy
+                      properties={visibleProperties}
+                      onSelectProperty={setSelectedProperty}
+                    />
+                  </Suspense>
+                )}
+
+                <div className={`property-grid ${onMarketHeatmapEnabled && resultsView === 'map' ? 'hidden' : ''}`}>
                   {[...visibleProperties].sort((a, b) => {
                     switch (sortBy) {
                       case 'price-high':
