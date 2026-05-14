@@ -4,9 +4,10 @@
  */
 const express = require('express');
 const { asyncHandler } = require('../middleware/errorHandler');
-const { proxyHandler } = require('../handlers/rapidapiZillow');
+const { proxyHandler, batchHandler } = require('../handlers/rapidapiZillow');
 
 const router = express.Router();
 router.post('/proxy', asyncHandler(proxyHandler));
+router.post('/proxy/batch-zestimates', asyncHandler(batchHandler));
 
 module.exports = router;
