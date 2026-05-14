@@ -27,6 +27,7 @@ const { authenticate } = require('../middleware/auth');
 const { asyncHandler } = require('../middleware/errorHandler');
 const { checkDatabaseRateLimit } = require('../middleware/rateLimit');
 const { proxyZillow } = require('../lib/agent/zillowProxy');
+const { ZillowScrapeError } = require('../lib/scrapers/zillowScrapeDo');
 
 const router = express.Router();
 
@@ -49,9 +50,34 @@ router.post('/proxy', authenticate, asyncHandler(async (req, res) => {
     const data = await proxyZillow(action, searchParams || {}, { userId: req.user.id });
     res.json({ success: true, data });
   } catch (err) {
-    // proxyZillow throws the ORIGINAL RapidAPI error when both backends
-    // fail (preserved error shape contract). Log + return 500 with the
-    // existing `{ success: false, error }` envelope the frontend expects.
+    // Distinguish "Zillow simply didn't surface this widget on this listing"
+    // (a normal absence-of-data signal) from "the backend is broken." The
+    // scraper throws ZillowScrapeError with reason='no_data_in_payload' when
+    // a property lacks walkScore / climate / comparableRentals, and
+    // reason='no_property_in_payload' when the listing itself is gone
+    // (old / removed / regional block). Both are 200-with-null cases —
+    // returning 500 here would page on-call for a legitimate empty result
+    // and force the frontend to render an "API error" toast instead of
+    // "Not available for this listing."
+    // Restrict the 200-translation to errors thrown by the scraper itself.
+    // Plain `Error`s from the RapidAPI fallback path (`callRapidApiProxy`)
+    // never carry these `reason` values today, but tightening to
+    // `instanceof ZillowScrapeError` keeps the contract explicit: only the
+    // scraper's documented no-data signals get the soft 200, never an
+    // unrelated future error that happens to grow a `.reason` field.
+    if (
+      err instanceof ZillowScrapeError &&
+      (err.reason === 'no_data_in_payload' || err.reason === 'no_property_in_payload')
+    ) {
+      // Info-level (not error) so observability can confirm the no-data path
+      // is dominant during the first weeks of this translation. Drop once
+      // the volume is understood — tracked as TD-028.
+      console.log(`[zillow-proxy] no-data passthrough action=${action} reason=${err.reason}`);
+      return res.json({ success: true, data: null, reason: err.reason });
+    }
+    // proxyZillow throws the ORIGINAL scrape.do/RapidAPI error when both
+    // backends fail (preserved error shape contract). Log + return 500 with
+    // the existing `{ success: false, error }` envelope the frontend expects.
     console.error(`[zillow-proxy] both backends failed for action=${action}: ${err.message}`);
     res.status(500).json({ success: false, error: err.message || 'Zillow proxy error' });
   }
