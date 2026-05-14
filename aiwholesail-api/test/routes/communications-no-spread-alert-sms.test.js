@@ -16,7 +16,7 @@
  *   The code reviewer of #374 flagged this as Important #2 — dead code
  *   that "stays without a frontend caller" and risks a future engineer
  *   re-attaching an SMS sender. The bucket also occupies a slot in the
- *   `database_rate_limits` namespace forever for no reason.
+ *   `rate_limits` namespace forever for no reason.
  *
  *   This test asserts the dead code is gone. If anyone reintroduces it
  *   (e.g., by reverting #374 partially, or by adding a new SMS-alert
@@ -105,24 +105,35 @@ test('SMS spread-alert dead-code cleanup — regression guard', async (t) => {
       '`spread-alert-sms` rate-limit bucket. This bucket only existed inside ' +
       'the POST /spread-alert handler — its presence means the dead route was ' +
       'partially revived or a stray reference was left behind. Remove it; the ' +
-      'database_rate_limits namespace shouldn\'t carry orphan slots.'
+      'rate_limits namespace shouldn\'t carry orphan slots.'
     );
   });
 
   await t.test('other communications routes are preserved (not over-deletion)', () => {
     const source = read(COMMS_ROUTE);
 
-    // Sanity: the OTHER routes in this file (send-email, send-sms for sequence
-    // outreach, etc.) must still exist. If a cleanup PR accidentally deleted
-    // the wrong thing, this catches it. The send-sms route here is for the
-    // *sequences* outbound feature (separate product surface), not for
-    // property alerts — must stay.
-    assert.match(
-      source,
-      /router\.(post|get|put|delete|patch)\s*\(/,
-      'communications.js must still define at least one route — accidental ' +
-      'full-file deletion check.'
-    );
+    // The other routes in this file must still exist after the cleanup.
+    // /sms/send is the *sequences* outbound feature (separate product
+    // surface from property alerts — must stay). /call/answer is the
+    // Twilio webhook target for /call/make. Checking each path literal
+    // rather than just "any router.<verb>(" catches the case where a
+    // future cleanup deletes 5 of 6 routes but leaves 1 — the looser
+    // assertion would pass and miss the bug.
+    const survivingRoutes = [
+      "router.post('/email/send'",
+      "router.post('/sms/send'",
+      "router.post('/call/make'",
+      "router.get('/call/answer'",
+      "router.post('/campaign'",
+    ];
+    for (const route of survivingRoutes) {
+      assert.ok(
+        source.includes(route),
+        `communications.js must still define ${route}. The cleanup PR ` +
+        `should have removed ONLY the /spread-alert handler. If any of ` +
+        `the other routes vanished, an over-deletion happened.`
+      );
+    }
   });
 
   await t.test('alert-worker Twilio scaffolding is intentionally PRESERVED (not in scope of this cleanup)', () => {
