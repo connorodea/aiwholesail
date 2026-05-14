@@ -35,6 +35,7 @@ const unsubscribeRoutes = require('./routes/unsubscribe');
 const adminRoutes = require('./routes/admin');
 const agentsRoutes = require('./routes/agents');
 const campaignsRoutes = require('./routes/campaigns');
+const inboxRoutes = require('./routes/inbox');
 
 // Import middleware
 const { errorHandler } = require('./middleware/errorHandler');
@@ -173,6 +174,9 @@ app.use('/api/buyers', buyersRoutes);
 // (see migration 025_email_campaigns_v2_flag.sql).
 app.use('/api/agents', authenticate, requireFlag('email-campaigns-v2'), agentsRoutes);
 app.use('/api/campaigns', authenticate, requireFlag('email-campaigns-v2'), campaignsRoutes);
+// Inbox — paginated view of inbound replies, plus mark-read. Same flag gate
+// as agents/campaigns since it's the receiving half of email-campaigns-v2.
+app.use('/api/inbox', authenticate, requireFlag('email-campaigns-v2'), inboxRoutes);
 app.use('/api/sequences', sequencesRoutes);
 app.use('/api/contracts', contractsRoutes);
 app.use('/api/contact', contactRoutes);

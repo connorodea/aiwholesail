@@ -31,7 +31,7 @@ const { body, param, validationResult } = require('express-validator');
 const { Pool } = require('pg');
 const { authenticate } = require('../middleware/auth');
 const { asyncHandler } = require('../middleware/errorHandler');
-const { getSender } = require('../lib/senders');
+const { getSender, getReplyTo } = require('../lib/senders');
 const { Resend } = require('resend');
 const { nextAllowedSendTime } = require('../lib/campaign-scheduling');
 
@@ -635,12 +635,15 @@ router.post('/test-send', authenticate, [
 
   try {
     const fromAddress = getSender('outreach');
-    const send = await resend.emails.send({
+    const replyTo = getReplyTo('outreach');
+    const sendPayload = {
       from: fromAddress,
       to,
       subject: renderedSubject,
       text: renderedBody,
-    });
+    };
+    if (replyTo) sendPayload.reply_to = replyTo;
+    const send = await resend.emails.send(sendPayload);
     if (send.error) {
       return res.status(502).json({ ok: false, error: send.error.message || 'Resend error' });
     }

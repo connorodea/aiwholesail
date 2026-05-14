@@ -7,7 +7,7 @@ const { authenticate } = require('../middleware/auth');
 const { asyncHandler, logSecurityEvent } = require('../middleware/errorHandler');
 const { checkDatabaseRateLimit } = require('../middleware/rateLimit');
 const { apiUrl } = require('../lib/env-urls');
-const { getSender } = require('../lib/senders');
+const { getSender, getReplyTo } = require('../lib/senders');
 
 const router = express.Router();
 
@@ -73,12 +73,19 @@ router.post('/email/send', authenticate, [
   const resend = new Resend(resendApiKey);
 
   try {
-    const { data, error } = await resend.emails.send({
+    // Route replies into our shared inbound mailbox so the Resend
+    // inbound webhook can pause sequences / suppress / surface in the
+    // Inbox UI. Only set reply_to when we're using the outreach sender —
+    // transactional sends already have a meaningful FROM-as-reply.
+    const replyTo = getReplyTo('outreach');
+    const sendPayload = {
       from: from || getSender('outreach'),
       to: [to],
       subject: subject,
-      html: html
-    });
+      html: html,
+    };
+    if (replyTo) sendPayload.reply_to = replyTo;
+    const { data, error } = await resend.emails.send(sendPayload);
 
     if (error) {
       console.error('[Communications] Resend error:', error);
