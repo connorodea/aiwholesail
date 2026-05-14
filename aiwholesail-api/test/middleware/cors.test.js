@@ -155,16 +155,14 @@ test('CORS origin allowlist — regression guard', async (t) => {
     );
   });
 
-  await t.test('https://www.aiwholesail.com is rejected (www not in allowlist)', async () => {
-    // www is served same-origin via nginx; cross-origin requests from www
-    // do not need to be allowed by api.aiwholesail.com.
-    await assert.rejects(
-      () => check('https://www.aiwholesail.com'),
-      (err) => {
-        assert.equal(err.message, 'Not allowed by CORS');
-        return true;
-      }
-    );
+  await t.test('https://www.aiwholesail.com is allowed (added by PR #338 hotfix)', async () => {
+    // Original test assumed www would be served same-origin only, but
+    // users hitting `https://www.aiwholesail.com/auth` directly need
+    // their browser to make cross-origin POSTs to api.aiwholesail.com.
+    // Live incident 2026-05-13: those preflights 403'd → login broken.
+    // PR #338 added www to the allowlist; this test was inverted to
+    // match the new contract.
+    await assert.doesNotReject(() => check('https://www.aiwholesail.com'));
   });
 
   await t.test('https://aiwholesail.com.evil.com is rejected (subdomain spoof)', async () => {
@@ -219,6 +217,7 @@ test('CORS origin allowlist — regression guard', async (t) => {
   await t.test('ALLOWED_CORS_ORIGINS contains exactly the expected origins', () => {
     const expected = [
       'https://aiwholesail.com',
+      'https://www.aiwholesail.com', // added by PR #338 (2026-05-13 CORS hotfix — www login was 403'd)
       'https://staging.aiwholesail.com',
       'http://localhost:5173',
     ];
