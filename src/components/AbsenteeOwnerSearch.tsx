@@ -233,7 +233,6 @@ function mapBatchToPropData(b: BatchPropertyRecord): PropDataPropertyRecord {
     },
     valuation: {
       market_value: b.valuation?.estimatedValue,
-      last_sale_price: b.valuation?.lastSalePrice,
     },
     sale: {
       last_sale_date: b.valuation?.lastSaleDate,
