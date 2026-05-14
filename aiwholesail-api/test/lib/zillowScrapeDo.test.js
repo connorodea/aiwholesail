@@ -29,6 +29,7 @@ const {
   searchByUrl,
   findWalkScore,
   findClimateRisk,
+  derivePropertyTaxHistory,
   ZillowScrapeError,
 } = require('../../lib/scrapers/zillowScrapeDo');
 const { looksLikeCaptcha } = require('../../lib/scrapers/scrapeDoClient');
@@ -1654,5 +1655,128 @@ test('mapPropertyToRapidApiShape — Tier A field expansion', async (t) => {
     assert.equal(out.yearBuilt, 1995);
     assert.equal(out.monthlyHoaFee, 100);
     assert.equal(out.hoaAnnualAmount, 1200);
+  });
+});
+
+// ═════════════════════════ Tier B1 — derivePropertyTaxHistory ════════════════
+// The only Tier B1 slice with non-trivial logic: 5-year CAGR + missed-years
+// detection. Pure transform — tests run on hand-built propertyDetails-shaped
+// fixtures, no network.
+
+test('derivePropertyTaxHistory', async (t) => {
+  const buildRow = (year, taxPaid, assessedValue) => ({
+    year,
+    date: `${year}-01-01T00:00:00.000Z`,
+    taxPaid,
+    assessedValue,
+    valueIncrease: 0,
+  });
+
+  await t.test('returns empty signals when no taxHistoryNormalized', () => {
+    const out = derivePropertyTaxHistory({ zpid: '42' });
+    assert.equal(out.zpid, '42');
+    assert.deepEqual(out.history, []);
+    assert.equal(out.signals.yearsOfData, 0);
+    assert.equal(out.signals.assessmentCagr5y, null);
+    assert.equal(out.signals.taxCagr5y, null);
+    assert.deepEqual(out.signals.missedYears, []);
+  });
+
+  await t.test('sorts history descending by year regardless of input order', () => {
+    const out = derivePropertyTaxHistory({
+      zpid: '42',
+      taxHistoryNormalized: [
+        buildRow(2020, 5000, 300000),
+        buildRow(2024, 8000, 450000),
+        buildRow(2022, 6500, 380000),
+      ],
+    });
+    assert.deepEqual(out.history.map((r) => r.year), [2024, 2022, 2020]);
+    assert.equal(out.latestAssessedValue, 450000);
+    assert.equal(out.latestTaxAnnualAmount, 8000);
+  });
+
+  await t.test('computes 5-year CAGR correctly', () => {
+    // 100k → 161.05k over 5y == 10% annual = 0.10 CAGR
+    const out = derivePropertyTaxHistory({
+      taxHistoryNormalized: [
+        buildRow(2019, 1000, 100000),
+        buildRow(2020, 1100, 110000),
+        buildRow(2021, 1210, 121000),
+        buildRow(2022, 1331, 133100),
+        buildRow(2023, 1464, 146410),
+        buildRow(2024, 1610.51, 161051),
+      ],
+    });
+    assert.ok(Math.abs(out.signals.assessmentCagr5y - 0.10) < 0.001,
+      `expected ~0.10, got ${out.signals.assessmentCagr5y}`);
+    assert.ok(Math.abs(out.signals.taxCagr5y - 0.10) < 0.001);
+  });
+
+  await t.test('CAGR returns null when fewer than 2 data points', () => {
+    const out = derivePropertyTaxHistory({
+      taxHistoryNormalized: [buildRow(2024, 5000, 300000)],
+    });
+    assert.equal(out.signals.assessmentCagr5y, null);
+    assert.equal(out.signals.taxCagr5y, null);
+  });
+
+  await t.test('CAGR returns null when oldest value is zero', () => {
+    const out = derivePropertyTaxHistory({
+      taxHistoryNormalized: [
+        buildRow(2020, 0, 0),
+        buildRow(2024, 5000, 300000),
+      ],
+    });
+    assert.equal(out.signals.assessmentCagr5y, null);
+    assert.equal(out.signals.taxCagr5y, null);
+  });
+
+  await t.test('detects missedYears in middle of series (delinquency proxy)', () => {
+    // Owner paid through 2020, missed 2021/2022/2023, resumed 2024
+    const out = derivePropertyTaxHistory({
+      taxHistoryNormalized: [
+        buildRow(2019, 4500, 280000),
+        buildRow(2020, 4800, 290000),
+        // 2021/2022/2023 absent entirely
+        buildRow(2024, 6500, 380000),
+      ],
+    });
+    assert.deepEqual(out.signals.missedYears, [2021, 2022, 2023]);
+  });
+
+  await t.test('treats taxPaid=0 as missed', () => {
+    const out = derivePropertyTaxHistory({
+      taxHistoryNormalized: [
+        buildRow(2022, 5000, 300000),
+        buildRow(2023, 0, 310000),
+        buildRow(2024, 5500, 320000),
+      ],
+    });
+    assert.deepEqual(out.signals.missedYears, [2023]);
+  });
+
+  await t.test('treats taxPaid=null as missed', () => {
+    const out = derivePropertyTaxHistory({
+      taxHistoryNormalized: [
+        buildRow(2022, 5000, 300000),
+        { year: 2023, taxPaid: null, assessedValue: 310000 },
+        buildRow(2024, 5500, 320000),
+      ],
+    });
+    assert.deepEqual(out.signals.missedYears, [2023]);
+  });
+
+  await t.test('passes through parcelNumber, propertyTaxRate, isTaxDelinquent', () => {
+    const out = derivePropertyTaxHistory({
+      zpid: '99',
+      apn: '12-34-56-789',
+      propertyTaxRate: 1.82,
+      isTaxDelinquent: true,
+      taxHistoryNormalized: [buildRow(2024, 5000, 300000)],
+    });
+    assert.equal(out.parcelNumber, '12-34-56-789');
+    assert.equal(out.propertyTaxRate, 1.82);
+    assert.equal(out.signals.isTaxDelinquent, true);
   });
 });
