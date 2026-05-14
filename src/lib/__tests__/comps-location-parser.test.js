@@ -121,34 +121,58 @@ test('4-part with unit prefix "Unit 4B, City, ST, ZIP" — preserved', () => {
   assert.equal(r.cityState, 'Saint Augustine FL');
 });
 
-test('4-part verbose-state "City, FullStateName, ST, ZIP" — known limitation, documents current behavior', () => {
-  // KNOWN LIMITATION: when a user types both the spelled-out state AND
-  // the abbreviation, our parser takes the spelled-out state as the
-  // "city" because it sits at parts[length-3]. Example:
-  //   "Saint Augustine, Florida, FL, 32092" → cityState="Florida FL"
-  //
-  // Fixing this requires distinguishing "Florida" (full state name) from
-  // "Saint Augustine" (multi-word city) — which needs a US state-name
-  // lookup table that's bigger than this parser's scope.
-  //
-  // The narrower "cityIdx = 0" fix suggested in code review of #380 was
-  // rejected because it would REGRESS the 4-part address-style case
-  // (123 Main St, City, ST, ZIP would scope by "123 Main St" instead of
-  // the actual city). We accept the verbose-state misparse as a known
-  // limitation; the failure mode is "search scopes to whole state"
-  // which is still better than "search returns no results."
-  //
-  // If someone implements the state-name lookup, this test asserts
-  // the desired new behavior — flip it from documenting-current to
-  // asserting-fixed at that time.
+test('4-part verbose-state "City, FullStateName, ST, ZIP" — full state name is skipped', () => {
+  // The parser detects when parts[length-3] is a full US state name
+  // (e.g. "Florida") and treats it as redundant with parts[length-2]
+  // (the abbreviation). It then uses parts[length-4] (or earlier) as
+  // the city. Verbose-state input is uncommon but happens when users
+  // paste copy-pasted addresses from sources that include both forms.
   const r = parseCompsLocation('Saint Augustine, Florida, FL, 32092');
   assert.equal(r.zip, '32092');
-  assert.equal(
-    r.cityState,
-    'Florida FL',
-    'KNOWN LIMITATION: verbose-state 4-part scopes by state name, not city. ' +
-    'Fix requires US-state-name lookup. See PR #380 review thread.'
-  );
+  assert.equal(r.cityState, 'Saint Augustine FL');
+});
+
+test('4-part verbose-state — short state names (Texas, Idaho, Maine, Ohio)', () => {
+  // The 5-letter and 4-letter states need the same handling. Tests
+  // states whose names are short — easy to miss in a length-based
+  // heuristic and require an actual lookup.
+  for (const [input, expected] of [
+    ['Austin, Texas, TX, 78701',     'Austin TX'],
+    ['Boise, Idaho, ID, 83702',      'Boise ID'],
+    ['Portland, Maine, ME, 04101',   'Portland ME'],
+    ['Columbus, Ohio, OH, 43215',    'Columbus OH'],
+  ]) {
+    const r = parseCompsLocation(input);
+    assert.equal(r.cityState, expected, `${input} → cityState should be "${expected}", got "${r.cityState}"`);
+  }
+});
+
+test('4-part verbose-state — case-insensitive state name match', () => {
+  // Users paste with varying case. The state-name detection must be
+  // case-insensitive so "florida", "FLORIDA", and "Florida" all trigger
+  // the redundancy handling.
+  for (const verbose of ['florida', 'FLORIDA', 'Florida', 'fLoRiDa']) {
+    const r = parseCompsLocation(`Saint Augustine, ${verbose}, FL, 32092`);
+    assert.equal(r.cityState, 'Saint Augustine FL', `case "${verbose}" should still detect as state name`);
+  }
+});
+
+test('4-part NON-verbose: multi-word city that contains state-name word', () => {
+  // Defensive: 3-part "Washington, MO, 63090" (city named after a state).
+  // 3-part — should NOT trigger the verbose-state branch even though
+  // "Washington" is a US state name. State-name detection only fires
+  // when length >= 4 (the verbose-state pattern needs 4+ parts).
+  const r = parseCompsLocation('Washington, MO, 63090');
+  assert.equal(r.cityState, 'Washington MO');
+});
+
+test('5-part address + verbose-state: "Unit 4B, City, FullState, ST, ZIP"', () => {
+  // The most extreme realistic case. Should: detect verbose-state at
+  // parts[length-3] ("Florida"), drop it, use parts[length-4] as city.
+  // Result: "Saint Augustine FL" — same as the 4-part verbose case.
+  const r = parseCompsLocation('Unit 4B, Saint Augustine, Florida, FL, 32092');
+  assert.equal(r.zip, '32092');
+  assert.equal(r.cityState, 'Saint Augustine FL');
 });
 
 test('function is pure: same input always returns same output', () => {

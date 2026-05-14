@@ -33,6 +33,35 @@ function isBareZip(segment) {
   return /^\d{5}(?:-\d{4})?$/.test(segment);
 }
 
+// US state full names, lowercased for case-insensitive matching. Used to
+// detect 4-part "verbose-state" input where the user typed both the
+// spelled-out state ("Florida") and the abbreviation ("FL"), e.g.
+// "Saint Augustine, Florida, FL, 32092". Without this set, the parser
+// would pick "Florida" as the city and scope the fallback comps search
+// to the entire state. With this set, the parser detects redundancy and
+// uses the segment BEFORE the state name (parts[length-4]) as the city.
+//
+// District of Columbia included since some Zillow listings use it as a
+// state. US territories (Puerto Rico, Guam, etc.) are not included
+// because Zillow's coverage there is sparse and the failure mode of
+// verbose-state input from those regions is low-impact.
+const US_STATE_NAMES = new Set([
+  'alabama', 'alaska', 'arizona', 'arkansas', 'california', 'colorado',
+  'connecticut', 'delaware', 'florida', 'georgia', 'hawaii', 'idaho',
+  'illinois', 'indiana', 'iowa', 'kansas', 'kentucky', 'louisiana',
+  'maine', 'maryland', 'massachusetts', 'michigan', 'minnesota',
+  'mississippi', 'missouri', 'montana', 'nebraska', 'nevada',
+  'new hampshire', 'new jersey', 'new mexico', 'new york',
+  'north carolina', 'north dakota', 'ohio', 'oklahoma', 'oregon',
+  'pennsylvania', 'rhode island', 'south carolina', 'south dakota',
+  'tennessee', 'texas', 'utah', 'vermont', 'virginia', 'washington',
+  'west virginia', 'wisconsin', 'wyoming', 'district of columbia',
+]);
+
+function isUsStateName(segment) {
+  return US_STATE_NAMES.has(String(segment || '').trim().toLowerCase());
+}
+
 export function parseCompsLocation(location) {
   if (typeof location !== 'string') {
     return { zip: null, cityState: null, queries: [] };
@@ -66,6 +95,17 @@ export function parseCompsLocation(location) {
       // segment as state-plus-zip and second-to-last as city.
       stateSrcIdx = parts.length - 2;
       cityIdx = parts.length - 3;
+
+      // Verbose-state detection (4-part+): when the user typed both the
+      // spelled-out state AND the abbreviation, parts[length-3] holds
+      // the full state name (e.g. "Florida") which is redundant with
+      // parts[length-2] (the abbreviation "FL"). Skip the redundant
+      // segment and use parts[length-4] as the city instead. Only
+      // applies when length >= 4 — a 3-part input always means parts
+      // [length-3] IS the city, never a verbose state.
+      if (parts.length >= 4 && isUsStateName(parts[cityIdx])) {
+        cityIdx = parts.length - 4;
+      }
     } else {
       // 2-part "City, ST ZIP" or "City, State" — state lives in the last
       // segment (digits stripped) and city in the second-to-last. Existing
