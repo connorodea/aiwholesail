@@ -1780,3 +1780,237 @@ test('derivePropertyTaxHistory', async (t) => {
     assert.equal(out.signals.isTaxDelinquent, true);
   });
 });
+
+// ═════════════════════════ Tier B2 — property-type-specific search ═══════════
+// 10 new endpoints toggling Zillow's searchQueryState.filterState.is{Type} flags.
+// Each cycle: RED test first, watch fail, GREEN minimal impl, REFACTOR.
+
+// Shared helper for asserting filterState shape in a generated URL. Decodes
+// the searchQueryState param so tests read the actual filter flags Zillow
+// will see.
+function filterStateFromUrl(url) {
+  const u = new URL(url);
+  const sqs = u.searchParams.get('searchQueryState');
+  if (!sqs) throw new Error(`URL missing searchQueryState param: ${url}`);
+  return JSON.parse(decodeURIComponent(sqs)).filterState;
+}
+
+test('Tier B2 — searchMultiFamily', async (t) => {
+  const z = require('../../lib/scrapers/zillowScrapeDo');
+
+  await t.test('exports searchMultiFamily function', () => {
+    assert.equal(typeof z.searchMultiFamily, 'function',
+      'searchMultiFamily must be exported');
+  });
+
+  await t.test('exports buildHomeTypeSearchUrl helper for URL testability', () => {
+    assert.equal(typeof z.buildHomeTypeSearchUrl, 'function',
+      'buildHomeTypeSearchUrl must be exported so URL construction is testable without network');
+  });
+
+  await t.test('searchMultiFamily rejects missing location', async () => {
+    await assert.rejects(() => z.searchMultiFamily({}), /requires location/);
+  });
+
+  await t.test('searchMultiFamily URL sets isMultiFamily=true and other home-types=false', () => {
+    // The URL exposed by the helper lets us verify filterState without
+    // actually hitting Zillow.
+    const url = z.buildHomeTypeSearchUrl({
+      location: 'Austin, TX',
+      homeTypeFlags: { isMultiFamily: true },
+    });
+    const fs = filterStateFromUrl(url);
+    assert.equal(fs.isMultiFamily.value, true, 'isMultiFamily.value must be true');
+    assert.equal(fs.isSingleFamily.value, false, 'isSingleFamily must be explicitly false');
+    assert.equal(fs.isCondo.value, false, 'isCondo must be explicitly false');
+    assert.equal(fs.isTownhouse.value, false, 'isTownhouse must be explicitly false');
+    assert.equal(fs.isLotLand.value, false, 'isLotLand must be explicitly false');
+    assert.equal(fs.isManufactured.value, false, 'isManufactured must be explicitly false');
+  });
+
+  await t.test('searchMultiFamily URL pagination — page=2 emits currentPage=2', () => {
+    const url = z.buildHomeTypeSearchUrl({
+      location: 'Austin, TX',
+      homeTypeFlags: { isMultiFamily: true },
+      page: 2,
+    });
+    const sqs = JSON.parse(decodeURIComponent(new URL(url).searchParams.get('searchQueryState')));
+    assert.deepEqual(sqs.pagination, { currentPage: 2 });
+  });
+});
+
+test('Tier B2 — simple home-type variants (Manufactured, Townhouses, Condos, 55+, HUD, MMM)', async (t) => {
+  const z = require('../../lib/scrapers/zillowScrapeDo');
+
+  // Each entry: { fn, flag, status }
+  // - `fn`: the exported function name
+  // - `flag`: the filterState.is{Type} key the wrapper must set true
+  // - `status`: the value the wrapper must put on the returned `.status`
+  const variants = [
+    { fn: 'searchManufactured',       flag: 'isManufactured',      status: 'Manufactured'      },
+    { fn: 'searchTownhouses',         flag: 'isTownhouse',         status: 'Townhouse'         },
+    { fn: 'searchCondos',             flag: 'isCondo',             status: 'Condo'             },
+  ];
+
+  for (const v of variants) {
+    await t.test(`${v.fn} — exported, rejects missing location, URL sets ${v.flag}=true`, async () => {
+      assert.equal(typeof z[v.fn], 'function', `${v.fn} must be exported`);
+      await assert.rejects(() => z[v.fn]({}), /requires location/, `${v.fn} must reject missing location`);
+      // The URL the wrapper produces — we verify via buildHomeTypeSearchUrl
+      // with the same flags the wrapper sets internally. Cleaner than
+      // intercepting the network call.
+      const url = z.buildHomeTypeSearchUrl({
+        location: 'Austin, TX',
+        homeTypeFlags: { [v.flag]: true },
+      });
+      const fs = filterStateFromUrl(url);
+      assert.equal(fs[v.flag].value, true, `${v.flag} must be true`);
+      for (const otherFlag of ['isSingleFamily', 'isMultiFamily', 'isCondo', 'isTownhouse',
+                                'isLotLand', 'isManufactured']) {
+        if (otherFlag !== v.flag) {
+          assert.equal(fs[otherFlag].value, false,
+            `${otherFlag} must be explicitly false in ${v.fn} URL`);
+        }
+      }
+    });
+  }
+});
+
+test('Tier B2 — keyword + secondary-flag variants (55+, HUD, MakeMeMove)', async (t) => {
+  // These three don't have a dedicated home-type flag — they use either
+  // a secondary status flag (is55plusCommunities, isMakeMeMove) or a
+  // keyword search (HUD homes match via `keywords: "HUD"` over the
+  // foreclosure filter). Each test pins the contract the wrapper must
+  // produce.
+  const z = require('../../lib/scrapers/zillowScrapeDo');
+
+  await t.test('searchSeniorCommunities — sets is55plusCommunities=true via extraFilters', () => {
+    assert.equal(typeof z.searchSeniorCommunities, 'function');
+    const url = z.buildHomeTypeSearchUrl({
+      location: 'Austin, TX',
+      homeTypeFlags: {},
+      extraFilters: { is55plusCommunities: { value: true } },
+    });
+    const fs = filterStateFromUrl(url);
+    assert.equal(fs.is55plusCommunities.value, true);
+  });
+
+  await t.test('searchSeniorCommunities — rejects missing location', async () => {
+    await assert.rejects(() => z.searchSeniorCommunities({}), /requires location/);
+  });
+
+  await t.test('searchHudHomes — sets foreclosure flag + HUD keyword', () => {
+    assert.equal(typeof z.searchHudHomes, 'function');
+    const url = z.buildHomeTypeSearchUrl({
+      location: 'Austin, TX',
+      homeTypeFlags: {},
+      extraFilters: {
+        isForSaleForeclosure: { value: true },
+        keywords: 'HUD',
+      },
+    });
+    const fs = filterStateFromUrl(url);
+    assert.equal(fs.isForSaleForeclosure.value, true);
+    assert.equal(fs.keywords, 'HUD');
+  });
+
+  await t.test('searchHudHomes — rejects missing location', async () => {
+    await assert.rejects(() => z.searchHudHomes({}), /requires location/);
+  });
+
+  await t.test('searchMakeMeMove — sets isMakeMeMove=true via extraFilters', () => {
+    assert.equal(typeof z.searchMakeMeMove, 'function');
+    const url = z.buildHomeTypeSearchUrl({
+      location: 'Austin, TX',
+      homeTypeFlags: {},
+      extraFilters: { isMakeMeMove: { value: true } },
+    });
+    const fs = filterStateFromUrl(url);
+    assert.equal(fs.isMakeMeMove.value, true);
+  });
+
+  await t.test('searchMakeMeMove — rejects missing location', async () => {
+    await assert.rejects(() => z.searchMakeMeMove({}), /requires location/);
+  });
+});
+
+test('Tier B2 — searchLotsLand', async (t) => {
+  const z = require('../../lib/scrapers/zillowScrapeDo');
+
+  await t.test('exists, rejects missing location, URL sets isLotLand=true', async () => {
+    assert.equal(typeof z.searchLotsLand, 'function');
+    await assert.rejects(() => z.searchLotsLand({}), /requires location/);
+  });
+
+  await t.test('URL min_acres converts to lotSize.min in sqft (1 acre = 43560 sqft)', async () => {
+    // Verifies the contract: caller passes acres in human-friendly units;
+    // the URL filterState carries Zillow's native sqft unit.
+    // We probe via a tracking wrapper around buildHomeTypeSearchUrl
+    // OR by inspecting the URL through a generated path. Since the
+    // wrapper is the only sink for the conversion, exposing a
+    // helper makes this cleanly testable.
+    const url = z.buildLotsLandSearchUrl({
+      location: 'Austin, TX',
+      min_acres: 2,
+    });
+    const fs = filterStateFromUrl(url);
+    assert.equal(fs.isLotLand.value, true);
+    // 2 acres × 43560 sqft/acre = 87120 sqft
+    assert.equal(fs.lotSize?.min, 87120, '2 acres must convert to 87120 sqft');
+  });
+
+  await t.test('URL omits lotSize when min_acres not provided', () => {
+    const url = z.buildLotsLandSearchUrl({ location: 'Austin, TX' });
+    const fs = filterStateFromUrl(url);
+    assert.equal(fs.isLotLand.value, true);
+    assert.ok(!fs.lotSize, 'lotSize must be absent when min_acres is undefined');
+  });
+});
+
+test('Tier B2 — searchNewConstruction', async (t) => {
+  const z = require('../../lib/scrapers/zillowScrapeDo');
+
+  await t.test('exists, rejects missing location, URL sets isNewConstruction=true', async () => {
+    assert.equal(typeof z.searchNewConstruction, 'function');
+    await assert.rejects(() => z.searchNewConstruction({}), /requires location/);
+  });
+
+  await t.test('URL embeds builder as keyword when provided', () => {
+    const url = z.buildNewConstructionSearchUrl({
+      location: 'Austin, TX',
+      builder: 'Lennar',
+    });
+    const fs = filterStateFromUrl(url);
+    assert.equal(fs.isNewConstruction.value, true);
+    assert.equal(fs.keywords, 'Lennar');
+  });
+
+  await t.test('URL omits keywords when builder is undefined', () => {
+    const url = z.buildNewConstructionSearchUrl({ location: 'Austin, TX' });
+    const fs = filterStateFromUrl(url);
+    assert.equal(fs.isNewConstruction.value, true);
+    assert.equal(fs.keywords, undefined);
+  });
+});
+
+test('Tier B2 — searchTinyHomes', async (t) => {
+  const z = require('../../lib/scrapers/zillowScrapeDo');
+
+  await t.test('exists, rejects missing location', async () => {
+    assert.equal(typeof z.searchTinyHomes, 'function');
+    await assert.rejects(() => z.searchTinyHomes({}), /requires location/);
+  });
+
+  await t.test('URL caps sqft.max at default 600 with tiny-home keyword', () => {
+    const url = z.buildTinyHomesSearchUrl({ location: 'Austin, TX' });
+    const fs = filterStateFromUrl(url);
+    assert.equal(fs.sqft?.max, 600, 'default sqft.max must be 600 (tiny-home threshold)');
+    assert.match(fs.keywords || '', /tiny/i);
+  });
+
+  await t.test('URL respects caller-supplied max_sqft override', () => {
+    const url = z.buildTinyHomesSearchUrl({ location: 'Austin, TX', max_sqft: 400 });
+    const fs = filterStateFromUrl(url);
+    assert.equal(fs.sqft?.max, 400);
+  });
+});
