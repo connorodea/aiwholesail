@@ -14,6 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { propDataAPI, PropDataError, type PropDataPropertyListResponse, type PropDataPropertyRecord } from '@/lib/propdata-api';
+import { batchdata, type BatchPropertyRecord } from '@/lib/batchdata-api';
 import { mapPropDataListToUnified, type PropDataEnrichment } from '@/lib/unifiedPropertyAdapters';
 import { resolveLocation } from '@/lib/locationResolver';
 import { topZipsInState } from '@/lib/topZipsByState';
@@ -205,6 +206,104 @@ function toMailingLabelsCsv(records: PropDataPropertyRecord[]): {
   return { csv, included: rows.length, skipped };
 }
 
+/**
+ * Map a BatchData property record into our PropData-shaped record. This is
+ * the adapter layer that lets us swap providers behind the
+ * `batchdata_offmarket` flag without touching the rest of the search loop.
+ * Only the fields actually consumed downstream (address, owner, valuation,
+ * equity, flags) are mapped; extras pass through under their BatchData
+ * names for any forward-compat needs.
+ */
+function mapBatchToPropData(b: BatchPropertyRecord): PropDataPropertyRecord {
+  const ql = b.quickLists || {};
+  return {
+    parcel_id: b.parcelId,
+    address: {
+      street: b.address?.street,
+      city: b.address?.city,
+      zip: b.address?.zip,
+    },
+    state: b.address?.state,
+    owner: {
+      name: b.owner?.fullName ?? [b.owner?.firstName, b.owner?.lastName].filter(Boolean).join(' '),
+      mailing_address: b.owner?.mailingAddress?.street,
+      mailing_city: b.owner?.mailingAddress?.city,
+      mailing_state: b.owner?.mailingAddress?.state,
+      mailing_zip: b.owner?.mailingAddress?.zip,
+    },
+    valuation: {
+      market_value: b.valuation?.estimatedValue,
+      last_sale_price: b.valuation?.lastSalePrice,
+    },
+    sale: {
+      last_sale_date: b.valuation?.lastSaleDate,
+      last_sale_price: b.valuation?.lastSalePrice,
+    },
+    characteristics: {
+      bedrooms: b.characteristics?.bedrooms ?? null,
+      bathrooms: b.characteristics?.bathrooms ?? null,
+      sq_ft_living: b.characteristics?.squareFeet ?? null,
+      sq_ft_lot: b.characteristics?.lotSize ?? null,
+      year_built: b.characteristics?.yearBuilt,
+      property_type: b.characteristics?.propertyType,
+    },
+    equity: b.valuation?.estimatedEquity != null
+      ? {
+          estimated_equity: b.valuation.estimatedEquity,
+          equity_pct: b.valuation?.ltv != null ? Math.max(0, 100 - b.valuation.ltv) : undefined,
+        }
+      : undefined,
+    flags: {
+      is_absentee_owner: ql.absenteeOwner ?? b.owner?.isAbsenteeOwner,
+      has_owner_data: !!b.owner?.fullName || !!b.owner?.firstName,
+      has_phone: false, // BatchData doesn't return phones on /property/search — skip-trace required
+    },
+    source: 'batchdata',
+    // Forward-compat: keep the raw BatchData record under a namespaced field
+    // so lead-type-specific UI can read foreclosure/auction details etc.
+    batchdata_raw: b,
+  };
+}
+
+/**
+ * Adapter for the property-list call site. Picks BatchData or PropData
+ * based on the `batchdata_offmarket` flag and returns the PropData shape
+ * so the downstream search loop doesn't have to branch.
+ */
+async function listPropertiesUnified(
+  useBatch: boolean,
+  zip: string,
+  limit: number,
+  absenteeOnly: boolean | undefined,
+): Promise<PropDataPropertyListResponse> {
+  if (useBatch) {
+    const res = absenteeOnly
+      ? await batchdata.listAbsenteeOwners({ zip, take: limit })
+      : await batchdata.search({
+          searchCriteria: { zip },
+          options: { take: limit },
+        });
+    if (res.error) return { error: res.error };
+    const props = res.data?.results?.properties ?? res.data?.properties ?? [];
+    return { properties: props.map(mapBatchToPropData), count: props.length };
+  }
+  return propDataAPI.listProperties({ zip, limit, absentee_only: absenteeOnly });
+}
+
+async function listPreforeclosuresUnified(
+  useBatch: boolean,
+  zip: string,
+  limit: number,
+): Promise<PropDataPropertyListResponse> {
+  if (useBatch) {
+    const res = await batchdata.listPreforeclosures({ zip, take: limit });
+    if (res.error) return { error: res.error };
+    const props = res.data?.results?.properties ?? res.data?.properties ?? [];
+    return { properties: props.map(mapBatchToPropData), count: props.length };
+  }
+  return propDataAPI.listPreforeclosures({ zip, limit });
+}
+
 export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProps) {
   // Free-form input: single ZIP, multi-ZIP list, "City, ST", "County, ST", or "ST".
   // Resolved into a deduped ZIP fan-out list at search time.
@@ -254,6 +353,11 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
   // selection is ['absentee'] for backward compat — same results as the
   // pre-v2 behaviour.
   const { enabled: leadTypesV2Enabled } = useFeatureFlag('off-market-search-v2');
+  // BatchData vendor swap. When ON, off-market lookups route through
+  // /api/batchdata/* (purpose-built off-market vendor with working absentee
+  // quicklists). When OFF, /api/propdata/* (which has broken absentee
+  // filter as of 2026-05-14 live testing).
+  const { enabled: batchDataEnabled } = useFeatureFlag('batchdata_offmarket');
   const [selectedLeadTypes, setSelectedLeadTypes] = useState<Set<string>>(
     new Set(['absentee'])
   );
@@ -374,11 +478,12 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
 
         if (propertyParams) {
           try {
-            const propRes = await propDataAPI.listProperties({
-              zip: z,
-              limit: perZipLimit,
-              absentee_only: propertyParams.absentee_only,
-            });
+            const propRes = await listPropertiesUnified(
+              batchDataEnabled,
+              z,
+              perZipLimit,
+              propertyParams.absentee_only,
+            );
             if ((propRes as { error?: string }).error) {
               propertyError = new PropDataError(
                 (propRes as { error?: string }).error || 'no coverage',
@@ -397,7 +502,7 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
 
         if (preforeclosureRequested) {
           try {
-            const preRes = await propDataAPI.listPreforeclosures({ zip: z, limit: perZipLimit });
+            const preRes = await listPreforeclosuresUnified(batchDataEnabled, z, perZipLimit);
             if (!(preRes as { error?: string }).error) {
               preforeclosureOk = true;
               if (preRes.properties) acc.properties = [...(acc.properties ?? []), ...preRes.properties];
