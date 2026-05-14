@@ -25,6 +25,7 @@ const {
   findMarketStats,
   normalizeMarketStats,
   marketStatsUrl,
+  findMarketTimeSeries,
   mortgageCalculator,
   searchByUrl,
   findWalkScore,
@@ -2237,4 +2238,213 @@ test('TD-101 fix — keywords filterState shape must be {value: X}', async (t) =
     assert.deepEqual(fs.keywords, { value: 'raw string' },
       'bare-string keywords from a caller must be normalized to {value: X}');
   });
+});
+
+// ───────────────────────── Tier B5 — market analytics ──────────────────────
+// findMarketTimeSeries: pure extractor that walks pageProps.odpMarketAnalytics
+// (or sibling nodes) for the named series and returns
+// Array<{date: string, value: number}>. Same blob feeds 4 of the 5 endpoints,
+// so the extractor must be flexible about which sibling holds the series.
+
+test('Tier B5 — findMarketTimeSeries', async (t) => {
+  await t.test('extracts a series from pageProps.odpMarketAnalytics by key', () => {
+    const nextData = {
+      props: {
+        pageProps: {
+          odpMarketAnalytics: {
+            zhviSeries: [
+              { date: '2025-01-01', value: 540000 },
+              { date: '2025-02-01', value: 542000 },
+              { date: '2025-03-01', value: 545000 },
+            ],
+          },
+        },
+      },
+    };
+    const out = findMarketTimeSeries(nextData, 'zhviSeries');
+    assert.ok(Array.isArray(out));
+    assert.equal(out.length, 3);
+    assert.deepEqual(out[0], { date: '2025-01-01', value: 540000 });
+    assert.equal(out[2].value, 545000);
+  });
+
+  await t.test('coerces { x, y } point shape into { date, value }', () => {
+    // Zillow's payload sometimes uses {x: ISO date, y: number}; the
+    // extractor must normalise it so downstream consumers see one shape.
+    const nextData = {
+      props: {
+        pageProps: {
+          odpMarketAnalytics: {
+            medianDomSeries: [
+              { x: '2025-01-01', y: 48 },
+              { x: '2025-02-01', y: 51 },
+            ],
+          },
+        },
+      },
+    };
+    const out = findMarketTimeSeries(nextData, 'medianDomSeries');
+    assert.equal(out.length, 2);
+    assert.deepEqual(out[0], { date: '2025-01-01', value: 48 });
+    assert.deepEqual(out[1], { date: '2025-02-01', value: 51 });
+  });
+
+  await t.test('drops points missing a date or a numeric value', () => {
+    const nextData = {
+      props: {
+        pageProps: {
+          odpMarketAnalytics: {
+            zhviSeries: [
+              { date: '2025-01-01', value: 540000 },
+              { date: '2025-02-01', value: null },
+              { date: null, value: 545000 },
+              { date: '2025-03-01', value: 'not-a-number' },
+              { date: '2025-04-01', value: 550000 },
+            ],
+          },
+        },
+      },
+    };
+    const out = findMarketTimeSeries(nextData, 'zhviSeries');
+    assert.equal(out.length, 2);
+    assert.equal(out[0].date, '2025-01-01');
+    assert.equal(out[1].date, '2025-04-01');
+  });
+
+  await t.test('falls back to pageProps sibling when not on odpMarketAnalytics', () => {
+    // Some region pages put the series at pageProps.<key> directly,
+    // not nested under odpMarketAnalytics.
+    const nextData = {
+      props: {
+        pageProps: {
+          mrktSaleSeries: [{ date: '2025-01-01', value: 410000 }],
+        },
+      },
+    };
+    const out = findMarketTimeSeries(nextData, 'mrktSaleSeries');
+    assert.equal(out.length, 1);
+    assert.equal(out[0].value, 410000);
+  });
+
+  await t.test('returns empty array when series key not present', () => {
+    const nextData = { props: { pageProps: { odpMarketAnalytics: {} } } };
+    const out = findMarketTimeSeries(nextData, 'zhviSeries');
+    assert.deepEqual(out, []);
+  });
+
+  await t.test('returns empty array on null/garbage input', () => {
+    assert.deepEqual(findMarketTimeSeries(null, 'zhviSeries'), []);
+    assert.deepEqual(findMarketTimeSeries({}, 'zhviSeries'), []);
+    assert.deepEqual(findMarketTimeSeries({ props: {} }, 'zhviSeries'), []);
+  });
+});
+
+// localPriceTrends({ region, regionType? }) — Tier B5 endpoint #1.
+// Scrapes the /<region>/home-values/ page and returns ZHVI + median sale
+// price + price-per-sqft time series with topline YoY / 5yr change pcts.
+// Uses findMarketTimeSeries for the series extraction. Network is mocked
+// via a fake scrape.do response (no live fetch in test).
+
+test('Tier B5 — localPriceTrends', async (t) => {
+  const z = require('../../lib/scrapers/zillowScrapeDo');
+
+  await t.test('is exported as a function', () => {
+    assert.equal(typeof z.localPriceTrends, 'function');
+  });
+
+  await t.test('rejects missing region with ZillowScrapeError(bad_args)', async () => {
+    await assert.rejects(
+      () => z.localPriceTrends({}),
+      (err) =>
+        err instanceof z.ZillowScrapeError &&
+        err.reason === 'bad_args' &&
+        /region/i.test(err.message)
+    );
+  });
+
+  await t.test('rejects empty-string region', async () => {
+    await assert.rejects(
+      () => z.localPriceTrends({ region: '' }),
+      (err) => err instanceof z.ZillowScrapeError && err.reason === 'bad_args'
+    );
+  });
+
+  await t.test(
+    'returns wired shape {regionName, regionType, zhviSeries, medianSalePriceSeries, pricePerSqftSeries, yoyChangePct, fiveYearChangePct} from a mocked home-values page',
+    async () => {
+      // Build a fixture home-values HTML page with __NEXT_DATA__ shaped
+      // like the 2026-05 Zillow region payload, then monkey-patch the
+      // scrape.do client to return it. Restore after.
+      const scrapeDoClient = require('../../lib/scrapers/scrapeDoClient');
+      const originalScrape = scrapeDoClient.scrape;
+      const fakeNextData = {
+        props: {
+          pageProps: {
+            zhviRegion: { name: 'Austin, TX', regionTypeName: 'city' },
+            odpMarketAnalytics: {
+              zhviLatest: { zhviYoY: 1.2, fiveYearChange: 38.4 },
+              zhviSeries: [
+                { date: '2025-01-01', value: 540000 },
+                { date: '2025-02-01', value: 542000 },
+              ],
+              mrktSaleSeries: [{ date: '2025-01-01', value: 410000 }],
+              pricePerSqftSeries: [{ date: '2025-01-01', value: 315 }],
+            },
+          },
+        },
+      };
+      const padding = ' '.repeat(300);
+      const html = `<html><body>${padding}<script id="__NEXT_DATA__" type="application/json">${JSON.stringify(
+        fakeNextData
+      )}</script></body></html>`;
+      scrapeDoClient.scrape = async () => ({ data: html, status: 200 });
+      try {
+        const out = await z.localPriceTrends({ region: 'Austin, TX' });
+        assert.equal(out.regionName, 'Austin, TX');
+        assert.equal(out.regionType, 'city');
+        assert.ok(Array.isArray(out.zhviSeries));
+        assert.equal(out.zhviSeries.length, 2);
+        assert.equal(out.zhviSeries[0].value, 540000);
+        assert.ok(Array.isArray(out.medianSalePriceSeries));
+        assert.equal(out.medianSalePriceSeries[0].value, 410000);
+        assert.ok(Array.isArray(out.pricePerSqftSeries));
+        assert.equal(out.pricePerSqftSeries[0].value, 315);
+        assert.equal(out.yoyChangePct, 1.2);
+        assert.equal(out.fiveYearChangePct, 38.4);
+      } finally {
+        scrapeDoClient.scrape = originalScrape;
+      }
+    }
+  );
+
+  await t.test(
+    'returns empty series arrays (not null) when blob lacks them — caller can iterate safely',
+    async () => {
+      const scrapeDoClient = require('../../lib/scrapers/scrapeDoClient');
+      const originalScrape = scrapeDoClient.scrape;
+      const fakeNextData = {
+        props: {
+          pageProps: {
+            zhviRegion: { name: '78737', regionTypeName: 'zip' },
+            odpMarketAnalytics: {},
+          },
+        },
+      };
+      const padding = ' '.repeat(300);
+      const html = `<html><body>${padding}<script id="__NEXT_DATA__" type="application/json">${JSON.stringify(
+        fakeNextData
+      )}</script></body></html>`;
+      scrapeDoClient.scrape = async () => ({ data: html, status: 200 });
+      try {
+        const out = await z.localPriceTrends({ region: '78737', regionType: 'zip' });
+        assert.deepEqual(out.zhviSeries, []);
+        assert.deepEqual(out.medianSalePriceSeries, []);
+        assert.deepEqual(out.pricePerSqftSeries, []);
+        assert.equal(out.regionName, '78737');
+        assert.equal(out.regionType, 'zip');
+      } finally {
+        scrapeDoClient.scrape = originalScrape;
+      }
+    }
+  );
 });

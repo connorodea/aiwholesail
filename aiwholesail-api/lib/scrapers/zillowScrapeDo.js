@@ -1977,6 +1977,110 @@ function normalizeMarketStats(r) {
 }
 
 /**
+ * Pure extractor for a named market time-series from a Zillow region-page
+ * __NEXT_DATA__ blob. Walks `pageProps.odpMarketAnalytics.<seriesKey>` first,
+ * then falls back to `pageProps.<seriesKey>` as a sibling. Coerces both
+ * `{date, value}` and Zillow's `{x, y}` point shapes into a uniform
+ * `{date: string, value: number}` array. Drops points missing a date or a
+ * non-finite numeric value. Returns `[]` on any miss / garbage input so
+ * callers never have to null-check.
+ *
+ * Shared infrastructure for Tier B5 market-analytics endpoints
+ * (localPriceTrends, domTrends, inventoryTrends, forecast). Co-locate
+ * design: one home-values scrape feeds all four extractors by varying
+ * `seriesKey`.
+ *
+ * @param {object} nextData - parsed __NEXT_DATA__ JSON
+ * @param {string} seriesKey - e.g. 'zhviSeries', 'mrktSaleSeries',
+ *                             'medianDomSeries', 'forSaleInventorySeries',
+ *                             'zhvfForecast'
+ * @returns {Array<{date: string, value: number}>}
+ */
+function findMarketTimeSeries(nextData, seriesKey) {
+  const pp = nextData?.props?.pageProps;
+  if (!pp || typeof pp !== 'object' || !seriesKey) return [];
+  const raw = pp.odpMarketAnalytics?.[seriesKey] ?? pp[seriesKey];
+  if (!Array.isArray(raw)) return [];
+  const out = [];
+  for (const pt of raw) {
+    if (!pt || typeof pt !== 'object') continue;
+    const date = pt.date ?? pt.x ?? null;
+    const rawValue = pt.value ?? pt.y;
+    const value = typeof rawValue === 'number' ? rawValue : Number(rawValue);
+    if (!date || typeof date !== 'string') continue;
+    if (!Number.isFinite(value)) continue;
+    out.push({ date, value });
+  }
+  return out;
+}
+
+/**
+ * Local price trends — Tier B5 endpoint #1 of 5.
+ *
+ * Scrapes the /<region>/home-values/ page once and extracts the ZHVI,
+ * median sale price, and price-per-sqft time series along with topline
+ * YoY and 5-year change percentages. Shares the home-values URL with
+ * marketStats / domTrends / inventoryTrends / forecast — future co-locate
+ * refactor (Cycle 4) will route them through a single cached scrape.
+ *
+ * @param {{region: string, regionType?: 'zip'|'city'|'state'|'county'}} args
+ * @returns {Promise<{
+ *   regionName?: string,
+ *   regionType?: string,
+ *   zhviSeries: Array<{date: string, value: number}>,
+ *   medianSalePriceSeries: Array<{date: string, value: number}>,
+ *   pricePerSqftSeries: Array<{date: string, value: number}>,
+ *   yoyChangePct?: number,
+ *   fiveYearChangePct?: number,
+ * }>}
+ */
+async function localPriceTrends(args = {}) {
+  const { region, regionType } = args;
+  if (!region || typeof region !== 'string' || !region.trim()) {
+    throw new ZillowScrapeError('localPriceTrends requires region', {
+      reason: 'bad_args',
+    });
+  }
+  const url = marketStatsUrl(region, regionType);
+  // Indirect via the module object so tests can monkey-patch
+  // scrapeDoClient.scrape (the top-level destructured `scrape` binding
+  // is captured at require-time and would otherwise bypass the mock).
+  // eslint-disable-next-line global-require
+  const scrapeDoClient = require('./scrapeDoClient');
+  let resp;
+  try {
+    resp = await scrapeDoClient.scrape(url, {
+      headers: DEFAULT_HEADERS,
+      geoCode: 'us',
+      render: false,
+      super: true,
+      timeoutMs: 60_000,
+    });
+  } catch (err) {
+    if (err instanceof ScrapeDoError) {
+      throw new ZillowScrapeError(`scrape.do fetch failed: ${err.message}`, {
+        status: err.status,
+        action: 'localPriceTrends',
+        reason: 'fetch_failed',
+      });
+    }
+    throw err;
+  }
+  const nextData = extractNextData(resp.data);
+  const pp = nextData?.props?.pageProps || {};
+  const odp = pp.odpMarketAnalytics || {};
+  return {
+    regionName: pp.zhviRegion?.name || pp.requestedRegion?.name,
+    regionType: pp.zhviRegion?.regionTypeName || regionType,
+    zhviSeries: findMarketTimeSeries(nextData, 'zhviSeries'),
+    medianSalePriceSeries: findMarketTimeSeries(nextData, 'mrktSaleSeries'),
+    pricePerSqftSeries: findMarketTimeSeries(nextData, 'pricePerSqftSeries'),
+    yoyChangePct: odp.zhviLatest?.zhviYoY,
+    fiveYearChangePct: odp.zhviLatest?.fiveYearChange,
+  };
+}
+
+/**
  * Region-level market stats (typical home value, MoM, YoY, etc.).
  *
  * @param {{region: string, regionType?: 'zip'|'city'|'state'|'county'}} args
@@ -2795,6 +2899,8 @@ module.exports = {
   mortgageCalculator,
   agentProfile,
   marketStats,
+  // Market-analytics — Tier B5:
+  localPriceTrends,
   // Exported for tests:
   extractNextData,
   findPropertyRecord,
@@ -2813,6 +2919,7 @@ module.exports = {
   findMarketStats,
   normalizeMarketStats,
   marketStatsUrl,
+  findMarketTimeSeries,
   findWalkScore,
   findClimateRisk,
   derivePropertyTaxHistory,
