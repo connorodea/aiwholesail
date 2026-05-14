@@ -19,21 +19,32 @@ import {
   IconClock,
   IconSun,
   IconMoon,
+  IconBroadcast,
 } from '@tabler/icons-react';
+import type { Icon as TablerIcon } from '@tabler/icons-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { useFavorites } from '@/hooks/useFavorites';
+import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { stripe } from '@/lib/api-client';
 import { toast } from 'sonner';
 import { AIWholesailLogo } from '@/components/AIWholesailLogo';
 
-const navItems = [
+interface NavItem {
+  href: string;
+  label: string;
+  icon: TablerIcon;
+  flag?: string;
+}
+
+const navItems: NavItem[] = [
   { href: '/app', label: 'Search', icon: IconSearch },
   { href: '/app/analyzer', label: 'Analyzer', icon: IconBrain },
   { href: '/app/pipeline', label: 'Pipeline', icon: IconLayoutKanban },
   { href: '/app/buyers', label: 'Buyers', icon: IconUsers },
   { href: '/app/sequences', label: 'Sequences', icon: IconRepeat },
+  { href: '/app/campaigns', label: 'Campaigns', icon: IconBroadcast, flag: 'email-campaigns-v2' },
   { href: '/app/contracts', label: 'Contracts', icon: IconFileText },
   { href: '/app/skip-trace', label: 'Skip Trace', icon: IconAddressBook },
   { href: '/app/favorites', label: 'Favorites', icon: IconHeart },
@@ -45,6 +56,10 @@ export function DashboardNav() {
   const { user, signOut } = useAuth();
   const { isTrialActive, trialDaysRemaining } = useSubscription();
   const { favorites } = useFavorites();
+  const campaignsFlag = useFeatureFlag('email-campaigns-v2');
+  const visibleNavItems = navItems.filter(
+    (i) => !i.flag || (i.flag === 'email-campaigns-v2' && campaignsFlag.enabled),
+  );
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [lightMode, setLightMode] = useState(() => document.documentElement.classList.contains('light'));
@@ -101,7 +116,7 @@ export function DashboardNav() {
 
             {/* Desktop Nav */}
             <div className="hidden lg:flex items-center gap-0.5">
-              {navItems.map((item) => {
+              {visibleNavItems.map((item) => {
                 const isActive = location.pathname === item.href;
                 const Icon = item.icon;
                 return (
@@ -233,7 +248,7 @@ export function DashboardNav() {
                     {trialDaysRemaining} days left in trial
                   </div>
                 )}
-                {navItems.map((item) => {
+                {visibleNavItems.map((item) => {
                   const isActive = location.pathname === item.href;
                   const Icon = item.icon;
                   return (

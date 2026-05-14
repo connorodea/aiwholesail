@@ -7,6 +7,7 @@ const { authenticate } = require('../middleware/auth');
 const { asyncHandler, logSecurityEvent } = require('../middleware/errorHandler');
 const { checkDatabaseRateLimit } = require('../middleware/rateLimit');
 const { apiUrl } = require('../lib/env-urls');
+const { getSender } = require('../lib/senders');
 
 const router = express.Router();
 
@@ -73,7 +74,7 @@ router.post('/email/send', authenticate, [
 
   try {
     const { data, error } = await resend.emails.send({
-      from: from || 'AIWholesail <noreply@aiwholesail.com>',
+      from: from || getSender('outreach'),
       to: [to],
       subject: subject,
       html: html

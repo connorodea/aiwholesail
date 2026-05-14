@@ -392,7 +392,7 @@ async function sendEmail(results, reason) {
   const html = renderEmailHtml(results, reason);
 
   const result = await resend.emails.send({
-    from: 'AIWholesail Monitor <noreply@aiwholesail.com>',
+    from: 'AIWholesail Monitor <noreply@notifications.aiwholesail.com>',
     to: OPERATOR_EMAIL,
     subject,
     html,

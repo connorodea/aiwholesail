@@ -4,6 +4,7 @@ const { query, getClient } = require('../config/database');
 const { authenticate } = require('../middleware/auth');
 const { asyncHandler } = require('../middleware/errorHandler');
 const { respondError } = require('../lib/responses');
+const { getSender } = require('../lib/senders');
 
 const router = express.Router();
 
@@ -429,7 +430,7 @@ router.post('/:id/outreach', authenticate, [
       const resend = new Resend(process.env.RESEND_API_KEY);
       const senderName = req.user.fullName || 'AIWholesail';
       const sendResult = await resend.emails.send({
-        from: `${senderName} via AIWholesail <noreply@aiwholesail.com>`,
+        from: `${senderName} via AIWholesail <outreach@send.aiwholesail.com>`,
         replyTo: req.user.email,
         to: buyer.email,
         subject: `New Wholesale Deal: ${address}`,

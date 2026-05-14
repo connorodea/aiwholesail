@@ -384,7 +384,7 @@ async function sendAlertEmail(userEmail, location, deals, userOptions = {}) {
   }
 
   const result = await resend.emails.send({
-    from: 'AIWholesail Alerts <alerts@aiwholesail.com>',
+    from: 'AIWholesail Alerts <alerts@notifications.aiwholesail.com>',
     to: userEmail,
     subject,
     html,

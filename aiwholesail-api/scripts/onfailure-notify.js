@@ -93,7 +93,7 @@ function escapeHtml(s) {
 (async () => {
   try {
     const result = await resend.emails.send({
-      from: 'AIWholesail Monitor <noreply@aiwholesail.com>',
+      from: 'AIWholesail Monitor <noreply@notifications.aiwholesail.com>',
       to: OPERATOR_EMAIL,
       subject,
       html,
