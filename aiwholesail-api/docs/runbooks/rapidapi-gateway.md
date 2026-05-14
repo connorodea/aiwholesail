@@ -1,8 +1,7 @@
 # RapidAPI Gateway Runbook
 
-Operations guide for the `/rapidapi/zillow/*` mount added in PR for
-`feat/rapidapi-zillow-gateway-v2`. Companion repo with the OpenAPI spec and
-publisher: <https://github.com/connorodea/aiwholesail-rapidapi>.
+Operations guide for the `/rapidapi/zillow/*` mount. Companion repo with the
+OpenAPI spec and CI/CD publisher: <https://github.com/connorodea/aiwholesail-rapidapi>.
 
 ## Architecture
 
@@ -16,19 +15,16 @@ aiwholesail-zillow.p.rapidapi.com  (RapidAPI gateway)
       │  x-rapidapi-subscription: <plan>
       ▼
 api.aiwholesail.com/rapidapi/zillow/*       ← this repo
-      │  rapidapiProxySecret middleware
-      │  (timing-safe check, synth req.user)
+      │  rapidapiProxySecret middleware (timing-safe check, synth req.user)
       ▼
-routes/rapidapiZillow.js (proxy + batch-zestimates)
+handlers/rapidapiZillow.js (proxy + batch-zestimates)
       │
       ▼
-lib/agent/zillowProxy.js
-      ├─ scrape.do (primary)
-      └─ RapidAPI consumer-side (fallback)
+lib/agent/zillowProxy.js  (scrape.do primary, RapidAPI fallback)
 ```
 
-The frontend's `/api/zillow/*` mount is **unchanged** — separate file,
-separate middleware, same upstream proxy.
+The frontend's `/api/zillow/*` mount is unchanged. Separate handlers, same
+upstream chain.
 
 ## Roll-out steps
 
@@ -38,15 +34,14 @@ separate middleware, same upstream proxy.
 ssh hetznerCO 'cd /var/www/aiwholesail-api && git log --oneline -5'
 ```
 
-Look for `feat(rapidapi): add /rapidapi/zillow gateway mount`. If absent,
-deploy is pending — wait for the green CI/CD pipeline.
+Look for `feat(rapidapi): wire batchHandler into router + env-gated index.js mount`.
 
 ### 2. Configure the dashboard
 
 While logged into rapidapi.com as `connor@upscaledinc.com`:
 
-1. **Studio → My APIs → Add API Project →** Import OpenAPI →
-   upload `openapi/zillow.yaml` from the companion repo.
+1. **Studio → My APIs → Add API Project →** Import OpenAPI → upload
+   `openapi/zillow.yaml` from the companion repo.
 2. **Hub Listing → Gateway → Target URL** →
    `https://api.aiwholesail.com/rapidapi/zillow`
 3. **Hub Listing → Gateway → Firewall Settings** → **Copy** the
@@ -59,7 +54,6 @@ While logged into rapidapi.com as `connor@upscaledinc.com`:
 ```bash
 ssh hetznerCO
 cd /var/www/aiwholesail-api
-# Append (don't replace) the two new env vars:
 echo 'RAPIDAPI_GATEWAY_ENABLED=true' >> .env
 echo 'RAPIDAPI_PROXY_SECRET=<paste-from-dashboard>' >> .env
 pm2 reload aiwholesail-api
@@ -87,37 +81,30 @@ In `connorodea/aiwholesail-rapidapi`:
 ```bash
 make publish
 ```
-This calls the RapidAPI CI/CD API and creates the listing. The first run
-writes the `apiid` to `publish/.api-ids.json` so subsequent updates are
-in-place.
 
 ## Disable / rollback
 
 ```bash
 ssh hetznerCO
 cd /var/www/aiwholesail-api
-# Either flip the flag:
+# Flip the flag:
 sed -i 's/^RAPIDAPI_GATEWAY_ENABLED=true/RAPIDAPI_GATEWAY_ENABLED=false/' .env
 # OR rotate the secret to instantly break gateway traffic:
 sed -i 's/^RAPIDAPI_PROXY_SECRET=.*$/RAPIDAPI_PROXY_SECRET=ROTATED_/' .env
 pm2 reload aiwholesail-api
 ```
 
-Then in the RapidAPI dashboard either:
-- Archive the listing (preserves data, prevents new subscriptions)
-- Rotate the secret to match the new backend value
-
 ## Observability
 
-`/rapidapi/zillow/*` requests share the same `morgan` access log as the
-rest of the API. To slice by source:
+`/rapidapi/zillow/*` requests share the same `morgan` access log as the rest
+of the API. To slice by source:
 
 ```bash
 ssh hetznerCO 'pm2 logs aiwholesail-api --lines 0' | grep '/rapidapi/zillow'
 ```
 
-The synthesised `req.user.id` is prefixed with `rapidapi:` so any
-log/audit query can distinguish RapidAPI consumers from frontend users.
+The synthesised `req.user.id` is prefixed with `rapidapi:` so audit queries
+distinguish RapidAPI consumers from frontend users.
 
 ## Failure modes
 
@@ -126,5 +113,17 @@ log/audit query can distinguish RapidAPI consumers from frontend users.
 | 503 "Gateway not configured" | `RAPIDAPI_PROXY_SECRET` unset | Set the env var, reload |
 | 401 on every request | Secret mismatch with dashboard | Re-copy from dashboard and replace `.env` value |
 | 404 on `/rapidapi/zillow/proxy` | `RAPIDAPI_GATEWAY_ENABLED` not `true` | Flip flag, reload |
-| 500 "both backends failed" | scrape.do AND RapidAPI fallback failing | Check scrape.do status; the route logs the underlying error |
-| Rate-limited (429) immediately | Same `rapidapi:<user>` bucket hammered | Per-consumer; verify `x-rapidapi-user` is varying |
+| 500 with no-data signal | Upstream returned ZillowScrapeError with unmapped reason | Check `handlers/rapidapiZillow.js` reason allowlist |
+| 429 immediately | Same `rapidapi:<user>` bucket hammered | Per-consumer; verify `x-rapidapi-user` varies |
+
+## Tests
+
+19 hermetic tests, no DB / network required:
+
+```bash
+node --test test/middleware/rapidapiProxySecret.test.js  # 7 tests
+node --test test/routes/rapidapiZillow.test.js           # 12 tests
+```
+
+All built TDD-first — every behavior was driven by a failing test before
+the implementation existed.
