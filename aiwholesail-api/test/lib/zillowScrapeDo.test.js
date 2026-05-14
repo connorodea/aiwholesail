@@ -1203,12 +1203,13 @@ test('mapPropertyToRapidApiShape — Tier A field expansion', async (t) => {
     assert.deepEqual(out.appliances, ['Dishwasher', 'Refrigerator']);
   });
 
-  await t.test('foundation falls back to scalar resoFacts.foundation', () => {
+  await t.test('foundation normalizes scalar resoFacts.foundation to array', () => {
+    // Always emit array form so frontend consumers can `.map(...)` safely.
     const out = mapPropertyToRapidApiShape({
       ...baseProp,
       resoFacts: { foundation: 'Pier and Beam' },
     });
-    assert.equal(out.foundation, 'Pier and Beam');
+    assert.deepEqual(out.foundation, ['Pier and Beam']);
   });
 
   await t.test('stories falls back to storiesTotal', () => {
@@ -1596,6 +1597,40 @@ test('mapPropertyToRapidApiShape — Tier A field expansion', async (t) => {
       resoFacts: { listingId: '', mlsId: 'OLD-456' },
     });
     assert.equal(out.mlsNumber, 'OLD-456');
+  });
+
+  // ── Third-pass review regressions (whitespace + array-normalization) ──
+  await t.test('mlsNumber treats whitespace-only listingId as absent', () => {
+    // Surfaced by 3rd-pass review — empty-string guard wasn't enough.
+    const out = mapPropertyToRapidApiShape({
+      ...baseProp,
+      resoFacts: { listingId: '   ', mlsId: 'FALLBACK-1' },
+    });
+    assert.equal(out.mlsNumber, 'FALLBACK-1');
+  });
+
+  await t.test('apn treats whitespace-only parcelNumber as absent', () => {
+    const out = mapPropertyToRapidApiShape({
+      ...baseProp,
+      resoFacts: { parcelNumber: '   ' },
+    });
+    assert.equal(out.apn, undefined);
+  });
+
+  await t.test('apn trims whitespace from valid parcelNumber', () => {
+    const out = mapPropertyToRapidApiShape({
+      ...baseProp,
+      resoFacts: { parcelNumber: '  12-34-56-789  ' },
+    });
+    assert.equal(out.apn, '12-34-56-789');
+  });
+
+  await t.test('foundation array form passes through unchanged', () => {
+    const out = mapPropertyToRapidApiShape({
+      ...baseProp,
+      resoFacts: { foundationDetails: ['Slab', 'Concrete Perimeter'] },
+    });
+    assert.deepEqual(out.foundation, ['Slab', 'Concrete Perimeter']);
   });
 
   // ── Backward compatibility ──────────────────────────────────────────
