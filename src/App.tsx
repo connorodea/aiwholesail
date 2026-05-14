@@ -52,6 +52,7 @@ const Pipeline = lazy(() => import("./pages/Pipeline"));
 const Buyers = lazy(() => import("./pages/Buyers"));
 const Sequences = lazy(() => import("./pages/Sequences"));
 const Campaigns = lazy(() => import("./pages/Campaigns"));
+const Inbox = lazy(() => import("./pages/Inbox"));
 const Contracts = lazy(() => import("./pages/Contracts"));
 const SkipTrace = lazy(() => import("./pages/SkipTrace"));
 const Account = lazy(() => import("./pages/Account"));
@@ -187,6 +188,11 @@ const App = () => (
                 <Route path="/app/campaigns" element={
                   <ProtectedRoute>
                     <Campaigns />
+                  </ProtectedRoute>
+                } />
+                <Route path="/app/inbox" element={
+                  <ProtectedRoute>
+                    <Inbox />
                   </ProtectedRoute>
                 } />
                 <Route path="/app/contracts" element={
