@@ -98,3 +98,29 @@ test('proxyHandler returns 400 when body has no action field', async () => {
   assert.equal(res.statusCode, 400);
   assert.match(res.payload.error, /action required/i);
 });
+
+test('proxyHandler returns 429 when rate limit is exceeded', async () => {
+  installMocks({ rateAllowed: false });
+  const { proxyHandler } = clearAndReloadHandler();
+
+  const res = makeRes();
+  await proxyHandler(makeReq({ action: 'zestimate' }), res);
+
+  assert.equal(res.statusCode, 429);
+  assert.match(res.payload.error, /rate limit/i);
+});
+
+test('proxyHandler returns 200 with proxyZillow result on happy path', async () => {
+  installMocks({ proxyResult: { zestimate: 425000, currency: 'USD' } });
+  const { proxyHandler } = clearAndReloadHandler();
+
+  const res = makeRes();
+  await proxyHandler(
+    makeReq({ action: 'zestimate', searchParams: { zpid: '9999' } }),
+    res
+  );
+
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.payload.success, true);
+  assert.deepEqual(res.payload.data, { zestimate: 425000, currency: 'USD' });
+});
