@@ -2,6 +2,15 @@ const crypto = require('node:crypto');
 
 function rapidapiProxySecret(req, res, next) {
   const expected = process.env.RAPIDAPI_PROXY_SECRET;
+  if (!expected) {
+    console.error(
+      '[rapidapi-proxy-secret] RAPIDAPI_PROXY_SECRET not set — refusing all requests'
+    );
+    return res.status(503).json({
+      success: false,
+      error: 'Gateway not configured',
+    });
+  }
   const provided =
     req.get('x-rapidapi-proxy-secret') || req.get('X-RapidAPI-Proxy-Secret');
   if (!provided) {

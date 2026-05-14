@@ -84,3 +84,39 @@ test('rejects with 401 when the proxy-secret header is wrong', (t) => {
 
   process.env.RAPIDAPI_PROXY_SECRET = t.before || '';
 });
+
+test('returns 503 when RAPIDAPI_PROXY_SECRET is not configured', (t) => {
+  t.before = process.env.RAPIDAPI_PROXY_SECRET;
+  delete process.env.RAPIDAPI_PROXY_SECRET;
+
+  const req = makeReq({ 'X-RapidAPI-Proxy-Secret': 'anything' });
+  const res = makeRes();
+  const next = makeNext();
+
+  rapidapiProxySecret(req, res, next);
+
+  // Fail-closed: 503 distinguishes "we're broken" from "you sent the
+  // wrong credential" (401). Wrong status here would let bare-internet
+  // traffic through on first deploy if the secret env var is missing.
+  assert.equal(res.statusCode, 503);
+  assert.equal(next.called(), false);
+  assert.match(res.payload.error, /not configured/i);
+
+  if (t.before) process.env.RAPIDAPI_PROXY_SECRET = t.before;
+});
+
+test('calls next() when the proxy-secret header matches', (t) => {
+  t.before = process.env.RAPIDAPI_PROXY_SECRET;
+  process.env.RAPIDAPI_PROXY_SECRET = 'the-correct-secret-value';
+
+  const req = makeReq({ 'X-RapidAPI-Proxy-Secret': 'the-correct-secret-value' });
+  const res = makeRes();
+  const next = makeNext();
+
+  rapidapiProxySecret(req, res, next);
+
+  assert.equal(next.called(), true, 'next() must be called on success');
+  assert.equal(res.statusCode, 200, 'no error response sent');
+
+  process.env.RAPIDAPI_PROXY_SECRET = t.before || '';
+});
