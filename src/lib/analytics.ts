@@ -1,4 +1,5 @@
 import { events } from '@/lib/api-client';
+import { capture as posthogCapture } from '@/lib/posthog';
 
 /**
  * AIWholesail Analytics — Comprehensive Event Tracking
@@ -41,6 +42,8 @@ function fire(eventName: string, params?: Record<string, any>) {
   if (typeof window !== 'undefined' && window.dataLayer) {
     window.dataLayer.push({ event: eventName, ...params });
   }
+  // PostHog Cloud — no-ops if VITE_POSTHOG_KEY is unset
+  posthogCapture(eventName, params);
 }
 
 /**
