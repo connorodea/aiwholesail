@@ -587,6 +587,16 @@ async function run() {
         // the SMS UI was removed from the product. Keeping the phone_number
         // column + sendSMS() helper in place so we can re-enable later without
         // a schema migration. For now, alerts ship via email only.
+        //
+        // Contract: this `smsSent = false` hardcode is the single
+        // reversible-disable layer for the email-only-alerts decision shipped
+        // in #374 + #378. The per-request user-initiated SMS path (client
+        // method + server route + rate-limit bucket) was removed in #378. Do
+        // NOT remove this hardcode without first re-establishing one of those
+        // paths AND validating Twilio credentials in env. The regression
+        // guard at aiwholesail-api/test/routes/communications-no-spread-alert-sms.test.js
+        // asserts both halves of this contract (the hardcode is present;
+        // the per-request path is gone).
         const smsSent = false;
 
         // Always send email alert
