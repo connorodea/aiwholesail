@@ -487,6 +487,8 @@ export default function RealEstateWholesaler() {
       const errorMessage = error instanceof Error ? error.message : "An error occurred while searching";
 
       // Check for subscription-related errors
+      const isNotAuth = errorMessage === 'NOT_AUTHENTICATED' || errorMessage.includes('NOT_AUTHENTICATED');
+
       if (errorMessage.includes('search limit') || errorMessage.includes('SEARCH_LIMIT_REACHED')) {
         toast.error('Daily search limit reached. Upgrade to Elite for unlimited searches.', {
           action: {
@@ -501,7 +503,7 @@ export default function RealEstateWholesaler() {
             onClick: () => navigate('/pricing'),
           },
         });
-      } else if (errorMessage === 'NOT_AUTHENTICATED' || errorMessage.includes('NOT_AUTHENTICATED')) {
+      } else if (isNotAuth) {
         // Thrown by ZillowAPI when the access token is missing/expired.
         // Surface a sign-in CTA instead of the opaque "401" toast that
         // cpodea5 hit on 2026-05-13.
@@ -515,7 +517,14 @@ export default function RealEstateWholesaler() {
         toast.error(errorMessage);
       }
 
-      setError(errorMessage);
+      // Suppress the inline <section> error box for NOT_AUTHENTICATED — the
+      // toast above already explains it with a recovery action. Rendering the
+      // raw "NOT_AUTHENTICATED" string in the red box made it look like a P1
+      // production incident to cpodea5 on 2026-05-14. All other error classes
+      // keep their inline render (search-limit, subscription-required, etc.).
+      if (!isNotAuth) {
+        setError(errorMessage);
+      }
     } finally {
       setIsLoading(false);
       setLoadingProgress(0);
