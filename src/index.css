@@ -322,14 +322,17 @@ All colors MUST be HSL.
   }
 }
 
-/* Leaflet stacking-context guard.
-   Leaflet's `.leaflet-container` is `position: relative` with no z-index, so
-   its internal panes (.leaflet-popup-pane = 700, .leaflet-control = 800)
-   leak into the document stacking context and paint over Radix Dialog /
-   Sheet overlays (z-50). `isolation: isolate` forces the container to
-   form its own stacking context, scoping every pane inside it. */
-.leaflet-container {
-  isolation: isolate;
+@layer base {
+  /* Leaflet stacking-context guard.
+     Leaflet's `.leaflet-container` is `position: relative` with no z-index,
+     so its internal panes (.leaflet-popup-pane = 700, .leaflet-control =
+     800) leak into the document stacking context and paint over Radix
+     Dialog / Sheet overlays (z-50). `isolation: isolate` forces the
+     container to form its own stacking context, scoping every pane
+     inside it. */
+  .leaflet-container {
+    isolation: isolate;
+  }
 }
 
 /* Mobile global guards: prevent accidental horizontal scroll & give touch
