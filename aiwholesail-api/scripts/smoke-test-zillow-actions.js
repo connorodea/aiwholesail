@@ -34,6 +34,18 @@
  *     AIW_SMOKE_ZPID_WALKSCORE=12345678   (urban, transit-served)
  *     AIW_SMOKE_ZPID_CLIMATERISK=23456789 (coastal / fire-zone)
  *     AIW_SMOKE_ZPID_RENTALCOMPS=34567890 (rentable property)
+ *
+ * Baseline ZPID override (TD-106):
+ *   The baseline DEFAULT_ZPID can also be re-pointed via env var to
+ *   run the entire smoke against a different listing (e.g. a more-
+ *   detailed urban property that surfaces more Tier A fields) without
+ *   editing lib/smoke-test-fixtures.js:
+ *     AIW_SMOKE_DEFAULT_ZPID=98765432 node scripts/smoke-test-zillow-actions.js
+ *
+ *   Empty / whitespace-only values fall back to the hardcoded default,
+ *   so an unset env var or a `=""` shell quirk won't produce broken
+ *   Zillow URLs. Per-action overrides (above) still take precedence
+ *   for their specific actions.
  */
 
 const fs = require('fs');
