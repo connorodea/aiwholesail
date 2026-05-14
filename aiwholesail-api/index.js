@@ -165,18 +165,6 @@ app.use('/api/events', eventsRoutes);
 app.use('/api/offmarket-search-log', offmarketSearchLogRoutes);
 app.use('/api/property', propertyRoutes);
 app.use('/api/zillow', zillowRoutes);
-
-// RapidAPI gateway mount — same upstream proxy (scrape.do + RapidAPI fallback)
-// but auth via shared-secret header injection instead of session JWT. Disabled
-// by default; flip RAPIDAPI_GATEWAY_ENABLED=true once the listing is wired in
-// the RapidAPI dashboard. Companion repo: connorodea/aiwholesail-rapidapi.
-if (process.env.RAPIDAPI_GATEWAY_ENABLED === 'true') {
-  const { rapidapiProxySecret } = require('./middleware/rapidapiProxySecret');
-  const rapidapiZillowRoutes = require('./routes/rapidapiZillow');
-  app.use('/rapidapi/zillow', rapidapiProxySecret, rapidapiZillowRoutes);
-  console.log('[Server] RapidAPI gateway mount enabled at /rapidapi/zillow');
-}
-
 app.use('/api/communications', communicationsRoutes);
 app.use('/api/buyers', buyersRoutes);
 app.use('/api/sequences', sequencesRoutes);
