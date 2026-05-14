@@ -113,6 +113,104 @@ test('smoke-test fixture helper — per-action ZPID resolution', async (t) => {
   });
 });
 
+test('smoke-test fixture helper — AIW_SMOKE_DEFAULT_ZPID baseline override (TD-106)', async (t) => {
+  // Background: per-action overrides exist for walkScore/climateRisk/rentalComps,
+  // but the baseline DEFAULT_ZPID was hardcoded. Operators running smoke against a
+  // more-detailed listing had to fork the file. This adds an env-var seam at the
+  // baseline so the whole script can be re-pointed to any ZPID without code edits.
+  //
+  // Module re-loaded per test via require.cache delete so DEFAULT_ZPID picks up
+  // the env-var at module-load time (deterministic; no dynamic getters).
+
+  const FIXTURES_PATH = require.resolve('../../lib/smoke-test-fixtures');
+  const HARDCODED_FALLBACK = '145656008';
+
+  function loadFresh() {
+    delete require.cache[FIXTURES_PATH];
+    return require('../../lib/smoke-test-fixtures');
+  }
+
+  await t.test('AIW_SMOKE_DEFAULT_ZPID env-var overrides DEFAULT_ZPID', () => {
+    process.env.AIW_SMOKE_DEFAULT_ZPID = '88888888';
+    try {
+      const mod = loadFresh();
+      assert.equal(mod.DEFAULT_ZPID, '88888888');
+    } finally {
+      delete process.env.AIW_SMOKE_DEFAULT_ZPID;
+      loadFresh(); // reset cache so subsequent require()s see clean state
+    }
+  });
+
+  await t.test('DEFAULT_ZPID falls back to hardcoded value when env-var unset', () => {
+    delete process.env.AIW_SMOKE_DEFAULT_ZPID;
+    const mod = loadFresh();
+    assert.equal(mod.DEFAULT_ZPID, HARDCODED_FALLBACK);
+  });
+
+  await t.test('DEFAULT_ZPID falls back when env-var is empty string', () => {
+    process.env.AIW_SMOKE_DEFAULT_ZPID = '';
+    try {
+      const mod = loadFresh();
+      assert.equal(mod.DEFAULT_ZPID, HARDCODED_FALLBACK);
+    } finally {
+      delete process.env.AIW_SMOKE_DEFAULT_ZPID;
+      loadFresh();
+    }
+  });
+
+  await t.test('DEFAULT_ZPID falls back when env-var is whitespace-only', () => {
+    process.env.AIW_SMOKE_DEFAULT_ZPID = '   \t  ';
+    try {
+      const mod = loadFresh();
+      assert.equal(mod.DEFAULT_ZPID, HARDCODED_FALLBACK);
+    } finally {
+      delete process.env.AIW_SMOKE_DEFAULT_ZPID;
+      loadFresh();
+    }
+  });
+
+  await t.test('DEFAULT_ZPID accepts numeric env value (trimmed string)', () => {
+    process.env.AIW_SMOKE_DEFAULT_ZPID = '  12345  ';
+    try {
+      const mod = loadFresh();
+      assert.equal(mod.DEFAULT_ZPID, '12345');
+    } finally {
+      delete process.env.AIW_SMOKE_DEFAULT_ZPID;
+      loadFresh();
+    }
+  });
+
+  await t.test('zpidFor() for non-overridden action returns the new DEFAULT_ZPID', () => {
+    // Critical regression guard: the per-action override mechanism must continue
+    // to fall back to whatever DEFAULT_ZPID resolves to (env or hardcoded), not
+    // to the hardcoded value directly.
+    process.env.AIW_SMOKE_DEFAULT_ZPID = '77777777';
+    try {
+      const mod = loadFresh();
+      assert.equal(mod.zpidFor('search'), '77777777');
+      assert.equal(mod.zpidFor('propertyDetails'), '77777777');
+    } finally {
+      delete process.env.AIW_SMOKE_DEFAULT_ZPID;
+      loadFresh();
+    }
+  });
+
+  await t.test('per-action env override still wins over AIW_SMOKE_DEFAULT_ZPID', () => {
+    // walkScore's own env should beat the baseline override.
+    process.env.AIW_SMOKE_DEFAULT_ZPID = '11111111';
+    process.env.AIW_SMOKE_ZPID_WALKSCORE = '22222222';
+    try {
+      const mod = loadFresh();
+      assert.equal(mod.zpidFor('walkScore'), '22222222');
+      assert.equal(mod.DEFAULT_ZPID, '11111111');
+    } finally {
+      delete process.env.AIW_SMOKE_DEFAULT_ZPID;
+      delete process.env.AIW_SMOKE_ZPID_WALKSCORE;
+      loadFresh();
+    }
+  });
+});
+
 test('smoke-test fixture helper — operator README assertions', async (t) => {
 
   await t.test('script header documents the AIW_SMOKE_ZPID_<ACTION> env-var convention', () => {
@@ -131,6 +229,21 @@ test('smoke-test fixture helper — operator README assertions', async (t) => {
       'operators won\'t discover that walkScore/climateRisk/rentalComps ' +
       'failures are fixture mismatches (not scraper bugs) and won\'t ' +
       'know how to set real fixtures.'
+    );
+  });
+
+  await t.test('script header documents the AIW_SMOKE_DEFAULT_ZPID baseline override (TD-106)', () => {
+    const fs = require('node:fs');
+    const path = require('node:path');
+    const script = path.join(__dirname, '..', '..', 'scripts', 'smoke-test-zillow-actions.js');
+    const source = fs.readFileSync(script, 'utf8');
+
+    assert.match(
+      source,
+      /AIW_SMOKE_DEFAULT_ZPID/,
+      'scripts/smoke-test-zillow-actions.js header must document the ' +
+      'AIW_SMOKE_DEFAULT_ZPID baseline override so operators can re-point ' +
+      'the smoke test at a more-detailed listing without editing the source.'
     );
   });
 

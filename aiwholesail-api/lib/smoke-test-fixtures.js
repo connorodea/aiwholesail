@@ -23,11 +23,34 @@
  *
  * Filed as task #49 after PR #358 surfaced the noise during live
  * smoke-test runs.
+ *
+ * Baseline override (TD-106, May 2026):
+ *   The baseline DEFAULT_ZPID is also env-overridable via
+ *   AIW_SMOKE_DEFAULT_ZPID. Set this to re-point the entire smoke run
+ *   at a different listing (e.g. a more-detailed urban property that
+ *   populates more Tier A fields) without editing this file. Empty
+ *   string or whitespace-only values fall back to FALLBACK_ZPID so
+ *   a broken Zillow URL never ships. Per-action overrides
+ *   (AIW_SMOKE_ZPID_*) still take precedence for their specific
+ *   actions — the baseline override only affects actions without
+ *   their own override.
  */
 
 // Known-good Austin, TX listing — long-tenured and stable. If this gets
 // delisted, swap for another. Live as of 2026-05-12.
-const DEFAULT_ZPID = '145656008';
+const FALLBACK_ZPID = '145656008';
+
+// Operator-overridable baseline. Reads AIW_SMOKE_DEFAULT_ZPID at module-load
+// time. Empty/whitespace-only values fall through to FALLBACK_ZPID so the
+// smoke test never constructs a broken Zillow URL.
+const DEFAULT_ZPID = (() => {
+  const raw = process.env.AIW_SMOKE_DEFAULT_ZPID;
+  if (typeof raw === 'string') {
+    const trimmed = raw.trim();
+    if (trimmed.length > 0) return trimmed;
+  }
+  return FALLBACK_ZPID;
+})();
 
 // Per-action env-var names. Adding a new entry here documents the
 // override convention for operators; the helper does the env lookup
