@@ -213,11 +213,235 @@ async function handleFailed(data) {
   }
 }
 
-// TODO: inbound reply parsing — Resend "email.inbound" or equivalent.
-// When implemented, parse data.from / data.subject / data.text / data.html,
-// match in_reply_to → email_send_log.provider_message_id, and INSERT into
-// email_inbound_replies. Keep parsed_intent classification in a separate
-// service (lib/inbound-classifier.js) so this handler stays thin.
+// --- Inbound reply parsing ------------------------------------------------
+//
+// Resend's inbound parsing webhook fires `email.received` events when mail
+// arrives at our configured receiving domain (reply.aiwholesail.com). The
+// payload shape:
+//   {
+//     type: 'email.received',
+//     data: {
+//       email_id: '<resend id of THIS inbound>',
+//       from: 'seller@example.com',
+//       to: ['reply+thread@reply.aiwholesail.com'],
+//       subject: 'Re: your message',
+//       headers: [{name: 'In-Reply-To', value: '<original-id@resend.dev>'}, ...],
+//       text: '...',
+//       html: '...',
+//     }
+//   }
+//
+// We thread inbound to the original send by matching the `In-Reply-To`
+// header against `email_send_log.provider_message_id`. Failing that, we
+// fall back to a 24-hour to_address ↔ from_address match.
+
+const UNSUBSCRIBE_RE = /\b(stop|unsubscribe|remove me|opt[- ]?out|do not contact)\b/i;
+const NOT_INTERESTED_RE = /\b(no thanks|not interested|wrong number|wrong person)\b/i;
+const INTERESTED_RE = /\b(yes|interested|let'?s talk|call me|how much|cash offer|tell me more|i'?m in)\b/i;
+const BOUNCE_RE = /(mailer-daemon|delivery status notification|address not found|undeliverable|delivery has failed|message could not be delivered|550 5\.|recipient address rejected)/i;
+
+function classifyIntent(bodyText) {
+  if (!bodyText) return 'unknown';
+  // Bounce indicators take precedence — they're often "Re:" replies but the
+  // body is an MTA report, not a human response. Check bounce first.
+  if (BOUNCE_RE.test(bodyText)) return 'bounce_message';
+  if (UNSUBSCRIBE_RE.test(bodyText)) return 'unsubscribe';
+  if (NOT_INTERESTED_RE.test(bodyText)) return 'not_interested';
+  if (INTERESTED_RE.test(bodyText)) return 'interested';
+  return 'unknown';
+}
+
+// Pluck a header value by case-insensitive name. Resend gives us an
+// array of { name, value } objects; some providers give us an object map.
+function getHeader(headers, name) {
+  if (!headers) return null;
+  const lower = name.toLowerCase();
+  if (Array.isArray(headers)) {
+    for (const h of headers) {
+      if (h && typeof h.name === 'string' && h.name.toLowerCase() === lower) {
+        return h.value || null;
+      }
+    }
+    return null;
+  }
+  if (typeof headers === 'object') {
+    for (const [k, v] of Object.entries(headers)) {
+      if (k.toLowerCase() === lower) return v;
+    }
+  }
+  return null;
+}
+
+// Normalize the `from` field — Resend may give us "Name <addr@example.com>"
+// or a bare address. We want just the addr for downstream lookups + suppression.
+function extractAddress(input) {
+  if (!input || typeof input !== 'string') return null;
+  const m = input.match(/<([^>]+)>/);
+  return (m ? m[1] : input).trim().toLowerCase();
+}
+
+function extractToAddress(to) {
+  if (!to) return null;
+  if (Array.isArray(to)) return extractAddress(to[0]);
+  return extractAddress(to);
+}
+
+// Strip angle brackets some clients add around message-ids in headers.
+function normalizeMessageId(id) {
+  if (!id || typeof id !== 'string') return null;
+  return id.trim().replace(/^<|>$/g, '');
+}
+
+async function handleInboundReceived(data) {
+  // 1. Extract fields.
+  const fromAddress = extractAddress(data.from);
+  const toAddress = extractToAddress(data.to);
+  const subject = data.subject || null;
+  const bodyText = data.text || null;
+  const bodyHtml = data.html || null;
+  const messageId = normalizeMessageId(getHeader(data.headers, 'Message-ID') || data.email_id);
+  const inReplyTo = normalizeMessageId(getHeader(data.headers, 'In-Reply-To'));
+
+  if (!fromAddress) {
+    console.warn('[Resend webhook] inbound: no from address; skipping');
+    return;
+  }
+
+  // 2. Try to thread the inbound reply to an outbound send.
+  let userId = null;
+  let leadSequenceId = null;
+  let emailSendLogId = null;
+
+  if (inReplyTo) {
+    const r = await pool.query(
+      `SELECT esl.id, esl.user_id, ls.id AS lead_sequence_id
+         FROM email_send_log esl
+         LEFT JOIN sequence_executions se ON se.id = esl.sequence_execution_id
+         LEFT JOIN lead_sequences ls ON ls.id = se.lead_sequence_id
+        WHERE esl.provider_message_id = $1
+        LIMIT 1`,
+      [inReplyTo]
+    );
+    if (r.rowCount > 0) {
+      emailSendLogId = r.rows[0].id;
+      userId = r.rows[0].user_id;
+      leadSequenceId = r.rows[0].lead_sequence_id;
+    }
+  }
+
+  // 3. Best-effort fallback — find any send in the last 24h to this
+  //    from_address. This catches replies whose In-Reply-To header was
+  //    stripped or rewritten by intermediate MTAs.
+  if (!emailSendLogId) {
+    const r = await pool.query(
+      `SELECT esl.id, esl.user_id, ls.id AS lead_sequence_id
+         FROM email_send_log esl
+         LEFT JOIN sequence_executions se ON se.id = esl.sequence_execution_id
+         LEFT JOIN lead_sequences ls ON ls.id = se.lead_sequence_id
+        WHERE LOWER(esl.to_address) = $1
+          AND esl.sent_at >= NOW() - INTERVAL '24 hours'
+        ORDER BY esl.sent_at DESC
+        LIMIT 1`,
+      [fromAddress]
+    );
+    if (r.rowCount > 0) {
+      emailSendLogId = r.rows[0].id;
+      userId = r.rows[0].user_id;
+      leadSequenceId = r.rows[0].lead_sequence_id;
+    }
+  }
+
+  // 4. Classify intent on the lowercased body text.
+  const parsedIntent = classifyIntent(bodyText);
+
+  // 5. Insert the inbound reply row. ON CONFLICT (message_id) DO NOTHING
+  //    guards against duplicate webhook deliveries from Resend.
+  try {
+    await pool.query(
+      `INSERT INTO email_inbound_replies (
+         user_id, email_send_log_id, lead_sequence_id,
+         from_address, to_address, subject, message_id, in_reply_to,
+         body_text, body_html, parsed_intent
+       ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+       ON CONFLICT (message_id) DO NOTHING`,
+      [
+        userId,
+        emailSendLogId,
+        leadSequenceId,
+        fromAddress,
+        toAddress,
+        subject,
+        messageId,
+        inReplyTo,
+        bodyText,
+        bodyHtml,
+        parsedIntent,
+      ]
+    );
+  } catch (err) {
+    console.error('[Resend webhook] inbound: insert failed:', err.message);
+    // Continue — we'd still like to suppress / pause if possible.
+  }
+
+  // 6. Stamp the originating send row with replied_at so analytics + the
+  //    inbox UI can show "replied" without an extra JOIN.
+  if (emailSendLogId) {
+    try {
+      await pool.query(
+        `UPDATE email_send_log
+            SET replied_at = COALESCE(replied_at, NOW())
+          WHERE id = $1`,
+        [emailSendLogId]
+      );
+    } catch (err) {
+      console.error('[Resend webhook] inbound: replied_at update failed:', err.message);
+    }
+  }
+
+  // 7. Auto-pause the lead_sequence on any actionable intent — interested,
+  //    not_interested, or unsubscribe. We don't pause on 'bounce_message'
+  //    (the bounce webhook already handles hard-bounce suppression) or
+  //    'unknown' (could be a benign follow-up). Skip if the sequence is
+  //    already in a terminal state.
+  if (userId && leadSequenceId &&
+      ['interested', 'not_interested', 'unsubscribe'].includes(parsedIntent)) {
+    try {
+      await pool.query(
+        `UPDATE lead_sequences
+            SET status = 'paused'
+          WHERE id = $1
+            AND status NOT IN ('paused', 'completed', 'cancelled')`,
+        [leadSequenceId]
+      );
+    } catch (err) {
+      console.error('[Resend webhook] inbound: pause sequence failed:', err.message);
+    }
+  }
+
+  // 8. Add the address to the per-user suppression list on unsubscribe.
+  //    We require a resolved user_id — without it the suppression has no
+  //    owner and would be unenforceable at send time.
+  if (userId && parsedIntent === 'unsubscribe') {
+    try {
+      await pool.query(
+        `INSERT INTO email_suppressions (user_id, email, reason, source_message_id)
+         VALUES ($1, $2, 'unsubscribed', $3)
+         ON CONFLICT (user_id, email) DO NOTHING`,
+        [userId, fromAddress, messageId]
+      );
+    } catch (err) {
+      console.error('[Resend webhook] inbound: suppression insert failed:', err.message);
+    }
+  }
+
+  console.log('[Resend webhook] inbound processed', {
+    from: fromAddress,
+    intent: parsedIntent,
+    matched: !!emailSendLogId,
+    user_id: userId,
+    lead_sequence_id: leadSequenceId,
+  });
+}
 
 // --- Route ---------------------------------------------------------------
 
@@ -299,6 +523,9 @@ router.post(
         case 'email.failed':
         case 'email.delivery_delayed':
           await handleFailed(data);
+          break;
+        case 'email.received':
+          await handleInboundReceived(data);
           break;
         default:
           console.log('[Resend webhook] unhandled event type:', type);

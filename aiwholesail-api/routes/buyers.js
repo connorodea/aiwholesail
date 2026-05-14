@@ -4,7 +4,7 @@ const { query, getClient } = require('../config/database');
 const { authenticate } = require('../middleware/auth');
 const { asyncHandler } = require('../middleware/errorHandler');
 const { respondError } = require('../lib/responses');
-const { getSender } = require('../lib/senders');
+const { getSender, getReplyTo } = require('../lib/senders');
 
 const router = express.Router();
 
@@ -429,9 +429,16 @@ router.post('/:id/outreach', authenticate, [
       const { Resend } = require('resend');
       const resend = new Resend(process.env.RESEND_API_KEY);
       const senderName = req.user.fullName || 'AIWholesail';
+      // Replies route through our shared inbound mailbox — the Resend
+      // inbound webhook threads them back to this user via the In-Reply-To
+      // header against email_send_log.provider_message_id. (Per-thread
+      // routing via reply+<thread>@reply.aiwholesail.com lands in a later
+      // phase.) Falls back to the user's own email if reply_to isn't
+      // configured.
+      const buyerReplyTo = getReplyTo('outreach') || req.user.email;
       const sendResult = await resend.emails.send({
         from: `${senderName} via AIWholesail <outreach@send.aiwholesail.com>`,
-        replyTo: req.user.email,
+        reply_to: buyerReplyTo,
         to: buyer.email,
         subject: `New Wholesale Deal: ${address}`,
         html: `
