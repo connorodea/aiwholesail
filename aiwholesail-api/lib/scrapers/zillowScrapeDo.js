@@ -2201,6 +2201,135 @@ async function forecast(args = {}) {
 }
 
 /**
+ * domTrends — Tier B5 endpoint #2 of 5. Days-on-market trajectory + current
+ * scalar. Reads from the SAME cached home-values payload that
+ * `_fetchHomeValuesPayload` owns, so calling this alongside `localPriceTrends`
+ * / `inventoryTrends` / `forecast` for the same region costs ONE scrape, not 4.
+ *
+ * @param {{region: string, regionType?: 'zip'|'city'|'state'|'county'}} args
+ */
+async function domTrends(args = {}) {
+  const { region, regionType } = args;
+  if (!region || typeof region !== 'string' || !region.trim()) {
+    throw new ZillowScrapeError('domTrends requires region', { reason: 'bad_args' });
+  }
+  const nextData = await _fetchHomeValuesPayload({ region, regionType });
+  const pp = nextData?.props?.pageProps || {};
+  const odp = pp.odpMarketAnalytics || {};
+  return {
+    regionName: pp.zhviRegion?.name || pp.requestedRegion?.name,
+    regionType: pp.zhviRegion?.regionTypeName || regionType,
+    medianDomSeries: findMarketTimeSeries(nextData, 'medianDomSeries'),
+    saleToListSeries: findMarketTimeSeries(nextData, 'saleToListSeries'),
+    currentMedianDom: odp.mrktSaleLatest?.medianDaysOnMarket ?? null,
+    yoyDomChangeDays: odp.mrktSaleLatest?.medianDomYoY ?? null,
+    saleToListRatio: odp.mrktSaleLatest?.saleToListRatio ?? null,
+  };
+}
+
+/**
+ * inventoryTrends — Tier B5 endpoint #3 of 5. Months-of-supply + active
+ * inventory + new-listings trajectories. Shares the home-values cached
+ * payload with `localPriceTrends` / `domTrends` / `forecast`.
+ *
+ * @param {{region: string, regionType?: 'zip'|'city'|'state'|'county'}} args
+ */
+async function inventoryTrends(args = {}) {
+  const { region, regionType } = args;
+  if (!region || typeof region !== 'string' || !region.trim()) {
+    throw new ZillowScrapeError('inventoryTrends requires region', { reason: 'bad_args' });
+  }
+  const nextData = await _fetchHomeValuesPayload({ region, regionType });
+  const pp = nextData?.props?.pageProps || {};
+  const odp = pp.odpMarketAnalytics || {};
+  return {
+    regionName: pp.zhviRegion?.name || pp.requestedRegion?.name,
+    regionType: pp.zhviRegion?.regionTypeName || regionType,
+    activeInventorySeries: findMarketTimeSeries(nextData, 'forSaleInventorySeries'),
+    newListingsSeries: findMarketTimeSeries(nextData, 'mrktListingSeries'),
+    monthsOfSupplyCurrent: odp.monthsOfSupplyLatest?.value ?? null,
+    inventoryYoyPct: odp.forSaleInventoryLatest?.inventoryYoY ?? null,
+    newListingsYoyPct: odp.mrktListingLatest?.newListingsYoY ?? null,
+  };
+}
+
+// ── Rent trends — separate URL, no co-locate cache reuse ──────────────────
+// rentTrends sources ZORI (Zillow Observed Rent Index) data from
+// /rental-manager/market-trends/<region>/ — a different page than
+// /<region>/home-values/. Doesn't share `_fetchHomeValuesPayload`'s cache.
+
+/** Build the rental-manager market-trends URL. */
+function rentTrendsUrl(region, regionType) {
+  const slug = String(region)
+    .trim()
+    .toLowerCase()
+    .replace(/,/g, '')
+    .replace(/\s+/g, '-');
+  // Same regionType→prefix scheme as marketStatsUrl; rental-manager accepts
+  // both flat and zip-prefixed forms.
+  if (regionType === 'zip') {
+    return `${ZILLOW_BASE}/rental-manager/market-trends/${encodeURIComponent(slug)}/`;
+  }
+  return `${ZILLOW_BASE}/rental-manager/market-trends/${encodeURIComponent(slug)}/`;
+}
+
+/**
+ * rentTrends — Tier B5 endpoint #5 of 5. ZORI median rent + series + YoY +
+ * "market temperature" + bed-level breakdown.
+ *
+ * HYPOTHESIS field paths (need live-payload verification post-merge):
+ *   pageProps.zoriRegion.{name, regionTypeName}
+ *   pageProps.zoriLatest.{medianRent, yoyRentChangePct, yoyRentChangeUsd, marketTemperature, rentalsAvailable, byBeds: {studio, oneBed, ...}}
+ *   pageProps.zoriSeries (array)
+ *
+ * @param {{region: string, regionType?: 'zip'|'city'|'state'|'county'}} args
+ */
+async function rentTrends(args = {}) {
+  const { region, regionType } = args;
+  if (!region || typeof region !== 'string' || !region.trim()) {
+    throw new ZillowScrapeError('rentTrends requires region', { reason: 'bad_args' });
+  }
+  const url = rentTrendsUrl(region, regionType);
+  // eslint-disable-next-line global-require
+  const scrapeDoClient = require('./scrapeDoClient');
+  let resp;
+  try {
+    resp = await scrapeDoClient.scrape(url, { headers: DEFAULT_HEADERS, geoCode: 'us', render: false, super: true });
+  } catch (err) {
+    if (err instanceof ScrapeDoError) {
+      throw new ZillowScrapeError(`scrape.do fetch failed: ${err.message}`, {
+        status: err.status,
+        action: 'rentTrends',
+        reason: 'fetch_failed',
+      });
+    }
+    throw err;
+  }
+  const nextData = extractNextData(resp.data);
+  const pp = nextData?.props?.pageProps || {};
+  const zr = pp.zoriRegion || {};
+  const zl = pp.zoriLatest || {};
+  const byBeds = zl.byBeds || {};
+  return {
+    regionName: zr.name,
+    regionType: zr.regionTypeName || regionType,
+    medianRent: zl.medianRent ?? null,
+    medianRentSeries: findMarketTimeSeries(nextData, 'zoriSeries'),
+    yoyRentChangePct: zl.yoyRentChangePct ?? null,
+    yoyRentChangeUsd: zl.yoyRentChangeUsd ?? null,
+    marketTemperature: zl.marketTemperature ?? null,
+    rentalsAvailable: zl.rentalsAvailable ?? null,
+    rentByBeds: {
+      studio: byBeds.studio,
+      oneBed: byBeds.oneBed,
+      twoBed: byBeds.twoBed,
+      threeBed: byBeds.threeBed,
+      fourPlusBed: byBeds.fourPlusBed,
+    },
+  };
+}
+
+/**
  * Region-level market stats (typical home value, MoM, YoY, etc.).
  *
  * @param {{region: string, regionType?: 'zip'|'city'|'state'|'county'}} args
@@ -3022,6 +3151,10 @@ module.exports = {
   // Market-analytics — Tier B5:
   localPriceTrends,
   forecast,
+  domTrends,
+  inventoryTrends,
+  rentTrends,
+  rentTrendsUrl,
   // Test-only — co-locate cache db injection. Do NOT call from production.
   __setHomeValuesPayloadCacheDbForTests,
   __resetHomeValuesPayloadCacheForTests,

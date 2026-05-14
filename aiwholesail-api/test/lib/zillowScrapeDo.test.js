@@ -2755,3 +2755,150 @@ test('Tier B5 cycle 4 — _fetchHomeValuesPayload cache co-locates the 4 endpoin
     }
   );
 });
+
+// ───────────────────────── Tier B5 — cycles 2, 3, 5 ────────────────────────
+// domTrends + inventoryTrends share the home-values cached payload with
+// cycle 1 (localPriceTrends) + cycle 4 (forecast). rentTrends uses a
+// separate URL and does its own scrape.
+
+test('Tier B5 cycle 2 — domTrends', async (t) => {
+  const z = require('../../lib/scrapers/zillowScrapeDo');
+
+  await t.test('exists, rejects missing region', async () => {
+    assert.equal(typeof z.domTrends, 'function');
+    await assert.rejects(() => z.domTrends({}), /requires region/);
+    await assert.rejects(() => z.domTrends({ region: '   ' }), /requires region/);
+  });
+
+  await t.test('returns DOM series + scalars from fixture payload', async () => {
+    const scrapeDoClient = require('../../lib/scrapers/scrapeDoClient');
+    const originalScrape = scrapeDoClient.scrape;
+    z.__setHomeValuesPayloadCacheDbForTests({ get: async () => null, set: async () => {} });
+    try {
+      const html = `<!doctype html><script id="__NEXT_DATA__" type="application/json">${JSON.stringify({
+        props: {
+          pageProps: {
+            zhviRegion: { name: 'Austin, TX', regionTypeName: 'city' },
+            odpMarketAnalytics: {
+              medianDomSeries: [
+                { date: '2025-01-01', value: 42 },
+                { date: '2025-02-01', value: 48 },
+              ],
+              saleToListSeries: [{ date: '2025-01-01', value: 0.97 }],
+              mrktSaleLatest: { medianDaysOnMarket: 48, medianDomYoY: 5, saleToListRatio: 0.97 },
+            },
+          },
+        },
+      })}</script>`;
+      scrapeDoClient.scrape = async () => ({ data: html });
+      const out = await z.domTrends({ region: 'Austin, TX' });
+      assert.equal(out.regionName, 'Austin, TX');
+      assert.equal(out.medianDomSeries.length, 2);
+      assert.equal(out.medianDomSeries[0].value, 42);
+      assert.equal(out.currentMedianDom, 48);
+      assert.equal(out.yoyDomChangeDays, 5);
+      assert.equal(out.saleToListRatio, 0.97);
+    } finally {
+      scrapeDoClient.scrape = originalScrape;
+      z.__setHomeValuesPayloadCacheDbForTests(null);
+      z.__resetHomeValuesPayloadCacheForTests();
+    }
+  });
+});
+
+test('Tier B5 cycle 3 — inventoryTrends', async (t) => {
+  const z = require('../../lib/scrapers/zillowScrapeDo');
+
+  await t.test('exists, rejects missing region', async () => {
+    assert.equal(typeof z.inventoryTrends, 'function');
+    await assert.rejects(() => z.inventoryTrends({}), /requires region/);
+  });
+
+  await t.test('returns inventory series + months of supply from fixture', async () => {
+    const scrapeDoClient = require('../../lib/scrapers/scrapeDoClient');
+    const originalScrape = scrapeDoClient.scrape;
+    z.__setHomeValuesPayloadCacheDbForTests({ get: async () => null, set: async () => {} });
+    try {
+      const html = `<!doctype html><script id="__NEXT_DATA__" type="application/json">${JSON.stringify({
+        props: {
+          pageProps: {
+            zhviRegion: { name: 'Austin, TX', regionTypeName: 'city' },
+            odpMarketAnalytics: {
+              forSaleInventorySeries: [
+                { date: '2025-01-01', value: 4747 },
+                { date: '2025-02-01', value: 4900 },
+              ],
+              mrktListingSeries: [{ date: '2025-01-01', value: 1200 }],
+              monthsOfSupplyLatest: { value: 3.4 },
+              forSaleInventoryLatest: { inventoryYoY: 0.12 },
+              mrktListingLatest: { newListingsYoY: -0.05 },
+            },
+          },
+        },
+      })}</script>`;
+      scrapeDoClient.scrape = async () => ({ data: html });
+      const out = await z.inventoryTrends({ region: 'Austin, TX' });
+      assert.equal(out.activeInventorySeries.length, 2);
+      assert.equal(out.activeInventorySeries[0].value, 4747);
+      assert.equal(out.monthsOfSupplyCurrent, 3.4);
+      assert.equal(out.inventoryYoyPct, 0.12);
+      assert.equal(out.newListingsYoyPct, -0.05);
+    } finally {
+      scrapeDoClient.scrape = originalScrape;
+      z.__setHomeValuesPayloadCacheDbForTests(null);
+      z.__resetHomeValuesPayloadCacheForTests();
+    }
+  });
+});
+
+test('Tier B5 cycle 5 — rentTrends + rentTrendsUrl', async (t) => {
+  const z = require('../../lib/scrapers/zillowScrapeDo');
+
+  await t.test('rentTrendsUrl builds /rental-manager/market-trends/<slug>/', () => {
+    assert.equal(typeof z.rentTrendsUrl, 'function');
+    const u = z.rentTrendsUrl('Austin, TX');
+    assert.match(u, /\/rental-manager\/market-trends\/austin-tx\/$/);
+  });
+
+  await t.test('rentTrends exists, rejects missing region', async () => {
+    assert.equal(typeof z.rentTrends, 'function');
+    await assert.rejects(() => z.rentTrends({}), /requires region/);
+  });
+
+  await t.test('returns ZORI series + scalars from fixture payload', async () => {
+    const scrapeDoClient = require('../../lib/scrapers/scrapeDoClient');
+    const originalScrape = scrapeDoClient.scrape;
+    try {
+      const html = `<!doctype html><script id="__NEXT_DATA__" type="application/json">${JSON.stringify({
+        props: {
+          pageProps: {
+            zoriRegion: { name: 'Austin, TX', regionTypeName: 'city' },
+            zoriLatest: {
+              medianRent: 2095,
+              yoyRentChangePct: -0.089,
+              yoyRentChangeUsd: -204,
+              marketTemperature: 'cool',
+              rentalsAvailable: 5759,
+              byBeds: { studio: 1500, oneBed: 1800, twoBed: 2200, threeBed: 2800 },
+            },
+            zoriSeries: [
+              { date: '2025-01-01', value: 2050 },
+              { date: '2025-02-01', value: 2095 },
+            ],
+          },
+        },
+      })}</script>`;
+      scrapeDoClient.scrape = async () => ({ data: html });
+      const out = await z.rentTrends({ region: 'Austin, TX' });
+      assert.equal(out.regionName, 'Austin, TX');
+      assert.equal(out.medianRent, 2095);
+      assert.equal(out.yoyRentChangePct, -0.089);
+      assert.equal(out.marketTemperature, 'cool');
+      assert.equal(out.rentalsAvailable, 5759);
+      assert.equal(out.rentByBeds.oneBed, 1800);
+      assert.equal(out.medianRentSeries.length, 2);
+    } finally {
+      scrapeDoClient.scrape = originalScrape;
+    }
+  });
+});
