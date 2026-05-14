@@ -25,6 +25,7 @@ require('dotenv').config();
 const axios = require('axios');
 const { Pool } = require('pg');
 const { Resend } = require('resend');
+const { zillowUrl, appPropUrl, buildPrimaryUrl } = require('../lib/spread-alert-urls');
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
@@ -172,17 +173,11 @@ async function sendAlertEmail(userEmail, location, deals, userOptions = {}) {
     : `${Math.round(minutesAgo / 60)} hour${Math.round(minutesAgo / 60) > 1 ? 's' : ''} ago`;
 
   // Primary card link → Zillow (fastest path to see the property; works without
-  // login and gives the user photos + listing details immediately). The
-  // listing_url stored at search time is always absolute (verified across all
-  // 22.8K cached rows); zpid pattern is the fallback when the field is missing.
-  // Secondary action → /app for AI analysis / comps.
-  const zillowUrl = (d) => {
-    if (d.listing_url && /^https?:\/\//.test(d.listing_url)) return d.listing_url;
-    if (d.listing_url && d.listing_url.startsWith('/')) return `https://www.zillow.com${d.listing_url}`;
-    if (d.zpid) return `https://www.zillow.com/homedetails/${encodeURIComponent(d.zpid)}_zpid/`;
-    return null;
-  };
-  const appPropUrl = (zpid) => `https://aiwholesail.com/app?zpid=${encodeURIComponent(zpid)}&utm_source=alert-email`;
+  // login and gives the user photos + listing details immediately).
+  // URL builders extracted to aiwholesail-api/lib/spread-alert-urls.js so the
+  // logic is unit-testable in isolation. `buildPrimaryUrl` returns null when
+  // no valid URL can be built — caller renders cells without an anchor in
+  // that case (no broken `?zpid=&...` URL in user emails).
 
   // One card per deal — image left, content right (stacks naturally on
   // narrow widths since each cell is its own table).
@@ -206,21 +201,29 @@ async function sendAlertEmail(userEmail, location, deals, userOptions = {}) {
       : '';
 
     const zUrl = zillowUrl(d);
-    const appUrl = appPropUrl(d.zpid || '');
-    const primaryUrl = zUrl || appUrl;  // Zillow first; fall back to in-app if no zpid
+    const appUrl = d.zpid ? appPropUrl(d.zpid) : null;
+    const primaryUrl = buildPrimaryUrl(d);  // null when no valid URL can be built
+
+    // When primaryUrl is null, the image / address cells render without an
+    // <a> wrapper — image is shown but not clickable, address is plain text.
+    // Prevents the pre-fix broken `?zpid=&utm_source=alert-email` URLs.
+    const openA = primaryUrl ? `<a href="${primaryUrl}" style="text-decoration:none;display:block;">` : '';
+    const closeA = primaryUrl ? '</a>' : '';
+    const openAddrA = primaryUrl ? `<a href="${primaryUrl}" style="color:#ffffff;font-size:15px;font-weight:600;line-height:1.3;text-decoration:none;">` : '<span style="color:#ffffff;font-size:15px;font-weight:600;line-height:1.3;">';
+    const closeAddrA = primaryUrl ? '</a>' : '</span>';
 
     const imgCell = d.image_url
       ? `<td valign="top" width="120" style="padding-right:14px;width:120px;">
-           <a href="${primaryUrl}" style="text-decoration:none;display:block;">
+           ${openA}
              <img src="${d.image_url}" alt="" width="120" height="90" style="display:block;width:120px;height:90px;object-fit:cover;border-radius:8px;border:1px solid #1a1a1a;" />
-           </a>
+           ${closeA}
          </td>`
       : `<td valign="top" width="120" style="padding-right:14px;width:120px;">
-           <a href="${primaryUrl}" style="text-decoration:none;display:block;">
+           ${openA}
              <table cellpadding="0" cellspacing="0" border="0" width="120" style="width:120px;height:90px;background:#111;border-radius:8px;border:1px solid #1a1a1a;">
                <tr><td align="center" style="color:#525252;font-size:11px;height:90px;">No photo</td></tr>
              </table>
-           </a>
+           ${closeA}
          </td>`;
 
     return `
@@ -232,7 +235,7 @@ async function sendAlertEmail(userEmail, location, deals, userOptions = {}) {
               <td valign="top">
                 <table width="100%" cellpadding="0" cellspacing="0" border="0">
                   <tr><td style="padding-bottom:6px;">
-                    <a href="${primaryUrl}" style="color:#ffffff;font-size:15px;font-weight:600;line-height:1.3;text-decoration:none;">${addr}</a>
+                    ${openAddrA}${addr}${closeAddrA}
                     ${domBadge}
                   </td></tr>
                   ${specsText ? `<tr><td style="color:#737373;font-size:12px;padding-bottom:8px;">${specsText}</td></tr>` : ''}
