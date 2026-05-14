@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Shield, AlertTriangle, Clock } from 'lucide-react';
@@ -7,14 +7,28 @@ import { useAuth } from '@/contexts/AuthContext';
 
 export function SessionTimeoutWarning() {
   const { sessionActive, lastActivity, securityLevel } = useSecurity();
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
   const [showWarning, setShowWarning] = useState(false);
   const [timeLeft, setTimeLeft] = useState(0);
+  // Sticky guard — once we've fired the inactivity auto-logout for a session,
+  // never fire it again until the user signs back in. Without this guard, the
+  // 5-second interval keeps re-evaluating timeSinceActivity > 30min against
+  // the stale lastActivity and calls signOut() repeatedly — producing a 401
+  // storm on /api/auth/signout (live incident 2026-05-14 00:10 UTC, ~624
+  // 401s in 30 min, one user fired 30+ signouts in 5 min).
+  const signedOutForInactivityRef = useRef(false);
+
+  // Reset the sticky guard when the user becomes truthy again (fresh sign-in).
+  useEffect(() => {
+    if (user) signedOutForInactivityRef.current = false;
+  }, [user]);
 
   useEffect(() => {
     // Don't start timeout checking immediately after login
     // Wait for user to be actually active first
-    if (!sessionActive || lastActivity === 0) {
+    // Also: skip entirely if no user (signOut already happened) or if we've
+    // already auto-logged-out this session.
+    if (!sessionActive || lastActivity === 0 || !user || signedOutForInactivityRef.current) {
       return;
     }
 
@@ -35,6 +49,10 @@ export function SessionTimeoutWarning() {
         setShowWarning(true);
         setTimeLeft(Math.ceil((timeoutThreshold - timeSinceActivity) / 1000));
       } else if (timeSinceActivity >= timeoutThreshold) {
+        // Guard: fire exactly once per session, regardless of how many ticks
+        // see a stale lastActivity past the threshold.
+        if (signedOutForInactivityRef.current) return;
+        signedOutForInactivityRef.current = true;
         setShowWarning(false);
         console.log('[SESSION] Auto-logout due to inactivity:', { timeSinceActivity, lastActivity });
         signOut();
@@ -45,7 +63,7 @@ export function SessionTimeoutWarning() {
 
     const interval = setInterval(checkSessionTimeout, 5000); // Check every 5 seconds instead of every second
     return () => clearInterval(interval);
-  }, [lastActivity, signOut, sessionActive]);
+  }, [lastActivity, signOut, sessionActive, user]);
 
   const handleExtendSession = () => {
     // Activity will be tracked automatically by SecurityProvider
