@@ -2,20 +2,22 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { propDataAPI } from '@/lib/propdata-api';
+import { usHousing } from '@/lib/api-client';
+import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import type { Property } from '@/types/zillow';
-import { MapPin, RefreshCw, TrendingUp, AlertTriangle, Footprints } from 'lucide-react';
+import { MapPin, RefreshCw, TrendingUp, AlertTriangle, Footprints, Bike, Bus } from 'lucide-react';
 
 /**
  * Neighborhood tab for PropertyModal.
  *
- * Sourced entirely from PropData /v1/neighborhood — ZIP-level
- * demographics + crime / school / walkability scores.
+ * Primary source: PropData /v1/neighborhood — ZIP-level demographics +
+ * crime / school / walkability scores.
  *
- * The PR #203 version also tried Zillow Scraper's walk-score endpoint,
- * but our proxy explicitly rejects that action because the upstream
- * Zillow Scraper API doesn't expose it. The "walkability" score in the
- * card grid below is PropData's own (composite of street network
- * density + amenity density), which is the same conceptual signal.
+ * When the `us-housing-data-enrichment` flag is on AND the property has
+ * a zpid, we additionally render Redfin-style Walk / Bike / Transit
+ * scores via the us-housing-market-data1 RapidAPI. PR #207 had to
+ * remove this section because Zillow Scraper rejected the walkScore
+ * action; this provider has it working.
  */
 
 interface NeighborhoodData {
@@ -34,6 +36,27 @@ interface NeighborhoodData {
     crime_index?: number;
     school_score?: number;
   };
+}
+
+// us-housing-market-data1 returns a flexible shape — fields are sometimes
+// nested under `walkScore`, sometimes flat. Normalize at consume-time.
+interface RedfinScores {
+  walkScore?: { walkscore?: number; description?: string };
+  transitScore?: { transit_score?: number; description?: string };
+  bikeScore?: { bikescore?: number; description?: string };
+  [k: string]: unknown;
+}
+
+function pickScore(
+  raw: Record<string, unknown> | undefined,
+  keys: string[],
+): number | undefined {
+  if (!raw) return undefined;
+  for (const k of keys) {
+    const v = raw[k];
+    if (typeof v === 'number') return v;
+  }
+  return undefined;
 }
 
 function ScoreCard({
@@ -91,10 +114,14 @@ const fmtPct = (val?: number | null) =>
 
 export function PropertyNeighborhoodTab({ property }: { property: Property }) {
   const zip = (property as { zipcode?: string; zip?: string }).zipcode || (property as { zip?: string }).zip;
+  const zpid = (property as { zpid?: string | number }).zpid;
+
+  const { enabled: usHousingEnabled } = useFeatureFlag('us-housing-data-enrichment');
 
   const [loading, setLoading] = useState(true);
   const [neighborhood, setNeighborhood] = useState<NeighborhoodData | null>(null);
   const [nbErr, setNbErr] = useState<string | null>(null);
+  const [redfin, setRedfin] = useState<RedfinScores | null>(null);
 
   useEffect(() => {
     if (!zip) {
@@ -119,6 +146,30 @@ export function PropertyNeighborhoodTab({ property }: { property: Property }) {
     };
   }, [zip]);
 
+  // Fetch Redfin-style scores from us-housing-market-data1 only when the
+  // flag is on and we have a zpid. Failures are silent — the PropData
+  // walkability score remains the always-on fallback above.
+  useEffect(() => {
+    if (!usHousingEnabled || !zpid) return;
+    let cancelled = false;
+    usHousing
+      .walkAndTransitScore(zpid)
+      .then((res) => {
+        if (cancelled) return;
+        const envelope = res as { data?: unknown } | unknown;
+        const body = (envelope && typeof envelope === 'object' && 'data' in envelope)
+          ? (envelope as { data: unknown }).data
+          : envelope;
+        if (body && typeof body === 'object') setRedfin(body as RedfinScores);
+      })
+      .catch(() => {
+        // Coverage gap or rate-limit — leave Redfin scores hidden.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [usHousingEnabled, zpid]);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12 text-muted-foreground">
@@ -130,6 +181,11 @@ export function PropertyNeighborhoodTab({ property }: { property: Property }) {
   const scores = neighborhood?.scores;
   const demo = neighborhood?.demographics;
   const housing = neighborhood?.housing;
+
+  const walkScore = pickScore(redfin?.walkScore, ['walkscore', 'walk_score', 'score']);
+  const transitScore = pickScore(redfin?.transitScore, ['transit_score', 'transitScore', 'score']);
+  const bikeScore = pickScore(redfin?.bikeScore, ['bikescore', 'bike_score', 'score']);
+  const hasRedfinScores = walkScore != null || transitScore != null || bikeScore != null;
 
   return (
     <div className="space-y-6">
@@ -170,6 +226,38 @@ export function PropertyNeighborhoodTab({ property }: { property: Property }) {
           </div>
         )}
       </section>
+
+      {hasRedfinScores && (
+        <section className="space-y-3">
+          <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider px-1">
+            Walk / Bike / Transit
+            <span className="ml-2 text-xs text-muted-foreground/60">via Redfin</span>
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <ScoreCard
+              label="Walk Score"
+              score={walkScore}
+              icon={Footprints}
+              helperHigh={redfin?.walkScore?.description || 'Walker\'s paradise'}
+              helperLow={redfin?.walkScore?.description || 'Car-dependent area'}
+            />
+            <ScoreCard
+              label="Transit Score"
+              score={transitScore}
+              icon={Bus}
+              helperHigh={redfin?.transitScore?.description || 'Excellent transit'}
+              helperLow={redfin?.transitScore?.description || 'Limited transit options'}
+            />
+            <ScoreCard
+              label="Bike Score"
+              score={bikeScore}
+              icon={Bike}
+              helperHigh={redfin?.bikeScore?.description || 'Very bikeable'}
+              helperLow={redfin?.bikeScore?.description || 'Limited bike infrastructure'}
+            />
+          </div>
+        </section>
+      )}
 
       {neighborhood && (
         <section className="space-y-3">

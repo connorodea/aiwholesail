@@ -3,7 +3,7 @@ import { LeadTypeChips } from '@/components/LeadTypeChips';
 import {
   LEAD_TYPES,
   applyLeadFilters,
-  getServerParamsForLeads,
+  getSearchPlanForLeads,
   tagRecordWithLeadTypes,
 } from '@/lib/lead-types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -336,46 +336,98 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
       // — message wording drift would silently break the classification
       // and we'd lose visibility into why searches were failing.
       const outcomes = { ok: 0, noCoverage: 0, rateLimited: 0, network: 0, other: 0 };
-      // v2: pick endpoint + server params from selected lead types. v1 keeps
-      // the legacy absentee_only=true call. v2 with default selection
-      // (['absentee']) maps to the same call, so the migration is silent.
-      const serverPlan = leadTypesV2Enabled
-        ? getServerParamsForLeads([...selectedLeadTypes])
-        : { primarySource: 'property' as const, absentee_only: true };
+      // v2: dual-feed planner. When the selection mixes preforeclosure-source
+      // leads (pre-foreclosure, auctions) with property-source leads, fan out
+      // BOTH feeds per ZIP — the old single-feed planner collapsed to one
+      // feed and silently dropped the other half of the selection. v1 keeps
+      // the legacy single absentee_only=true call.
+      const searchPlan = leadTypesV2Enabled
+        ? getSearchPlanForLeads([...selectedLeadTypes])
+        : { property: { absentee_only: true } as { absentee_only?: boolean }, preforeclosure: null };
+
+      // Defensive: if neither feed is planned (e.g. all selected slugs are
+      // unknown), default to a property-only call so the search isn't a no-op.
+      const propertyParams: { absentee_only?: boolean } | null =
+        searchPlan.property ?? (searchPlan.preforeclosure ? null : {});
+      const preforeclosureRequested = searchPlan.preforeclosure !== null;
+
+      const classify = (err: unknown) => {
+        if (err instanceof PropDataError) {
+          if (err.code === 'RATE_LIMITED') outcomes.rateLimited += 1;
+          else if (err.isCoverageGap) outcomes.noCoverage += 1;
+          else if (err.isTransient) outcomes.network += 1;
+          else outcomes.other += 1;
+        } else {
+          outcomes.other += 1;
+        }
+      };
 
       const batched = await fanOutZipSearch(resolved.zips, async (z) => {
-        try {
-          const res = serverPlan.primarySource === 'preforeclosure'
-            ? await propDataAPI.listPreforeclosures({ zip: z, limit: perZipLimit })
-            : await propDataAPI.listProperties({
-                zip: z,
-                limit: perZipLimit,
-                absentee_only: serverPlan.absentee_only,
-              });
-          completed += 1;
-          setProgress({ done: completed, total: resolved.zips.length });
-          // PropData returns { error, status } with HTTP 200 when a ZIP is
-          // outside their coverage. The client unwrap() throws on res.error
-          // so we shouldn't see this path here — but defensive.
-          if ((res as { error?: string; status?: number }).error) {
-            outcomes.noCoverage += 1;
-            return null;
+        // Per-ZIP merge: each ZIP may hit one or two upstream feeds. Coverage
+        // gaps on the preforeclosure feed are EXPECTED (most ZIPs have no
+        // active pre-foreclosures); don't count those against the user-
+        // visible coverage outcome when the property feed succeeded.
+        const acc: PropDataPropertyListResponse = { properties: [] };
+        let propertyOk = false;
+        let preforeclosureOk = false;
+        let propertyError: unknown = null;
+
+        if (propertyParams) {
+          try {
+            const propRes = await propDataAPI.listProperties({
+              zip: z,
+              limit: perZipLimit,
+              absentee_only: propertyParams.absentee_only,
+            });
+            if ((propRes as { error?: string }).error) {
+              propertyError = new PropDataError(
+                (propRes as { error?: string }).error || 'no coverage',
+                'NO_COVERAGE',
+              );
+            } else {
+              propertyOk = true;
+              if (propRes.properties) acc.properties = [...(acc.properties ?? []), ...propRes.properties];
+              if (propRes.enrichment) acc.enrichment = propRes.enrichment;
+              if (propRes.count != null) acc.count = (acc.count ?? 0) + propRes.count;
+            }
+          } catch (err) {
+            propertyError = err;
           }
-          outcomes.ok += 1;
-          return res;
-        } catch (err) {
-          completed += 1;
-          setProgress({ done: completed, total: resolved.zips.length });
-          if (err instanceof PropDataError) {
-            if (err.code === 'RATE_LIMITED') outcomes.rateLimited += 1;
-            else if (err.isCoverageGap) outcomes.noCoverage += 1;
-            else if (err.isTransient) outcomes.network += 1;
-            else outcomes.other += 1;
-          } else {
-            outcomes.other += 1;
-          }
-          return null;
         }
+
+        if (preforeclosureRequested) {
+          try {
+            const preRes = await propDataAPI.listPreforeclosures({ zip: z, limit: perZipLimit });
+            if (!(preRes as { error?: string }).error) {
+              preforeclosureOk = true;
+              if (preRes.properties) acc.properties = [...(acc.properties ?? []), ...preRes.properties];
+              if (preRes.enrichment && !acc.enrichment) acc.enrichment = preRes.enrichment;
+            }
+            // Coverage gap on preforeclosure is expected; if property feed
+            // succeeded, don't pollute outcomes with a noCoverage tick.
+          } catch (err) {
+            if (err instanceof PropDataError && err.isCoverageGap && propertyOk) {
+              // Silent — property feed carried the ZIP.
+            } else if (!propertyParams) {
+              // Only-preforeclosure search; surface this error as the ZIP's outcome.
+              classify(err);
+            } else if (err instanceof PropDataError && err.code === 'RATE_LIMITED') {
+              // Rate limits matter regardless of which feed they came from.
+              outcomes.rateLimited += 1;
+            }
+          }
+        }
+
+        completed += 1;
+        setProgress({ done: completed, total: resolved.zips.length });
+
+        if (propertyOk || preforeclosureOk) {
+          outcomes.ok += 1;
+          return acc;
+        }
+        // Both feeds failed (or only property feed was attempted and failed).
+        if (propertyError) classify(propertyError);
+        return null;
       });
 
       // Merge results across ZIPs. Dedupe by parcel_id (defensive — PropData
@@ -389,9 +441,16 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
         if (!list?.properties) continue;
         if (!mergedEnrichment) mergedEnrichment = list.enrichment;
         for (const rec of list.properties) {
-          const key = rec.parcel_id || `${rec.address?.street}|${rec.address?.zip}`;
-          if (seenParcels.has(key)) continue;
-          seenParcels.add(key);
+          // Dedupe only by parcel_id. The prior `address|zip` fallback was
+          // unsafe with the dual-feed fan-out: if both the property and
+          // preforeclosure feeds returned the same address without a
+          // parcel_id, one record would be silently dropped. Better to risk
+          // an occasional visible duplicate (rare — PropData almost always
+          // emits parcel_id) than to silently lose a lead.
+          if (rec.parcel_id) {
+            if (seenParcels.has(rec.parcel_id)) continue;
+            seenParcels.add(rec.parcel_id);
+          }
           merged.push(rec);
         }
       }
@@ -417,12 +476,43 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
       });
       setProgress(null);
 
+      // v2-aware noun for the result toast — "off-market lead(s)" when the
+      // selection mixes feeds, "absentee owner(s)" for the legacy default.
+      const isV2Selection = leadTypesV2Enabled && selectedLeadTypes.size > 0;
+      const resultNoun = isV2Selection ? 'off-market lead' : 'absentee owner';
+
+      // Fire-and-forget search-summary log → backend emits a structured
+      // journald line that the off-market routing monitor reads to
+      // compute SLI-1 (endpoint diversity) and SLI-3 (empty-result rate).
+      // Failure-tolerant: search UX is already complete, the log is
+      // pure observability.
+      const endpointsDispatched: string[] = [];
+      if (searchPlan.property !== null) endpointsDispatched.push('property');
+      if (searchPlan.preforeclosure !== null) endpointsDispatched.push('preforeclosure');
+      void fetch('/api/offmarket-search-log', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          lead_types_selected: [...selectedLeadTypes],
+          endpoints_dispatched: endpointsDispatched,
+          result_count: filteredMerged.length,
+          region_label: resolved.label,
+          search_id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        }),
+      }).catch(() => { /* observability is best-effort */ });
+
       if (merged.length === 0) {
-        // Pick the most informative explanation. Priority order reflects
-        // user actionability: rate-limit (just wait) > network/transient
-        // (try again) > coverage gap (try a different state) > generic.
+        // Reorder outcome priority so rate-limit only dominates when it
+        // actually drove the failure (not when 24 ZIPs returned OK-empty
+        // and 1 hit a throttle — that produced misleading "1 of 25 hit
+        // rate-limit" toasts that hid the real problem).
         let description: string;
-        if (outcomes.rateLimited > 0) {
+        const totalFailed = outcomes.noCoverage + outcomes.rateLimited + outcomes.network + outcomes.other;
+        const allEmpty = outcomes.ok > 0 && outcomes.ok + totalFailed === resolved.zips.length;
+        if (allEmpty) {
+          description = `Searched ${resolved.zips.length} ZIP${resolved.zips.length === 1 ? '' : 's'} — no ${resultNoun}s matched your filters. Try fewer lead types, lower the equity floor, or pick a different region.`;
+        } else if (outcomes.rateLimited >= Math.ceil(resolved.zips.length / 2)) {
           description = `${outcomes.rateLimited} of ${resolved.zips.length} ZIPs hit rate-limit. Wait a minute and try again, or narrow the search.`;
         } else if (outcomes.network > 0 && outcomes.noCoverage === 0) {
           description = `${outcomes.network} of ${resolved.zips.length} ZIPs hit a temporary upstream error. Try again in a moment.`;
@@ -430,12 +520,18 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
           description = `PropData has no parcel coverage in ${resolved.label} yet. Try a different state — Minnesota and Florida have rich data.`;
         } else if (outcomes.noCoverage > 0) {
           description = `${outcomes.noCoverage} of ${resolved.zips.length} ZIPs returned no coverage. Try a different state — Minnesota and Florida have rich data.`;
+        } else if (outcomes.rateLimited > 0) {
+          description = `${outcomes.rateLimited} of ${resolved.zips.length} ZIPs hit rate-limit. Wait a minute and try again, or narrow the search.`;
         } else {
-          description = `Searched ${resolved.zips.length} ZIP${resolved.zips.length === 1 ? '' : 's'} — no absentee owners matched.`;
+          description = `Searched ${resolved.zips.length} ZIP${resolved.zips.length === 1 ? '' : 's'} — no ${resultNoun}s matched.`;
         }
-        toast({ title: 'No absentee owners found', description, variant: 'destructive' });
+        toast({
+          title: `No ${resultNoun}s found`,
+          description,
+          variant: 'destructive',
+        });
       } else {
-        const okMsg = `${Math.min(merged.length, limit)} absentee owner${merged.length === 1 ? '' : 's'}`
+        const okMsg = `${Math.min(merged.length, limit)} ${resultNoun}${merged.length === 1 ? '' : 's'}`
           + ` from ${outcomes.ok}/${resolved.zips.length} ZIP${resolved.zips.length === 1 ? '' : 's'}`;
         const skipped = outcomes.noCoverage + outcomes.rateLimited + outcomes.network;
         toast({
@@ -480,7 +576,7 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
           toast({ title: 'Search failed', description: err.message, variant: 'destructive' });
         }
       } else {
-        toast({ title: 'Search failed', description: 'Could not fetch absentee owners.', variant: 'destructive' });
+        toast({ title: 'Search failed', description: 'Could not fetch off-market leads.', variant: 'destructive' });
       }
     } finally {
       setLoading(false);

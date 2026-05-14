@@ -26,3 +26,8 @@ dist-ssr
 # Shadow-compare-zillow output (per-run JSON + markdown reports — disk-only,
 # never committed; see aiwholesail-api/scripts/shadow-compare-zillow.js)
 aiwholesail-api/scripts/shadow-compare-output/
+
+# /seo-blog skill queue — mutated locally by the skill (status, published_url,
+# published_at). Regenerate via:
+#   node scripts/google-ads-setup/lsi-to-blog-keywords.js
+keywords.csv

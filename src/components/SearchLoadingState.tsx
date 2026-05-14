@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Sparkles, Clock } from 'lucide-react';
+import { RotatingOrganicLoader } from '@/components/OrganicLoader';
+import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 
 interface SearchLoadingStateProps {
   progress: number;
@@ -18,6 +20,9 @@ const TIPS = [
 export function SearchLoadingState({ progress, status }: SearchLoadingStateProps) {
   const [tipIndex, setTipIndex] = useState(0);
   const [elapsed, setElapsed] = useState(0);
+  // Flag-gated rollout (PR #342 follow-up). OFF = legacy house+orbit-dots
+  // block, ON = new rotating organic-loader set. cpodea5 dogfood = ON.
+  const { enabled: organicLoadersEnabled } = useFeatureFlag('organic_loaders');
 
   useEffect(() => {
     const tipTimer = setInterval(() => setTipIndex(i => (i + 1) % TIPS.length), 4500);
@@ -83,26 +88,35 @@ export function SearchLoadingState({ progress, status }: SearchLoadingStateProps
         </div>
 
         <div className="relative z-10 space-y-8">
-          {/* Animated house icon */}
-          <div className="flex justify-center">
-            <div className="relative">
-              <div className="w-20 h-20 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center" style={{ animation: 'breathe 2s ease-in-out infinite' }}>
-                <svg className="w-10 h-10 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
-                </svg>
-              </div>
-              {/* Orbiting dots */}
-              {[0, 1, 2].map(i => (
-                <div key={i} className="absolute w-2 h-2 rounded-full bg-cyan-400" style={{
-                  animation: `orbit 2.5s linear infinite`,
-                  animationDelay: `${i * 0.83}s`,
-                  top: '50%', left: '50%',
-                  transformOrigin: '0 0',
-                  boxShadow: '0 0 8px rgba(6, 182, 212, 0.6)',
-                }} />
-              ))}
+          {organicLoadersEnabled ? (
+            // Rotating organic loader — picks a different real-estate-themed
+            // animation on each search start (house, pin drop, radar sweep,
+            // sold stamp, bricks, key, coins, equity ring, etc.). Flag-gated
+            // dogfood for cpodea5 until rollout.
+            <div className="flex justify-center text-white">
+              <RotatingOrganicLoader category="realestate" size={120} aria-label="Searching properties" />
             </div>
-          </div>
+          ) : (
+            // Legacy fallback — kept until organic_loaders rolls out globally.
+            <div className="flex justify-center">
+              <div className="relative">
+                <div className="w-20 h-20 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center" style={{ animation: 'breathe 2s ease-in-out infinite' }}>
+                  <svg className="w-10 h-10 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+                  </svg>
+                </div>
+                {[0, 1, 2].map(i => (
+                  <div key={i} className="absolute w-2 h-2 rounded-full bg-cyan-400" style={{
+                    animation: `orbit 2.5s linear infinite`,
+                    animationDelay: `${i * 0.83}s`,
+                    top: '50%', left: '50%',
+                    transformOrigin: '0 0',
+                    boxShadow: '0 0 8px rgba(6, 182, 212, 0.6)',
+                  }} />
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Status text */}
           <div className="text-center space-y-2">
@@ -189,6 +203,8 @@ export function SearchLoadingState({ progress, status }: SearchLoadingStateProps
           0% { background-position: 200% 0; }
           100% { background-position: -200% 0; }
         }
+        /* breathe + orbit power the legacy fallback that runs when the
+           organic_loaders flag is OFF. Safe to remove once flag is at 100%. */
         @keyframes breathe {
           0%, 100% { transform: scale(1); }
           50% { transform: scale(1.05); }

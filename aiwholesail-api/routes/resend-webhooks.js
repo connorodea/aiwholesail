@@ -36,6 +36,7 @@
 const express = require('express');
 const crypto = require('crypto');
 const { Pool } = require('pg');
+const { classifyReplyIntent } = require('../lib/reply-intent');
 
 const router = express.Router();
 
@@ -235,21 +236,9 @@ async function handleFailed(data) {
 // header against `email_send_log.provider_message_id`. Failing that, we
 // fall back to a 24-hour to_address ↔ from_address match.
 
-const UNSUBSCRIBE_RE = /\b(stop|unsubscribe|remove me|opt[- ]?out|do not contact)\b/i;
-const NOT_INTERESTED_RE = /\b(no thanks|not interested|wrong number|wrong person)\b/i;
-const INTERESTED_RE = /\b(yes|interested|let'?s talk|call me|how much|cash offer|tell me more|i'?m in)\b/i;
-const BOUNCE_RE = /(mailer-daemon|delivery status notification|address not found|undeliverable|delivery has failed|message could not be delivered|550 5\.|recipient address rejected)/i;
-
-function classifyIntent(bodyText) {
-  if (!bodyText) return 'unknown';
-  // Bounce indicators take precedence — they're often "Re:" replies but the
-  // body is an MTA report, not a human response. Check bounce first.
-  if (BOUNCE_RE.test(bodyText)) return 'bounce_message';
-  if (UNSUBSCRIBE_RE.test(bodyText)) return 'unsubscribe';
-  if (NOT_INTERESTED_RE.test(bodyText)) return 'not_interested';
-  if (INTERESTED_RE.test(bodyText)) return 'interested';
-  return 'unknown';
-}
+// Intent classification regexes + classifyReplyIntent() live in
+// lib/reply-intent.js so they're unit-testable without standing up the
+// full webhook stack. See lib/reply-intent.js for the category contract.
 
 // Pluck a header value by case-insensitive name. Resend gives us an
 // array of { name, value } objects; some providers give us an object map.
@@ -352,7 +341,7 @@ async function handleInboundReceived(data) {
   }
 
   // 4. Classify intent on the lowercased body text.
-  const parsedIntent = classifyIntent(bodyText);
+  const parsedIntent = classifyReplyIntent(bodyText, fromAddress, data.headers);
 
   // 5. Insert the inbound reply row. ON CONFLICT (message_id) DO NOTHING
   //    guards against duplicate webhook deliveries from Resend.

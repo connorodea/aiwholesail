@@ -1,0 +1,15 @@
+[Unit]
+Description=Run off-market routing-collapse monitor every 5 minutes
+
+[Timer]
+# Every 5 minutes. Matches the SLI window granularity defined in
+# lib/offmarket-monitor-thresholds.js — SLI-2 reads a 15-min window,
+# SLI-4 reads 5-min, so a 5-min cadence keeps the lookback inside the
+# evaluator's window without gaps.
+OnBootSec=2min
+OnUnitActiveSec=5min
+AccuracySec=30s
+RandomizedDelaySec=30s
+
+[Install]
+WantedBy=timers.target

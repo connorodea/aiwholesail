@@ -17,6 +17,7 @@ const aiRoutes = require('./routes/ai');
 const aiAgentRoutes = require('./routes/aiAgent');
 const mcpRoutes = require('./routes/mcp');
 const eventsRoutes = require('./routes/events');
+const offmarketSearchLogRoutes = require('./routes/offmarketSearchLog');
 const zillowRoutes = require('./routes/zillow');
 const propertyRoutes = require('./routes/property');
 const communicationsRoutes = require('./routes/communications');
@@ -29,6 +30,7 @@ const skipTraceRoutes = require('./routes/skipTrace');
 const webhookRoutes = require('./routes/webhooks');
 const resendWebhookRoutes = require('./routes/resend-webhooks');
 const propdataRoutes = require('./routes/propdata');
+const usHousingRoutes = require('./routes/usHousing');
 const flagsRoutes = require('./routes/flags');
 const healthIntegrationsRoutes = require('./routes/healthIntegrations');
 const unsubscribeRoutes = require('./routes/unsubscribe');
@@ -73,6 +75,7 @@ app.use(helmet({
 // for one origin to a different origin.
 const ALLOWED_CORS_ORIGINS = new Set([
   'https://aiwholesail.com',
+  'https://www.aiwholesail.com', // user reached login here on 2026-05-13 → CORS preflight 403
   'https://staging.aiwholesail.com',
   'http://localhost:5173', // Vite dev server
 ]);
@@ -165,6 +168,7 @@ app.use('/api/ai', aiRoutes);
 app.use('/api/ai/agent', aiAgentRoutes);
 app.use('/mcp', mcpRoutes);
 app.use('/api/events', eventsRoutes);
+app.use('/api/offmarket-search-log', offmarketSearchLogRoutes);
 app.use('/api/property', propertyRoutes);
 app.use('/api/zillow', zillowRoutes);
 app.use('/api/communications', communicationsRoutes);
@@ -187,6 +191,7 @@ app.use('/api/skip-trace', skipTraceRoutes);
 app.use('/api/webhooks/resend', resendWebhookRoutes);
 app.use('/api/webhooks', webhookRoutes);
 app.use('/api/propdata', propdataRoutes);
+app.use('/api/us-housing', usHousingRoutes);
 app.use('/api/flags', flagsRoutes);
 app.use('/api/health', healthIntegrationsRoutes);
 // Public unsubscribe endpoint — no auth, accessible from any email client.
