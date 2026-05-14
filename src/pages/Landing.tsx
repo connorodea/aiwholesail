@@ -15,9 +15,7 @@ import { NavbarAIWholesail } from "@/components/ui/navbar-aiwholesail";
 import { Spotlight } from "@/components/ui/spotlight";
 import { ShaderBackground } from "@/components/ShaderBackground";
 import { WavyBackground } from "@/components/ui/wavy-background";
-
-const aiWholesailLogoWebP = "/logo-white.webp";
-const aiWholesailLogoPNG = "/logo-white.png";
+import { AIWholesailLogo } from "@/components/AIWholesailLogo";
 
 const navItems = [
   { title: "Features", link: "/how-it-works" },
@@ -973,10 +971,7 @@ const Landing = () => {
             <div className="grid grid-cols-2 md:grid-cols-12 gap-8 lg:gap-12">
               <div className="col-span-2 md:col-span-4 space-y-5">
                 <Link to="/" className="inline-block">
-                  <picture>
-                    <source srcSet={aiWholesailLogoWebP} type="image/webp" />
-                    <img src={aiWholesailLogoPNG} alt="AIWholesail" className="h-12 sm:h-14 w-auto" width="77" height="56" loading="lazy" />
-                  </picture>
+                  <AIWholesailLogo variant="dark" className="text-[40px] sm:text-[48px]" />
                 </Link>
                 <p className="text-[13px] text-neutral-500 leading-relaxed max-w-xs">AI-powered platform for real estate professionals to find, analyze, and close profitable deals.</p>
                 <div className="flex items-center gap-3 pt-1">

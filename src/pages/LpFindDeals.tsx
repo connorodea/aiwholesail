@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, Check, Zap, BarChart3, Bell, TrendingUp, Star, Activity, MapPin } from 'lucide-react';
 import { SEOHead } from '@/components/SEOHead';
+import { AIWholesailLogo } from '@/components/AIWholesailLogo';
 import { analytics } from '@/lib/analytics';
 import { validateEmail } from '@/lib/security';
 
@@ -190,10 +191,7 @@ export default function LpFindDeals() {
 
       <header className="relative z-20 px-6 sm:px-10 py-6">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <picture>
-            <source srcSet="/logo-white.webp" type="image/webp" />
-            <img src="/logo-white.png" alt="AIWholesail" className="h-7 w-auto" />
-          </picture>
+          <AIWholesailLogo variant="dark" className="text-[22px]" />
           <a href="/auth" className="text-sm text-neutral-400 hover:text-white transition-colors">
             Sign in
           </a>
