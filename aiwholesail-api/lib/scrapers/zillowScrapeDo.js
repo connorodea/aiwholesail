@@ -2400,10 +2400,16 @@ function buildHomeTypeSearchUrl(args = {}) {
     });
   }
   const filterState = {};
-  // Set every known home-type flag explicitly — true if in homeTypeFlags,
-  // false otherwise. Forces Zillow off its default mix.
-  for (const flag of HOME_TYPE_FLAGS) {
-    filterState[flag] = { value: Boolean(homeTypeFlags[flag]) };
+  // CRITICAL: only lock down home-type flags when the caller explicitly
+  // names at least one. When the caller passes homeTypeFlags={} (e.g.
+  // searchSeniorCommunities, searchHudHomes, searchMakeMeMove,
+  // searchNewConstruction, searchTinyHomes), we leave home-type flags
+  // UNSET so Zillow uses its default home-type mix. Forcing every type
+  // to `false` produces empty result sets — that was the PR #383 bug.
+  if (Object.keys(homeTypeFlags).length > 0) {
+    for (const flag of HOME_TYPE_FLAGS) {
+      filterState[flag] = { value: Boolean(homeTypeFlags[flag]) };
+    }
   }
   // Layer additional filter clauses (lotSize, sqft, keywords, is55plus, etc.)
   // on top — these may include non-boolean shapes like `lotSize: {min, max}`.
@@ -2556,15 +2562,34 @@ const searchMakeMeMove = makeHomeTypeSearch({
 const SQFT_PER_ACRE = 43560;
 
 /**
+ * Validate + coerce a numeric arg. Accepts numbers and numeric strings
+ * ("2"). Throws ZillowScrapeError on non-numeric input — silently
+ * NaN-ifying into the URL produced Zillow 400s and silent filter-skips
+ * (PR #383 review finding).
+ */
+function coerceNumericArg(value, paramName) {
+  if (value == null) return undefined;
+  const n = Number(value);
+  if (!Number.isFinite(n)) {
+    throw new ZillowScrapeError(`${paramName} must be a number, got ${JSON.stringify(value)}`, {
+      reason: 'bad_args',
+    });
+  }
+  return n;
+}
+
+/**
  * Lots/land search URL — testable builder. Converts caller-friendly `acres`
  * to Zillow's native sqft unit on the way into filterState.lotSize.
  */
 function buildLotsLandSearchUrl({ location, min_acres, max_acres, page }) {
+  const minAcres = coerceNumericArg(min_acres, 'min_acres');
+  const maxAcres = coerceNumericArg(max_acres, 'max_acres');
   const extraFilters = {};
-  if (min_acres != null || max_acres != null) {
+  if (minAcres !== undefined || maxAcres !== undefined) {
     extraFilters.lotSize = {};
-    if (min_acres != null) extraFilters.lotSize.min = Number(min_acres) * SQFT_PER_ACRE;
-    if (max_acres != null) extraFilters.lotSize.max = Number(max_acres) * SQFT_PER_ACRE;
+    if (minAcres !== undefined) extraFilters.lotSize.min = minAcres * SQFT_PER_ACRE;
+    if (maxAcres !== undefined) extraFilters.lotSize.max = maxAcres * SQFT_PER_ACRE;
   }
   return buildHomeTypeSearchUrl({
     location,
@@ -2579,11 +2604,13 @@ const searchLotsLand = makeHomeTypeSearch({
   status: 'LotsLand',
   homeTypeFlags: { isLotLand: true },
   extraFilters: (args) => {
+    const minAcres = coerceNumericArg(args.min_acres, 'min_acres');
+    const maxAcres = coerceNumericArg(args.max_acres, 'max_acres');
     const extra = {};
-    if (args.min_acres != null || args.max_acres != null) {
+    if (minAcres !== undefined || maxAcres !== undefined) {
       extra.lotSize = {};
-      if (args.min_acres != null) extra.lotSize.min = Number(args.min_acres) * SQFT_PER_ACRE;
-      if (args.max_acres != null) extra.lotSize.max = Number(args.max_acres) * SQFT_PER_ACRE;
+      if (minAcres !== undefined) extra.lotSize.min = minAcres * SQFT_PER_ACRE;
+      if (maxAcres !== undefined) extra.lotSize.max = maxAcres * SQFT_PER_ACRE;
     }
     return extra;
   },
@@ -2610,6 +2637,17 @@ const searchNewConstruction = makeHomeTypeSearch({
 });
 
 /**
+ * Resolve the sqft.max value for tiny-homes search. Validates numeric input
+ * (throws on NaN) and treats `0`/missing as "use default 600" — 0 would
+ * produce an empty result set, which is rarely the caller's intent.
+ */
+function resolveTinyHomesMaxSqft(max_sqft) {
+  const coerced = coerceNumericArg(max_sqft, 'max_sqft');
+  if (coerced === undefined || coerced === 0) return 600;
+  return coerced;
+}
+
+/**
  * Tiny-homes search URL builder. No first-class Zillow flag for "tiny home"
  * exists, so we constrain by max sqft (default 600) and add a keyword match
  * over listing copy.
@@ -2619,7 +2657,7 @@ function buildTinyHomesSearchUrl({ location, max_sqft, page }) {
     location,
     homeTypeFlags: {},
     extraFilters: {
-      sqft: { max: max_sqft != null ? Number(max_sqft) : 600 },
+      sqft: { max: resolveTinyHomesMaxSqft(max_sqft) },
       keywords: 'tiny home',
     },
     page,
@@ -2630,7 +2668,7 @@ const searchTinyHomes = makeHomeTypeSearch({
   action: 'searchTinyHomes',
   status: 'TinyHomes',
   extraFilters: (args) => ({
-    sqft: { max: args.max_sqft != null ? Number(args.max_sqft) : 600 },
+    sqft: { max: resolveTinyHomesMaxSqft(args.max_sqft) },
     keywords: 'tiny home',
   }),
 });
