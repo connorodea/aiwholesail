@@ -48,6 +48,14 @@ jobs:
       - name: Lint Zillow proxy actions
         run: node scripts/check-zillow-actions.mjs
 
+      # SEO contract tests — assert SEOHead title length, schema dedupe,
+      # description caps, em-dash typography, canonical URLs, meta-description
+      # helper output, blog-meta lint, LSI aggregator + converter behavior.
+      # Catches the class of regression where a future commit silently
+      # restores the generic title or duplicate JSON-LD pattern.
+      - name: SEO contract tests
+        run: npm run test:seo
+
       # Build with the correct API URL based on target branch
       - name: Build (staging)
         if: github.ref == 'refs/heads/staging' || (github.event_name == 'pull_request' && github.base_ref == 'staging')
