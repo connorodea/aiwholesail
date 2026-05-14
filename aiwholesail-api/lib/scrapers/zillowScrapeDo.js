@@ -2259,17 +2259,12 @@ async function inventoryTrends(args = {}) {
 // /<region>/home-values/. Doesn't share `_fetchHomeValuesPayload`'s cache.
 
 /** Build the rental-manager market-trends URL. */
-function rentTrendsUrl(region, regionType) {
+function rentTrendsUrl(region /* regionType currently doesn't change the URL */) {
   const slug = String(region)
     .trim()
     .toLowerCase()
     .replace(/,/g, '')
     .replace(/\s+/g, '-');
-  // Same regionType→prefix scheme as marketStatsUrl; rental-manager accepts
-  // both flat and zip-prefixed forms.
-  if (regionType === 'zip') {
-    return `${ZILLOW_BASE}/rental-manager/market-trends/${encodeURIComponent(slug)}/`;
-  }
   return `${ZILLOW_BASE}/rental-manager/market-trends/${encodeURIComponent(slug)}/`;
 }
 
@@ -2289,6 +2284,9 @@ async function rentTrends(args = {}) {
   if (!region || typeof region !== 'string' || !region.trim()) {
     throw new ZillowScrapeError('rentTrends requires region', { reason: 'bad_args' });
   }
+  // TODO(TD-zori): field paths under `pageProps.zoriRegion`/`zoriLatest`/
+  // `zoriSeries` are unverified against live Zillow HTML — keep behind a
+  // feature flag and run smoke-test-zillow-actions.js before exposing.
   const url = rentTrendsUrl(region, regionType);
   // eslint-disable-next-line global-require
   const scrapeDoClient = require('./scrapeDoClient');
