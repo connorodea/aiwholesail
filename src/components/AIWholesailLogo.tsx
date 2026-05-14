@@ -33,21 +33,30 @@ export function AIWholesailLogo({
   size,
 }: AIWholesailLogoProps) {
   const palette = VARIANTS[variant];
-  const style = size ? { fontSize: `${size}px` } : undefined;
+  const fontStyle = size ? { fontSize: `${size}px` } : undefined;
 
   return (
     <span
       role="img"
       aria-label={title}
-      className={cn("aiwholesail-wordmark inline-flex items-baseline whitespace-nowrap leading-none", className)}
-      style={{ color: palette.text, ...style }}
+      className={cn(
+        "aiwholesail-wordmark inline-flex items-baseline whitespace-nowrap leading-none",
+        className,
+      )}
+      style={{ color: palette.text, ...fontStyle }}
     >
       AIWHOLES
       <svg
         viewBox="0 0 50 70"
         aria-hidden="true"
         focusable="false"
-        style={{ height: "0.78em", width: "auto", margin: "0 -0.03em", transform: "translateY(0.06em)", flexShrink: 0 }}
+        style={{
+          height: "0.78em",
+          width: "auto",
+          margin: "0 -0.03em",
+          transform: "translateY(0.06em)",
+          flexShrink: 0,
+        }}
       >
         <path fill={palette.sail} d={SAIL_PATH} />
       </svg>
