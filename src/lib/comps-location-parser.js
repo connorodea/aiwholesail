@@ -83,7 +83,13 @@ export function parseCompsLocation(location) {
   // Prioritized fallback queries: ZIP first (tightest), then cityState
   // (city scope), then raw (last resort). filter(Boolean) drops null/empty
   // so the search loop doesn't waste a round-trip on an empty query.
-  const queries = [zip, cityState, trimmed].filter(Boolean);
+  //
+  // Dedupe via Set so the fallback search doesn't issue the same scrape.do
+  // request twice. The common case this catches is bare-ZIP input
+  // ("28083") where queries[0]=zip and queries[2]=raw resolve to the same
+  // string. Pre-dedup the fallback loop hit scrape.do twice and added
+  // ~1.5s of wasted latency per bare-ZIP comps lookup.
+  const queries = [...new Set([zip, cityState, trimmed].filter(Boolean))];
 
   return { zip, cityState, queries };
 }
