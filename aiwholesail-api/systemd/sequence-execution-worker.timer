@@ -1,0 +1,11 @@
+[Unit]
+Description=Run sequence-execution-worker every 5 minutes
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=5min
+RandomizedDelaySec=30s
+Unit=sequence-execution-worker.service
+
+[Install]
+WantedBy=timers.target
