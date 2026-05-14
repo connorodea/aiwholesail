@@ -1,0 +1,49 @@
+# OffMarketIQ — gitignore
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+.venv/
+venv/
+.python-version
+
+# Tests / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Type-check / lint caches
+.mypy_cache/
+.ruff_cache/
+
+# Editors
+.vscode/
+.idea/
+.DS_Store
+*.swp
+
+# Docker volumes (mounted into containers, never committed)
+postgres_data/
+redis_data/
+certbot_data/
+
+# Logs / scratch
+*.log
+scratch/
+tmp/
+
+# Scrape cassettes that hit non-public endpoints — keep public ones in tests/fixtures
+tests/integration/private_cassettes/

@@ -1,0 +1,109 @@
+# OffMarketIQ — local + Hetzner stack.
+#
+# Services:
+#   api        — FastAPI, port 8000
+#   worker     — Celery worker, processes scrape/etl/scoring/maintenance queues
+#   beat       — Celery beat scheduler (cron-equivalent for periodic tasks)
+#   postgres   — PostGIS image (PostgreSQL 16 + PostGIS 3.4)
+#   redis      — broker + result backend
+#   nginx      — reverse proxy + TLS termination (prod only via profile)
+#   prometheus — metrics scrape
+#   grafana    — dashboards
+
+services:
+  api:
+    build: .
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4
+    ports:
+      - "8000:8000"
+    env_file: .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    volumes:
+      - .:/app  # live reload in dev; remove in prod
+
+  worker:
+    build: .
+    command: celery -A app.celery_app worker --loglevel=info --queues=scrape,etl,scoring,maintenance --concurrency=8
+    env_file: .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    volumes:
+      - .:/app
+
+  beat:
+    build: .
+    command: celery -A app.celery_app beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    env_file: .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    volumes:
+      - .:/app
+
+  postgres:
+    image: postgis/postgis:16-3.4
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-offmarketiq}
+      POSTGRES_USER: ${POSTGRES_USER:-offmarketiq}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-CHANGE_ME}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-offmarketiq} -d ${POSTGRES_DB:-offmarketiq}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+
+  nginx:
+    image: nginx:alpine
+    profiles: ["prod"]
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - certbot_data:/etc/letsencrypt:ro
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - api
+
+  prometheus:
+    image: prom/prometheus
+    profiles: ["monitoring"]
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+
+  grafana:
+    image: grafana/grafana
+    profiles: ["monitoring"]
+    depends_on:
+      - prometheus
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+
+volumes:
+  postgres_data:
+  redis_data:
+  certbot_data:
+  grafana_data:

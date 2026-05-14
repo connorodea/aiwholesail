@@ -1,0 +1,93 @@
+[project]
+name = "offmarketiq"
+version = "0.1.0"
+description = "National off-market property data platform — direct competitor to BatchData/PropStream at ~95% lower COGS."
+license = { text = "PROPRIETARY" }
+requires-python = ">=3.12"
+authors = [{ name = "OffMarketIQ" }]
+
+dependencies = [
+  "fastapi==0.111.0",
+  "uvicorn[standard]==0.30.1",
+  "pydantic==2.7.4",
+  "pydantic-settings==2.3.4",
+  "python-dotenv==1.0.1",
+
+  # Database
+  "sqlalchemy[asyncio]==2.0.30",
+  "asyncpg==0.29.0",
+  "psycopg2-binary==2.9.9",  # for alembic + Celery (sync paths)
+  "alembic==1.13.2",
+  "geoalchemy2==0.15.1",
+
+  # Tasks
+  "celery==5.4.0",
+  "redis==5.0.7",
+  "django-celery-beat==2.6.0",
+
+  # HTTP + scraping
+  "httpx==0.27.0",
+  "beautifulsoup4==4.12.3",
+  "lxml==5.2.2",
+
+  # Anthropic Vision fallback
+  "anthropic==0.30.1",
+
+  # Address normalization
+  "smartystreets-python-sdk==4.16.0",
+
+  # ML scoring
+  "scikit-learn==1.5.0",
+  "xgboost==2.1.0",
+  "numpy==1.26.4",
+  "pandas==2.2.2",
+
+  # Observability
+  "structlog==24.2.0",
+  "prometheus-client==0.20.0",
+  "sentry-sdk[fastapi]==2.7.1",
+
+  # Utilities
+  "tenacity==8.4.2",
+  "python-dateutil==2.9.0",
+  "orjson==3.10.5",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest==8.2.2",
+  "pytest-asyncio==0.23.7",
+  "pytest-cov==5.0.0",
+  "respx==0.21.1",          # httpx mocking
+  "vcrpy==6.0.1",            # scraper integration cassettes
+  "ruff==0.5.0",
+  "mypy==1.10.0",
+  "ipython==8.25.0",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "RUF", "ASYNC"]
+ignore = ["E501"]  # line length handled by formatter
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+addopts = "-ra -q --strict-markers"
+markers = [
+  "unit: pure-Python unit tests, no I/O",
+  "integration: integration tests against postgres/redis",
+  "scrapers: scraper integration tests with VCR cassettes",
+]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+ignore_missing_imports = true
+plugins = ["pydantic.mypy"]
