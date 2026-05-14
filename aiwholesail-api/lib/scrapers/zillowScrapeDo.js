@@ -428,7 +428,10 @@ function mapPropertyToRapidApiShape(p) {
     electricUtilityCompany: resoFacts.electricUtilityCompany ?? undefined,
     gas: Array.isArray(resoFacts.gas) ? resoFacts.gas : undefined,
     // ── Lot / parcel / location (Tier A) — apn is THE skip-tracing key ─
-    apn: resoFacts.parcelNumber ?? undefined,
+    // Coerce to string — Zillow occasionally emits parcelNumber as a number,
+    // and downstream consumers (county-records lookups, skip-trace) all
+    // expect a string key.
+    apn: resoFacts.parcelNumber != null ? String(resoFacts.parcelNumber) : undefined,
     zoning: resoFacts.zoning ?? undefined,
     zoningDescription: resoFacts.zoningDescription ?? undefined,
     countyFips: resoFacts.countyFIPS ?? resoFacts.countyFips ?? undefined,
@@ -474,7 +477,16 @@ function mapPropertyToRapidApiShape(p) {
     // mlsNumber is distinct from listingAgent.mlsId (the attribution mlsId).
     // Try resoFacts.listingId first (canonical MLS number on most pages),
     // fall back to resoFacts.mlsId for older payload shapes.
-    mlsNumber: resoFacts.listingId ?? resoFacts.mlsId ?? undefined,
+    // Treat empty string as absent — `??` doesn't short-circuit "" and an
+    // empty MLS number is useless noise in downstream UI.
+    mlsNumber:
+      (typeof resoFacts.listingId === 'string' && resoFacts.listingId.length > 0
+        ? resoFacts.listingId
+        : undefined) ??
+      (typeof resoFacts.mlsId === 'string' && resoFacts.mlsId.length > 0
+        ? resoFacts.mlsId
+        : undefined) ??
+      undefined,
     // ── Lifestyle / amenities (Tier A) ─────────────────────────────
     view: Array.isArray(resoFacts.view) ? resoFacts.view : undefined,
     hasView: resoFacts.hasView ?? undefined,

@@ -1552,6 +1552,52 @@ test('mapPropertyToRapidApiShape — Tier A field expansion', async (t) => {
     assert.equal(out.lastStatusChange.date, '2026-04-12');
   });
 
+  // ── TDD gap-probe regressions (surfaced by /test-driven-development pass) ──
+  await t.test('resoFacts entirely undefined does not crash the mapper', () => {
+    const out = mapPropertyToRapidApiShape({ ...baseProp });
+    assert.equal(out.apn, undefined);
+    assert.equal(out.foundation, undefined);
+    assert.equal(out.hoaName, undefined);
+  });
+
+  await t.test('taxHistoryNormalized handles time=0 (epoch start) as 1970', () => {
+    // Boundary: Number.isFinite(0) is true; year must be 1970, not filtered.
+    const out = mapPropertyToRapidApiShape({
+      ...baseProp,
+      taxHistory: [{ time: 0, taxPaid: 100 }],
+    });
+    assert.equal(out.taxHistoryNormalized.length, 1);
+    assert.equal(out.taxHistoryNormalized[0].year, 1970);
+  });
+
+  await t.test('apn coerces numeric parcelNumber to string', () => {
+    // Zillow occasionally emits parcelNumber as a number; downstream
+    // skip-trace and county-records callers expect a string.
+    const out = mapPropertyToRapidApiShape({
+      ...baseProp,
+      resoFacts: { parcelNumber: 12345678 },
+    });
+    assert.equal(typeof out.apn, 'string');
+    assert.equal(out.apn, '12345678');
+  });
+
+  await t.test('mlsNumber treats empty-string sources as absent', () => {
+    // ?? doesn't short-circuit "" — but an empty MLS number is useless noise.
+    const out = mapPropertyToRapidApiShape({
+      ...baseProp,
+      resoFacts: { listingId: '', mlsId: '' },
+    });
+    assert.equal(out.mlsNumber, undefined);
+  });
+
+  await t.test('mlsNumber falls back when listingId empty but mlsId populated', () => {
+    const out = mapPropertyToRapidApiShape({
+      ...baseProp,
+      resoFacts: { listingId: '', mlsId: 'OLD-456' },
+    });
+    assert.equal(out.mlsNumber, 'OLD-456');
+  });
+
   // ── Backward compatibility ──────────────────────────────────────────
   await t.test('all pre-existing fields still present on output', () => {
     const out = mapPropertyToRapidApiShape({
