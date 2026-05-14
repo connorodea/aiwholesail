@@ -34,6 +34,7 @@
 
 const axios = require('axios');
 const zillowScrapeDo = require('../scrapers/zillowScrapeDo');
+const { ZillowScrapeError } = require('../scrapers/zillowScrapeDo');
 
 const PROXY_URL = process.env.ZILLOW_PROXY_URL || 'http://127.0.0.1:3201/zillow';
 const PROXY_SECRET = process.env.ZILLOW_PROXY_SECRET || '';
@@ -142,6 +143,34 @@ async function proxyZillow(action, searchParams = {}, options = {}) {
       return data;
     } catch (err) {
       scrapeErr = err;
+
+      // ─── 1a. SHORT-CIRCUIT: no-data reasons (TD-027) ──────────────────
+      // ZillowScrapeError with reason ∈ {'no_data_in_payload',
+      // 'no_property_in_payload'} means Zillow simply didn't surface the
+      // widget on this listing (no walkScore on a suburban property, no
+      // climateRisk on a 2019-era page, listing stripped off the page,
+      // etc.). RapidAPI cannot satisfy these requests either — it has no
+      // walkScore/climate/comparableRentals endpoints — so the fallback
+      // round-trip wastes ~2s per call and re-throws a less-informative
+      // "Action not supported" error. Re-throw the scrape.do error now
+      // and skip the RapidAPI try block entirely. Caught in PR #358's
+      // smoke-test logs (walkScore double-fail).
+      //
+      // Non-ZillowScrapeError failures (axios network, captcha, parser
+      // regression) still fall through to the RapidAPI fallback — those
+      // are real backend failures where RapidAPI MIGHT serve data.
+      if (
+        err instanceof ZillowScrapeError &&
+        (err.reason === 'no_data_in_payload' ||
+          err.reason === 'no_property_in_payload')
+      ) {
+        console.log(
+          `[zillowProxy] ${action} no-data signal (${err.reason}); ` +
+          `skipping RapidAPI fallback (cannot satisfy)`
+        );
+        throw err;
+      }
+
       console.warn(
         `[zillowProxy] scrape.do PRIMARY ${action} failed, falling back to RapidAPI: ${err.message}`
       );
