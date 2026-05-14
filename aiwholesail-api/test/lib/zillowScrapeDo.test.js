@@ -2448,3 +2448,116 @@ test('Tier B5 — localPriceTrends', async (t) => {
     }
   );
 });
+
+// ---------------------------------------------------------------------------
+// inventoryTrends({ region, regionType? }) — Tier B5 endpoint #3.
+// Scrapes the /<region>/home-values/ page and returns active for-sale
+// inventory + new-listings-per-week time series along with current
+// months-of-supply and inventory YoY scalars. Mirrors the localPriceTrends
+// wrapper pattern: shared marketStatsUrl + scrapeDoClient + extractNextData,
+// pure findMarketTimeSeries extractor for the two series, findMarketStats
+// for the scalar lookup. Network is mocked via a fake scrape.do response.
+// ---------------------------------------------------------------------------
+
+test('Tier B5 — inventoryTrends', async (t) => {
+  const z = require('../../lib/scrapers/zillowScrapeDo');
+
+  await t.test('is exported as a function', () => {
+    assert.equal(typeof z.inventoryTrends, 'function');
+  });
+
+  await t.test('rejects missing region with ZillowScrapeError(bad_args)', async () => {
+    await assert.rejects(
+      () => z.inventoryTrends({}),
+      (err) =>
+        err instanceof z.ZillowScrapeError &&
+        err.reason === 'bad_args' &&
+        /region/i.test(err.message)
+    );
+  });
+
+  await t.test('rejects empty-string region', async () => {
+    await assert.rejects(
+      () => z.inventoryTrends({ region: '' }),
+      (err) => err instanceof z.ZillowScrapeError && err.reason === 'bad_args'
+    );
+  });
+
+  await t.test(
+    'returns wired shape {regionName, regionType, activeInventorySeries, newListingsSeries, monthsOfSupplyCurrent, inventoryYoyPct} from a mocked home-values page',
+    async () => {
+      const scrapeDoClient = require('../../lib/scrapers/scrapeDoClient');
+      const originalScrape = scrapeDoClient.scrape;
+      const fakeNextData = {
+        props: {
+          pageProps: {
+            zhviRegion: { name: 'Austin, TX', regionTypeName: 'city' },
+            odpMarketAnalytics: {
+              monthsOfSupplyLatest: { monthsOfSupply: 2.4, inventoryYoY: -0.18 },
+              forSaleInventorySeries: [
+                { date: '2025-01-01', value: 4200 },
+                { date: '2025-02-01', value: 4350 },
+              ],
+              mrktListingSeries: [
+                { date: '2025-01-01', value: 510 },
+                { date: '2025-02-01', value: 525 },
+              ],
+            },
+          },
+        },
+      };
+      const padding = ' '.repeat(300);
+      const html = `<html><body>${padding}<script id="__NEXT_DATA__" type="application/json">${JSON.stringify(
+        fakeNextData
+      )}</script></body></html>`;
+      scrapeDoClient.scrape = async () => ({ data: html, status: 200 });
+      try {
+        const out = await z.inventoryTrends({ region: 'Austin, TX' });
+        assert.equal(out.regionName, 'Austin, TX');
+        assert.equal(out.regionType, 'city');
+        assert.ok(Array.isArray(out.activeInventorySeries));
+        assert.equal(out.activeInventorySeries.length, 2);
+        assert.equal(out.activeInventorySeries[0].value, 4200);
+        assert.ok(Array.isArray(out.newListingsSeries));
+        assert.equal(out.newListingsSeries.length, 2);
+        assert.equal(out.newListingsSeries[0].value, 510);
+        assert.equal(out.monthsOfSupplyCurrent, 2.4);
+        assert.equal(out.inventoryYoyPct, -0.18);
+      } finally {
+        scrapeDoClient.scrape = originalScrape;
+      }
+    }
+  );
+
+  await t.test(
+    'returns empty series arrays and null scalars when blob lacks them — caller can iterate safely',
+    async () => {
+      const scrapeDoClient = require('../../lib/scrapers/scrapeDoClient');
+      const originalScrape = scrapeDoClient.scrape;
+      const fakeNextData = {
+        props: {
+          pageProps: {
+            zhviRegion: { name: '78737', regionTypeName: 'zip' },
+            odpMarketAnalytics: {},
+          },
+        },
+      };
+      const padding = ' '.repeat(300);
+      const html = `<html><body>${padding}<script id="__NEXT_DATA__" type="application/json">${JSON.stringify(
+        fakeNextData
+      )}</script></body></html>`;
+      scrapeDoClient.scrape = async () => ({ data: html, status: 200 });
+      try {
+        const out = await z.inventoryTrends({ region: '78737', regionType: 'zip' });
+        assert.deepEqual(out.activeInventorySeries, []);
+        assert.deepEqual(out.newListingsSeries, []);
+        assert.equal(out.monthsOfSupplyCurrent, null);
+        assert.equal(out.inventoryYoyPct, null);
+        assert.equal(out.regionName, '78737');
+        assert.equal(out.regionType, 'zip');
+      } finally {
+        scrapeDoClient.scrape = originalScrape;
+      }
+    }
+  );
+});

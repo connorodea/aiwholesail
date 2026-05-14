@@ -2081,6 +2081,76 @@ async function localPriceTrends(args = {}) {
 }
 
 /**
+ * Inventory trends — Tier B5 endpoint #3 of 5.
+ *
+ * Scrapes the /<region>/home-values/ page once and extracts the active
+ * for-sale inventory and new-listings-per-week time series along with
+ * topline months-of-supply and inventory YoY scalars. Shares the
+ * home-values URL with localPriceTrends / marketStats / domTrends /
+ * forecast — future co-locate refactor (Cycle 4) will route them through
+ * a single cached scrape.
+ *
+ * @param {{region: string, regionType?: 'zip'|'city'|'state'|'county'}} args
+ * @returns {Promise<{
+ *   regionName?: string,
+ *   regionType?: string,
+ *   activeInventorySeries: Array<{date: string, value: number}>,
+ *   newListingsSeries: Array<{date: string, value: number}>,
+ *   monthsOfSupplyCurrent: number | null,
+ *   inventoryYoyPct: number | null,
+ * }>}
+ */
+async function inventoryTrends(args = {}) {
+  const { region, regionType } = args;
+  if (!region || typeof region !== 'string' || !region.trim()) {
+    throw new ZillowScrapeError('inventoryTrends requires region', {
+      reason: 'bad_args',
+    });
+  }
+  const url = marketStatsUrl(region, regionType);
+  // Indirect via the module object so tests can monkey-patch
+  // scrapeDoClient.scrape (the top-level destructured `scrape` binding
+  // is captured at require-time and would otherwise bypass the mock).
+  // eslint-disable-next-line global-require
+  const scrapeDoClient = require('./scrapeDoClient');
+  let resp;
+  try {
+    resp = await scrapeDoClient.scrape(url, {
+      headers: DEFAULT_HEADERS,
+      geoCode: 'us',
+      render: false,
+      super: true,
+      timeoutMs: 60_000,
+    });
+  } catch (err) {
+    if (err instanceof ScrapeDoError) {
+      throw new ZillowScrapeError(`scrape.do fetch failed: ${err.message}`, {
+        status: err.status,
+        action: 'inventoryTrends',
+        reason: 'fetch_failed',
+      });
+    }
+    throw err;
+  }
+  const nextData = extractNextData(resp.data);
+  const pp = nextData?.props?.pageProps || {};
+  const odp = pp.odpMarketAnalytics || {};
+  const mos = odp.monthsOfSupplyLatest;
+  const monthsOfSupplyCurrent =
+    mos && typeof mos.monthsOfSupply === 'number' ? mos.monthsOfSupply : null;
+  const inventoryYoyPct =
+    mos && typeof mos.inventoryYoY === 'number' ? mos.inventoryYoY : null;
+  return {
+    regionName: pp.zhviRegion?.name || pp.requestedRegion?.name,
+    regionType: pp.zhviRegion?.regionTypeName || regionType,
+    activeInventorySeries: findMarketTimeSeries(nextData, 'forSaleInventorySeries'),
+    newListingsSeries: findMarketTimeSeries(nextData, 'mrktListingSeries'),
+    monthsOfSupplyCurrent,
+    inventoryYoyPct,
+  };
+}
+
+/**
  * Region-level market stats (typical home value, MoM, YoY, etc.).
  *
  * @param {{region: string, regionType?: 'zip'|'city'|'state'|'county'}} args
@@ -2901,6 +2971,7 @@ module.exports = {
   marketStats,
   // Market-analytics — Tier B5:
   localPriceTrends,
+  inventoryTrends,
   // Exported for tests:
   extractNextData,
   findPropertyRecord,
