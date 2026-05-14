@@ -207,3 +207,29 @@ test('function is pure: same input always returns same output', () => {
   const b = parseCompsLocation('Saint Augustine, FL, 32092');
   assert.deepEqual(a, b);
 });
+
+test('4-part verbose-state — real city with leading digits preserved (29 Palms CA, 100 Mile House)', () => {
+  // Regression guard from post-fix review: cities like "29 Palms, CA" or
+  // "100 Mile House" have leading digits but are real city names, NOT
+  // address-prefixes. The looksLikeAddressDebris check must not flag
+  // them as debris when used in verbose-state shape.
+  const r = parseCompsLocation('29 Palms, California, CA, 92277');
+  assert.equal(r.cityState, '29 Palms CA');
+});
+
+test('4-part verbose-state — real city with keyword token preserved (Box Elder SD, Lake Worth FL)', () => {
+  // Regression guard from post-fix review: cities like "Box Elder, SD"
+  // or "Lake Worth, FL" contain words that match unit-designator keywords
+  // (box, lot, etc.) but are real city names. The looksLikeAddressDebris
+  // check must require digit + keyword together, not either alone.
+  const r = parseCompsLocation('Box Elder, South Dakota, SD, 57719');
+  assert.equal(r.cityState, 'Box Elder SD');
+});
+
+test('4-part verbose-state — Apt-style prefix still detected (Apartment 5, New York, NY, 10001)', () => {
+  // Counter-test: the legitimate address-prefix case must STILL trigger
+  // the debris gate. Apartment 5 has BOTH a keyword and a digit, which
+  // is the tightened criterion.
+  const r = parseCompsLocation('Apartment 5, New York, NY, 10001');
+  assert.equal(r.cityState, 'New York NY');
+});

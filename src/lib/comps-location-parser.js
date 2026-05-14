@@ -90,17 +90,31 @@ function isVerboseStatePair(nameCandidate, abbrCandidate) {
 // holds a city name ("Saint Augustine", "Austin", "Boise"). When the
 // state-name slot is actually a state-named city, parts[length-4] is
 // a street/unit prefix ("123 Main St", "Apartment 5", "Unit 4B", "Box 1").
-// Heuristic: if parts[length-4] contains digits OR begins with a common
-// unit/suite/box/apartment keyword, treat it as address debris — meaning
-// parts[length-3] is the real city and the verbose-state branch should
-// NOT fire. Otherwise it's a genuine city name and the verbose-state
-// branch SHOULD fire.
+// Heuristic: if parts[length-4] looks like a USPS secondary-unit
+// designator (keyword first-token PLUS a digit somewhere — "Apt 5",
+// "Suite 12", "Box 100", "PO Box 14"), treat it as address debris,
+// meaning parts[length-3] is the real city and the verbose-state branch
+// should NOT fire. Otherwise it's a genuine city name and the
+// verbose-state branch SHOULD fire.
 //
 // Keywords list matches USPS Publication 28 secondary-unit designators
 // plus common informal spellings ("apartment", "building"). Match is
 // case-insensitive against the first whitespace-delimited token to avoid
 // false positives on legit city names that happen to contain a keyword
 // as a substring.
+//
+// Why BOTH a keyword AND a digit (post-fix review of PR #385):
+//   The original gate fired on EITHER signal — `/\d/.test(s) || keyword`.
+//   That was too aggressive in two real-world directions:
+//     - "29 Palms, California, CA, 92277" — leading digit but the city
+//       IS "29 Palms" (real CA city, pop ~30K). Digit-alone was wrong.
+//     - "Box Elder, South Dakota, SD, 57719" — "Box" matches the keyword
+//       set but the city IS "Box Elder" (real SD city). Keyword-alone
+//       was wrong.
+//   The only realistic address-prefix shapes are "Apt 5", "Suite 12",
+//   "Box 100", "PO Box 14" — keyword AND digit together. Requiring both
+//   protects state-named city inputs where the prefix slot is a real
+//   multi-word city.
 const ADDRESS_DEBRIS_KEYWORDS = new Set([
   'apt', 'apartment', 'unit', 'suite', 'ste', 'box', 'lot', 'space',
   'spc', 'floor', 'fl', 'rm', 'room', 'bldg', 'building', 'po',
@@ -110,9 +124,14 @@ const ADDRESS_DEBRIS_KEYWORDS = new Set([
 function looksLikeAddressDebris(segment) {
   const s = String(segment || '').trim();
   if (!s) return false;
-  if (/\d/.test(s)) return true;
   const firstToken = s.split(/\s+/)[0].toLowerCase().replace(/[.#]+$/, '');
-  return ADDRESS_DEBRIS_KEYWORDS.has(firstToken);
+  const hasKeyword = ADDRESS_DEBRIS_KEYWORDS.has(firstToken);
+  const hasDigit = /\d/.test(s);
+  // Require BOTH a unit-keyword first token AND a digit somewhere.
+  // This matches "Apt 5", "Suite 12", "Box 100", "PO Box 14" while
+  // protecting real cities like "29 Palms" (digit only) and "Box Elder"
+  // (keyword only).
+  return hasKeyword && hasDigit;
 }
 
 export function parseCompsLocation(location) {
