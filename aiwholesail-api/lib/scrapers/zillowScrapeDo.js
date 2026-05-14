@@ -2081,6 +2081,72 @@ async function localPriceTrends(args = {}) {
 }
 
 /**
+ * Days-on-market trends — Tier B5 endpoint #2 of 5.
+ *
+ * Scrapes the /<region>/home-values/ page once and extracts the
+ * median-days-on-market trajectory plus headline DOM scalars
+ * (currentMedianDom, yoyDomChangeDays) and sale-to-list ratio.
+ * Shares the home-values URL with marketStats / localPriceTrends /
+ * inventoryTrends / forecast — future co-locate refactor (Cycle 4) will
+ * route them through a single cached scrape.
+ *
+ * @param {{region: string, regionType?: 'zip'|'city'|'state'|'county'}} args
+ * @returns {Promise<{
+ *   regionName?: string,
+ *   regionType?: string,
+ *   medianDomSeries: Array<{date: string, value: number}>,
+ *   currentMedianDom?: number,
+ *   yoyDomChangeDays?: number,
+ *   saleToListRatio?: number,
+ * }>}
+ */
+async function domTrends(args = {}) {
+  const { region, regionType } = args;
+  if (!region || typeof region !== 'string' || !region.trim()) {
+    throw new ZillowScrapeError('domTrends requires region', {
+      reason: 'bad_args',
+    });
+  }
+  const url = marketStatsUrl(region, regionType);
+  // Indirect via the module object so tests can monkey-patch
+  // scrapeDoClient.scrape (the top-level destructured `scrape` binding
+  // is captured at require-time and would otherwise bypass the mock).
+  // eslint-disable-next-line global-require
+  const scrapeDoClient = require('./scrapeDoClient');
+  let resp;
+  try {
+    resp = await scrapeDoClient.scrape(url, {
+      headers: DEFAULT_HEADERS,
+      geoCode: 'us',
+      render: false,
+      super: true,
+      timeoutMs: 60_000,
+    });
+  } catch (err) {
+    if (err instanceof ScrapeDoError) {
+      throw new ZillowScrapeError(`scrape.do fetch failed: ${err.message}`, {
+        status: err.status,
+        action: 'domTrends',
+        reason: 'fetch_failed',
+      });
+    }
+    throw err;
+  }
+  const nextData = extractNextData(resp.data);
+  const pp = nextData?.props?.pageProps || {};
+  const odp = pp.odpMarketAnalytics || {};
+  return {
+    regionName: pp.zhviRegion?.name || pp.requestedRegion?.name,
+    regionType: pp.zhviRegion?.regionTypeName || regionType,
+    medianDomSeries: findMarketTimeSeries(nextData, 'medianDomSeries'),
+    currentMedianDom:
+      odp.medianDomLatest?.medianDom ?? odp.medianDomLatest?.value,
+    yoyDomChangeDays: odp.medianDomLatest?.yoyDomChangeDays,
+    saleToListRatio: odp.mrktSaleLatest?.saleToListRatio,
+  };
+}
+
+/**
  * Region-level market stats (typical home value, MoM, YoY, etc.).
  *
  * @param {{region: string, regionType?: 'zip'|'city'|'state'|'county'}} args
@@ -2901,6 +2967,7 @@ module.exports = {
   marketStats,
   // Market-analytics — Tier B5:
   localPriceTrends,
+  domTrends,
   // Exported for tests:
   extractNextData,
   findPropertyRecord,

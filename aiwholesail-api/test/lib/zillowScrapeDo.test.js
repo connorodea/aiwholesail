@@ -25,6 +25,7 @@ const {
   findMarketStats,
   normalizeMarketStats,
   marketStatsUrl,
+  rentTrendsUrl,
   findMarketTimeSeries,
   mortgageCalculator,
   searchByUrl,
@@ -2442,6 +2443,132 @@ test('Tier B5 — localPriceTrends', async (t) => {
         assert.deepEqual(out.pricePerSqftSeries, []);
         assert.equal(out.regionName, '78737');
         assert.equal(out.regionType, 'zip');
+      } finally {
+        scrapeDoClient.scrape = originalScrape;
+      }
+    }
+  );
+});
+
+// domTrends({ region, regionType? }) — Tier B5 endpoint #2.
+// Scrapes the same /<region>/home-values/ page as localPriceTrends and
+// returns the Days-on-Market trajectory: a medianDomSeries time-series
+// plus the headline scalars (currentMedianDom, yoyDomChangeDays,
+// saleToListRatio). Co-locate refactor (cycle 4) will share the underlying
+// scrape across the four B5 market-analytics endpoints — until then each
+// endpoint scrapes independently.
+
+test('Tier B5 — domTrends', async (t) => {
+  const z = require('../../lib/scrapers/zillowScrapeDo');
+
+  await t.test('is exported as a function', () => {
+    assert.equal(typeof z.domTrends, 'function');
+  });
+
+  await t.test('rejects missing region with ZillowScrapeError(bad_args)', async () => {
+    await assert.rejects(
+      () => z.domTrends({}),
+      (err) =>
+        err instanceof z.ZillowScrapeError &&
+        err.reason === 'bad_args' &&
+        /requires region/i.test(err.message)
+    );
+  });
+
+  await t.test('rejects empty-string region', async () => {
+    await assert.rejects(
+      () => z.domTrends({ region: '' }),
+      (err) => err instanceof z.ZillowScrapeError && err.reason === 'bad_args'
+    );
+  });
+
+  await t.test(
+    'returns wired shape {regionName, regionType, medianDomSeries, currentMedianDom, yoyDomChangeDays, saleToListRatio} from a mocked home-values page',
+    async () => {
+      // Build a fixture home-values HTML page with __NEXT_DATA__ shaped
+      // like the 2026-05 Zillow region payload, then monkey-patch the
+      // scrape.do client to return it. Restore after.
+      const scrapeDoClient = require('../../lib/scrapers/scrapeDoClient');
+      const originalScrape = scrapeDoClient.scrape;
+      const fakeNextData = {
+        props: {
+          pageProps: {
+            zhviRegion: { name: 'Austin, TX', regionTypeName: 'city' },
+            odpMarketAnalytics: {
+              medianDomLatest: {
+                medianDom: 42,
+                yoyDomChangeDays: -5,
+              },
+              mrktSaleLatest: { saleToListRatio: 0.985 },
+              medianDomSeries: [
+                { date: '2025-01-01', value: 48 },
+                { date: '2025-02-01', value: 45 },
+                { date: '2025-03-01', value: 42 },
+              ],
+            },
+          },
+        },
+      };
+      const padding = ' '.repeat(300);
+      const html = `<html><body>${padding}<script id="__NEXT_DATA__" type="application/json">${JSON.stringify(
+        fakeNextData
+      )}</script></body></html>`;
+      scrapeDoClient.scrape = async () => ({ data: html, status: 200 });
+      try {
+        const out = await z.domTrends({ region: 'Austin, TX' });
+        assert.equal(out.regionName, 'Austin, TX');
+        assert.equal(out.regionType, 'city');
+        assert.ok(Array.isArray(out.medianDomSeries));
+        assert.equal(out.medianDomSeries.length, 3);
+        assert.equal(out.medianDomSeries[0].value, 48);
+        assert.equal(out.medianDomSeries[2].value, 42);
+        assert.equal(typeof out.currentMedianDom, 'number');
+        assert.equal(out.currentMedianDom, 42);
+        assert.equal(typeof out.yoyDomChangeDays, 'number');
+        assert.equal(out.yoyDomChangeDays, -5);
+        assert.equal(out.saleToListRatio, 0.985);
+      } finally {
+        scrapeDoClient.scrape = originalScrape;
+      }
+    }
+  );
+
+  await t.test(
+    'returns empty medianDomSeries (not null) and undefined scalars when blob lacks them — caller can iterate safely',
+    async () => {
+      const scrapeDoClient = require('../../lib/scrapers/scrapeDoClient');
+      const originalScrape = scrapeDoClient.scrape;
+      const fakeNextData = {
+        props: {
+          pageProps: {
+            zhviRegion: { name: '78737', regionTypeName: 'zip' },
+            odpMarketAnalytics: {},
+          },
+        },
+      };
+      const padding = ' '.repeat(300);
+      const html = `<html><body>${padding}<script id="__NEXT_DATA__" type="application/json">${JSON.stringify(
+        fakeNextData
+      )}</script></body></html>`;
+      scrapeDoClient.scrape = async () => ({ data: html, status: 200 });
+      try {
+        const out = await z.domTrends({ region: '78737', regionType: 'zip' });
+        assert.deepEqual(out.medianDomSeries, []);
+        assert.equal(out.regionName, '78737');
+        assert.equal(out.regionType, 'zip');
+        // Scalars should be null/undefined so caller can iterate safely
+        assert.ok(
+          out.currentMedianDom == null,
+          `expected currentMedianDom null/undefined, got ${out.currentMedianDom}`
+        );
+        assert.ok(
+          out.yoyDomChangeDays == null,
+          `expected yoyDomChangeDays null/undefined, got ${out.yoyDomChangeDays}`
+        );
+        assert.ok(
+          out.saleToListRatio == null,
+          `expected saleToListRatio null/undefined, got ${out.saleToListRatio}`
+        );
       } finally {
         scrapeDoClient.scrape = originalScrape;
       }
