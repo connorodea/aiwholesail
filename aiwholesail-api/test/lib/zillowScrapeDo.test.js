@@ -2014,3 +2014,160 @@ test('Tier B2 — searchTinyHomes', async (t) => {
     assert.equal(fs.sqft?.max, 400);
   });
 });
+
+// ── Tier B2 — post-merge review fixes (PR #383 follow-up) ───────────────────
+// All RED tests pin the bugs surfaced by the code review.
+
+test('Tier B2 fix — empty homeTypeFlags must preserve Zillow defaults', async (t) => {
+  // CRITICAL: when homeTypeFlags={} the helper previously forced every
+  // home-type to false, leaving Zillow with no inventory category to
+  // return. The fix: skip the home-type loop entirely when the caller
+  // doesn't constrain any type. Preserves Zillow's default mix.
+  const z = require('../../lib/scrapers/zillowScrapeDo');
+
+  await t.test('empty homeTypeFlags omits ALL isXxxFamily / isCondo / etc. from filterState', () => {
+    const url = z.buildHomeTypeSearchUrl({
+      location: 'Austin, TX',
+      homeTypeFlags: {},
+      extraFilters: { is55plusCommunities: { value: true } },
+    });
+    const fs = filterStateFromUrl(url);
+    // The extraFilter MUST come through:
+    assert.equal(fs.is55plusCommunities.value, true);
+    // No home-type flags should appear at all — Zillow uses defaults:
+    for (const flag of ['isSingleFamily', 'isMultiFamily', 'isCondo',
+                         'isTownhouse', 'isLotLand', 'isManufactured']) {
+      assert.equal(fs[flag], undefined,
+        `${flag} must be UNSET when homeTypeFlags is empty (Zillow defaults preserved)`);
+    }
+  });
+
+  await t.test('non-empty homeTypeFlags still sets every home-type explicitly', () => {
+    // Regression check: searchMultiFamily etc. still get the explicit-false
+    // treatment so they don't fall back to SFR mix.
+    const url = z.buildHomeTypeSearchUrl({
+      location: 'Austin, TX',
+      homeTypeFlags: { isMultiFamily: true },
+    });
+    const fs = filterStateFromUrl(url);
+    assert.equal(fs.isMultiFamily.value, true);
+    assert.equal(fs.isSingleFamily.value, false);
+    assert.equal(fs.isCondo.value, false);
+    assert.equal(fs.isLotLand.value, false);
+  });
+
+  // Now verify each of the 5 broken endpoints produces a URL with NO
+  // home-type lockdowns. We use the exported parameter builders where
+  // available; for the factory-only wrappers we reach through the
+  // generated URL by inspecting what makeHomeTypeSearch passes.
+
+  await t.test('searchSeniorCommunities URL does NOT lock isSingleFamily=false', () => {
+    // The wrapper takes no parameter builder, so we exercise it via the
+    // factory's underlying buildHomeTypeSearchUrl invocation. The internal
+    // homeTypeFlags={} must NOT zero out home types.
+    const url = z.buildHomeTypeSearchUrl({
+      location: 'Austin, TX',
+      homeTypeFlags: {},  // exactly what searchSeniorCommunities passes
+      extraFilters: { is55plusCommunities: { value: true } },
+    });
+    const fs = filterStateFromUrl(url);
+    assert.equal(fs.isSingleFamily, undefined,
+      'searchSeniorCommunities must not lock home types — Zillow defaults');
+  });
+});
+
+test('Tier B2 fix — buildNewConstructionSearchUrl omits home-type locks', async (t) => {
+  const z = require('../../lib/scrapers/zillowScrapeDo');
+
+  await t.test('does NOT explicitly disable other home types', () => {
+    const url = z.buildNewConstructionSearchUrl({ location: 'Austin, TX' });
+    const fs = filterStateFromUrl(url);
+    assert.equal(fs.isNewConstruction.value, true);
+    // Critical: SFR/condo/townhouse new construction should ALL surface.
+    assert.equal(fs.isSingleFamily, undefined);
+    assert.equal(fs.isCondo, undefined);
+    assert.equal(fs.isTownhouse, undefined);
+  });
+
+  await t.test('embedded builder still works', () => {
+    const url = z.buildNewConstructionSearchUrl({ location: 'Austin, TX', builder: 'Lennar' });
+    assert.equal(filterStateFromUrl(url).keywords, 'Lennar');
+  });
+});
+
+test('Tier B2 fix — buildTinyHomesSearchUrl omits home-type locks', async (t) => {
+  const z = require('../../lib/scrapers/zillowScrapeDo');
+
+  await t.test('does NOT explicitly disable other home types', () => {
+    const url = z.buildTinyHomesSearchUrl({ location: 'Austin, TX' });
+    const fs = filterStateFromUrl(url);
+    assert.equal(fs.sqft.max, 600);
+    // Tiny homes might be SFR or manufactured — don't lock either out.
+    assert.equal(fs.isSingleFamily, undefined);
+    assert.equal(fs.isManufactured, undefined);
+  });
+});
+
+test('Tier B2 fix — searchLotsLand max_acres + both-bounds coverage', async (t) => {
+  const z = require('../../lib/scrapers/zillowScrapeDo');
+
+  await t.test('max_acres alone converts to lotSize.max in sqft', () => {
+    const url = z.buildLotsLandSearchUrl({ location: 'Austin, TX', max_acres: 5 });
+    const fs = filterStateFromUrl(url);
+    assert.equal(fs.lotSize.max, 217800, '5 acres × 43560 = 217800 sqft');
+    assert.equal(fs.lotSize.min, undefined);
+  });
+
+  await t.test('min_acres + max_acres together both convert', () => {
+    const url = z.buildLotsLandSearchUrl({
+      location: 'Austin, TX', min_acres: 1, max_acres: 5,
+    });
+    const fs = filterStateFromUrl(url);
+    assert.equal(fs.lotSize.min, 43560);
+    assert.equal(fs.lotSize.max, 217800);
+  });
+});
+
+test('Tier B2 fix — numeric arg validation (NaN guard)', async (t) => {
+  const z = require('../../lib/scrapers/zillowScrapeDo');
+
+  await t.test('searchLotsLand rejects non-numeric min_acres', () => {
+    assert.throws(
+      () => z.buildLotsLandSearchUrl({ location: 'Austin, TX', min_acres: 'abc' }),
+      /min_acres must be a number/i,
+      'string min_acres must be rejected, not silently NaN-ified into URL'
+    );
+  });
+
+  await t.test('searchLotsLand rejects non-numeric max_acres', () => {
+    assert.throws(
+      () => z.buildLotsLandSearchUrl({ location: 'Austin, TX', max_acres: 'abc' }),
+      /max_acres must be a number/i
+    );
+  });
+
+  await t.test('searchTinyHomes rejects non-numeric max_sqft', () => {
+    assert.throws(
+      () => z.buildTinyHomesSearchUrl({ location: 'Austin, TX', max_sqft: 'abc' }),
+      /max_sqft must be a number/i
+    );
+  });
+
+  await t.test('searchLotsLand accepts numeric-string acres (coerces cleanly)', () => {
+    const url = z.buildLotsLandSearchUrl({ location: 'Austin, TX', min_acres: '2' });
+    const fs = filterStateFromUrl(url);
+    assert.equal(fs.lotSize.min, 87120);  // 2 × 43560
+  });
+});
+
+test('Tier B2 fix — searchTinyHomes max_sqft=0 falls back to default 600', async (t) => {
+  const z = require('../../lib/scrapers/zillowScrapeDo');
+
+  await t.test('max_sqft=0 is treated as "use default", not "zero sqft max"', () => {
+    // 0 sqft max would return 0 listings. Callers passing 0 likely mean
+    // "I don't care about max" — fall back to the 600 default.
+    const url = z.buildTinyHomesSearchUrl({ location: 'Austin, TX', max_sqft: 0 });
+    const fs = filterStateFromUrl(url);
+    assert.equal(fs.sqft.max, 600);
+  });
+});
