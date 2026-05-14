@@ -11,6 +11,7 @@ const { getClient } = require('../config/database');
 const { clientIp } = require('../lib/clientIp');
 const { apiUrl, appUrl, frontendUrl } = require('../lib/env-urls');
 const { respondError } = require('../lib/responses');
+const { getSender } = require('../lib/senders');
 
 const { Resend } = require('resend');
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -245,7 +246,7 @@ router.post('/signup', [
   try {
     const signupTime = new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
     const notifResult = await resend.emails.send({
-      from: 'AIWholesail <noreply@aiwholesail.com>',
+      from: getSender('transactional'),
       to: ['quintonw500@gmail.com', 'cpodea5@gmail.com'],
       replyTo: normalizedEmail,
       subject: `New Signup: ${fullName || normalizedEmail}${phoneNumber ? ' — ' + phoneNumber : ''}`,
@@ -385,7 +386,7 @@ router.post('/signup', [
   const trialEndDisplay = trialEnd.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
   try {
     const verifyResult = await resend.emails.send({
-      from: 'AIWholesail <noreply@aiwholesail.com>',
+      from: getSender('transactional'),
       to: normalizedEmail,
       subject: `Welcome to AIWholesail${firstName ? ', ' + firstName : ''} — your 7-day Pro trial is live`,
       html: `
@@ -866,7 +867,7 @@ router.post('/forgot-password', [
   const resetUrl = `${frontendUrl()}/auth?mode=reset&token=${resetToken}`;
   try {
     const resetResult = await resend.emails.send({
-      from: 'AIWholesail <noreply@aiwholesail.com>',
+      from: getSender('transactional'),
       to: normalizedEmail,
       subject: 'Reset Your Password — AIWholesail',
       html: `

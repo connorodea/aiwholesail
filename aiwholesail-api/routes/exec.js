@@ -35,6 +35,7 @@ const { computeFunnelStats } = require('../lib/funnel-stats');
 const { asyncHandler, logSecurityEvent } = require('../middleware/errorHandler');
 const { checkDatabaseRateLimit } = require('../middleware/rateLimit');
 const { clientIp } = require('../lib/clientIp');
+const { getSender } = require('../lib/senders');
 
 const router = express.Router();
 
@@ -183,7 +184,7 @@ async function fireBruteForceAlertIfNeeded(ip, attemptedEmail, req) {
   if (!process.env.RESEND_API_KEY) return;
   const resend = new Resend(process.env.RESEND_API_KEY);
   await resend.emails.send({
-    from: 'AIWholesail Security <noreply@aiwholesail.com>',
+    from: getSender('security'),
     to: 'connor@upscaledinc.com',
     subject: `[Security] Exec dashboard: ${failuresInWindow} failed logins from ${ip} in the last hour`,
     text: [
