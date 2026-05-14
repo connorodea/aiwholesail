@@ -129,3 +129,39 @@ test('the inner <svg> is aria-hidden (decorative; outer span carries the label)'
     'inner sail <svg> must be aria-hidden="true" so screen readers do not double-announce',
   );
 });
+
+// --- regression pins (added on review of PR #397) ---
+// These pin the failure modes most likely to bite: silently flipping the
+// default variant (every call site that omits the prop), changing the SVG
+// viewBox (proportions break), or dropping flexShrink:0 (sail collapses
+// inside narrow flex containers like the navbar).
+
+test('variant defaults to "dark" so call sites that omit the prop render correctly', () => {
+  const src = readSourceNoComments();
+  assert.match(
+    src,
+    /variant\s*=\s*["']dark["']/,
+    'default-prop expression `variant = "dark"` must exist',
+  );
+});
+
+test('inner <svg> uses viewBox 0 0 50 70 so sail proportions are preserved', () => {
+  const src = readSource();
+  assert.match(
+    src,
+    /viewBox=["']0 0 50 70["']/,
+    'viewBox must be "0 0 50 70" (sets the sail aspect ratio against the wordmark cap-height)',
+  );
+});
+
+test('inner <svg> has flexShrink: 0 so the sail survives narrow flex containers', () => {
+  const src = readSource();
+  // The wordmark sits inside flex containers (e.g. the navbar logo link).
+  // Without flexShrink:0 the sail glyph shrinks before the text and the
+  // "A" placeholder disappears.
+  assert.match(
+    src,
+    /flexShrink:\s*0/,
+    'sail <svg> style must include flexShrink: 0',
+  );
+});

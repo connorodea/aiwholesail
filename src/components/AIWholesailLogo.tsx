@@ -22,18 +22,14 @@ interface AIWholesailLogoProps {
   variant?: Variant;
   className?: string;
   title?: string;
-  /** Pixel height of the wordmark; width auto-scales. */
-  size?: number;
 }
 
 export function AIWholesailLogo({
   variant = "dark",
   className,
   title = "AIWholesail",
-  size,
 }: AIWholesailLogoProps) {
   const palette = VARIANTS[variant];
-  const fontStyle = size ? { fontSize: `${size}px` } : undefined;
 
   return (
     <span
@@ -43,7 +39,7 @@ export function AIWholesailLogo({
         "aiwholesail-wordmark inline-flex items-baseline whitespace-nowrap leading-none",
         className,
       )}
-      style={{ color: palette.text, ...fontStyle }}
+      style={{ color: palette.text }}
     >
       AIWHOLES
       <svg
