@@ -767,13 +767,6 @@ export const communications = {
       body: JSON.stringify({ leadId, campaignType, messageContent }),
     });
   },
-
-  sendSpreadAlert: async (deals: any[], location: string, phone: string) => {
-    return apiFetch('/api/communications/spread-alert', {
-      method: 'POST',
-      body: JSON.stringify({ deals, location, phone }),
-    });
-  },
 };
 
 // ============ BUYERS API ============
