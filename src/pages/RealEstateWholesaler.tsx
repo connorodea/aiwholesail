@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { User, Download, Bell, GitCompareArrows, Check, LayoutGrid, Map as MapIcon } from 'lucide-react';
 import { lazy, Suspense } from 'react';
-import { property as propertyApi } from '@/lib/api-client';
+import { property as propertyApi, tokenStorage } from '@/lib/api-client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useLeads } from '@/hooks/useLeads';
@@ -504,6 +504,23 @@ export default function RealEstateWholesaler() {
         // Thrown by ZillowAPI when the access token is missing/expired.
         // Surface a sign-in CTA instead of the opaque "401" toast that
         // cpodea5 hit on 2026-05-13.
+        //
+        // Emit a PostHog event BEFORE showing the toast so the observability
+        // pipeline (docs/observability/SLO_SPEC.md P1.1) sees every occurrence.
+        // The combination `has_stored_user=true` AND `has_access_token=false`
+        // is the precise zombie-session signature the alert rule filters on.
+        analytics.capture('not_authenticated_toast_shown', {
+          route: typeof window !== 'undefined' ? window.location.pathname : '',
+          has_stored_user: tokenStorage.getUser() !== null,
+          has_access_token: tokenStorage.getAccessToken() !== null,
+          posthog_session_id:
+            typeof window !== 'undefined' &&
+            window.posthog &&
+            typeof window.posthog.get_session_id === 'function'
+              ? window.posthog.get_session_id()
+              : undefined,
+          user_id: user?.id,
+        });
         toast.error('Your session has expired. Please sign in to search.', {
           action: {
             label: 'Sign in',
