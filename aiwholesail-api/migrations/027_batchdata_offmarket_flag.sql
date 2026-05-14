@@ -30,13 +30,13 @@ VALUES
    'Route off-market property searches (absentee owners, pre-foreclosure, high equity, tax delinquent, vacant, etc.) through BatchData instead of PropData. PropData''s absentee_only filter is broken at the vendor (0/46 records flagged across 5 ZIPs in live testing 2026-05-14). BatchData is purpose-built for wholesaler off-market data with proper quicklists. When OFF, the app keeps calling PropData (existing behavior).')
 ON CONFLICT (slug) DO NOTHING;
 
--- Per-user dogfood override for cpodea5@gmail.com. Sub-select resolves to
--- zero rows in envs without that user (local dev), so the migration stays
--- portable. On prod it flips the flag ON for cpodea5 only.
-INSERT INTO feature_flag_users (user_id, slug, enabled, reason)
-SELECT u.id, 'batchdata_offmarket', TRUE, 'staff-dogfood'
-FROM users u
-WHERE u.email = 'cpodea5@gmail.com'
-ON CONFLICT (user_id, slug) DO UPDATE
-  SET enabled = EXCLUDED.enabled,
-      reason  = EXCLUDED.reason;
+-- No per-user dogfood override at this time. BatchData pricing (base $1k/mo
+-- + add-ons) made this integration cost-prohibitive at our current scale.
+-- The flag + proxy ship as a PARKING BRANCH: code is in main, OFF for all,
+-- ready to flip if vendor pricing changes or we evaluate a different
+-- off-market vendor (Regrid, DealMachine, etc.) with the same proxy shape.
+--
+-- When ready to dogfood, add the override manually:
+--   INSERT INTO feature_flag_users (user_id, slug, enabled, reason)
+--   SELECT id, 'batchdata_offmarket', TRUE, 'staff-dogfood'
+--   FROM users WHERE email = '<your-email>';
