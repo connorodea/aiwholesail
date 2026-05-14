@@ -80,10 +80,15 @@ test('zillow proxy route — no-data translation regression guard', async (t) =>
     // Locate the catch block. It must contain a branch that returns 200
     // (not 500) when the reason is one of the no-data signals.
     //
-    // Pattern matches across whitespace + arbitrary intervening tokens but
-    // requires all four pieces in order within one catch block region.
+    // The 500-char window is sized to fit ONE if-block (condition + inline
+    // comments + observability log + return) but reject the case where the
+    // reason is mentioned in one part of the file and the 200-response is
+    // emitted from an unrelated branch elsewhere. If a future refactor
+    // adds another paragraph of comments inside this if-block and bumps
+    // the gap past 500 chars, restructure rather than just widen — the
+    // point of the window is that the two pieces stay coupled.
     const noDataBranch =
-      /no_(?:data|property)_in_payload[\s\S]{0,400}?res\.(?:status\(\s*200\s*\)\.)?json\(\s*\{[\s\S]*?success\s*:\s*true[\s\S]*?data\s*:\s*null/;
+      /no_(?:data|property)_in_payload[\s\S]{0,500}?res\.(?:status\(\s*200\s*\)\.)?json\(\s*\{[\s\S]*?success\s*:\s*true[\s\S]*?data\s*:\s*null/;
 
     assert.match(
       source,
@@ -94,14 +99,18 @@ test('zillow proxy route — no-data translation regression guard', async (t) =>
       'toast. A 500 here pages on-call for a legitimate empty result.'
     );
 
-    // Must echo the reason field so the UI / observability can distinguish
-    // missing-widget from broken-backend.
+    // The `reason` field must carry the actual `err.reason` value (echo),
+    // not a hardcoded string. If a refactor hardcodes `reason: 'no_data'`,
+    // observability loses the ability to differentiate `no_data_in_payload`
+    // from `no_property_in_payload` in logs — they're distinct conditions
+    // (absent widget vs. listing gone) that warrant different follow-up.
     assert.match(
       source,
-      /no_(?:data|property)_in_payload[\s\S]{0,400}?reason\s*:/,
-      'The 200-with-null response must include a `reason` field so the ' +
-      'UI can render an appropriate "not available" message and so ' +
-      'observability can distinguish absent-data from upstream errors.'
+      /reason\s*:\s*err\.reason\b/,
+      'The 200-with-null response must echo `reason: err.reason` ' +
+      '(not a hardcoded literal). The two no-data reasons map to ' +
+      'different real-world conditions — losing the differentiation ' +
+      'breaks observability and any future UI that switches on reason.'
     );
   });
 
