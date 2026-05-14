@@ -27,6 +27,8 @@ require('dotenv').config();
 const { Pool } = require('pg');
 const { Resend } = require('resend');
 const { getSender } = require('../lib/senders');
+const { renderTemplate } = require('../lib/template-render');
+const { buildVariables } = require('../lib/build-variables');
 
 const WORKER_VERSION = '0.1.0';
 const BATCH_LIMIT = 500;
@@ -40,38 +42,9 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-// Substitute {key} tokens. Unmatched placeholders are left as-is so we can spot
-// them in send logs rather than silently sending empty strings.
-function renderTemplate(template, vars) {
-  if (!template) return '';
-  return String(template).replace(/\{([a-zA-Z0-9_]+)\}/g, (match, key) => {
-    const v = vars[key];
-    return v === undefined || v === null ? match : String(v);
-  });
-}
-
-function buildVariables(row) {
-  // Three sources, increasing precedence:
-  //   1. auto-derived from the recipient row (lead_first_name, etc.)
-  //   2. lead_sequences.variables — set when the sequence was assigned
-  //      (legacy single-lead UI path)
-  //   3. campaign_targets.target_variables — set by the campaign builder
-  //      when fanning out to a buyers/agents/CSV audience. This is the
-  //      most specific source and wins when both are present.
-  const sequenceVars = row.sequence_variables && typeof row.sequence_variables === 'object' ? row.sequence_variables : {};
-  const campaignVars = row.campaign_variables && typeof row.campaign_variables === 'object' ? row.campaign_variables : {};
-  const firstName = row.lead_first_name || '';
-  const lastName = row.lead_last_name || '';
-  const fullName = [firstName, lastName].filter(Boolean).join(' ').trim();
-  const auto = {
-    seller_name: fullName || firstName || 'there',
-    first_name: firstName || 'there',
-    lead_name: fullName || firstName || '',
-    property_address: row.property_address || '',
-    your_name: sequenceVars.your_name || campaignVars.your_name || '',
-  };
-  return { ...auto, ...sequenceVars, ...campaignVars };
-}
+// renderTemplate() and buildVariables() live in lib/template-render.js
+// and lib/build-variables.js respectively so the pure merge logic can be
+// unit-tested without booting Postgres + Resend.
 
 async function tableExists(tableName) {
   const r = await pool.query(`SELECT to_regclass($1) AS reg`, [tableName]);
