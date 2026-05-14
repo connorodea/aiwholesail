@@ -22,9 +22,7 @@ import {
 import { AnimatePresence, motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-
-const aiWholesailLogoWebP = "/logo-white.webp";
-const aiWholesailLogoPNG = "/logo-white.png";
+import { AIWholesailLogo } from "@/components/AIWholesailLogo";
 
 type LinkItem = {
   label: string;
@@ -116,10 +114,7 @@ export function NavbarAIWholesail() {
           <div className="flex h-14 items-center justify-between gap-4">
             {/* Logo */}
             <Link to="/" className="flex shrink-0 items-center">
-              <picture>
-                <source srcSet={aiWholesailLogoWebP} type="image/webp" />
-                <img src={aiWholesailLogoPNG} alt="AIWholesail" className="h-10 w-auto object-contain" width="55" height="40" />
-              </picture>
+              <AIWholesailLogo variant="dark" className="text-[28px]" />
             </Link>
 
             {/* Desktop Nav */}

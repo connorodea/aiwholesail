@@ -109,6 +109,26 @@ All colors MUST be HSL.
     --input: 0 0% 94%;
     --ring: 187 85% 43%;
   }
+
+  /* Brand tokens — sourced from marketing/creatives/branding/aiwholesail-logo-main.html
+     Additive only: the global --primary stays at the existing cyan so this PR
+     swaps the logo without shifting every button/link across the app. */
+  :root, .light {
+    --brand-ink: #0a0a0a;
+    --brand-paper: #fafaf9;
+    --brand-signal: #00c4c8;
+    --brand-tone: #f1f1ee;
+  }
+}
+
+@layer components {
+  /* Scoped Onest binding for the wordmark so global Montserrat is untouched. */
+  .aiwholesail-wordmark {
+    font-family: "Onest", "Montserrat", system-ui, -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.045em;
+    text-transform: uppercase;
+  }
 }
 
 @layer base {
