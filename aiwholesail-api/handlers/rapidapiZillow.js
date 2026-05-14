@@ -55,4 +55,16 @@ async function proxyHandler(req, res) {
   }
 }
 
-module.exports = { proxyHandler };
+async function batchHandler(req, res) {
+  const zpids = Array.isArray(req.body?.zpids)
+    ? req.body.zpids.filter((z) => typeof z === 'string' && z)
+    : null;
+  if (!zpids || zpids.length === 0) {
+    return res.status(400).json({ success: false, error: 'zpids array required' });
+  }
+  if (zpids.length > 100) {
+    return res.status(400).json({ success: false, error: 'max 100 zpids per batch' });
+  }
+}
+
+module.exports = { proxyHandler, batchHandler };

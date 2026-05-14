@@ -169,3 +169,38 @@ test('proxyHandler returns 500 on other upstream errors', async () => {
   assert.equal(res.payload.success, false);
   assert.match(res.payload.error, /scrape\.do upstream/);
 });
+
+// ── batchHandler ──────────────────────────────────────────────────────────
+
+test('batchHandler returns 400 when zpids array is missing', async () => {
+  installMocks();
+  const { batchHandler } = clearAndReloadHandler();
+
+  const res = makeRes();
+  await batchHandler(makeReq({}), res);
+
+  assert.equal(res.statusCode, 400);
+  assert.match(res.payload.error, /zpids array required/i);
+});
+
+test('batchHandler returns 400 when zpids array is empty', async () => {
+  installMocks();
+  const { batchHandler } = clearAndReloadHandler();
+
+  const res = makeRes();
+  await batchHandler(makeReq({ zpids: [] }), res);
+
+  assert.equal(res.statusCode, 400);
+});
+
+test('batchHandler returns 400 when zpids contains more than 100 entries', async () => {
+  installMocks();
+  const { batchHandler } = clearAndReloadHandler();
+
+  const tooMany = Array.from({ length: 101 }, (_, i) => String(i));
+  const res = makeRes();
+  await batchHandler(makeReq({ zpids: tooMany }), res);
+
+  assert.equal(res.statusCode, 400);
+  assert.match(res.payload.error, /max 100/i);
+});
