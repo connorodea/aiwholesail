@@ -122,7 +122,8 @@ export function PropertyMapTab({ property }: PropertyMapTabProps) {
             zpid,
             property.address,
             coords.lat,
-            coords.lng
+            coords.lng,
+            { beds: property.bedrooms, sqft: property.sqft }
           );
           if (cancelled) return;
           const mapped: MapComp[] = Array.isArray(rawComps)
