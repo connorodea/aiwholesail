@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
+import { useQueries } from '@tanstack/react-query';
 import { DashboardNav } from '@/components/DashboardNav';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -22,6 +23,21 @@ interface CampaignRow {
   created_at: string;
 }
 
+interface OverallAnalytics {
+  totals: {
+    sent: number;
+    delivered: number;
+    opened: number;
+    replied: number;
+    bounced: number;
+  };
+  rates: {
+    open_rate: number;
+    reply_rate: number;
+    bounce_rate: number;
+  };
+}
+
 const STATUS_BADGE: Record<string, { label: string; tone: string }> = {
   draft: { label: 'Draft', tone: 'bg-neutral-700/40 text-neutral-300 border-neutral-600/40' },
   scheduled: { label: 'Scheduled', tone: 'bg-blue-500/15 text-blue-300 border-blue-400/30' },
@@ -38,6 +54,11 @@ function formatDate(iso: string): string {
   } catch {
     return iso;
   }
+}
+
+function fmtPct(n: number | undefined): string {
+  if (n == null || !Number.isFinite(n)) return '—';
+  return `${(n * 100).toFixed(1)}%`;
 }
 
 export default function Campaigns() {
@@ -66,6 +87,24 @@ export default function Campaigns() {
       void loadCampaigns();
     }
   }, [enabled]);
+
+  // Fetch the overall analytics for each campaign in parallel.
+  // TanStack Query memoizes per-id so cards stop re-fetching after first paint;
+  // 60s staleTime keeps the cards fresh-ish without hammering the API.
+  const analyticsQueries = useQueries({
+    queries: campaigns.map((c) => ({
+      queryKey: ['campaign-overall', c.id],
+      queryFn: async (): Promise<OverallAnalytics | null> => {
+        const res = await apiFetch<OverallAnalytics>(
+          `/api/campaigns/${c.id}/analytics?slice=overall`,
+        );
+        if (res.error) return null;
+        return res.data ?? null;
+      },
+      enabled: Boolean(enabled),
+      staleTime: 60_000,
+    })),
+  });
 
   if (flagLoading) return null;
   if (!enabled) return <Navigate to="/app" replace />;
@@ -120,43 +159,60 @@ export default function Campaigns() {
 
           {!loading && campaigns.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {campaigns.map((c) => {
+              {campaigns.map((c, idx) => {
                 const badge = STATUS_BADGE[c.status] || STATUS_BADGE.draft;
+                const analytics = analyticsQueries[idx]?.data ?? null;
                 return (
-                  <Card key={c.id} className="border-border/40 bg-neutral-950/40 hover:border-primary/30 transition-colors">
-                    <CardContent className="p-5 space-y-3">
-                      <div className="flex items-start justify-between gap-2">
-                        <h3 className="text-sm font-medium text-white line-clamp-2">{c.name}</h3>
-                        <Badge variant="outline" className={`text-[10px] ${badge.tone}`}>
-                          {badge.label}
-                        </Badge>
-                      </div>
-                      <div className="grid grid-cols-3 gap-2 text-xs">
-                        <div>
-                          <div className="text-neutral-500">Audience</div>
-                          <div className="text-white font-medium">{c.audience_count ?? 0}</div>
+                  <Link key={c.id} to={`/app/campaigns/${c.id}`} className="block">
+                    <Card className="border-border/40 bg-neutral-950/40 hover:border-primary/30 transition-colors h-full">
+                      <CardContent className="p-5 space-y-3">
+                        <div className="flex items-start justify-between gap-2">
+                          <h3 className="text-sm font-medium text-white line-clamp-2">{c.name}</h3>
+                          <Badge variant="outline" className={`text-[10px] ${badge.tone}`}>
+                            {badge.label}
+                          </Badge>
                         </div>
-                        <div>
-                          <div className="text-neutral-500 flex items-center gap-1">
-                            <Send className="h-3 w-3" /> Sent
+                        <div className="grid grid-cols-3 gap-2 text-xs">
+                          <div>
+                            <div className="text-neutral-500">Audience</div>
+                            <div className="text-white font-medium">{c.audience_count ?? 0}</div>
                           </div>
-                          <div className="text-white font-medium">{c.sent_count ?? 0}</div>
-                        </div>
-                        <div>
-                          <div className="text-neutral-500 flex items-center gap-1">
-                            <MessageSquare className="h-3 w-3" /> Replies
+                          <div>
+                            <div className="text-neutral-500 flex items-center gap-1">
+                              <Send className="h-3 w-3" /> Sent
+                            </div>
+                            <div className="text-white font-medium">{c.sent_count ?? 0}</div>
                           </div>
-                          <div className="text-white font-medium">{c.replied_count ?? 0}</div>
+                          <div>
+                            <div className="text-neutral-500 flex items-center gap-1">
+                              <MessageSquare className="h-3 w-3" /> Replies
+                            </div>
+                            <div className="text-white font-medium">{c.replied_count ?? 0}</div>
+                          </div>
                         </div>
-                      </div>
-                      <div className="flex items-center justify-between text-xs text-neutral-500 pt-2 border-t border-white/[0.04]">
-                        <span className="flex items-center gap-1">
-                          <Calendar className="h-3 w-3" />
-                          {formatDate(c.created_at)}
-                        </span>
-                      </div>
-                    </CardContent>
-                  </Card>
+                        <div className="grid grid-cols-3 gap-2 text-xs pt-2 border-t border-white/[0.04]">
+                          <div>
+                            <div className="text-neutral-500">Open</div>
+                            <div className="text-white font-medium">{fmtPct(analytics?.rates.open_rate)}</div>
+                          </div>
+                          <div>
+                            <div className="text-neutral-500">Reply</div>
+                            <div className="text-white font-medium">{fmtPct(analytics?.rates.reply_rate)}</div>
+                          </div>
+                          <div>
+                            <div className="text-neutral-500">Bounce</div>
+                            <div className="text-white font-medium">{fmtPct(analytics?.rates.bounce_rate)}</div>
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between text-xs text-neutral-500 pt-2 border-t border-white/[0.04]">
+                          <span className="flex items-center gap-1">
+                            <Calendar className="h-3 w-3" />
+                            {formatDate(c.created_at)}
+                          </span>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
                 );
               })}
             </div>
