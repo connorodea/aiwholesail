@@ -94,8 +94,8 @@ export default function SoftwareReviews() {
   return (
     <PublicLayout>
       <SEOHead
-        title="Best Wholesaling Software Reviews 2026 -- Honest Comparisons"
-        description="Honest reviews of the top real estate wholesaling software in 2026. Compare PropStream, BatchLeads, DealMachine, REsimpli, and more. Find the best tool for your investing strategy."
+        title="Best Wholesaling Software Reviews 2026 — AIWholesail"
+        description="Honest reviews of top real estate wholesaling software in 2026. Compare PropStream, BatchLeads, DealMachine, REsimpli & more. Find the right tool."
         keywords="best wholesaling software, real estate investing software reviews, PropStream review, BatchLeads review, DealMachine review, wholesaling CRM, best real estate investor tools 2026"
         canonicalUrl="https://aiwholesail.com/reviews"
         breadcrumbs={[
