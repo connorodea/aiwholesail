@@ -2415,6 +2415,17 @@ function buildHomeTypeSearchUrl(args = {}) {
   // on top — these may include non-boolean shapes like `lotSize: {min, max}`.
   Object.assign(filterState, extraFilters);
 
+  // TD-101 — defensive normalization of bare-string keywords.
+  // Zillow's searchQueryState parser rejects `keywords: "HUD"` (bare string)
+  // and expects `keywords: {value: "HUD"}` (the same {value: X} shape every
+  // other filterState entry uses). Bug observed live as HTTP 400 from
+  // scrape.do on searchHudHomes 2026-05-14.
+  // We wrap defensively here so the bug class can't recur from a new
+  // endpoint that passes a bare string.
+  if (typeof filterState.keywords === 'string') {
+    filterState.keywords = { value: filterState.keywords };
+  }
+
   return `${searchUrlForLocation(location)}?searchQueryState=${encodeURIComponent(
     JSON.stringify({
       pagination: page && Number(page) > 1 ? { currentPage: Number(page) } : {},
@@ -2531,17 +2542,36 @@ const searchSeniorCommunities = makeHomeTypeSearch({
 });
 
 /**
+ * HUD homes URL builder — testable wrapper around buildHomeTypeSearchUrl
+ * with the canonical HUD filterState. Exported so unit tests can verify
+ * the URL shape without hitting the network (TD-101 regression: the bare-
+ * string `keywords` value previously produced HTTP 400 from scrape.do).
+ */
+function buildHudHomesSearchUrl({ location, page } = {}) {
+  return buildHomeTypeSearchUrl({
+    location,
+    homeTypeFlags: {},
+    extraFilters: {
+      isForSaleForeclosure: { value: true },
+      keywords: { value: 'HUD' },
+    },
+    page,
+  });
+}
+
+/**
  * HUD homes. Zillow has no first-class HUD flag — we filter on
- * `isForSaleForeclosure=true` plus a `keywords: "HUD"` clause that matches
- * inside listing descriptions. Real HUD inventory lives on hudhomestore.gov;
- * Zillow only surfaces the subset re-listed by HUD-authorized brokers.
+ * `isForSaleForeclosure=true` plus a `keywords: {value: "HUD"}` clause that
+ * matches inside listing descriptions. Real HUD inventory lives on
+ * hudhomestore.gov; Zillow only surfaces the subset re-listed by HUD-
+ * authorized brokers.
  */
 const searchHudHomes = makeHomeTypeSearch({
   action: 'searchHudHomes',
   status: 'HudHomes',
   extraFilters: {
     isForSaleForeclosure: { value: true },
-    keywords: 'HUD',
+    keywords: { value: 'HUD' },
   },
 });
 
@@ -2622,7 +2652,9 @@ const searchLotsLand = makeHomeTypeSearch({
  */
 function buildNewConstructionSearchUrl({ location, builder, page }) {
   const extraFilters = { isNewConstruction: { value: true } };
-  if (builder) extraFilters.keywords = String(builder);
+  // TD-101: keywords must be {value: X}, not bare string. See
+  // buildHomeTypeSearchUrl auto-normalization for the safety net.
+  if (builder) extraFilters.keywords = { value: String(builder) };
   return buildHomeTypeSearchUrl({ location, homeTypeFlags: {}, extraFilters, page });
 }
 
@@ -2631,7 +2663,7 @@ const searchNewConstruction = makeHomeTypeSearch({
   status: 'NewConstruction',
   extraFilters: (args) => {
     const extra = { isNewConstruction: { value: true } };
-    if (args.builder) extra.keywords = String(args.builder);
+    if (args.builder) extra.keywords = { value: String(args.builder) };
     return extra;
   },
 });
@@ -2658,7 +2690,7 @@ function buildTinyHomesSearchUrl({ location, max_sqft, page }) {
     homeTypeFlags: {},
     extraFilters: {
       sqft: { max: resolveTinyHomesMaxSqft(max_sqft) },
-      keywords: 'tiny home',
+      keywords: { value: 'tiny home' },
     },
     page,
   });
@@ -2669,7 +2701,7 @@ const searchTinyHomes = makeHomeTypeSearch({
   status: 'TinyHomes',
   extraFilters: (args) => ({
     sqft: { max: resolveTinyHomesMaxSqft(args.max_sqft) },
-    keywords: 'tiny home',
+    keywords: { value: 'tiny home' },
   }),
 });
 
@@ -2757,6 +2789,7 @@ module.exports = {
   buildLotsLandSearchUrl,
   buildNewConstructionSearchUrl,
   buildTinyHomesSearchUrl,
+  buildHudHomesSearchUrl,
   // Value / market / mortgage / agent:
   mortgageRates,
   mortgageCalculator,

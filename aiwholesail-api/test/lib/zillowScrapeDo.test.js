@@ -1899,19 +1899,14 @@ test('Tier B2 — keyword + secondary-flag variants (55+, HUD, MakeMeMove)', asy
     await assert.rejects(() => z.searchSeniorCommunities({}), /requires location/);
   });
 
-  await t.test('searchHudHomes — sets foreclosure flag + HUD keyword', () => {
+  await t.test('searchHudHomes — sets foreclosure flag + HUD keyword as {value: "HUD"}', () => {
+    // TD-101: keywords must be wrapped per Zillow's searchQueryState contract.
+    // Bare-string `keywords: "HUD"` previously caused HTTP 400 from scrape.do.
     assert.equal(typeof z.searchHudHomes, 'function');
-    const url = z.buildHomeTypeSearchUrl({
-      location: 'Austin, TX',
-      homeTypeFlags: {},
-      extraFilters: {
-        isForSaleForeclosure: { value: true },
-        keywords: 'HUD',
-      },
-    });
+    const url = z.buildHudHomesSearchUrl({ location: 'Austin, TX' });
     const fs = filterStateFromUrl(url);
     assert.equal(fs.isForSaleForeclosure.value, true);
-    assert.equal(fs.keywords, 'HUD');
+    assert.deepEqual(fs.keywords, { value: 'HUD' });
   });
 
   await t.test('searchHudHomes — rejects missing location', async () => {
@@ -1982,7 +1977,8 @@ test('Tier B2 — searchNewConstruction', async (t) => {
     });
     const fs = filterStateFromUrl(url);
     assert.equal(fs.isNewConstruction.value, true);
-    assert.equal(fs.keywords, 'Lennar');
+    // TD-101: keywords wrapped per Zillow's searchQueryState contract
+    assert.deepEqual(fs.keywords, { value: 'Lennar' });
   });
 
   await t.test('URL omits keywords when builder is undefined', () => {
@@ -2005,7 +2001,8 @@ test('Tier B2 — searchTinyHomes', async (t) => {
     const url = z.buildTinyHomesSearchUrl({ location: 'Austin, TX' });
     const fs = filterStateFromUrl(url);
     assert.equal(fs.sqft?.max, 600, 'default sqft.max must be 600 (tiny-home threshold)');
-    assert.match(fs.keywords || '', /tiny/i);
+    // TD-101: keywords is {value: X} not bare string
+    assert.match(fs.keywords?.value || '', /tiny/i);
   });
 
   await t.test('URL respects caller-supplied max_sqft override', () => {
@@ -2091,7 +2088,8 @@ test('Tier B2 fix — buildNewConstructionSearchUrl omits home-type locks', asyn
 
   await t.test('embedded builder still works', () => {
     const url = z.buildNewConstructionSearchUrl({ location: 'Austin, TX', builder: 'Lennar' });
-    assert.equal(filterStateFromUrl(url).keywords, 'Lennar');
+    // TD-101: keywords wrapped per Zillow's searchQueryState contract
+    assert.deepEqual(filterStateFromUrl(url).keywords, { value: 'Lennar' });
   });
 });
 
@@ -2169,5 +2167,74 @@ test('Tier B2 fix — searchTinyHomes max_sqft=0 falls back to default 600', asy
     const url = z.buildTinyHomesSearchUrl({ location: 'Austin, TX', max_sqft: 0 });
     const fs = filterStateFromUrl(url);
     assert.equal(fs.sqft.max, 600);
+  });
+});
+
+// ── TD-101 fix — keywords filterState shape (bug surfaced by live smoke) ────
+//
+// PR #383 introduced searchHudHomes / searchNewConstruction / searchTinyHomes
+// with `keywords: <bare-string>` in filterState. Live smoke test (2026-05-14)
+// found searchHudHomes returning HTTP 400 from scrape.do on Phoenix AZ + Atlanta
+// GA. Tech-debt audit found the same bare-string pattern in 3 endpoints.
+//
+// Every other filterState entry uses the {value: X} shape (isMultiFamily,
+// isForSaleForeclosure, etc). The hypothesis: Zillow's searchQueryState
+// parser expects `keywords: {value: "HUD"}` not bare `keywords: "HUD"`.
+//
+// These RED tests pin the {value: X} shape. The 3 buggy configs must be
+// updated to match.
+
+test('TD-101 fix — keywords filterState shape must be {value: X}', async (t) => {
+  const z = require('../../lib/scrapers/zillowScrapeDo');
+
+  await t.test('searchHudHomes URL emits keywords as {value: "HUD"}', () => {
+    const url = z.buildHomeTypeSearchUrl({
+      location: 'Phoenix, AZ',
+      homeTypeFlags: {},
+      extraFilters: {
+        isForSaleForeclosure: { value: true },
+        keywords: { value: 'HUD' },
+      },
+    });
+    const fs = filterStateFromUrl(url);
+    assert.deepEqual(fs.keywords, { value: 'HUD' },
+      'keywords must be {value: "HUD"}, not bare string — consistency with rest of filterState');
+  });
+
+  await t.test('buildNewConstructionSearchUrl emits keywords as {value: builder}', () => {
+    const url = z.buildNewConstructionSearchUrl({
+      location: 'Austin, TX',
+      builder: 'Lennar',
+    });
+    const fs = filterStateFromUrl(url);
+    assert.deepEqual(fs.keywords, { value: 'Lennar' },
+      'NewConstruction with builder must wrap keywords in {value:}');
+  });
+
+  await t.test('buildTinyHomesSearchUrl emits keywords as {value: "tiny home"}', () => {
+    const url = z.buildTinyHomesSearchUrl({ location: 'Austin, TX' });
+    const fs = filterStateFromUrl(url);
+    assert.deepEqual(fs.keywords, { value: 'tiny home' });
+  });
+
+  await t.test('searchNewConstruction without builder omits keywords entirely', () => {
+    const url = z.buildNewConstructionSearchUrl({ location: 'Austin, TX' });
+    const fs = filterStateFromUrl(url);
+    assert.equal(fs.keywords, undefined,
+      'No builder = no keywords clause (avoid empty {value:""} pollution)');
+  });
+
+  await t.test('buildHomeTypeSearchUrl auto-normalizes bare-string keywords to {value: X}', () => {
+    // Defensive normalization at the builder level — if any caller still
+    // passes a bare string (legacy/tests/external), we wrap it. Belt-and-
+    // suspenders so the bug class can't recur from a new endpoint.
+    const url = z.buildHomeTypeSearchUrl({
+      location: 'Austin, TX',
+      homeTypeFlags: {},
+      extraFilters: { keywords: 'raw string' },
+    });
+    const fs = filterStateFromUrl(url);
+    assert.deepEqual(fs.keywords, { value: 'raw string' },
+      'bare-string keywords from a caller must be normalized to {value: X}');
   });
 });
