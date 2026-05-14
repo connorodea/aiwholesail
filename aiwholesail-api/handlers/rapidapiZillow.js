@@ -65,6 +65,39 @@ async function batchHandler(req, res) {
   if (zpids.length > 100) {
     return res.status(400).json({ success: false, error: 'max 100 zpids per batch' });
   }
+
+  const rateLimit = await checkDatabaseRateLimit(
+    req.user.id,
+    'rapidapi-zillow-proxy',
+    60,
+    1
+  );
+  if (!rateLimit.allowed) {
+    return res.status(429).json({ success: false, error: 'Rate limit exceeded' });
+  }
+
+  // Concurrency-bounded fan-out. 8 in flight gives ~4s wall-clock for 50
+  // zpids while staying within the upstream proxy's rate envelope. Per-zpid
+  // failures resolve to null so one bad listing can't kill a 50-property batch.
+  const CONCURRENCY = 8;
+  const data = {};
+  let idx = 0;
+  const workers = new Array(Math.min(CONCURRENCY, zpids.length))
+    .fill(0)
+    .map(async () => {
+      while (idx < zpids.length) {
+        const zpid = zpids[idx++];
+        try {
+          const r = await proxyZillow('zestimate', { zpid }, { userId: req.user.id });
+          // Normalise: proxy returns either {zestimate: N}, {value: N}, or N directly.
+          data[zpid] = typeof r === 'number' ? r : (r?.zestimate ?? r?.value ?? null);
+        } catch {
+          data[zpid] = null;
+        }
+      }
+    });
+  await Promise.all(workers);
+  return res.json({ success: true, data });
 }
 
 module.exports = { proxyHandler, batchHandler };

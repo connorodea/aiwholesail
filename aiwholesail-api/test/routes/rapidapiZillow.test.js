@@ -49,10 +49,12 @@ class FakeZillowScrapeError extends Error {
 function installMocks({
   proxyResult = null,
   proxyThrows = null,
+  proxyFn = null,            // (action, searchParams) => result|throws; per-call control for batch tests
   rateAllowed = true,
 } = {}) {
   mocks.zillowProxy = {
-    proxyZillow: async () => {
+    proxyZillow: async (action, searchParams, opts) => {
+      if (proxyFn) return proxyFn(action, searchParams, opts);
       if (proxyThrows) throw proxyThrows;
       return proxyResult;
     },
@@ -203,4 +205,58 @@ test('batchHandler returns 400 when zpids contains more than 100 entries', async
 
   assert.equal(res.statusCode, 400);
   assert.match(res.payload.error, /max 100/i);
+});
+
+test('batchHandler returns 429 when rate limit is exceeded', async () => {
+  installMocks({ rateAllowed: false });
+  const { batchHandler } = clearAndReloadHandler();
+
+  const res = makeRes();
+  await batchHandler(makeReq({ zpids: ['1', '2'] }), res);
+
+  assert.equal(res.statusCode, 429);
+});
+
+test('batchHandler returns numeric, object, and null shapes from proxyZillow', async () => {
+  // proxyZillow's return shape varies: sometimes a raw number, sometimes
+  // { zestimate: N }, sometimes { value: N }, sometimes neither (null).
+  // The handler must normalise to { [zpid]: number | null }.
+  installMocks({
+    proxyFn: async (_action, { zpid }) => {
+      if (zpid === 'A') return 100000;                // raw number
+      if (zpid === 'B') return { zestimate: 200000 }; // object with zestimate
+      if (zpid === 'C') return { value: 300000 };     // object with value (older shape)
+      if (zpid === 'D') return { other: 'no estimate'  }; // neither field → null
+      return null;
+    },
+  });
+  const { batchHandler } = clearAndReloadHandler();
+
+  const res = makeRes();
+  await batchHandler(makeReq({ zpids: ['A', 'B', 'C', 'D'] }), res);
+
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.payload.success, true);
+  assert.deepEqual(res.payload.data, {
+    A: 100000,
+    B: 200000,
+    C: 300000,
+    D: null,
+  });
+});
+
+test('batchHandler tolerates per-zpid failures (returns null for failed, value for the rest)', async () => {
+  installMocks({
+    proxyFn: async (_action, { zpid }) => {
+      if (zpid === 'BAD') throw new Error('upstream 502 for this zpid');
+      return zpid === 'X' ? 500000 : 600000;
+    },
+  });
+  const { batchHandler } = clearAndReloadHandler();
+
+  const res = makeRes();
+  await batchHandler(makeReq({ zpids: ['X', 'BAD', 'Y'] }), res);
+
+  assert.equal(res.statusCode, 200);
+  assert.deepEqual(res.payload.data, { X: 500000, BAD: null, Y: 600000 });
 });
