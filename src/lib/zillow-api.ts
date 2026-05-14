@@ -1,6 +1,7 @@
 import { PropertySearchParams, Property, ZillowAPIResponse } from '@/types/zillow';
 import { supabase } from '@/integrations/supabase/client';
 import { tokenStorage } from '@/lib/api-client';
+import { rankCompsBySimilarity } from '@/lib/comps-similarity';
 
 // Supabase Edge Function for Zillow data
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://ztgsevhzbeywytoqlsbf.supabase.co';
@@ -1014,7 +1015,13 @@ export class ZillowAPI {
     }
   }
 
-  async getPropertyComps(zpid: string, location?: string, subjectLat?: number, subjectLng?: number): Promise<any> {
+  async getPropertyComps(
+    zpid: string,
+    location?: string,
+    subjectLat?: number,
+    subjectLng?: number,
+    subject?: { beds?: number; sqft?: number }
+  ): Promise<any> {
     // Cap comps to a reasonable radius — anything farther isn't a real comparable
     const MAX_COMP_DISTANCE_MI = 10;
 
@@ -1100,16 +1107,23 @@ export class ZillowAPI {
               if (l.distance === null) return true; // keep when we can't measure
               if (l.distance <= 0.02) return false; // subject self-match
               return l.distance <= MAX_COMP_DISTANCE_MI;
-            })
-            .slice(0, 15);
+            });
+
+          // Re-rank by structural similarity to the subject (beds/sqft)
+          // before truncating. Geographically-nearest isn't always
+          // structurally-nearest — a 5-bed mansion across the street
+          // is a worse comp for a 3-bed ranch than the same 3-bed two
+          // streets over. No-op when subject beds/sqft is missing.
+          // Net-new value extracted from stale PR #93.
+          const ranked = rankCompsBySimilarity(subject, mapped).slice(0, 15);
 
           // Only return if at least 3 valid comps survived the radius filter —
           // otherwise try the next (looser) query
-          if (mapped.length >= 3) return mapped;
+          if (ranked.length >= 3) return ranked;
           // If first attempt returned <3 within radius, keep what we have as
           // a fallback in case all later queries fail
-          if (mapped.length > 0 && searchLocation === queries[queries.length - 1]) {
-            return mapped;
+          if (ranked.length > 0 && searchLocation === queries[queries.length - 1]) {
+            return ranked;
           }
         } catch (fallbackError) {
           console.warn(`Comps query "${searchLocation}" failed:`, fallbackError);
