@@ -120,9 +120,14 @@ export default function Blog() {
   return (
     <PublicLayout>
       <SEOHead
-        title="Resources & Insights"
+        title="AIWholesail Blog — Wholesale, BRRRR & Flip Guides"
         description="Expert guides, market insights, and strategies for real estate professionals. Learn how to find profitable deals with AI-powered analysis."
         keywords="real estate blog, investing guides, market insights, deal analysis, ARV calculator, wholesaling tips, real estate strategy"
+        canonicalUrl="https://aiwholesail.com/blog"
+        breadcrumbs={[
+          { name: 'Home', url: 'https://aiwholesail.com' },
+          { name: 'Blog', url: 'https://aiwholesail.com/blog' },
+        ]}
       />
 
       {/* ===== HERO — DARK ===== */}
