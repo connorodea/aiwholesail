@@ -126,8 +126,13 @@ export default function FAQ() {
   return (
     <PublicLayout>
       <SEOHead
-        title="Frequently Asked Questions"
-        description="Get answers to common questions about AIWholesail - pricing, features, trials, and how our AI-powered real estate deal-finding platform works."
+        title="AIWholesail FAQ — Pricing, Free Trial & AI Features"
+        description="Get answers to common questions about AIWholesail — pricing, features, free trial, and how the AI-powered real estate deal-finding platform works."
+        canonicalUrl="https://aiwholesail.com/faq"
+        breadcrumbs={[
+          { name: 'Home', url: 'https://aiwholesail.com' },
+          { name: 'FAQ', url: 'https://aiwholesail.com/faq' },
+        ]}
         noIndex={false}
       />
 
