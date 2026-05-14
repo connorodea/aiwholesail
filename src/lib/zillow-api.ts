@@ -22,6 +22,7 @@ import { PropertySearchParams, Property, ZillowAPIResponse } from '@/types/zillo
 import { supabase } from '@/integrations/supabase/client';
 import { tokenStorage } from '@/lib/api-client';
 import { rankCompsBySimilarity } from '@/lib/comps-similarity';
+import { parseCompsLocation } from '@/lib/comps-location-parser';
 
 // Supabase Edge Function for Zillow data — DEAD PATH, see banner above.
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://ztgsevhzbeywytoqlsbf.supabase.co';
@@ -1058,21 +1059,10 @@ export class ZillowAPI {
     // Fallback: search for recently sold properties near the same location.
     // ZIP is the strongest signal — for small towns, "City STATE" makes the
     // scraper expand to a 50+ mile metro, so we prefer ZIP when present.
+    // Parser handles 2-part ("City, ST ZIP"), 3-part ("City, State, ZIP"),
+    // bare ZIP, and a few other shapes — see comps-location-parser.js.
     if (location) {
-      const parts = location.split(',').map(p => p.trim()).filter(Boolean);
-      // Pull a 5-digit zip from any segment (handles "NC 28083", "28083", etc.)
-      const zipMatch = location.match(/\b(\d{5})\b/);
-      const zip = zipMatch ? zipMatch[1] : null;
-      let cityState: string | null = null;
-      if (parts.length >= 2) {
-        const stateZip = parts[parts.length - 1];
-        const city = parts[parts.length - 2];
-        const stateOnly = stateZip.replace(/\d+/g, '').trim();
-        cityState = `${city} ${stateOnly}`.trim();
-      }
-
-      // Try ZIP first (tightest radius), then City STATE as fallback
-      const queries = [zip, cityState, location].filter(Boolean) as string[];
+      const { queries } = parseCompsLocation(location);
 
       for (const searchLocation of queries) {
         try {
