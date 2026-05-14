@@ -63,7 +63,7 @@ function resolveCssColorToRGB(color: string): [number, number, number] {
 const MeshGradient: React.FC<{ className?: string }> = ({ className }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const rafRef = useRef<number | null>(null);
-  const colors = ['#06b6d4', '#0891b2', '#0e7490', '#164e63', '#083344'];
+  const colors = ['#00c4c8', '#00a0a4', '#057a7d', '#0a5d60', '#062a2c'];
 
   useEffect(() => {
     const canvas = canvasRef.current;

@@ -204,7 +204,7 @@ export default function LpFindDeals() {
           className="absolute inset-x-0 top-0 h-[800px] pointer-events-none"
           style={{
             background:
-              'radial-gradient(ellipse 70% 45% at 50% -10%, rgba(6, 182, 212, 0.22), transparent 70%), radial-gradient(ellipse 40% 30% at 85% 25%, rgba(34, 197, 94, 0.10), transparent 70%)',
+              'radial-gradient(ellipse 70% 45% at 50% -10%, rgba(0, 196, 200, 0.22), transparent 70%), radial-gradient(ellipse 40% 30% at 85% 25%, rgba(34, 197, 94, 0.10), transparent 70%)',
           }}
         />
 

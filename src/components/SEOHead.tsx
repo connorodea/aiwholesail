@@ -98,7 +98,7 @@ export function SEOHead({
       
       {/* Additional Meta */}
       <meta name="theme-color" content="#08090a" />
-      <meta name="msapplication-TileColor" content="#06b6d4" />
+      <meta name="msapplication-TileColor" content="#00c4c8" />
       <meta name="application-name" content="AI Wholesail" />
       
       {/* Structured Data for Real Estate Business */}

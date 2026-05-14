@@ -38,11 +38,11 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 // website theme (src/index.css, tailwind.config.ts) rather than guessed:
 //
 //   --background  220 10% 3.5%   → #08090a   outer canvas
-//   --primary     187 85% 53%    → #06b6d4   cyan-500 brand accent
+//   --primary     181 100% 39%   → #00c4c8   brand seafoam (cyan-500)
 //   --foreground  0 0% 100%      → #ffffff   white text
 //   card gradient                → linear-gradient(145deg, #141414, #0f0f0f)
 //   border (cards)               → #2e2e2e   (hsl 0 0% 18%)
-//   font-family                  → Montserrat, system-ui, sans-serif
+//   font-family                  → Onest, Montserrat fallback (matches site)
 //
 // Logo: https://aiwholesail.com/logo-aiw-email.png (already deployed,
 // purpose-built for email — referenced in PublicLayout for the site
@@ -62,11 +62,11 @@ const BRAND = {
   textBody: '#d1d5db',
   textMuted: '#9ca3af',
   textDim: '#6b7280',
-  accent: '#06b6d4',           // cyan-500, the brand --primary
-  accentGlow: 'rgba(6, 182, 212, 0.18)',
+  accent: '#00c4c8',           // brand seafoam (cyan-500 in the AIW palette)
+  accentGlow: 'rgba(0, 196, 200, 0.18)',
   onAccent: '#000000',         // black text on cyan buttons per --primary-foreground
   logoUrl: 'https://aiwholesail.com/logo-aiw-email.png',
-  font: "'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+  font: "'Onest', 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
 };
 
 function renderStep(num, title, body) {

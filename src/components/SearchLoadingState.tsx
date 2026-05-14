@@ -52,7 +52,7 @@ export function SearchLoadingState({ progress, status }: SearchLoadingStateProps
     <section className="max-w-xl mx-auto animate-fade-in space-y-4">
       {/* Patience banner */}
       <div className="relative overflow-hidden rounded-2xl border border-cyan-500/25 bg-gradient-to-r from-cyan-500/[0.08] via-cyan-500/[0.04] to-transparent px-4 py-3 sm:px-5 sm:py-3.5">
-        <div aria-hidden className="absolute inset-0 pointer-events-none" style={{ animation: 'shimmer 3s linear infinite', background: 'linear-gradient(90deg, transparent, rgba(6,182,212,0.08), transparent)', backgroundSize: '200% 100%' }} />
+        <div aria-hidden className="absolute inset-0 pointer-events-none" style={{ animation: 'shimmer 3s linear infinite', background: 'linear-gradient(90deg, transparent, rgba(0, 196, 200,0.08), transparent)', backgroundSize: '200% 100%' }} />
         <div className="relative flex items-center gap-3">
           <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center" style={{ animation: 'pulse-soft 2s ease-in-out infinite' }}>
             <Sparkles className="h-4 w-4 text-cyan-400" />
@@ -111,7 +111,7 @@ export function SearchLoadingState({ progress, status }: SearchLoadingStateProps
                     animationDelay: `${i * 0.83}s`,
                     top: '50%', left: '50%',
                     transformOrigin: '0 0',
-                    boxShadow: '0 0 8px rgba(6, 182, 212, 0.6)',
+                    boxShadow: '0 0 8px rgba(0, 196, 200, 0.6)',
                   }} />
                 ))}
               </div>
@@ -131,10 +131,10 @@ export function SearchLoadingState({ progress, status }: SearchLoadingStateProps
                 className="absolute inset-y-0 left-0 rounded-full transition-all duration-700 ease-out"
                 style={{
                   width: `${progress}%`,
-                  background: 'linear-gradient(90deg, #06b6d4, #22d3ee, #06b6d4)',
+                  background: 'linear-gradient(90deg, #00c4c8, #1fd3d7, #00c4c8)',
                   backgroundSize: '200% 100%',
                   animation: 'shimmer 1.5s linear infinite',
-                  boxShadow: '0 0 20px rgba(6, 182, 212, 0.4)',
+                  boxShadow: '0 0 20px rgba(0, 196, 200, 0.4)',
                 }}
               />
               {/* Leading edge pulse */}
@@ -143,7 +143,7 @@ export function SearchLoadingState({ progress, status }: SearchLoadingStateProps
                   className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-cyan-300 transition-all duration-700 ease-out"
                   style={{
                     left: `calc(${progress}% - 6px)`,
-                    boxShadow: '0 0 12px rgba(34, 211, 238, 0.9), 0 0 20px rgba(6, 182, 212, 0.5)',
+                    boxShadow: '0 0 12px rgba(34, 211, 238, 0.9), 0 0 20px rgba(0, 196, 200, 0.5)',
                     animation: 'pulse-soft 1.5s ease-in-out infinite',
                   }}
                 />
