@@ -175,6 +175,33 @@ test('5-part address + verbose-state: "Unit 4B, City, FullState, ST, ZIP"', () =
   assert.equal(r.cityState, 'Saint Augustine FL');
 });
 
+test('4-part address with state-named city — does NOT trigger verbose-state branch', () => {
+  // Regression guard (review of PR #385): "Washington" is a US state name,
+  // but in this input it's the CITY (Washington, MO). The state
+  // abbreviation MO does NOT match Washington's abbreviation (WA), so the
+  // verbose-state branch should NOT fire. cityState must be "Washington
+  // MO", not "123 Main St MO". Same for "New York, NY" with a street
+  // prefix, "Indiana, IN", etc. The Set-only check in PR #385 saw any US
+  // state name at parts[length-3] and skipped to parts[length-4]; the Map
+  // check requires the abbreviation at parts[length-2] to ACTUALLY match
+  // that state's two-letter code.
+  for (const [input, expected] of [
+    ['123 Main St, Washington, MO, 63090',    'Washington MO'],
+    ['Apartment 5, New York, NY, 10001',      'New York NY'],
+    ['Suite 100, Indiana, IN, 46201',         'Indiana IN'],
+    ['Unit 4B, Oregon, IL, 61061',            'Oregon IL'],
+    ['Box 1, Nevada, MO, 64772',              'Nevada MO'],
+    ['Apt 2, Kansas, OK, 73869',              'Kansas OK'],
+  ]) {
+    const r = parseCompsLocation(input);
+    assert.equal(
+      r.cityState,
+      expected,
+      `${input}: cityState should be "${expected}" (state-name-as-city, abbreviation doesn't match)`
+    );
+  }
+});
+
 test('function is pure: same input always returns same output', () => {
   const a = parseCompsLocation('Saint Augustine, FL, 32092');
   const b = parseCompsLocation('Saint Augustine, FL, 32092');
