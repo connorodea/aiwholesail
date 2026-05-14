@@ -119,6 +119,25 @@ Eight SLOs spanning the four user journeys that matter: **authenticate, search, 
 - **Target:** 99.5% over 30-day rolling window
 - **Error budget:** ~3.6 hours/month of any-endpoint 5xx storm
 
+### RapidAPI gateway (`/rapidapi/zillow/*`) — external paying consumers
+
+This mount was added 2026-05-14 (PR #389, env-gated default off; companion repo:
+[connorodea/aiwholesail-rapidapi](https://github.com/connorodea/aiwholesail-rapidapi)).
+Distinct SLO bands from the frontend `/api/*` paths because the audience is
+**paying RapidAPI consumers** with SLA-style expectations — a flaky listing
+gets one-star reviews on the marketplace and we never recover the reputation.
+
+#### SLO 9 — RapidAPI gateway availability
+- **SLI:** `count(rapidapi_responses_2xx_or_4xx_excl_401_403) / count(rapidapi_requests)` on `/rapidapi/zillow/*` only
+- **Target:** **99.0%** over 30-day rolling window
+- **Error budget:** ~7.2 hours/month of 5xx storms. Tighter than SLO 8 because consumers can see our error rate on the RapidAPI provider dashboard.
+- **Why 4xx (excluding 401/403) counts as success:** consumer sent bad request (400) or hit a real "no data" upstream — that's their problem, not our reliability. 401/403 mean OUR gateway gate is wrong; those count against us.
+
+#### SLO 10 — RapidAPI gateway latency
+- **SLI:** p95 of `/rapidapi/zillow/proxy` end-to-end response time
+- **Target:** **≤ 3 seconds** over 7-day rolling window. p99 ≤ 8s.
+- **Why 3s:** Zillow's underlying scrape can take 1–2s on a cold cache; the scrape.do→RapidAPI fallback chain adds a tail. 3s gives headroom while staying competitive — the apimaker/datascraper listings at $8–$9 entry advertise sub-1s but reality is ~2s.
+
 ---
 
 ## Golden Signals — Dashboard Spec
@@ -148,6 +167,29 @@ One Grafana / PostHog dashboard per service surface. Each follows the **RED meth
 - Panel 10: Scrape.do success rate by action (heatmap, last 24h, x=hour, y=action)
 - Panel 11: Captcha-retry frequency (5x cost) (line chart, last 7d)
 - Panel 12: P95 scrape duration by action (line chart, last 24h)
+
+### Dashboard 3 — RapidAPI gateway (paying-consumer view)
+
+Distinct dashboard because the audience and stop-the-world threshold are
+different from internal API monitoring. SREs glance at Dashboard 1; this
+one we open during a RapidAPI revenue spike or a one-star review.
+
+**Layout (3 rows × 3 panels = 9 panels):**
+
+**Row 1 — Consumer-facing headline**
+- Panel R1: Request rate by `x-rapidapi-user` top 10 (last 24h, line) — who's hammering us
+- Panel R2: 2xx / 4xx / 5xx breakdown stacked (last 24h)
+- Panel R3: SLO 9 remaining error budget gauge (30-day)
+
+**Row 2 — Latency**
+- Panel R4: p50 / p95 / p99 latency on `/rapidapi/zillow/proxy` (last 24h, line)
+- Panel R5: SLO 10 error budget burn (7-day, gauge)
+- Panel R6: p95 broken out by action (heatmap, last 24h, x=hour, y=action) — propertyDetails vs zestimate vs search etc.
+
+**Row 3 — Per-consumer breakdown**
+- Panel R7: Top 10 consumers by 5xx rate (table, last 24h) — who's seeing problems
+- Panel R8: Top 10 consumers by 403 rate (table) — quota-capped, upsell candidates
+- Panel R9: Revenue proxy — successful calls × pricing-tier-blended-cost (line, last 30d)
 
 ### Dashboard 2 — Frontend (PostHog-derived)
 
@@ -183,6 +225,17 @@ Three severity levels per the skill's framework. Every alert has a runbook link.
 - **Condition:** >1 unique user fires `NOT_AUTHENTICATED` toast in a 60-min window while their PostHog session has `user_id` set
 - **Action:** Page Connor. Runbook: `runbooks/zombie-session.md` — the exact cpodea5 pattern. PR #376's self-heal should make this self-recovering, but a spike means the ingress path is firing.
 
+#### C5 — RapidAPI gateway 503 (proxy-secret unset)
+- **Condition:** any `/rapidapi/zillow/*` request returns 503 with body containing `"Gateway not configured"`
+- **Source:** access log + body parse (the middleware logs `[rapidapi-proxy-secret] RAPIDAPI_PROXY_SECRET not set` to stderr)
+- **Action:** Page Connor. **Means `RAPIDAPI_PROXY_SECRET` got unset in prod `.env`** — usually after a deploy that overwrote the file, or someone manually edited and dropped the line. Fix: `ssh hetznerCO`, restore `RAPIDAPI_PROXY_SECRET=…` from the RapidAPI dashboard's Firewall Settings, `pm2 reload`. Runbook: `runbooks/rapidapi-gateway.md`.
+- **Why critical:** every consumer call returns 503 until fixed → consumers leave one-star reviews. Time-to-resolve directly hits revenue.
+
+#### C6 — RapidAPI SLO 9 burn-rate critical
+- **Condition:** 14.4% of 30-day error budget consumed in last 1 hour (2-hour burn rate)
+- **Source:** access logs aggregate on `/rapidapi/zillow/*` 5xx
+- **Action:** Page Connor. Runbook: `runbooks/rapidapi-gateway.md` § failure-modes. Common cause: scrape.do + RapidAPI fallback both unhealthy (correlate with SLO 4 / W1).
+
 ### Warning — operator-aware, not paging
 
 #### W1 — Scrape.do success rate dropping
@@ -203,6 +256,18 @@ Three severity levels per the skill's framework. Every alert has a runbook link.
 #### W5 — Blog/SEO bot stalled
 - **Existing signal 5.** Keep as-is.
 
+#### W6 — RapidAPI 401 storm (proxy-secret mismatch)
+- **Condition:** >20% of `/rapidapi/zillow/*` requests in last 15 min return 401 from our middleware (NOT from RapidAPI's gateway — distinguish via response body shape: ours = `{"success":false,"error":"Invalid or missing proxy secret"}`, theirs = `{"message":"…"}`)
+- **Action:** Email Connor. **Means the proxy secret in our prod `.env` doesn't match what RapidAPI's gateway is sending** — happens when one side rotated and the other didn't. Investigate within 1h. Runbook: `runbooks/rapidapi-gateway.md` § rollback.
+
+#### W7 — RapidAPI gateway p95 latency degraded
+- **Condition:** p95 of `/rapidapi/zillow/proxy` > 5s for 15 min sustained (SLO 10's threshold + 67% headroom for noise)
+- **Action:** Email Connor. Usually correlates with scrape.do degradation (W1). If scrape.do is healthy, look at the RapidAPI fallback path — it's the slow leg of the chain.
+
+#### W8 — RapidAPI consumer drained their quota (informational alert)
+- **Condition:** RapidAPI 403 rate >10% of total `/rapidapi/zillow/*` in last hour
+- **Action:** Email Connor — **not** an outage. Means consumers are hitting their plan quotas; consider pricing-tier adjustment if a single consumer is repeatedly capped (revenue signal — upsell opportunity).
+
 ### Info — log only, no notification
 
 #### I1 — Deployment events
@@ -217,6 +282,12 @@ Three severity levels per the skill's framework. Every alert has a runbook link.
 ---
 
 ## Runbook Stubs (high-priority — to be filled in next pass)
+
+#### `runbooks/rapidapi-gateway.md`
+**Already exists** as of PR #389 — see `docs/runbooks/rapidapi-gateway.md`.
+Covers roll-out, smoke-test, observability, and rollback for the
+`/rapidapi/zillow/*` mount. Failure-modes table maps each new alert
+(C5, C6, W6, W7, W8) to its response action.
 
 Save under `docs/observability/runbooks/`. One file per alert.
 
@@ -278,6 +349,19 @@ Phased rollout. P1 items address the cpodea5-class gap; P2-P3 are full SLO build
 1. **Wire PostHog client-side event:** `NOT_AUTHENTICATED_toast_shown` fired from `RealEstateWholesaler.tsx:508`. Properties: `user_id`, `session_id`, `route`. Cost: ~5 LOC.
 2. **PostHog alert:** "≥1 unique user fires `NOT_AUTHENTICATED_toast_shown` in 60-min window" → email Connor.
 3. **API instrumentation:** middleware on `authenticate` that increments a counter when JWT is well-formed but doesn't match a `users` row (= zombie state at API level).
+
+### P1.5 — RapidAPI gateway alerts (before first paying consumer)
+
+**Blocks: activation step 4 of the RapidAPI release plan.** These alerts need
+to fire from request #1, not after the first one-star review.
+
+1. **Access-log SLI counter:** new cron in `aiwholesail-api/scripts/` that tallies `/rapidapi/zillow/*` 2xx / 4xx / 5xx counts from nginx logs into `rapidapi_request_metrics` table (mirrors `scrape_provider_metrics` shape). Cost: ~50 LOC + 1 migration.
+2. **C5 alert (503 storm):** trivial — any 503 with body `"Gateway not configured"` for >0 in last 5 min → page. Implement via a tail of the API process log + grep; or via the new metrics table if step 1 done first.
+3. **C6 alert (burn-rate):** 14.4% of SLO 9 budget in 1h → page. Calc'd from `rapidapi_request_metrics` rolling window.
+4. **W6 alert (401 storm from our middleware, not RapidAPI's):** distinguished by response body shape — ours has `{"success":false,...}`, theirs has `{"message":"..."}`.
+5. **W7, W8:** lower priority, can land with P2.
+
+Estimated implementation: 1 day. Should land before `RAPIDAPI_GATEWAY_ENABLED=true` flips in prod.
 
 ### P2 — SLO error-budget tracking (next 2 weeks)
 
