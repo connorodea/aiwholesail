@@ -22,15 +22,25 @@
  *   # run only one action (debugging)
  *   SCRAPE_DO_API_TOKEN=... node scripts/smoke-test-zillow-actions.js \
  *     --only=walkScore
+ *
+ * Per-action ZPID overrides (task #49):
+ *   walkScore, climateRisk, and rentalComps require properties that
+ *   Zillow surfaces those specific widgets for. The default ZPID is
+ *   an Austin TX listing that does NOT have those widgets, so without
+ *   overrides those 3 actions will fail with no_data_in_payload —
+ *   that's a fixture mismatch, not a scraper bug.
+ *
+ *   Override per-action via env var (see lib/smoke-test-fixtures.js):
+ *     AIW_SMOKE_ZPID_WALKSCORE=12345678   (urban, transit-served)
+ *     AIW_SMOKE_ZPID_CLIMATERISK=23456789 (coastal / fire-zone)
+ *     AIW_SMOKE_ZPID_RENTALCOMPS=34567890 (rentable property)
  */
 
 const fs = require('fs');
 const path = require('path');
 const zillowScrapeDo = require('../lib/scrapers/zillowScrapeDo');
+const { DEFAULT_ZPID, zpidFor } = require('../lib/smoke-test-fixtures');
 
-// Known-good Austin, TX listing — long-tenured and stable. If this gets
-// delisted, swap for another. Live as of 2026-05-12.
-const DEFAULT_ZPID = '145656008';
 const DEFAULT_LOCATION = 'Austin, TX';
 
 // Per-action input specs. Anything missing here is skipped.
@@ -45,10 +55,10 @@ const ACTION_INPUTS = {
   zestimateHistory: { zpid: DEFAULT_ZPID },
   schools: { zpid: DEFAULT_ZPID },
   comps: { zpid: DEFAULT_ZPID },
-  walkScore: { zpid: DEFAULT_ZPID },
-  climateRisk: { zpid: DEFAULT_ZPID },
+  walkScore: { zpid: zpidFor('walkScore') },
+  climateRisk: { zpid: zpidFor('climateRisk') },
   openHouses: { zpid: DEFAULT_ZPID },
-  rentalComps: { zpid: DEFAULT_ZPID },
+  rentalComps: { zpid: zpidFor('rentalComps') },
   recentlySoldNearby: { zpid: DEFAULT_ZPID, radius_mi: 0.5 },
   // Search-class:
   search: { location: DEFAULT_LOCATION },
