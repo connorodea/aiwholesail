@@ -4,6 +4,7 @@ import { SEOHead } from '@/components/SEOHead';
 import { CalculatorSchema } from '@/components/CalculatorSchema';
 import { CALCULATOR_METADATA } from '@/data/calculator-metadata';
 import { PublicLayout } from '@/components/PublicLayout';
+import { useInModal } from '@/lib/in-modal-context';
 import { Home, DollarSign, Percent, Shield, Building2, ArrowRight } from 'lucide-react';
 
 const fmt = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
@@ -36,6 +37,7 @@ function calcAmortization(principal: number, monthlyRate: number, totalPayments:
 }
 
 export default function MortgageCalculator() {
+  const { inModal } = useInModal();
   const [homePrice, setHomePrice] = useState(350000);
   const [downPaymentPercent, setDownPaymentPercent] = useState(20);
   const [interestRate, setInterestRate] = useState(6.5);
@@ -90,25 +92,9 @@ export default function MortgageCalculator() {
       />
 
       <CalculatorSchema {...CALCULATOR_METADATA['mortgage-calculator']} />
-      {/* Hero */}
-      <section className="pt-24 pb-8 px-4">
-        <div className="container mx-auto max-w-5xl text-center">
-          <span className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full bg-cyan-500/10 text-cyan-400 mb-4">
-            <Home className="h-3 w-3" />
-            Free Tool
-          </span>
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4 text-white">
-            Mortgage Calculator
-          </h1>
-          <p className="text-lg text-neutral-400 font-light max-w-2xl mx-auto">
-            Estimate your monthly mortgage payment, total cost of the loan, and see how principal and interest split over time.
-          </p>
-        </div>
-      </section>
-
       {/* Calculator */}
-      <section className="pb-16 px-4">
-        <div className="container mx-auto max-w-5xl">
+      <section className={inModal ? 'px-0' : 'pt-10 pb-16 px-4'}>
+        <div className={inModal ? '' : 'container mx-auto max-w-5xl'}>
           <div className="grid lg:grid-cols-2 gap-8">
 
             {/* Inputs */}
@@ -314,8 +300,24 @@ export default function MortgageCalculator() {
             </div>
           </div>
 
+          {!inModal && (
+          <>
+          {/* About this tool (moved below the calculator so the tool loads first) */}
+          <div className="mt-16 space-y-4 text-center">
+            <span className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full bg-cyan-500/10 text-cyan-400">
+              <Home className="h-3 w-3" />
+              Free Tool
+            </span>
+            <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-white">
+              Mortgage Calculator
+            </h1>
+            <p className="text-base text-neutral-400 font-light max-w-2xl mx-auto">
+              Estimate your monthly mortgage payment, total cost of the loan, and see how principal and interest split over time.
+            </p>
+          </div>
+
           {/* Educational Section */}
-          <div className="mt-16 space-y-12">
+          <div className="mt-12 space-y-12">
             <div className="border-t border-white/[0.06]" />
             <div className="max-w-3xl mx-auto space-y-8">
               <h2 className="text-2xl font-bold tracking-tight text-white">How to Use This Mortgage Calculator</h2>
@@ -356,6 +358,8 @@ export default function MortgageCalculator() {
               </Link>
             </div>
           </div>
+          </>
+          )}
         </div>
       </section>
     </PublicLayout>

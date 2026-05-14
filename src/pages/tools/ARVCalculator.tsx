@@ -4,6 +4,7 @@ import { SEOHead } from '@/components/SEOHead';
 import { CalculatorSchema } from '@/components/CalculatorSchema';
 import { CALCULATOR_METADATA } from '@/data/calculator-metadata';
 import { PublicLayout } from '@/components/PublicLayout';
+import { useInModal } from '@/lib/in-modal-context';
 import { Slider } from '@/components/ui/slider';
 import { DollarSign, Ruler, Plus, X, ArrowRight, BarChart3, Target } from 'lucide-react';
 
@@ -22,6 +23,7 @@ function createComp(index: number): Comp {
 }
 
 export default function ARVCalculator() {
+  const { inModal } = useInModal();
   const [comps, setComps] = useState<Comp[]>([
     { id: crypto.randomUUID(), label: '123 Oak St', price: 310000, sqft: 1800 },
     { id: crypto.randomUUID(), label: '456 Maple Ave', price: 295000, sqft: 1650 },
@@ -96,25 +98,10 @@ export default function ARVCalculator() {
       />
 
       <CalculatorSchema {...CALCULATOR_METADATA['arv-calculator']} />
-      {/* Hero */}
-      <section className="pt-24 pb-8 px-4">
-        <div className="container mx-auto max-w-5xl text-center">
-          <span className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full bg-cyan-500/10 text-cyan-400 mb-4">
-            <Target className="h-3 w-3" />
-            Free Tool
-          </span>
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4 text-white">
-            ARV Calculator
-          </h1>
-          <p className="text-lg text-neutral-400 font-light max-w-2xl mx-auto">
-            Estimate the After Repair Value of any property using comparable sales data. Adjust for condition and market trends to get a confidence-rated valuation range.
-          </p>
-        </div>
-      </section>
 
-      {/* Calculator */}
-      <section className="pb-16 px-4">
-        <div className="container mx-auto max-w-5xl">
+      {/* Calculator (tool-first) */}
+      <section className={inModal ? 'px-0' : 'pt-10 pb-16 px-4'}>
+        <div className={inModal ? '' : 'container mx-auto max-w-5xl'}>
           <div className="grid lg:grid-cols-2 gap-8">
 
             {/* Inputs */}
@@ -352,8 +339,24 @@ export default function ARVCalculator() {
             </div>
           </div>
 
+          {!inModal && (
+          <>
+          {/* About this tool (moved below the calculator so the tool loads first) */}
+          <div className="mt-16 space-y-4 text-center">
+            <span className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full bg-cyan-500/10 text-cyan-400">
+              <Target className="h-3 w-3" />
+              Free Tool
+            </span>
+            <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-white">
+              ARV Calculator
+            </h1>
+            <p className="text-base text-neutral-400 font-light max-w-2xl mx-auto">
+              Estimate the After Repair Value of any property using comparable sales data. Adjust for condition and market trends to get a confidence-rated valuation range.
+            </p>
+          </div>
+
           {/* Educational Section */}
-          <div className="mt-16 space-y-12">
+          <div className="mt-12 space-y-12">
             <div className="border-t border-white/[0.06]" />
             <div className="max-w-3xl mx-auto space-y-8">
               <h2 className="text-2xl font-bold tracking-tight text-white">How to Use This ARV Calculator</h2>
@@ -397,6 +400,8 @@ export default function ARVCalculator() {
               </Link>
             </div>
           </div>
+          </>
+          )}
         </div>
       </section>
     </PublicLayout>
