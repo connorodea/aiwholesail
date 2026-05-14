@@ -18,10 +18,10 @@ All colors MUST be HSL.
     --popover: 0 0% 8%;
     --popover-foreground: 0 0% 100%;
 
-    /* Primary - Cyan matching homepage */
-    --primary: 187 85% 53%; /* cyan-500 #06b6d4 */
+    /* Primary — brand seafoam #00c4c8 (sourced from aiwholesail-logo-main.html) */
+    --primary: 181 100% 39%; /* brand seafoam #00c4c8 */
     --primary-foreground: 0 0% 0%; /* black text on cyan */
-    --primary-glow: 187 85% 60%;
+    --primary-glow: 181 100% 48%;
 
     /* Secondary */
     --secondary: 0 0% 10%; /* neutral-900 */
@@ -30,8 +30,8 @@ All colors MUST be HSL.
     --muted: 0 0% 14%;
     --muted-foreground: 0 0% 72%; /* much brighter — readable on dark bg */
 
-    /* Accent */
-    --accent: 187 85% 53%; /* cyan-500 */
+    /* Accent — brand seafoam */
+    --accent: 181 100% 39%;
     --accent-foreground: 0 0% 0%;
 
     --destructive: 0 72% 51%;
@@ -39,7 +39,7 @@ All colors MUST be HSL.
 
     --border: 0 0% 20%; /* brighter borders for visibility */
     --input: 0 0% 15%; /* lighter input bg for contrast */
-    --ring: 187 85% 53%; /* cyan-500 */
+    --ring: 181 100% 39%; /* brand seafoam */
 
     --radius: 0.5rem;
 
@@ -48,7 +48,7 @@ All colors MUST be HSL.
     --success-foreground: 0 0% 100%;
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
-    --info: 187 85% 53%;
+    --info: 181 100% 39%;
     --info-foreground: 0 0% 0%;
 
     /* Dark theme gradients */
@@ -90,7 +90,7 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 9%;
 
-    --primary: 187 85% 43%; /* cyan-600 for contrast on white */
+    --primary: 181 100% 39%; /* brand seafoam #00c4c8 — same in light + dark for brand consistency */
     --primary-foreground: 0 0% 100%;
 
     --secondary: 0 0% 94%;
@@ -99,7 +99,7 @@ All colors MUST be HSL.
     --muted: 0 0% 94%;
     --muted-foreground: 0 0% 40%;
 
-    --accent: 187 85% 43%;
+    --accent: 181 100% 39%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 72% 51%;
@@ -107,12 +107,13 @@ All colors MUST be HSL.
 
     --border: 0 0% 88%;
     --input: 0 0% 94%;
-    --ring: 187 85% 43%;
+    --ring: 181 100% 39%;
+    --info: 181 100% 39%;
+    --info-foreground: 0 0% 100%;
   }
 
-  /* Brand tokens — sourced from marketing/creatives/branding/aiwholesail-logo-main.html
-     Additive only: the global --primary stays at the existing cyan so this PR
-     swaps the logo without shifting every button/link across the app. */
+  /* Brand tokens — source of truth: marketing/creatives/branding/aiwholesail-logo-main.html.
+     --brand-signal #00c4c8 is the canonical brand cyan and matches --primary. */
   :root, .light {
     --brand-ink: #0a0a0a;
     --brand-paper: #fafaf9;
@@ -122,9 +123,10 @@ All colors MUST be HSL.
 }
 
 @layer components {
-  /* Scoped Onest binding for the wordmark so global Montserrat is untouched. */
+  /* Wordmark — same Onest font as the rest of the site, but with the brand-spec
+     uppercase + heavy weight + tight tracking. */
   .aiwholesail-wordmark {
-    font-family: "Onest", "Montserrat", system-ui, -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-family: "Onest", system-ui, -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-weight: 700;
     letter-spacing: -0.045em;
     text-transform: uppercase;

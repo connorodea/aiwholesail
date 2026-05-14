@@ -87,7 +87,7 @@ function createIcon(color: string, size: number, ariaLabel: string): L.DivIcon {
 
 // Cyan = subject, amber = comps. Larger subject so it's instantly identifiable
 // against the comp markers.
-const subjectIcon = createIcon('#06b6d4', 36, 'Subject property');
+const subjectIcon = createIcon('#00c4c8', 36, 'Subject property');
 const compIcon = createIcon('#f59e0b', 28, 'Comparable property');
 
 function fmtPrice(price: number | null | undefined): string {
@@ -275,7 +275,7 @@ export function PropertyMapWithComps({
         <span className="flex items-center gap-1.5">
           <span
             className="inline-block w-3 h-3 rounded-full"
-            style={{ backgroundColor: '#06b6d4' }}
+            style={{ backgroundColor: '#00c4c8' }}
             aria-hidden="true"
           />
           Subject property
@@ -357,7 +357,7 @@ export function PropertyMapWithComps({
           border: none !important;
         }
         .aw-map-marker:focus {
-          outline: 2px solid #06b6d4;
+          outline: 2px solid #00c4c8;
           outline-offset: 2px;
           border-radius: 50%;
         }

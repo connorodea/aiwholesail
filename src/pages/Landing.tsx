@@ -433,8 +433,8 @@ const Landing = () => {
                     <circle cx="60" cy="60" r="52" fill="none" stroke="url(#gaugeGradFeat)" strokeWidth="8" strokeLinecap="round" strokeDasharray="326.73" strokeDashoffset="26.14" />
                     <defs>
                       <linearGradient id="gaugeGradFeat" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="#06b6d4" />
-                        <stop offset="50%" stopColor="#22d3ee" />
+                        <stop offset="0%" stopColor="#00c4c8" />
+                        <stop offset="50%" stopColor="#1fd3d7" />
                         <stop offset="100%" stopColor="#10b981" />
                       </linearGradient>
                     </defs>

@@ -19,6 +19,24 @@ export default {
 		},
 		extend: {
 			colors: {
+				// Brand cyan override — Tailwind's default `cyan-*` palette is remapped
+				// to the AIWholesail seafoam family (anchored on #00c4c8 at the 500 slot,
+				// source of truth: marketing/creatives/branding/aiwholesail-logo-main.html).
+				// All ~3000 `bg-cyan-*` / `text-cyan-*` / `border-cyan-*` / `from-cyan-*`
+				// usages across the app pick up the brand color without touching the JSX.
+				cyan: {
+					50:  '#ecfeff',
+					100: '#d1fafb',
+					200: '#a3f1f4',
+					300: '#5de3e7',
+					400: '#1fd3d7',
+					500: '#00c4c8',
+					600: '#00a0a4',
+					700: '#057a7d',
+					800: '#0a5d60',
+					900: '#0d4749',
+					950: '#062a2c',
+				},
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
 				ring: 'hsl(var(--ring))',
@@ -77,8 +95,10 @@ export default {
 				}
 			},
 			fontFamily: {
-				'sans': ['Montserrat', 'system-ui', 'sans-serif'],
-				'brand': ['Montserrat', 'system-ui', 'sans-serif'],
+				// Onest is the brand typeface (source: marketing/creatives/branding/aiwholesail-logo-main.html).
+				// Montserrat kept as a fallback so existing sessions/cached pages degrade gracefully.
+				'sans': ['Onest', 'Montserrat', 'system-ui', 'sans-serif'],
+				'brand': ['Onest', 'Montserrat', 'system-ui', 'sans-serif'],
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

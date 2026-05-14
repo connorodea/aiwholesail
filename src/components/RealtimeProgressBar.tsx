@@ -85,11 +85,11 @@ export function RealtimeProgressBar({ progress, status, compact = false }: Props
           className="absolute inset-y-0 left-0 rounded-full"
           style={{
             width: `${target}%`,
-            background: 'linear-gradient(90deg, #0891b2, #06b6d4, #67e8f9, #06b6d4, #0891b2)',
+            background: 'linear-gradient(90deg, #00a0a4, #00c4c8, #5de3e7, #00c4c8, #00a0a4)',
             backgroundSize: '200% 100%',
             animation: 'rpb-shimmer 1.8s linear infinite',
             transition: 'width 700ms cubic-bezier(0.4, 0, 0.2, 1)',
-            boxShadow: '0 0 12px rgba(6, 182, 212, 0.55), 0 0 24px rgba(6, 182, 212, 0.25)',
+            boxShadow: '0 0 12px rgba(0, 196, 200, 0.55), 0 0 24px rgba(0, 196, 200, 0.25)',
           }}
         />
 

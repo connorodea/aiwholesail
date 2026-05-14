@@ -7,7 +7,7 @@
  *
  * Aesthetic mirrors the AIWholesail web app:
  *   - White / off-white paper for printability
- *   - Cyan primary accent (#06b6d4) for headers, dividers, key data
+ *   - Brand seafoam accent (#00c4c8) for headers, dividers, key data
  *   - Dark slate headings (matches the app's foreground on dark UI)
  *   - Muted neutrals for body and dividers
  *   - Gradient cyan bar at the top of every page (page header)
@@ -27,9 +27,9 @@ type JsPDFWithGState = jsPDF & {
 // COLORS (RGB tuples — jsPDF API)
 // ============================================================================
 
-export const BRAND_CYAN: [number, number, number] = [6, 182, 212];      // #06b6d4
-export const BRAND_CYAN_DARK: [number, number, number] = [8, 145, 178];  // #0891b2
-export const BRAND_CYAN_LIGHT: [number, number, number] = [34, 211, 238]; // #22d3ee
+export const BRAND_CYAN: [number, number, number] = [0, 196, 200];        // #00c4c8 (brand seafoam)
+export const BRAND_CYAN_DARK: [number, number, number] = [0, 160, 164];   // #00a0a4
+export const BRAND_CYAN_LIGHT: [number, number, number] = [93, 227, 231]; // #5de3e7
 export const BRAND_INK: [number, number, number] = [10, 10, 11];          // near-black headings
 export const BRAND_TEXT: [number, number, number] = [38, 38, 38];         // body
 export const BRAND_MUTED: [number, number, number] = [115, 115, 115];     // secondary

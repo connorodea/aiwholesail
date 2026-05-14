@@ -98,7 +98,7 @@ function HeatLayer({ points }: { points: Array<[number, number, number]> }) {
         maxZoom: 14,
         // Dark-theme palette: cyan (low equity) → amber → magenta (high).
         gradient: {
-          0.2: '#06b6d4',
+          0.2: '#00c4c8',
           0.4: '#0ea5e9',
           0.6: '#a855f7',
           0.8: '#f59e0b',

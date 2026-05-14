@@ -131,10 +131,10 @@ export function SearchLoadingState({ progress, status }: SearchLoadingStateProps
                 className="absolute inset-y-0 left-0 rounded-full transition-all duration-700 ease-out"
                 style={{
                   width: `${progress}%`,
-                  background: 'linear-gradient(90deg, #06b6d4, #22d3ee, #06b6d4)',
+                  background: 'linear-gradient(90deg, #00c4c8, #1fd3d7, #00c4c8)',
                   backgroundSize: '200% 100%',
                   animation: 'shimmer 1.5s linear infinite',
-                  boxShadow: '0 0 20px rgba(6, 182, 212, 0.4)',
+                  boxShadow: '0 0 20px rgba(0, 196, 200, 0.4)',
                 }}
               />
               {/* Leading edge pulse */}
