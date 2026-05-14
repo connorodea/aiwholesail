@@ -34,25 +34,51 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 // template for the Resend delivery. Adding a new lead magnet:
 //   1. Add a slug + entry here
 //   2. Make sure the frontend form submits the matching `slug`
-// Branded HTML email template. Matches the AIWholesail visual identity:
-//   - Dark canvas (#08090a) outer + card (#0a0a0b) with subtle border (#1a1a1a)
-//   - Cyan brand accent (#22d3ee) for step badges + primary CTA
-//   - Serif logotype 'AIW.' at the top
-//   - Each step rendered as a numbered-badge row, not a bare <ol>
+// Branded HTML email template. Colors + fonts sourced from the actual
+// website theme (src/index.css, tailwind.config.ts) rather than guessed:
+//
+//   --background  220 10% 3.5%   → #08090a   outer canvas
+//   --primary     187 85% 53%    → #06b6d4   cyan-500 brand accent
+//   --foreground  0 0% 100%      → #ffffff   white text
+//   card gradient                → linear-gradient(145deg, #141414, #0f0f0f)
+//   border (cards)               → #2e2e2e   (hsl 0 0% 18%)
+//   font-family                  → Montserrat, system-ui, sans-serif
+//
+// Logo: https://aiwholesail.com/logo-aiw-email.png (already deployed,
+// purpose-built for email — referenced in PublicLayout for the site
+// header is logo-white.png, but the email variant is the canonical
+// brand-aligned image for off-site contexts).
 //
 // Table-based layout because email clients (Gmail iOS, Outlook desktop)
 // still ignore flexbox/grid. Inline styles because Gmail strips <style>.
-// Mso conditional tag opens the 620px frame in Outlook 2016+.
+// Mso conditional opens the 640px frame in Outlook 2016+.
+
+const BRAND = {
+  bg: '#08090a',
+  cardTop: '#141414',
+  cardBottom: '#0f0f0f',
+  border: '#2e2e2e',
+  textPrimary: '#ffffff',
+  textBody: '#d1d5db',
+  textMuted: '#9ca3af',
+  textDim: '#6b7280',
+  accent: '#06b6d4',           // cyan-500, the brand --primary
+  accentGlow: 'rgba(6, 182, 212, 0.18)',
+  onAccent: '#000000',         // black text on cyan buttons per --primary-foreground
+  logoUrl: 'https://aiwholesail.com/logo-aiw-email.png',
+  font: "'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+};
+
 function renderStep(num, title, body) {
   return `
-        <tr><td style="padding: 10px 0;">
-          <table cellpadding="0" cellspacing="0" border="0" width="100%">
+        <tr><td style="padding: 12px 0;">
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
             <tr>
-              <td width="36" valign="top" style="width:36px;">
-                <div style="width:28px;height:28px;line-height:28px;border-radius:14px;background:#22d3ee;color:#08090a;text-align:center;font-weight:700;font-size:14px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">${num}</div>
+              <td width="40" valign="top" style="width:40px;">
+                <div style="width:32px;height:32px;line-height:32px;border-radius:16px;background:${BRAND.accent};color:${BRAND.onAccent};text-align:center;font-weight:700;font-size:14px;font-family:${BRAND.font};">${num}</div>
               </td>
-              <td valign="top" style="padding-left:12px;color:#d1d5db;font-size:15px;line-height:1.55;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
-                <strong style="color:#f9fafb;">${title}</strong> ${body}
+              <td valign="top" style="padding-left:14px;color:${BRAND.textBody};font-size:15px;line-height:1.6;font-family:${BRAND.font};">
+                <strong style="color:${BRAND.textPrimary};font-weight:600;">${title}</strong> ${body}
               </td>
             </tr>
           </table>
@@ -84,27 +110,34 @@ function renderChecklistEmail(firstName) {
   <meta name="supported-color-schemes" content="dark light">
   <title>Your 10-Step Motivated-Sellers Checklist</title>
 </head>
-<body style="margin:0;padding:0;background-color:#08090a;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#d1d5db;">
+<body style="margin:0;padding:0;background-color:${BRAND.bg};font-family:${BRAND.font};color:${BRAND.textBody};">
   <!-- Preheader (hidden, appears in inbox preview) -->
-  <div style="display:none;font-size:1px;color:#08090a;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">
+  <div style="display:none;font-size:1px;color:${BRAND.bg};line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">
     The 10 steps that turn cold lists into closed wholesale deals.
   </div>
 
-  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:#08090a;">
+  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:${BRAND.bg};">
     <tr>
       <td align="center" style="padding:40px 16px;">
-        <!--[if mso]><table width="620" cellpadding="0" cellspacing="0" border="0"><tr><td><![endif]-->
-        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="620" style="max-width:620px;width:100%;background-color:#0a0a0b;border:1px solid #1a1a1a;border-radius:16px;overflow:hidden;">
+        <!--[if mso]><table width="640" cellpadding="0" cellspacing="0" border="0"><tr><td><![endif]-->
+        <!--
+          Card surface uses the site's --gradient-card token:
+          linear-gradient(145deg, hsl(0 0% 8%), hsl(0 0% 6%)) = #141414 → #0f0f0f
+          background-color fallback for clients that ignore gradients.
+        -->
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="640" style="max-width:640px;width:100%;background-color:${BRAND.cardTop};background-image:linear-gradient(145deg, ${BRAND.cardTop}, ${BRAND.cardBottom});border:1px solid ${BRAND.border};border-radius:16px;overflow:hidden;">
 
-          <!-- Header / brand mark -->
+          <!-- Header / brand logo from the website -->
           <tr>
-            <td style="padding:32px 40px 24px 40px;border-bottom:1px solid #1a1a1a;">
+            <td style="padding:36px 40px 28px 40px;border-bottom:1px solid ${BRAND.border};">
               <table cellpadding="0" cellspacing="0" border="0" width="100%">
                 <tr>
-                  <td align="left" style="font-family:Georgia,'Times New Roman',serif;font-size:32px;font-weight:700;color:#ffffff;letter-spacing:-0.02em;line-height:1;">
-                    AIW<span style="color:#22d3ee;">.</span>
+                  <td align="left" valign="middle">
+                    <a href="https://aiwholesail.com" style="text-decoration:none;line-height:0;">
+                      <img src="${BRAND.logoUrl}" width="64" height="64" alt="AIWholesail" style="display:block;height:64px;width:auto;border:0;outline:none;text-decoration:none;">
+                    </a>
                   </td>
-                  <td align="right" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:11px;color:#6b7280;letter-spacing:0.08em;text-transform:uppercase;">
+                  <td align="right" valign="middle" style="font-family:${BRAND.font};font-size:11px;color:${BRAND.textDim};letter-spacing:0.1em;text-transform:uppercase;font-weight:600;">
                     Wholesaler Toolkit
                   </td>
                 </tr>
@@ -114,9 +147,9 @@ function renderChecklistEmail(firstName) {
 
           <!-- Headline -->
           <tr>
-            <td style="padding:36px 40px 8px 40px;">
-              <p style="margin:0 0 16px 0;font-size:14px;color:#9ca3af;letter-spacing:0.05em;text-transform:uppercase;">10-Step Playbook</p>
-              <h1 style="margin:0;font-size:28px;line-height:1.2;color:#ffffff;font-weight:700;letter-spacing:-0.01em;">
+            <td style="padding:40px 40px 8px 40px;">
+              <p style="margin:0 0 14px 0;font-family:${BRAND.font};font-size:12px;color:${BRAND.accent};letter-spacing:0.12em;text-transform:uppercase;font-weight:700;">10-Step Playbook</p>
+              <h1 style="margin:0;font-family:${BRAND.font};font-size:30px;line-height:1.15;color:${BRAND.textPrimary};font-weight:700;letter-spacing:-0.015em;">
                 The motivated-sellers checklist
               </h1>
             </td>
@@ -125,16 +158,16 @@ function renderChecklistEmail(firstName) {
           <!-- Greeting + intro -->
           <tr>
             <td style="padding:24px 40px 8px 40px;">
-              <p style="margin:0 0 12px 0;font-size:16px;color:#d1d5db;line-height:1.55;">${greeting}</p>
-              <p style="margin:0;font-size:16px;color:#d1d5db;line-height:1.6;">
-                Thanks for grabbing the checklist. Here are the <strong style="color:#ffffff;">10 steps</strong> that turn cold property lists into closed wholesale deals — in order, with the why behind each one.
+              <p style="margin:0 0 12px 0;font-family:${BRAND.font};font-size:16px;color:${BRAND.textBody};line-height:1.55;">${greeting}</p>
+              <p style="margin:0;font-family:${BRAND.font};font-size:16px;color:${BRAND.textBody};line-height:1.65;">
+                Thanks for grabbing the checklist. Here are the <strong style="color:${BRAND.textPrimary};font-weight:600;">10 steps</strong> that turn cold property lists into closed wholesale deals — in order, with the why behind each one.
               </p>
             </td>
           </tr>
 
           <!-- Steps -->
           <tr>
-            <td style="padding:16px 40px 8px 40px;">
+            <td style="padding:20px 40px 8px 40px;">
               <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
                 ${stepsHtml}
               </table>
@@ -143,40 +176,40 @@ function renderChecklistEmail(firstName) {
 
           <!-- Divider -->
           <tr>
-            <td style="padding:24px 40px 0 40px;">
-              <div style="height:1px;background:#1a1a1a;width:100%;"></div>
+            <td style="padding:28px 40px 0 40px;">
+              <div style="height:1px;background:${BRAND.border};width:100%;line-height:1px;font-size:0;">&nbsp;</div>
             </td>
           </tr>
 
           <!-- CTA -->
           <tr>
             <td style="padding:32px 40px 16px 40px;">
-              <p style="margin:0 0 20px 0;font-size:17px;line-height:1.5;color:#ffffff;font-weight:600;">
+              <p style="margin:0 0 14px 0;font-family:${BRAND.font};font-size:18px;line-height:1.4;color:${BRAND.textPrimary};font-weight:600;">
                 Want to skip the manual work?
               </p>
-              <p style="margin:0 0 24px 0;font-size:15px;line-height:1.6;color:#9ca3af;">
+              <p style="margin:0 0 28px 0;font-family:${BRAND.font};font-size:15px;line-height:1.65;color:${BRAND.textMuted};">
                 AIWholesail does all 10 steps automatically — absentee filtering, equity scoring, tax-delinquent cross-reference, skip-trace, and a campaign builder that lays out the 3-touch sequence for you.
               </p>
               <!-- Button (table-based for Outlook compat) -->
               <table cellpadding="0" cellspacing="0" border="0">
                 <tr>
-                  <td align="center" bgcolor="#22d3ee" style="border-radius:10px;background-color:#22d3ee;">
-                    <a href="https://aiwholesail.com/auth?mode=signup&amp;utm_source=lead-magnet&amp;utm_campaign=motivated-sellers-checklist" style="display:inline-block;padding:14px 28px;font-size:15px;font-weight:700;color:#08090a;text-decoration:none;letter-spacing:0.01em;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+                  <td align="center" bgcolor="${BRAND.accent}" style="border-radius:10px;background-color:${BRAND.accent};box-shadow:0 0 24px ${BRAND.accentGlow};">
+                    <a href="https://aiwholesail.com/auth?mode=signup&amp;utm_source=lead-magnet&amp;utm_campaign=motivated-sellers-checklist" style="display:inline-block;padding:14px 28px;font-family:${BRAND.font};font-size:15px;font-weight:700;color:${BRAND.onAccent};text-decoration:none;letter-spacing:0.01em;">
                       Start your free trial →
                     </a>
                   </td>
                 </tr>
               </table>
-              <p style="margin:14px 0 0 0;font-size:12px;color:#6b7280;">No credit card. 14-day trial.</p>
+              <p style="margin:14px 0 0 0;font-family:${BRAND.font};font-size:12px;color:${BRAND.textDim};">No credit card. 14-day trial.</p>
             </td>
           </tr>
 
           <!-- Footer -->
           <tr>
-            <td style="padding:32px 40px 36px 40px;border-top:1px solid #1a1a1a;">
-              <p style="margin:0 0 6px 0;font-size:15px;color:#d1d5db;line-height:1.5;">— Connor</p>
-              <p style="margin:0;font-size:13px;color:#6b7280;line-height:1.5;">
-                Founder, AIWholesail · <a href="mailto:connor@aiwholesail.com" style="color:#22d3ee;text-decoration:none;">connor@aiwholesail.com</a>
+            <td style="padding:36px 40px 40px 40px;border-top:1px solid ${BRAND.border};">
+              <p style="margin:0 0 6px 0;font-family:${BRAND.font};font-size:15px;color:${BRAND.textBody};line-height:1.5;">— Connor</p>
+              <p style="margin:0;font-family:${BRAND.font};font-size:13px;color:${BRAND.textDim};line-height:1.5;">
+                Founder, AIWholesail · <a href="mailto:connor@aiwholesail.com" style="color:${BRAND.accent};text-decoration:none;">connor@aiwholesail.com</a>
               </p>
             </td>
           </tr>
@@ -184,9 +217,9 @@ function renderChecklistEmail(firstName) {
         <!--[if mso]></td></tr></table><![endif]-->
 
         <!-- Outer footer (legal-ish, sits outside the card) -->
-        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="620" style="max-width:620px;width:100%;margin-top:20px;">
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="640" style="max-width:640px;width:100%;margin-top:24px;">
           <tr>
-            <td align="center" style="padding:8px 16px;font-size:11px;color:#4b5563;line-height:1.5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+            <td align="center" style="padding:8px 16px;font-family:${BRAND.font};font-size:11px;color:${BRAND.textDim};line-height:1.6;">
               You're receiving this because you requested the checklist on aiwholesail.com.<br/>
               AIWholesail · Reply to opt out of these one-time guides.
             </td>
