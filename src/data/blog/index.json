@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-chandler-az-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Chandler AZ: The Investor's Complete Guide for 2024",
+      "excerpt": "Chandler, Arizona is one of the hottest markets for real estate investors in the Southwest, offering strong rental demand, solid appreciation, and motivated seller opportunities. This guide breaks down the best neighborhoods, deal types, and strategies to help you profit in the Chandler market.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-14T18:01:10.030Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Chandler AZ",
+        "Chandler AZ real estate investing",
+        "wholesale deals Chandler Arizona",
+        "flip houses Chandler AZ",
+        "rental properties Chandler"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-st-paul-mn-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in St. Paul MN: A Complete Investor's Guide for 2024",
       "excerpt": "St. Paul, Minnesota offers real estate investors a steady market with affordable entry points, strong rental demand, and motivated sellers across diverse neighborhoods. This guide breaks down where to find the best deals, what to expect on returns, and how to get started even if you're investing from out of state.",
@@ -15,7 +32,7 @@
         "fix and flip St. Paul MN",
         "rental properties St. Paul"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-portland-me-a-complete-investor-s-guide-for-2024",
