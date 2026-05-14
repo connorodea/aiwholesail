@@ -68,3 +68,19 @@ test('rejects with 401 when no proxy-secret header is present', (t) => {
 
   process.env.RAPIDAPI_PROXY_SECRET = t.before || '';
 });
+
+test('rejects with 401 when the proxy-secret header is wrong', (t) => {
+  t.before = process.env.RAPIDAPI_PROXY_SECRET;
+  process.env.RAPIDAPI_PROXY_SECRET = 'expected-secret-value';
+
+  const req = makeReq({ 'X-RapidAPI-Proxy-Secret': 'wrong-attacker-value' });
+  const res = makeRes();
+  const next = makeNext();
+
+  rapidapiProxySecret(req, res, next);
+
+  assert.equal(res.statusCode, 401);
+  assert.equal(next.called(), false);
+
+  process.env.RAPIDAPI_PROXY_SECRET = t.before || '';
+});
