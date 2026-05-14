@@ -1,8 +1,28 @@
 import { PropertySearchParams, Property, ZillowAPIResponse } from '@/types/zillow';
+// ===========================================================================
+// SUPABASE IMPORT IS LIVE BUT NOT USED — DO NOT TREAT AS ACTIVE
+// ===========================================================================
+// AIWholesail does NOT use Supabase. The active backend is Express on port
+// 3202 + Postgres + Stripe + Resend on hetznerCO. The Supabase code paths
+// in this file are gated on VITE_USE_SUPABASE_ZILLOW='true', which is OFF
+// in production. See memory/reference_aiwholesail_infra.md.
+//
+// BUT — importing `supabase` at module-top still runs createClient() on
+// every page load, which instantiates an unused client (auto-refresh +
+// localStorage storage + ~70KB bundle weight). This is the ONLY remaining
+// importer of the Supabase client; the four other `.supabase.{ts,tsx}`
+// variant files have zero importers (verified 2026-05-13).
+//
+// Planned removal: full Supabase cleanup PR. Strip this import + the
+// SUPABASE_URL / SUPABASE_KEY / USE_SUPABASE constants below + the three
+// `supabase.functions.invoke(...)` call sites (~lines 209, 691, 825), then
+// delete src/integrations/supabase/ and drop @supabase/supabase-js from
+// package.json.
+// ===========================================================================
 import { supabase } from '@/integrations/supabase/client';
 import { tokenStorage } from '@/lib/api-client';
 
-// Supabase Edge Function for Zillow data
+// Supabase Edge Function for Zillow data — DEAD PATH, see banner above.
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://ztgsevhzbeywytoqlsbf.supabase.co';
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || '';
 

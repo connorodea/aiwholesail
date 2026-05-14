@@ -1,3 +1,13 @@
+// ===========================================================================
+// NOT IN USE — DO NOT WIRE THIS UP — DEAD CODE
+// ===========================================================================
+// AIWholesail does NOT use Supabase. Favorites are persisted via the
+// `/api/favorites` REST endpoints (Express + Postgres on hetznerCO). The
+// active hook is the one without the `.supabase` suffix.
+//
+// Verified 2026-05-13: ZERO importers anywhere in src/. Planned removal:
+// full Supabase cleanup PR. See memory/reference_aiwholesail_infra.md.
+// ===========================================================================
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
