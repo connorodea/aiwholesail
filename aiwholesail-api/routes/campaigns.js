@@ -173,6 +173,425 @@ router.get('/:id', authenticate, [param('id').isUUID()], asyncHandler(async (req
   });
 }));
 
+// ----- GET /:id/analytics -------------------------------------------------
+//
+// Phase 5 — Campaign Analytics. Three slice modes:
+//   - overall      : single aggregate row with totals + computed rates
+//   - by-step      : per-step counts + rates + heuristic recommendation
+//   - by-recipient : paginated per-recipient last_stage + stage timestamps
+//
+// All queries are scoped to req.user.id and hit the indexes shipped in
+// migration 022 (idx_email_send_log_sequence_execution,
+// idx_email_send_log_user_sent) + migration 024
+// (idx_campaign_targets_campaign_status).
+
+function computeRates(totals) {
+  const sent = Number(totals.sent || 0);
+  const delivered = Number(totals.delivered || 0);
+  const denom = delivered > 0 ? delivered : sent;
+  const safe = (n) => (denom > 0 ? Number(n || 0) / denom : 0);
+  return {
+    delivery_rate: sent > 0 ? delivered / sent : 0,
+    open_rate: safe(totals.opened),
+    click_rate: safe(totals.clicked),
+    reply_rate: safe(totals.replied),
+    interested_rate: safe(totals.interested),
+    bounce_rate: sent > 0 ? Number(totals.bounced || 0) / sent : 0,
+  };
+}
+
+function recommendForStep(step) {
+  const sent = Number(step.sent || 0);
+  const delivered = Number(step.delivered || 0);
+  const opened = Number(step.opened || 0);
+  const replied = Number(step.replied || 0);
+  const bounced = Number(step.bounced || 0);
+  if (sent === 0) return 'monitoring';
+  const denom = delivered > 0 ? delivered : sent;
+  const openRate = denom > 0 ? opened / denom : 0;
+  const replyRate = denom > 0 ? replied / denom : 0;
+  const deliveryRate = sent > 0 ? delivered / sent : 0;
+  const bounceRate = sent > 0 ? bounced / sent : 0;
+  if (replyRate > 0.05) return 'good';
+  if (replyRate > 0.01 && openRate > 0.20) return 'good';
+  if (deliveryRate < 0.85) return 'deliverability issue';
+  if (bounceRate > 0.05) return 'audience quality issue';
+  if (openRate < 0.10 && Number(step.step_order) > 1) return 'rewrite subject';
+  return 'monitoring';
+}
+
+router.get('/:id/analytics', authenticate, [param('id').isUUID()], async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) return res.status(400).json({ error: 'Invalid campaign ID' });
+
+  const slice = String(req.query.slice || 'overall');
+  if (!['overall', 'by-step', 'by-recipient'].includes(slice)) {
+    return res.status(400).json({ error: 'Invalid slice. Use overall|by-step|by-recipient' });
+  }
+
+  // Ownership check first — every slice must be scoped to req.user.id.
+  let campaignRow;
+  try {
+    const owner = await pool.query(
+      `SELECT id, name, status, audience_count, launched_at, completed_at,
+              sender_category, created_at, user_id
+         FROM campaigns
+        WHERE id = $1 AND user_id = $2`,
+      [req.params.id, req.user.id]
+    );
+    if (owner.rows.length === 0) return res.status(404).json({ error: 'Campaign not found' });
+    campaignRow = owner.rows[0];
+  } catch (err) {
+    console.error('[campaigns.analytics] ownership lookup failed:', err);
+    return res.status(500).json({ error: 'Analytics lookup failed' });
+  }
+
+  if (slice === 'overall') {
+    try {
+      const sql = `
+        WITH targets AS (
+          SELECT ct.id, ct.lead_sequence_id, LOWER(ct.target_email) AS target_email
+            FROM campaign_targets ct
+           WHERE ct.campaign_id = $1
+        ),
+        sends AS (
+          SELECT esl.id, esl.to_address, esl.delivered_at, esl.opened_at,
+                 esl.clicked_at, esl.replied_at, esl.bounced_at,
+                 esl.complained_at, esl.unsubscribed_at,
+                 t.lead_sequence_id
+            FROM email_send_log esl
+            JOIN sequence_executions se ON se.id = esl.sequence_execution_id
+            JOIN targets t ON t.lead_sequence_id = se.lead_sequence_id
+           WHERE esl.user_id = $2
+        ),
+        intents AS (
+          SELECT r.lead_sequence_id, r.parsed_intent
+            FROM email_inbound_replies r
+            JOIN targets t ON t.lead_sequence_id = r.lead_sequence_id
+           WHERE r.user_id = $2
+        )
+        SELECT
+          (SELECT COUNT(*) FROM targets) AS audience_count,
+          (SELECT COUNT(*) FROM sends) AS sent,
+          (SELECT COUNT(*) FROM sends WHERE delivered_at IS NOT NULL) AS delivered,
+          (SELECT COUNT(DISTINCT to_address) FROM sends WHERE opened_at IS NOT NULL) AS opened,
+          (SELECT COUNT(DISTINCT to_address) FROM sends WHERE clicked_at IS NOT NULL) AS clicked,
+          (SELECT COUNT(DISTINCT to_address) FROM sends WHERE replied_at IS NOT NULL) AS replied,
+          (SELECT COUNT(DISTINCT lead_sequence_id) FROM intents WHERE parsed_intent = 'interested') AS interested,
+          (SELECT COUNT(DISTINCT lead_sequence_id) FROM intents WHERE parsed_intent = 'not_interested') AS not_interested,
+          (SELECT COUNT(*) FROM sends WHERE bounced_at IS NOT NULL) AS bounced,
+          (SELECT COUNT(*) FROM sends WHERE complained_at IS NOT NULL) AS complained,
+          (SELECT COUNT(*) FROM sends WHERE unsubscribed_at IS NOT NULL) AS unsubscribed
+      `;
+      const r = await pool.query(sql, [req.params.id, req.user.id]);
+      const row = r.rows[0] || {};
+      const totals = {
+        sent: Number(row.sent || 0),
+        delivered: Number(row.delivered || 0),
+        opened: Number(row.opened || 0),
+        clicked: Number(row.clicked || 0),
+        replied: Number(row.replied || 0),
+        interested: Number(row.interested || 0),
+        not_interested: Number(row.not_interested || 0),
+        unsubscribed: Number(row.unsubscribed || 0),
+        bounced: Number(row.bounced || 0),
+        complained: Number(row.complained || 0),
+        audience_count: Number(row.audience_count || 0),
+      };
+      return res.json({
+        campaign: {
+          id: campaignRow.id,
+          name: campaignRow.name,
+          status: campaignRow.status,
+          audience_count: campaignRow.audience_count,
+          launched_at: campaignRow.launched_at,
+          completed_at: campaignRow.completed_at,
+          sender_category: campaignRow.sender_category,
+        },
+        totals,
+        rates: computeRates(totals),
+      });
+    } catch (err) {
+      console.error('[campaigns.analytics] overall slice failed:', err);
+      return res.status(500).json({ error: 'Overall analytics query failed' });
+    }
+  }
+
+  if (slice === 'by-step') {
+    try {
+      const sql = `
+        WITH targets AS (
+          SELECT ct.lead_sequence_id
+            FROM campaign_targets ct
+           WHERE ct.campaign_id = $1
+        ),
+        sends AS (
+          SELECT se.step_order, esl.id, esl.to_address,
+                 esl.delivered_at, esl.opened_at, esl.clicked_at,
+                 esl.replied_at, esl.bounced_at
+            FROM email_send_log esl
+            JOIN sequence_executions se ON se.id = esl.sequence_execution_id
+            JOIN targets t ON t.lead_sequence_id = se.lead_sequence_id
+           WHERE esl.user_id = $2
+        ),
+        steps AS (
+          SELECT ss.step_order, ss.day_offset, ss.channel, ss.subject
+            FROM sequence_steps ss
+            JOIN campaigns c ON c.sequence_template_id = ss.sequence_template_id
+           WHERE c.id = $1
+        ),
+        agg AS (
+          SELECT
+            step_order,
+            COUNT(*) AS sent,
+            COUNT(*) FILTER (WHERE delivered_at IS NOT NULL) AS delivered,
+            COUNT(DISTINCT to_address) FILTER (WHERE opened_at IS NOT NULL) AS opened,
+            COUNT(DISTINCT to_address) FILTER (WHERE clicked_at IS NOT NULL) AS clicked,
+            COUNT(DISTINCT to_address) FILTER (WHERE replied_at IS NOT NULL) AS replied,
+            COUNT(*) FILTER (WHERE bounced_at IS NOT NULL) AS bounced
+          FROM sends
+          GROUP BY step_order
+        )
+        SELECT
+          s.step_order, s.day_offset, s.channel, s.subject,
+          COALESCE(a.sent, 0) AS sent,
+          COALESCE(a.delivered, 0) AS delivered,
+          COALESCE(a.opened, 0) AS opened,
+          COALESCE(a.clicked, 0) AS clicked,
+          COALESCE(a.replied, 0) AS replied,
+          COALESCE(a.bounced, 0) AS bounced
+        FROM steps s
+        LEFT JOIN agg a ON a.step_order = s.step_order
+        ORDER BY s.step_order ASC
+      `;
+      const r = await pool.query(sql, [req.params.id, req.user.id]);
+      const steps = r.rows.map((row) => {
+        const sent = Number(row.sent || 0);
+        const delivered = Number(row.delivered || 0);
+        const opened = Number(row.opened || 0);
+        const clicked = Number(row.clicked || 0);
+        const replied = Number(row.replied || 0);
+        const bounced = Number(row.bounced || 0);
+        const denom = delivered > 0 ? delivered : sent;
+        return {
+          step_order: Number(row.step_order),
+          day_offset: Number(row.day_offset || 0),
+          channel: row.channel,
+          subject: row.subject,
+          sent,
+          delivered,
+          opened,
+          clicked,
+          replied,
+          bounced,
+          open_rate: denom > 0 ? opened / denom : 0,
+          click_rate: denom > 0 ? clicked / denom : 0,
+          reply_rate: denom > 0 ? replied / denom : 0,
+          delivery_rate: sent > 0 ? delivered / sent : 0,
+          bounce_rate: sent > 0 ? bounced / sent : 0,
+          recommendation: recommendForStep({
+            sent, delivered, opened, replied, bounced,
+            step_order: Number(row.step_order),
+          }),
+        };
+      });
+      return res.json({ steps });
+    } catch (err) {
+      console.error('[campaigns.analytics] by-step slice failed:', err);
+      return res.status(500).json({ error: 'By-step analytics query failed' });
+    }
+  }
+
+  // by-recipient
+  try {
+    const limit = Math.min(Number(req.query.limit) || 50, 200);
+    const offset = Math.max(Number(req.query.offset) || 0, 0);
+    const stepFilter = req.query.step_order ? Number(req.query.step_order) : null;
+
+    // Total count for pagination
+    const countSql = `
+      SELECT COUNT(*)::int AS total
+        FROM campaign_targets ct
+       WHERE ct.campaign_id = $1
+    `;
+    const countRes = await pool.query(countSql, [req.params.id]);
+    const total = countRes.rows[0]?.total ?? 0;
+
+    const params = [req.params.id, req.user.id, limit, offset];
+    let stepFilterClause = '';
+    if (stepFilter !== null && !Number.isNaN(stepFilter)) {
+      params.push(stepFilter);
+      stepFilterClause = ` AND last_send.step_order = $${params.length}`;
+    }
+
+    const sql = `
+      WITH targets AS (
+        SELECT ct.id, ct.target_email, ct.target_name, ct.lead_sequence_id,
+               ct.status AS target_status, ls.status AS lead_sequence_status
+          FROM campaign_targets ct
+          LEFT JOIN lead_sequences ls ON ls.id = ct.lead_sequence_id
+         WHERE ct.campaign_id = $1
+      ),
+      last_send AS (
+        SELECT DISTINCT ON (se.lead_sequence_id)
+               se.lead_sequence_id, se.step_order,
+               esl.sent_at, esl.delivered_at, esl.opened_at,
+               esl.clicked_at, esl.replied_at, esl.bounced_at
+          FROM email_send_log esl
+          JOIN sequence_executions se ON se.id = esl.sequence_execution_id
+         WHERE esl.user_id = $2
+           AND se.lead_sequence_id IN (SELECT lead_sequence_id FROM targets WHERE lead_sequence_id IS NOT NULL)
+         ORDER BY se.lead_sequence_id, esl.sent_at DESC
+      ),
+      reply_intent AS (
+        SELECT DISTINCT ON (r.lead_sequence_id)
+               r.lead_sequence_id, r.parsed_intent, r.received_at
+          FROM email_inbound_replies r
+         WHERE r.user_id = $2
+         ORDER BY r.lead_sequence_id, r.received_at DESC
+      )
+      SELECT t.id AS target_id, t.target_email, t.target_name, t.target_status,
+             t.lead_sequence_id, t.lead_sequence_status,
+             last_send.step_order, last_send.sent_at, last_send.delivered_at,
+             last_send.opened_at, last_send.clicked_at, last_send.replied_at,
+             last_send.bounced_at,
+             reply_intent.parsed_intent, reply_intent.received_at AS reply_received_at,
+             CASE
+               WHEN last_send.bounced_at IS NOT NULL THEN 'bounced'
+               WHEN last_send.replied_at IS NOT NULL THEN 'replied'
+               WHEN last_send.clicked_at IS NOT NULL THEN 'clicked'
+               WHEN last_send.opened_at  IS NOT NULL THEN 'opened'
+               WHEN last_send.delivered_at IS NOT NULL THEN 'delivered'
+               WHEN last_send.sent_at IS NOT NULL THEN 'sent'
+               ELSE 'queued'
+             END AS last_stage
+        FROM targets t
+        LEFT JOIN last_send ON last_send.lead_sequence_id = t.lead_sequence_id
+        LEFT JOIN reply_intent ON reply_intent.lead_sequence_id = t.lead_sequence_id
+       WHERE 1 = 1${stepFilterClause}
+       ORDER BY last_send.sent_at DESC NULLS LAST, t.target_email ASC
+       LIMIT $3 OFFSET $4
+    `;
+    const r = await pool.query(sql, params);
+    const recipients = r.rows.map((row) => ({
+      target_id: row.target_id,
+      target_email: row.target_email,
+      target_name: row.target_name,
+      lead_sequence_id: row.lead_sequence_id,
+      lead_sequence_status: row.lead_sequence_status,
+      last_stage: row.last_stage,
+      step_order: row.step_order != null ? Number(row.step_order) : null,
+      stages: {
+        sent_at: row.sent_at,
+        delivered_at: row.delivered_at,
+        opened_at: row.opened_at,
+        clicked_at: row.clicked_at,
+        replied_at: row.replied_at,
+        bounced_at: row.bounced_at,
+        parsed_intent: row.parsed_intent,
+        reply_received_at: row.reply_received_at,
+      },
+    }));
+    return res.json({
+      recipients,
+      total,
+      limit,
+      offset,
+    });
+  } catch (err) {
+    console.error('[campaigns.analytics] by-recipient slice failed:', err);
+    return res.status(500).json({ error: 'By-recipient analytics query failed' });
+  }
+});
+
+// ----- GET /:id/activity --------------------------------------------------
+//
+// Recent activity feed — UNION of replies, bounces, unsubscribes, and
+// send-batches scoped to this campaign. Used by the right rail on
+// CampaignDetail.tsx.
+
+router.get('/:id/activity', authenticate, [param('id').isUUID()], async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) return res.status(400).json({ error: 'Invalid campaign ID' });
+
+  const limit = Math.min(Math.max(Number(req.query.limit) || 20, 1), 100);
+
+  try {
+    const owner = await pool.query(
+      'SELECT id FROM campaigns WHERE id = $1 AND user_id = $2',
+      [req.params.id, req.user.id]
+    );
+    if (owner.rows.length === 0) return res.status(404).json({ error: 'Campaign not found' });
+
+    const sql = `
+      WITH targets AS (
+        SELECT ct.lead_sequence_id, ct.target_email, ct.target_name
+          FROM campaign_targets ct
+         WHERE ct.campaign_id = $1
+      ),
+      replies AS (
+        SELECT 'reply'::text AS type,
+               r.received_at AS ts,
+               r.from_address AS recipient,
+               COALESCE(r.parsed_intent, 'reply') AS summary,
+               r.id::text AS link
+          FROM email_inbound_replies r
+          JOIN targets t ON t.lead_sequence_id = r.lead_sequence_id
+         WHERE r.user_id = $2
+      ),
+      bounces AS (
+        SELECT 'bounce'::text AS type,
+               esl.bounced_at AS ts,
+               esl.to_address AS recipient,
+               COALESCE(esl.bounce_type, 'bounced') AS summary,
+               esl.id::text AS link
+          FROM email_send_log esl
+          JOIN sequence_executions se ON se.id = esl.sequence_execution_id
+          JOIN targets t ON t.lead_sequence_id = se.lead_sequence_id
+         WHERE esl.user_id = $2 AND esl.bounced_at IS NOT NULL
+      ),
+      unsubs AS (
+        SELECT 'unsubscribe'::text AS type,
+               esl.unsubscribed_at AS ts,
+               esl.to_address AS recipient,
+               'unsubscribed'::text AS summary,
+               esl.id::text AS link
+          FROM email_send_log esl
+          JOIN sequence_executions se ON se.id = esl.sequence_execution_id
+          JOIN targets t ON t.lead_sequence_id = se.lead_sequence_id
+         WHERE esl.user_id = $2 AND esl.unsubscribed_at IS NOT NULL
+      ),
+      batches AS (
+        SELECT 'send_batch'::text AS type,
+               date_trunc('hour', esl.sent_at) AS ts,
+               NULL::text AS recipient,
+               'sent ' || COUNT(*)::text || ' to step ' || se.step_order::text AS summary,
+               se.step_order::text AS link
+          FROM email_send_log esl
+          JOIN sequence_executions se ON se.id = esl.sequence_execution_id
+          JOIN targets t ON t.lead_sequence_id = se.lead_sequence_id
+         WHERE esl.user_id = $2 AND esl.sent_at IS NOT NULL
+         GROUP BY date_trunc('hour', esl.sent_at), se.step_order
+      )
+      SELECT type, ts AS timestamp, recipient, summary, link
+        FROM (
+          SELECT * FROM replies
+          UNION ALL SELECT * FROM bounces
+          UNION ALL SELECT * FROM unsubs
+          UNION ALL SELECT * FROM batches
+        ) merged
+       WHERE ts IS NOT NULL
+       ORDER BY ts DESC
+       LIMIT $3
+    `;
+    const r = await pool.query(sql, [req.params.id, req.user.id, limit]);
+    res.json({ activity: r.rows });
+  } catch (err) {
+    console.error('[campaigns.activity] query failed:', err);
+    res.status(500).json({ error: 'Activity feed query failed' });
+  }
+});
+
 // ----- POST / create draft -----------------------------------------------
 
 router.post('/', authenticate, [
