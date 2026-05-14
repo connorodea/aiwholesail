@@ -2014,14 +2014,107 @@ function findMarketTimeSeries(nextData, seriesKey) {
   return out;
 }
 
+// ─────────────────────────── Tier B5 cycle 4 — co-locate cache ───────────
+//
+// All Tier B5 market-analytics endpoints (localPriceTrends, domTrends,
+// inventoryTrends, forecast) scrape the SAME /<region>/home-values/ page —
+// they differ only in which sub-payload of `pageProps.odpMarketAnalytics`
+// they pluck. Without co-location, calling all four for one region costs
+// 4 scrape.do requests. With it, they share one cached __NEXT_DATA__ blob
+// per (region, regionType) pair — 4x cost reduction in the hot path.
+//
+// Cache scope:  'zillow_home_values_payload'
+// Cache key:    `${regionType||'default'}:${lowercase(region)}`
+// TTL:          3600s (1 hour). Market data refreshes hourly at most;
+//               anything shorter defeats the optimization, anything longer
+//               risks stale topline pcts in fast-moving markets.
+//
+// The cached value is the *parsed __NEXT_DATA__ JSON object*, NOT the raw
+// HTML — extraction happens before caching so every consumer skips the
+// HTML→JSON parse on hits.
+//
+// Test-only setters (`__setHomeValuesPayloadCacheDbForTests`,
+// `__resetHomeValuesPayloadCacheForTests`) let unit tests substitute an
+// in-memory cache DB so we can assert on scrape-call counts. NEVER call
+// these from production code.
+
+// eslint-disable-next-line global-require
+const _scrapeDoCache = require('./scrapeDoCache');
+
+let _homeValuesCacheDb = null;     // null = use the module default (real Postgres)
+let _homeValuesCachedFn = null;    // lazy: built on first call, rebuilt on db swap
+
+function _buildHomeValuesCachedFn() {
+  return _scrapeDoCache.withCache({
+    scope: 'zillow_home_values_payload',
+    ttlSec: 3600,
+    keyFn: ({ region, regionType } = {}) =>
+      `${regionType || 'default'}:${String(region || '').trim().toLowerCase()}`,
+    fn: async ({ region, regionType }) => {
+      const url = marketStatsUrl(region, regionType);
+      // eslint-disable-next-line global-require
+      const scrapeDoClient = require('./scrapeDoClient');
+      let resp;
+      try {
+        resp = await scrapeDoClient.scrape(url, {
+          headers: DEFAULT_HEADERS,
+          geoCode: 'us',
+          render: false,
+          super: true,
+          timeoutMs: 60_000,
+        });
+      } catch (err) {
+        if (err instanceof ScrapeDoError) {
+          throw new ZillowScrapeError(`scrape.do fetch failed: ${err.message}`, {
+            status: err.status,
+            action: '_fetchHomeValuesPayload',
+            reason: 'fetch_failed',
+          });
+        }
+        throw err;
+      }
+      // Cached value is the parsed __NEXT_DATA__ JSON — every consumer
+      // skips the HTML→JSON parse on hits.
+      return extractNextData(resp.data);
+    },
+    db: _homeValuesCacheDb || undefined,
+  });
+}
+
+/**
+ * Internal: fetch + cache the parsed __NEXT_DATA__ blob for a region's
+ * /<region>/home-values/ page. Shared by every Tier B5 market-analytics
+ * endpoint. NOT exported on the module surface — the only contract is
+ * the public endpoints that consume it.
+ */
+async function _fetchHomeValuesPayload({ region, regionType } = {}) {
+  if (!_homeValuesCachedFn) {
+    _homeValuesCachedFn = _buildHomeValuesCachedFn();
+  }
+  return _homeValuesCachedFn({ region, regionType });
+}
+
+/**
+ * Test-only: swap the DB used by the home-values cache. Pass null to reset
+ * to the default. Must call `__resetHomeValuesPayloadCacheForTests()` after
+ * to force the wrapper to rebuild.
+ */
+function __setHomeValuesPayloadCacheDbForTests(db) {
+  _homeValuesCacheDb = db;
+  _homeValuesCachedFn = null;
+}
+
+/** Test-only: drop the in-memory wrapper so the next call rebuilds it. */
+function __resetHomeValuesPayloadCacheForTests() {
+  _homeValuesCachedFn = null;
+}
+
 /**
  * Local price trends — Tier B5 endpoint #1 of 5.
  *
- * Scrapes the /<region>/home-values/ page once and extracts the ZHVI,
- * median sale price, and price-per-sqft time series along with topline
- * YoY and 5-year change percentages. Shares the home-values URL with
- * marketStats / domTrends / inventoryTrends / forecast — future co-locate
- * refactor (Cycle 4) will route them through a single cached scrape.
+ * Extracts ZHVI, median sale price, and price-per-sqft time series along
+ * with topline YoY and 5-year change percentages from the cached
+ * /<region>/home-values/ __NEXT_DATA__ blob (Tier B5 cycle 4 co-locate).
  *
  * @param {{region: string, regionType?: 'zip'|'city'|'state'|'county'}} args
  * @returns {Promise<{
@@ -2041,32 +2134,7 @@ async function localPriceTrends(args = {}) {
       reason: 'bad_args',
     });
   }
-  const url = marketStatsUrl(region, regionType);
-  // Indirect via the module object so tests can monkey-patch
-  // scrapeDoClient.scrape (the top-level destructured `scrape` binding
-  // is captured at require-time and would otherwise bypass the mock).
-  // eslint-disable-next-line global-require
-  const scrapeDoClient = require('./scrapeDoClient');
-  let resp;
-  try {
-    resp = await scrapeDoClient.scrape(url, {
-      headers: DEFAULT_HEADERS,
-      geoCode: 'us',
-      render: false,
-      super: true,
-      timeoutMs: 60_000,
-    });
-  } catch (err) {
-    if (err instanceof ScrapeDoError) {
-      throw new ZillowScrapeError(`scrape.do fetch failed: ${err.message}`, {
-        status: err.status,
-        action: 'localPriceTrends',
-        reason: 'fetch_failed',
-      });
-    }
-    throw err;
-  }
-  const nextData = extractNextData(resp.data);
+  const nextData = await _fetchHomeValuesPayload({ region, regionType });
   const pp = nextData?.props?.pageProps || {};
   const odp = pp.odpMarketAnalytics || {};
   return {
@@ -2077,6 +2145,58 @@ async function localPriceTrends(args = {}) {
     pricePerSqftSeries: findMarketTimeSeries(nextData, 'pricePerSqftSeries'),
     yoyChangePct: odp.zhviLatest?.zhviYoY,
     fiveYearChangePct: odp.zhviLatest?.fiveYearChange,
+  };
+}
+
+/**
+ * Forecast — Tier B5 endpoint #4 of 5. ZHVF (Zillow Home Value Forecast)
+ * projection: 1-month, 1-quarter, 1-year forward percent change plus the
+ * monthly forecast series. Reads from `pageProps.odpMarketAnalytics
+ * .zhvfForecast` on the cached home-values payload.
+ *
+ * @param {{region: string, regionType?: 'zip'|'city'|'state'|'county'}} args
+ * @returns {Promise<{
+ *   regionName?: string,
+ *   regionType?: string,
+ *   oneMonthForecastPct: number|null,
+ *   oneQuarterForecastPct: number|null,
+ *   oneYearForecastPct: number|null,
+ *   forecastSeries: Array<{date: string, value: number}>,
+ * }>}
+ */
+async function forecast(args = {}) {
+  const { region, regionType } = args;
+  if (!region || typeof region !== 'string' || !region.trim()) {
+    throw new ZillowScrapeError('forecast requires region', {
+      reason: 'bad_args',
+    });
+  }
+  const nextData = await _fetchHomeValuesPayload({ region, regionType });
+  const pp = nextData?.props?.pageProps || {};
+  const f = pp.odpMarketAnalytics?.zhvfForecast || {};
+  const rawSeries = Array.isArray(f.forecastSeries) ? f.forecastSeries : [];
+  const forecastSeries = [];
+  for (const pt of rawSeries) {
+    if (!pt || typeof pt !== 'object') continue;
+    const date = pt.date ?? pt.x ?? null;
+    const rawValue = pt.value ?? pt.y;
+    const value = typeof rawValue === 'number' ? rawValue : Number(rawValue);
+    if (!date || typeof date !== 'string') continue;
+    if (!Number.isFinite(value)) continue;
+    forecastSeries.push({ date, value });
+  }
+  const coerce = (v) => {
+    if (v == null) return null;
+    const n = typeof v === 'number' ? v : Number(v);
+    return Number.isFinite(n) ? n : null;
+  };
+  return {
+    regionName: pp.zhviRegion?.name || pp.requestedRegion?.name,
+    regionType: pp.zhviRegion?.regionTypeName || regionType,
+    oneMonthForecastPct: coerce(f.oneMonth ?? f.oneMonthForecast),
+    oneQuarterForecastPct: coerce(f.oneQuarter ?? f.oneQuarterForecast),
+    oneYearForecastPct: coerce(f.oneYear ?? f.oneYearForecast),
+    forecastSeries,
   };
 }
 
@@ -2901,6 +3021,10 @@ module.exports = {
   marketStats,
   // Market-analytics — Tier B5:
   localPriceTrends,
+  forecast,
+  // Test-only — co-locate cache db injection. Do NOT call from production.
+  __setHomeValuesPayloadCacheDbForTests,
+  __resetHomeValuesPayloadCacheForTests,
   // Exported for tests:
   extractNextData,
   findPropertyRecord,

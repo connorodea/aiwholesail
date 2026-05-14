@@ -2448,3 +2448,310 @@ test('Tier B5 — localPriceTrends', async (t) => {
     }
   );
 });
+
+// ─────────────────────────────────────────────────────────────────────────
+// Tier B5 cycle 4 — forecast({region, regionType}) — ZHVF projection.
+// Same /<region>/home-values/ page, different sub-payload:
+//   pageProps.odpMarketAnalytics.zhvfForecast = {
+//     oneMonth: <pct>, oneQuarter: <pct>, oneYear: <pct>,
+//     forecastSeries: [{date, value}, ...]
+//   }
+// ─────────────────────────────────────────────────────────────────────────
+
+test('Tier B5 cycle 4 — forecast', async (t) => {
+  const z = require('../../lib/scrapers/zillowScrapeDo');
+
+  await t.test('is exported as a function', () => {
+    assert.equal(typeof z.forecast, 'function');
+  });
+
+  await t.test('rejects missing region with ZillowScrapeError(bad_args)', async () => {
+    await assert.rejects(
+      () => z.forecast({}),
+      (err) =>
+        err instanceof z.ZillowScrapeError &&
+        err.reason === 'bad_args' &&
+        /region/i.test(err.message)
+    );
+  });
+
+  await t.test('rejects empty-string region', async () => {
+    await assert.rejects(
+      () => z.forecast({ region: '' }),
+      (err) => err instanceof z.ZillowScrapeError && err.reason === 'bad_args'
+    );
+  });
+
+  await t.test(
+    'returns wired shape {regionName, regionType, oneMonthForecastPct, oneQuarterForecastPct, oneYearForecastPct, forecastSeries} from a mocked home-values page',
+    async () => {
+      const scrapeDoClient = require('../../lib/scrapers/scrapeDoClient');
+      const originalScrape = scrapeDoClient.scrape;
+      const fakeNextData = {
+        props: {
+          pageProps: {
+            zhviRegion: { name: 'Austin, TX', regionTypeName: 'city' },
+            odpMarketAnalytics: {
+              zhvfForecast: {
+                oneMonth: 0.4,
+                oneQuarter: 1.1,
+                oneYear: 3.5,
+                forecastSeries: [
+                  { date: '2026-06-01', value: 543000 },
+                  { date: '2026-07-01', value: 545000 },
+                  { date: '2027-05-01', value: 558000 },
+                ],
+              },
+            },
+          },
+        },
+      };
+      const padding = ' '.repeat(300);
+      const html = `<html><body>${padding}<script id="__NEXT_DATA__" type="application/json">${JSON.stringify(
+        fakeNextData
+      )}</script></body></html>`;
+      // Reset the cache db so any prior test pollution doesn't leak.
+      if (typeof z.__resetHomeValuesPayloadCacheForTests === 'function') {
+        z.__resetHomeValuesPayloadCacheForTests();
+      }
+      scrapeDoClient.scrape = async () => ({ data: html, status: 200 });
+      try {
+        const out = await z.forecast({ region: 'Austin, TX' });
+        assert.equal(out.regionName, 'Austin, TX');
+        assert.equal(out.regionType, 'city');
+        assert.equal(out.oneMonthForecastPct, 0.4);
+        assert.equal(out.oneQuarterForecastPct, 1.1);
+        assert.equal(out.oneYearForecastPct, 3.5);
+        assert.ok(Array.isArray(out.forecastSeries));
+        assert.equal(out.forecastSeries.length, 3);
+        assert.equal(out.forecastSeries[0].date, '2026-06-01');
+        assert.equal(out.forecastSeries[0].value, 543000);
+      } finally {
+        scrapeDoClient.scrape = originalScrape;
+      }
+    }
+  );
+
+  await t.test(
+    'returns nulls + empty array when zhvfForecast missing — caller iterates safely',
+    async () => {
+      const scrapeDoClient = require('../../lib/scrapers/scrapeDoClient');
+      const originalScrape = scrapeDoClient.scrape;
+      const fakeNextData = {
+        props: {
+          pageProps: {
+            zhviRegion: { name: '99999', regionTypeName: 'zip' },
+            odpMarketAnalytics: {},
+          },
+        },
+      };
+      const padding = ' '.repeat(300);
+      const html = `<html><body>${padding}<script id="__NEXT_DATA__" type="application/json">${JSON.stringify(
+        fakeNextData
+      )}</script></body></html>`;
+      if (typeof z.__resetHomeValuesPayloadCacheForTests === 'function') {
+        z.__resetHomeValuesPayloadCacheForTests();
+      }
+      scrapeDoClient.scrape = async () => ({ data: html, status: 200 });
+      try {
+        const out = await z.forecast({ region: '99999', regionType: 'zip' });
+        assert.equal(out.regionName, '99999');
+        assert.equal(out.regionType, 'zip');
+        assert.equal(out.oneMonthForecastPct, null);
+        assert.equal(out.oneQuarterForecastPct, null);
+        assert.equal(out.oneYearForecastPct, null);
+        assert.deepEqual(out.forecastSeries, []);
+      } finally {
+        scrapeDoClient.scrape = originalScrape;
+      }
+    }
+  );
+});
+
+// ─────────────────────────────────────────────────────────────────────────
+// Tier B5 cycle 4 — co-locate refactor.
+//
+// The four Tier B5 endpoints (localPriceTrends, domTrends, inventoryTrends,
+// forecast) all scrape the SAME /<region>/home-values/ page. Cycle 4
+// introduces a shared cached fetcher `_fetchHomeValuesPayload({region,
+// regionType})` so that calling all four endpoints for the same region in
+// the same TTL window costs ONE scrape.do request instead of four.
+//
+// Cache TTL: 3600s. Cache key: regionType + ':' + lowercase(region).
+// ─────────────────────────────────────────────────────────────────────────
+
+test('Tier B5 cycle 4 — _fetchHomeValuesPayload cache co-locates the 4 endpoints', async (t) => {
+  const z = require('../../lib/scrapers/zillowScrapeDo');
+  const scrapeDoClient = require('../../lib/scrapers/scrapeDoClient');
+
+  // Build a fake nextData blob that satisfies forecast() + localPriceTrends().
+  function buildHtml(regionName, regionTypeName) {
+    const nextData = {
+      props: {
+        pageProps: {
+          zhviRegion: { name: regionName, regionTypeName },
+          odpMarketAnalytics: {
+            zhviLatest: { zhviYoY: 2.5, fiveYearChange: 42.0 },
+            zhviSeries: [{ date: '2025-01-01', value: 500000 }],
+            mrktSaleSeries: [{ date: '2025-01-01', value: 400000 }],
+            pricePerSqftSeries: [{ date: '2025-01-01', value: 280 }],
+            zhvfForecast: {
+              oneMonth: 0.3,
+              oneQuarter: 0.9,
+              oneYear: 3.1,
+              forecastSeries: [{ date: '2026-06-01', value: 510000 }],
+            },
+          },
+        },
+      },
+    };
+    const padding = ' '.repeat(300);
+    return `<html><body>${padding}<script id="__NEXT_DATA__" type="application/json">${JSON.stringify(
+      nextData
+    )}</script></body></html>`;
+  }
+
+  // Stub DB: simple in-memory map keyed by cache_key.
+  function inMemoryCacheDb() {
+    const store = new Map();
+    return {
+      store,
+      query: async (sql, params) => {
+        if (/SELECT body, expires_at/i.test(sql)) {
+          const row = store.get(params[0]);
+          if (row && row.expires_at > Date.now()) {
+            return { rows: [{ body: row.body, expires_at: new Date(row.expires_at) }], rowCount: 1 };
+          }
+          return { rows: [], rowCount: 0 };
+        }
+        if (/INSERT INTO scrape_response_cache/i.test(sql)) {
+          // params: [key, scope, jsonBody, ttlSecString]
+          const ttlSec = Number(params[3]);
+          store.set(params[0], {
+            body: JSON.parse(params[2]),
+            expires_at: Date.now() + ttlSec * 1000,
+          });
+          return { rows: [], rowCount: 1 };
+        }
+        if (/UPDATE scrape_response_cache/i.test(sql)) {
+          return { rows: [], rowCount: 1 };
+        }
+        return { rows: [], rowCount: 0 };
+      },
+    };
+  }
+
+  await t.test(
+    'two forecast() calls for same region hit scrapeDoClient.scrape ONCE',
+    async () => {
+      assert.equal(
+        typeof z.__setHomeValuesPayloadCacheDbForTests,
+        'function',
+        '_fetchHomeValuesPayload needs a test-only db setter'
+      );
+      const db = inMemoryCacheDb();
+      z.__setHomeValuesPayloadCacheDbForTests(db);
+      z.__resetHomeValuesPayloadCacheForTests();
+
+      let scrapeCalls = 0;
+      const originalScrape = scrapeDoClient.scrape;
+      scrapeDoClient.scrape = async (url) => {
+        scrapeCalls += 1;
+        return { data: buildHtml('Austin, TX', 'city'), status: 200 };
+      };
+      try {
+        const a = await z.forecast({ region: 'Austin, TX' });
+        const b = await z.forecast({ region: 'Austin, TX' });
+        assert.equal(scrapeCalls, 1, 'expected exactly one underlying scrape');
+        assert.equal(a.oneMonthForecastPct, 0.3);
+        assert.equal(b.oneMonthForecastPct, 0.3);
+      } finally {
+        scrapeDoClient.scrape = originalScrape;
+        z.__setHomeValuesPayloadCacheDbForTests(null);
+        z.__resetHomeValuesPayloadCacheForTests();
+      }
+    }
+  );
+
+  await t.test(
+    'forecast() + localPriceTrends() for same region hit scrapeDoClient.scrape ONCE (co-locate)',
+    async () => {
+      const db = inMemoryCacheDb();
+      z.__setHomeValuesPayloadCacheDbForTests(db);
+      z.__resetHomeValuesPayloadCacheForTests();
+
+      let scrapeCalls = 0;
+      const originalScrape = scrapeDoClient.scrape;
+      scrapeDoClient.scrape = async () => {
+        scrapeCalls += 1;
+        return { data: buildHtml('Austin, TX', 'city'), status: 200 };
+      };
+      try {
+        const f = await z.forecast({ region: 'Austin, TX' });
+        const l = await z.localPriceTrends({ region: 'Austin, TX' });
+        assert.equal(scrapeCalls, 1, 'expected one scrape — co-located');
+        assert.equal(f.oneMonthForecastPct, 0.3);
+        assert.equal(l.zhviSeries.length, 1);
+        assert.equal(l.zhviSeries[0].value, 500000);
+      } finally {
+        scrapeDoClient.scrape = originalScrape;
+        z.__setHomeValuesPayloadCacheDbForTests(null);
+        z.__resetHomeValuesPayloadCacheForTests();
+      }
+    }
+  );
+
+  await t.test(
+    'different regions get separate cache entries (region in key)',
+    async () => {
+      const db = inMemoryCacheDb();
+      z.__setHomeValuesPayloadCacheDbForTests(db);
+      z.__resetHomeValuesPayloadCacheForTests();
+
+      let scrapeCalls = 0;
+      const originalScrape = scrapeDoClient.scrape;
+      scrapeDoClient.scrape = async (url) => {
+        scrapeCalls += 1;
+        // Echo back something region-distinguishable
+        if (/austin/i.test(url)) return { data: buildHtml('Austin, TX', 'city'), status: 200 };
+        return { data: buildHtml('Dallas, TX', 'city'), status: 200 };
+      };
+      try {
+        await z.forecast({ region: 'Austin, TX' });
+        await z.forecast({ region: 'Dallas, TX' });
+        assert.equal(scrapeCalls, 2, 'different regions = different cache keys');
+        // 2 unique cache entries
+        assert.equal(db.store.size, 2);
+      } finally {
+        scrapeDoClient.scrape = originalScrape;
+        z.__setHomeValuesPayloadCacheDbForTests(null);
+        z.__resetHomeValuesPayloadCacheForTests();
+      }
+    }
+  );
+
+  await t.test(
+    'different regionTypes for same region string get separate cache entries',
+    async () => {
+      const db = inMemoryCacheDb();
+      z.__setHomeValuesPayloadCacheDbForTests(db);
+      z.__resetHomeValuesPayloadCacheForTests();
+
+      let scrapeCalls = 0;
+      const originalScrape = scrapeDoClient.scrape;
+      scrapeDoClient.scrape = async () => {
+        scrapeCalls += 1;
+        return { data: buildHtml('78701', 'zip'), status: 200 };
+      };
+      try {
+        await z.forecast({ region: '78701' });
+        await z.forecast({ region: '78701', regionType: 'zip' });
+        assert.equal(scrapeCalls, 2, 'different regionType = different cache keys');
+      } finally {
+        scrapeDoClient.scrape = originalScrape;
+        z.__setHomeValuesPayloadCacheDbForTests(null);
+        z.__resetHomeValuesPayloadCacheForTests();
+      }
+    }
+  );
+});
