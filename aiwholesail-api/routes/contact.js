@@ -2,6 +2,7 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 const { asyncHandler, logSecurityEvent } = require('../middleware/errorHandler');
 const { checkDatabaseRateLimit } = require('../middleware/rateLimit');
+const { getSender } = require('../lib/senders');
 
 const { Resend } = require('resend');
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -68,7 +69,7 @@ router.post('/', [
   const submittedAt = new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
   try {
     await resend.emails.send({
-      from: 'AIWholesail Contact <noreply@aiwholesail.com>',
+      from: getSender('contact'),
       to: 'connor@upscaledinc.com',
       replyTo: email,
       subject: `[Contact Form] ${subject}`,

@@ -9,6 +9,7 @@ import {
   IconLayoutKanban,
   IconUsers,
   IconRepeat,
+  IconInbox,
   IconFileText,
   IconHeart,
   IconBell,
@@ -19,22 +20,34 @@ import {
   IconClock,
   IconSun,
   IconMoon,
+  IconBroadcast,
 } from '@tabler/icons-react';
+import type { Icon as TablerIcon } from '@tabler/icons-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { useFavorites } from '@/hooks/useFavorites';
+import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { stripe } from '@/lib/api-client';
 import { toast } from 'sonner';
 
+interface NavItem {
+  href: string;
+  label: string;
+  icon: TablerIcon;
+  flag?: string;
+}
+
 const aiWholesailLogo = '/logo-white.png';
 
-const navItems = [
+const navItems: NavItem[] = [
   { href: '/app', label: 'Search', icon: IconSearch },
   { href: '/app/analyzer', label: 'Analyzer', icon: IconBrain },
   { href: '/app/pipeline', label: 'Pipeline', icon: IconLayoutKanban },
   { href: '/app/buyers', label: 'Buyers', icon: IconUsers },
   { href: '/app/sequences', label: 'Sequences', icon: IconRepeat },
+  { href: '/app/campaigns', label: 'Campaigns', icon: IconBroadcast, flag: 'email-campaigns-v2' },
+  { href: '/app/inbox', label: 'Inbox', icon: IconInbox, flag: 'email-campaigns-v2' },
   { href: '/app/contracts', label: 'Contracts', icon: IconFileText },
   { href: '/app/skip-trace', label: 'Skip Trace', icon: IconAddressBook },
   { href: '/app/favorites', label: 'Favorites', icon: IconHeart },
@@ -46,6 +59,18 @@ export function DashboardNav() {
   const { user, signOut } = useAuth();
   const { isTrialActive, trialDaysRemaining } = useSubscription();
   const { favorites } = useFavorites();
+  const campaignsFlag = useFeatureFlag('email-campaigns-v2');
+
+  // Filter nav items by feature flag. Each `flag` value must be enumerated
+  // here — unknown flags hide the nav item by default to prevent a
+  // half-shipped feature from leaking into the nav before its backend
+  // surface exists.
+  const visibleNavItems = navItems.filter((item) => {
+    if (!item.flag) return true;
+    if (item.flag === 'email-campaigns-v2') return campaignsFlag.enabled;
+    return false;
+  });
+
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [lightMode, setLightMode] = useState(() => document.documentElement.classList.contains('light'));
@@ -102,7 +127,7 @@ export function DashboardNav() {
 
             {/* Desktop Nav */}
             <div className="hidden lg:flex items-center gap-0.5">
-              {navItems.map((item) => {
+              {visibleNavItems.map((item) => {
                 const isActive = location.pathname === item.href;
                 const Icon = item.icon;
                 return (
@@ -234,7 +259,7 @@ export function DashboardNav() {
                     {trialDaysRemaining} days left in trial
                   </div>
                 )}
-                {navItems.map((item) => {
+                {visibleNavItems.map((item) => {
                   const isActive = location.pathname === item.href;
                   const Icon = item.icon;
                   return (
