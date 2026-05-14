@@ -55,10 +55,43 @@ export const tokenStorage = {
 type AuthListener = (user: User | null) => void;
 const authListeners: Set<AuthListener> = new Set();
 
+/**
+ * Return the user record only when localStorage is in a COHERENT auth state —
+ * user record AND access token both present.
+ *
+ * If we find a stored user but no access token, that's a "zombie session":
+ * the UI would render the user as logged in (AuthContext only reads getUser())
+ * but every API call would throw NOT_AUTHENTICATED because the client has no
+ * bearer to send. The user is trapped on a broken page until they manually
+ * clear site storage.
+ *
+ * Ingress paths to the zombie state (observed in production 2026-05-13/14):
+ *   - Token rotation race pre-#319 wiped AT/RT but not user
+ *   - Browser quota-eviction can drop individual localStorage keys
+ *   - Stale service-worker bundle wrote one key layout, new bundle reads another
+ *   - Tab-B-after-Tab-A-signout where storage events partially propagate
+ *
+ * Recovery: clear all auth keys and force a re-signin. No work lost — the user
+ * couldn't do anything anyway. They get a clean toast + Sign-in CTA via
+ * RealEstateWholesaler.tsx's NOT_AUTHENTICATED handler.
+ */
+function getCoherentUser(): User | null {
+  const user = tokenStorage.getUser();
+  if (!user) return null;
+  const token = tokenStorage.getAccessToken();
+  if (!token) {
+    // Zombie session — heal it.
+    tokenStorage.clear();
+    return null;
+  }
+  return user;
+}
+
 export const onAuthStateChange = (callback: AuthListener): (() => void) => {
   authListeners.add(callback);
-  // Call immediately with current state
-  callback(tokenStorage.getUser());
+  // Call immediately with current state — coherence-checked so subscribers
+  // never observe a stored user without a valid token.
+  callback(getCoherentUser());
   return () => authListeners.delete(callback);
 };
 
