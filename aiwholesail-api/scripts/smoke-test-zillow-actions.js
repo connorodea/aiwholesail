@@ -78,6 +78,30 @@ const ACTION_INPUTS = {
   mortgageCalculator: { price: 400000, term: 30, rate: 7 }, // pure math — no network
   agentProfile: { slug: 'jane-doe-1234' }, // PLACEHOLDER slug; live runs likely 404
   marketStats: { region: DEFAULT_LOCATION },
+  // ── Tier B1 (PR #382) — detail-slice wrappers — single-fetch over propertyDetails
+  // TD-107: these were absent from ACTION_INPUTS until 2026-05-14, meaning weekly
+  // smoke runs did not catch regressions in the 6 new endpoints. Adding now.
+  propertyMedia: { zpid: DEFAULT_ZPID },
+  propertyTaxHistory: { zpid: DEFAULT_ZPID },
+  propertyConstruction: { zpid: DEFAULT_ZPID },
+  propertyUtilities: { zpid: DEFAULT_ZPID },
+  propertyListingTerms: { zpid: DEFAULT_ZPID },
+  livabilityProfile: { zpid: DEFAULT_ZPID },
+  // ── Tier B2 (PR #383, #386, #399) — property-type-specific searches
+  // Same TD-107 gap. searchHudHomes regression (HTTP 400 from bare-string
+  // `keywords`) shipped undetected because of this gap. Fix in PR #399.
+  searchMultiFamily: { location: DEFAULT_LOCATION },
+  searchManufactured: { location: DEFAULT_LOCATION },
+  searchTownhouses: { location: DEFAULT_LOCATION },
+  searchCondos: { location: DEFAULT_LOCATION },
+  searchSeniorCommunities: { location: DEFAULT_LOCATION },
+  searchHudHomes: { location: 'Phoenix, AZ' },  // HUD inventory thin in Austin — Phoenix has more
+  searchMakeMeMove: { location: DEFAULT_LOCATION },
+  searchLotsLand: { location: DEFAULT_LOCATION, min_acres: 1 },
+  searchNewConstruction: { location: DEFAULT_LOCATION, builder: 'Lennar' },
+  searchTinyHomes: { location: DEFAULT_LOCATION },
+  // ── Tier B5 cycle 1 (PR #394) — market analytics time-series
+  localPriceTrends: { region: DEFAULT_LOCATION },
 };
 
 function parseArgs(argv) {
