@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "passive-real-estate-investing-for-busy-professionals-how-to-build-wealth-without",
+      "title": "Passive Real Estate Investing for Busy Professionals: How to Build Wealth Without Quitting Your Day Job",
+      "excerpt": "Passive real estate investing lets busy professionals build long-term wealth without managing properties full-time. This guide covers the best strategies, tools, and steps to get started today.",
+      "category": "Strategy",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-14T06:02:02.494Z",
+      "readTime": 7,
+      "tags": [
+        "passive real estate investing for busy professionals",
+        "passive income real estate",
+        "real estate investing for professionals",
+        "rental property passive income",
+        "REITs"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-get-started-in-real-estate-investing-with-no-money-2026-guide",
       "title": "How to Get Started in Real Estate Investing with No Money (2026 Guide)",
       "excerpt": "Think you need a big bankroll to break into real estate? Think again. This guide shows you exactly how to get started in real estate investing with no money using proven strategies like wholesaling, partnerships, and creative financing.",
@@ -15,7 +32,7 @@
         "no money real estate strategies",
         "creative real estate financing"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-provo-ut-the-investor-s-complete-guide-to-utah-valley-s-hid",
