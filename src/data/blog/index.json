@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-portland-me-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Portland ME: A Complete Investor's Guide for 2024",
+      "excerpt": "Portland, Maine is one of New England's most overlooked real estate markets, offering strong rental demand, rising home values, and genuine opportunities for wholesalers, flippers, and landlords. This guide breaks down where to find the best deals, which neighborhoods to target, and how to profit in this coastal city.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-14T12:01:08.437Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Portland ME",
+        "Portland Maine real estate investing",
+        "wholesaling in Portland Maine",
+        "rental properties Portland ME",
+        "flipping houses Portland Maine"
+      ],
+      "featured": true
+    },
+    {
       "slug": "passive-real-estate-investing-for-busy-professionals-how-to-build-wealth-without",
       "title": "Passive Real Estate Investing for Busy Professionals: How to Build Wealth Without Quitting Your Day Job",
       "excerpt": "Passive real estate investing lets busy professionals build long-term wealth without managing properties full-time. This guide covers the best strategies, tools, and steps to get started today.",
@@ -15,7 +32,7 @@
         "rental property passive income",
         "REITs"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-get-started-in-real-estate-investing-with-no-money-2026-guide",
