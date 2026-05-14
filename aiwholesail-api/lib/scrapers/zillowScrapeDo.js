@@ -684,6 +684,201 @@ async function comps(args = {}) {
   };
 }
 
+// ═════════════════════════ Tier B1 — detail-slice wrappers ═══════════════════
+// Six focused views over the SAME propertyDetails fetch (1x scrape cost). Each
+// returns a wholesaler-consumer-tuned slice of the rich shape Tier A exposed.
+// Callers that want multiple slices for the same zpid should call propertyDetails
+// once and select in-process — calling N slices triple-counts against scrape.do.
+// (Same triple-count caveat that already applies to photos / taxes / priceHistory.)
+
+/**
+ * Full media payload — photos, virtual tours, floor plans, video. Single
+ * detail fetch. Use this when building a dispo packet or buyer email — the
+ * full set of media URLs in one call.
+ */
+async function propertyMedia(args = {}) {
+  const d = await propertyDetails(args);
+  return {
+    zpid: d.zpid,
+    photos: d.photos || [],
+    photoCount: Array.isArray(d.photos) ? d.photos.length : 0,
+    // The richer photo metadata (responsivePhotos with subjectType/captions)
+    // isn't on the Tier-A shape yet — surfaced as a follow-up in Tier B1.b
+    // once we extend mapPropertyToRapidApiShape to preserve responsivePhotos.
+  };
+}
+
+/**
+ * Pure transform: take a Tier-A propertyDetails record, return the
+ * propertyTaxHistory slice. Exported for direct unit testing without
+ * stubbing the network fetch.
+ *
+ * Inputs: `taxHistoryNormalized` (year-sorted asc/desc agnostic — we re-sort),
+ * `propertyTaxRate`, `apn`, `isTaxDelinquent`.
+ *
+ * Derivations:
+ *   - signals.assessmentCagr5y / taxCagr5y — 5-year compound growth, null on
+ *     too-few-data-points or zero base.
+ *   - signals.missedYears[] — years in the data window where taxPaid is
+ *     null/0. Three+ consecutive missed years is a strong pre-auction signal.
+ */
+function derivePropertyTaxHistory(d) {
+  const series = Array.isArray(d.taxHistoryNormalized) ? d.taxHistoryNormalized : [];
+  const sorted = [...series].sort((a, b) => (b.year || 0) - (a.year || 0));
+
+  const cagr = (pick) => {
+    if (sorted.length < 2) return null;
+    const recent = sorted.slice(0, Math.min(5, sorted.length));
+    const newest = pick(recent[0]);
+    const oldest = pick(recent[recent.length - 1]);
+    if (!newest || !oldest || oldest <= 0) return null;
+    const years = (recent[0].year || 0) - (recent[recent.length - 1].year || 0);
+    if (years <= 0) return null;
+    return Math.pow(newest / oldest, 1 / years) - 1;
+  };
+
+  const ascending = [...sorted].reverse();
+  const missedYears = [];
+  if (ascending.length >= 2) {
+    const first = ascending[0].year;
+    const last = ascending[ascending.length - 1].year;
+    const byYear = new Map(ascending.map((r) => [r.year, r]));
+    for (let y = first; y <= last; y++) {
+      const row = byYear.get(y);
+      if (!row || row.taxPaid == null || row.taxPaid === 0) {
+        missedYears.push(y);
+      }
+    }
+  }
+
+  return {
+    zpid: d.zpid,
+    propertyTaxRate: d.propertyTaxRate,
+    latestAssessedValue: sorted[0]?.assessedValue,
+    latestTaxAnnualAmount: sorted[0]?.taxPaid,
+    parcelNumber: d.apn,
+    history: sorted,
+    signals: {
+      yearsOfData: sorted.length,
+      assessmentCagr5y: cagr((r) => r.assessedValue),
+      taxCagr5y: cagr((r) => r.taxPaid),
+      missedYears,
+      isTaxDelinquent: d.isTaxDelinquent ?? undefined,
+    },
+  };
+}
+
+/**
+ * Normalized tax history + computed signals. See `derivePropertyTaxHistory`
+ * for the transformation logic.
+ */
+async function propertyTaxHistory(args = {}) {
+  return derivePropertyTaxHistory(await propertyDetails(args));
+}
+
+/**
+ * Construction & systems — rehab-cost-relevant subset. Wholesalers underwriting
+ * a flip want foundation/roof/basement/appliances together; this returns just
+ * those fields without the rest of the propertyDetails noise.
+ */
+async function propertyConstruction(args = {}) {
+  const d = await propertyDetails(args);
+  return {
+    zpid: d.zpid,
+    yearBuilt: d.yearBuilt,
+    yearRenovated: d.yearRenovated,
+    foundation: d.foundation,
+    roofType: d.roofType,
+    constructionMaterials: d.constructionMaterials,
+    exteriorFeatures: d.exteriorFeatures,
+    structureType: d.structureType,
+    architecturalStyle: d.architecturalStyle,
+    stories: d.stories,
+    basement: d.basement,
+    basementArea: d.basementArea,
+    finishedAreaAboveGrade: d.finishedAreaAboveGrade,
+    finishedAreaBelowGrade: d.finishedAreaBelowGrade,
+    flooring: d.flooring,
+    fireplaceCount: d.fireplaceCount,
+    appliances: d.appliances,
+    heating: d.heating,
+    cooling: d.cooling,
+  };
+}
+
+/**
+ * Utility infrastructure — water/sewer/electric/gas. Critical for end-buyer
+ * financeability (well/septic disqualifies FHA), and a leading indicator of
+ * rehab scope (oil heat conversions, septic replacement, etc.).
+ */
+async function propertyUtilities(args = {}) {
+  const d = await propertyDetails(args);
+  return {
+    zpid: d.zpid,
+    waterSource: d.waterSource,
+    sewer: d.sewer,
+    electric: d.electric,
+    electricUtilityCompany: d.electricUtilityCompany,
+    gas: d.gas,
+  };
+}
+
+/**
+ * Listing terms — the wholesaler bullseye. specialListingConditions surfaces
+ * REO / short-sale / probate / court-approval flags. listingTerms === ["Cash"]
+ * is a strong distressed-seller signal. cumulativeDaysOnMarket is the TRUE
+ * distress signal (relistings reset Zillow's daysOnZillow but not CDOM).
+ */
+async function propertyListingTerms(args = {}) {
+  const d = await propertyDetails(args);
+  return {
+    zpid: d.zpid,
+    specialListingConditions: d.specialListingConditions,
+    disclosures: d.disclosures,
+    listingTerms: d.listingTerms,
+    buyerCommission: d.buyerCommission,
+    possession: d.possession,
+    contingencyType: d.contingencyType,
+    cumulativeDaysOnMarket: d.cumulativeDaysOnMarket,
+    daysOnMarket: d.daysOnMarket,
+    lastStatusChange: d.lastStatusChange,
+    ownershipType: d.ownershipType,
+    mlsNumber: d.mlsNumber,
+    apn: d.apn,
+    zoning: d.zoning,
+  };
+}
+
+/**
+ * Composite livability — bundles walk/climate/schools/market signals into one
+ * payload. Zero new fetches: everything sourced from the detail-page shape.
+ * Use this in property cards/modals where you want a single "is this neighborhood
+ * a buy?" summary instead of four separate widget calls.
+ */
+async function livabilityProfile(args = {}) {
+  const d = await propertyDetails(args);
+  return {
+    zpid: d.zpid,
+    region: {
+      city: d.city,
+      state: d.state,
+      zipcode: d.zipcode,
+      subdivisionName: d.subdivisionName,
+      countyFips: d.countyFips,
+      schoolDistrict: d.schoolDistrict,
+    },
+    schools: d.schools || [],
+    climate: d.climate,             // Tier A surfaces this on propertyDetails
+    walk: {
+      walkScore: d.walkScore,        // Tier A passthrough
+      transitScore: d.transitScore,
+      bikeScore: d.bikeScore,
+    },
+    foreclosureStage: d.foreclosureStage,
+    isTaxDelinquent: d.isTaxDelinquent,
+  };
+}
+
 // ───────────────────────── Search (location-string) ─────────────────────────
 
 const STATUS_TO_ZILLOW = {
@@ -2222,6 +2417,13 @@ module.exports = {
   openHouses,
   rentalComps,
   recentlySoldNearby,
+  // Detail-class — Tier B1 slice wrappers:
+  propertyMedia,
+  propertyTaxHistory,
+  propertyConstruction,
+  propertyUtilities,
+  propertyListingTerms,
+  livabilityProfile,
   // Search-class:
   search,
   searchByAddress,
@@ -2260,4 +2462,5 @@ module.exports = {
   marketStatsUrl,
   findWalkScore,
   findClimateRisk,
+  derivePropertyTaxHistory,
 };
