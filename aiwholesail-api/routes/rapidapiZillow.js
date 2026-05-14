@@ -1,16 +1,12 @@
+/**
+ * Express wiring for /rapidapi/zillow/*. The actual handler logic lives in
+ * handlers/rapidapiZillow.js so it can be unit-tested without express.
+ */
 const express = require('express');
 const { asyncHandler } = require('../middleware/errorHandler');
-const { checkDatabaseRateLimit } = require('../middleware/rateLimit');
-const { proxyZillow } = require('../lib/agent/zillowProxy');
-const { ZillowScrapeError } = require('../lib/scrapers/zillowScrapeDo');
+const { proxyHandler } = require('../handlers/rapidapiZillow');
 
 const router = express.Router();
-
-router.post('/proxy', asyncHandler(async (req, res) => {
-  const { action, searchParams } = req.body || {};
-  if (!action || typeof action !== 'string') {
-    return res.status(400).json({ success: false, error: 'action required' });
-  }
-}));
+router.post('/proxy', asyncHandler(proxyHandler));
 
 module.exports = router;
