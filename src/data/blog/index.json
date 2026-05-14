@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-get-started-in-real-estate-investing-with-no-money-2026-guide",
+      "title": "How to Get Started in Real Estate Investing with No Money (2026 Guide)",
+      "excerpt": "Think you need a big bankroll to break into real estate? Think again. This guide shows you exactly how to get started in real estate investing with no money using proven strategies like wholesaling, partnerships, and creative financing.",
+      "category": "Getting Started",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-14T06:00:51.775Z",
+      "readTime": 7,
+      "tags": [
+        "how to get started in real estate investing with no money",
+        "real estate investing no money down",
+        "wholesaling real estate beginners",
+        "no money real estate strategies",
+        "creative real estate financing"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-provo-ut-the-investor-s-complete-guide-to-utah-valley-s-hid",
       "title": "Real Estate Deals in Provo UT: The Investor's Complete Guide to Utah Valley's Hidden Gem",
       "excerpt": "Provo, Utah is one of the fastest-growing real estate markets in the country, offering investors strong rental demand, appreciation potential, and wholesale opportunities. This guide breaks down everything you need to find profitable real estate deals in Provo UT.",
@@ -15,7 +32,7 @@
         "investment properties Provo",
         "Provo rental market"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-boise-id-a-complete-investor-s-guide-for-2024",
