@@ -1384,6 +1384,15 @@ test('mapPropertyToRapidApiShape — Tier A field expansion', async (t) => {
     assert.equal(out.garageSpaces, 1);
   });
 
+  await t.test('garageSpaces is undefined when no garage info present', () => {
+    // Critical: callers must distinguish "no info" from "zero spaces".
+    const out = mapPropertyToRapidApiShape({
+      ...baseProp,
+      resoFacts: {},
+    });
+    assert.equal(out.garageSpaces, undefined);
+  });
+
   // ── HOA extended ───────────────────────────────────────────────────
   await t.test('extracts hoaName, hoaFeeIncludes, hoaAmenities, hoaPhone', () => {
     const out = mapPropertyToRapidApiShape({
@@ -1479,6 +1488,68 @@ test('mapPropertyToRapidApiShape — Tier A field expansion', async (t) => {
       propertyTaxRate: 1.82,
     });
     assert.equal(out.propertyTaxRate, 1.82);
+  });
+
+  // ── taxHistoryNormalized edge cases ─────────────────────────────────
+  await t.test('taxHistoryNormalized handles empty array', () => {
+    const out = mapPropertyToRapidApiShape({ ...baseProp, taxHistory: [] });
+    assert.deepEqual(out.taxHistoryNormalized, []);
+  });
+
+  await t.test('taxHistoryNormalized is undefined when taxHistory missing', () => {
+    const out = mapPropertyToRapidApiShape({ ...baseProp });
+    assert.equal(out.taxHistoryNormalized, undefined);
+  });
+
+  await t.test('taxHistoryNormalized filters rows with invalid time', () => {
+    const out = mapPropertyToRapidApiShape({
+      ...baseProp,
+      taxHistory: [
+        { time: 'not-a-number', taxPaid: 1 },
+        { time: Date.UTC(2024, 0, 1), taxPaid: 2 },
+        null,
+        { taxPaid: 3 }, // no time
+      ],
+    });
+    assert.equal(out.taxHistoryNormalized.length, 1);
+    assert.equal(out.taxHistoryNormalized[0].year, 2024);
+  });
+
+  // ── mlsNumber: listingId is preferred, mlsId is fallback ────────────
+  await t.test('mlsNumber prefers resoFacts.listingId over resoFacts.mlsId', () => {
+    const out = mapPropertyToRapidApiShape({
+      ...baseProp,
+      resoFacts: { listingId: 'CANONICAL-123', mlsId: 'OLD-456' },
+    });
+    assert.equal(out.mlsNumber, 'CANONICAL-123');
+  });
+
+  await t.test('mlsNumber falls back to resoFacts.mlsId when listingId absent', () => {
+    const out = mapPropertyToRapidApiShape({
+      ...baseProp,
+      resoFacts: { mlsId: 'OLD-456' },
+    });
+    assert.equal(out.mlsNumber, 'OLD-456');
+  });
+
+  // ── lastStatusChange.date: epoch ms must be normalized to ISO ───────
+  await t.test('lastStatusChange.date normalizes epoch ms to ISO string', () => {
+    const out = mapPropertyToRapidApiShape({
+      ...baseProp,
+      lastStatusChangeDate: Date.UTC(2026, 3, 12),
+      isRecentStatusChange: true,
+    });
+    assert.equal(typeof out.lastStatusChange.date, 'string');
+    assert.ok(out.lastStatusChange.date.startsWith('2026-04-12'));
+    assert.equal(out.lastStatusChange.isRecent, true);
+  });
+
+  await t.test('lastStatusChange.date passes through if already a string', () => {
+    const out = mapPropertyToRapidApiShape({
+      ...baseProp,
+      lastStatusChangeDate: '2026-04-12',
+    });
+    assert.equal(out.lastStatusChange.date, '2026-04-12');
   });
 
   // ── Backward compatibility ──────────────────────────────────────────

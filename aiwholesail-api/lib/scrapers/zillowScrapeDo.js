@@ -457,13 +457,24 @@ function mapPropertyToRapidApiShape(p) {
     lastStatusChange:
       p.lastStatusChangeDate != null || p.isRecentStatusChange != null
         ? {
-            date: p.lastStatusChangeDate ?? undefined,
+            // Zillow emits this as a UNIX epoch ms (like taxHistory[].time).
+            // Normalize to ISO so frontend types can declare `date: string`.
+            date: (() => {
+              const raw = p.lastStatusChangeDate;
+              if (raw == null) return undefined;
+              if (typeof raw === 'string') return raw;
+              const ts = typeof raw === 'number' ? raw : Number(raw);
+              if (!Number.isFinite(ts)) return undefined;
+              return new Date(ts).toISOString();
+            })(),
             isRecent: p.isRecentStatusChange ?? undefined,
           }
         : undefined,
     ownershipType: resoFacts.ownership ?? resoFacts.ownershipType ?? undefined,
-    // mlsNumber is distinct from listingAgent.mlsId (the attribution mlsId)
-    mlsNumber: resoFacts.mlsId ?? undefined,
+    // mlsNumber is distinct from listingAgent.mlsId (the attribution mlsId).
+    // Try resoFacts.listingId first (canonical MLS number on most pages),
+    // fall back to resoFacts.mlsId for older payload shapes.
+    mlsNumber: resoFacts.listingId ?? resoFacts.mlsId ?? undefined,
     // ── Lifestyle / amenities (Tier A) ─────────────────────────────
     view: Array.isArray(resoFacts.view) ? resoFacts.view : undefined,
     hasView: resoFacts.hasView ?? undefined,
@@ -498,8 +509,11 @@ function mapPropertyToRapidApiShape(p) {
     accessibilityFeatures: Array.isArray(resoFacts.accessibilityFeatures)
       ? resoFacts.accessibilityFeatures
       : undefined,
+    // `undefined` when neither source field is set — callers MUST be able to
+    // distinguish "no garage info from Zillow" from "explicitly zero spaces".
     garageSpaces:
-      resoFacts.garageSpaces ?? (resoFacts.hasAttachedGarage ? 1 : 0),
+      resoFacts.garageSpaces ??
+      (resoFacts.hasAttachedGarage === true ? 1 : undefined),
     // ── HOA extended (Tier A) — extends existing monthlyHoaFee / hoaAnnualAmount
     hoaName: resoFacts.associationName ?? undefined,
     hoaFeeIncludes: Array.isArray(resoFacts.associationFeeIncludes)

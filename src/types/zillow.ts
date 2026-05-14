@@ -89,7 +89,7 @@ export interface Property {
   specialListingConditions?: string[];
   disclosures?: string[];
   listingTerms?: string[];
-  buyerCommission?: { amount?: string; type?: string };
+  buyerCommission?: { amount?: number; type?: string };
   possession?: string;
   contingencyType?: string;
   cumulativeDaysOnMarket?: number;
@@ -113,7 +113,7 @@ export interface Property {
   // Computed
   isOwnerOccupied?: boolean;
   // Tax (additive)
-  taxHistoryNormalized?: Array<{ year: number; date: string; taxPaid: number | null; assessedValue: number | null; valueIncrease: number | null }>;
+  taxHistoryNormalized?: Array<{ year?: number; date?: string; taxPaid?: number; assessedValue?: number; valueIncrease?: number }>;
   propertyTaxRate?: number;
   // AttomData enhanced fields
   attomData?: {
