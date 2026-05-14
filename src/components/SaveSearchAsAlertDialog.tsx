@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Bell, Mail, MessageSquare, Zap, CheckCircle2, Loader2 } from 'lucide-react';
+import { Bell, Mail, Zap, CheckCircle2, Loader2 } from 'lucide-react';
 import { alerts } from '@/lib/api-client';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
@@ -32,7 +32,6 @@ export function SaveSearchAsAlertDialog({
   const navigate = useNavigate();
   const [location, setLocation] = useState(defaultLocation);
   const [minSpread, setMinSpread] = useState(defaultMinSpread);
-  const [phoneNumber, setPhoneNumber] = useState('');
   const [alertFrequency, setAlertFrequency] = useState<'instant' | 'daily' | 'weekly'>('instant');
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -63,7 +62,6 @@ export function SaveSearchAsAlertDialog({
         location: location.trim(),
         minSpread,
         alertFrequency,
-        phoneNumber: phoneNumber.trim() || undefined,
       });
       if (response.error) throw new Error(response.error);
       setSuccess(true);
@@ -180,26 +178,10 @@ export function SaveSearchAsAlertDialog({
               </div>
             </div>
 
-            <div className="space-y-1.5">
-              <Label htmlFor="phone" className="text-xs font-medium text-neutral-300 flex items-center gap-1.5">
-                <MessageSquare className="h-3.5 w-3.5 text-cyan-400" />
-                Text me too <span className="text-neutral-500 font-normal">(optional, for instant alerts)</span>
-              </Label>
-              <Input
-                id="phone"
-                type="tel"
-                value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
-                placeholder="(555) 123-4567"
-                className="h-10 bg-white/[0.03] border-white/[0.08] text-white"
-              />
-            </div>
-
             <div className="rounded-lg bg-white/[0.02] border border-white/[0.05] p-3 flex items-start gap-2.5">
               <Mail className="h-4 w-4 text-cyan-400 flex-shrink-0 mt-0.5" />
               <p className="text-[11px] text-neutral-400 leading-relaxed">
                 Alerts are emailed to <span className="text-neutral-200">{user?.email}</span>.
-                Add a phone number above to also get text alerts.
               </p>
             </div>
 
