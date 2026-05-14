@@ -203,7 +203,7 @@ export default function DealExamples() {
 
       {/* ===== HERO ===== */}
       <section className="relative bg-gradient-to-b from-[#0a0a0a] via-[#0f0f0f] to-[#0a0a0a] text-white overflow-hidden">
-        <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" fill="rgba(6, 182, 212, 0.15)" />
+        <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" fill="rgba(0, 196, 200, 0.15)" />
         <div className="relative container mx-auto max-w-5xl px-4 pt-28 pb-20 text-center">
           <nav className="flex items-center justify-center gap-1.5 text-xs text-neutral-500 mb-8">
             <Link to="/" className="hover:text-white transition-colors">Home</Link>

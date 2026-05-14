@@ -167,9 +167,9 @@ All colors MUST be HSL.
   }
 
   input:focus, textarea:focus, select:focus {
-    border-color: hsl(187 85% 53% / 0.4) !important;
+    border-color: hsl(var(--ring) / 0.4) !important;
     outline: none !important;
-    box-shadow: 0 0 0 2px hsl(187 85% 53% / 0.15) !important;
+    box-shadow: 0 0 0 2px hsl(var(--ring) / 0.15) !important;
   }
 
   label {

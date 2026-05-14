@@ -192,3 +192,68 @@ test('zero hard-coded #06b6d4 literals remain in index.html', () => {
     'legacy cyan #06b6d4 still in index.html',
   );
 });
+
+// ---- Extended cyan sweep (added on review of PR #409) ------------------
+// These pin the failure modes the first test pass missed: decimal rgba
+// literals like `rgba(6, 182, 212, …)` and HSL literals like
+// `hsl(187 85% 53% / …)` that bypass both Tailwind classes and CSS vars.
+
+test('zero rgba(6, 182, 212, …) decimal cyan literals remain in src/', () => {
+  const offenders = [];
+  for (const file of listSrcFiles()) {
+    const txt = fs.readFileSync(file, 'utf8');
+    if (/rgba\(\s*6\s*,\s*182\s*,\s*212/i.test(txt)) {
+      offenders.push(path.relative(REPO_ROOT, file));
+    }
+  }
+  assert.equal(
+    offenders.length,
+    0,
+    `legacy cyan rgba(6, 182, 212, …) found in: ${offenders.join(', ')}`,
+  );
+});
+
+test('zero legacy old-HSL hsl(187 85% 53%) literals remain in src/', () => {
+  const offenders = [];
+  for (const file of listSrcFiles()) {
+    const txt = fs.readFileSync(file, 'utf8');
+    if (/hsl\(\s*187\s+85%\s+53%/i.test(txt)) {
+      offenders.push(path.relative(REPO_ROOT, file));
+    }
+  }
+  assert.equal(
+    offenders.length,
+    0,
+    `legacy cyan hsl(187 85% 53%) found in: ${offenders.join(', ')}`,
+  );
+});
+
+test('zero legacy secondary cyan hex literals (#22d3ee / #0891b2) remain in src/', () => {
+  const offenders = [];
+  for (const file of listSrcFiles()) {
+    const txt = fs.readFileSync(file, 'utf8');
+    if (/#22d3ee|#0891b2/i.test(txt)) {
+      offenders.push(path.relative(REPO_ROOT, file));
+    }
+  }
+  assert.equal(
+    offenders.length,
+    0,
+    `legacy secondary cyan hex found in: ${offenders.join(', ')}`,
+  );
+});
+
+test('aiwholesail-api/routes/emailCapture.js uses the brand seafoam, not the old cyan', () => {
+  const js = fs.readFileSync(
+    path.join(REPO_ROOT, 'aiwholesail-api/routes/emailCapture.js'),
+    'utf8',
+  );
+  assert.doesNotMatch(js, /#06b6d4/i, 'email template still uses legacy #06b6d4');
+  assert.doesNotMatch(js, /#22d3ee/i, 'email template still uses legacy #22d3ee');
+  assert.doesNotMatch(
+    js,
+    /rgba\(\s*6\s*,\s*182\s*,\s*212/i,
+    'email template still uses legacy rgba(6, 182, 212, …)',
+  );
+  assert.match(js, /#00c4c8/i, 'email template must use brand seafoam #00c4c8');
+});

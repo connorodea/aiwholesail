@@ -192,7 +192,7 @@ export function CountyBrowserDialog({ open, onOpenChange, onSelectCounty }: Coun
                     title={`${g.stateFull} · ${g.counties.length} counties`}
                     className={`flex-shrink-0 snap-start min-w-[56px] h-12 rounded-lg px-3 flex flex-col items-center justify-center gap-0 border transition-all ${
                       isActive
-                        ? 'bg-cyan-500/15 border-cyan-500/40 text-cyan-300 shadow-[0_0_12px_rgba(6,182,212,0.2)]'
+                        ? 'bg-cyan-500/15 border-cyan-500/40 text-cyan-300 shadow-[0_0_12px_rgba(0, 196, 200,0.2)]'
                         : 'bg-white/[0.02] border-white/[0.06] text-neutral-300 hover:bg-white/[0.05] hover:border-white/[0.12] hover:text-white'
                     }`}
                   >

@@ -113,14 +113,14 @@ const Landing = () => {
           <WavyBackground
             className="absolute inset-0"
             containerClassName="absolute inset-0"
-            colors={["#155e75", "#164e63", "#0e7490", "#083344", "#0c4a6e"]}
+            colors={["#057a7d", "#0a5d60", "#0d4749", "#062a2c", "#00a0a4"]}
             backgroundFill="#08090a"
             blur={14}
             speed="slow"
             waveOpacity={0.15}
           />
         </div>
-        <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" fill="rgba(6, 182, 212, 0.12)" />
+        <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" fill="rgba(0, 196, 200, 0.12)" />
 
         <Container className="relative z-10">
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-6 items-center">
@@ -172,13 +172,13 @@ const Landing = () => {
 
               {/* Grid pattern overlay */}
               <div className="absolute inset-0 opacity-[0.03]" style={{
-                backgroundImage: 'linear-gradient(rgba(6,182,212,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(6,182,212,0.3) 1px, transparent 1px)',
+                backgroundImage: 'linear-gradient(rgba(0,196,200,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(0,196,200,0.3) 1px, transparent 1px)',
                 backgroundSize: '40px 40px',
               }} />
 
               {/* Card 1 — Left, tilted back */}
               <div className="absolute left-0 top-10 w-[210px] transform -rotate-[8deg] z-10 transition-transform duration-500 hover:-rotate-[4deg] hover:scale-105">
-                <div className="bg-gradient-to-b from-[#0d1117] to-[#0a0d12] rounded-2xl border border-cyan-500/10 overflow-hidden shadow-2xl shadow-black/70" style={{ boxShadow: '0 0 40px rgba(6,182,212,0.06), 0 25px 50px rgba(0,0,0,0.6)' }}>
+                <div className="bg-gradient-to-b from-[#0d1117] to-[#0a0d12] rounded-2xl border border-cyan-500/10 overflow-hidden shadow-2xl shadow-black/70" style={{ boxShadow: '0 0 40px rgba(0,196,200,0.06), 0 25px 50px rgba(0,0,0,0.6)' }}>
                   {/* Green JUST FOUND banner */}
                   <div className="bg-emerald-500 text-black text-[8px] font-bold tracking-widest uppercase text-center py-1">JUST FOUND</div>
                   <div className="relative h-[120px] overflow-hidden">
@@ -206,7 +206,7 @@ const Landing = () => {
 
               {/* Card 2 — Center, featured (largest) */}
               <div className="absolute left-1/2 -translate-x-1/2 -top-2 w-[270px] z-30 transition-transform duration-500 hover:scale-105">
-                <div className="bg-gradient-to-b from-[#0d1117] to-[#0a0d12] rounded-2xl border border-cyan-500/25 overflow-hidden" style={{ boxShadow: '0 0 60px rgba(6,182,212,0.1), 0 0 120px rgba(6,182,212,0.04), 0 30px 60px rgba(0,0,0,0.7)' }}>
+                <div className="bg-gradient-to-b from-[#0d1117] to-[#0a0d12] rounded-2xl border border-cyan-500/25 overflow-hidden" style={{ boxShadow: '0 0 60px rgba(0,196,200,0.1), 0 0 120px rgba(0,196,200,0.04), 0 30px 60px rgba(0,0,0,0.7)' }}>
                   {/* TOP DEAL yellow bar integrated into card top */}
                   <div className="bg-gradient-to-r from-amber-500 to-amber-400 text-black text-[9px] font-bold tracking-widest uppercase text-center py-1.5 flex items-center justify-center gap-1">
                     <Star className="h-3 w-3 fill-current" /> TOP DEAL
@@ -236,7 +236,7 @@ const Landing = () => {
 
               {/* Card 3 — Right, tilted */}
               <div className="absolute right-0 top-10 w-[210px] transform rotate-[8deg] z-10 transition-transform duration-500 hover:rotate-[4deg] hover:scale-105">
-                <div className="bg-gradient-to-b from-[#0d1117] to-[#0a0d12] rounded-2xl border border-cyan-500/10 overflow-hidden shadow-2xl shadow-black/70" style={{ boxShadow: '0 0 40px rgba(6,182,212,0.06), 0 25px 50px rgba(0,0,0,0.6)' }}>
+                <div className="bg-gradient-to-b from-[#0d1117] to-[#0a0d12] rounded-2xl border border-cyan-500/10 overflow-hidden shadow-2xl shadow-black/70" style={{ boxShadow: '0 0 40px rgba(0,196,200,0.06), 0 25px 50px rgba(0,0,0,0.6)' }}>
                   <div className="relative h-[120px] overflow-hidden">
                     <img src="/generated/distressed-3.jpg" alt="New listing property" className="w-full h-full object-cover" loading="eager" onError={(e) => { (e.target as HTMLImageElement).src = '/generated/hero-property-3.jpg'; }} />
                     <div className="absolute top-2 left-2 bg-cyan-500 text-black text-[7px] font-bold px-2 py-0.5 rounded-sm tracking-wide">FOR SALE</div>
@@ -557,7 +557,7 @@ const Landing = () => {
           <motion.h2
             {...cardFadeIn(0)}
             className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold text-white text-center tracking-tight mb-20"
-            style={{ textShadow: '0 0 80px rgba(6,182,212,0.15)' }}
+            style={{ textShadow: '0 0 80px rgba(0,196,200,0.15)' }}
           >
             How it{" "}
             <span className="italic bg-gradient-to-r from-cyan-400 to-cyan-500 bg-clip-text text-transparent" style={{ textShadow: 'none' }}>works</span>
@@ -572,7 +572,7 @@ const Landing = () => {
                 {/* Large double-ring circle */}
                 <div className="relative w-[140px] h-[140px] lg:w-[160px] lg:h-[160px] rounded-full flex items-center justify-center mb-8">
                   {/* Outer glow ring */}
-                  <div className="absolute inset-0 rounded-full border border-cyan-500/15" style={{ boxShadow: '0 0 50px rgba(6,182,212,0.1), 0 0 100px rgba(6,182,212,0.05)' }} />
+                  <div className="absolute inset-0 rounded-full border border-cyan-500/15" style={{ boxShadow: '0 0 50px rgba(0,196,200,0.1), 0 0 100px rgba(0,196,200,0.05)' }} />
                   {/* Inner circle */}
                   <div className="w-[110px] h-[110px] lg:w-[130px] lg:h-[130px] rounded-full border-2 border-cyan-500/40 bg-[#060708]/90 flex items-center justify-center">
                     <Search className="h-12 w-12 lg:h-14 lg:w-14 text-cyan-400" />
@@ -591,7 +591,7 @@ const Landing = () => {
               {/* Step 2 */}
               <motion.div {...cardFadeIn(1)} className="flex flex-col items-center text-center px-4">
                 <div className="relative w-[140px] h-[140px] lg:w-[160px] lg:h-[160px] rounded-full flex items-center justify-center mb-8">
-                  <div className="absolute inset-0 rounded-full border border-cyan-500/15" style={{ boxShadow: '0 0 50px rgba(6,182,212,0.1), 0 0 100px rgba(6,182,212,0.05)' }} />
+                  <div className="absolute inset-0 rounded-full border border-cyan-500/15" style={{ boxShadow: '0 0 50px rgba(0,196,200,0.1), 0 0 100px rgba(0,196,200,0.05)' }} />
                   <div className="w-[110px] h-[110px] lg:w-[130px] lg:h-[130px] rounded-full border-2 border-cyan-500/40 bg-[#060708]/90 flex items-center justify-center">
                     <Brain className="h-12 w-12 lg:h-14 lg:w-14 text-cyan-400" />
                   </div>
@@ -609,7 +609,7 @@ const Landing = () => {
               {/* Step 3 */}
               <motion.div {...cardFadeIn(2)} className="flex flex-col items-center text-center px-4">
                 <div className="relative w-[140px] h-[140px] lg:w-[160px] lg:h-[160px] rounded-full flex items-center justify-center mb-8">
-                  <div className="absolute inset-0 rounded-full border border-cyan-500/15" style={{ boxShadow: '0 0 50px rgba(6,182,212,0.1), 0 0 100px rgba(6,182,212,0.05)' }} />
+                  <div className="absolute inset-0 rounded-full border border-cyan-500/15" style={{ boxShadow: '0 0 50px rgba(0,196,200,0.1), 0 0 100px rgba(0,196,200,0.05)' }} />
                   <div className="w-[110px] h-[110px] lg:w-[130px] lg:h-[130px] rounded-full border-2 border-cyan-500/40 bg-[#060708]/90 flex items-center justify-center">
                     <CheckCircle className="h-12 w-12 lg:h-14 lg:w-14 text-cyan-400" />
                   </div>

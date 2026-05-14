@@ -86,7 +86,7 @@ function HeatLayer({ points }: { points: Array<[number, number, number]> }) {
       max: 1.0,
       gradient: {
         0.0: 'rgba(0, 0, 255, 0)',
-        0.25: '#0891b2',  // cyan-600
+        0.25: '#00a0a4',  // cyan-600 (brand seafoam dark)
         0.5: '#eab308',   // yellow-500
         0.75: '#f97316',  // orange-500
         1.0: '#dc2626',   // red-600 — hottest = strongest wholesale margin

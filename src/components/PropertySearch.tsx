@@ -474,7 +474,7 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
             type="submit"
             variant="default"
             size="lg"
-            className="group w-full h-12 sm:h-12 text-base font-semibold bg-gradient-to-r from-cyan-500 to-cyan-400 text-cyan-950 hover:from-cyan-400 hover:to-cyan-300 shadow-[0_0_0_1px_rgba(6,182,212,0.4),0_8px_24px_-8px_rgba(6,182,212,0.5)] hover:shadow-[0_0_0_1px_rgba(6,182,212,0.5),0_12px_32px_-8px_rgba(6,182,212,0.7)] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
+            className="group w-full h-12 sm:h-12 text-base font-semibold bg-gradient-to-r from-cyan-500 to-cyan-400 text-cyan-950 hover:from-cyan-400 hover:to-cyan-300 shadow-[0_0_0_1px_rgba(0, 196, 200,0.4),0_8px_24px_-8px_rgba(0, 196, 200,0.5)] hover:shadow-[0_0_0_1px_rgba(0, 196, 200,0.5),0_12px_32px_-8px_rgba(0, 196, 200,0.7)] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
             disabled={isLoading || !searchParams.location.trim()}
           >
             {isLoading ? (
@@ -631,7 +631,7 @@ function FilterPillGrid({
               isMotivated ? 'sm:col-span-2' : '',
               f.disabled ? 'opacity-60 cursor-not-allowed' : 'hover:bg-background/40',
               accentActive
-                ? 'border-cyan-500/60 bg-cyan-500/[0.08] shadow-[0_0_0_1px_rgba(6,182,212,0.2)]'
+                ? 'border-cyan-500/60 bg-cyan-500/[0.08] shadow-[0_0_0_1px_rgba(0, 196, 200,0.2)]'
                 : f.checked
                   ? 'border-cyan-500/50 bg-cyan-500/[0.05]'
                   : 'border-border/60 hover:border-border',
@@ -710,7 +710,7 @@ function ToggleRow({
       className={[
         'flex items-center justify-between gap-3 rounded-lg border px-3 py-2.5 transition-all duration-150',
         accentActive
-          ? 'border-cyan-500/40 bg-cyan-500/[0.05] shadow-[0_0_0_1px_rgba(6,182,212,0.15)]'
+          ? 'border-cyan-500/40 bg-cyan-500/[0.05] shadow-[0_0_0_1px_rgba(0, 196, 200,0.15)]'
           : 'border-border/60 hover:border-border hover:bg-background/40',
       ].join(' ')}
     >

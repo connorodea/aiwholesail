@@ -74,7 +74,7 @@ export function RealtimeProgressBar({ progress, status, compact = false }: Props
           aria-hidden
           className="absolute inset-0 opacity-25"
           style={{
-            background: 'linear-gradient(90deg, transparent, rgba(6,182,212,0.25), transparent)',
+            background: 'linear-gradient(90deg, transparent, rgba(0, 196, 200,0.25), transparent)',
             backgroundSize: '200% 100%',
             animation: 'rpb-shimmer 4s linear infinite',
           }}
@@ -102,7 +102,7 @@ export function RealtimeProgressBar({ progress, status, compact = false }: Props
               left: `calc(${target}% - 5px)`,
               transform: 'translateY(-50%)',
               transition: 'left 700ms cubic-bezier(0.4, 0, 0.2, 1)',
-              boxShadow: '0 0 8px rgba(207, 250, 254, 1), 0 0 18px rgba(6, 182, 212, 0.7)',
+              boxShadow: '0 0 8px rgba(207, 250, 254, 1), 0 0 18px rgba(0, 196, 200, 0.7)',
               animation: 'rpb-pulse 1.4s ease-in-out infinite',
             }}
           />
