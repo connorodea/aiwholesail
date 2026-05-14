@@ -2368,6 +2368,273 @@ async function comingSoon(args = {}) {
   };
 }
 
+// ═════════════════════════ Tier B2 — property-type filters ══════════════════
+// Helper that builds a /homes/<location>_rb/ URL with Zillow's
+// searchQueryState filterState pre-set for a specific property type
+// (multi-family, lots/land, manufactured, etc.). Exported for direct
+// unit testing without hitting the network.
+//
+// `homeTypeFlags` is an object with the is{Type} keys to set true; all
+// OTHER home-type flags are explicitly set false so Zillow doesn't fall
+// back to its default SFR-weighted mix.
+//
+// Known home-type flags (from Zillow's searchQueryState contract):
+//   isSingleFamily, isMultiFamily, isApartment, isCondo, isTownhouse,
+//   isLotLand, isManufactured, isApartmentOrCondo
+const HOME_TYPE_FLAGS = [
+  'isSingleFamily',
+  'isMultiFamily',
+  'isApartment',
+  'isCondo',
+  'isTownhouse',
+  'isLotLand',
+  'isManufactured',
+  'isApartmentOrCondo',
+];
+
+function buildHomeTypeSearchUrl(args = {}) {
+  const { location, homeTypeFlags = {}, extraFilters = {}, page } = args;
+  if (!location) {
+    throw new ZillowScrapeError('buildHomeTypeSearchUrl requires location', {
+      reason: 'bad_args',
+    });
+  }
+  const filterState = {};
+  // Set every known home-type flag explicitly — true if in homeTypeFlags,
+  // false otherwise. Forces Zillow off its default mix.
+  for (const flag of HOME_TYPE_FLAGS) {
+    filterState[flag] = { value: Boolean(homeTypeFlags[flag]) };
+  }
+  // Layer additional filter clauses (lotSize, sqft, keywords, is55plus, etc.)
+  // on top — these may include non-boolean shapes like `lotSize: {min, max}`.
+  Object.assign(filterState, extraFilters);
+
+  return `${searchUrlForLocation(location)}?searchQueryState=${encodeURIComponent(
+    JSON.stringify({
+      pagination: page && Number(page) > 1 ? { currentPage: Number(page) } : {},
+      isMapVisible: false,
+      isListVisible: true,
+      filterState,
+    })
+  )}`;
+}
+
+/**
+ * Internal runner — fetch+parse a Tier B2 search URL and return the
+ * canonical `{location, status, page, totalResultCount, results}` shape.
+ * Centralizes the scrape+parse so the 10 type-specific wrappers stay
+ * small.
+ */
+async function runHomeTypeSearch(action, { location, page, url, status }) {
+  let resp;
+  try {
+    resp = await scrape(url, { headers: DEFAULT_HEADERS, geoCode: 'us', render: false });
+  } catch (err) {
+    if (err instanceof ScrapeDoError) {
+      throw new ZillowScrapeError(`scrape.do fetch failed: ${err.message}`, {
+        status: err.status,
+        action,
+        reason: 'fetch_failed',
+      });
+    }
+    throw err;
+  }
+  const nextData = extractNextData(resp.data);
+  const listResults = findListResults(nextData);
+  if (!Array.isArray(listResults)) {
+    throw new ZillowScrapeError('Could not locate listResults in __NEXT_DATA__', {
+      action,
+      reason: 'no_list_results',
+    });
+  }
+  const total = findTotalResultCount(nextData);
+  return {
+    location,
+    status,
+    page: Number(page) || 1,
+    totalResultCount: total ?? listResults.length,
+    results: listResults.map(mapListingToSummary).filter(Boolean),
+  };
+}
+
+/**
+ * Internal factory — produces a Tier B2 search wrapper from a config.
+ * Centralizes the {validate location, build URL, scrape, return shape}
+ * boilerplate so each new property-type endpoint is one config entry.
+ */
+function makeHomeTypeSearch({ action, status, homeTypeFlags = {}, extraFilters }) {
+  return async function (args = {}) {
+    const { location, page } = args;
+    if (!location) {
+      throw new ZillowScrapeError(`${action} requires location`, { reason: 'bad_args' });
+    }
+    const url = buildHomeTypeSearchUrl({
+      location,
+      homeTypeFlags,
+      extraFilters: typeof extraFilters === 'function' ? extraFilters(args) : extraFilters,
+      page,
+    });
+    return runHomeTypeSearch(action, { location, page, url, status });
+  };
+}
+
+/**
+ * Multi-family search (2-4 unit duplex/triplex/quad and optionally larger).
+ * Toggles `filterState.isMultiFamily=true` with all other home-type flags
+ * forced false so Zillow doesn't fall back to its default SFR-weighted mix.
+ *
+ * @param {{location: string, page?: number}} args
+ */
+const searchMultiFamily = makeHomeTypeSearch({
+  action: 'searchMultiFamily',
+  status: 'MultiFamily',
+  homeTypeFlags: { isMultiFamily: true },
+});
+
+/** Manufactured / mobile homes — `isManufactured=true`. */
+const searchManufactured = makeHomeTypeSearch({
+  action: 'searchManufactured',
+  status: 'Manufactured',
+  homeTypeFlags: { isManufactured: true },
+});
+
+/** Townhouses — `isTownhouse=true`. */
+const searchTownhouses = makeHomeTypeSearch({
+  action: 'searchTownhouses',
+  status: 'Townhouse',
+  homeTypeFlags: { isTownhouse: true },
+});
+
+/** Condos — `isCondo=true`. */
+const searchCondos = makeHomeTypeSearch({
+  action: 'searchCondos',
+  status: 'Condo',
+  homeTypeFlags: { isCondo: true },
+});
+
+/**
+ * 55+ / senior communities. Zillow uses a secondary `is55plusCommunities`
+ * flag (not a home-type — these are usually condos or SFR). We don't toggle
+ * any home-type flags so the search remains broad within the 55+ community
+ * scope.
+ */
+const searchSeniorCommunities = makeHomeTypeSearch({
+  action: 'searchSeniorCommunities',
+  status: 'SeniorCommunity',
+  extraFilters: { is55plusCommunities: { value: true } },
+});
+
+/**
+ * HUD homes. Zillow has no first-class HUD flag — we filter on
+ * `isForSaleForeclosure=true` plus a `keywords: "HUD"` clause that matches
+ * inside listing descriptions. Real HUD inventory lives on hudhomestore.gov;
+ * Zillow only surfaces the subset re-listed by HUD-authorized brokers.
+ */
+const searchHudHomes = makeHomeTypeSearch({
+  action: 'searchHudHomes',
+  status: 'HudHomes',
+  extraFilters: {
+    isForSaleForeclosure: { value: true },
+    keywords: 'HUD',
+  },
+});
+
+/**
+ * "Make Me Move" — owner-tagged "would sell at price X" listings.
+ * Zillow retired the public MMM UI in 2021 but the searchQueryState filter
+ * flag still returns matches in many markets. If `isMakeMeMove` returns
+ * empty in your market, fall back to a keyword search via `searchByUrl`.
+ */
+const searchMakeMeMove = makeHomeTypeSearch({
+  action: 'searchMakeMeMove',
+  status: 'MakeMeMove',
+  extraFilters: { isMakeMeMove: { value: true } },
+});
+
+// ── Parameter-bearing variants — exposed URL builders for testability ────
+
+const SQFT_PER_ACRE = 43560;
+
+/**
+ * Lots/land search URL — testable builder. Converts caller-friendly `acres`
+ * to Zillow's native sqft unit on the way into filterState.lotSize.
+ */
+function buildLotsLandSearchUrl({ location, min_acres, max_acres, page }) {
+  const extraFilters = {};
+  if (min_acres != null || max_acres != null) {
+    extraFilters.lotSize = {};
+    if (min_acres != null) extraFilters.lotSize.min = Number(min_acres) * SQFT_PER_ACRE;
+    if (max_acres != null) extraFilters.lotSize.max = Number(max_acres) * SQFT_PER_ACRE;
+  }
+  return buildHomeTypeSearchUrl({
+    location,
+    homeTypeFlags: { isLotLand: true },
+    extraFilters,
+    page,
+  });
+}
+
+const searchLotsLand = makeHomeTypeSearch({
+  action: 'searchLotsLand',
+  status: 'LotsLand',
+  homeTypeFlags: { isLotLand: true },
+  extraFilters: (args) => {
+    const extra = {};
+    if (args.min_acres != null || args.max_acres != null) {
+      extra.lotSize = {};
+      if (args.min_acres != null) extra.lotSize.min = Number(args.min_acres) * SQFT_PER_ACRE;
+      if (args.max_acres != null) extra.lotSize.max = Number(args.max_acres) * SQFT_PER_ACRE;
+    }
+    return extra;
+  },
+});
+
+/**
+ * New-construction search URL builder. Optionally embeds builder name as a
+ * keyword (Zillow indexes builder name in listing copy: "Lennar", "DR Horton").
+ */
+function buildNewConstructionSearchUrl({ location, builder, page }) {
+  const extraFilters = { isNewConstruction: { value: true } };
+  if (builder) extraFilters.keywords = String(builder);
+  return buildHomeTypeSearchUrl({ location, homeTypeFlags: {}, extraFilters, page });
+}
+
+const searchNewConstruction = makeHomeTypeSearch({
+  action: 'searchNewConstruction',
+  status: 'NewConstruction',
+  extraFilters: (args) => {
+    const extra = { isNewConstruction: { value: true } };
+    if (args.builder) extra.keywords = String(args.builder);
+    return extra;
+  },
+});
+
+/**
+ * Tiny-homes search URL builder. No first-class Zillow flag for "tiny home"
+ * exists, so we constrain by max sqft (default 600) and add a keyword match
+ * over listing copy.
+ */
+function buildTinyHomesSearchUrl({ location, max_sqft, page }) {
+  return buildHomeTypeSearchUrl({
+    location,
+    homeTypeFlags: {},
+    extraFilters: {
+      sqft: { max: max_sqft != null ? Number(max_sqft) : 600 },
+      keywords: 'tiny home',
+    },
+    page,
+  });
+}
+
+const searchTinyHomes = makeHomeTypeSearch({
+  action: 'searchTinyHomes',
+  status: 'TinyHomes',
+  extraFilters: (args) => ({
+    sqft: { max: args.max_sqft != null ? Number(args.max_sqft) : 600 },
+    keywords: 'tiny home',
+  }),
+});
+
 /**
  * Auction listings in a location. Zillow exposes a `/auctions/` filter
  * sub-path that pre-filters to auction-status only.
@@ -2437,6 +2704,21 @@ module.exports = {
   fsbo,
   comingSoon,
   auctionListings,
+  // Search-class — Tier B2 property-type-specific:
+  searchMultiFamily,
+  searchManufactured,
+  searchTownhouses,
+  searchCondos,
+  searchSeniorCommunities,
+  searchHudHomes,
+  searchMakeMeMove,
+  searchLotsLand,
+  searchNewConstruction,
+  searchTinyHomes,
+  buildHomeTypeSearchUrl,
+  buildLotsLandSearchUrl,
+  buildNewConstructionSearchUrl,
+  buildTinyHomesSearchUrl,
   // Value / market / mortgage / agent:
   mortgageRates,
   mortgageCalculator,
