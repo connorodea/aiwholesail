@@ -2081,6 +2081,151 @@ async function localPriceTrends(args = {}) {
 }
 
 /**
+ * URL builder for the Zillow rental-manager market-trends page (ZORI).
+ *
+ * Mirrors the slug normalisation used by `marketStatsUrl` (lowercase,
+ * comma-strip, space-to-hyphen) so callers can pass the same region
+ * strings across the Tier B5 endpoint family.
+ *
+ * IMPORTANT: this is the rental-manager subdomain page, NOT the
+ * /<region>/home-values/ page used by cycles 1-4. Different URL → cannot
+ * share the home-values co-locate cache.
+ *
+ * `regionType` is currently a no-op for URL shape — the rental-manager
+ * market-trends path is flat — but the signature is preserved so a
+ * future zip/city-specific variant can be threaded without breaking
+ * callers.
+ *
+ * @param {string} region
+ * @param {string} [regionType]
+ * @returns {string}
+ */
+function rentTrendsUrl(region, regionType) {
+  // eslint-disable-next-line no-unused-vars
+  const _regionType = regionType; // reserved for future per-type paths
+  const slug = String(region)
+    .trim()
+    .toLowerCase()
+    .replace(/,/g, '')
+    .replace(/\s+/g, '-');
+  return `${ZILLOW_BASE}/rental-manager/market-trends/${encodeURIComponent(slug)}/`;
+}
+
+/**
+ * Walks a rental-manager market-trends __NEXT_DATA__ blob for the ZORI
+ * region record. Tries the best-guess pageProps siblings first, then
+ * deep-searches for any node carrying recognisable ZORI fields.
+ *
+ * HYPOTHESIS: the rental-manager market-trends page exposes its payload
+ * at `pageProps.zoriRegion` / `pageProps.zoriLatest`. These keys are
+ * unverified against a live page and must be confirmed via live-probe
+ * post-merge; if Zillow uses different names, broaden the candidates
+ * list (or the deep-finder predicate) — do not break the public shape.
+ *
+ * @param {object} nextData
+ * @returns {{region: object|null, latest: object|null}}
+ */
+function findRentTrendsRecord(nextData) {
+  const pp = nextData?.props?.pageProps;
+  if (!pp || typeof pp !== 'object') return { region: null, latest: null };
+  // HYPOTHESIS: best-guess keys. Verified-via-live-probe needed.
+  const region = pp.zoriRegion || pp.rentRegion || pp.requestedRegion || null;
+  const latest = pp.zoriLatest || pp.rentLatest || pp.zoriMarketAnalytics || null;
+  return { region, latest };
+}
+
+/**
+ * Rent trends — Tier B5 endpoint #5 of 5.
+ *
+ * Scrapes the rental-manager market-trends page (ZORI source) for a
+ * region and returns the topline median rent, the rent time series,
+ * YoY change (pct + USD), market temperature, available rentals count,
+ * and rent breakdown by bedroom count.
+ *
+ * NOTE: this endpoint hits a DIFFERENT URL from cycles 1-4 — the
+ * rental-manager subdomain rather than /<region>/home-values/. The
+ * co-locate cache for cycles 1-4 cannot be reused; rentTrends does its
+ * own scrape.
+ *
+ * @param {{region: string, regionType?: 'zip'|'city'|'state'|'county'}} args
+ * @returns {Promise<{
+ *   regionName?: string,
+ *   regionType?: string,
+ *   medianRent: number|null,
+ *   medianRentSeries: Array<{date: string, value: number}>,
+ *   yoyRentChangePct: number|null,
+ *   yoyRentChangeUsd: number|null,
+ *   marketTemperature: 'cool'|'warm'|'hot'|null,
+ *   rentalsAvailable: number|null,
+ *   rentByBeds: { studio?: number, oneBed?: number, twoBed?: number, threeBed?: number, fourPlusBed?: number },
+ * }>}
+ */
+async function rentTrends(args = {}) {
+  const { region, regionType } = args;
+  if (!region || typeof region !== 'string' || !region.trim()) {
+    throw new ZillowScrapeError('rentTrends requires region', {
+      reason: 'bad_args',
+    });
+  }
+  const url = rentTrendsUrl(region, regionType);
+  // Indirect via the module object so tests can monkey-patch
+  // scrapeDoClient.scrape (the top-level destructured `scrape` binding
+  // is captured at require-time and would otherwise bypass the mock).
+  // eslint-disable-next-line global-require
+  const scrapeDoClient = require('./scrapeDoClient');
+  let resp;
+  try {
+    // rental-manager pages historically need the premium pool (similar
+    // to home-values), so we pass super=true. HYPOTHESIS — verify
+    // post-merge whether super is required for this subdomain.
+    resp = await scrapeDoClient.scrape(url, {
+      headers: DEFAULT_HEADERS,
+      geoCode: 'us',
+      render: false,
+      super: true,
+      timeoutMs: 60_000,
+    });
+  } catch (err) {
+    if (err instanceof ScrapeDoError) {
+      throw new ZillowScrapeError(`scrape.do fetch failed: ${err.message}`, {
+        status: err.status,
+        action: 'rentTrends',
+        reason: 'fetch_failed',
+      });
+    }
+    throw err;
+  }
+  const nextData = extractNextData(resp.data);
+  const { region: regionRec, latest } = findRentTrendsRecord(nextData);
+  // HYPOTHESIS: zoriSeries lives as a pageProps sibling. findMarketTimeSeries
+  // already falls back to pp.<key> when odpMarketAnalytics is absent, so it
+  // works here — but verify post-merge that the rental-manager payload
+  // doesn't nest the series under a different parent.
+  const series = findMarketTimeSeries(nextData, 'zoriSeries');
+  const rentByBedsRaw = latest?.rentByBeds && typeof latest.rentByBeds === 'object'
+    ? latest.rentByBeds
+    : {};
+  const rentByBeds = {};
+  for (const key of ['studio', 'oneBed', 'twoBed', 'threeBed', 'fourPlusBed']) {
+    const v = rentByBedsRaw[key];
+    if (typeof v === 'number' && Number.isFinite(v)) rentByBeds[key] = v;
+  }
+  return {
+    regionName: regionRec?.name || regionRec?.regionName || undefined,
+    regionType: regionRec?.regionTypeName || regionRec?.regionType || regionType || undefined,
+    medianRent: typeof latest?.medianRent === 'number' ? latest.medianRent : null,
+    medianRentSeries: series,
+    yoyRentChangePct: typeof latest?.zoriYoY === 'number' ? latest.zoriYoY : null,
+    yoyRentChangeUsd: typeof latest?.zoriYoYUsd === 'number' ? latest.zoriYoYUsd : null,
+    marketTemperature:
+      typeof latest?.marketTemperature === 'string' ? latest.marketTemperature : null,
+    rentalsAvailable:
+      typeof latest?.rentalsAvailable === 'number' ? latest.rentalsAvailable : null,
+    rentByBeds,
+  };
+}
+
+/**
  * Region-level market stats (typical home value, MoM, YoY, etc.).
  *
  * @param {{region: string, regionType?: 'zip'|'city'|'state'|'county'}} args
@@ -2901,6 +3046,7 @@ module.exports = {
   marketStats,
   // Market-analytics — Tier B5:
   localPriceTrends,
+  rentTrends,
   // Exported for tests:
   extractNextData,
   findPropertyRecord,
@@ -2919,6 +3065,8 @@ module.exports = {
   findMarketStats,
   normalizeMarketStats,
   marketStatsUrl,
+  rentTrendsUrl,
+  findRentTrendsRecord,
   findMarketTimeSeries,
   findWalkScore,
   findClimateRisk,

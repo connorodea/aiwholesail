@@ -25,6 +25,7 @@ const {
   findMarketStats,
   normalizeMarketStats,
   marketStatsUrl,
+  rentTrendsUrl,
   findMarketTimeSeries,
   mortgageCalculator,
   searchByUrl,
@@ -2442,6 +2443,201 @@ test('Tier B5 — localPriceTrends', async (t) => {
         assert.deepEqual(out.pricePerSqftSeries, []);
         assert.equal(out.regionName, '78737');
         assert.equal(out.regionType, 'zip');
+      } finally {
+        scrapeDoClient.scrape = originalScrape;
+      }
+    }
+  );
+});
+
+// ───────────────────────── Tier B5 cycle 5 — rentTrends ───────────────────
+// rentTrends({ region, regionType? }) — Tier B5 endpoint #5.
+//
+// CRITICAL: rentTrends scrapes a DIFFERENT URL than the other Tier B5
+// endpoints (cycles 1-4). They all use /<region>/home-values/ and can
+// share a cache; this one uses /rental-manager/market-trends/<slug>/ and
+// CANNOT share. Source is the Zillow Observed Rent Index (ZORI), which
+// lives behind the rental-manager subdomain's market-trends page.
+//
+// The pageProps path assumptions below (`zoriRegion`, `zoriLatest`,
+// `zoriSeries`) are HYPOTHESIS until verified against a live payload. The
+// extractor/normaliser code mirrors that uncertainty with explicit
+// comments. Post-merge live-probe will confirm or correct.
+
+test('rentTrendsUrl', () => {
+  // Mirrors marketStatsUrl normalisation: lowercase + comma-strip +
+  // space-to-hyphen. URL path is /rental-manager/market-trends/<slug>/.
+  assert.equal(
+    rentTrendsUrl('Austin, TX'),
+    'https://www.zillow.com/rental-manager/market-trends/austin-tx/'
+  );
+  assert.equal(
+    rentTrendsUrl('Round Rock, TX'),
+    'https://www.zillow.com/rental-manager/market-trends/round-rock-tx/'
+  );
+  // regionType currently has no special path treatment — the
+  // rental-manager market-trends page lives at one URL shape only — but
+  // the signature is preserved for consistency with marketStatsUrl so a
+  // future zip-specific path can be threaded without breaking callers.
+  assert.equal(
+    rentTrendsUrl('78737', 'zip'),
+    'https://www.zillow.com/rental-manager/market-trends/78737/'
+  );
+});
+
+test('Tier B5 — rentTrends', async (t) => {
+  const z = require('../../lib/scrapers/zillowScrapeDo');
+
+  await t.test('is exported as a function', () => {
+    assert.equal(typeof z.rentTrends, 'function');
+  });
+
+  await t.test('rejects missing region with ZillowScrapeError(bad_args)', async () => {
+    await assert.rejects(
+      () => z.rentTrends({}),
+      (err) =>
+        err instanceof z.ZillowScrapeError &&
+        err.reason === 'bad_args' &&
+        /region/i.test(err.message)
+    );
+  });
+
+  await t.test('rejects empty-string region', async () => {
+    await assert.rejects(
+      () => z.rentTrends({ region: '   ' }),
+      (err) => err instanceof z.ZillowScrapeError && err.reason === 'bad_args'
+    );
+  });
+
+  await t.test(
+    'returns wired shape from a mocked rental-manager market-trends page',
+    async () => {
+      // HYPOTHESIS payload — the real Zillow rental-manager page may use
+      // different keys; this fixture reflects the best-guess shape and
+      // the implementation+normaliser must accept whatever is found.
+      const scrapeDoClient = require('../../lib/scrapers/scrapeDoClient');
+      const originalScrape = scrapeDoClient.scrape;
+      const fakeNextData = {
+        props: {
+          pageProps: {
+            zoriRegion: { name: 'Austin, TX', regionTypeName: 'city' },
+            zoriLatest: {
+              medianRent: 1850,
+              zoriYoY: 2.1,
+              zoriYoYUsd: 38,
+              marketTemperature: 'warm',
+              rentalsAvailable: 1247,
+              rentByBeds: {
+                studio: 1400,
+                oneBed: 1650,
+                twoBed: 1900,
+                threeBed: 2400,
+                fourPlusBed: 3100,
+              },
+            },
+            zoriSeries: [
+              { date: '2025-01-01', value: 1820 },
+              { date: '2025-02-01', value: 1835 },
+              { date: '2025-03-01', value: 1850 },
+            ],
+          },
+        },
+      };
+      const padding = ' '.repeat(300);
+      const html = `<html><body>${padding}<script id="__NEXT_DATA__" type="application/json">${JSON.stringify(
+        fakeNextData
+      )}</script></body></html>`;
+      scrapeDoClient.scrape = async () => ({ data: html, status: 200 });
+      try {
+        const out = await z.rentTrends({ region: 'Austin, TX' });
+        assert.equal(out.regionName, 'Austin, TX');
+        assert.equal(out.regionType, 'city');
+        assert.equal(out.medianRent, 1850);
+        assert.ok(Array.isArray(out.medianRentSeries));
+        assert.equal(out.medianRentSeries.length, 3);
+        assert.deepEqual(out.medianRentSeries[0], { date: '2025-01-01', value: 1820 });
+        assert.equal(out.medianRentSeries[2].value, 1850);
+        assert.equal(out.yoyRentChangePct, 2.1);
+        assert.equal(out.yoyRentChangeUsd, 38);
+        assert.equal(out.marketTemperature, 'warm');
+        assert.equal(out.rentalsAvailable, 1247);
+        assert.equal(out.rentByBeds.studio, 1400);
+        assert.equal(out.rentByBeds.oneBed, 1650);
+        assert.equal(out.rentByBeds.twoBed, 1900);
+        assert.equal(out.rentByBeds.threeBed, 2400);
+        assert.equal(out.rentByBeds.fourPlusBed, 3100);
+      } finally {
+        scrapeDoClient.scrape = originalScrape;
+      }
+    }
+  );
+
+  await t.test(
+    'returns nulls + empty arrays when payload lacks rent data — caller can iterate safely',
+    async () => {
+      const scrapeDoClient = require('../../lib/scrapers/scrapeDoClient');
+      const originalScrape = scrapeDoClient.scrape;
+      const fakeNextData = {
+        props: {
+          pageProps: {
+            zoriRegion: { name: '78737', regionTypeName: 'zip' },
+          },
+        },
+      };
+      const padding = ' '.repeat(300);
+      const html = `<html><body>${padding}<script id="__NEXT_DATA__" type="application/json">${JSON.stringify(
+        fakeNextData
+      )}</script></body></html>`;
+      scrapeDoClient.scrape = async () => ({ data: html, status: 200 });
+      try {
+        const out = await z.rentTrends({ region: '78737', regionType: 'zip' });
+        assert.equal(out.regionName, '78737');
+        assert.equal(out.regionType, 'zip');
+        assert.equal(out.medianRent, null);
+        assert.deepEqual(out.medianRentSeries, []);
+        assert.equal(out.yoyRentChangePct, null);
+        assert.equal(out.yoyRentChangeUsd, null);
+        assert.equal(out.marketTemperature, null);
+        assert.equal(out.rentalsAvailable, null);
+        assert.deepEqual(out.rentByBeds, {});
+      } finally {
+        scrapeDoClient.scrape = originalScrape;
+      }
+    }
+  );
+
+  await t.test(
+    'hits the rental-manager market-trends URL (not home-values) — different cache scope',
+    async () => {
+      // Critical regression guard: cycles 1-4 share /<region>/home-values/
+      // and can be co-located behind one cache. rentTrends MUST call a
+      // different URL so it does not pollute or read from that cache.
+      const scrapeDoClient = require('../../lib/scrapers/scrapeDoClient');
+      const originalScrape = scrapeDoClient.scrape;
+      let capturedUrl = null;
+      scrapeDoClient.scrape = async (url) => {
+        capturedUrl = url;
+        return {
+          data:
+            '<html><body>' +
+            ' '.repeat(300) +
+            '<script id="__NEXT_DATA__" type="application/json">' +
+            JSON.stringify({ props: { pageProps: {} } }) +
+            '</script></body></html>',
+          status: 200,
+        };
+      };
+      try {
+        await z.rentTrends({ region: 'Austin, TX' });
+        assert.ok(
+          capturedUrl &&
+            capturedUrl.includes('/rental-manager/market-trends/'),
+          `expected rental-manager URL, got: ${capturedUrl}`
+        );
+        assert.ok(
+          !capturedUrl.includes('/home-values/'),
+          'rentTrends must NOT hit the home-values URL'
+        );
       } finally {
         scrapeDoClient.scrape = originalScrape;
       }
