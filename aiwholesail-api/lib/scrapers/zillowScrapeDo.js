@@ -186,6 +186,17 @@ function mapPropertyToRapidApiShape(p) {
 
   // ── HOA — top-level keys + resoFacts fallback (Zillow shipped both) ───
   const resoFacts = (p.resoFacts && typeof p.resoFacts === 'object') ? p.resoFacts : {};
+
+  // Trim-aware non-empty string. Used for ID-shaped fields (apn, mlsNumber)
+  // where Zillow's "absent" payload variants include "", "   ", and numbers.
+  // Numbers are coerced to string and trimmed (a parcel number arriving as
+  // `12345678` should surface as `"12345678"`, not `undefined`).
+  const safeString = (v) => {
+    if (v == null) return undefined;
+    const s = typeof v === 'string' ? v : String(v);
+    const trimmed = s.trim();
+    return trimmed.length > 0 ? trimmed : undefined;
+  };
   const monthlyHoaFee = p.monthlyHoaFee ?? p.hoaFee ?? resoFacts.hoaFee ?? undefined;
   const hoaFeeFrequency =
     p.hoaFeeFrequency ?? resoFacts.hoaFeeFrequency ?? undefined;
@@ -262,6 +273,58 @@ function mapPropertyToRapidApiShape(p) {
     if (p.isForeclosure || f.isForeclosure) return 'FORECLOSURE';
     return undefined;
   })();
+
+  // ── Owner-occupancy — compare owner mailing address to property address.
+  // Wholesalers filter HARD on this — absentee owners are the highest-yield
+  // direct-mail / call cohort. We normalize aggressively (lowercase + strip
+  // every non-alphanumeric) so cosmetic differences (commas, "St" vs "St.",
+  // double spaces, ZIP+4) don't produce false negatives. If ownerAddress is
+  // absent we return undefined — "unknown" is meaningfully different from
+  // "owner-occupied = false" in downstream filters.
+  const normalizeAddr = (s) =>
+    typeof s === 'string' ? s.toLowerCase().replace(/[^a-z0-9]+/g, '') : '';
+  const isOwnerOccupied = (() => {
+    if (!p.ownerAddress && !p.owner?.mailingAddress) return undefined;
+    const ownerAddr = normalizeAddr(p.ownerAddress || p.owner?.mailingAddress || '');
+    const propAddr = normalizeAddr(
+      [p.streetAddress, p.city, p.state, p.zipcode].filter(Boolean).join(' ')
+    );
+    if (!ownerAddr || !propAddr) return undefined;
+    return ownerAddr === propAddr;
+  })();
+
+  // ── Tax history (normalized) — keep raw `taxHistory` untouched for back-
+  // compat, but emit a year-keyed normalized form for new consumers.
+  const taxHistoryNormalized = Array.isArray(p.taxHistory)
+    ? p.taxHistory
+        .map((row) => {
+          if (!row || typeof row !== 'object') return null;
+          const t = row.time;
+          const ts = typeof t === 'number' ? t : t != null ? Number(t) : NaN;
+          const date = Number.isFinite(ts) ? new Date(ts) : null;
+          return {
+            year: date ? date.getUTCFullYear() : undefined,
+            date: date ? date.toISOString() : undefined,
+            taxPaid: row.taxPaid ?? undefined,
+            assessedValue: row.value ?? row.assessedValue ?? undefined,
+            valueIncrease: row.valueIncreaseRate ?? row.valueIncrease ?? undefined,
+          };
+        })
+        .filter((r) => r && r.year != null)
+        .sort((a, b) => (b.year || 0) - (a.year || 0))
+    : undefined;
+
+  // ── School district — assemble from three resoFacts keys ─────────────
+  const schoolDistrict =
+    resoFacts.elementarySchoolDistrict ||
+    resoFacts.middleOrJuniorSchoolDistrict ||
+    resoFacts.highSchoolDistrict
+      ? {
+          elementary: resoFacts.elementarySchoolDistrict || undefined,
+          middleOrJunior: resoFacts.middleOrJuniorSchoolDistrict || undefined,
+          high: resoFacts.highSchoolDistrict || undefined,
+        }
+      : undefined;
 
   return {
     zpid: p.zpid != null ? String(p.zpid) : undefined,
@@ -348,6 +411,140 @@ function mapPropertyToRapidApiShape(p) {
       : undefined,
     latitude: p.latitude ?? p.location?.latitude ?? undefined,
     longitude: p.longitude ?? p.location?.longitude ?? undefined,
+    // ── Construction & systems (Tier A) ─────────────────────────────
+    // Always emit array form so frontend consumers can `.map(...)` safely.
+    // Mirrors the heating/cooling pattern at L377-386.
+    foundation: Array.isArray(resoFacts.foundationDetails)
+      ? resoFacts.foundationDetails
+      : resoFacts.foundation
+        ? [resoFacts.foundation]
+        : undefined,
+    roofType: resoFacts.roof ?? resoFacts.roofType ?? undefined,
+    constructionMaterials: Array.isArray(resoFacts.constructionMaterials)
+      ? resoFacts.constructionMaterials
+      : undefined,
+    exteriorFeatures: Array.isArray(resoFacts.exteriorFeatures)
+      ? resoFacts.exteriorFeatures
+      : undefined,
+    structureType: resoFacts.structureType ?? undefined,
+    architecturalStyle: resoFacts.architecturalStyle ?? undefined,
+    stories: resoFacts.stories ?? resoFacts.storiesTotal ?? undefined,
+    basement: resoFacts.basement ?? undefined,
+    basementArea: resoFacts.basementSize ?? undefined,
+    finishedAreaAboveGrade: resoFacts.aboveGradeFinishedArea ?? undefined,
+    finishedAreaBelowGrade: resoFacts.belowGradeFinishedArea ?? undefined,
+    flooring: Array.isArray(resoFacts.flooring) ? resoFacts.flooring : undefined,
+    fireplaceCount: resoFacts.fireplaces ?? resoFacts.fireplacesTotal ?? undefined,
+    appliances: Array.isArray(resoFacts.appliances) ? resoFacts.appliances : undefined,
+    // ── Utilities (Tier A) ─────────────────────────────────────────
+    waterSource: Array.isArray(resoFacts.waterSource) ? resoFacts.waterSource : undefined,
+    sewer: Array.isArray(resoFacts.sewer) ? resoFacts.sewer : undefined,
+    electric: Array.isArray(resoFacts.electric) ? resoFacts.electric : undefined,
+    electricUtilityCompany: resoFacts.electricUtilityCompany ?? undefined,
+    gas: Array.isArray(resoFacts.gas) ? resoFacts.gas : undefined,
+    // ── Lot / parcel / location (Tier A) — apn is THE skip-tracing key ─
+    // safeString handles numeric + string + whitespace-only + empty inputs.
+    apn: safeString(resoFacts.parcelNumber),
+    zoning: resoFacts.zoning ?? undefined,
+    zoningDescription: resoFacts.zoningDescription ?? undefined,
+    countyFips: resoFacts.countyFIPS ?? resoFacts.countyFips ?? undefined,
+    subdivisionName: resoFacts.subdivisionName ?? resoFacts.communityName ?? undefined,
+    schoolDistrict,
+    // ── Listing terms (Tier A) — HIGHEST wholesaler value ─────────────
+    // specialListingConditions flags REO / short-sale / probate / court approval.
+    // listingTerms === ["Cash"] alone is a strong distressed-seller signal.
+    // cumulativeDaysOnMarket is the TRUE distress signal — daysOnZillow resets
+    // on every relist, so a 30-day DoZ home can have 240 cumulative days.
+    specialListingConditions: Array.isArray(resoFacts.specialListingConditions)
+      ? resoFacts.specialListingConditions
+      : undefined,
+    disclosures: Array.isArray(resoFacts.disclosures) ? resoFacts.disclosures : undefined,
+    listingTerms: Array.isArray(resoFacts.listingTerms) ? resoFacts.listingTerms : undefined,
+    buyerCommission:
+      resoFacts.buyerAgencyCompensation != null || resoFacts.buyerAgencyCompensationType != null
+        ? {
+            amount: resoFacts.buyerAgencyCompensation ?? undefined,
+            type: resoFacts.buyerAgencyCompensationType ?? undefined,
+          }
+        : undefined,
+    possession: resoFacts.possession ?? undefined,
+    contingencyType: resoFacts.contingentListingType ?? undefined,
+    cumulativeDaysOnMarket: resoFacts.cumulativeDaysOnMarket ?? undefined,
+    lastStatusChange:
+      p.lastStatusChangeDate != null || p.isRecentStatusChange != null
+        ? {
+            // Zillow emits this as a UNIX epoch ms (like taxHistory[].time).
+            // Normalize to ISO so frontend types can declare `date: string`.
+            date: (() => {
+              const raw = p.lastStatusChangeDate;
+              if (raw == null) return undefined;
+              if (typeof raw === 'string') return raw;
+              const ts = typeof raw === 'number' ? raw : Number(raw);
+              if (!Number.isFinite(ts)) return undefined;
+              return new Date(ts).toISOString();
+            })(),
+            isRecent: p.isRecentStatusChange ?? undefined,
+          }
+        : undefined,
+    ownershipType: resoFacts.ownership ?? resoFacts.ownershipType ?? undefined,
+    // mlsNumber is distinct from listingAgent.mlsId (the attribution mlsId).
+    // Try resoFacts.listingId first (canonical MLS number on most pages),
+    // fall back to resoFacts.mlsId for older payload shapes. safeString
+    // handles empty / whitespace-only Zillow "absent" variants.
+    mlsNumber: safeString(resoFacts.listingId) ?? safeString(resoFacts.mlsId),
+    // ── Lifestyle / amenities (Tier A) ─────────────────────────────
+    view: Array.isArray(resoFacts.view) ? resoFacts.view : undefined,
+    hasView: resoFacts.hasView ?? undefined,
+    waterfront:
+      resoFacts.waterfrontFeatures != null || resoFacts.isWaterfront != null
+        ? {
+            features: Array.isArray(resoFacts.waterfrontFeatures)
+              ? resoFacts.waterfrontFeatures
+              : undefined,
+            isWaterfront: resoFacts.isWaterfront ?? undefined,
+          }
+        : undefined,
+    pool:
+      resoFacts.poolFeatures != null || resoFacts.hasPrivatePool != null
+        ? {
+            features: Array.isArray(resoFacts.poolFeatures)
+              ? resoFacts.poolFeatures
+              : undefined,
+            hasPrivatePool: resoFacts.hasPrivatePool ?? undefined,
+          }
+        : undefined,
+    spa:
+      resoFacts.spaFeatures != null || resoFacts.hasSpa != null
+        ? {
+            features: Array.isArray(resoFacts.spaFeatures)
+              ? resoFacts.spaFeatures
+              : undefined,
+            hasSpa: resoFacts.hasSpa ?? undefined,
+          }
+        : undefined,
+    fencing: Array.isArray(resoFacts.fencing) ? resoFacts.fencing : undefined,
+    accessibilityFeatures: Array.isArray(resoFacts.accessibilityFeatures)
+      ? resoFacts.accessibilityFeatures
+      : undefined,
+    // `undefined` when neither source field is set — callers MUST be able to
+    // distinguish "no garage info from Zillow" from "explicitly zero spaces".
+    garageSpaces:
+      resoFacts.garageSpaces ??
+      (resoFacts.hasAttachedGarage === true ? 1 : undefined),
+    // ── HOA extended (Tier A) — extends existing monthlyHoaFee / hoaAnnualAmount
+    hoaName: resoFacts.associationName ?? undefined,
+    hoaFeeIncludes: Array.isArray(resoFacts.associationFeeIncludes)
+      ? resoFacts.associationFeeIncludes
+      : undefined,
+    hoaAmenities: Array.isArray(resoFacts.associationAmenities)
+      ? resoFacts.associationAmenities
+      : undefined,
+    hoaPhone: resoFacts.associationPhone ?? undefined,
+    // ── Computed (Tier A) — owner-occupancy is the #1 wholesaler filter ─
+    isOwnerOccupied,
+    // ── Tax history extended (Tier A) — raw `taxHistory` preserved above ─
+    taxHistoryNormalized,
+    propertyTaxRate: p.propertyTaxRate ?? resoFacts.propertyTaxRate ?? undefined,
   };
 }
 
