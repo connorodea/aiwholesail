@@ -1147,3 +1147,360 @@ test('looksLikeCaptcha', async (t) => {
     assert.equal(looksLikeCaptcha(undefined), false);
   });
 });
+
+// ─────────────────── Tier A field expansion (mapPropertyToRapidApiShape) ──
+//
+// Adds construction/systems, utilities, lot/parcel, listing-terms,
+// lifestyle, extended-HOA, computed (owner-occupancy), and normalized tax
+// history. Spot-check ~15-20 representative fields rather than testing every
+// pass-through — the mapping is mechanical and the existing resoFacts suite
+// already covers the array-vs-string coercion patterns.
+
+const baseProp = {
+  zpid: 1,
+  streetAddress: '1 St',
+  city: 'a',
+  state: 'b',
+  zipcode: 'c',
+  price: 1,
+};
+
+test('mapPropertyToRapidApiShape — Tier A field expansion', async (t) => {
+  // ── Construction & systems ──────────────────────────────────────────
+  await t.test('extracts construction & systems fields from resoFacts', () => {
+    const out = mapPropertyToRapidApiShape({
+      ...baseProp,
+      resoFacts: {
+        foundationDetails: ['Slab'],
+        roof: 'Composition Shingle',
+        constructionMaterials: ['Brick', 'Frame'],
+        exteriorFeatures: ['Porch', 'Sprinkler System'],
+        structureType: 'House',
+        architecturalStyle: 'Ranch',
+        stories: 2,
+        basement: 'Finished',
+        basementSize: 850,
+        aboveGradeFinishedArea: 1800,
+        belowGradeFinishedArea: 850,
+        flooring: ['Hardwood', 'Tile'],
+        fireplaces: 1,
+        appliances: ['Dishwasher', 'Refrigerator'],
+      },
+    });
+    assert.deepEqual(out.foundation, ['Slab']);
+    assert.equal(out.roofType, 'Composition Shingle');
+    assert.deepEqual(out.constructionMaterials, ['Brick', 'Frame']);
+    assert.deepEqual(out.exteriorFeatures, ['Porch', 'Sprinkler System']);
+    assert.equal(out.structureType, 'House');
+    assert.equal(out.architecturalStyle, 'Ranch');
+    assert.equal(out.stories, 2);
+    assert.equal(out.basement, 'Finished');
+    assert.equal(out.basementArea, 850);
+    assert.equal(out.finishedAreaAboveGrade, 1800);
+    assert.equal(out.finishedAreaBelowGrade, 850);
+    assert.deepEqual(out.flooring, ['Hardwood', 'Tile']);
+    assert.equal(out.fireplaceCount, 1);
+    assert.deepEqual(out.appliances, ['Dishwasher', 'Refrigerator']);
+  });
+
+  await t.test('foundation falls back to scalar resoFacts.foundation', () => {
+    const out = mapPropertyToRapidApiShape({
+      ...baseProp,
+      resoFacts: { foundation: 'Pier and Beam' },
+    });
+    assert.equal(out.foundation, 'Pier and Beam');
+  });
+
+  await t.test('stories falls back to storiesTotal', () => {
+    const out = mapPropertyToRapidApiShape({
+      ...baseProp,
+      resoFacts: { storiesTotal: 3 },
+    });
+    assert.equal(out.stories, 3);
+  });
+
+  // ── Utilities ─────────────────────────────────────────────────────
+  await t.test('extracts utility fields from resoFacts', () => {
+    const out = mapPropertyToRapidApiShape({
+      ...baseProp,
+      resoFacts: {
+        waterSource: ['Public'],
+        sewer: ['Public Sewer'],
+        electric: ['220 Volts'],
+        electricUtilityCompany: 'Austin Energy',
+        gas: ['Natural Gas Available'],
+      },
+    });
+    assert.deepEqual(out.waterSource, ['Public']);
+    assert.deepEqual(out.sewer, ['Public Sewer']);
+    assert.deepEqual(out.electric, ['220 Volts']);
+    assert.equal(out.electricUtilityCompany, 'Austin Energy');
+    assert.deepEqual(out.gas, ['Natural Gas Available']);
+  });
+
+  // ── Lot / parcel / location ─────────────────────────────────────────
+  await t.test('extracts apn (parcelNumber) — highest skip-tracing value', () => {
+    const out = mapPropertyToRapidApiShape({
+      ...baseProp,
+      resoFacts: { parcelNumber: '01-2345-6789-0000' },
+    });
+    assert.equal(out.apn, '01-2345-6789-0000');
+  });
+
+  await t.test('extracts zoning, countyFips, subdivisionName', () => {
+    const out = mapPropertyToRapidApiShape({
+      ...baseProp,
+      resoFacts: {
+        zoning: 'SF-3',
+        zoningDescription: 'Single Family Residence — Standard Lot',
+        countyFIPS: '48453',
+        subdivisionName: 'Travis Heights',
+      },
+    });
+    assert.equal(out.zoning, 'SF-3');
+    assert.equal(out.zoningDescription, 'Single Family Residence — Standard Lot');
+    assert.equal(out.countyFips, '48453');
+    assert.equal(out.subdivisionName, 'Travis Heights');
+  });
+
+  await t.test('assembles schoolDistrict from three district keys', () => {
+    const out = mapPropertyToRapidApiShape({
+      ...baseProp,
+      resoFacts: {
+        elementarySchoolDistrict: 'Austin ISD',
+        middleOrJuniorSchoolDistrict: 'Austin ISD',
+        highSchoolDistrict: 'Austin ISD',
+      },
+    });
+    assert.deepEqual(out.schoolDistrict, {
+      elementary: 'Austin ISD',
+      middleOrJunior: 'Austin ISD',
+      high: 'Austin ISD',
+    });
+  });
+
+  await t.test('schoolDistrict is undefined when no district keys present', () => {
+    const out = mapPropertyToRapidApiShape({ ...baseProp, resoFacts: {} });
+    assert.equal(out.schoolDistrict, undefined);
+  });
+
+  // ── Listing terms — wholesaler distress signals ─────────────────────
+  await t.test('extracts specialListingConditions (REO / probate flags)', () => {
+    const out = mapPropertyToRapidApiShape({
+      ...baseProp,
+      resoFacts: {
+        specialListingConditions: ['Real Estate Owned', 'Short Sale'],
+      },
+    });
+    assert.deepEqual(out.specialListingConditions, ['Real Estate Owned', 'Short Sale']);
+  });
+
+  await t.test('extracts listingTerms (Cash-only = distressed signal)', () => {
+    const out = mapPropertyToRapidApiShape({
+      ...baseProp,
+      resoFacts: { listingTerms: ['Cash'] },
+    });
+    assert.deepEqual(out.listingTerms, ['Cash']);
+  });
+
+  await t.test('extracts cumulativeDaysOnMarket — true distress signal', () => {
+    const out = mapPropertyToRapidApiShape({
+      ...baseProp,
+      daysOnZillow: 21,
+      resoFacts: { cumulativeDaysOnMarket: 287 },
+    });
+    // daysOnZillow stays untouched for back-compat
+    assert.equal(out.daysOnZillow, 21);
+    // cumulative is the relisting-aware number
+    assert.equal(out.cumulativeDaysOnMarket, 287);
+  });
+
+  await t.test('extracts buyerCommission as {amount, type}', () => {
+    const out = mapPropertyToRapidApiShape({
+      ...baseProp,
+      resoFacts: {
+        buyerAgencyCompensation: 3,
+        buyerAgencyCompensationType: 'Percent',
+      },
+    });
+    assert.deepEqual(out.buyerCommission, { amount: 3, type: 'Percent' });
+  });
+
+  await t.test('extracts lastStatusChange as {date, isRecent}', () => {
+    const out = mapPropertyToRapidApiShape({
+      ...baseProp,
+      lastStatusChangeDate: '2026-05-01',
+      isRecentStatusChange: true,
+    });
+    assert.deepEqual(out.lastStatusChange, { date: '2026-05-01', isRecent: true });
+  });
+
+  await t.test('mlsNumber distinct from listingAgent.mlsId', () => {
+    const out = mapPropertyToRapidApiShape({
+      ...baseProp,
+      attributionInfo: { agentName: 'Jane Doe', mlsId: 'AUS-12345' },
+      resoFacts: { mlsId: 'ABOR-99999' },
+    });
+    // Attribution mlsId stays on listingAgent
+    assert.equal(out.listingAgent.mlsId, 'AUS-12345');
+    // resoFacts.mlsId surfaces as the canonical mlsNumber
+    assert.equal(out.mlsNumber, 'ABOR-99999');
+  });
+
+  // ── Lifestyle / amenities ──────────────────────────────────────────
+  await t.test('extracts pool, spa, waterfront as nested objects', () => {
+    const out = mapPropertyToRapidApiShape({
+      ...baseProp,
+      resoFacts: {
+        poolFeatures: ['In Ground', 'Heated'],
+        hasPrivatePool: true,
+        spaFeatures: ['Hot Tub'],
+        hasSpa: true,
+        waterfrontFeatures: ['Lake Front'],
+        isWaterfront: true,
+      },
+    });
+    assert.deepEqual(out.pool.features, ['In Ground', 'Heated']);
+    assert.equal(out.pool.hasPrivatePool, true);
+    assert.deepEqual(out.spa.features, ['Hot Tub']);
+    assert.equal(out.spa.hasSpa, true);
+    assert.deepEqual(out.waterfront.features, ['Lake Front']);
+    assert.equal(out.waterfront.isWaterfront, true);
+  });
+
+  await t.test('garageSpaces uses explicit count when present', () => {
+    const out = mapPropertyToRapidApiShape({
+      ...baseProp,
+      resoFacts: { garageSpaces: 3 },
+    });
+    assert.equal(out.garageSpaces, 3);
+  });
+
+  await t.test('garageSpaces falls back to 1 when hasAttachedGarage is true', () => {
+    const out = mapPropertyToRapidApiShape({
+      ...baseProp,
+      resoFacts: { hasAttachedGarage: true },
+    });
+    assert.equal(out.garageSpaces, 1);
+  });
+
+  // ── HOA extended ───────────────────────────────────────────────────
+  await t.test('extracts hoaName, hoaFeeIncludes, hoaAmenities, hoaPhone', () => {
+    const out = mapPropertyToRapidApiShape({
+      ...baseProp,
+      resoFacts: {
+        associationName: 'Travis Heights HOA',
+        associationFeeIncludes: ['Trash', 'Maintenance Grounds'],
+        associationAmenities: ['Pool', 'Clubhouse'],
+        associationPhone: '512-555-0199',
+      },
+    });
+    assert.equal(out.hoaName, 'Travis Heights HOA');
+    assert.deepEqual(out.hoaFeeIncludes, ['Trash', 'Maintenance Grounds']);
+    assert.deepEqual(out.hoaAmenities, ['Pool', 'Clubhouse']);
+    assert.equal(out.hoaPhone, '512-555-0199');
+  });
+
+  // ── Computed: isOwnerOccupied ──────────────────────────────────────
+  await t.test('isOwnerOccupied true: normalized match ignores case/punctuation/spaces', () => {
+    // Property is "123 Main St", owner mailing has commas, mixed case,
+    // double spaces — all collapse to the same normalized string.
+    const out = mapPropertyToRapidApiShape({
+      zpid: 1,
+      streetAddress: '123 Main St',
+      city: 'Austin',
+      state: 'TX',
+      zipcode: '78704',
+      price: 1,
+      ownerAddress: '123 MAIN ST,  Austin, TX 78704',
+    });
+    assert.equal(out.isOwnerOccupied, true);
+  });
+
+  await t.test('isOwnerOccupied false: out-of-state mailing address', () => {
+    const out = mapPropertyToRapidApiShape({
+      zpid: 1,
+      streetAddress: '123 Main St',
+      city: 'Austin',
+      state: 'TX',
+      zipcode: '78704',
+      price: 1,
+      ownerAddress: 'PO Box 4421, Los Angeles, CA 90028',
+    });
+    assert.equal(out.isOwnerOccupied, false);
+  });
+
+  await t.test('isOwnerOccupied undefined when ownerAddress absent', () => {
+    const out = mapPropertyToRapidApiShape({
+      zpid: 1,
+      streetAddress: '123 Main St',
+      city: 'Austin',
+      state: 'TX',
+      zipcode: '78704',
+      price: 1,
+    });
+    assert.equal(out.isOwnerOccupied, undefined);
+  });
+
+  // ── Tax history normalized ──────────────────────────────────────────
+  await t.test('taxHistoryNormalized derives year from time and sorts desc', () => {
+    const out = mapPropertyToRapidApiShape({
+      ...baseProp,
+      taxHistory: [
+        { time: Date.UTC(2023, 5, 15), taxPaid: 8500, value: 410000, valueIncreaseRate: 0.03 },
+        { time: Date.UTC(2025, 5, 15), taxPaid: 9200, value: 445000, valueIncreaseRate: 0.04 },
+        { time: Date.UTC(2024, 5, 15), taxPaid: 8800, value: 425000, valueIncreaseRate: 0.035 },
+      ],
+    });
+    assert.equal(out.taxHistoryNormalized.length, 3);
+    // Sorted descending by year
+    assert.equal(out.taxHistoryNormalized[0].year, 2025);
+    assert.equal(out.taxHistoryNormalized[1].year, 2024);
+    assert.equal(out.taxHistoryNormalized[2].year, 2023);
+    // Fields mapped through
+    assert.equal(out.taxHistoryNormalized[0].taxPaid, 9200);
+    assert.equal(out.taxHistoryNormalized[0].assessedValue, 445000);
+    assert.equal(out.taxHistoryNormalized[0].valueIncrease, 0.04);
+    // Date is ISO string
+    assert.equal(typeof out.taxHistoryNormalized[0].date, 'string');
+    assert.ok(out.taxHistoryNormalized[0].date.includes('2025'));
+  });
+
+  await t.test('taxHistory (raw) preserved alongside taxHistoryNormalized', () => {
+    const raw = [{ time: Date.UTC(2024, 0, 1), taxPaid: 1000, value: 100000 }];
+    const out = mapPropertyToRapidApiShape({ ...baseProp, taxHistory: raw });
+    assert.deepEqual(out.taxHistory, raw); // back-compat preserved
+    assert.equal(out.taxHistoryNormalized[0].year, 2024);
+  });
+
+  await t.test('extracts propertyTaxRate', () => {
+    const out = mapPropertyToRapidApiShape({
+      ...baseProp,
+      propertyTaxRate: 1.82,
+    });
+    assert.equal(out.propertyTaxRate, 1.82);
+  });
+
+  // ── Backward compatibility ──────────────────────────────────────────
+  await t.test('all pre-existing fields still present on output', () => {
+    const out = mapPropertyToRapidApiShape({
+      zpid: 555,
+      streetAddress: '1 St',
+      city: 'Austin',
+      state: 'TX',
+      zipcode: '78701',
+      price: 400000,
+      bedrooms: 3,
+      bathrooms: 2,
+      yearBuilt: 1995,
+      resoFacts: { hoaFee: 100, hoaFeeFrequency: 'Monthly' },
+    });
+    assert.equal(out.zpid, '555');
+    assert.equal(out.price, 400000);
+    assert.equal(out.bedrooms, 3);
+    assert.equal(out.bathrooms, 2);
+    assert.equal(out.yearBuilt, 1995);
+    assert.equal(out.monthlyHoaFee, 100);
+    assert.equal(out.hoaAnnualAmount, 1200);
+  });
+});

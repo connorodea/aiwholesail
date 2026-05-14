@@ -56,6 +56,65 @@ export interface Property {
   mlsName?: string;
   listingSource?: string;
   listingUrl?: string;
+  // ─── Extended propertyDetails fields (additive, backend PR ~50 new fields) ───
+  // Construction & systems
+  foundation?: string[];
+  roofType?: string;
+  constructionMaterials?: string[];
+  exteriorFeatures?: string[];
+  structureType?: string;
+  architecturalStyle?: string;
+  stories?: number;
+  basement?: string;
+  basementArea?: number;
+  finishedAreaAboveGrade?: number;
+  finishedAreaBelowGrade?: number;
+  flooring?: string[];
+  fireplaceCount?: number;
+  appliances?: string[];
+  // Utilities
+  waterSource?: string[];
+  sewer?: string[];
+  electric?: string[];
+  electricUtilityCompany?: string;
+  gas?: string[];
+  // Lot / parcel / location
+  apn?: string;
+  zoning?: string;
+  zoningDescription?: string;
+  countyFips?: string;
+  subdivisionName?: string;
+  schoolDistrict?: { elementary?: string; middleOrJunior?: string; high?: string };
+  // Listing terms
+  specialListingConditions?: string[];
+  disclosures?: string[];
+  listingTerms?: string[];
+  buyerCommission?: { amount?: string; type?: string };
+  possession?: string;
+  contingencyType?: string;
+  cumulativeDaysOnMarket?: number;
+  lastStatusChange?: { date?: string; isRecent?: boolean };
+  ownershipType?: string;
+  mlsNumber?: string;
+  // Lifestyle / amenities
+  view?: string[];
+  hasView?: boolean;
+  waterfront?: { features?: string[]; isWaterfront?: boolean };
+  pool?: { features?: string[]; hasPrivatePool?: boolean };
+  spa?: { features?: string[]; hasSpa?: boolean };
+  fencing?: string[];
+  accessibilityFeatures?: string[];
+  garageSpaces?: number;
+  // HOA extended
+  hoaName?: string;
+  hoaFeeIncludes?: string[];
+  hoaAmenities?: string[];
+  hoaPhone?: string;
+  // Computed
+  isOwnerOccupied?: boolean;
+  // Tax (additive)
+  taxHistoryNormalized?: Array<{ year: number; date: string; taxPaid: number | null; assessedValue: number | null; valueIncrease: number | null }>;
+  propertyTaxRate?: number;
   // AttomData enhanced fields
   attomData?: {
     propertyType?: string;

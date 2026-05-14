@@ -101,6 +101,74 @@ async function timeIt(fn) {
   }
 }
 
+// Tier A expansion fields added to `propertyDetails` response. These are the
+// canonical names the backend now extracts from Zillow detail payloads.
+// Zillow does NOT populate every field for every property — absent fields are
+// reported as stats, not as failures.
+const PROPERTY_DETAILS_TIER_A_FIELDS = [
+  // Construction
+  'foundation',
+  'roofType',
+  'constructionMaterials',
+  'basement',
+  'finishedAreaAboveGrade',
+  'finishedAreaBelowGrade',
+  'flooring',
+  'appliances',
+  // Utilities
+  'waterSource',
+  'sewer',
+  'electric',
+  'gas',
+  // Parcel/zoning
+  'apn',
+  'zoning',
+  'countyFips',
+  'subdivisionName',
+  // Listing terms
+  'specialListingConditions',
+  'disclosures',
+  'listingTerms',
+  'possession',
+  'cumulativeDaysOnMarket',
+  'mlsNumber',
+  // Amenities
+  'view',
+  'pool',
+  'fencing',
+  'accessibilityFeatures',
+  'garageSpaces',
+  // HOA extended
+  'hoaName',
+  'hoaFeeIncludes',
+  'hoaAmenities',
+  // Computed
+  'isOwnerOccupied',
+  // Tax
+  'taxHistoryNormalized',
+  'propertyTaxRate',
+];
+
+function isFieldPresent(value) {
+  if (value === undefined || value === null) return false;
+  if (typeof value === 'string') return value.trim().length > 0;
+  if (Array.isArray(value)) return value.length > 0;
+  if (typeof value === 'object') return Object.keys(value).length > 0;
+  // numbers (including 0), booleans (including false) count as present
+  return true;
+}
+
+function checkTierAFields(data, fields) {
+  const present = [];
+  const missing = [];
+  const source = data && typeof data === 'object' ? data : {};
+  for (const f of fields) {
+    if (isFieldPresent(source[f])) present.push(f);
+    else missing.push(f);
+  }
+  return { present, missing };
+}
+
 function summarize(data) {
   // Lightweight summary — we don't want a 2MB JSON.
   if (data == null) return null;
@@ -149,10 +217,32 @@ async function main() {
       const json = JSON.stringify(result.data);
       result.payloadBytes = Buffer.byteLength(json);
       result.summary = summarize(result.data);
+      // Tier A expansion field spot-check for propertyDetails. Reports stats
+      // only — does NOT influence ok/fail. Zillow doesn't populate every field
+      // for every property and investigation is human-driven.
+      if (action === 'propertyDetails') {
+        result.tierA = checkTierAFields(result.data, PROPERTY_DETAILS_TIER_A_FIELDS);
+      }
       delete result.data;
     }
     results.push({ action, input, ...result });
-    console.log(`${result.ok ? 'OK' : 'FAIL'} (${result.ms}ms${result.payloadBytes ? `, ${result.payloadBytes}B` : ''})${result.ok ? '' : ` — ${result.error}`}`);
+    let extra = '';
+    if (result.ok && result.tierA) {
+      const total = PROPERTY_DETAILS_TIER_A_FIELDS.length;
+      extra = `, tierA ${result.tierA.present.length}/${total}`;
+    }
+    console.log(`${result.ok ? 'OK' : 'FAIL'} (${result.ms}ms${result.payloadBytes ? `, ${result.payloadBytes}B` : ''}${extra})${result.ok ? '' : ` — ${result.error}`}`);
+  }
+
+  // Compact Tier A expansion-field presence table for propertyDetails. Stats
+  // only; does not affect pass/fail. Operator reviews to spot regressions.
+  const propertyDetailsResult = results.find((r) => r.action === 'propertyDetails');
+  if (propertyDetailsResult && propertyDetailsResult.ok && propertyDetailsResult.tierA) {
+    const { present, missing } = propertyDetailsResult.tierA;
+    const total = PROPERTY_DETAILS_TIER_A_FIELDS.length;
+    console.log(`\n[propertyDetails Tier A] present: ${present.length}/${total}  missing: ${missing.length ? missing.join(', ') : '(none)'}`);
+  } else if (propertyDetailsResult && !propertyDetailsResult.ok) {
+    console.log(`\n[propertyDetails Tier A] skipped — propertyDetails call failed`);
   }
 
   const out = args.out || `/tmp/zillow-smoke-${Date.now()}.json`;
