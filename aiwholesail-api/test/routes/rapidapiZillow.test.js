@@ -124,3 +124,48 @@ test('proxyHandler returns 200 with proxyZillow result on happy path', async () 
   assert.equal(res.payload.success, true);
   assert.deepEqual(res.payload.data, { zestimate: 425000, currency: 'USD' });
 });
+
+test('proxyHandler soft-200s when upstream signals no_data_in_payload', async () => {
+  // ZillowScrapeError with reason='no_data_in_payload' means the listing is
+  // valid but lacks the requested widget (walkScore, climate, etc.). Returning
+  // 500 here would page on-call for a legitimate empty result; consumers
+  // already handle data=null + reason.
+  installMocks({
+    proxyThrows: new FakeZillowScrapeError('no walkScore widget', 'no_data_in_payload'),
+  });
+  const { proxyHandler } = clearAndReloadHandler();
+
+  const res = makeRes();
+  await proxyHandler(makeReq({ action: 'walkScore' }), res);
+
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.payload.success, true);
+  assert.equal(res.payload.data, null);
+  assert.equal(res.payload.reason, 'no_data_in_payload');
+});
+
+test('proxyHandler soft-200s when upstream signals no_property_in_payload', async () => {
+  installMocks({
+    proxyThrows: new FakeZillowScrapeError('removed listing', 'no_property_in_payload'),
+  });
+  const { proxyHandler } = clearAndReloadHandler();
+
+  const res = makeRes();
+  await proxyHandler(makeReq({ action: 'propertyDetails' }), res);
+
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.payload.data, null);
+  assert.equal(res.payload.reason, 'no_property_in_payload');
+});
+
+test('proxyHandler returns 500 on other upstream errors', async () => {
+  installMocks({ proxyThrows: new Error('scrape.do upstream timeout') });
+  const { proxyHandler } = clearAndReloadHandler();
+
+  const res = makeRes();
+  await proxyHandler(makeReq({ action: 'zestimate' }), res);
+
+  assert.equal(res.statusCode, 500);
+  assert.equal(res.payload.success, false);
+  assert.match(res.payload.error, /scrape\.do upstream/);
+});

@@ -27,10 +27,32 @@ async function proxyHandler(req, res) {
     return res.status(429).json({ success: false, error: 'Rate limit exceeded' });
   }
 
-  const data = await proxyZillow(action, searchParams || {}, {
-    userId: req.user.id,
-  });
-  return res.json({ success: true, data });
+  try {
+    const data = await proxyZillow(action, searchParams || {}, {
+      userId: req.user.id,
+    });
+    return res.json({ success: true, data });
+  } catch (err) {
+    // Soft-200 the "listing exists but this widget genuinely isn't there"
+    // case. Consumers branch on data=null + reason; returning 500 here would
+    // page on-call for a normal absence-of-data signal.
+    if (
+      err instanceof ZillowScrapeError &&
+      (err.reason === 'no_data_in_payload' || err.reason === 'no_property_in_payload')
+    ) {
+      console.log(
+        `[rapidapi-zillow] no-data passthrough action=${action} reason=${err.reason}`
+      );
+      return res.json({ success: true, data: null, reason: err.reason });
+    }
+    console.error(
+      `[rapidapi-zillow] both backends failed for action=${action}: ${err.message}`
+    );
+    return res.status(500).json({
+      success: false,
+      error: err.message || 'Zillow proxy error',
+    });
+  }
 }
 
 module.exports = { proxyHandler };
