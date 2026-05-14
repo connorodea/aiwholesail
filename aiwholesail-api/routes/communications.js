@@ -147,69 +147,6 @@ router.post('/sms/send', authenticate, [
 }));
 
 /**
- * POST /api/communications/spread-alert
- * Send SMS alert for profitable spread properties found during search.
- * Called by the frontend after enrichment finds +$30K deals.
- */
-router.post('/spread-alert', authenticate, [
-  body('deals').isArray({ min: 1 }).withMessage('At least one deal required'),
-  body('location').notEmpty().withMessage('Search location required'),
-  body('phone').notEmpty().withMessage('Phone number required')
-], asyncHandler(async (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ error: 'Validation failed', errors: errors.array() });
-  }
-
-  const rateLimit = await checkDatabaseRateLimit(req.user.id, 'spread-alert-sms', 5, 60);
-  if (!rateLimit.allowed) {
-    return res.status(429).json({ error: 'Alert rate limit exceeded. Max 5 alerts per hour.' });
-  }
-
-  const { deals, location, phone } = req.body;
-
-  // Build alert message with top deals
-  const topDeals = deals.slice(0, 3);
-  const dealLines = topDeals.map(d => {
-    const spread = d.zestimate - d.price;
-    return `${d.address}: $${(d.price / 1000).toFixed(0)}K list / $${(d.zestimate / 1000).toFixed(0)}K Zest = +$${(spread / 1000).toFixed(0)}K spread`;
-  });
-
-  const message = [
-    `AIWholesail Deal Alert!`,
-    `${deals.length} properties with +$30K spreads found in ${location}:`,
-    '',
-    ...dealLines,
-    deals.length > 3 ? `...and ${deals.length - 3} more deals` : '',
-    '',
-    'View at aiwholesail.com/app'
-  ].filter(Boolean).join('\n');
-
-  try {
-    const result = await sendTwilioSMS(phone, message);
-
-    await logSecurityEvent('spread_alert_sent', {
-      location,
-      dealCount: deals.length,
-      phone: phone.substring(0, 3) + '***'
-    }, req.user.id, req);
-
-    res.json({
-      success: true,
-      messageId: result.sid,
-      dealCount: deals.length,
-      message: 'Spread alert sent'
-    });
-  } catch (error) {
-    console.error('[Communications] Spread alert error:', error.message);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to send spread alert'
-    });
-  }
-}));
-
-/**
  * POST /api/communications/call/make
  * Make a phone call via Twilio
  */
