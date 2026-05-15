@@ -755,53 +755,9 @@ test('findMortgageRates + normalizeMortgageRate', async (t) => {
     assert.equal(normalizeMortgageRate(null), null);
   });
 
-  await t.test(
-    'pulls rates from pageProps.post.blocks[] zhl-rate-summary blockData.data (TD-105)',
-    () => {
-      // Current shape on /mortgage-rates/<zip>: WordPress-style blocks where
-      // a zhl/zhl-rate-summary block carries the rate table under
-      // blockData.data. Older candidate paths return empty.
-      const nextData = {
-        props: {
-          pageProps: {
-            post: {
-              blocks: [
-                { blockName: 'zhl/some-other-block', blockData: { data: [] } },
-                {
-                  blockName: 'zhl/zhl-rate-summary',
-                  blockData: {
-                    data: [
-                      {
-                        lenderName: 'Quicken Loans',
-                        apr: 7.125,
-                        rate: 6.99,
-                        points: 0.875,
-                        loanType: '30-year fixed',
-                      },
-                      {
-                        lenderName: 'Rocket Mortgage',
-                        apr: 7.05,
-                        rate: 6.875,
-                        points: 1.125,
-                        loanType: '30-year fixed',
-                      },
-                    ],
-                  },
-                },
-              ],
-            },
-          },
-        },
-      };
-      const raw = findMortgageRates(nextData);
-      assert.equal(raw.length, 2);
-      const first = normalizeMortgageRate(raw[0]);
-      assert.equal(first.lender, 'Quicken Loans');
-      assert.equal(first.apr, 7.125);
-      assert.equal(first.rate, 6.99);
-      assert.equal(first.loanType, '30-year fixed');
-    }
-  );
+  // Old TD-105 array-shape hypothesis test removed: live Zillow returns an
+  // OBJECT-keyed-by-product map, not an array of lender quotes. The
+  // 'TD-105 real shape: …' tests below replace it with the verified shape.
 
   await t.test(
     'pulls rates from pageProps.property.mortgageZHLRates on detail pages (TD-105 bonus)',
@@ -825,6 +781,120 @@ test('findMortgageRates + normalizeMortgageRate', async (t) => {
       const raw = findMortgageRates(nextData);
       assert.equal(raw.length, 1);
       assert.equal(normalizeMortgageRate(raw[0]).lender, 'Detail-Page Lender');
+    }
+  );
+
+  await t.test(
+    'TD-105 real shape: recurses innerBlocks, flattens zhl/zhl-rate-summary product map',
+    () => {
+      // Live Zillow /mortgage-rates/<zip> verified 2026-05-14:
+      // pageProps.post.blocks[] is constellation/group wrappers; the real
+      // zhl/zhl-rate-summary block lives nested under innerBlocks. Its
+      // blockData.data is an OBJECT keyed by product name, and every quote is
+      // from Zillow Home Loans (no per-lender shopper anymore).
+      const nextData = {
+        props: {
+          pageProps: {
+            post: {
+              blocks: [
+                {
+                  blockName: 'constellation/group',
+                  innerBlocks: [
+                    {
+                      blockName: 'constellation/group',
+                      innerBlocks: [
+                        {
+                          blockName: 'zhl/zhl-rate-summary',
+                          blockData: {
+                            state: 'TX',
+                            principal: 275000,
+                            thirtyYearRate: '6.3750',
+                            thirtyYearApr: '6.5490',
+                            data: {
+                              '30 Year Fixed Conforming': {
+                                rate: '6.3750',
+                                apr: '6.5490',
+                                pointsPaid: '1.7950',
+                                productType: 'Conforming',
+                                monthlyPayment: '1715.00',
+                                pointsPaidDollar: '4936.25',
+                              },
+                              '15 Year Fixed Conforming': {
+                                rate: '5.8750',
+                                apr: '6.1560',
+                                pointsPaid: '0.5000',
+                                productType: 'Conforming',
+                                monthlyPayment: '2298.00',
+                              },
+                              '10 Year FHA': {
+                                rate: '6.1250',
+                                apr: '7.0970',
+                                pointsPaid: '1.8890',
+                                productType: 'FHA',
+                                monthlyPayment: '3159.00',
+                              },
+                            },
+                          },
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+        },
+      };
+      const raw = findMortgageRates(nextData);
+      assert.ok(Array.isArray(raw), 'expected array');
+      assert.equal(raw.length, 3, 'expected three product rows');
+      const byProduct = Object.fromEntries(raw.map((r) => [r.loanType, r]));
+      const thirtyFix = normalizeMortgageRate(byProduct['30 Year Fixed Conforming']);
+      assert.equal(thirtyFix.lender, 'Zillow Home Loans');
+      assert.equal(thirtyFix.rate, 6.375);
+      assert.equal(thirtyFix.apr, 6.549);
+      assert.equal(thirtyFix.points, 1.795);
+      assert.equal(thirtyFix.loanType, '30 Year Fixed Conforming');
+      assert.equal(thirtyFix.monthlyPayment, 1715);
+      assert.equal(normalizeMortgageRate(byProduct['10 Year FHA']).rate, 6.125);
+    }
+  );
+
+  await t.test(
+    'TD-105 real shape: falls back to zhl/zhl-rate-cards when summary missing',
+    () => {
+      const nextData = {
+        props: {
+          pageProps: {
+            post: {
+              blocks: [
+                {
+                  blockName: 'constellation/group',
+                  innerBlocks: [
+                    {
+                      blockName: 'zhl/zhl-rate-cards',
+                      blockData: {
+                        '30 Year Fixed Conforming': {
+                          rate: '6.3750',
+                          apr: '6.5490',
+                          pointsPaid: '1.7950',
+                          productType: 'Conforming',
+                          monthlyPayment: '1715.00',
+                        },
+                      },
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+        },
+      };
+      const raw = findMortgageRates(nextData);
+      assert.ok(Array.isArray(raw));
+      assert.equal(raw.length, 1);
+      assert.equal(normalizeMortgageRate(raw[0]).lender, 'Zillow Home Loans');
+      assert.equal(normalizeMortgageRate(raw[0]).rate, 6.375);
     }
   );
 });
