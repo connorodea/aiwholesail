@@ -4,7 +4,12 @@
  */
 import { API_BASE_URL } from './platform';
 import type { Property } from '@/types/zillow';
-import { shouldClearOnStorageEvent } from './auth-coherence.js';
+import {
+  shouldClearOnStorageEvent,
+  isAuthStorageListenerEnabled,
+  AUTH_STORAGE_LISTENER_FLAG,
+} from './auth-coherence.js';
+import { getFlagFromCache } from '@/hooks/useFeatureFlag';
 
 const API_URL = API_BASE_URL;
 
@@ -132,6 +137,13 @@ if (typeof window !== 'undefined' && typeof window.addEventListener === 'functio
   if (!w.__aiwAuthStorageListenerRegistered) {
     w.__aiwAuthStorageListenerRegistered = true;
     window.addEventListener('storage', (event) => {
+      // Flag-gate (review caveat on #415): default-OFF kill switch via DB
+      // feature flag. Listener stays registered (HMR-safe) but inert until
+      // `auth-storage-listener` is flipped on for cpodea5, then ramped via
+      // rollout_pct. Fail closed on cold cache / lookup error.
+      if (!isAuthStorageListenerEnabled(() => getFlagFromCache(AUTH_STORAGE_LISTENER_FLAG))) {
+        return;
+      }
       if (shouldClearOnStorageEvent(event, window.localStorage)) {
         tokenStorage.clear();
         notifyAuthChange(null);

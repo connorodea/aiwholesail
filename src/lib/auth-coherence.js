@@ -81,3 +81,34 @@ export function shouldClearOnStorageEvent(event, localStorageRef) {
 
   return event.newValue === null || event.newValue === '';
 }
+
+/**
+ * Canonical feature-flag slug for the cross-tab storage listener. Frozen
+ * so a refactor can't silently rename and disable the kill switch.
+ * DB row lives in `feature_flag_globals`; user overrides in
+ * `feature_flag_users`. Default OFF — per the global flag-first workflow,
+ * the listener stays inert until the row is flipped on for cpodea5,
+ * then ramped via rollout_pct.
+ */
+export const AUTH_STORAGE_LISTENER_FLAG = 'auth-storage-listener';
+
+/**
+ * Decides whether the cross-tab storage listener should act. The listener
+ * is registered unconditionally at module load (HMR-safe, idempotent) but
+ * its callback body short-circuits via this predicate so it can be killed
+ * by flipping the DB flag without a code revert.
+ *
+ * @param {() => boolean | undefined} getFlag - sync flag-cache lookup
+ *   (typically `() => getFlagFromCache(AUTH_STORAGE_LISTENER_FLAG)`).
+ *   Must return undefined when the cache is cold; any value other than
+ *   strict-equal `true` is treated as off (fail closed).
+ * @returns {boolean}
+ */
+export function isAuthStorageListenerEnabled(getFlag) {
+  if (typeof getFlag !== 'function') return false;
+  try {
+    return getFlag() === true;
+  } catch {
+    return false;
+  }
+}
