@@ -433,9 +433,6 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
     mode: 'off-market',
     buildLabel: buildOffMarketHistoryLabel,
   });
-  // Captured at recordSearchHistory time so the matching entry can be
-  // patched with the final result count once the off-market search settles.
-  const historyEntryIdRef = useRef<string | null>(null);
 
   // Trigger handleSearch on the next render after a history entry restores
   // form state. Using a counter ref keeps the deps array clean — only
@@ -471,7 +468,10 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
       toast({ title: 'Enter a location', description: 'ZIP, "City, ST", "County, ST", or just "ST".', variant: 'destructive' });
       return;
     }
-    historyEntryIdRef.current = recordSearchHistory({
+    // Capture into a local const so concurrent searches don't race —
+    // each invocation's `recordResultCount` patches the entry it
+    // recorded, not whichever entry was recorded last globally.
+    const historyId = recordSearchHistory({
       locationInput: input,
       limit,
       equityFilter,
@@ -654,9 +654,7 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
 
       // Patch the matching recent-searches chip with the final result count
       // (the post-filter total, mirroring the `count` we display in result UI).
-      if (historyEntryIdRef.current) {
-        recordResultCount(historyEntryIdRef.current, filteredMerged.length);
-      }
+      recordResultCount(historyId, filteredMerged.length);
 
       // v2-aware noun for the result toast — "off-market lead(s)" when the
       // selection mixes feeds, "absentee owner(s)" for the legacy default.
