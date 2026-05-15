@@ -91,7 +91,13 @@ async function batchHandler(req, res) {
           const r = await proxyZillow('zestimate', { zpid }, { userId: req.user.id });
           // Normalise: proxy returns either {zestimate: N}, {value: N}, or N directly.
           data[zpid] = typeof r === 'number' ? r : (r?.zestimate ?? r?.value ?? null);
-        } catch {
+        } catch (err) {
+          // Log so silent batch degradation is at least observable. Without
+          // this, a 30%-failure-rate batch ships 30% nulls to the consumer
+          // and we'd never know to investigate. (TD-103)
+          console.warn(
+            `[rapidapi-zillow] batch zpid=${zpid} failed: ${err.message}`
+          );
           data[zpid] = null;
         }
       }

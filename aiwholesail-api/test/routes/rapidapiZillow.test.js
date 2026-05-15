@@ -260,3 +260,34 @@ test('batchHandler tolerates per-zpid failures (returns null for failed, value f
   assert.equal(res.statusCode, 200);
   assert.deepEqual(res.payload.data, { X: 500000, BAD: null, Y: 600000 });
 });
+
+test('batchHandler logs per-zpid failures (TD-103 — silent swallow defeats observability)', async () => {
+  // Capture console.warn output during the handler.
+  const captured = [];
+  const origWarn = console.warn;
+  console.warn = (...args) => captured.push(args.join(' '));
+
+  try {
+    installMocks({
+      proxyFn: async (_action, { zpid }) => {
+        if (zpid === 'BAD') throw new Error('upstream 502 boom');
+        return 100;
+      },
+    });
+    const { batchHandler } = clearAndReloadHandler();
+    const res = makeRes();
+    await batchHandler(makeReq({ zpids: ['OK', 'BAD'] }), res);
+
+    // Failure must produce ONE log line — must include zpid AND error message.
+    const failures = captured.filter((line) => line.includes('zpid'));
+    assert.equal(failures.length, 1, `expected 1 log line, got ${captured.length}`);
+    assert.match(failures[0], /BAD/, 'log must include the failing zpid');
+    assert.match(failures[0], /upstream 502 boom/, 'log must include the error message');
+
+    // And the BAD zpid still resolves to null in the response (no behaviour change).
+    assert.equal(res.payload.data.BAD, null);
+    assert.equal(res.payload.data.OK, 100);
+  } finally {
+    console.warn = origWarn;
+  }
+});
