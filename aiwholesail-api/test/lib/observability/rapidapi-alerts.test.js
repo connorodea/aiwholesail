@@ -142,3 +142,89 @@ test('W6 does NOT fire when 401 rate is below threshold', () => {
   }));
   assert.equal(alerts.find((a) => a.id === 'W6'), undefined);
 });
+
+// ── W7 — p95 latency degraded (>5s for 15min) ─────────────────────────────
+
+test('W7 fires Warning when p95 latency exceeds 5s sustained', () => {
+  const alerts = evaluateAlerts(metrics({
+    requests_total_15min: 100,
+    p95_latency_ms_15min: 5500,
+  }));
+
+  const w7 = alerts.find((a) => a.id === 'W7');
+  assert.ok(w7, 'W7 must fire when p95 > 5s for 15min');
+  assert.equal(w7.severity, 'warning');
+  assert.match(w7.action, /email/i);
+  assert.match(w7.context, /scrape\.do/i, 'should hint at correlated scrape.do degradation');
+});
+
+test('W7 does NOT fire at the SLO 10 target', () => {
+  // SLO 10 target: p95 ≤ 3s. W7 fires at >5s (67% headroom for noise).
+  const alerts = evaluateAlerts(metrics({
+    requests_total_15min: 100,
+    p95_latency_ms_15min: 3000,
+  }));
+  assert.equal(alerts.find((a) => a.id === 'W7'), undefined);
+});
+
+test('W7 does NOT fire on tiny traffic windows (single slow consumer dominates p95)', () => {
+  const alerts = evaluateAlerts(metrics({
+    requests_total_15min: 5,
+    p95_latency_ms_15min: 8000,
+  }));
+  assert.equal(
+    alerts.find((a) => a.id === 'W7'),
+    undefined,
+    'W7 should require meaningful sample before firing'
+  );
+});
+
+// ── W8 — 403 storm (consumer hit plan quota — INFORMATIONAL, upsell) ──────
+
+test('W8 fires Info when 403 rate exceeds 10% in last hour', () => {
+  const alerts = evaluateAlerts(metrics({
+    requests_total_1h: 1000,
+    requests_403_1h: 150, // 15%
+  }));
+
+  const w8 = alerts.find((a) => a.id === 'W8');
+  assert.ok(w8, 'W8 must fire when 403 rate > 10% in last hour');
+  assert.equal(w8.severity, 'info', 'W8 is INFORMATIONAL, not warning');
+  assert.match(w8.context, /upsell|quota/i, 'context should frame as revenue signal, not outage');
+});
+
+test('W8 does NOT fire at low 403 rates (normal consumer behaviour)', () => {
+  const alerts = evaluateAlerts(metrics({
+    requests_total_1h: 1000,
+    requests_403_1h: 30, // 3% — within normal subscription-mismatch noise
+  }));
+  assert.equal(alerts.find((a) => a.id === 'W8'), undefined);
+});
+
+// ── Multi-alert composition ───────────────────────────────────────────────
+
+test('multiple alerts can fire concurrently when conditions overlap', () => {
+  // Bad-day scenario: secret rotation gone wrong + scrape.do degraded.
+  // Should fire W6 (mismatch) AND C6 (burn-rate from upstream errors).
+  const alerts = evaluateAlerts(metrics({
+    requests_total_15min: 200,
+    requests_401_our_middleware_15min: 60, // 30%
+    requests_total_1h: 800,
+    requests_5xx_1h: 200, // 25% error rate → 25× burn
+  }));
+
+  const ids = alerts.map((a) => a.id).sort();
+  assert.deepEqual(ids, ['C6', 'W6'], 'both should fire on a real bad day');
+});
+
+test('returns empty array when nothing is firing', () => {
+  const alerts = evaluateAlerts(metrics({
+    requests_total_15min: 100,
+    requests_total_1h: 1000,
+    requests_5xx_1h: 5,                    // 0.5%, well within budget
+    requests_401_our_middleware_15min: 0,
+    requests_403_1h: 10,                   // 1%
+    p95_latency_ms_15min: 1500,
+  }));
+  assert.deepEqual(alerts, []);
+});

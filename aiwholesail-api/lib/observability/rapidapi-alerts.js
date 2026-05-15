@@ -21,6 +21,12 @@ const SLO_9_BURN_RATE_MULTIPLIER = 14.4;
 // W6 threshold: >20% of 15min traffic returning OUR-middleware 401s
 const W6_THRESHOLD_RATIO = 0.20;
 
+// W7 threshold: SLO 10 target is p95 ≤ 3s; W7 fires at >5s (67% headroom)
+const W7_LATENCY_THRESHOLD_MS = 5000;
+
+// W8 threshold: 403 rate exceeding 10% in 1h = consumers hitting plan quotas
+const W8_THRESHOLD_RATIO = 0.10;
+
 function evaluateAlerts(metrics) {
   const alerts = [];
 
@@ -79,6 +85,42 @@ function evaluateAlerts(metrics) {
           'Means prod .env RAPIDAPI_PROXY_SECRET differs from RapidAPI dashboard ' +
           'Firewall Settings — one side rotated, the other did not. ' +
           'Runbook: docs/runbooks/rapidapi-gateway.md § rollback.',
+        observed_ratio: ratio,
+      });
+    }
+  }
+
+  // ── W7 — p95 latency degraded ────────────────────────────────────────
+  if (
+    (metrics.requests_total_15min || 0) >= MIN_TRAFFIC_FLOOR_15MIN &&
+    (metrics.p95_latency_ms_15min || 0) > W7_LATENCY_THRESHOLD_MS
+  ) {
+    alerts.push({
+      id: 'W7',
+      severity: 'warning',
+      action: 'email Connor',
+      context:
+        `p95 latency on /rapidapi/zillow/proxy = ${metrics.p95_latency_ms_15min}ms ` +
+        `(SLO 10 target ≤ 3000ms, W7 fires at >5000ms). Usually correlates ` +
+        'with scrape.do degradation (W1). If scrape.do is healthy, the slow leg ' +
+        'is the RapidAPI fallback path.',
+      observed_p95_ms: metrics.p95_latency_ms_15min,
+    });
+  }
+
+  // ── W8 — 403 storm (consumers hitting plan quotas — UPSELL signal) ───
+  if ((metrics.requests_total_1h || 0) >= MIN_TRAFFIC_FLOOR_1H) {
+    const ratio = (metrics.requests_403_1h || 0) / metrics.requests_total_1h;
+    if (ratio > W8_THRESHOLD_RATIO) {
+      alerts.push({
+        id: 'W8',
+        severity: 'info',
+        action: 'email Connor',
+        context:
+          `${(ratio * 100).toFixed(1)}% of /rapidapi/zillow/* requests in last ` +
+          'hour returned 403. Means consumers are hitting plan quotas — this is ' +
+          'a REVENUE SIGNAL not an outage. Consider pricing-tier adjustment if ' +
+          'a single consumer is repeatedly capped (upsell opportunity).',
         observed_ratio: ratio,
       });
     }
