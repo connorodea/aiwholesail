@@ -262,17 +262,17 @@ export default function BlogPost() {
                   );
                 case 'tip':
                   return (
-                    <div key={i} className="my-8 p-6 border border-white/[0.05] bg-gradient-to-b from-neutral-900/50 to-transparent rounded-xl">
+                    <div key={i} className="my-8 p-6 border border-white/[0.06] bg-[#0d1117] rounded-2xl">
                       <p className="text-sm font-semibold text-cyan-400 mb-1">Pro Tip</p>
                       <p className="text-[15px] text-neutral-400 leading-relaxed font-light">{section.content}</p>
                     </div>
                   );
                 case 'cta':
                   return (
-                    <div key={i} className="my-12 p-8 border border-white/[0.05] bg-gradient-to-b from-neutral-900/50 to-transparent rounded-xl text-center space-y-4">
+                    <div key={i} className="my-12 p-8 border border-white/[0.06] bg-[#0d1117] rounded-2xl text-center space-y-4">
                       <p className="font-medium leading-relaxed text-white">{section.content}</p>
                       <Link to="/pricing">
-                        <button className="inline-flex items-center gap-2 px-6 py-3 bg-cyan-500 hover:bg-cyan-400 text-black font-semibold rounded-md transition-colors">
+                        <button className="inline-flex items-center gap-2 px-6 py-3 bg-cyan-500 hover:bg-cyan-400 text-black font-semibold rounded-lg transition-colors">
                           <Zap className="h-4 w-4" /> Start Free Trial
                         </button>
                       </Link>
@@ -299,7 +299,7 @@ export default function BlogPost() {
           )}
 
           {/* Internal Links -- SEO interlinking */}
-          <div className="mt-12 p-6 border border-white/[0.05] bg-gradient-to-b from-neutral-900/50 to-transparent rounded-xl">
+          <div className="mt-12 p-6 border border-white/[0.06] bg-[#0d1117] rounded-2xl">
             <p className="text-xs font-semibold tracking-[0.15em] uppercase text-cyan-400 mb-4">Explore More</p>
             <div className="grid sm:grid-cols-3 gap-3">
               <Link to="/tools" className="flex items-center gap-2 text-sm text-neutral-400 hover:text-white transition-colors p-2 rounded-lg hover:bg-white/[0.03]">
@@ -324,7 +324,7 @@ export default function BlogPost() {
             <div className="grid md:grid-cols-3 gap-4">
               {relatedArticles.map((a: any) => (
                 <Link key={a.slug} to={`/blog/${a.slug}`} className="group">
-                  <div className="border border-white/[0.05] bg-gradient-to-b from-neutral-900/50 to-transparent rounded-xl p-6 hover:border-cyan-500/20 hover:shadow-lg transition-all duration-300 h-full flex flex-col">
+                  <div className="border border-white/[0.06] bg-[#0d1117] rounded-2xl p-6 hover:border-cyan-500/20 hover:shadow-lg transition-all duration-300 h-full flex flex-col">
                     <Badge variant="outline" className={`text-[10px] w-fit mb-3 ${categoryColors[a.category] || ''}`}>
                       {a.category}
                     </Badge>
@@ -344,7 +344,7 @@ export default function BlogPost() {
 
         {/* Bottom CTA */}
         <div className="container mx-auto max-w-3xl mt-20">
-          <div className="border border-white/[0.05] bg-gradient-to-b from-neutral-900/50 to-transparent rounded-xl p-10 md:p-12 text-center">
+          <div className="border border-white/[0.06] bg-[#0d1117] rounded-2xl p-10 md:p-12 text-center">
             <h3 className="text-2xl md:text-3xl font-bold tracking-tight text-white mb-3">
               Find Profitable Deals with AI
             </h3>
@@ -353,7 +353,7 @@ export default function BlogPost() {
             </p>
             <div className="flex gap-3 justify-center flex-wrap">
               <Link to="/pricing">
-                <button className="inline-flex items-center gap-2 px-6 py-3 bg-cyan-500 hover:bg-cyan-400 text-black font-semibold rounded-md transition-colors">
+                <button className="inline-flex items-center gap-2 px-6 py-3 bg-cyan-500 hover:bg-cyan-400 text-black font-semibold rounded-lg transition-colors">
                   <Zap className="h-4 w-4" /> Start Free Trial
                 </button>
               </Link>
