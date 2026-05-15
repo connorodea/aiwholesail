@@ -248,4 +248,240 @@ test('POST /api/email-capture', async (t) => {
     // Better to capture-and-retry-later than reject-and-lose-the-lead.
     assert.equal(res.status, 200);
   });
+
+  await t.test('Resend send THROWS exception → 200, exception caught + logged (lead still captured)', async () => {
+    // Like the rate-limit test below: must install the throwing-Resend
+    // stub BEFORE the route module loads. The route instantiates
+    // `const resend = new Resend(...)` at module load and captures the
+    // instance — substituting the class mid-test doesn't affect the
+    // already-constructed object. Covers lines 329-335 in emailCapture.js.
+    const pathMod = require('node:path');
+    const pool = makeMockPool();
+    pool.responses.push({ rows: [{ id: 'cap-throw' }], rowCount: 1 });
+
+    // 1. Mock database
+    const dbPath = pathMod.join(__dirname, '..', '..', 'config', 'database.js');
+    delete require.cache[dbPath];
+    require.cache[dbPath] = {
+      id: dbPath, filename: dbPath, loaded: true,
+      exports: { pool, query: pool.query.bind(pool) },
+    };
+
+    // 2. Mock Resend with a THROWING send — exercises the outer catch.
+    const resendPath = require.resolve('resend');
+    delete require.cache[resendPath];
+    require.cache[resendPath] = {
+      id: resendPath, filename: resendPath, loaded: true,
+      exports: {
+        Resend: class ThrowingResend {
+          get emails() {
+            return { send: async () => { throw new Error('network ECONNRESET'); } };
+          }
+        },
+      },
+    };
+
+    // 3. Mock rate-limit to ALLOW (we want to reach the email-send path).
+    const rateLimitPath = pathMod.join(__dirname, '..', '..', 'middleware', 'rateLimit.js');
+    delete require.cache[rateLimitPath];
+    require.cache[rateLimitPath] = {
+      id: rateLimitPath, filename: rateLimitPath, loaded: true,
+      exports: {
+        checkDatabaseRateLimit: async () => ({ allowed: true, remaining: 5 }),
+        rateLimiter: (_req, _res, next) => next(),
+      },
+    };
+
+    // 4. Mock errorHandler
+    const errorHandlerPath = pathMod.join(__dirname, '..', '..', 'middleware', 'errorHandler.js');
+    delete require.cache[errorHandlerPath];
+    require.cache[errorHandlerPath] = {
+      id: errorHandlerPath, filename: errorHandlerPath, loaded: true,
+      exports: {
+        asyncHandler: (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next),
+        logSecurityEvent: async () => {},
+        errorHandler: (err, _req, res, _next) => res.status(err.status || 500).json({ error: err.message }),
+      },
+    };
+
+    delete require.cache[require.resolve('../../routes/emailCapture')];
+    const route = require('../../routes/emailCapture');
+    const app = express();
+    app.use(express.json());
+    app.use('/api/email-capture', route);
+
+    // Silence the expected console.error from the catch branch.
+    const origErr = console.error;
+    console.error = () => {};
+    try {
+      const res = await postJson(app, {
+        email: 'investor@example.com',
+        slug: 'finding-motivated-sellers',
+      });
+      // Lead captured (rowCount=1), exception swallowed → 200 OK.
+      assert.equal(res.status, 200);
+      assert.equal(res.body.ok, true);
+      assert.equal(res.body.captured, true);
+    } finally {
+      console.error = origErr;
+    }
+  });
+
+  await t.test('Resend returns {error} (non-throw) → 200, error logged (lead still captured)', async () => {
+    // Companion to the throw-case above — same load-order discipline so
+    // the error-returning Resend stub is the one the route actually uses.
+    // Covers lines 320-327 in emailCapture.js (the if-result.error branch).
+    const pathMod = require('node:path');
+    const pool = makeMockPool();
+    pool.responses.push({ rows: [{ id: 'cap-err' }], rowCount: 1 });
+
+    const dbPath = pathMod.join(__dirname, '..', '..', 'config', 'database.js');
+    delete require.cache[dbPath];
+    require.cache[dbPath] = {
+      id: dbPath, filename: dbPath, loaded: true,
+      exports: { pool, query: pool.query.bind(pool) },
+    };
+
+    const resendPath = require.resolve('resend');
+    delete require.cache[resendPath];
+    let sendCalls = 0;
+    require.cache[resendPath] = {
+      id: resendPath, filename: resendPath, loaded: true,
+      exports: {
+        Resend: class ErrorReturningResend {
+          get emails() {
+            return { send: async () => { sendCalls += 1; return { data: null, error: { message: 'upstream 502' } }; } };
+          }
+        },
+      },
+    };
+
+    const rateLimitPath = pathMod.join(__dirname, '..', '..', 'middleware', 'rateLimit.js');
+    delete require.cache[rateLimitPath];
+    require.cache[rateLimitPath] = {
+      id: rateLimitPath, filename: rateLimitPath, loaded: true,
+      exports: {
+        checkDatabaseRateLimit: async () => ({ allowed: true, remaining: 5 }),
+        rateLimiter: (_req, _res, next) => next(),
+      },
+    };
+
+    const errorHandlerPath = pathMod.join(__dirname, '..', '..', 'middleware', 'errorHandler.js');
+    delete require.cache[errorHandlerPath];
+    require.cache[errorHandlerPath] = {
+      id: errorHandlerPath, filename: errorHandlerPath, loaded: true,
+      exports: {
+        asyncHandler: (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next),
+        logSecurityEvent: async () => {},
+        errorHandler: (err, _req, res, _next) => res.status(err.status || 500).json({ error: err.message }),
+      },
+    };
+
+    delete require.cache[require.resolve('../../routes/emailCapture')];
+    const route = require('../../routes/emailCapture');
+    const app = express();
+    app.use(express.json());
+    app.use('/api/email-capture', route);
+
+    const origErr = console.error;
+    console.error = () => {};
+    try {
+      const res = await postJson(app, {
+        email: 'investor2@example.com',
+        slug: 'finding-motivated-sellers',
+      });
+      assert.equal(res.status, 200);
+      assert.equal(res.body.ok, true);
+      assert.equal(res.body.captured, true);
+      assert.equal(sendCalls, 1, 'resend was actually invoked (not bypassed by stale stub)');
+    } finally {
+      console.error = origErr;
+    }
+  });
+
+  await t.test('rate-limit hit → 429 + security event logged (no DB insert, no email)', async () => {
+    // This case can't use makeAppWithStubs because the route captures
+    // `checkDatabaseRateLimit` at module-load (destructure on import).
+    // Overriding the stub after the harness installed it would be too
+    // late — the route already grabbed the function reference. So we
+    // install our deny-stub directly into require.cache BEFORE the
+    // route module loads.
+    const pathMod = require('node:path');
+    const pool = makeMockPool();
+    const resendCalls = [];
+
+    // 1. Mock database
+    const dbPath = pathMod.join(__dirname, '..', '..', 'config', 'database.js');
+    delete require.cache[dbPath];
+    require.cache[dbPath] = {
+      id: dbPath,
+      filename: dbPath,
+      loaded: true,
+      exports: { pool, query: pool.query.bind(pool) },
+    };
+
+    // 2. Mock Resend (we should never reach it, but the route requires it at load)
+    const resendPath = require.resolve('resend');
+    delete require.cache[resendPath];
+    require.cache[resendPath] = {
+      id: resendPath,
+      filename: resendPath,
+      loaded: true,
+      exports: {
+        Resend: class StubResend {
+          get emails() {
+            return { send: async (m) => { resendCalls.push(m); return { data: null, error: null }; } };
+          }
+        },
+      },
+    };
+
+    // 3. Mock rate-limit middleware to DENY — this is the path under test.
+    const rateLimitPath = pathMod.join(__dirname, '..', '..', 'middleware', 'rateLimit.js');
+    delete require.cache[rateLimitPath];
+    require.cache[rateLimitPath] = {
+      id: rateLimitPath,
+      filename: rateLimitPath,
+      loaded: true,
+      exports: {
+        checkDatabaseRateLimit: async () => ({ allowed: false, remaining: 0 }),
+        rateLimiter: (_req, _res, next) => next(),
+      },
+    };
+
+    // 4. Mock errorHandler — track security-event log calls.
+    const errorHandlerPath = pathMod.join(__dirname, '..', '..', 'middleware', 'errorHandler.js');
+    const securityLogCalls = [];
+    delete require.cache[errorHandlerPath];
+    require.cache[errorHandlerPath] = {
+      id: errorHandlerPath,
+      filename: errorHandlerPath,
+      loaded: true,
+      exports: {
+        asyncHandler: (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next),
+        logSecurityEvent: async (eventType, details) => { securityLogCalls.push({ eventType, details }); },
+        errorHandler: (err, _req, res, _next) => res.status(err.status || 500).json({ error: err.message }),
+      },
+    };
+
+    // 5. Now load the route with all stubs in place.
+    delete require.cache[require.resolve('../../routes/emailCapture')];
+    const route = require('../../routes/emailCapture');
+    const app = express();
+    app.use(express.json());
+    app.use('/api/email-capture', route);
+
+    const res = await postJson(app, {
+      email: 'spammer@example.com',
+      slug: 'finding-motivated-sellers',
+    });
+
+    assert.equal(res.status, 429);
+    assert.match(res.body.error, /Too many submissions/);
+    assert.equal(pool.calls.length, 0, 'no DB insert when rate-limited');
+    assert.equal(resendCalls.length, 0, 'no email sent when rate-limited');
+    assert.equal(securityLogCalls.length, 1);
+    assert.equal(securityLogCalls[0].eventType, 'email_capture_rate_limited');
+    assert.equal(securityLogCalls[0].details.slug, 'finding-motivated-sellers');
+  });
 });
