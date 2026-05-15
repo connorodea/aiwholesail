@@ -1,4 +1,5 @@
 import { Property } from '@/types/zillow';
+import { isAuctionSubject } from '@/lib/auction-detection';
 
 export interface WholesalePotential {
   spreadAmount: number;
@@ -8,9 +9,25 @@ export interface WholesalePotential {
 }
 
 export function calculateWholesalePotential(property: Property): WholesalePotential {
+  // Auction subjects (foreclosure / trustee's sale / opening-bid listings)
+  // have a `price` that is the opening bid, not a market price. Computing
+  // `zestimate - price` produces a wildly inflated "spread" that ranks
+  // them above every legitimate market deal. Bail to poor tier with a
+  // zero score so the sorter demotes them and the modal/banner renders
+  // neutral. Pairs with the ComparableSalesTable gate from PR #408 and
+  // the PropertyCard gate added alongside this change.
+  if (isAuctionSubject(property as { price?: number; sqft?: number; description?: string })) {
+    return {
+      spreadAmount: 0,
+      spreadPercentage: 0,
+      score: 0,
+      tier: 'poor'
+    };
+  }
+
   const price = property.price || 0;
   const zestimate = property.zestimate || 0;
-  
+
   // If no price or zestimate, return poor potential
   if (!price || !zestimate || price >= zestimate) {
     return {

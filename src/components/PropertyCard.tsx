@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { MapPin, Bed, Bath, Square, Eye, ExternalLink, Search, TrendingUp, TrendingDown, Clock, Flame, User, Phone, Building2, Heart, Star } from 'lucide-react';
 import { type MotivationResult, MIN_MOTIVATED_SCORE, HIGH_MOTIVATION_SCORE, describeMotivation } from '@/lib/motivated-seller-score';
+import { isAuctionSubject } from '@/lib/auction-detection';
 import { useState } from 'react';
 import { SkipTraceModal } from './SkipTraceModal';
 import { AddToPipelineButton } from './pipeline/AddToPipelineButton';
@@ -47,9 +48,15 @@ export function PropertyCard({ property, onViewDetails }: PropertyCardProps) {
   const spread = property.price && property.zestimate ? property.zestimate - property.price : 0;
   const spreadPercent = property.zestimate && property.zestimate > 0 ? ((spread / property.zestimate) * 100).toFixed(1) : '0';
   const hasZestimate = !!(property.zestimate && property.price);
-  const isQualifiedDeal = spread >= 30000;
-  const isGreatDeal = spread >= 50000;
-  const isTopDeal = spread >= 100000;
+  // Auction / foreclosure subjects have a $5k "opening bid" price that
+  // inflates the spread to look like a $295k deal. Suppress the deal
+  // banner + ring so wholesalers don't waste clicks on non-market
+  // listings. Same gate as ComparableSalesTable (PR #408) +
+  // wholesale-calculator (this PR).
+  const isAuctionLike = isAuctionSubject(property as { price?: number; sqft?: number; description?: string });
+  const isQualifiedDeal = spread >= 30000 && !isAuctionLike;
+  const isGreatDeal = spread >= 50000 && !isAuctionLike;
+  const isTopDeal = spread >= 100000 && !isAuctionLike;
 
   // Days on market
   const daysOnMarket = property.daysOnMarket ?? null;
