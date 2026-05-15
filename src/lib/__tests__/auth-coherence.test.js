@@ -35,7 +35,9 @@ import assert from 'node:assert/strict';
 import {
   isAuthCriticalKey,
   shouldClearOnStorageEvent,
+  isAuthStorageListenerEnabled,
   AUTH_STORAGE_KEYS,
+  AUTH_STORAGE_LISTENER_FLAG,
 } from '../auth-coherence.js';
 
 test('AUTH_STORAGE_KEYS exports the three auth-critical localStorage keys', () => {
@@ -225,4 +227,53 @@ test('shouldClearOnStorageEvent: localStorageRef provided but event has no stora
     newValue: null,
   };
   assert.equal(shouldClearOnStorageEvent(event, realLocal), true);
+});
+
+// ─── Flag-gate (review caveat on #415): default-OFF kill switch ────────────
+// The storage listener affects 100% of sessions on merge with no kill switch
+// short of a code revert. Reviewer asked for the standard flag-first rollout
+// (default OFF, override for cpodea5, then ramp). The predicate below lets
+// the listener stay registered (HMR-safe) but inert until the flag is on.
+
+test('AUTH_STORAGE_LISTENER_FLAG is the canonical slug for the kill switch', () => {
+  // Frozen so a refactor can't silently rename and disable the gate.
+  assert.equal(AUTH_STORAGE_LISTENER_FLAG, 'auth-storage-listener');
+});
+
+test('isAuthStorageListenerEnabled: false when flag-getter returns undefined (cold cache)', () => {
+  // Cold cache → conservative "off" per non-React caller contract.
+  // The listener must do nothing on its first storage event until the
+  // useFeatureFlag hook has populated the cache.
+  const getFlag = () => undefined;
+  assert.equal(isAuthStorageListenerEnabled(getFlag), false);
+});
+
+test('isAuthStorageListenerEnabled: false when flag-getter returns false (DB row off)', () => {
+  // Default DB state: flag exists but enabled=false. The listener stays
+  // inert across the entire user base while we dogfood.
+  const getFlag = () => false;
+  assert.equal(isAuthStorageListenerEnabled(getFlag), false);
+});
+
+test('isAuthStorageListenerEnabled: true ONLY when flag-getter returns explicit true', () => {
+  // The single condition under which the listener acts. Anything other
+  // than === true is treated as off. Catches accidental truthy coercion
+  // bugs (`"true"` string, `1`, `{}`).
+  assert.equal(isAuthStorageListenerEnabled(() => true), true);
+  assert.equal(isAuthStorageListenerEnabled(() => 'true'), false);
+  assert.equal(isAuthStorageListenerEnabled(() => 1), false);
+  assert.equal(isAuthStorageListenerEnabled(() => ({})), false);
+});
+
+test('isAuthStorageListenerEnabled: false when flag-getter throws', () => {
+  // Cache lookups should never throw, but a corrupt localStorage payload
+  // shouldn't bring down auth handling. Fail closed.
+  const getFlag = () => { throw new Error('cache corrupt'); };
+  assert.equal(isAuthStorageListenerEnabled(getFlag), false);
+});
+
+test('isAuthStorageListenerEnabled: false when getter is missing or not a function (defensive)', () => {
+  assert.equal(isAuthStorageListenerEnabled(null), false);
+  assert.equal(isAuthStorageListenerEnabled(undefined), false);
+  assert.equal(isAuthStorageListenerEnabled('not a fn'), false);
 });
