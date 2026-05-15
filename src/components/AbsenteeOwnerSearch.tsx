@@ -1,4 +1,4 @@
-import { lazy, Suspense, useMemo, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { LeadTypeChips } from '@/components/LeadTypeChips';
 import {
   LEAD_TYPES,
@@ -21,6 +21,9 @@ import { topZipsInState } from '@/lib/topZipsByState';
 import { fanOutZipSearch, MAX_ZIPS_PER_SEARCH } from '@/lib/zip-search';
 import { OwnerSkipTraceButton } from '@/components/OwnerSkipTraceButton';
 import { LocationAutocomplete } from '@/components/LocationAutocomplete';
+import { SearchHistory } from '@/components/SearchHistory';
+import { useSearchHistory } from '@/hooks/useSearchHistory';
+import { buildOffMarketHistoryLabel } from '@/lib/searchHistoryLabels';
 import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useFeatureFlag } from '@/hooks/useFeatureFlag';
@@ -402,12 +405,69 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
 
   const enrichment = data?.enrichment;
 
+  // Recent-searches memory — last 4 off-market searches, stored in localStorage.
+  interface OffMarketHistoryParams {
+    locationInput: string;
+    limit: number;
+    equityFilter: EquityFilter;
+    taxDelinquentOnly: boolean;
+    minYearsHeld: 0 | 5 | 10 | 20;
+    excludeRecentSales: boolean;
+    selectedLeadTypes: string[];
+  }
+  const {
+    history: searchHistory,
+    recordSearch: recordSearchHistory,
+    removeSearch: removeSearchFromHistory,
+    clear: clearSearchHistory,
+  } = useSearchHistory<OffMarketHistoryParams>({
+    mode: 'off-market',
+    buildLabel: buildOffMarketHistoryLabel,
+  });
+
+  // Trigger handleSearch on the next render after a history entry restores
+  // form state. Using a counter ref keeps the deps array clean — only
+  // increments mean replay.
+  const replayTokenRef = useRef(0);
+  const [replayToken, setReplayToken] = useState(0);
+  useEffect(() => {
+    if (replayToken === 0) return;
+    if (replayToken === replayTokenRef.current) return;
+    replayTokenRef.current = replayToken;
+    void handleSearch();
+    // handleSearch reads from current state, which has been freshly set by
+    // handleApplyHistory; intentionally only depends on replayToken.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [replayToken]);
+
+  const handleApplyHistory = (params: OffMarketHistoryParams) => {
+    setLocationInput(params.locationInput);
+    setLimit(params.limit);
+    setEquityFilter(params.equityFilter);
+    setTaxDelinquentOnly(params.taxDelinquentOnly);
+    setMinYearsHeld(params.minYearsHeld);
+    setExcludeRecentSales(params.excludeRecentSales);
+    setSelectedLeadTypes(new Set(params.selectedLeadTypes));
+    // handleSearch (fired via the replayToken effect) will record the
+    // promoted entry — calling recordSearchHistory here would double-record.
+    setReplayToken((t) => t + 1);
+  };
+
   const handleSearch = async () => {
     const input = locationInput.trim();
     if (!input) {
       toast({ title: 'Enter a location', description: 'ZIP, "City, ST", "County, ST", or just "ST".', variant: 'destructive' });
       return;
     }
+    recordSearchHistory({
+      locationInput: input,
+      limit,
+      equityFilter,
+      taxDelinquentOnly,
+      minYearsHeld,
+      excludeRecentSales,
+      selectedLeadTypes: [...selectedLeadTypes],
+    });
     setLoading(true);
     setProgress(null);
     try {
@@ -881,6 +941,14 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
+          {searchHistory.length > 0 && (
+            <SearchHistory<OffMarketHistoryParams>
+              entries={searchHistory}
+              onApply={(entry) => handleApplyHistory(entry.params)}
+              onRemove={removeSearchFromHistory}
+              onClear={clearSearchHistory}
+            />
+          )}
           <div className="flex flex-col gap-3">
             <div className="space-y-2">
               <Label htmlFor="abs-location">Location</Label>

@@ -11,6 +11,9 @@ import { Search, Home, Bed, Bath, DollarSign, TrendingDown, MessageSquare, Gavel
 import { Link } from 'react-router-dom';
 import { LocationAutocomplete } from './LocationAutocomplete';
 import { CountyBrowserDialog } from './CountyBrowserDialog';
+import { SearchHistory } from './SearchHistory';
+import { useSearchHistory } from '@/hooks/useSearchHistory';
+import { buildOnMarketHistoryLabel } from '@/lib/searchHistoryLabels';
 import { validatePriceRange, sanitizeSearchKeywords, validateLocationInput } from '@/lib/security';
 import { isMultiLocationSearchEnabled } from '@/lib/feature-flags';
 import { useFeatureFlag } from '@/hooks/useFeatureFlag';
@@ -62,6 +65,19 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
   const tidied = variant !== 'legacy';
   const [filtersOpen, setFiltersOpen] = useState(false);
 
+  // Recent-searches memory — last 4 searches per mode, stored in localStorage.
+  // Click an entry to replay it; full criteria are restored into the form
+  // before re-running, so the user can also tweak-and-re-search.
+  const {
+    history: searchHistory,
+    recordSearch: recordSearchHistory,
+    removeSearch: removeSearchFromHistory,
+    clear: clearSearchHistory,
+  } = useSearchHistory<PropertySearchParams>({
+    mode: 'on-market',
+    buildLabel: buildOnMarketHistoryLabel,
+  });
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -98,8 +114,15 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
       price_min: priceValidation.min?.toString(),
       price_max: priceValidation.max?.toString()
     };
-    
+
+    recordSearchHistory(sanitizedParams);
     onSearch(sanitizedParams);
+  };
+
+  const handleApplyHistory = (params: PropertySearchParams) => {
+    setSearchParams(params);
+    recordSearchHistory(params);
+    onSearch(params);
   };
 
   const updateParam = (key: keyof PropertySearchParams, value: string | boolean) => {
@@ -116,6 +139,14 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+          {searchHistory.length > 0 && (
+            <SearchHistory<PropertySearchParams>
+              entries={searchHistory}
+              onApply={(entry) => handleApplyHistory(entry.params)}
+              onRemove={removeSearchFromHistory}
+              onClear={clearSearchHistory}
+            />
+          )}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             {layoutV2Enabled || tidied ? (
               /* v2 layout (also used by the v3 tidied variants): Location +
