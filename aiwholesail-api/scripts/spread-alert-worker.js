@@ -26,6 +26,7 @@ const axios = require('axios');
 const { Pool } = require('pg');
 const { Resend } = require('resend');
 const { zillowUrl, appPropUrl, buildPrimaryUrl } = require('../lib/spread-alert-urls');
+const { isAuctionSubject } = require('../lib/auction-detection');
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
@@ -581,6 +582,38 @@ async function run() {
           console.log(`  Alert ${alert.id} (${alert.location}): No new deals`);
           continue;
         }
+
+        // Filter out auction / foreclosure "deals" before sending. A
+        // foreclosure with a $5k opening bid against a $300k zestimate
+        // has spread=$295k — comfortably above every user's threshold —
+        // but the price isn't a market price. Without this filter the
+        // alert email subject reads "+$295,000 total spread" and the
+        // user clicks expecting a wholesale deal. PR #408/#430/#433
+        // closed the same gap in the in-app UI.
+        //
+        // The cache currently carries price + sqft (no description or
+        // is_foreclosure column), so only the PPSF + low-absolute-price
+        // heuristics fire here. That catches the most common pattern;
+        // the keyword + isForeclosure branches will activate once a
+        // future migration adds those columns to property_search_cache.
+        const nonAuctionDeals = deals.rows.filter((d) => !isAuctionSubject({
+          price: typeof d.price === 'number' ? d.price : (d.price != null ? Number(d.price) : null),
+          sqft: typeof d.sqft === 'number' ? d.sqft : (d.sqft != null ? Number(d.sqft) : null),
+          description: typeof d.description === 'string' ? d.description : undefined,
+          isForeclosure: d.is_foreclosure === true ? true : undefined,
+        }));
+
+        if (nonAuctionDeals.length === 0) {
+          const skipped = deals.rows.length;
+          console.log(`  Alert ${alert.id} (${alert.location}): ${skipped} candidate(s) all filtered as auction subjects — no email sent`);
+          continue;
+        }
+        if (nonAuctionDeals.length < deals.rows.length) {
+          console.log(`  Alert ${alert.id} (${alert.location}): filtered ${deals.rows.length - nonAuctionDeals.length} auction subject(s); ${nonAuctionDeals.length} real deal(s) remain`);
+        }
+        // Reassign so the rest of the loop body uses the filtered set
+        // without touching the original `deals.rows` reference.
+        deals.rows = nonAuctionDeals;
 
         const userEmail = alert.email;
         console.log(`  Alert ${alert.id} (${alert.location}): ${deals.rows.length} new deals for ${userEmail}`);
