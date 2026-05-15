@@ -144,3 +144,67 @@ test('function is pure: same input always returns same output', () => {
   assert.equal(a, b);
   assert.equal(a, true);
 });
+
+test('isForeclosure boolean = true is a definitive auction signal', () => {
+  // Zillow surfaces an explicit `isForeclosure` boolean on listResults
+  // and detail payloads. This is a MORE RELIABLE signal than parsing
+  // keywords out of the description — there's no NLP guessing, Zillow
+  // already classified the listing. Use it whenever it's present.
+  //
+  // Without this branch the auction-detection's keyword path is the
+  // only positive trigger, but search results don't carry the
+  // description field today (silent gap flagged in #408 review).
+  assert.equal(isAuctionSubject({ isForeclosure: true }), true);
+
+  // Combined with reasonable price/sqft — still flagged.
+  assert.equal(
+    isAuctionSubject({ isForeclosure: true, price: 350000, sqft: 1800 }),
+    true,
+    'a normal-priced listing flagged isForeclosure must still be detected',
+  );
+});
+
+test('isForeclosure=false does NOT short-circuit the other signals', () => {
+  // Defensive: Zillow occasionally emits isForeclosure=false on listings
+  // that ARE auctions (description still says "Trustee's Sale"). The
+  // other signals (keyword, low PPSF) must still fire — isForeclosure
+  // only adds positive evidence, it never subtracts.
+  assert.equal(
+    isAuctionSubject({
+      isForeclosure: false,
+      description: "Trustee's Sale on May 1",
+    }),
+    true,
+    "keyword signal must still fire when isForeclosure=false",
+  );
+
+  assert.equal(
+    isAuctionSubject({
+      isForeclosure: false,
+      price: 1000,
+      sqft: 1500,
+    }),
+    true,
+    'low-PPSF signal must still fire when isForeclosure=false',
+  );
+});
+
+test('isForeclosure=null/undefined is harmless', () => {
+  // Most non-foreclosure listings have isForeclosure=null or undefined
+  // — must NOT flag those as auctions just because the field is empty.
+  assert.equal(isAuctionSubject({ isForeclosure: null, price: 350000, sqft: 1800 }), false);
+  assert.equal(
+    isAuctionSubject({ isForeclosure: undefined, price: 350000, sqft: 1800 }),
+    false,
+  );
+});
+
+test('isForeclosure with non-boolean truthy values does NOT flag (strict-true gate)', () => {
+  // Defensive: Zillow's payload is sometimes inconsistent — `isForeclosure`
+  // can be a numeric 1, a string "true", or anything truthy. We require
+  // STRICT-true to avoid accidentally flagging on edge cases like
+  // `isForeclosure: 0` being JSON-encoded weirdly. The keyword + PPSF
+  // signals catch real foreclosures even when this is messy.
+  assert.equal(isAuctionSubject({ isForeclosure: 1, price: 350000, sqft: 1800 }), false);
+  assert.equal(isAuctionSubject({ isForeclosure: 'true', price: 350000, sqft: 1800 }), false);
+});

@@ -1,5 +1,6 @@
 import { Property } from '@/types/zillow';
 import { isAuctionSubject } from '@/lib/auction-detection';
+import { freshnessWeightedRank } from '@/lib/freshness-weighted-rank';
 
 export interface WholesalePotential {
   spreadAmount: number;
@@ -139,19 +140,30 @@ export function sortPropertiesByWholesalePotential(properties: Property[]): Prop
       const rawSpread = hasZestimate ? zestimate - price : -Infinity;
       const daysOnMarket = property.daysOnMarket ?? 9999; // Default to high if unknown
       const isQualifiedDeal = rawSpread >= MIN_DEAL_SPREAD;
-      return { property, potential: calculateWholesalePotential(property), hasZestimate, rawSpread, daysOnMarket, isQualifiedDeal };
+      // Compound ranking: freshness-weighted spread. Brand-new listings
+      // (≤1 day) get a 1.5x boost; stale listings (15+ days) get 0.5x.
+      // Matches the user's actual decision ("newest first + highest spread
+      // first") — fresh listings surface even with smaller spreads, but a
+      // huge spread differential still wins against staleness.
+      // See src/lib/freshness-weighted-rank.js for the multiplier table.
+      const rankScore = freshnessWeightedRank(rawSpread, daysOnMarket);
+      return { property, potential: calculateWholesalePotential(property), hasZestimate, rawSpread, daysOnMarket, isQualifiedDeal, rankScore };
     })
     .sort((a, b) => {
       // 1. Qualified deals ($30k+ spread) always first
       if (a.isQualifiedDeal && !b.isQualifiedDeal) return -1;
       if (!a.isQualifiedDeal && b.isQualifiedDeal) return 1;
 
-      // 2. Among qualified deals: SPREAD primary (user expectation — biggest
-      //    spread on top), days-on-market as a tiebreaker. Previously this
-      //    had days primary, which buried $200K-spread 30-day-old listings
-      //    under $30K-spread brand-new ones — user reported "highest spreads
-      //    aren't autopopulating to the top anymore".
+      // 2. Among qualified deals: freshness-weighted rank. Brand-new $100K
+      //    spread beats stale $200K spread; brand-new $50K does NOT beat
+      //    aging $200K (spread differential too large). PR #201's pure-
+      //    spread sort buried minutes-old listings; pre-#201's pure-newest
+      //    buried huge spreads. This hybrid lands between.
+      //    Tiebreaker: raw spread DESC, then days ASC.
       if (a.isQualifiedDeal && b.isQualifiedDeal) {
+        if (a.rankScore !== b.rankScore) {
+          return b.rankScore - a.rankScore;
+        }
         if (a.rawSpread !== b.rawSpread) {
           return b.rawSpread - a.rawSpread;
         }
@@ -159,13 +171,16 @@ export function sortPropertiesByWholesalePotential(properties: Property[]): Prop
       }
 
       // 3. Properties with positive spread (but < $30k) next.
-      //    Same priority: spread primary, days-on-market tiebreaker.
+      //    Same freshness-weighted ranking applies.
       const aPositive = a.rawSpread > 0;
       const bPositive = b.rawSpread > 0;
       if (aPositive && !bPositive) return -1;
       if (!aPositive && bPositive) return 1;
 
       if (aPositive && bPositive) {
+        if (a.rankScore !== b.rankScore) {
+          return b.rankScore - a.rankScore;
+        }
         if (a.rawSpread !== b.rawSpread) {
           return b.rawSpread - a.rawSpread;
         }
