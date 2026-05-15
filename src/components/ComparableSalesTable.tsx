@@ -24,6 +24,7 @@ import {
   CheckCircle2
 } from 'lucide-react';
 import { zillowAPI } from '@/lib/zillow-api';
+import { isAuctionSubject } from '@/lib/auction-detection';
 
 interface ComparableSalesTableProps {
   property: Property;
@@ -182,6 +183,16 @@ export function ComparableSalesTable({ property }: ComparableSalesTableProps) {
   const potentialProfit = estimatedARV - (property.price || 0);
   const spreadFromComps = property.price && estimatedARV ? estimatedARV - property.price : 0;
 
+  // Detect foreclosure/auction subjects so we don't render a misleading
+  // "Great Deal +$X" verdict against an opening-bid price. Pure detection
+  // logic lives in src/lib/auction-detection.js so it can be unit-tested
+  // without rendering the component. See PR #94's rationale.
+  const isAuctionLike = isAuctionSubject({
+    price: property.price,
+    sqft: property.sqft,
+    description: (property as any).description,
+  });
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -252,8 +263,13 @@ export function ComparableSalesTable({ property }: ComparableSalesTableProps) {
             <div className={`text-xl font-bold ${spreadFromComps > 30000 ? 'text-green-500' : spreadFromComps > 0 ? 'text-foreground' : 'text-red-500'}`}>
               {spreadFromComps >= 0 ? '+' : ''}{formatPrice(spreadFromComps)}
             </div>
-            {spreadFromComps > 50000 && (
+            {spreadFromComps > 50000 && !isAuctionLike && (
               <Badge className="mt-1 bg-green-500">Great Deal</Badge>
+            )}
+            {isAuctionLike && (
+              <div className="text-xs text-amber-600 mt-1">
+                Auction subject — listed price likely an opening bid
+              </div>
             )}
           </CardContent>
         </Card>
