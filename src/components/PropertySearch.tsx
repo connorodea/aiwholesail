@@ -14,6 +14,10 @@ import { CountyBrowserDialog } from './CountyBrowserDialog';
 import { SearchHistory } from './SearchHistory';
 import type { SearchHistoryEntry } from '@/hooks/useSearchHistory';
 import { isCountyWithoutState } from '@/lib/locationValidation.js';
+import {
+  ON_MARKET_DEFAULTS,
+  applyHistoryDefaults,
+} from '@/lib/searchParamsDefaults.js';
 import { validatePriceRange, sanitizeSearchKeywords, validateLocationInput } from '@/lib/security';
 import { isMultiLocationSearchEnabled } from '@/lib/feature-flags';
 import { useFeatureFlag } from '@/hooks/useFeatureFlag';
@@ -42,11 +46,13 @@ export function PropertySearch({
   onRemoveHistory,
   onClearHistory,
 }: PropertySearchProps) {
-  const [searchParams, setSearchParams] = useState<PropertySearchParams>({
-    location: '',
-    homeType: 'Houses, Townhomes, Multi-family, Condos/Co-ops',
-    wholesaleOnly: true // Default: only show properties priced below Zestimate
-  });
+  // Initial form state pulls from the canonical defaults so a single source
+  // of truth feeds both first-render AND chip-replay (applyHistoryDefaults
+  // below). When a new field gets added to PropertySearchParams, bumping
+  // ON_MARKET_DEFAULTS automatically fills it for old stored entries.
+  const [searchParams, setSearchParams] = useState<PropertySearchParams>(
+    () => ({ ...ON_MARKET_DEFAULTS }),
+  );
   const { toast } = useToast();
   const { user } = useAuth();
   const [countyBrowserOpen, setCountyBrowserOpen] = useState(false);
@@ -133,11 +139,13 @@ export function PropertySearch({
   };
 
   const handleApplyHistory = (params: PropertySearchParams) => {
-    // Restore the criteria into the form and re-fire — the container's
-    // handleSearch records into history (dedupes by hash) and patches in
-    // the resultCount when results land.
-    setSearchParams(params);
-    onSearch(params);
+    // Merge stored entry over current defaults. If PropertySearchParams has
+    // gained a field since this entry was recorded, the stored entry won't
+    // have that key — `applyHistoryDefaults` fills the missing key from
+    // ON_MARKET_DEFAULTS so the user gets the current default, not undefined.
+    const merged = applyHistoryDefaults(params, ON_MARKET_DEFAULTS);
+    setSearchParams(merged);
+    onSearch(merged);
   };
 
   const updateParam = (key: keyof PropertySearchParams, value: string | boolean) => {
