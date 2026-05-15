@@ -182,3 +182,142 @@ test('normalizeV2Response — failure shapes', async (t) => {
     assert.equal(normalizeV2Response({}), null);
   });
 });
+
+// ─── callV2Fallback (was previously untested — 66% function gap) ──────────
+//
+// Substitute the cached axios module with a controllable fake BEFORE
+// re-requiring the SUT so the network call goes through our recorder.
+
+const Module = require('node:module');
+const AXIOS_PATH = require.resolve('axios');
+
+let axiosPostImpl = async () => ({ status: 200, data: { success: true, data: [] } });
+const axiosCalls = [];
+function resetAxios() { axiosCalls.length = 0; }
+function setAxiosPost(fn) { axiosPostImpl = fn; }
+
+const fakeAxios = {
+  post: async (url, body, config) => {
+    axiosCalls.push({ url, body, config });
+    return axiosPostImpl(url, body, config);
+  },
+};
+const fakeAxiosMod = new Module(AXIOS_PATH);
+fakeAxiosMod.filename = AXIOS_PATH;
+fakeAxiosMod.loaded = true;
+fakeAxiosMod.exports = fakeAxios;
+fakeAxiosMod.exports.default = fakeAxios;
+require.cache[AXIOS_PATH] = fakeAxiosMod;
+
+const SUT_PATH = require.resolve('../../lib/skip-trace-v2');
+delete require.cache[SUT_PATH];
+const { callV2Fallback } = require('../../lib/skip-trace-v2');
+
+const BASE_PARAMS = {
+  searchType: 'byaddress',
+  params: { street: '123 Main', citystatezip: 'Austin TX 78701' },
+  rapidApiKey: 'rk-test',
+};
+
+test('callV2Fallback: rejects unsupported searchType without hitting axios', async () => {
+  resetAxios();
+  const r = await callV2Fallback({ ...BASE_PARAMS, searchType: 'detailsbyid' });
+  assert.equal(r.ok, false);
+  assert.equal(r.status, 0);
+  assert.match(r.error, /no fallback for detailsbyid/);
+  assert.equal(axiosCalls.length, 0);
+});
+
+test('callV2Fallback: rejects when RAPIDAPI_KEY missing', async () => {
+  resetAxios();
+  const r = await callV2Fallback({ ...BASE_PARAMS, rapidApiKey: undefined });
+  assert.equal(r.ok, false);
+  assert.match(r.error, /RAPIDAPI_KEY not configured/);
+  assert.equal(axiosCalls.length, 0);
+});
+
+test('callV2Fallback: byaddress success returns normalized {results: [...]}', async () => {
+  setAxiosPost(async () => ({ status: 200, data: { success: true, data: { results: [{ peo_id: 'p1' }] } } }));
+  const r = await callV2Fallback({ ...BASE_PARAMS });
+  assert.equal(r.ok, true);
+  assert.equal(r.status, 200);
+  assert.deepEqual(r.data.results, [{ peo_id: 'p1' }]);
+});
+
+test('callV2Fallback: sends required RapidAPI headers + correct URL', async () => {
+  resetAxios();
+  setAxiosPost(async () => ({ status: 200, data: { success: true, data: [] } }));
+  await callV2Fallback({ ...BASE_PARAMS });
+  assert.equal(axiosCalls.length, 1);
+  const { url, body, config } = axiosCalls[0];
+  assert.match(url, /^https:\/\/skip-tracing-api\.p\.rapidapi\.com\/search\/owners-by-address$/);
+  assert.equal(body.addressLine1, '123 Main');
+  assert.equal(body.addressLine2, 'Austin TX 78701');
+  assert.equal(config.headers['x-rapidapi-key'], 'rk-test');
+  assert.equal(config.headers['x-rapidapi-host'], 'skip-tracing-api.p.rapidapi.com');
+  assert.equal(config.timeout, 15000);
+});
+
+test('callV2Fallback: bynameaddress builds correct path + name split', async () => {
+  resetAxios();
+  setAxiosPost(async () => ({ status: 200, data: { success: true, data: [] } }));
+  await callV2Fallback({
+    searchType: 'bynameaddress',
+    params: { name: 'Jane Smith', citystatezip: 'Austin TX 78701' },
+    rapidApiKey: 'rk',
+  });
+  const { url, body } = axiosCalls[0];
+  assert.match(url, /\/search\/by-name-and-address$/);
+  assert.equal(body.firstName, 'Jane');
+  assert.equal(body.lastName, 'Smith');
+});
+
+test('callV2Fallback: respects custom timeoutMs', async () => {
+  resetAxios();
+  setAxiosPost(async () => ({ status: 200, data: { success: true, data: [] } }));
+  await callV2Fallback({ ...BASE_PARAMS, timeoutMs: 5000 });
+  assert.equal(axiosCalls[0].config.timeout, 5000);
+});
+
+test('callV2Fallback: HTTP 4xx/5xx → {ok:false} with passthrough status', async () => {
+  setAxiosPost(async () => ({ status: 503, data: 'gateway down' }));
+  const r = await callV2Fallback({ ...BASE_PARAMS });
+  assert.equal(r.ok, false);
+  assert.equal(r.status, 503);
+  assert.match(r.error, /HTTP 503/);
+});
+
+test('callV2Fallback: HTTP 200 + {success:false} body → {ok:false} (Cloudflare-blocked upstream)', async () => {
+  setAxiosPost(async () => ({
+    status: 200,
+    data: { success: false, error: 'Request failed with status code 403', status: 403 },
+  }));
+  const r = await callV2Fallback({ ...BASE_PARAMS });
+  assert.equal(r.ok, false);
+  assert.equal(r.status, 403);
+  assert.match(r.error, /403/);
+});
+
+test('callV2Fallback: HTTP 200 + unrecognised body → {ok:false, status:502}', async () => {
+  setAxiosPost(async () => ({ status: 200, data: { foo: 'bar' } }));
+  const r = await callV2Fallback({ ...BASE_PARAMS });
+  assert.equal(r.ok, false);
+  assert.equal(r.status, 502);
+  assert.match(r.error, /shape unrecognised/);
+});
+
+test('callV2Fallback: axios throws (network) → {ok:false, status:0, error}', async () => {
+  setAxiosPost(async () => { throw new Error('ECONNRESET'); });
+  const r = await callV2Fallback({ ...BASE_PARAMS });
+  assert.equal(r.ok, false);
+  assert.equal(r.status, 0);
+  assert.match(r.error, /ECONNRESET/);
+});
+
+test('callV2Fallback: thrown non-Error without message → fallback error string', async () => {
+  setAxiosPost(async () => { throw {}; });
+  const r = await callV2Fallback({ ...BASE_PARAMS });
+  assert.equal(r.ok, false);
+  assert.equal(r.status, 0);
+  assert.match(r.error, /V2 network error/);
+});
