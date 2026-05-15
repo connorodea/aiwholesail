@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "memorandum-of-contract-for-real-estate-wholesaling-what-it-is-and-why-you-need-o",
+      "title": "Memorandum of Contract for Real Estate Wholesaling: What It Is and Why You Need One",
+      "excerpt": "A memorandum of contract is one of the most powerful tools a real estate wholesaler can use to protect their deals. Learn exactly how it works, when to file it, and how it keeps sellers from walking away.",
+      "category": "Legal",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-15T06:01:06.111Z",
+      "readTime": 7,
+      "tags": [
+        "memorandum of contract real estate wholesaling",
+        "memorandum of contract wholesaling",
+        "cloud on title wholesaling",
+        "wholesale real estate contract",
+        "equitable interest real estate"
+      ],
+      "featured": true
+    },
+    {
       "slug": "can-you-lose-money-on-rental-property-what-every-investor-needs-to-know",
       "title": "Can You Lose Money on Rental Property? What Every Investor Needs to Know",
       "excerpt": "Yes, you can lose money on rental property — but most losses are preventable with the right knowledge. This guide breaks down exactly how landlords lose money and how to protect your investment from day one.",
@@ -15,7 +32,7 @@
         "cash flow negative rental",
         "landlord mistakes"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-bismarck-nd-a-complete-investor-s-guide-for-2024",
