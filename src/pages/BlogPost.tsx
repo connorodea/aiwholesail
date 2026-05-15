@@ -256,7 +256,7 @@ export default function BlogPost() {
                   );
                 case 'quote':
                   return (
-                    <blockquote key={i} className="my-8 pl-6 border-l-2 border-cyan-500/30 italic text-[17px] text-neutral-400/80 leading-[1.8]">
+                    <blockquote key={i} className="my-8 pl-6 border-l-2 border-cyan-500/30 italic text-[17px] text-neutral-400/80 leading-[1.8] font-light">
                       {section.content}
                     </blockquote>
                   );
@@ -264,7 +264,7 @@ export default function BlogPost() {
                   return (
                     <div key={i} className="my-8 p-6 border border-white/[0.05] bg-gradient-to-b from-neutral-900/50 to-transparent rounded-xl">
                       <p className="text-sm font-semibold text-cyan-400 mb-1">Pro Tip</p>
-                      <p className="text-[15px] text-neutral-400 leading-relaxed">{section.content}</p>
+                      <p className="text-[15px] text-neutral-400 leading-relaxed font-light">{section.content}</p>
                     </div>
                   );
                 case 'cta':
