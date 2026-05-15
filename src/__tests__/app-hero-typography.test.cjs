@@ -1,13 +1,21 @@
 #!/usr/bin/env node
 /**
  * Source-level guard: the /app page hero (RealEstateWholesaler.tsx)
- * must match the canonical centered-hero typography pattern used on
- * Pricing, HowItWorks, UseCases, Personas, etc.
+ * must match the canonical *in-app* heading pattern used on Analyzer,
+ * Buyers, Sequences, Contracts, SkipTrace — NOT the larger marketing-
+ * page hero (Pricing, HowItWorks, UseCases, Landing).
  *
- * Pre-fix (2026-05-14 user report): the /app hero rendered at
- * `text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-medium` — visibly
- * smaller and lighter than every other public hero. Founder noticed
- * and asked for parity.
+ * History:
+ *   - Pre-#443: hero rendered at `text-2xl sm:text-3xl md:text-4xl
+ *     lg:text-5xl font-medium` — visibly smaller than the rest.
+ *   - PR #443 (2026-05-12, my mistake): I read "match the other pages"
+ *     as the marketing landing pages and shipped `md:text-7xl lg:text-8xl
+ *     font-bold leading-[0.95]`. User reaction: "you made it massive.
+ *     suppose to match the other pages that have smaller size."
+ *   - This fix: revert to the in-app canonical — same size as Analyzer
+ *     (`text-3xl md:text-4xl font-medium tracking-tight`).
+ *
+ * Reference: src/pages/Analyzer.tsx lines 188-191.
  *
  * The "Find profitable real estate deals" heading and its subtitle are
  * shared between on-market and off-market modes (single h1 + ternary
@@ -28,8 +36,6 @@ const APP_PAGE_SRC = fs.readFileSync(
   'utf8',
 );
 
-// Pull the h1 element that wraps "Find profitable real estate deals".
-// Match the className attribute on the h1 immediately before that text.
 function extractHeroH1ClassName() {
   const m = APP_PAGE_SRC.match(
     /<h1\s+className="([^"]+)"[^>]*>\s*Find profitable real estate deals/,
@@ -37,10 +43,6 @@ function extractHeroH1ClassName() {
   return m ? m[1] : null;
 }
 
-// Pull the <p> subtitle that wraps the mode-specific copy ("Discover
-// undervalued..." for on-market, "Search off-market..." for off-market).
-// We match by the ternary expression that immediately follows the <p>'s
-// opening tag — it's the unique signature of the subtitle slot.
 function extractHeroSubtitleClassName() {
   const m = APP_PAGE_SRC.match(
     /<p\s+className="([^"]+)"[^>]*>\s*\{[^}]*effectiveSearchMode\s*===\s*['"]on-market['"]/,
@@ -48,54 +50,53 @@ function extractHeroSubtitleClassName() {
   return m ? m[1] : null;
 }
 
-test('app hero h1 uses canonical centered-hero sizing (matches Pricing/HowItWorks)', () => {
+test('app hero h1 matches in-app canonical sizing (Analyzer/Buyers/Sequences)', () => {
   const cls = extractHeroH1ClassName();
   assert.ok(cls, 'Could not find <h1> for "Find profitable real estate deals" — was it renamed?');
 
-  // Required tokens. We allow either Pricing\'s `text-3xl sm:text-5xl
-  // md:text-7xl lg:text-8xl` OR the simpler `text-5xl md:text-7xl
-  // lg:text-8xl` — both appear on canonical pages.
-  const required = ['md:text-7xl', 'lg:text-8xl', 'font-bold', 'tracking-tight'];
+  // Canonical in-app heading pattern, identical to Analyzer.tsx:
+  //   text-3xl md:text-4xl font-medium tracking-tight
+  const required = ['text-3xl', 'md:text-4xl', 'font-medium', 'tracking-tight'];
   for (const token of required) {
     assert.ok(
       cls.split(/\s+/).includes(token),
-      `app hero h1 className must include "${token}" to match canonical hero pattern.\n  Got: ${cls}`,
+      `app hero h1 className must include "${token}" to match in-app canonical pattern.\n  Got: ${cls}`,
     );
   }
 
-  // leading must be tight — leading-[0.95] is the canonical choice; the
-  // earlier `leading-tight` was 1.25 which felt cramped at large sizes.
-  assert.match(
-    cls,
-    /leading-\[0\.95\]/,
-    `app hero h1 must use leading-[0.95] (the canonical hero line-height).\n  Got: ${cls}`,
-  );
-
-  // Anti-regression: pre-fix sizes must NOT be present.
-  for (const bad of ['text-2xl', 'lg:text-5xl', 'font-medium']) {
+  // Anti-regression: the massive marketing-hero tokens from PR #443 must
+  // NOT come back. These are appropriate for Pricing/HowItWorks marketing
+  // pages but visually overwhelming on the in-app /app surface.
+  const badTokens = ['md:text-7xl', 'lg:text-8xl', 'font-bold'];
+  for (const bad of badTokens) {
     assert.ok(
       !cls.split(/\s+/).includes(bad),
-      `app hero h1 className still has pre-fix token "${bad}" — typography hasn\'t been updated.\n  Got: ${cls}`,
+      `app hero h1 className has marketing-hero token "${bad}" — must use in-app sizing.\n  Got: ${cls}`,
     );
   }
+  assert.ok(
+    !/leading-\[0\.95\]/.test(cls),
+    `app hero h1 className has marketing-hero token "leading-[0.95]" — must use in-app sizing.\n  Got: ${cls}`,
+  );
 });
 
-test('app hero subtitle uses canonical sizing (matches Pricing/HowItWorks subtitles)', () => {
+test('app hero subtitle matches in-app canonical sizing (matches Analyzer subtitle)', () => {
   const cls = extractHeroSubtitleClassName();
   assert.ok(cls, 'Could not find <p> subtitle next to the mode-conditional copy — was it renamed?');
 
-  // Canonical subtitle is `text-lg md:text-xl ... leading-relaxed font-light`.
-  const required = ['md:text-xl', 'leading-relaxed', 'font-light'];
+  // Canonical in-app subtitle, identical to Analyzer.tsx:
+  //   text-lg text-muted-foreground font-light leading-relaxed
+  const required = ['text-lg', 'font-light', 'leading-relaxed'];
   for (const token of required) {
     assert.ok(
       cls.split(/\s+/).includes(token),
-      `app hero subtitle className must include "${token}" to match canonical pattern.\n  Got: ${cls}`,
+      `app hero subtitle className must include "${token}" to match in-app pattern.\n  Got: ${cls}`,
     );
   }
 
-  // Must NOT have the smaller pre-fix base size.
+  // Anti-regression: marketing subtitle tokens from PR #443 must not return.
   assert.ok(
-    !cls.split(/\s+/).includes('text-base'),
-    `app hero subtitle still has pre-fix "text-base" — typography hasn\'t been updated.\n  Got: ${cls}`,
+    !cls.split(/\s+/).includes('md:text-xl'),
+    `app hero subtitle has marketing-hero token "md:text-xl" — must use in-app sizing.\n  Got: ${cls}`,
   );
 });
