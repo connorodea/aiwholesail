@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "can-you-lose-money-on-rental-property-what-every-investor-needs-to-know",
+      "title": "Can You Lose Money on Rental Property? What Every Investor Needs to Know",
+      "excerpt": "Yes, you can lose money on rental property — but most losses are preventable with the right knowledge. This guide breaks down exactly how landlords lose money and how to protect your investment from day one.",
+      "category": "FAQ",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-15T06:00:52.752Z",
+      "readTime": 7,
+      "tags": [
+        "can you lose money on rental property",
+        "rental property losses",
+        "rental property investing risks",
+        "cash flow negative rental",
+        "landlord mistakes"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-bismarck-nd-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Bismarck ND: A Complete Investor's Guide for 2024",
       "excerpt": "Bismarck, North Dakota is quietly becoming one of the Midwest's most attractive markets for real estate investors. Discover the best neighborhoods, deal types, and strategies to find profitable real estate deals in Bismarck ND.",
@@ -15,7 +32,7 @@
         "investment properties Bismarck ND",
         "Bismarck ND rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-chandler-az-the-investor-s-complete-guide-for-2024",
