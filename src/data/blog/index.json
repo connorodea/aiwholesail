@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-jackson-ms-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Jackson MS: A Complete Investor's Guide for 2024",
+      "excerpt": "Jackson, Mississippi is one of the most affordable real estate markets in the country, offering investors strong cash flow potential and deep inventory of distressed properties. This guide covers the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Jackson MS.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-15T12:02:42.555Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Jackson MS",
+        "Jackson Mississippi real estate investing",
+        "wholesale real estate Jackson MS",
+        "Jackson MS rental properties",
+        "fix and flip Jackson Mississippi"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-hartford-ct-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Hartford CT: A Complete Investor's Guide for 2024",
       "excerpt": "Hartford, Connecticut offers some of the most undervalued real estate deals in the Northeast, with entry prices well below national averages and strong rental demand. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Hartford CT.",
@@ -15,7 +32,7 @@
         "Hartford fix and flip",
         "Hartford rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "memorandum-of-contract-for-real-estate-wholesaling-what-it-is-and-why-you-need-o",
