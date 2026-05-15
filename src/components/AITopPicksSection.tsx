@@ -40,7 +40,7 @@ export function AITopPicksSection({ properties, onSelectProperty }: AITopPicksSe
     // analyzing non-deals. Same gate already applied to PropertyCard
     // (PR #430) and ComparableSalesTable (PR #408/#446).
     const candidates = properties
-      .filter(p => p.price && p.zestimate && p.zestimate > p.price && !isAuctionSubject(p as { price?: number; sqft?: number; description?: string; isForeclosure?: boolean }))
+      .filter(p => p.price && p.zestimate && p.zestimate > p.price && !isAuctionSubject(p))
       .sort((a, b) => (b.zestimate! - b.price) - (a.zestimate! - a.price))
       .slice(0, 25);
 
@@ -72,7 +72,7 @@ export function AITopPicksSection({ properties, onSelectProperty }: AITopPicksSe
     // state CTA must reflect what runAI() will actually evaluate. Without
     // this gate, an auction-only result set shows "Filter top N spreads
     // through AI" and then bails on click.
-    const eligibleCount = properties.filter(p => p.price && p.zestimate && p.zestimate > p.price && !isAuctionSubject(p as { price?: number; sqft?: number; description?: string; isForeclosure?: boolean })).length;
+    const eligibleCount = properties.filter(p => p.price && p.zestimate && p.zestimate > p.price && !isAuctionSubject(p)).length;
     if (eligibleCount === 0) return null;
 
     return (

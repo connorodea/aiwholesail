@@ -229,7 +229,7 @@ export function ComparableSalesTable({ property }: ComparableSalesTableProps) {
   const isAuctionLike = isAuctionSubject({
     price: property.price,
     sqft: property.sqft,
-    description: (property as any).description,
+    description: property.description,
   });
 
   // Single computed boolean for all the green-card visual signals

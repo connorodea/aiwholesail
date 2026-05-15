@@ -52,7 +52,7 @@ function getMarkerIcon(property: Property): L.DivIcon {
   // gate applied to PropertyCard (PR #430) and ComparableSalesTable
   // (PR #408/#446). Caller can still click through and see the
   // amber "Auction subject" warning in the popup / modal.
-  if (isAuctionSubject(property as { price?: number; sqft?: number; description?: string; isForeclosure?: boolean })) return grayIcon;
+  if (isAuctionSubject(property)) return grayIcon;
   const spread = property.zestimate - property.price;
   if (spread >= 30000) return greenIcon;
   if (spread > 0) return yellowIcon;
@@ -158,7 +158,7 @@ export function PropertyMap({ properties, onSelectProperty }: PropertyMapProps) 
       // single foreclosure with $295K opening-bid spread doesn't
       // dominate the heatmap's color normalization (every other
       // listing would render at the minimum 0.2 floor).
-      if (isAuctionSubject(p as { price?: number; sqft?: number; description?: string; isForeclosure?: boolean })) return 0;
+      if (isAuctionSubject(p)) return 0;
       return Math.max(0, p.zestimate - p.price);
     });
     const maxSpread = Math.max(...spreads, 1);

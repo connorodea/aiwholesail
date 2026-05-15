@@ -53,7 +53,7 @@ export function PropertyCard({ property, onViewDetails }: PropertyCardProps) {
   // banner + ring so wholesalers don't waste clicks on non-market
   // listings. Same gate as ComparableSalesTable (PR #408) +
   // wholesale-calculator (this PR).
-  const isAuctionLike = isAuctionSubject(property as { price?: number; sqft?: number; description?: string });
+  const isAuctionLike = isAuctionSubject(property);
   const isQualifiedDeal = spread >= 30000 && !isAuctionLike;
   const isGreatDeal = spread >= 50000 && !isAuctionLike;
   const isTopDeal = spread >= 100000 && !isAuctionLike;
