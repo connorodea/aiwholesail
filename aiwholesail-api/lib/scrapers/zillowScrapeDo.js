@@ -1584,8 +1584,16 @@ function mortgageRatesUrlForState(state) {
 
 /**
  * Defensive walk for mortgage-rate rows in __NEXT_DATA__. Zillow has shipped
- * three slightly different shapes here over the past year; we accept any of
- * them and normalise to a flat row.
+ * several shapes here over the past year; we accept any and normalise to a
+ * flat row that `normalizeMortgageRate` can flatten.
+ *
+ * Current live shape (verified 2026-05-14 on /mortgage-rates/<zip>):
+ *   pageProps.post.blocks[]  → constellation/group wrappers (recurse innerBlocks)
+ *     → zhl/zhl-rate-summary.blockData.data  → OBJECT keyed by product name
+ *         OR
+ *     → zhl/zhl-rate-cards.blockData         → OBJECT keyed by product name
+ *   Each product value: {rate, apr, pointsPaid, productType, monthlyPayment, ...}
+ *   Every quote is Zillow Home Loans (multi-lender shopper is gone).
  */
 function findMortgageRates(nextData) {
   const pp = nextData?.props?.pageProps || {};
@@ -1595,21 +1603,59 @@ function findMortgageRates(nextData) {
     pp.componentProps?.lenders,
     pp.rates,
     pp.lenderQuotes,
-    // Detail-page bonus: property.mortgageZHLRates (TD-105).
     pp.property?.mortgageZHLRates,
   ];
   for (const c of candidates) {
     if (Array.isArray(c) && c.length > 0) return c;
   }
-  // Current /mortgage-rates/<zip> shape: WordPress-style blocks with a
-  // zhl/zhl-rate-summary block carrying blockData.data (TD-105).
   const blocks = pp.post?.blocks;
   if (Array.isArray(blocks)) {
-    const block = blocks.find((b) => b?.blockName === 'zhl/zhl-rate-summary');
-    const data = block?.blockData?.data;
-    if (Array.isArray(data) && data.length > 0) return data;
+    const summary = _findBlockByName(blocks, 'zhl/zhl-rate-summary');
+    const fromSummary = _zhlProductMapToRows(summary?.blockData?.data);
+    if (fromSummary.length > 0) return fromSummary;
+    const cards = _findBlockByName(blocks, 'zhl/zhl-rate-cards');
+    const fromCards = _zhlProductMapToRows(cards?.blockData);
+    if (fromCards.length > 0) return fromCards;
   }
   return deepFindArray(nextData, 'lenderQuotes') || deepFindArray(nextData, 'rates');
+}
+
+/** Recursively walk a WordPress-style blocks tree (top + innerBlocks). */
+function _findBlockByName(blocks, name) {
+  if (!Array.isArray(blocks)) return null;
+  for (const b of blocks) {
+    if (!b || typeof b !== 'object') continue;
+    if (b.blockName === name) return b;
+    const nested = _findBlockByName(b.innerBlocks, name);
+    if (nested) return nested;
+  }
+  return null;
+}
+
+/**
+ * Zillow Home Loans rate maps are objects keyed by product name (e.g.
+ * "30 Year Fixed Conforming"). Convert to an array of normalizeMortgageRate-
+ * compatible rows. Filters out non-rate entries defensively.
+ */
+function _zhlProductMapToRows(map) {
+  if (!map || typeof map !== 'object' || Array.isArray(map)) return [];
+  const rows = [];
+  for (const key of Object.keys(map)) {
+    const v = map[key];
+    if (!v || typeof v !== 'object') continue;
+    if (v.rate == null && v.apr == null) continue;
+    rows.push({
+      lenderName: 'Zillow Home Loans',
+      loanType: key,
+      productType: v.productType,
+      rate: v.rate,
+      apr: v.apr,
+      points: v.pointsPaid,
+      monthlyPayment: v.monthlyPayment,
+      datePriced: v.datePriced,
+    });
+  }
+  return rows;
 }
 
 function normalizeMortgageRate(r) {
