@@ -16,13 +16,19 @@
  * initial useState in src/components/PropertySearch.tsx — the test pins the
  * presence of the load-bearing keys.
  *
- * @type {{ location: string; homeType: string; wholesaleOnly: boolean }}
+ * Frozen so the module-level constant cannot be accidentally mutated by a
+ * caller. Both `useState(() => ({ ...ON_MARKET_DEFAULTS }))` and
+ * `applyHistoryDefaults` already produce fresh objects, but freezing makes
+ * that defense-in-depth rather than load-bearing on every call site
+ * remembering to spread.
+ *
+ * @type {Readonly<{ location: string; homeType: string; wholesaleOnly: boolean }>}
  */
-export const ON_MARKET_DEFAULTS = {
+export const ON_MARKET_DEFAULTS = Object.freeze({
   location: '',
   homeType: 'Houses, Townhomes, Multi-family, Condos/Co-ops',
   wholesaleOnly: true,
-};
+});
 
 /**
  * Shallow-merge a stored history entry over the current defaults. Stored

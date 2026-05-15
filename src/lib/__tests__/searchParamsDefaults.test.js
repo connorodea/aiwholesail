@@ -23,6 +23,33 @@ test('ON_MARKET_DEFAULTS exports the initial on-market form state', () => {
   assert.ok('wholesaleOnly' in ON_MARKET_DEFAULTS);
 });
 
+test('ON_MARKET_DEFAULTS is frozen — caller cannot mutate the module constant', () => {
+  // Defense-in-depth. Today the only thing keeping module-level
+  // ON_MARKET_DEFAULTS unmutated is the spread-clone in
+  // PropertySearch.tsx's useState initializer + handleApplyHistory.
+  // Freezing here makes that protection load-bearing on Object.freeze
+  // instead of every call site getting the spread right.
+  assert.equal(Object.isFrozen(ON_MARKET_DEFAULTS), true);
+});
+
+test('applyHistoryDefaults: tolerates null stored entry (malformed localStorage)', () => {
+  // Regression pin: spread of null is a no-op in modern JS so
+  // { ...defaults, ...null } returns the defaults. We rely on this
+  // implicit behavior when localStorage returns garbage. If anyone ever
+  // refactors to Object.assign() or a typed helper that rejects null,
+  // this test catches the regression.
+  const defaults = { location: 'X', wholesaleOnly: true };
+  const out = applyHistoryDefaults(null, defaults);
+  assert.deepEqual(out, defaults);
+});
+
+test('applyHistoryDefaults: tolerates undefined stored entry', () => {
+  // Same protection as above for the undefined case.
+  const defaults = { location: 'X', wholesaleOnly: true };
+  const out = applyHistoryDefaults(undefined, defaults);
+  assert.deepEqual(out, defaults);
+});
+
 test('applyHistoryDefaults: missing key in stored → filled from defaults', () => {
   // Simulates an old entry recorded before `wholesaleOnly` existed —
   // replay must give the user the current default, not undefined.
