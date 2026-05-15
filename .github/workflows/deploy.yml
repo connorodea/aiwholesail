@@ -73,6 +73,15 @@ jobs:
       - name: Migration-grant guard (cumulative scan)
         run: node aiwholesail-api/scripts/check-migration-grants.mjs
 
+      # Migration-number guard. Catches the PR #341 + #346 collision class
+      # (two files claim the same NNN_ prefix; the migrate runner silently
+      # picks one and skips the other; the unapplied table 500s the live
+      # API on first access). Same baseline pattern as the grant guard.
+      - name: Migration-number guard tests
+        run: node --test aiwholesail-api/scripts/__tests__/migration-number-guard.test.js
+      - name: Migration-number guard (cumulative scan)
+        run: node aiwholesail-api/scripts/check-migration-numbers.mjs
+
       # Build with the correct API URL based on target branch
       - name: Build (staging)
         if: github.ref == 'refs/heads/staging' || (github.event_name == 'pull_request' && github.base_ref == 'staging')

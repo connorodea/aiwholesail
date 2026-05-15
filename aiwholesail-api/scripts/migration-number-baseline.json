@@ -1,0 +1,19 @@
+{
+  "note": "Legacy migration-number collisions inherited from parallel-agent merges. New PRs MUST NOT add another file at any of these numbers — the guard fails on any number not in this baseline. To regenerate after renaming legacy files: node aiwholesail-api/scripts/check-migration-numbers.mjs --update-baseline",
+  "collisions": [
+    {
+      "number": 14,
+      "files": [
+        "014_buyer_unsubscribed_at.sql",
+        "014_property_cache_zpid_index.sql"
+      ]
+    },
+    {
+      "number": 21,
+      "files": [
+        "021_deprecate_zillow_scrape_do_flag.sql",
+        "021_monitor_alerts.sql"
+      ]
+    }
+  ]
+}
