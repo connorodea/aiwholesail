@@ -9,6 +9,7 @@ import { zillowAPI } from '@/lib/zillow-api';
 import { sortPropertiesByWholesalePotential } from '@/lib/wholesale-calculator';
 import { applyPreEnrichmentToggles } from '@/lib/property-filters';
 import { scoreAllProperties, filterMotivatedSellers, MIN_MOTIVATED_SCORE } from '@/lib/motivated-seller-score';
+import { isCountyWithoutState, isStateOnlyLocation } from '@/lib/locationValidation.js';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { User, Download, Bell, GitCompareArrows, Check, LayoutGrid, Map as MapIcon } from 'lucide-react';
@@ -151,58 +152,6 @@ export default function RealEstateWholesaler() {
   // the grid populates immediately during enrichment.
   const isNegativeSpread = (p: Property) =>
     !!p.price && !!p.zestimate && p.price >= p.zestimate;
-
-  // US States lookup
-  const US_STATES: Record<string, string> = {
-    'alabama': 'AL', 'alaska': 'AK', 'arizona': 'AZ', 'arkansas': 'AR',
-    'california': 'CA', 'colorado': 'CO', 'connecticut': 'CT', 'delaware': 'DE',
-    'florida': 'FL', 'georgia': 'GA', 'hawaii': 'HI', 'idaho': 'ID',
-    'illinois': 'IL', 'indiana': 'IN', 'iowa': 'IA', 'kansas': 'KS',
-    'kentucky': 'KY', 'louisiana': 'LA', 'maine': 'ME', 'maryland': 'MD',
-    'massachusetts': 'MA', 'michigan': 'MI', 'minnesota': 'MN', 'mississippi': 'MS',
-    'missouri': 'MO', 'montana': 'MT', 'nebraska': 'NE', 'nevada': 'NV',
-    'new hampshire': 'NH', 'new jersey': 'NJ', 'new mexico': 'NM', 'new york': 'NY',
-    'north carolina': 'NC', 'north dakota': 'ND', 'ohio': 'OH', 'oklahoma': 'OK',
-    'oregon': 'OR', 'pennsylvania': 'PA', 'rhode island': 'RI', 'south carolina': 'SC',
-    'south dakota': 'SD', 'tennessee': 'TN', 'texas': 'TX', 'utah': 'UT',
-    'vermont': 'VT', 'virginia': 'VA', 'washington': 'WA', 'west virginia': 'WV',
-    'wisconsin': 'WI', 'wyoming': 'WY'
-  };
-  const STATE_ABBREVIATIONS = Object.values(US_STATES);
-
-  // Check if location is just a state name or abbreviation
-  const isStateOnlyLocation = (location: string): boolean => {
-    const trimmed = location.trim().toLowerCase();
-    // Check full state name
-    if (US_STATES[trimmed]) return true;
-    // Check abbreviation (2 letters only)
-    if (trimmed.length === 2 && STATE_ABBREVIATIONS.includes(trimmed.toUpperCase())) return true;
-    // Check "State, United States" format
-    const parts = trimmed.split(',').map(p => p.trim());
-    if (parts.length === 2 && (parts[1] === 'united states' || parts[1] === 'usa' || parts[1] === 'us')) {
-      if (US_STATES[parts[0]]) return true;
-    }
-    return false;
-  };
-
-  // Check if it's a county search without a state
-  const isCountyWithoutState = (location: string): boolean => {
-    const trimmed = location.trim().toLowerCase();
-    if (!trimmed.includes('county')) return false;
-
-    const parts = trimmed.split(',').map(p => p.trim());
-    if (parts.length >= 2) {
-      // Check if any part after the county name is a valid state
-      for (let i = 1; i < parts.length; i++) {
-        const part = parts[i].toLowerCase();
-        if (part === 'united states' || part === 'usa' || part === 'us') continue;
-        if (US_STATES[part] || STATE_ABBREVIATIONS.includes(parts[i].toUpperCase())) {
-          return false; // Has a valid state
-        }
-      }
-    }
-    return true; // County without state
-  };
 
   const handleSearch = async (params: PropertySearchParams) => {
     // Track search event
