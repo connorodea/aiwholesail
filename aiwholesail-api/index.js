@@ -174,7 +174,19 @@ app.use('/api/zillow', zillowRoutes);
 if (process.env.RAPIDAPI_GATEWAY_ENABLED === 'true') {
   const { rapidapiProxySecret } = require('./middleware/rapidapiProxySecret');
   const rapidapiZillowRoutes = require('./routes/rapidapiZillow');
-  app.use('/rapidapi/zillow', rapidapiProxySecret, rapidapiZillowRoutes);
+  // Per-request metrics → rapidapi_request_metrics table (feeds the alert
+  // worker scripts/rapidapi-alert-worker.js). Mounted BEFORE the auth check
+  // so we count 401s, not just authenticated requests.
+  const { createCollector } = require('./lib/observability/rapidapi-metrics-collector');
+  const { writeMetrics } = require('./lib/observability/rapidapi-metrics-writer');
+  const collector = createCollector();
+  app.use('/rapidapi/zillow', collector.middleware, rapidapiProxySecret, rapidapiZillowRoutes);
+  // Flush every 60s. Errors logged but don't crash the server.
+  setInterval(() => {
+    collector.flush(writeMetrics).catch((err) =>
+      console.error('[rapidapi-metrics] flush failed:', err.message)
+    );
+  }, 60_000).unref();
   console.log('[Server] RapidAPI gateway mount enabled at /rapidapi/zillow');
 }
 
