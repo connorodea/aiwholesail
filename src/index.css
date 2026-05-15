@@ -139,14 +139,18 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground font-sans antialiased;
+    /* font-bold (700) matches the brand wordmark weight — Onest 700 is the
+       confident "AIW house style." Components that explicitly set lighter
+       weights (font-light, font-medium, etc.) still win via specificity. */
+    @apply bg-background text-foreground font-sans font-bold antialiased;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
     scroll-behavior: smooth;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-semibold tracking-tight;
+    /* font-extrabold (800) so headings stay heavier than the new bold body. */
+    @apply font-extrabold tracking-tight;
   }
 
   h1 { @apply text-4xl lg:text-5xl; }
