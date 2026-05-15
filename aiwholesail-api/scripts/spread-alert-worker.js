@@ -485,17 +485,26 @@ async function run() {
         ];
 
         // Upsert into property_search_cache
+        // description + is_foreclosure added in migration 035 so the
+        // spread-alert auction filter (PR #437) can use Zillow's
+        // explicit foreclosure boolean and the description-keyword
+        // regex — the two strongest detection signals. ON CONFLICT
+        // UPDATE backfills both onto legacy rows the next time the
+        // worker scrapes that location.
         for (const p of allWithZestimates) {
           if (!p.zpid) continue;
           await pool.query(`
             INSERT INTO property_search_cache
               (location, zpid, address, price, zestimate, bedrooms, bathrooms, sqft,
-               property_type, days_on_market, listing_url, image_url, last_seen_at)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW())
+               property_type, days_on_market, listing_url, image_url,
+               description, is_foreclosure, last_seen_at)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, NOW())
             ON CONFLICT (location, zpid) DO UPDATE SET
               price = EXCLUDED.price,
               zestimate = COALESCE(EXCLUDED.zestimate, property_search_cache.zestimate),
               days_on_market = EXCLUDED.days_on_market,
+              description = COALESCE(EXCLUDED.description, property_search_cache.description),
+              is_foreclosure = COALESCE(EXCLUDED.is_foreclosure, property_search_cache.is_foreclosure),
               last_seen_at = NOW()
           `, [
             location,
@@ -510,6 +519,8 @@ async function run() {
             p.days_on_zillow || p.days_on_market || null,
             p.detail_url || null,
             p.image_url || null,
+            (typeof p.description === 'string' && p.description.length > 0) ? p.description : null,
+            p.isForeclosure === true ? true : (p.isForeclosure === false ? false : null),
           ]);
         }
 
