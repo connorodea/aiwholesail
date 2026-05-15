@@ -23,6 +23,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { tokenStorage } from '@/lib/api-client';
 import { rankCompsBySimilarity } from '@/lib/comps-similarity';
 import { parseCompsLocation } from '@/lib/comps-location-parser';
+import { composeFullAddress } from '@/lib/zillow-address.js';
 
 // Supabase Edge Function for Zillow data — DEAD PATH, see banner above.
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://ztgsevhzbeywytoqlsbf.supabase.co';
@@ -374,19 +375,7 @@ export class ZillowAPI {
 
     flatten(prop);
 
-    // scrape.do search results expose city/state/zip under addressCity/
-    // addressState/addressZipcode — must be in the fallback chain or
-    // Property.address loses the citystatezip half.
-    const address = flattened.property_address_streetAddress ||
-                   flattened.rental_metrics_streetAddress ||
-                   flattened.addressStreet ||
-                   flattened.address ||
-                   'Unknown Address';
-
-    const city = flattened.property_address_city || flattened.addressCity || flattened.city || '';
-    const state = flattened.property_address_state || flattened.addressState || flattened.state || '';
-    const zipcode = flattened.property_address_zipcode || flattened.addressZipcode || flattened.zipcode || '';
-    const fullAddress = city && state ? `${address}, ${city}, ${state}${zipcode ? ' ' + zipcode : ''}` : address;
+    const fullAddress = composeFullAddress(flattened);
 
     const isFSBO = this.detectFSBO(flattened);
 
