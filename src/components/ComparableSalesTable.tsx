@@ -25,6 +25,31 @@ import {
 } from 'lucide-react';
 import { zillowAPI } from '@/lib/zillow-api';
 import { isAuctionSubject } from '@/lib/auction-detection';
+import {
+  DEFAULT_COMPS_FILTERS,
+  filterComps,
+} from '@/lib/comps-filter.js';
+import {
+  COMPS_FILTER_CONTROLS_FLAG,
+  isCompsFilterControlsEnabled,
+} from '@/lib/compsFilterFlag.js';
+import { useFeatureFlag } from '@/hooks/useFeatureFlag';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Filter, RotateCcw } from 'lucide-react';
+
+type BedBathTolerance = 'any' | 'exact' | '+/-1';
+interface CompsFilters {
+  maxDistanceMi: number | null;
+  bedTolerance: BedBathTolerance;
+  bathTolerance: BedBathTolerance;
+  sqftTolerancePct: number | null;
+}
 
 interface ComparableSalesTableProps {
   property: Property;
@@ -46,6 +71,9 @@ export function ComparableSalesTable({ property }: ComparableSalesTableProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [comparables, setComparables] = useState<Comparable[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [filters, setFilters] = useState<CompsFilters>(DEFAULT_COMPS_FILTERS as CompsFilters);
+  const compsFilterFlag = useFeatureFlag(COMPS_FILTER_CONTROLS_FLAG);
+  const filterControlsEnabled = isCompsFilterControlsEnabled(compsFilterFlag);
 
   useEffect(() => {
     const fetchComparables = async () => {
@@ -163,17 +191,28 @@ export function ComparableSalesTable({ property }: ComparableSalesTableProps) {
     }
   };
 
-  // Calculate ARV statistics
-  const avgPrice = comparables.length > 0
-    ? Math.round(comparables.reduce((sum, c) => sum + c.price, 0) / comparables.length)
+  // Apply user-controlled filters before computing stats. When the flag is
+  // OFF or all filters are at "any", filteredComparables === comparables.
+  const filteredComparables = filterControlsEnabled
+    ? (filterComps(comparables, {
+        bedrooms: property.bedrooms,
+        bathrooms: property.bathrooms,
+        sqft: property.sqft,
+      }, filters) as Comparable[])
+    : comparables;
+
+  // Calculate ARV statistics off the filtered set so the spread reflects
+  // what the user is actually seeing.
+  const avgPrice = filteredComparables.length > 0
+    ? Math.round(filteredComparables.reduce((sum, c) => sum + c.price, 0) / filteredComparables.length)
     : 0;
 
-  const medianPrice = comparables.length > 0
-    ? comparables.sort((a, b) => a.price - b.price)[Math.floor(comparables.length / 2)].price
+  const medianPrice = filteredComparables.length > 0
+    ? [...filteredComparables].sort((a, b) => a.price - b.price)[Math.floor(filteredComparables.length / 2)].price
     : 0;
 
-  const avgPricePerSqft = comparables.length > 0
-    ? Math.round(comparables.filter(c => c.pricePerSqft > 0).reduce((sum, c) => sum + c.pricePerSqft, 0) / comparables.filter(c => c.pricePerSqft > 0).length)
+  const avgPricePerSqft = filteredComparables.length > 0
+    ? Math.round(filteredComparables.filter(c => c.pricePerSqft > 0).reduce((sum, c) => sum + c.pricePerSqft, 0) / Math.max(1, filteredComparables.filter(c => c.pricePerSqft > 0).length))
     : 0;
 
   const estimatedARV = property.sqft && avgPricePerSqft > 0
@@ -237,7 +276,12 @@ export function ComparableSalesTable({ property }: ComparableSalesTableProps) {
               <span className="text-xs font-medium text-muted-foreground uppercase">Estimated ARV</span>
             </div>
             <div className="text-xl font-bold text-primary">{formatPrice(estimatedARV)}</div>
-            <div className="text-xs text-muted-foreground mt-1">Based on {comparables.length} comps</div>
+            <div className="text-xs text-muted-foreground mt-1">
+              Based on {filteredComparables.length}
+              {filterControlsEnabled && filteredComparables.length !== comparables.length
+                ? ` of ${comparables.length}`
+                : ''}{' '}comps
+            </div>
           </CardContent>
         </Card>
 
@@ -324,9 +368,121 @@ export function ComparableSalesTable({ property }: ComparableSalesTableProps) {
         <CardHeader className="pb-4">
           <CardTitle className="flex items-center gap-2 text-lg">
             <MapPin className="h-5 w-5 text-primary" />
-            Comparable Properties ({comparables.length})
+            Comparable Properties ({filteredComparables.length}
+            {filterControlsEnabled && filteredComparables.length !== comparables.length
+              ? ` of ${comparables.length}`
+              : ''})
           </CardTitle>
         </CardHeader>
+        {filterControlsEnabled && (
+          <CardContent className="pt-0 pb-4">
+            <div className="rounded-lg border bg-muted/30 p-3">
+              <div className="flex items-center gap-2 mb-3 text-sm font-medium text-muted-foreground">
+                <Filter className="h-4 w-4" />
+                <span>Filter comps</span>
+                {(filters.maxDistanceMi !== null ||
+                  filters.bedTolerance !== 'any' ||
+                  filters.bathTolerance !== 'any' ||
+                  filters.sqftTolerancePct !== null) && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="ml-auto h-7 text-xs"
+                    onClick={() => setFilters(DEFAULT_COMPS_FILTERS as CompsFilters)}
+                  >
+                    <RotateCcw className="h-3 w-3 mr-1" />
+                    Reset
+                  </Button>
+                )}
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1 block">Within</label>
+                  <Select
+                    value={filters.maxDistanceMi === null ? 'any' : String(filters.maxDistanceMi)}
+                    onValueChange={(v) =>
+                      setFilters((prev) => ({ ...prev, maxDistanceMi: v === 'any' ? null : Number(v) }))
+                    }
+                  >
+                    <SelectTrigger className="h-9 text-sm">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="any">Any distance</SelectItem>
+                      <SelectItem value="0.25">≤ 0.25 mi</SelectItem>
+                      <SelectItem value="0.5">≤ 0.5 mi</SelectItem>
+                      <SelectItem value="1">≤ 1 mi</SelectItem>
+                      <SelectItem value="2">≤ 2 mi</SelectItem>
+                      <SelectItem value="5">≤ 5 mi</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1 block">
+                    Beds {property.bedrooms ? `(subject: ${property.bedrooms})` : ''}
+                  </label>
+                  <Select
+                    value={filters.bedTolerance}
+                    onValueChange={(v) => setFilters((prev) => ({ ...prev, bedTolerance: v as BedBathTolerance }))}
+                  >
+                    <SelectTrigger className="h-9 text-sm">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="any">Any beds</SelectItem>
+                      <SelectItem value="exact">Exact match</SelectItem>
+                      <SelectItem value="+/-1">±1 bed</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1 block">
+                    Baths {property.bathrooms ? `(subject: ${property.bathrooms})` : ''}
+                  </label>
+                  <Select
+                    value={filters.bathTolerance}
+                    onValueChange={(v) => setFilters((prev) => ({ ...prev, bathTolerance: v as BedBathTolerance }))}
+                  >
+                    <SelectTrigger className="h-9 text-sm">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="any">Any baths</SelectItem>
+                      <SelectItem value="exact">Exact match</SelectItem>
+                      <SelectItem value="+/-1">±1 bath</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1 block">
+                    Sqft {property.sqft ? `(subject: ${property.sqft.toLocaleString()})` : ''}
+                  </label>
+                  <Select
+                    value={filters.sqftTolerancePct === null ? 'any' : String(filters.sqftTolerancePct)}
+                    onValueChange={(v) =>
+                      setFilters((prev) => ({ ...prev, sqftTolerancePct: v === 'any' ? null : Number(v) }))
+                    }
+                  >
+                    <SelectTrigger className="h-9 text-sm">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="any">Any size</SelectItem>
+                      <SelectItem value="10">±10% (tight)</SelectItem>
+                      <SelectItem value="20">±20% (similar)</SelectItem>
+                      <SelectItem value="30">±30% (loose)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              {filteredComparables.length === 0 && comparables.length > 0 && (
+                <div className="mt-3 text-xs text-amber-600">
+                  No comps match the current filters. Loosen criteria or reset to see all {comparables.length}.
+                </div>
+              )}
+            </div>
+          </CardContent>
+        )}
         <CardContent>
           <div className="overflow-x-auto rounded-lg border">
             <Table>
@@ -342,7 +498,7 @@ export function ComparableSalesTable({ property }: ComparableSalesTableProps) {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {comparables.map((comp, index) => {
+                {filteredComparables.map((comp, index) => {
                   const priceDiff = comp.price - (property.price || 0);
                   const priceDiffPercent = property.price ? ((priceDiff / property.price) * 100) : 0;
 
