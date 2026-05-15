@@ -10,13 +10,13 @@ import {
   AUTH_STORAGE_LISTENER_FLAG,
 } from './auth-coherence.js';
 import { getFlagFromCache } from '@/hooks/useFeatureFlag';
+import {
+  ACCESS_TOKEN_KEY,
+  REFRESH_TOKEN_KEY,
+  USER_KEY,
+} from './auth-storage-keys';
 
 const API_URL = API_BASE_URL;
-
-// Token storage keys
-const ACCESS_TOKEN_KEY = 'aiwholesail_access_token';
-const REFRESH_TOKEN_KEY = 'aiwholesail_refresh_token';
-const USER_KEY = 'aiwholesail_user';
 
 // Types
 export interface User {

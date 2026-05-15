@@ -52,16 +52,31 @@ test('resetSessionAndSignIn function is defined', () => {
   );
 });
 
-test('resetSessionAndSignIn purges all three auth localStorage keys', () => {
+test('resetSessionAndSignIn purges all three auth localStorage keys (via shared module)', () => {
   const src = readSource();
-  // The function operates on AUTH_STORAGE_KEYS; verify the array contains
-  // all three canonical keys from tokenStorage in api-client.ts.
-  const m = src.match(/AUTH_STORAGE_KEYS\s*=\s*\[([^\]]+)\]/);
-  assert.ok(m, 'AUTH_STORAGE_KEYS array not found');
-  const keys = m[1];
-  assert.match(keys, /aiwholesail_access_token/, 'access token key missing');
-  assert.match(keys, /aiwholesail_refresh_token/, 'refresh token key missing');
-  assert.match(keys, /aiwholesail_user/, 'user key missing');
+  // The function iterates AUTH_STORAGE_KEYS. After refactor we import that
+  // constant from @/lib/auth-storage-keys (single source of truth) — verify
+  // the import is in place AND verify the source module exports all three.
+  assert.match(
+    src,
+    /import\s*\{[^}]*AUTH_STORAGE_KEYS[^}]*\}\s*from\s*['"]@\/lib\/auth-storage-keys['"]/,
+    'must import AUTH_STORAGE_KEYS from @/lib/auth-storage-keys (no literal duplication)',
+  );
+  // Verify the source module itself has all three keys.
+  const sharedPath = path.join(__dirname, '..', '..', 'lib', 'auth-storage-keys.ts');
+  const sharedSrc = fs.readFileSync(sharedPath, 'utf8');
+  assert.match(sharedSrc, /aiwholesail_access_token/, 'access token key missing from shared module');
+  assert.match(sharedSrc, /aiwholesail_refresh_token/, 'refresh token key missing from shared module');
+  assert.match(sharedSrc, /aiwholesail_user/, 'user key missing from shared module');
+  // And confirm api-client.ts imports from the same shared module — the
+  // whole point of the extraction is one source of truth.
+  const apiClientPath = path.join(__dirname, '..', '..', 'lib', 'api-client.ts');
+  const apiClientSrc = fs.readFileSync(apiClientPath, 'utf8');
+  assert.match(
+    apiClientSrc,
+    /from\s*['"]\.\/auth-storage-keys['"]/,
+    'api-client.ts must also import the auth-storage-keys module (single source of truth)',
+  );
 });
 
 test('resetSessionAndSignIn does a hard reload, not a router navigate', () => {
@@ -72,6 +87,22 @@ test('resetSessionAndSignIn does a hard reload, not a router navigate', () => {
     src,
     /window\.location\.href\s*=\s*['"]\/auth\?mode=signin['"]/,
     'must use window.location.href to force a hard reload',
+  );
+});
+
+test('hard-reload assignment lives INSIDE resetSessionAndSignIn (review followup)', () => {
+  // Reviewer's tightening pin (PR #462 review): the bare regex above would
+  // also pass if a future refactor moved the assignment to module init or
+  // some other function. Scope it to the function body so drift is caught.
+  const src = readSourceNoComments();
+  // Match from `function resetSessionAndSignIn(` to the matching closing
+  // brace at the same indentation. Cheapest reliable extraction.
+  const fnMatch = src.match(/function\s+resetSessionAndSignIn\s*\([^)]*\)\s*\{[\s\S]*?\n\}/);
+  assert.ok(fnMatch, 'resetSessionAndSignIn function body not isolatable from source');
+  assert.match(
+    fnMatch[0],
+    /window\.location\.href\s*=\s*['"]\/auth\?mode=signin['"]/,
+    'hard-reload assignment must live INSIDE resetSessionAndSignIn (not in module init or another function)',
   );
 });
 
