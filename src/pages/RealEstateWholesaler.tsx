@@ -546,10 +546,10 @@ export default function RealEstateWholesaler() {
             {/* Hero Search Section */}
             <section className="text-center space-y-6 sm:space-y-10 max-w-6xl mx-auto animate-fade-in">
               <div className="space-y-3 sm:space-y-6">
-                <h1 className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[0.95]">
+                <h1 className="text-3xl md:text-4xl font-medium tracking-tight">
                   Find profitable real estate deals
                 </h1>
-                <p className="text-lg md:text-xl text-neutral-400 font-light max-w-2xl mx-auto leading-relaxed">
+                <p className="text-lg text-muted-foreground font-light max-w-2xl mx-auto leading-relaxed">
                   {effectiveSearchMode === 'on-market'
                     ? 'Discover undervalued listings with AI-powered analysis and comprehensive market data'
                     : 'Search off-market properties — absentee owners, pre-foreclosure, tax delinquent, high equity, and more'}
