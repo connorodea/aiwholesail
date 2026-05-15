@@ -1302,12 +1302,51 @@ async function search(args = {}) {
   if (page && Number(page) > 1) {
     url = url.replace(/\/$/, `/${Number(page)}_p/`);
   }
-  // Sort: newest-first by default (user-reported regression 2026-05-15).
-  // Zillow's default "Homes for you" sort buried minutes-old listings on
-  // later pages, which the frontend never fetched. `sort=days` returns
-  // newest-first so freshly-listed properties always reach page 1.
-  // Caller can pass `sort: 'popular'` to opt back into Zillow's default.
+  // buildSearchUrlWithSort is now a no-op (PR #445 — the old searchQueryState
+  // injection broke region scoping). Kept for back-compat with any external
+  // caller; produces an identity output.
   url = buildSearchUrlWithSort(url, { sort: sort || 'newest' });
+
+  // Newest-first sort restoration (PR #447 + this one).
+  //
+  // The original 2026-05-15 incident: users were missing minutes-old listings
+  // because Zillow's default "Homes for you" sort buried them on later pages.
+  // The naive fix (inject `searchQueryState` with sort) broke region scoping
+  // for every search. PR #445 reverted that. PR #447 added safe region
+  // resolution.
+  //
+  // Now we can do newest-first SAFELY: resolve the slug to its canonical
+  // region, then build a queryState that carries BOTH regionSelection (so
+  // Zillow respects the slug's region) AND filterState.sortSelection (so
+  // Zillow returns newest-first).
+  //
+  // Scope: only applied to the default For Sale flow (no status sub-path
+  // like /sold/ or /rentals/). Sold + rental searches keep the plain slug
+  // and Zillow's default sort — acceptable; main user-visible sort is the
+  // For Sale list.
+  //
+  // Opt-outs:
+  //   - sort === 'popular' → skip region resolution, use plain slug (faster,
+  //     no extra RTT, restores Zillow's default sort)
+  //   - status sub-path present → skip (sold/rentals stay path-style)
+  //   - region resolution fails → fall back to plain slug (still scoped via
+  //     the slug, just not newest-sorted)
+  //
+  // Latency: +1 RTT on the FIRST search per location (~1-2s). Subsequent
+  // searches hit the in-memory region cache (1h TTL) so the overhead is
+  // amortised away under realistic usage.
+  const wantNewest = (sort || 'newest') !== 'popular';
+  if (wantNewest && !z) {
+    const region = await resolveRegionForLocation(location);
+    if (region) {
+      url = buildRegionScopedSearchUrl(location, region, {
+        pagination: page && Number(page) > 1 ? { currentPage: Number(page) } : {},
+        filterState: { sortSelection: { value: 'days' } },
+      });
+    }
+    // region == null → leave url as the plain slug; we'd rather get correct-
+    // state default-sorted results than no results at all.
+  }
 
   let resp;
   try {
