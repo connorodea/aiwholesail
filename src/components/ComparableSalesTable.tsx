@@ -229,8 +229,17 @@ export function ComparableSalesTable({ property }: ComparableSalesTableProps) {
   const isAuctionLike = isAuctionSubject({
     price: property.price,
     sqft: property.sqft,
-    description: (property as any).description,
+    description: property.description,
   });
+
+  // Single computed boolean for all the green-card visual signals
+  // (background gradient, check icon, dollar amount color, bottom
+  // "Profitable Deal" callout). Without this gate, an auction subject
+  // renders with a green +$295k card AND a small amber warning —
+  // contradictory signal that a wholesaler can easily miss. Now the
+  // green styling only applies when the spread is real (not an
+  // opening bid against a market zestimate).
+  const qualifiedDealStyling = spreadFromComps > 30000 && !isAuctionLike;
 
   if (isLoading) {
     return (
@@ -298,13 +307,13 @@ export function ComparableSalesTable({ property }: ComparableSalesTableProps) {
           </CardContent>
         </Card>
 
-        <Card className={`bg-gradient-to-br ${spreadFromComps > 30000 ? 'from-green-500/10 to-green-500/5 border-green-500/20' : 'from-muted/50 to-muted/30 border-border'}`}>
+        <Card className={`bg-gradient-to-br ${qualifiedDealStyling ? 'from-green-500/10 to-green-500/5 border-green-500/20' : 'from-muted/50 to-muted/30 border-border'}`}>
           <CardContent className="p-4 text-center">
             <div className="flex items-center justify-center gap-2 mb-2">
-              <CheckCircle2 className={`h-4 w-4 ${spreadFromComps > 30000 ? 'text-green-500' : 'text-muted-foreground'}`} />
+              <CheckCircle2 className={`h-4 w-4 ${qualifiedDealStyling ? 'text-green-500' : 'text-muted-foreground'}`} />
               <span className="text-xs font-medium text-muted-foreground uppercase">Spread vs ARV</span>
             </div>
-            <div className={`text-xl font-bold ${spreadFromComps > 30000 ? 'text-green-500' : spreadFromComps > 0 ? 'text-foreground' : 'text-red-500'}`}>
+            <div className={`text-xl font-bold ${qualifiedDealStyling ? 'text-green-500' : spreadFromComps > 0 ? 'text-foreground' : 'text-red-500'}`}>
               {spreadFromComps >= 0 ? '+' : ''}{formatPrice(spreadFromComps)}
             </div>
             {spreadFromComps > 50000 && !isAuctionLike && (
@@ -555,7 +564,7 @@ export function ComparableSalesTable({ property }: ComparableSalesTableProps) {
       </Card>
 
       {/* Analysis Note */}
-      {comparables.length > 0 && spreadFromComps > 30000 && (
+      {comparables.length > 0 && qualifiedDealStyling && (
         <Card className="border-green-500/30 bg-green-500/5">
           <CardContent className="p-4">
             <div className="flex items-start gap-3">

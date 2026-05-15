@@ -17,7 +17,7 @@ export function calculateWholesalePotential(property: Property): WholesalePotent
   // zero score so the sorter demotes them and the modal/banner renders
   // neutral. Pairs with the ComparableSalesTable gate from PR #408 and
   // the PropertyCard gate added alongside this change.
-  if (isAuctionSubject(property as { price?: number; sqft?: number; description?: string })) {
+  if (isAuctionSubject(property)) {
     return {
       spreadAmount: 0,
       spreadPercentage: 0,

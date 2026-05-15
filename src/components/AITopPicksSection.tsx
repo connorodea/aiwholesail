@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Sparkles, TrendingUp, AlertTriangle, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
 import { Property } from '@/types/zillow';
 import { ai } from '@/lib/api-client';
+import { isAuctionSubject } from '@/lib/auction-detection';
 import { toast } from 'sonner';
 
 type DealLabel = 'strong_buy' | 'solid' | 'caution' | 'avoid';
@@ -33,8 +34,13 @@ export function AITopPicksSection({ properties, onSelectProperty }: AITopPicksSe
   const [expanded, setExpanded] = useState(true);
 
   const runAI = async () => {
+    // Exclude auction subjects before spending AI tokens — a foreclosure
+    // with $5K opening bid + $300K zestimate has spread=$295K and would
+    // otherwise dominate the top-25 candidates list, wasting tokens
+    // analyzing non-deals. Same gate already applied to PropertyCard
+    // (PR #430) and ComparableSalesTable (PR #408/#446).
     const candidates = properties
-      .filter(p => p.price && p.zestimate && p.zestimate > p.price)
+      .filter(p => p.price && p.zestimate && p.zestimate > p.price && !isAuctionSubject(p))
       .sort((a, b) => (b.zestimate! - b.price) - (a.zestimate! - a.price))
       .slice(0, 25);
 
@@ -62,7 +68,11 @@ export function AITopPicksSection({ properties, onSelectProperty }: AITopPicksSe
   };
 
   if (!ranked) {
-    const eligibleCount = properties.filter(p => p.price && p.zestimate && p.zestimate > p.price).length;
+    // Same auction exclusion as the candidates filter above — the empty-
+    // state CTA must reflect what runAI() will actually evaluate. Without
+    // this gate, an auction-only result set shows "Filter top N spreads
+    // through AI" and then bails on click.
+    const eligibleCount = properties.filter(p => p.price && p.zestimate && p.zestimate > p.price && !isAuctionSubject(p)).length;
     if (eligibleCount === 0) return null;
 
     return (
