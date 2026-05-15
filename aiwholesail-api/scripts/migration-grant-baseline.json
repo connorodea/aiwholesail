@@ -1,0 +1,130 @@
+{
+  "generated": "2026-05-15T01:43:06.389Z",
+  "note": "Legacy missing-GRANT entries. Prod tolerates these via role-level permissions. New migrations MUST add GRANT blocks — guard fails on any (file,table) NOT in this baseline. To regenerate after fixing legacy entries: node aiwholesail-api/scripts/check-migration-grants.mjs --update-baseline",
+  "issues": [
+    {
+      "file": "001_initial_schema.sql",
+      "table": "users"
+    },
+    {
+      "file": "001_initial_schema.sql",
+      "table": "profiles"
+    },
+    {
+      "file": "001_initial_schema.sql",
+      "table": "subscribers"
+    },
+    {
+      "file": "001_initial_schema.sql",
+      "table": "leads"
+    },
+    {
+      "file": "001_initial_schema.sql",
+      "table": "favorites"
+    },
+    {
+      "file": "001_initial_schema.sql",
+      "table": "lead_scoring"
+    },
+    {
+      "file": "001_initial_schema.sql",
+      "table": "lead_contacts"
+    },
+    {
+      "file": "001_initial_schema.sql",
+      "table": "property_alerts"
+    },
+    {
+      "file": "001_initial_schema.sql",
+      "table": "property_alert_matches"
+    },
+    {
+      "file": "001_initial_schema.sql",
+      "table": "property_intelligence"
+    },
+    {
+      "file": "001_initial_schema.sql",
+      "table": "advanced_property_assessments"
+    },
+    {
+      "file": "001_initial_schema.sql",
+      "table": "wholesale_deals"
+    },
+    {
+      "file": "001_initial_schema.sql",
+      "table": "campaign_history"
+    },
+    {
+      "file": "001_initial_schema.sql",
+      "table": "security_events"
+    },
+    {
+      "file": "001_initial_schema.sql",
+      "table": "rate_limits"
+    },
+    {
+      "file": "001_initial_schema.sql",
+      "table": "alert_scan_logs"
+    },
+    {
+      "file": "001_initial_schema.sql",
+      "table": "sessions"
+    },
+    {
+      "file": "002_buyers.sql",
+      "table": "buyers"
+    },
+    {
+      "file": "003_sequences.sql",
+      "table": "sequence_templates"
+    },
+    {
+      "file": "003_sequences.sql",
+      "table": "sequence_steps"
+    },
+    {
+      "file": "003_sequences.sql",
+      "table": "lead_sequences"
+    },
+    {
+      "file": "003_sequences.sql",
+      "table": "sequence_executions"
+    },
+    {
+      "file": "004_contracts.sql",
+      "table": "contracts"
+    },
+    {
+      "file": "005_spread_alerts.sql",
+      "table": "property_search_cache"
+    },
+    {
+      "file": "005_spread_alerts.sql",
+      "table": "alert_sent_deals"
+    },
+    {
+      "file": "005_spread_alerts.sql",
+      "table": "alert_job_runs"
+    },
+    {
+      "file": "006_trial_lifecycle.sql",
+      "table": "trial_lifecycle_emails_sent"
+    },
+    {
+      "file": "006_trial_lifecycle.sql",
+      "table": "trial_lifecycle_job_runs"
+    },
+    {
+      "file": "007_skip_tracing.sql",
+      "table": "skip_trace_details"
+    },
+    {
+      "file": "009_webhooks.sql",
+      "table": "webhook_deliveries"
+    },
+    {
+      "file": "022_auth_zombie_events.sql",
+      "table": "auth_zombie_events"
+    }
+  ]
+}
