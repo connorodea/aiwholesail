@@ -10,6 +10,12 @@ import { sortPropertiesByWholesalePotential } from '@/lib/wholesale-calculator';
 import { applyPreEnrichmentToggles } from '@/lib/property-filters';
 import { scoreAllProperties, filterMotivatedSellers, MIN_MOTIVATED_SCORE } from '@/lib/motivated-seller-score';
 import { isCountyWithoutState, isStateOnlyLocation } from '@/lib/locationValidation.js';
+import { useSearchHistory } from '@/hooks/useSearchHistory';
+import { buildOnMarketHistoryLabel } from '@/lib/searchHistoryLabels.js';
+import {
+  RECENT_SEARCHES_CHIPS_FLAG,
+  isRecentSearchesChipsEnabled,
+} from '@/lib/searchHistoryFlag.js';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { User, Download, Bell, GitCompareArrows, Check, LayoutGrid, Map as MapIcon } from 'lucide-react';
@@ -84,6 +90,23 @@ export default function RealEstateWholesaler() {
   // chunk is never lazy-loaded).
   const { enabled: onMarketHeatmapEnabled } = useFeatureFlag('on-market-heatmap');
   const [resultsView, setResultsView] = useState<'cards' | 'map'>('cards');
+
+  // Recent-searches history — lifted from PropertySearch so the container
+  // (which knows when results land) can populate `resultCount` after a
+  // search completes. Chip click flows back through `handleSearch` via
+  // `onSearch(params)`, which re-records and dedupes by hash.
+  const recentChipsFlag = useFeatureFlag(RECENT_SEARCHES_CHIPS_FLAG);
+  const recentChipsEnabled = isRecentSearchesChipsEnabled(recentChipsFlag);
+  const {
+    history: searchHistory,
+    recordSearch: recordSearchHistory,
+    recordResultCount,
+    removeSearch: removeSearchFromHistory,
+    clear: clearSearchHistory,
+  } = useSearchHistory<PropertySearchParams>({
+    mode: 'on-market',
+    buildLabel: buildOnMarketHistoryLabel,
+  });
 
   const [searchParams, setSearchParams] = useSearchParams();
   const urlMode = searchParams.get('mode') === 'off-market' ? 'off-market' : 'on-market';
@@ -163,6 +186,12 @@ export default function RealEstateWholesaler() {
       toast.error("Please add a state to your county search (e.g., 'Oakland County, MI')");
       return;
     }
+
+    // Record into recent-searches history AFTER the county-check passes —
+    // so rejected county-without-state entries never land in the chip row.
+    // `recordSearchHistory` returns the entry id; we patch its
+    // `resultCount` once enrichment settles.
+    const historyId = recordSearchHistory(params);
 
     // Increment search ID to prevent stale enrichment overwrites
     searchIdRef.current += 1;
@@ -268,6 +297,7 @@ export default function RealEstateWholesaler() {
 
       if (searchResults.length === 0) {
         setError("No properties found. Try adjusting your search criteria.");
+        recordResultCount(historyId, 0);
         return;
       }
 
@@ -305,6 +335,7 @@ export default function RealEstateWholesaler() {
         } else {
           setError('No properties found. Try adjusting your search criteria.');
         }
+        recordResultCount(historyId, 0);
         return;
       }
 
@@ -391,6 +422,11 @@ export default function RealEstateWholesaler() {
         setHideNegativeSpreads(!!params.wholesaleOnly);
 
         setProperties(enrichedSorted);
+
+        // Patch the recent-searches chip with the final visible result
+        // count so the user can see, at a glance, which past search
+        // returned how much.
+        recordResultCount(historyId, enrichedSorted.length);
 
         // Cache results for the AI Analyzer tab. Use localStorage so the
         // cache survives tab switches, and write to sessionStorage too so
@@ -563,7 +599,14 @@ export default function RealEstateWholesaler() {
                   Off-market = PropData absentee owner search (PR #170). */}
               {effectiveSearchMode === 'on-market' ? (
                 <div className="feature-card p-8 backdrop-blur-sm">
-                  <PropertySearch onSearch={handleSearch} isLoading={isLoading} />
+                  <PropertySearch
+                    onSearch={handleSearch}
+                    isLoading={isLoading}
+                    searchHistory={searchHistory}
+                    recentChipsEnabled={recentChipsEnabled}
+                    onRemoveHistory={removeSearchFromHistory}
+                    onClearHistory={clearSearchHistory}
+                  />
                 </div>
               ) : (
                 <div className="text-left">

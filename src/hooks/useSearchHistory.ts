@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import {
   clearHistory,
   hashParams,
+  patchEntry,
   pushEntry,
   readHistory,
   removeEntry,
@@ -95,10 +96,9 @@ export function useSearchHistory<P>(opts: UseSearchHistoryOptions<P>): UseSearch
   const recordResultCount = useCallback(
     (id: string, count: number) => {
       setHistory((prev) => {
-        const idx = prev.findIndex((e) => e.id === id);
-        if (idx === -1) return prev;
-        const next = prev.slice();
-        next[idx] = { ...next[idx], resultCount: count };
+        const next = patchEntry(prev, id, { resultCount: count });
+        // patchEntry returns the same reference on no-op — skip the write.
+        if (next === prev) return prev;
         const storage = getStorage();
         if (storage) writeHistory(storage, mode, next);
         return next;

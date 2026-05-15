@@ -12,6 +12,7 @@ import {
   SEARCH_HISTORY_MAX,
   clearHistory,
   hashParams,
+  patchEntry,
   pushEntry,
   readHistory,
   removeEntry,
@@ -115,6 +116,41 @@ test('pushEntry respects custom max override', () => {
 test('pushEntry clamps max to at least 1', () => {
   const arr = pushEntry([], entry({ id: 'a' }), 0);
   assert.equal(arr.length, 1);
+});
+
+test('patchEntry merges patch into matching entry, preserves order', () => {
+  const arr = [
+    entry({ id: 'a', label: 'A', timestamp: 1 }),
+    entry({ id: 'b', label: 'B', timestamp: 2 }),
+    entry({ id: 'c', label: 'C', timestamp: 3 }),
+  ];
+  const out = patchEntry(arr, 'b', { resultCount: 47 });
+  assert.deepEqual(out.map((e) => e.id), ['a', 'b', 'c']);
+  assert.equal(out[1].resultCount, 47);
+  // Other fields preserved.
+  assert.equal(out[1].label, 'B');
+  assert.equal(out[1].timestamp, 2);
+});
+
+test('patchEntry does not mutate the input array', () => {
+  const arr = [entry({ id: 'a', label: 'A' })];
+  const before = JSON.stringify(arr);
+  patchEntry(arr, 'a', { resultCount: 5 });
+  assert.equal(JSON.stringify(arr), before);
+});
+
+test('patchEntry returns the same array reference for unknown id (no-op)', () => {
+  const arr = [entry({ id: 'a' })];
+  const out = patchEntry(arr, 'zzz', { resultCount: 99 });
+  assert.equal(out, arr);
+});
+
+test('patchEntry overlays patch keys on existing entry', () => {
+  const arr = [entry({ id: 'a', label: 'orig', timestamp: 1, resultCount: 10 })];
+  const out = patchEntry(arr, 'a', { resultCount: 20, label: 'new' });
+  assert.equal(out[0].resultCount, 20);
+  assert.equal(out[0].label, 'new');
+  assert.equal(out[0].timestamp, 1);
 });
 
 test('removeEntry strips matching id, leaves rest', () => {
