@@ -1139,34 +1139,40 @@ function parseSearchQueryStateFromUrl(url) {
 }
 
 /**
- * Append a `searchQueryState` with `sort: { value: 'days' }` to a Zillow
- * slug URL so Zillow returns newest-first instead of its default
- * "Homes for you" (popularity) sort. The default sort buries minutes-
- * old listings on later pages — user-reported regression 2026-05-15.
+ * Return the slug URL unchanged.
  *
- * Preserves the slug, sub-paths (sold/, rentals/), and pagination
- * segments (/N_p/). Caller can pass `{ sort: 'popular' }` to opt back
- * into Zillow's default ordering — that simply returns the URL
- * unchanged so future toggle wiring stays trivial.
+ * BACKGROUND — the previous implementation appended a `searchQueryState`
+ * query param with `sort: { value: 'days' }` so Zillow would return
+ * newest-first instead of its default "Homes for you" sort. That comment
+ * claimed "the slug still scopes the region, so we don't need mapBounds."
+ *
+ * That assumption was WRONG. Reproduced 2026-05-15 server-side:
+ *
+ *   /homes/idaho-county-id_rb/                      → Grangeville, Kooskia, McCall, ID ✓
+ *   /homes/idaho-county-id_rb/?searchQueryState=…   → Warren, MI ✗
+ *   /homes/idaho-county-id_rb/?…&usersSearchTerm=…  → Elizabeth, NJ ✗ (still broken)
+ *
+ * Zillow's frontend respects whatever `searchQueryState` we pass — and
+ * ours had no `mapBounds`/`regionSelection`, so Zillow fell back to a
+ * default region (looks IP-geo or "trending US"), returning random
+ * out-of-state listings under the user's correctly-typed search. Catastrophic
+ * — affected EVERY location-string search (ZIPs, cities, states, counties).
+ *
+ * Fix: never inject `searchQueryState` on slug-based searches. Tradeoff:
+ * loses the newest-first sort (results revert to Zillow's default
+ * "Homes for you" ordering). That's a real regression but immeasurably
+ * smaller than serving wrong-state results. Restoring newest-first sort
+ * without breaking region scoping is a follow-up — requires a path-based
+ * sort segment or a queryState that includes the resolved regionId.
  *
  * @param {string} slugUrl - the URL produced by searchUrlForLocation +
  *   status sub-path + pagination
- * @param {{sort?: 'newest' | 'popular'}} [opts]
+ * @param {{sort?: 'newest' | 'popular'}} [_opts] - kept for caller compat;
+ *   currently ignored
  * @returns {string}
  */
-function buildSearchUrlWithSort(slugUrl, opts = {}) {
-  const sort = opts.sort === 'popular' ? 'popular' : 'newest';
-  if (sort === 'popular') return slugUrl;
-
-  // Minimal queryState — pagination + sort + isListVisible. Zillow
-  // honours this on slug URLs as an override; the slug still scopes
-  // the region, so we don't need mapBounds.
-  const state = {
-    pagination: {},
-    sort: { value: 'days' },
-    isListVisible: true,
-  };
-  return `${slugUrl}?searchQueryState=${encodeURIComponent(JSON.stringify(state))}`;
+function buildSearchUrlWithSort(slugUrl, _opts = {}) {
+  return slugUrl;
 }
 
 async function search(args = {}) {
