@@ -69,3 +69,41 @@ test('.aiwholesail-wordmark stays at font-weight: 700 (distinction is uppercase 
     'wordmark must remain at font-weight: 700',
   );
 });
+
+// --- Regression pins added on review of PR #413 ---
+// Inputs and placeholders MUST NOT inherit body's font-bold (700) —
+// typed text and placeholder text should read at normal weight so the
+// auth/signup/search surfaces don't look like everything is shouted.
+
+test('input/textarea/select rule pins font-weight: 400 so typed text is not bold', () => {
+  const css = read('src/index.css');
+  const m = css.match(/(?<!\.light\s)input,\s*textarea,\s*select\s*\{[\s\S]*?\}/);
+  assert.ok(m, 'dark-mode input/textarea/select rule not found');
+  assert.match(
+    m[0],
+    /font-weight:\s*400/,
+    'input/textarea/select must explicitly set font-weight: 400 (not inherit body bold)',
+  );
+});
+
+test('placeholder rule pins font-weight: 400 so placeholders are not bold', () => {
+  const css = read('src/index.css');
+  const m = css.match(/(?<!\.light\s)input::placeholder,\s*textarea::placeholder\s*\{[\s\S]*?\}/);
+  assert.ok(m, 'dark-mode placeholder rule not found');
+  assert.match(
+    m[0],
+    /font-weight:\s*400/,
+    'placeholder rule must explicitly set font-weight: 400',
+  );
+});
+
+test('.light input/textarea/select also pins font-weight: 400', () => {
+  const css = read('src/index.css');
+  const m = css.match(/\.light\s+input,\s*\.light\s+textarea,\s*\.light\s+select\s*\{[\s\S]*?\}/);
+  assert.ok(m, '.light input/textarea/select rule not found');
+  assert.match(
+    m[0],
+    /font-weight:\s*400/,
+    'light-mode input rule must also pin font-weight: 400 (parity with dark mode)',
+  );
+});

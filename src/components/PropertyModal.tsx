@@ -349,7 +349,7 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                 )}
                 {/* mobile property type — only shows here when sm hidden */}
                 {displayProperty.propertyType && (
-                  <span className="sm:hidden text-[11px] text-muted-foreground ml-auto">
+                  <span className="sm:hidden text-[11px] font-medium text-muted-foreground ml-auto">
                     {humanize(displayProperty.propertyType)}
                   </span>
                 )}

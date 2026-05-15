@@ -164,10 +164,14 @@ All colors MUST be HSL.
     background-color: hsl(0 0% 12%) !important;
     color: white !important;
     border-color: hsl(0 0% 22%) !important;
+    /* Don't inherit body's font-bold (700) — UI text the user typed should
+       read at normal weight, not shouted. */
+    font-weight: 400 !important;
   }
 
   input::placeholder, textarea::placeholder {
     color: hsl(0 0% 45%) !important;
+    font-weight: 400 !important;
   }
 
   input:focus, textarea:focus, select:focus {
@@ -235,10 +239,12 @@ All colors MUST be HSL.
     background-color: white !important;
     color: hsl(0 0% 9%) !important;
     border-color: hsl(0 0% 85%) !important;
+    font-weight: 400 !important;
   }
 
   .light input::placeholder, .light textarea::placeholder {
     color: hsl(0 0% 55%) !important;
+    font-weight: 400 !important;
   }
 
   .light label {
