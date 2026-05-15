@@ -27,6 +27,7 @@ const { Pool } = require('pg');
 const { Resend } = require('resend');
 const { zillowUrl, appPropUrl, buildPrimaryUrl } = require('../lib/spread-alert-urls');
 const zillowScrapeDo = require('../lib/scrapers/zillowScrapeDo');
+const { mapSummaryToListing } = require('../lib/spread-alert-listing-map');
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
@@ -74,33 +75,13 @@ function resolveSearchLocation(location) {
 // Replaces the previous RapidAPI `zillow-scraper-api` integration. RapidAPI
 // quota was exhausted (every request returned 429), so the worker ran on
 // schedule but found zero new properties for ~48h. We now route through the
-// in-repo scrape.do scraper (lib/scrapers/zillowScrapeDo) — the same path the
-// live API + agent tools already use for Zillow data.
+// in-repo scrape.do scraper (lib/scrapers/zillowScrapeDo).
 //
-// The two helpers below preserve the exact return shape the worker's main
-// loop already consumes (a `{data: {total_pages, listings: [...]}}` envelope
-// for search; a scalar zestimate for the per-zpid fetch) so the swap is
-// surface-only — no behavioral changes to the cache write, dedup query, or
-// email template.
-
-function mapSummaryToListing(r) {
-  return {
-    zpid: r.zpid,
-    address: r.addressStreet || r.address,
-    city: r.addressCity,
-    state: r.addressState,
-    zipcode: r.addressZipcode,
-    price: r.price,
-    zestimate: r.zestimate,
-    bedrooms: r.beds,
-    bathrooms: r.baths,
-    living_area_sqft: r.area,
-    home_type: r.homeType,
-    days_on_zillow: r.daysOnZillow,
-    detail_url: r.detailUrl,
-    image_url: r.imgSrc,
-  };
-}
+// The helpers below preserve the return shape the worker's main loop
+// already consumes (a `{data: {total_pages, listings: [...]}}` envelope
+// for search; a scalar zestimate for the per-zpid fetch). The field-name
+// mapping lives in `../lib/spread-alert-listing-map` so it's unit-testable
+// in isolation.
 
 async function searchZillow(location, page = 1) {
   const result = await zillowScrapeDo.search({
