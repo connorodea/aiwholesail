@@ -1,15 +1,12 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { AlertTriangle, RotateCcw, LogOut } from 'lucide-react';
+import { AUTH_STORAGE_KEYS } from '@/lib/auth-storage-keys';
 
-// Auth-related localStorage keys — kept in sync with src/lib/api-client.ts
-// `tokenStorage`. Hoisted here so the error-boundary recovery CTA can purge
-// them without importing the full api-client module (which transitively pulls
-// fetch/feature-flag setup into the boundary's bundle).
-const AUTH_STORAGE_KEYS = [
-  'aiwholesail_access_token',
-  'aiwholesail_refresh_token',
-  'aiwholesail_user',
-];
+// `auth-storage-keys` is a zero-dependency module (three string literals),
+// so importing it doesn't pull api-client's fetch wrappers or feature-flag
+// setup into the boundary's bundle. The single source of truth means a
+// future key rename can't desync the boundary's recovery from the writer
+// in api-client.ts.
 
 /**
  * Clear auth state and force a fresh sign-in. Wired to the secondary CTA on
