@@ -63,6 +63,16 @@ jobs:
       - name: Library unit tests
         run: npm run test:lib
 
+      # Migration-grant guard tests + cumulative scan. Catches the PR #131
+      # class regression (new CREATE TABLE without GRANT block → live API
+      # 500s with "permission denied" on first access). Baseline file
+      # suppresses legacy missing-GRANT entries that prod tolerates via
+      # role-level permissions.
+      - name: Migration-grant guard tests
+        run: node --test aiwholesail-api/scripts/__tests__/migration-grant-guard.test.js
+      - name: Migration-grant guard (cumulative scan)
+        run: node aiwholesail-api/scripts/check-migration-grants.mjs
+
       # Build with the correct API URL based on target branch
       - name: Build (staging)
         if: github.ref == 'refs/heads/staging' || (github.event_name == 'pull_request' && github.base_ref == 'staging')
