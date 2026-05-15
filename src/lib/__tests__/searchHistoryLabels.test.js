@@ -8,7 +8,7 @@ import assert from 'node:assert/strict';
 import {
   buildOnMarketHistoryLabel,
   buildOffMarketHistoryLabel,
-} from '../searchHistoryLabels.ts';
+} from '../searchHistoryLabels.js';
 
 test('on-market label: minimal — just location', () => {
   const label = buildOnMarketHistoryLabel({ location: 'Detroit, MI' });

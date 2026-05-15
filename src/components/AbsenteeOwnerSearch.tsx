@@ -23,7 +23,11 @@ import { OwnerSkipTraceButton } from '@/components/OwnerSkipTraceButton';
 import { LocationAutocomplete } from '@/components/LocationAutocomplete';
 import { SearchHistory } from '@/components/SearchHistory';
 import { useSearchHistory } from '@/hooks/useSearchHistory';
-import { buildOffMarketHistoryLabel } from '@/lib/searchHistoryLabels';
+import { buildOffMarketHistoryLabel } from '@/lib/searchHistoryLabels.js';
+import {
+  RECENT_SEARCHES_CHIPS_FLAG,
+  isRecentSearchesChipsEnabled,
+} from '@/lib/searchHistoryFlag.js';
 import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useFeatureFlag } from '@/hooks/useFeatureFlag';
@@ -360,6 +364,10 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
   // quicklists). When OFF, /api/propdata/* (which has broken absentee
   // filter as of 2026-05-14 live testing).
   const { enabled: batchDataEnabled } = useFeatureFlag('batchdata_offmarket');
+  // Recent-searches chips kill switch (added 2026-05-14 after #428 review).
+  // Default OFF until feature_flag_globals.slug='recent-searches-chips' is on.
+  const recentChipsFlag = useFeatureFlag(RECENT_SEARCHES_CHIPS_FLAG);
+  const recentChipsEnabled = isRecentSearchesChipsEnabled(recentChipsFlag);
   const [selectedLeadTypes, setSelectedLeadTypes] = useState<Set<string>>(
     new Set(['absentee'])
   );
@@ -941,7 +949,7 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
-          {searchHistory.length > 0 && (
+          {recentChipsEnabled && searchHistory.length > 0 && (
             <SearchHistory<OffMarketHistoryParams>
               entries={searchHistory}
               onApply={(entry) => handleApplyHistory(entry.params)}

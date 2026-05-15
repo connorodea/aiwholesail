@@ -6,11 +6,21 @@ import {
   readHistory,
   removeEntry,
   SEARCH_HISTORY_MAX,
-  SearchHistoryEntry,
-  SearchHistoryMode,
   storageKey,
   writeHistory,
-} from '@/lib/searchHistoryStorage';
+} from '@/lib/searchHistoryStorage.js';
+
+// Mirror of the JSDoc typedef in src/lib/searchHistoryStorage.js. Kept here
+// so TS consumers get strong types without re-introducing a .ts source
+// (CI runs node --test on Node 20 which can't load .ts natively).
+export type SearchHistoryMode = 'on-market' | 'off-market';
+export interface SearchHistoryEntry<P = unknown> {
+  id: string;
+  label: string;
+  params: P;
+  timestamp: number;
+  resultCount?: number;
+}
 
 interface UseSearchHistoryOptions<P> {
   mode: SearchHistoryMode;

@@ -3,25 +3,31 @@
  * the storage layer so PropertySearch (on-market) and AbsenteeOwnerSearch
  * (off-market) can share a consistent summarization style and we can
  * node-test the pure label logic.
+ *
+ * @typedef {Object} OnMarketLabelInput
+ * @property {string} [location]
+ * @property {string} [homeType]
+ * @property {string|number} [price_min]
+ * @property {string|number} [price_max]
+ * @property {string|number} [bed_min]
+ * @property {string|number} [bathrooms]
+ * @property {boolean} [wholesaleOnly]
+ * @property {boolean} [motivatedSellersOnly]
+ * @property {boolean} [fsboOnly]
+ * @property {boolean} [auctionOnly]
+ * @property {number} [radiusMi]
+ *
+ * @typedef {Object} OffMarketLabelInput
+ * @property {string} locationInput
+ * @property {number} [limit]
+ * @property {'any'|'gte_40'|'gte_60'|'gte_80'} [equityFilter]
+ * @property {boolean} [taxDelinquentOnly]
+ * @property {0|5|10|20} [minYearsHeld]
+ * @property {boolean} [excludeRecentSales]
+ * @property {string[]} [selectedLeadTypes]
  */
 
-import type { PropertySearchParams } from '@/types/zillow';
-
-interface OnMarketLabelInput {
-  location?: string;
-  homeType?: string;
-  price_min?: string;
-  price_max?: string;
-  bed_min?: string | number;
-  bathrooms?: string | number;
-  wholesaleOnly?: boolean;
-  motivatedSellersOnly?: boolean;
-  fsboOnly?: boolean;
-  auctionOnly?: boolean;
-  radiusMi?: number;
-}
-
-function fmtPrice(v?: string | number): string | null {
+function fmtPrice(v) {
   if (v == null || v === '') return null;
   const n = typeof v === 'string' ? Number(v) : v;
   if (!Number.isFinite(n) || n <= 0) return null;
@@ -30,7 +36,7 @@ function fmtPrice(v?: string | number): string | null {
   return `$${n}`;
 }
 
-function priceRange(min?: string | number, max?: string | number): string | null {
+function priceRange(min, max) {
   const lo = fmtPrice(min);
   const hi = fmtPrice(max);
   if (lo && hi) return `${lo}–${hi}`;
@@ -39,8 +45,12 @@ function priceRange(min?: string | number, max?: string | number): string | null
   return null;
 }
 
-export function buildOnMarketHistoryLabel(p: OnMarketLabelInput | PropertySearchParams): string {
-  const parts: string[] = [];
+/**
+ * @param {OnMarketLabelInput} p
+ * @returns {string}
+ */
+export function buildOnMarketHistoryLabel(p) {
+  const parts = [];
   const loc = (p.location || '').trim();
   parts.push(loc || 'Anywhere');
 
@@ -52,7 +62,7 @@ export function buildOnMarketHistoryLabel(p: OnMarketLabelInput | PropertySearch
   if (p.bed_min && Number(p.bed_min) > 0) parts.push(`${p.bed_min}+bd`);
   if (p.bathrooms && Number(p.bathrooms) > 0) parts.push(`${p.bathrooms}+ba`);
 
-  const tags: string[] = [];
+  const tags = [];
   if (p.wholesaleOnly) tags.push('wholesale');
   if (p.motivatedSellersOnly) tags.push('motivated');
   if (p.fsboOnly) tags.push('FSBO');
@@ -62,25 +72,19 @@ export function buildOnMarketHistoryLabel(p: OnMarketLabelInput | PropertySearch
   return parts.join(' · ');
 }
 
-interface OffMarketLabelInput {
-  locationInput: string;
-  limit?: number;
-  equityFilter?: 'any' | 'gte_40' | 'gte_60' | 'gte_80';
-  taxDelinquentOnly?: boolean;
-  minYearsHeld?: 0 | 5 | 10 | 20;
-  excludeRecentSales?: boolean;
-  selectedLeadTypes?: string[];
-}
-
-const EQUITY_LABEL: Record<NonNullable<OffMarketLabelInput['equityFilter']>, string> = {
+const EQUITY_LABEL = {
   any: '',
   gte_40: '≥40% eq',
   gte_60: '≥60% eq',
   gte_80: '≥80% eq',
 };
 
-export function buildOffMarketHistoryLabel(p: OffMarketLabelInput): string {
-  const parts: string[] = [];
+/**
+ * @param {OffMarketLabelInput} p
+ * @returns {string}
+ */
+export function buildOffMarketHistoryLabel(p) {
+  const parts = [];
   parts.push((p.locationInput || '').trim() || 'Anywhere');
 
   if (p.selectedLeadTypes && p.selectedLeadTypes.length > 0) {

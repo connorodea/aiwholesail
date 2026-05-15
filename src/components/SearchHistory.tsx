@@ -1,6 +1,6 @@
 import { Clock, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import type { SearchHistoryEntry } from '@/lib/searchHistoryStorage';
+import type { SearchHistoryEntry } from '@/hooks/useSearchHistory';
 
 interface SearchHistoryProps<P> {
   entries: SearchHistoryEntry<P>[];

@@ -1,16 +1,10 @@
 // Unit tests for the pure search-history storage module. Uses node:test +
 // a minimal in-memory Storage stub so we don't need jsdom — matches the
-// repo's existing test pattern.
+// repo's existing test pattern (auth-coherence, auction-detection,
+// comps-similarity, comps-location-parser, brand-flags).
 //
 // Run:
 //   node --test src/lib/__tests__/searchHistoryStorage.test.js
-//
-// The implementation lives in ../searchHistoryStorage.ts. We require the
-// compiled .ts via the JS-from-TS pattern already used elsewhere in
-// __tests__ (api-client-coherence.test.ts proves TS-in-test works under
-// node:test when the file is .test.ts; we keep this file .js to mirror
-// the pure-JS sibling tests and import the source as TS, which works
-// because node --test ignores type syntax when the file ends in .ts).
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -23,7 +17,7 @@ import {
   removeEntry,
   storageKey,
   writeHistory,
-} from '../searchHistoryStorage.ts';
+} from '../searchHistoryStorage.js';
 
 function makeStorage() {
   const map = new Map();

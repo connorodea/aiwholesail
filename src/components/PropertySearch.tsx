@@ -13,7 +13,11 @@ import { LocationAutocomplete } from './LocationAutocomplete';
 import { CountyBrowserDialog } from './CountyBrowserDialog';
 import { SearchHistory } from './SearchHistory';
 import { useSearchHistory } from '@/hooks/useSearchHistory';
-import { buildOnMarketHistoryLabel } from '@/lib/searchHistoryLabels';
+import { buildOnMarketHistoryLabel } from '@/lib/searchHistoryLabels.js';
+import {
+  RECENT_SEARCHES_CHIPS_FLAG,
+  isRecentSearchesChipsEnabled,
+} from '@/lib/searchHistoryFlag.js';
 import { validatePriceRange, sanitizeSearchKeywords, validateLocationInput } from '@/lib/security';
 import { isMultiLocationSearchEnabled } from '@/lib/feature-flags';
 import { useFeatureFlag } from '@/hooks/useFeatureFlag';
@@ -45,6 +49,11 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
   // While the flag fetch is in flight we render v1 — no skeleton needed,
   // v1 is the safe legacy layout already on prod.
   const { enabled: layoutV2Enabled } = useFeatureFlag('main-search-layout-v2');
+  // Recent-searches chips — kill-switch added 2026-05-14 after #428 review
+  // flagged a flag-first-workflow violation. Default OFF until the
+  // recent-searches-chips row in feature_flag_globals is flipped on.
+  const recentChipsFlag = useFeatureFlag(RECENT_SEARCHES_CHIPS_FLAG);
+  const recentChipsEnabled = isRecentSearchesChipsEnabled(recentChipsFlag);
   // V3 aesthetic refresh — TWO flag-gated variants for dogfooding:
   //   tightEnabled    — keep all controls visible but drop field-label
   //                     icon noise, consolidate scattered helper text,
@@ -139,7 +148,7 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-          {searchHistory.length > 0 && (
+          {recentChipsEnabled && searchHistory.length > 0 && (
             <SearchHistory<PropertySearchParams>
               entries={searchHistory}
               onApply={(entry) => handleApplyHistory(entry.params)}
