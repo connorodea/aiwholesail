@@ -26,14 +26,12 @@ const axios = require('axios');
 const { Pool } = require('pg');
 const { Resend } = require('resend');
 const { zillowUrl, appPropUrl, buildPrimaryUrl } = require('../lib/spread-alert-urls');
+const zillowScrapeDo = require('../lib/scrapers/zillowScrapeDo');
+const { mapSummaryToListing } = require('../lib/spread-alert-listing-map');
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const DRY_RUN = process.argv.includes('--dry-run');
-
-// Zillow Scraper API config
-const RAPIDAPI_KEY = process.env.RAPIDAPI_KEY || process.env.ZILLOW_RAPIDAPI_KEY;
-const RAPIDAPI_HOST = 'zillow-scraper-api.p.rapidapi.com';
 
 // Twilio config
 const TWILIO_SID = process.env.TWILIO_ACCOUNT_SID;
@@ -72,36 +70,38 @@ function resolveSearchLocation(location) {
   return trimmed;
 }
 
-// ---------- Zillow API helpers ----------
+// ---------- Zillow scrape.do helpers ----------
+//
+// Replaces the previous RapidAPI `zillow-scraper-api` integration. RapidAPI
+// quota was exhausted (every request returned 429), so the worker ran on
+// schedule but found zero new properties for ~48h. We now route through the
+// in-repo scrape.do scraper (lib/scrapers/zillowScrapeDo).
+//
+// The helpers below preserve the return shape the worker's main loop
+// already consumes (a `{data: {total_pages, listings: [...]}}` envelope
+// for search; a scalar zestimate for the per-zpid fetch). The field-name
+// mapping lives in `../lib/spread-alert-listing-map` so it's unit-testable
+// in isolation.
 
 async function searchZillow(location, page = 1) {
-  const response = await axios.get(`https://${RAPIDAPI_HOST}/zillow/search`, {
-    params: {
-      location,
-      listing_type: 'for_sale',
-      home_type: 'house',
-      sort: 'newest',
-      page: String(page),
-    },
-    headers: {
-      'x-rapidapi-key': RAPIDAPI_KEY,
-      'x-rapidapi-host': RAPIDAPI_HOST,
-    },
-    timeout: 30000,
+  const result = await zillowScrapeDo.search({
+    location,
+    status: 'ForSale',
+    page,
+    sort: 'newest',
   });
-  return response.data;
+  return {
+    data: {
+      total_pages: result.total_pages || 1,
+      listings: (result.results || []).map(mapSummaryToListing),
+    },
+  };
 }
 
 async function getZestimate(zpid) {
   try {
-    const response = await axios.get(`https://${RAPIDAPI_HOST}/zillow/valuation/${zpid}`, {
-      headers: {
-        'x-rapidapi-key': RAPIDAPI_KEY,
-        'x-rapidapi-host': RAPIDAPI_HOST,
-      },
-      timeout: 15000,
-    });
-    return response.data?.data?.zestimate || null;
+    const result = await zillowScrapeDo.zestimate({ zpid });
+    return result?.zestimate || null;
   } catch {
     return null;
   }
