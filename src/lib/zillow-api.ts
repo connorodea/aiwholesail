@@ -374,16 +374,18 @@ export class ZillowAPI {
 
     flatten(prop);
 
-    // Map common fields to standardized property structure
-    // Handle both old API format and new Zillow Scraper API format
+    // scrape.do search results expose city/state/zip under addressCity/
+    // addressState/addressZipcode — must be in the fallback chain or
+    // Property.address loses the citystatezip half.
     const address = flattened.property_address_streetAddress ||
                    flattened.rental_metrics_streetAddress ||
+                   flattened.addressStreet ||
                    flattened.address ||
                    'Unknown Address';
 
-    const city = flattened.property_address_city || flattened.city || '';
-    const state = flattened.property_address_state || flattened.state || '';
-    const zipcode = flattened.zipcode || '';
+    const city = flattened.property_address_city || flattened.addressCity || flattened.city || '';
+    const state = flattened.property_address_state || flattened.addressState || flattened.state || '';
+    const zipcode = flattened.property_address_zipcode || flattened.addressZipcode || flattened.zipcode || '';
     const fullAddress = city && state ? `${address}, ${city}, ${state}${zipcode ? ' ' + zipcode : ''}` : address;
 
     const isFSBO = this.detectFSBO(flattened);
