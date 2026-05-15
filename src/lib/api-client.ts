@@ -4,6 +4,7 @@
  */
 import { API_BASE_URL } from './platform';
 import type { Property } from '@/types/zillow';
+import { shouldClearOnStorageEvent } from './auth-coherence.js';
 
 const API_URL = API_BASE_URL;
 
@@ -98,6 +99,30 @@ export const onAuthStateChange = (callback: AuthListener): (() => void) => {
 const notifyAuthChange = (user: User | null): void => {
   authListeners.forEach(callback => callback(user));
 };
+
+// Cross-tab coherence: a `storage` event fires in other windows for the
+// same origin when localStorage is mutated. PR #376 only self-heals at
+// MOUNT time — if the zombie state develops AFTER mount (parallel-tab
+// signout, iOS Safari ITP eviction, DevTools clear), this tab keeps its
+// React user state stale and the next API call surfaces as the
+// "Your session has expired" toast on /app/search.
+//
+// Listener pushes notifyAuthChange(null) when an auth-critical key is
+// removed elsewhere — React state flips to null, ProtectedRoute redirects
+// to /auth, user lands on a clean sign-in flow instead of a broken page.
+//
+// Set-events (new sign-in / rotation) are intentionally NOT propagated:
+// picking up a new user mid-session is more invasive than a coherence
+// repair and would require a full identity-swap dance. Next navigation's
+// getCoherentUser() picks up the new tokens cleanly.
+if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+  window.addEventListener('storage', (event) => {
+    if (shouldClearOnStorageEvent(event)) {
+      tokenStorage.clear();
+      notifyAuthChange(null);
+    }
+  });
+}
 
 // Base fetch wrapper with auth
 export async function apiFetch<T>(
