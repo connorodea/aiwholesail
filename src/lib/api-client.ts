@@ -115,13 +115,29 @@ const notifyAuthChange = (user: User | null): void => {
 // picking up a new user mid-session is more invasive than a coherence
 // repair and would require a full identity-swap dance. Next navigation's
 // getCoherentUser() picks up the new tokens cleanly.
+//
+// `localStorage` is passed as the second arg so the predicate filters
+// out synthetic StorageEvents from third-party scripts / extensions /
+// sessionStorage — only the real browser-fired localStorage event has
+// `storageArea === window.localStorage`. Hardening flagged in code
+// review of #415.
+//
+// `__aiwAuthStorageListenerRegistered` is a module-level idempotency
+// flag: Vite HMR re-imports this file on every save in dev, which
+// would stack listeners and double-clear on each signout. The flag
+// is scoped to `window` (not module state, which HMR resets) so it
+// survives HMR re-imports.
 if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
-  window.addEventListener('storage', (event) => {
-    if (shouldClearOnStorageEvent(event)) {
-      tokenStorage.clear();
-      notifyAuthChange(null);
-    }
-  });
+  const w = window as Window & { __aiwAuthStorageListenerRegistered?: boolean };
+  if (!w.__aiwAuthStorageListenerRegistered) {
+    w.__aiwAuthStorageListenerRegistered = true;
+    window.addEventListener('storage', (event) => {
+      if (shouldClearOnStorageEvent(event, window.localStorage)) {
+        tokenStorage.clear();
+        notifyAuthChange(null);
+      }
+    });
+  }
 }
 
 // Base fetch wrapper with auth

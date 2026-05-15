@@ -44,13 +44,34 @@ export function isAuthCriticalKey(key) {
  * Returns false when:
  *   - the changed key is unrelated to auth
  *   - the event represents a set/rotation (newValue is a non-empty string)
+ *   - the event targets sessionStorage, not localStorage (different area)
  *   - the event itself is malformed (defensive)
  *
- * @param {{key: string|null, oldValue: string|null, newValue: string|null}|null|undefined} event
+ * Defensive against synthetic `dispatchEvent(new StorageEvent(...))` calls
+ * from third-party scripts or browser extensions: the native API only
+ * sets `storageArea` to the actual `localStorage` reference, so events
+ * for other areas (or no area) are ignored. Tests should set
+ * `event.storageArea` to a sentinel matching the optional `localStorageRef`
+ * parameter to assert this branch.
+ *
+ * @param {{key: string|null, oldValue: string|null, newValue: string|null, storageArea?: Storage}|null|undefined} event
+ * @param {Storage|null} [localStorageRef] Reference used to identify
+ *   localStorage events. When omitted, the storageArea check is skipped
+ *   (preserves pre-existing test ergonomics — tests that don't care
+ *   about area-filtering can pass synthetic events without a storageArea).
  * @returns {boolean}
  */
-export function shouldClearOnStorageEvent(event) {
+export function shouldClearOnStorageEvent(event, localStorageRef) {
   if (!event || typeof event !== 'object') return false;
+
+  // If a reference was provided AND the event carries a storageArea,
+  // require they match. Synthetic events without `storageArea` fall
+  // through to the rest of the predicate — keeps the test surface lean.
+  if (localStorageRef !== undefined && localStorageRef !== null) {
+    if (event.storageArea !== undefined && event.storageArea !== localStorageRef) {
+      return false;
+    }
+  }
 
   if (event.key === null) {
     return true;

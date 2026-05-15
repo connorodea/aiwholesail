@@ -163,3 +163,66 @@ test('shouldClearOnStorageEvent: same-key set with newValue="" treated as remova
   };
   assert.equal(shouldClearOnStorageEvent(event), true);
 });
+
+test('shouldClearOnStorageEvent: ignores events whose storageArea is not the expected localStorage', () => {
+  // Hardening against synthetic dispatchEvent(new StorageEvent(...))
+  // from extensions, third-party scripts, or sessionStorage mutations.
+  // The native browser-fired event sets `storageArea` to the actual
+  // localStorage object; events targeting sessionStorage carry the
+  // sessionStorage object instead. Without this guard, a Chrome
+  // extension clearing its own sessionStorage with the same key name
+  // could spuriously sign our user out.
+  const realLocal = { /* sentinel */ };
+  const sessionArea = { /* different sentinel */ };
+
+  const sessionRemoval = {
+    key: 'aiwholesail_access_token',
+    oldValue: 'valid-jwt',
+    newValue: null,
+    storageArea: sessionArea,
+  };
+  assert.equal(
+    shouldClearOnStorageEvent(sessionRemoval, realLocal),
+    false,
+    'sessionStorage removal must not trigger signout',
+  );
+
+  const localRemoval = {
+    key: 'aiwholesail_access_token',
+    oldValue: 'valid-jwt',
+    newValue: null,
+    storageArea: realLocal,
+  };
+  assert.equal(
+    shouldClearOnStorageEvent(localRemoval, realLocal),
+    true,
+    'localStorage removal still triggers signout',
+  );
+});
+
+test('shouldClearOnStorageEvent: localStorageRef omitted preserves pre-area behavior', () => {
+  // Backward compat: callers that don't pass a localStorageRef continue
+  // to get the original predicate behavior. Lets older tests / call
+  // sites keep working until the migration is complete.
+  const event = {
+    key: 'aiwholesail_access_token',
+    oldValue: 'valid-jwt',
+    newValue: null,
+    // No storageArea — synthetic event
+  };
+  assert.equal(shouldClearOnStorageEvent(event), true);
+});
+
+test('shouldClearOnStorageEvent: localStorageRef provided but event has no storageArea — passes through', () => {
+  // A test that wants the listener-binding semantics (passes a ref)
+  // but uses synthetic events without a storageArea: don't penalize.
+  // The synthetic case is for unit tests; the prod listener always
+  // gets a real StorageEvent with a real storageArea attached.
+  const realLocal = { /* sentinel */ };
+  const event = {
+    key: 'aiwholesail_access_token',
+    oldValue: 'valid-jwt',
+    newValue: null,
+  };
+  assert.equal(shouldClearOnStorageEvent(event, realLocal), true);
+});
