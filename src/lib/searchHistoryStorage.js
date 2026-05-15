@@ -90,6 +90,25 @@ export function removeEntry(existing, id) {
 }
 
 /**
+ * Merge `patch` into the entry with matching `id`, preserving position
+ * and all other fields. Returns the same array reference unchanged if
+ * no entry matches — caller can compare by reference to skip a storage
+ * write on no-op.
+ *
+ * @param {SearchHistoryEntry[]} existing
+ * @param {string} id
+ * @param {Partial<SearchHistoryEntry>} patch
+ * @returns {SearchHistoryEntry[]}
+ */
+export function patchEntry(existing, id, patch) {
+  const idx = existing.findIndex((e) => e.id === id);
+  if (idx === -1) return existing;
+  const next = existing.slice();
+  next[idx] = { ...next[idx], ...patch };
+  return next;
+}
+
+/**
  * @param {Storage} storage
  * @param {SearchHistoryMode} mode
  */
