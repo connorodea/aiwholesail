@@ -130,8 +130,8 @@ export default function Blog() {
         ]}
       />
 
-      {/* ===== HERO — DARK ===== */}
-      <section className="relative bg-gradient-to-b from-[#0a0a0a] via-[#0f0f0f] to-[#0a0a0a] text-white overflow-hidden">
+      {/* ===== HERO ===== */}
+      <section className="relative bg-background text-foreground overflow-hidden">
         <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" fill="rgba(0, 196, 200, 0.15)" />
         <div className="relative container mx-auto max-w-6xl px-4 pt-24 pb-20 text-center">
           <Badge className="mb-6 bg-white/10 text-white/80 border-white/10 backdrop-blur-sm text-xs font-medium px-4 py-1.5 rounded-full">
@@ -151,9 +151,6 @@ export default function Blog() {
             help you find and close profitable real estate deals.
           </p>
         </div>
-
-        {/* Fade to white */}
-        <div className="h-24 bg-gradient-to-b from-[#0a0a0a] to-[#08090a]" />
       </section>
 
       {/* ===== FEATURED ARTICLE — LIGHT ===== */}
@@ -162,7 +159,7 @@ export default function Blog() {
           <div className="container mx-auto max-w-6xl">
             <p className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-4">Featured</p>
             <Link to={featuredArticle?.slug ? `/blog/${featuredArticle.slug}` : '/blog'} className="block group">
-              <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-8 md:p-12 transition-all duration-300 hover:border-cyan-500/20">
+              <div className="bg-[#0d1117] border border-white/[0.06] rounded-2xl p-8 md:p-12 transition-all duration-300 hover:border-cyan-500/20">
                 <div className="grid md:grid-cols-5 gap-8 items-center">
                   <div className="md:col-span-3">
                     <div className="flex items-center gap-3 mb-4">
@@ -222,7 +219,7 @@ export default function Blog() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {gridArticles.map((article, index) => (
               <Link to={article.slug ? `/blog/${article.slug}` : '/blog'} key={index} className="group">
-                <article className="h-full bg-white/[0.03] border border-white/[0.06] rounded-xl p-6 transition-all duration-300 hover:border-cyan-500/20 flex flex-col">
+                <article className="h-full bg-[#0d1117] border border-white/[0.06] rounded-2xl p-6 transition-all duration-300 hover:border-cyan-500/20 flex flex-col">
                   {/* Image Placeholder */}
                   <div className="aspect-[16/9] rounded-2xl bg-gradient-to-br from-muted/80 to-muted/50 border border-border/30 mb-5 flex items-center justify-center">
                     <BookOpen className="h-6 w-6 text-neutral-400/30" />
