@@ -10,6 +10,7 @@ const {
   normalizeUpstreamResponse,
   isRetryableError,
 } = require('../lib/propdata-normalizer');
+const { applyAbsenteeFilterToBody } = require('../lib/propdata-absentee-filter');
 const { respondError } = require('../lib/responses');
 
 const router = express.Router();
@@ -154,6 +155,18 @@ async function proxy(req, res, endpoint, allowedParams, options = {}) {
     }
   }
 
+  // Some params are accepted from the caller (for API stability / contract)
+  // but MUST NOT be forwarded upstream — e.g. `absentee_only` is broken
+  // server-side at the vendor (2026-05-14 live-test). We handle those
+  // locally via options.transformBody on the response.
+  const upstreamParams = { ...params };
+  for (const key of options.stripFromUpstream || []) {
+    delete upstreamParams[key];
+  }
+
+  // Cache key uses the FULL params (including locally-handled ones) so two
+  // queries that differ only on a locally-handled filter (absentee_only)
+  // don't share a cache entry.
   const key = cacheKey(endpoint, params);
   const cached = cacheGet(key);
   if (cached) {
@@ -177,15 +190,21 @@ async function proxy(req, res, endpoint, allowedParams, options = {}) {
   const startedAt = Date.now();
 
   // Attempt 1
-  let result = await callUpstream(endpoint, params, timeoutMs);
+  let result = await callUpstream(endpoint, upstreamParams, timeoutMs);
 
   // Single retry on transient upstream error / network blip. NO_COVERAGE,
   // NOT_FOUND, RATE_LIMITED are never retried (won't help, would burn quota).
   let retried = false;
   if (isRetryableError(result) || result.code === ERROR_CODES.NETWORK) {
     await sleep(RETRY_DELAY_MS);
-    result = await callUpstream(endpoint, params, timeoutMs);
+    result = await callUpstream(endpoint, upstreamParams, timeoutMs);
     retried = true;
+  }
+
+  // Post-process successful bodies — e.g. apply locally-handled filters
+  // that the vendor's equivalent server-side parameter is broken for.
+  if (result.ok && typeof options.transformBody === 'function') {
+    result = { ...result, body: options.transformBody(result.body, params) };
   }
 
   const elapsedMs = Date.now() - startedAt;
@@ -221,9 +240,22 @@ router.get('/rent',          authenticate, asyncHandler((req, res) => proxy(req,
 router.get('/estimate',      authenticate, asyncHandler((req, res) => proxy(req, res, '/v1/estimate', ['zip', 'state', 'beds'])));
 router.get('/comps',         authenticate, asyncHandler((req, res) => proxy(req, res, '/v1/comps', ['zip', 'address', 'limit', 'radius'])));
 router.get('/geocode',       authenticate, asyncHandler((req, res) => proxy(req, res, '/v1/geocode', ['address'])));
+// `/property` accepts `absentee_only` from callers (frontend contract stable)
+// but does NOT forward it upstream — the vendor's filter is broken
+// (2026-05-14 live-test: returns empty arrays for ZIPs that contain
+// many absentee records). Instead we strip the param, fetch the
+// unfiltered list, and apply the predicate locally via
+// applyAbsenteeFilterToBody (definition of absentee:
+// flags.is_absentee_owner=true, or mailing_zip != property zip, or
+// mailing_state != property state).
 router.get('/property',      authenticate, asyncHandler((req, res) => proxy(req, res, '/v1/property', [
   'zip', 'address', 'apn', 'owner', 'absentee_only', 'limit',
-])));
+], {
+  stripFromUpstream: ['absentee_only'],
+  transformBody: (body, params) => applyAbsenteeFilterToBody(body, {
+    absentee_only: params.absentee_only === 'true' || params.absentee_only === true,
+  }),
+})));
 
 // Delta endpoints — return only records added/updated since the given ISO 8601
 // timestamp. Cursor-paginated. Short TTL so polling loops see fresh inventory.
