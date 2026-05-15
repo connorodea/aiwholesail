@@ -1096,8 +1096,61 @@ function mapListingToSummary(l) {
  *
  * @param {{location: string, status?: string, page?: number|string}} args
  */
+/**
+ * Parse a `?searchQueryState=<urlencoded-json>` param out of a URL and
+ * return the decoded JSON object, or null if absent / malformed.
+ *
+ * Exported for tests — pin the URL shape produced by
+ * buildSearchUrlWithSort without re-implementing JSON.parse in
+ * every test.
+ *
+ * @param {string} url
+ * @returns {object|null}
+ */
+function parseSearchQueryStateFromUrl(url) {
+  if (typeof url !== 'string') return null;
+  const match = url.match(/[?&]searchQueryState=([^&]+)/);
+  if (!match) return null;
+  try {
+    return JSON.parse(decodeURIComponent(match[1]));
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Append a `searchQueryState` with `sort: { value: 'days' }` to a Zillow
+ * slug URL so Zillow returns newest-first instead of its default
+ * "Homes for you" (popularity) sort. The default sort buries minutes-
+ * old listings on later pages — user-reported regression 2026-05-15.
+ *
+ * Preserves the slug, sub-paths (sold/, rentals/), and pagination
+ * segments (/N_p/). Caller can pass `{ sort: 'popular' }` to opt back
+ * into Zillow's default ordering — that simply returns the URL
+ * unchanged so future toggle wiring stays trivial.
+ *
+ * @param {string} slugUrl - the URL produced by searchUrlForLocation +
+ *   status sub-path + pagination
+ * @param {{sort?: 'newest' | 'popular'}} [opts]
+ * @returns {string}
+ */
+function buildSearchUrlWithSort(slugUrl, opts = {}) {
+  const sort = opts.sort === 'popular' ? 'popular' : 'newest';
+  if (sort === 'popular') return slugUrl;
+
+  // Minimal queryState — pagination + sort + isListVisible. Zillow
+  // honours this on slug URLs as an override; the slug still scopes
+  // the region, so we don't need mapBounds.
+  const state = {
+    pagination: {},
+    sort: { value: 'days' },
+    isListVisible: true,
+  };
+  return `${slugUrl}?searchQueryState=${encodeURIComponent(JSON.stringify(state))}`;
+}
+
 async function search(args = {}) {
-  const { location, status, page } = args;
+  const { location, status, page, sort } = args;
   if (!location) {
     throw new ZillowScrapeError('search requires location', { reason: 'bad_args' });
   }
@@ -1110,6 +1163,12 @@ async function search(args = {}) {
   if (page && Number(page) > 1) {
     url = url.replace(/\/$/, `/${Number(page)}_p/`);
   }
+  // Sort: newest-first by default (user-reported regression 2026-05-15).
+  // Zillow's default "Homes for you" sort buried minutes-old listings on
+  // later pages, which the frontend never fetched. `sort=days` returns
+  // newest-first so freshly-listed properties always reach page 1.
+  // Caller can pass `sort: 'popular'` to opt back into Zillow's default.
+  url = buildSearchUrlWithSort(url, { sort: sort || 'newest' });
 
   let resp;
   try {
@@ -3222,6 +3281,8 @@ module.exports = {
   mapListingToSummary,
   searchUrlForLocation,
   buildSearchQueryState,
+  buildSearchUrlWithSort,
+  parseSearchQueryStateFromUrl,
   boundsFromCenterRadius,
   findZestimateHistory,
   findMortgageRates,
