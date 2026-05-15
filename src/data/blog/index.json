@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-portland-me-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Portland ME: A Complete Investor's Guide for 2024",
+      "excerpt": "Portland, Maine is one of New England's most underrated real estate markets, offering strong rental demand, rising home values, and motivated sellers. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Portland ME.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-15T18:02:25.266Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Portland ME",
+        "Portland Maine real estate investing",
+        "wholesale real estate Portland Maine",
+        "Portland ME rental properties",
+        "flip houses Portland Maine"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-find-profitable-real-estate-deals-in-cedar-rapids-ia",
       "title": "How to Find Profitable Real Estate Deals in Cedar Rapids IA",
       "excerpt": "Cedar Rapids is one of Iowa's most overlooked real estate markets, offering strong rental yields, affordable entry points, and steady demand. This guide breaks down where to invest, what deals to look for, and how to analyze the numbers like a pro.",
@@ -15,7 +32,7 @@
         "house flipping Cedar Rapids",
         "rental properties Cedar Rapids"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-jackson-ms-a-complete-investor-s-guide-for-2024",
