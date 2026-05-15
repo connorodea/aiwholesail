@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-hartford-ct-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Hartford CT: A Complete Investor's Guide for 2024",
+      "excerpt": "Hartford, Connecticut offers some of the most undervalued real estate deals in the Northeast, with entry prices well below national averages and strong rental demand. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Hartford CT.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-15T12:01:06.532Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Hartford CT",
+        "Hartford CT real estate investing",
+        "Hartford wholesale deals",
+        "Hartford fix and flip",
+        "Hartford rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "memorandum-of-contract-for-real-estate-wholesaling-what-it-is-and-why-you-need-o",
       "title": "Memorandum of Contract for Real Estate Wholesaling: What It Is and Why You Need One",
       "excerpt": "A memorandum of contract is one of the most powerful tools a real estate wholesaler can use to protect their deals. Learn exactly how it works, when to file it, and how it keeps sellers from walking away.",
@@ -15,7 +32,7 @@
         "wholesale real estate contract",
         "equitable interest real estate"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "can-you-lose-money-on-rental-property-what-every-investor-needs-to-know",
