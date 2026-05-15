@@ -754,6 +754,79 @@ test('findMortgageRates + normalizeMortgageRate', async (t) => {
   await t.test('returns null for non-object', () => {
     assert.equal(normalizeMortgageRate(null), null);
   });
+
+  await t.test(
+    'pulls rates from pageProps.post.blocks[] zhl-rate-summary blockData.data (TD-105)',
+    () => {
+      // Current shape on /mortgage-rates/<zip>: WordPress-style blocks where
+      // a zhl/zhl-rate-summary block carries the rate table under
+      // blockData.data. Older candidate paths return empty.
+      const nextData = {
+        props: {
+          pageProps: {
+            post: {
+              blocks: [
+                { blockName: 'zhl/some-other-block', blockData: { data: [] } },
+                {
+                  blockName: 'zhl/zhl-rate-summary',
+                  blockData: {
+                    data: [
+                      {
+                        lenderName: 'Quicken Loans',
+                        apr: 7.125,
+                        rate: 6.99,
+                        points: 0.875,
+                        loanType: '30-year fixed',
+                      },
+                      {
+                        lenderName: 'Rocket Mortgage',
+                        apr: 7.05,
+                        rate: 6.875,
+                        points: 1.125,
+                        loanType: '30-year fixed',
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        },
+      };
+      const raw = findMortgageRates(nextData);
+      assert.equal(raw.length, 2);
+      const first = normalizeMortgageRate(raw[0]);
+      assert.equal(first.lender, 'Quicken Loans');
+      assert.equal(first.apr, 7.125);
+      assert.equal(first.rate, 6.99);
+      assert.equal(first.loanType, '30-year fixed');
+    }
+  );
+
+  await t.test(
+    'pulls rates from pageProps.property.mortgageZHLRates on detail pages (TD-105 bonus)',
+    () => {
+      const nextData = {
+        props: {
+          pageProps: {
+            property: {
+              mortgageZHLRates: [
+                {
+                  lenderName: 'Detail-Page Lender',
+                  apr: 6.45,
+                  rate: 6.25,
+                  monthlyPayment: 2150,
+                },
+              ],
+            },
+          },
+        },
+      };
+      const raw = findMortgageRates(nextData);
+      assert.equal(raw.length, 1);
+      assert.equal(normalizeMortgageRate(raw[0]).lender, 'Detail-Page Lender');
+    }
+  );
 });
 
 // ───────────────────────── Agent profile ─────────────────────────

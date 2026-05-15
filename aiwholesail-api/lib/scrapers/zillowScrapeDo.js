@@ -1588,15 +1588,26 @@ function mortgageRatesUrlForState(state) {
  * them and normalise to a flat row.
  */
 function findMortgageRates(nextData) {
+  const pp = nextData?.props?.pageProps || {};
   const candidates = [
-    nextData?.props?.pageProps?.componentProps?.rateTable?.lenderQuotes,
-    nextData?.props?.pageProps?.componentProps?.rates,
-    nextData?.props?.pageProps?.componentProps?.lenders,
-    nextData?.props?.pageProps?.rates,
-    nextData?.props?.pageProps?.lenderQuotes,
+    pp.componentProps?.rateTable?.lenderQuotes,
+    pp.componentProps?.rates,
+    pp.componentProps?.lenders,
+    pp.rates,
+    pp.lenderQuotes,
+    // Detail-page bonus: property.mortgageZHLRates (TD-105).
+    pp.property?.mortgageZHLRates,
   ];
   for (const c of candidates) {
     if (Array.isArray(c) && c.length > 0) return c;
+  }
+  // Current /mortgage-rates/<zip> shape: WordPress-style blocks with a
+  // zhl/zhl-rate-summary block carrying blockData.data (TD-105).
+  const blocks = pp.post?.blocks;
+  if (Array.isArray(blocks)) {
+    const block = blocks.find((b) => b?.blockName === 'zhl/zhl-rate-summary');
+    const data = block?.blockData?.data;
+    if (Array.isArray(data) && data.length > 0) return data;
   }
   return deepFindArray(nextData, 'lenderQuotes') || deepFindArray(nextData, 'rates');
 }
