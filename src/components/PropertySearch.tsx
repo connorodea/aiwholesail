@@ -18,6 +18,7 @@ import {
   RECENT_SEARCHES_CHIPS_FLAG,
   isRecentSearchesChipsEnabled,
 } from '@/lib/searchHistoryFlag.js';
+import { isCountyWithoutState } from '@/lib/locationValidation.js';
 import { validatePriceRange, sanitizeSearchKeywords, validateLocationInput } from '@/lib/security';
 import { isMultiLocationSearchEnabled } from '@/lib/feature-flags';
 import { useFeatureFlag } from '@/hooks/useFeatureFlag';
@@ -100,7 +101,21 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
       });
       return;
     }
-    
+
+    // Reject county-without-state searches BEFORE recording history. The
+    // container (RealEstateWholesaler.handleSearch) re-checks and rejects
+    // these too, but doing it here keeps invalid entries out of the chip
+    // strip — otherwise a rejected search lands in history and every
+    // future chip-click would just re-toast the same error.
+    if (isCountyWithoutState(sanitizedLocation)) {
+      toast({
+        title: "State required for county searches",
+        description: "Please include a state. Example: 'Oakland County, MI'.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     // Validate price range
     const priceValidation = validatePriceRange(searchParams.price_min, searchParams.price_max);
     if (priceValidation.error) {
