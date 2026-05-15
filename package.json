@@ -10,7 +10,8 @@
     "lint": "eslint .",
     "lint:zillow-actions": "node scripts/check-zillow-actions.mjs",
     "preview": "vite preview",
-    "test:seo": "node --test src/pages/__tests__/*.test.cjs src/lib/seo/__tests__/*.test.js scripts/seo/*.test.js scripts/google-ads-setup/*.test.js"
+    "test:seo": "node --test src/pages/__tests__/*.test.cjs src/lib/seo/__tests__/*.test.js scripts/seo/*.test.js scripts/google-ads-setup/*.test.js",
+    "test:lib": "node --test src/lib/__tests__/*.test.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.58.0",

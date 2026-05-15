@@ -56,6 +56,13 @@ jobs:
       - name: SEO contract tests
         run: npm run test:seo
 
+      # Library unit tests — auth-coherence, comps-similarity, comps-location-parser,
+      # auction-detection. These pure-JS modules carry contract behavior that the
+      # TS/vitest suite (no CI runner) doesn't exercise. Without this step the
+      # auction-detection (#408) and comps tests (#371/#380) were silently latent.
+      - name: Library unit tests
+        run: npm run test:lib
+
       # Build with the correct API URL based on target branch
       - name: Build (staging)
         if: github.ref == 'refs/heads/staging' || (github.event_name == 'pull_request' && github.base_ref == 'staging')
