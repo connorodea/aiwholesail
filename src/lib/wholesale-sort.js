@@ -1,22 +1,17 @@
 // Default comparator for property search results.
 //
-// Hard tiers (highest first):
-//   1. Brand-new (≤1d) qualified deals (spread ≥ $30K) — by spread DESC
-//   2. Other qualified deals — by freshness-weighted rank DESC
-//   3. Positive-spread non-deals — by freshness-weighted rank DESC
-//   4. With-zestimate (negative spread) — by spread DESC
-//   5. Without zestimate — by daysOnMarket ASC (newest first)
+// Tiers (highest first):
+//   1. Qualified deals (spread ≥ $30K) — by spread DESC
+//   2. Positive-spread non-deals — by spread DESC
+//   3. With-zestimate (negative spread) — by spread DESC (less-negative first)
+//   4. Without zestimate — by daysOnMarket ASC (newest first)
 //
-// User-validated 2026-05-15: brand-new qualified deals must always
-// surface above older ones, even when the older ones have a much
-// larger spread. The freshness-weighted multiplier alone (1.5x boost
-// for ≤1d) isn't enough to overcome a 2-3x spread differential, which
-// was burying just-listed deals behind 4-5 day old higher-spread ones.
+// Within every tier the primary sort is spread amount descending. Days-
+// on-market is the secondary tiebreak (newer first) and the only signal
+// in tier 4 where there's no spread to compare. No freshness multiplier:
+// the user's validated decision is "biggest deals come first, period."
 
-import { freshnessWeightedRank } from './freshness-weighted-rank.js';
-
-export const MIN_DEAL_SPREAD = 30000;
-const BRAND_NEW_DAYS = 1;
+const MIN_DEAL_SPREAD = 30000;
 
 function attrs(prop) {
   const price = prop.price || 0;
@@ -24,17 +19,14 @@ function attrs(prop) {
   const hasZestimate = !!(prop.zestimate && prop.price);
   const rawSpread = hasZestimate ? zestimate - price : -Infinity;
   const daysOnMarket = prop.daysOnMarket ?? 9999;
-  const isQualifiedDeal = rawSpread >= MIN_DEAL_SPREAD;
-  const isBrandNew = daysOnMarket <= BRAND_NEW_DAYS;
-  return { hasZestimate, rawSpread, daysOnMarket, isQualifiedDeal, isBrandNew };
+  return { hasZestimate, rawSpread, daysOnMarket };
 }
 
 function tier(a) {
-  if (a.isBrandNew && a.isQualifiedDeal) return 1;
-  if (a.isQualifiedDeal) return 2;
-  if (a.rawSpread > 0) return 3;
-  if (a.hasZestimate) return 4;
-  return 5;
+  if (a.rawSpread >= MIN_DEAL_SPREAD) return 1;
+  if (a.rawSpread > 0) return 2;
+  if (a.hasZestimate) return 3;
+  return 4;
 }
 
 export function compareWholesalePotential(propA, propB) {
@@ -45,32 +37,12 @@ export function compareWholesalePotential(propA, propB) {
   const tB = tier(b);
   if (tA !== tB) return tA - tB;
 
-  // Same tier — apply tier-specific ordering.
-  switch (tA) {
-    case 1:
-      // Brand-new qualified deals: bigger spread first, then newest first.
-      if (a.rawSpread !== b.rawSpread) return b.rawSpread - a.rawSpread;
-      return a.daysOnMarket - b.daysOnMarket;
-
-    case 2:
-    case 3: {
-      // Existing freshness-weighted-rank semantics.
-      const rA = freshnessWeightedRank(a.rawSpread, a.daysOnMarket);
-      const rB = freshnessWeightedRank(b.rawSpread, b.daysOnMarket);
-      if (rA !== rB) return rB - rA;
-      if (a.rawSpread !== b.rawSpread) return b.rawSpread - a.rawSpread;
-      return a.daysOnMarket - b.daysOnMarket;
-    }
-
-    case 4:
-      // With-zestimate (negative spread): less-negative first.
-      return b.rawSpread - a.rawSpread;
-
-    case 5:
-      // No zestimate: newest first.
-      return a.daysOnMarket - b.daysOnMarket;
-
-    default:
-      return 0;
+  if (tA === 4) {
+    // No zestimate — newest first is the only signal we have.
+    return a.daysOnMarket - b.daysOnMarket;
   }
+
+  // Tiers 1-3: spread DESC, then newest first as tiebreak.
+  if (a.rawSpread !== b.rawSpread) return b.rawSpread - a.rawSpread;
+  return a.daysOnMarket - b.daysOnMarket;
 }
