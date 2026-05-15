@@ -1,11 +1,14 @@
 // Pure detection helper: is a property listing an auction/foreclosure
 // "opening bid" rather than a market-priced sale?
 //
-// Used by ComparableSalesTable (and potentially future server-side
-// enrichment) so the UI doesn't render a misleading "Great Deal +$X"
-// against a non-market price. Three independent signals — any one is
-// enough to classify the listing as auction-like:
+// Used by ComparableSalesTable, PropertyCard, and wholesale-calculator
+// so the UI doesn't rank or badge auction listings as legitimate
+// market deals. Four independent signals — any one is enough:
 //
+//   0. `isForeclosure === true` — Zillow's explicit classification
+//      boolean (most reliable; pre-classified, no NLP guessing).
+//      Strict-true gate to avoid false positives from weird truthy
+//      payload encodings (numeric 1, string "true", etc.).
 //   1. Description contains an auction/foreclosure keyword
 //      ("Foreclosure Auction", "Opening Bid", "Trustee's Sale",
 //      "Sheriff's Sale", "Federa Home" — preserved for REO matches)
@@ -31,11 +34,15 @@ const MIN_SQFT_FOR_LOW_PRICE_AUCTION = 800;
  * opening bid rather than a market-priced sale. Defensive — missing
  * fields don't throw, they just don't contribute a positive signal.
  *
- * @param {{price?: number, sqft?: number, description?: string}} property
+ * @param {{price?: number, sqft?: number, description?: string, isForeclosure?: boolean}} property
  * @returns {boolean}
  */
 export function isAuctionSubject(property) {
   if (!property || typeof property !== 'object') return false;
+
+  // Most reliable signal: Zillow has already classified the listing.
+  // Strict-true to dodge truthy-coercion edge cases (1, "true", etc.).
+  if (property.isForeclosure === true) return true;
 
   const description = typeof property.description === 'string' ? property.description : '';
   if (AUCTION_KEYWORDS.test(description)) return true;

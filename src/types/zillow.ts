@@ -43,6 +43,11 @@ export interface Property {
   listDate?: string;
   description?: string;
   isFSBO?: boolean;
+  // Zillow's explicit foreclosure-classification boolean. Surfaced by
+  // mapListingToSummary (search results) and mapPropertyToRapidApiShape
+  // (detail). Consumed by isAuctionSubject() to suppress misleading
+  // "Great Deal" badges on opening-bid listings (PR #408 / #430).
+  isForeclosure?: boolean;
   // Agent/Listing information
   agentName?: string;
   agentPhone?: string;

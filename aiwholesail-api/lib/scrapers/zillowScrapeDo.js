@@ -1086,7 +1086,27 @@ function mapListingToSummary(l) {
         : `${ZILLOW_BASE}${l.detailUrl}`
       : undefined,
     imgSrc: l.imgSrc,
-    isForeclosure: hi.isPreforeclosureAuction ?? hi.isForeclosure ?? l.isForeclosure,
+    // OR-semantics, not nullish-coalescing. Real case: a foreclosed REO
+    // has `isPreforeclosureAuction: false` (no court auction in flight)
+    // AND `isForeclosure: true` (bank-owned). The previous `??` chain
+    // short-circuited on the false isPreforeclosureAuction and reported
+    // the listing as non-foreclosure. Caught by unit test 2026-05-15.
+    isForeclosure:
+      hi.isPreforeclosureAuction === true ||
+      hi.isForeclosure === true ||
+      l.isForeclosure === true,
+    // Description: prefer top-level (post-processed listing-card string)
+    // over the nested raw-MLS variant. Empty strings normalize to
+    // undefined so downstream keyword / length checks treat them as
+    // absent rather than present-but-empty.
+    // Without this, isAuctionSubject's keyword branch is dead for
+    // search results (gap surfaced 2026-05-15 after PR #408/#430).
+    description: (() => {
+      const top = typeof l.description === 'string' ? l.description : '';
+      const nested = typeof hi.description === 'string' ? hi.description : '';
+      const chosen = top || nested;
+      return chosen.length > 0 ? chosen : undefined;
+    })(),
   };
 }
 
