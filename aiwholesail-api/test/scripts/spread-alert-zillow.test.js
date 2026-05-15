@@ -2,11 +2,9 @@
 //
 // These wrappers MUST route through `proxyZillow` (lib/agent/zillowProxy),
 // not call `zillowScrapeDo` directly — proxyZillow is the single chokepoint
-// for backend selection (scrape.do primary, RapidAPI fallback), error
-// translation, and provider-metrics logging. The worker bypassing it would
-// silently lose: (a) the RapidAPI safety net when scrape.do has a transient
-// outage, (b) contributions to scrape_provider_metrics dashboards that the
-// rest of the API populates.
+// for backend selection (scrape.do primary, RapidAPI fallback) and error
+// translation. The worker bypassing it loses the RapidAPI safety net when
+// scrape.do has a transient outage.
 //
 // Run:
 //   node --test aiwholesail-api/test/scripts/spread-alert-zillow.test.js
@@ -46,6 +44,9 @@ test('searchZillow returns {data: {total_pages, listings}} envelope the worker e
 
   assert.equal(out.data.total_pages, 5);
   assert.equal(out.data.listings.length, 1);
+  // zpid is the join key for property_search_cache upserts — must survive
+  // the mapper or every cache write fails the NOT NULL constraint.
+  assert.equal(out.data.listings[0].zpid, '1');
   // Mapper translated beds → bedrooms, baths → bathrooms (worker shape):
   assert.equal(out.data.listings[0].bedrooms, 3);
   assert.equal(out.data.listings[0].bathrooms, 2);
