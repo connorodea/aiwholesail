@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "do-wholesalers-pay-capital-gains-or-ordinary-income-tax-the-complete-answer",
+      "title": "Do Wholesalers Pay Capital Gains or Ordinary Income Tax? The Complete Answer",
+      "excerpt": "Most real estate wholesalers are surprised to learn they don't pay the lower capital gains tax rate — they pay ordinary income tax instead. Here's why, and what you can do to keep more of your assignment fees.",
+      "category": "Capital Gains",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-16T06:01:00.647Z",
+      "readTime": 7,
+      "tags": [
+        "do wholesalers pay capital gains or ordinary income tax",
+        "real estate wholesaling taxes",
+        "wholesale assignment fee taxes",
+        "ordinary income tax real estate",
+        "wholesaling self-employment tax"
+      ],
+      "featured": true
+    },
+    {
       "slug": "signs-a-real-estate-market-is-about-to-crash-and-how-to-protect-your-investments",
       "title": "Signs a Real Estate Market Is About to Crash (And How to Protect Your Investments)",
       "excerpt": "Knowing the warning signs of a real estate market crash can mean the difference between losing your shirt and finding your best deals. Learn the key indicators experienced investors watch—and what to do when you spot them.",
@@ -15,7 +32,7 @@
         "real estate bubble",
         "market downturn"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-portland-me-a-complete-investor-s-guide-for-2024",
