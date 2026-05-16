@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "signs-a-real-estate-market-is-about-to-crash-and-how-to-protect-your-investments",
+      "title": "Signs a Real Estate Market Is About to Crash (And How to Protect Your Investments)",
+      "excerpt": "Knowing the warning signs of a real estate market crash can mean the difference between losing your shirt and finding your best deals. Learn the key indicators experienced investors watch—and what to do when you spot them.",
+      "category": "Market Trends",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-16T06:00:53.479Z",
+      "readTime": 7,
+      "tags": [
+        "signs a real estate market is about to crash",
+        "real estate market crash indicators",
+        "housing market warning signs",
+        "real estate bubble",
+        "market downturn"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-portland-me-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Portland ME: A Complete Investor's Guide for 2024",
       "excerpt": "Portland, Maine is one of New England's most underrated real estate markets, offering strong rental demand, rising home values, and motivated sellers. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Portland ME.",
@@ -15,7 +32,7 @@
         "Portland ME rental properties",
         "flip houses Portland Maine"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-find-profitable-real-estate-deals-in-cedar-rapids-ia",
