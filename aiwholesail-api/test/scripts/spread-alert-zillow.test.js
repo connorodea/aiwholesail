@@ -2,9 +2,9 @@
 //
 // These wrappers MUST route through `proxyZillow` (lib/agent/zillowProxy),
 // not call `zillowScrapeDo` directly — proxyZillow is the single chokepoint
-// for backend selection (scrape.do primary, RapidAPI fallback) and error
-// translation. The worker bypassing it loses the RapidAPI safety net when
-// scrape.do has a transient outage.
+// for Zillow access (centralized logging, error translation, future
+// caching / rate-limiting). The worker bypassing it would diverge from
+// every other Zillow consumer in the API.
 //
 // Run:
 //   node --test aiwholesail-api/test/scripts/spread-alert-zillow.test.js
