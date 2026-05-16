@@ -7,7 +7,6 @@
  *   comps              — similar nearby properties (Zillow's own algorithm)
  *   zestimate          — current zestimate + low/high range
  *   zestimate_history  — historical zestimate trend
- *   mortgage           — Zillow's mortgage calculator output
  *   mortgage_rates     — current mortgage rate quotes
  *   taxes              — tax history
  *   schools            — school district + ratings
@@ -29,7 +28,6 @@ const inputSchema = z.object({
     'comps',
     'zestimate',
     'zestimate_history',
-    'mortgage',
     'mortgage_rates',
     'taxes',
     'schools',
@@ -44,7 +42,6 @@ const ACTION_TO_PROXY = {
   comps: 'comps',
   zestimate: 'zestimate',
   zestimate_history: 'zestimateHistory',
-  mortgage: 'mortgage',
   mortgage_rates: 'mortgageRates',
   taxes: 'taxes',
   schools: 'schools',
@@ -54,7 +51,7 @@ const ACTION_TO_PROXY = {
 const zillowProperty = betaZodTool({
   name: 'zillow_property',
   description:
-    'Get information about ONE specific Zillow property by its zpid. Pick the action that matches what you need: details for the full record, photos for images, comps for Zillow\'s built-in comparable-properties recommendation, zestimate for the current AI-estimated value, zestimate_history for the trend over time, mortgage / mortgage_rates for financing math, taxes for tax-history, schools for school district info, price_history for list/sold/price-change events. Always pass the zpid from a prior zillow_search result — do not invent zpids.',
+    'Get information about ONE specific Zillow property by its zpid. Pick the action that matches what you need: details for the full record, photos for images, comps for Zillow\'s built-in comparable-properties recommendation, zestimate for the current AI-estimated value, zestimate_history for the trend over time, mortgage_rates for financing math, taxes for tax-history, schools for school district info, price_history for list/sold/price-change events. Always pass the zpid from a prior zillow_search result — do not invent zpids.',
   inputSchema,
   run: async ({ action, zpid }) => {
     const data = await proxyZillow(ACTION_TO_PROXY[action], { zpid });
