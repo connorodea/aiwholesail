@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-concord-nh-the-investor-s-local-market-guide",
+      "title": "Real Estate Deals in Concord NH: The Investor's Local Market Guide",
+      "excerpt": "Concord, NH is an underrated market offering real estate deals across wholesale, fix-and-flip, and rental strategies. This guide breaks down local prices, top neighborhoods, and tips for out-of-state investors looking to profit in New Hampshire's capital city.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-16T12:02:46.172Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Concord NH",
+        "Concord NH real estate investing",
+        "wholesale deals Concord NH",
+        "fix and flip Concord NH",
+        "Concord NH rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-fontana-ca-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Fontana CA: A Complete Investor's Guide for 2024",
       "excerpt": "Fontana, CA is one of the Inland Empire's most overlooked markets for real estate investors — offering strong rental demand, flip opportunities, and wholesale deals at prices far below coastal California. This guide breaks down everything you need to know to find profitable real estate deals in Fontana CA.",
@@ -15,7 +32,7 @@
         "wholesale deals Fontana",
         "flip houses Fontana CA"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "do-wholesalers-pay-capital-gains-or-ordinary-income-tax-the-complete-answer",
