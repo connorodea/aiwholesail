@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-fontana-ca-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Fontana CA: A Complete Investor's Guide for 2024",
+      "excerpt": "Fontana, CA is one of the Inland Empire's most overlooked markets for real estate investors — offering strong rental demand, flip opportunities, and wholesale deals at prices far below coastal California. This guide breaks down everything you need to know to find profitable real estate deals in Fontana CA.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-16T12:01:08.133Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Fontana CA",
+        "Fontana real estate investing",
+        "Inland Empire real estate",
+        "wholesale deals Fontana",
+        "flip houses Fontana CA"
+      ],
+      "featured": true
+    },
+    {
       "slug": "do-wholesalers-pay-capital-gains-or-ordinary-income-tax-the-complete-answer",
       "title": "Do Wholesalers Pay Capital Gains or Ordinary Income Tax? The Complete Answer",
       "excerpt": "Most real estate wholesalers are surprised to learn they don't pay the lower capital gains tax rate — they pay ordinary income tax instead. Here's why, and what you can do to keep more of your assignment fees.",
@@ -15,7 +32,7 @@
         "ordinary income tax real estate",
         "wholesaling self-employment tax"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "signs-a-real-estate-market-is-about-to-crash-and-how-to-protect-your-investments",
