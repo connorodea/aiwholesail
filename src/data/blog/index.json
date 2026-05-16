@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-virginia-beach-va-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Virginia Beach VA: A Complete Investor's Guide for 2024",
+      "excerpt": "Virginia Beach is one of Virginia's most active real estate markets, offering strong rental demand, flip opportunities, and wholesale deals year-round. This guide breaks down the best neighborhoods, current market trends, and practical strategies to find profitable deals in Virginia Beach VA.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-16T18:01:00.472Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Virginia Beach VA",
+        "Virginia Beach real estate investing",
+        "wholesale deals Virginia Beach",
+        "flip houses Virginia Beach",
+        "rental properties Virginia Beach"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-concord-nh-the-investor-s-local-market-guide",
       "title": "Real Estate Deals in Concord NH: The Investor's Local Market Guide",
       "excerpt": "Concord, NH is an underrated market offering real estate deals across wholesale, fix-and-flip, and rental strategies. This guide breaks down local prices, top neighborhoods, and tips for out-of-state investors looking to profit in New Hampshire's capital city.",
@@ -15,7 +32,7 @@
         "fix and flip Concord NH",
         "Concord NH rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-fontana-ca-a-complete-investor-s-guide-for-2024",
