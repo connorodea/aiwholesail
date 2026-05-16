@@ -28,7 +28,16 @@ const { Resend } = require('resend');
 const { zillowUrl, appPropUrl, buildPrimaryUrl } = require('../lib/spread-alert-urls');
 const { proxyZillow } = require('../lib/agent/zillowProxy');
 const { makeSpreadAlertZillow } = require('../lib/spread-alert-zillow');
+const { sendWithRetry } = require('../lib/sendWithRetry');
 const resend = new Resend(process.env.RESEND_API_KEY);
+
+// Resend free/default tier caps at 5 requests/second. The Phase-3
+// dispatch loop blasts every due alert in a tight loop and used to
+// 429 on the overflow (12/22 failures observed 2026-05-15). Sleeping
+// 220ms between alerts keeps us at ~4.5 RPS — comfortably under the
+// limit even when sendWithRetry's exponential backoff fires.
+const RESEND_INTER_ALERT_DELAY_MS = 220;
+function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
 
 const { searchZillow, getZestimate } = makeSpreadAlertZillow({ proxyZillow });
 
@@ -348,18 +357,15 @@ async function sendAlertEmail(userEmail, location, deals, userOptions = {}) {
     return { id: 'dry-run' };
   }
 
-  const result = await resend.emails.send({
+  // sendWithRetry retries on Resend's 429 with exponential backoff and
+  // re-throws every other error immediately. Validation / auth failures
+  // still bubble up so the caller's `emailSent = false` branch fires.
+  return sendWithRetry(() => resend.emails.send({
     from: 'AIWholesail Alerts <alerts@aiwholesail.com>',
     to: userEmail,
     subject,
     html,
-  });
-  if (result?.error) {
-    // Resend SDK returns {error} instead of throwing on auth/validation failures.
-    // Surface as a real error so callers don't mark the deal as sent in the dedup table.
-    throw new Error(`Resend rejected alert email: ${JSON.stringify(result.error)}`);
-  }
-  return result;
+  }));
 }
 
 // ---------- Main worker ----------
@@ -578,6 +584,11 @@ async function run() {
         // the per-request path is gone).
         const smsSent = false;
 
+        // Throttle between dispatches to stay under Resend's 5 RPS cap.
+        // Sleeping before the call (rather than after) keeps the wait
+        // out of the no-deals path that hit `continue` above.
+        await sleep(RESEND_INTER_ALERT_DELAY_MS);
+
         // Always send email alert
         try {
           await sendAlertEmail(userEmail, alert.location, deals.rows, { fullName: alert.full_name });
@@ -590,21 +601,31 @@ async function run() {
 
         if (emailSent) {
           stats.alerts++;
-        }
 
-        // Log sent deals (dedup)
-        for (const deal of deals.rows) {
+          // Dedup + frequency-window writes are gated on email success.
+          // Marking deals as "sent" or bumping last_alert_sent when the
+          // dispatch failed (e.g. Resend 429) would lock the user out
+          // of receiving these deals in any future run — the SELECT at
+          // line ~530 excludes zpids in alert_sent_deals, and the
+          // due-alerts query excludes alerts within their frequency
+          // window. Real incident 2026-05-15: 12 users got Resend
+          // 429'd and the dedup writes still ran, silently dropping
+          // their batch.
+
+          // Log sent deals (dedup)
+          for (const deal of deals.rows) {
+            await pool.query(
+              'INSERT INTO alert_sent_deals (alert_id, zpid, spread) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING',
+              [alert.id, deal.zpid, deal.spread]
+            );
+          }
+
+          // Update last_alert_sent
           await pool.query(
-            'INSERT INTO alert_sent_deals (alert_id, zpid, spread) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING',
-            [alert.id, deal.zpid, deal.spread]
+            'UPDATE property_alerts SET last_alert_sent = NOW() WHERE id = $1',
+            [alert.id]
           );
         }
-
-        // Update last_alert_sent
-        await pool.query(
-          'UPDATE property_alerts SET last_alert_sent = NOW() WHERE id = $1',
-          [alert.id]
-        );
 
         // Log match.
         // property_id is NOT NULL on the underlying table (migration 001) and
