@@ -66,8 +66,6 @@ export default function HoldingCostCalculator() {
         keywords="holding cost calculator, carrying cost calculator, real estate holding costs, fix and flip costs, property carrying costs, interest cost calculator, investor holding costs"
       />
 
-      <CalculatorSchema {...CALCULATOR_METADATA['holding-cost-calculator']} />
-
       {/* Calculator */}
       <section className={inModal ? 'px-0' : 'pt-10 pb-16 px-4'}>
         <div className={inModal ? '' : 'container mx-auto max-w-6xl'}>
@@ -340,6 +338,7 @@ export default function HoldingCostCalculator() {
         </div>
       </section>
       )}
+    <CalculatorSchema {...CALCULATOR_METADATA['holding-cost-calculator']} />
     </PublicLayout>
   );
 }

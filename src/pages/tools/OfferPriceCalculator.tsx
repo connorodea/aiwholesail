@@ -54,8 +54,6 @@ export default function OfferPriceCalculator() {
         keywords="70 percent rule calculator, mao calculator real estate, maximum allowable offer calculator, wholesale offer calculator, 70% rule, real estate offer calculator, flip deal calculator"
       />
 
-      <CalculatorSchema {...CALCULATOR_METADATA['offer-price-calculator']} />
-
       {/* Calculator */}
       <section className={inModal ? 'px-0' : 'pt-10 pb-16 px-4'}>
         <div className={inModal ? '' : 'container mx-auto max-w-6xl'}>
@@ -298,6 +296,7 @@ export default function OfferPriceCalculator() {
         </div>
       </section>
       )}
+    <CalculatorSchema {...CALCULATOR_METADATA['offer-price-calculator']} />
     </PublicLayout>
   );
 }
