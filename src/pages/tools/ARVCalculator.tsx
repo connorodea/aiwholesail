@@ -97,8 +97,6 @@ export default function ARVCalculator() {
         keywords="arv calculator, after repair value calculator, property value estimator, real estate comps calculator, comparable sales analysis, fix and flip calculator"
       />
 
-      <CalculatorSchema {...CALCULATOR_METADATA['arv-calculator']} />
-
       {/* Calculator (tool-first) */}
       <section className={inModal ? 'px-0' : 'pt-10 pb-16 px-4'}>
         <div className={inModal ? '' : 'container mx-auto max-w-5xl'}>
@@ -404,6 +402,7 @@ export default function ARVCalculator() {
           )}
         </div>
       </section>
+    <CalculatorSchema {...CALCULATOR_METADATA['arv-calculator']} />
     </PublicLayout>
   );
 }

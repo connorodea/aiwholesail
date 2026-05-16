@@ -90,8 +90,6 @@ export default function MortgageCalculator() {
         description="Calculate your monthly mortgage payment, total interest, and see a full amortization breakdown. Free mortgage calculator for home buyers and real estate investors."
         keywords="mortgage calculator, monthly mortgage payment, amortization schedule, home loan calculator, mortgage interest calculator, real estate calculator"
       />
-
-      <CalculatorSchema {...CALCULATOR_METADATA['mortgage-calculator']} />
       {/* Calculator */}
       <section className={inModal ? 'px-0' : 'pt-10 pb-16 px-4'}>
         <div className={inModal ? '' : 'container mx-auto max-w-5xl'}>
@@ -362,6 +360,7 @@ export default function MortgageCalculator() {
           )}
         </div>
       </section>
+    <CalculatorSchema {...CALCULATOR_METADATA['mortgage-calculator']} />
     </PublicLayout>
   );
 }

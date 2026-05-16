@@ -125,8 +125,6 @@ export default function RentalROICalculator() {
         keywords="rental roi calculator, cash on cash return calculator, rental property calculator, cap rate calculator, rental cash flow calculator, investment property roi, real estate return calculator"
       />
 
-      <CalculatorSchema {...CALCULATOR_METADATA['rental-roi-calculator']} />
-
       {/* Calculator */}
       <section className={inModal ? 'px-0' : 'pt-10 pb-16 px-4'}>
         <div className={inModal ? '' : 'container mx-auto max-w-6xl'}>
@@ -439,6 +437,7 @@ export default function RentalROICalculator() {
         </div>
       </section>
       )}
+    <CalculatorSchema {...CALCULATOR_METADATA['rental-roi-calculator']} />
     </PublicLayout>
   );
 }

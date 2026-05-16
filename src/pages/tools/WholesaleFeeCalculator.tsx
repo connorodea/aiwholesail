@@ -57,8 +57,6 @@ export default function WholesaleFeeCalculator() {
         keywords="wholesale fee calculator, assignment fee calculator, wholesale profit calculator, MAO calculator, 70 percent rule, real estate wholesale, wholesaling calculator"
       />
 
-      <CalculatorSchema {...CALCULATOR_METADATA['wholesale-fee-calculator']} />
-
       {/* Calculator */}
       <section className={inModal ? 'px-0' : 'pt-10 pb-16 px-4'}>
         <div className={inModal ? '' : 'container mx-auto max-w-6xl'}>
@@ -275,6 +273,7 @@ export default function WholesaleFeeCalculator() {
         </div>
       </section>
       )}
+    <CalculatorSchema {...CALCULATOR_METADATA['wholesale-fee-calculator']} />
     </PublicLayout>
   );
 }

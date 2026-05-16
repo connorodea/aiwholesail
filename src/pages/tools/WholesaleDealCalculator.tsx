@@ -85,8 +85,6 @@ export default function WholesaleDealCalculator() {
         description="Free wholesale real estate calculator. Calculate your Maximum Allowable Offer (MAO), assignment fee profit, end buyer ROI, and get a Go/No-Go recommendation on any deal."
         keywords="wholesale deal calculator, wholesale real estate calculator, MAO calculator, maximum allowable offer, assignment fee calculator, real estate wholesale, 70% rule calculator"
       />
-
-      <CalculatorSchema {...CALCULATOR_METADATA['wholesale-deal-calculator']} />
       {/* Calculator */}
       <section className={inModal ? 'px-0' : 'pt-10 pb-16 px-4'}>
         <div className={inModal ? '' : 'container mx-auto max-w-5xl'}>
@@ -313,6 +311,7 @@ export default function WholesaleDealCalculator() {
           )}
         </div>
       </section>
+    <CalculatorSchema {...CALCULATOR_METADATA['wholesale-deal-calculator']} />
     </PublicLayout>
   );
 }

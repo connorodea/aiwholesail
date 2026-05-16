@@ -78,8 +78,6 @@ export default function DSCRCalculator() {
         keywords="dscr calculator, debt service coverage ratio calculator, dscr loan calculator, investment property dscr, rental property dscr, dscr ratio calculator, real estate dscr"
       />
 
-      <CalculatorSchema {...CALCULATOR_METADATA['dscr-calculator']} />
-
       {/* Calculator */}
       <section className={inModal ? 'px-0' : 'pt-10 pb-16 px-4'}>
         <div className={inModal ? '' : 'container mx-auto max-w-6xl'}>
@@ -366,6 +364,7 @@ export default function DSCRCalculator() {
         </div>
       </section>
       )}
+    <CalculatorSchema {...CALCULATOR_METADATA['dscr-calculator']} />
     </PublicLayout>
   );
 }
