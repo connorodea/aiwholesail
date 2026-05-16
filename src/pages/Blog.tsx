@@ -139,7 +139,7 @@ export default function Blog() {
           </Badge>
 
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">
-            Expert guides for
+            Expert guides for{' '}
             <br />
             <span className="bg-gradient-to-r from-neutral-800 via-white to-white bg-clip-text text-transparent">
               smarter investing.
