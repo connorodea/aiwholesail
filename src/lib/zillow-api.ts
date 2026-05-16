@@ -975,19 +975,6 @@ export class ZillowAPI {
     });
   }
 
-  async autocomplete(query: string): Promise<any[]> {
-    try {
-      // Migrated to backend proxy in PR #169 — RapidAPI key no longer in browser.
-      const { propdata } = await import('./api-client');
-      const res = await propdata.zillowAutocomplete(query);
-      if (res.error) return [];
-      const data = res.data as { suggestions?: any[] } | undefined;
-      return data?.suggestions || [];
-    } catch {
-      return [];
-    }
-  }
-
   async testConnection(): Promise<boolean> {
     try {
       const data = await this.callApi('test');

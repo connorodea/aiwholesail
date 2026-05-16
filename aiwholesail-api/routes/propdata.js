@@ -296,42 +296,4 @@ router.get('/preforeclosure', authenticate, asyncHandler((req, res) => {
   });
 }));
 
-// Zillow autocomplete — different RapidAPI host but SAME marketplace subscription.
-// Migrated here so the key never leaves the backend.
-router.get('/zillow-autocomplete', authenticate, asyncHandler(async (req, res) => {
-  if (!RAPIDAPI_KEY) return res.status(503).json({ error: 'Not configured' });
-  const q = String(req.query.query || '').trim();
-  if (!q) return res.json({ suggestions: [] });
-
-  const key = `zillow-autocomplete?q=${q.toLowerCase()}`;
-  const cached = cacheGet(key);
-  if (cached) {
-    res.set('X-PropData-Cache', 'HIT');
-    return res.json(cached);
-  }
-
-  const rateLimit = await checkDatabaseRateLimit(req.user.id, 'propdata-autocomplete', 30, 1);
-  if (!rateLimit.allowed) return res.status(429).json({ error: 'Rate limit exceeded' });
-
-  try {
-    const upstream = await axios.get('https://zillow-scraper-api.p.rapidapi.com/zillow/search/autocomplete', {
-      params: { query: q },
-      headers: {
-        'x-rapidapi-key': RAPIDAPI_KEY,
-        'x-rapidapi-host': 'zillow-scraper-api.p.rapidapi.com',
-      },
-      timeout: 8000,
-      validateStatus: () => true,
-    });
-    const suggestions = upstream.data?.data?.suggestions || [];
-    const body = { suggestions };
-    if (upstream.status >= 200 && upstream.status < 300) cacheSet(key, body);
-    res.set('X-PropData-Cache', 'MISS');
-    return res.json(body);
-  } catch (err) {
-    console.error('[propdata] zillow-autocomplete failed:', err.message);
-    return res.json({ suggestions: [] });
-  }
-}));
-
 module.exports = router;
