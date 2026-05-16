@@ -29,6 +29,7 @@ const { zillowUrl, appPropUrl, buildPrimaryUrl } = require('../lib/spread-alert-
 const { proxyZillow } = require('../lib/agent/zillowProxy');
 const { makeSpreadAlertZillow } = require('../lib/spread-alert-zillow');
 const { sendWithRetry } = require('../lib/sendWithRetry');
+const { planAlertSideEffects } = require('../lib/planAlertSideEffects');
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Resend free/default tier caps at 5 requests/second. The Phase-3
@@ -599,47 +600,38 @@ async function run() {
           stats.errors.push(`email to ${userEmail}: ${emailErr.message}`);
         }
 
-        if (emailSent) {
-          stats.alerts++;
+        if (emailSent) stats.alerts++;
 
-          // Dedup + frequency-window writes are gated on email success.
-          // Marking deals as "sent" or bumping last_alert_sent when the
-          // dispatch failed (e.g. Resend 429) would lock the user out
-          // of receiving these deals in any future run — the SELECT at
-          // line ~530 excludes zpids in alert_sent_deals, and the
-          // due-alerts query excludes alerts within their frequency
-          // window. Real incident 2026-05-15: 12 users got Resend
-          // 429'd and the dedup writes still ran, silently dropping
-          // their batch.
-
-          // Log sent deals (dedup)
-          for (const deal of deals.rows) {
+        // Side-effect planning lives in lib/planAlertSideEffects.js so
+        // the data-integrity contract ("don't mark failed-email deals
+        // as sent") is unit-tested independently of the I/O loop.
+        const actions = planAlertSideEffects({
+          alert,
+          deals: deals.rows,
+          emailSent,
+          smsSent,
+        });
+        for (const action of actions) {
+          if (action.type === 'insert_sent_deal') {
             await pool.query(
               'INSERT INTO alert_sent_deals (alert_id, zpid, spread) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING',
-              [alert.id, deal.zpid, deal.spread]
+              [action.alertId, action.zpid, action.spread]
             );
+          } else if (action.type === 'bump_last_alert_sent') {
+            await pool.query(
+              'UPDATE property_alerts SET last_alert_sent = NOW() WHERE id = $1',
+              [action.alertId]
+            );
+          } else if (action.type === 'insert_match') {
+            // property_id is NOT NULL on the underlying table (migration 001)
+            // and serves as the durable per-property key. We use the Zillow
+            // zpid as the canonical id — same value already in alert_sent_deals.
+            await pool.query(`
+              INSERT INTO property_alert_matches (alert_id, property_id, zpid, property_data, matched_at, sms_sent, email_sent)
+              VALUES ($1, $2, $3, $4, NOW(), $5, $6)
+              ON CONFLICT DO NOTHING
+            `, [action.alertId, String(action.zpid), action.zpid, JSON.stringify(action.dealPayload), action.smsSent, action.emailSent]);
           }
-
-          // Update last_alert_sent
-          await pool.query(
-            'UPDATE property_alerts SET last_alert_sent = NOW() WHERE id = $1',
-            [alert.id]
-          );
-        }
-
-        // Log match.
-        // property_id is NOT NULL on the underlying table (migration 001) and
-        // serves as the durable per-property key. We use the Zillow zpid as
-        // the canonical id — same value the worker already stores in
-        // alert_sent_deals. Prior insert omitted this column, causing every
-        // match row to fail with a not-null constraint violation (the email
-        // still went out, but the audit trail was silently dropped).
-        for (const deal of deals.rows) {
-          await pool.query(`
-            INSERT INTO property_alert_matches (alert_id, property_id, zpid, property_data, matched_at, sms_sent, email_sent)
-            VALUES ($1, $2, $3, $4, NOW(), $5, $6)
-            ON CONFLICT DO NOTHING
-          `, [alert.id, String(deal.zpid), deal.zpid, JSON.stringify(deal), smsSent, emailSent]);
         }
 
         // Webhook dispatch (Pro/Elite feature) — fire-and-forget.
