@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "wholesaling-vs-brrrr-which-is-better-for-beginners",
+      "title": "Wholesaling vs BRRRR: Which Is Better for Beginners?",
+      "excerpt": "Choosing between wholesaling and the BRRRR strategy can make or break your first year in real estate investing. This guide breaks down both strategies side by side so beginners can pick the right path for their budget, goals, and risk tolerance.",
+      "category": "Comparison",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-17T06:00:52.652Z",
+      "readTime": 7,
+      "tags": [
+        "wholesaling vs BRRRR",
+        "which is better for beginners",
+        "BRRRR strategy",
+        "real estate wholesaling",
+        "beginner real estate investing"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-eugene-or-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Eugene OR: A Complete Investor's Guide for 2024",
       "excerpt": "Eugene, Oregon is quietly becoming one of the Pacific Northwest's most attractive markets for real estate investors. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Eugene OR.",
@@ -15,7 +32,7 @@
         "flip houses Eugene Oregon",
         "Eugene rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-virginia-beach-va-a-complete-investor-s-guide-for-2024",
