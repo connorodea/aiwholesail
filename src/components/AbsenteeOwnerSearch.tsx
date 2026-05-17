@@ -384,7 +384,13 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
       ? new Date(Date.now() - 365 * 24 * 60 * 60 * 1000)
       : null;
     return props.filter((p) => {
-      if (threshold > 0 && (p.equity?.equity_pct ?? 0) < threshold) return false;
+      // Only cull when equity_pct is KNOWN and below threshold. Records
+      // with missing equity data (common for Tax Delinquent + non-FL/MN/TX
+      // PropData parcels) pass through — the card renders "—" via fmtPct,
+      // so the user sees the lead and decides. Treating missing as 0
+      // silently nuked every Tax Delinquent + ≥40% search.
+      const eqPct = p.equity?.equity_pct;
+      if (threshold > 0 && eqPct != null && eqPct < threshold) return false;
       if (taxDelinquentOnly) {
         const status = String(p.tax_status || '').toLowerCase();
         if (!status.includes('delinquent') && !status.includes('past_due') && !status.includes('past due')) return false;
@@ -1153,6 +1159,27 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
           )}
         </CardContent>
       </Card>
+
+      {/* Safety net: if upstream returned results but every one got culled
+          by the motivation filters, render an actionable empty state instead
+          of a blank screen. Without this, the page looks broken (no toast
+          dismissed yet, no cards) even though the search succeeded. */}
+      {data && data.properties.length > 0 && filtered.length === 0 && (
+        <Card className="simple-card">
+          <CardContent className="pt-6 pb-6 text-center space-y-3">
+            <h3 className="text-base font-medium text-zinc-100">
+              {data.properties.length} result{data.properties.length === 1 ? '' : 's'} hidden by your filters
+            </h3>
+            <p className="text-sm text-zinc-400">
+              Your motivation filters removed every record. Many off-market parcels lack
+              complete equity or tax data — clear filters to see everything.
+            </p>
+            <Button onClick={clearFilters} variant="outline" size="sm" className="h-9">
+              Clear filters
+            </Button>
+          </CardContent>
+        </Card>
+      )}
 
       {filtered.length > 0 && (
         <div className="space-y-4">
