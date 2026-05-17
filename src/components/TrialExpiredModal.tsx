@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Lock, ArrowRight, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -24,6 +24,14 @@ export function TrialExpiredModal() {
   const navigate = useNavigate();
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
+  // Fallback-redirect timer is held in a ref so the Sign-out path can cancel
+  // it. Without this, a user who clicks Sign out during the 1.2s fallback
+  // window lands on /pricing instead of /auth (orphaned setTimeout fires
+  // after unmount).
+  const fallbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => {
+    if (fallbackTimerRef.current) clearTimeout(fallbackTimerRef.current);
+  }, []);
 
   // Derive expired-trial state defensively
   const trialEnd = subscription?.trial_end;
@@ -42,7 +50,6 @@ export function TrialExpiredModal() {
   // shows the price + plan, so the next click should be the card form.
   // Fallback to navigating /pricing on API error so users aren't trapped.
   const handleUpgrade = async () => {
-    analytics.trialUpgradeClicked('modal');
     setCheckoutError(null);
     setCheckoutLoading(true);
     try {
@@ -52,6 +59,10 @@ export function TrialExpiredModal() {
       }
       const url = (response.data as { url?: string } | undefined)?.url;
       if (url) {
+        // Fire the funnel-entry event only after we have a working redirect.
+        // Firing on raw click would inflate the conversion-intent rate with
+        // network-error / 5xx clicks that never reached Stripe.
+        analytics.trialUpgradeClicked('modal');
         window.location.href = url;
         return;
       }
@@ -59,12 +70,19 @@ export function TrialExpiredModal() {
     } catch (err) {
       setCheckoutLoading(false);
       setCheckoutError('Could not start checkout. Redirecting to pricing…');
-      // Last-resort fallback so a transient API blip doesn't trap the user
-      setTimeout(() => navigate('/pricing'), 1200);
+      // Last-resort fallback so a transient API blip doesn't trap the user.
+      // Stored in a ref so Sign-out can cancel it (see useEffect cleanup).
+      fallbackTimerRef.current = setTimeout(() => navigate('/pricing'), 1200);
     }
   };
 
   const handleSignOut = async () => {
+    // Cancel any pending "redirect to /pricing" fallback so we don't
+    // override the user's choice to leave.
+    if (fallbackTimerRef.current) {
+      clearTimeout(fallbackTimerRef.current);
+      fallbackTimerRef.current = null;
+    }
     try {
       await signOut();
     } finally {

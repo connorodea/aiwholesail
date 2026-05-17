@@ -62,10 +62,15 @@ async function findExpiredTrials() {
 async function fetchStripeSubs(stripeCustomerId) {
   if (!stripe || !stripeCustomerId) return { ok: true, subs: [] };
   try {
+    // limit 20 matches the canonical reconciler in routes/stripe.js
+    // (reconcileCustomerSubscriptions). Stripe returns most-recent first,
+    // so an active sub buried beyond index 20 would be missed — extremely
+    // unlikely at our scale, but if a high-churn user trips this, the
+    // sweep would wrongly downgrade them. Cheap mitigation: bump limit.
     const r = await stripe.subscriptions.list({
       customer: stripeCustomerId,
       status: 'all',
-      limit: 10,
+      limit: 20,
     });
     return { ok: true, subs: r.data };
   } catch (err) {
@@ -79,6 +84,13 @@ async function fetchStripeSubs(stripeCustomerId) {
 
 async function downgrade(subscriberId) {
   if (DRY_RUN) return;
+  // NOTE: `subscription_tier` is intentionally preserved (not nulled).
+  // The UI uses it for the "you were on Pro, upgrade to restore" copy
+  // in TrialExpiredModal. Every entitlement check downstream gates on
+  // `subscribed = true`, not on tier-presence — so a row with
+  // subscribed=false AND subscription_tier='Pro' grants NO access. If
+  // you add new entitlement checks, gate them on `subscribed`, never
+  // on tier alone.
   await pool.query(
     `UPDATE subscribers
        SET subscribed = false,
@@ -94,41 +106,46 @@ async function run() {
   if (DRY_RUN) console.log('*** DRY RUN MODE — no rows will be updated ***\n');
   if (!stripe) console.log('*** STRIPE_SECRET_KEY not set — skipping Stripe paying-customer check ***\n');
 
-  const expired = await findExpiredTrials();
-  console.log(`Found ${expired.length} expired trial(s) still flagged active`);
-
   const stats = { evaluated: 0, downgraded: 0, paying: 0, stripe_lookup_failed: 0, errors: 0 };
 
-  for (const row of expired) {
-    stats.evaluated += 1;
-    try {
-      const { ok, subs } = await fetchStripeSubs(row.stripe_customer_id);
-      if (!ok) {
-        stats.stripe_lookup_failed += 1;
-        // Skip — fail-safe: don't downgrade if we can't verify with Stripe
-        continue;
+  try {
+    const expired = await findExpiredTrials();
+    console.log(`Found ${expired.length} expired trial(s) still flagged active`);
+
+    for (const row of expired) {
+      stats.evaluated += 1;
+      try {
+        const { ok, subs } = await fetchStripeSubs(row.stripe_customer_id);
+        if (!ok) {
+          stats.stripe_lookup_failed += 1;
+          // Skip — fail-safe: don't downgrade if we can't verify with Stripe
+          continue;
+        }
+        const { action } = decide({ row, stripeSubs: subs });
+        if (action === 'keep_paying') {
+          stats.paying += 1;
+          console.log(`  [keep] ${row.email} (sub ${row.id}) — Stripe shows live sub; reconcile webhook will catch up`);
+          continue;
+        }
+        if (action === 'downgrade') {
+          await downgrade(row.id);
+          stats.downgraded += 1;
+          console.log(`  [downgrade] ${row.email} (sub ${row.id}) — trial_end ${row.trial_end.toISOString()}, tier was ${row.subscription_tier}`);
+        }
+      } catch (err) {
+        stats.errors += 1;
+        console.error(`  [error] ${row.email}: ${err.message}`);
       }
-      const { action } = decide({ row, stripeSubs: subs });
-      if (action === 'keep_paying') {
-        stats.paying += 1;
-        console.log(`  [keep] ${row.email} (sub ${row.id}) — Stripe shows active/trialing sub; reconcile webhook will catch up`);
-        continue;
-      }
-      if (action === 'downgrade') {
-        await downgrade(row.id);
-        stats.downgraded += 1;
-        console.log(`  [downgrade] ${row.email} (sub ${row.id}) — trial_end ${row.trial_end.toISOString()}, tier was ${row.subscription_tier}`);
-      }
-    } catch (err) {
-      stats.errors += 1;
-      console.error(`  [error] ${row.email}: ${err.message}`);
     }
+
+    console.log(`\n=== Sweep complete ===`);
+    console.log(JSON.stringify(stats));
+  } finally {
+    // Always release the pool — without this, a thrown error from
+    // findExpiredTrials() or anywhere mid-loop leaves pg connections
+    // hanging until the systemd oneshot is killed.
+    await pool.end().catch(() => {});
   }
-
-  console.log(`\n=== Sweep complete ===`);
-  console.log(JSON.stringify(stats));
-
-  await pool.end();
 }
 
 run().catch(err => {

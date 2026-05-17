@@ -44,7 +44,7 @@ test('keeps row when Stripe shows a trialing subscription (paid sub in its own t
   assert.equal(r.action, 'keep_paying');
 });
 
-test('ignores Stripe subs in non-paying states (canceled, incomplete_expired)', () => {
+test('ignores Stripe subs in dead states (canceled, incomplete_expired)', () => {
   const r = decide({
     row: { is_trial: true, trial_end: PAST },
     now: NOW,
@@ -52,6 +52,23 @@ test('ignores Stripe subs in non-paying states (canceled, incomplete_expired)', 
   });
   assert.equal(r.action, 'downgrade');
 });
+
+// Regression: every Stripe status that the canonical reconciler in
+// routes/stripe.js treats as `live` (i.e. not canceled / incomplete_expired)
+// must keep the customer's row intact. Pre-fix the helper only honored
+// active/trialing — past_due and incomplete users were getting wrongly
+// downgraded during their payment-retry / first-charge windows.
+for (const status of ['past_due', 'unpaid', 'incomplete', 'paused']) {
+  test(`Stripe status '${status}' keeps the row (mid-retry / mid-charge / paused billing)`, () => {
+    const r = decide({
+      row: { is_trial: true, trial_end: PAST },
+      now: NOW,
+      stripeSubs: [{ status }],
+    });
+    assert.equal(r.action, 'keep_paying',
+      `status='${status}' should be treated as paying — Stripe will retry or confirm shortly`);
+  });
+}
 
 test('keeps row whose trial is still active (trial_end in future)', () => {
   const r = decide({

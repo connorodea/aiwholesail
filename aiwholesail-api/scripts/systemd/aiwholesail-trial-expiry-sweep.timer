@@ -2,9 +2,15 @@
 Description=Run aiwholesail trial-expiry sweep every hour at :30
 
 [Timer]
-# Offset 15 min from trial-lifecycle (:15) so they don't fight over the DB
-# in the same second. Sweep runs FIRST in the hour the trial expires so the
-# lifecycle worker (next firing) sees the correctly downgraded row.
+# Offset 15 min after trial-lifecycle (:15) so the two jobs don't fight
+# over the DB in the same second. Within any given clock hour the order
+# is: lifecycle (:15) → sweep (:30). That ordering is fine: at :15 the
+# worker still sees `is_trial=true` and dispatches the day_zero email;
+# the sweep then flips the row at :30; the NEXT lifecycle firing 45 min
+# later sees the downgraded row but the dedup join in the worker keeps it
+# from re-sending. The lifecycle queries were widened to
+# `NOT (subscribed AND NOT is_trial)` so they still find post-sweep rows
+# for day_plus_1 / day_plus_7 firings.
 OnCalendar=*-*-* *:30:00
 Persistent=true
 AccuracySec=1m
