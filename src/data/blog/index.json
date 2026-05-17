@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-virginia-beach-va-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Virginia Beach VA: The Investor's Complete Guide for 2024",
+      "excerpt": "Virginia Beach is one of Virginia's most dynamic real estate markets, offering strong rental demand, solid appreciation, and hidden wholesale opportunities. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Virginia Beach VA.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-17T12:01:13.414Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Virginia Beach VA",
+        "Virginia Beach real estate investing",
+        "wholesale deals Virginia Beach",
+        "Virginia Beach rental properties",
+        "flip houses Virginia Beach"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-amarillo-tx-the-investor-s-complete-guide-to-the-texas-panh",
       "title": "Real Estate Deals in Amarillo TX: The Investor's Complete Guide to the Texas Panhandle Market",
       "excerpt": "Amarillo TX is one of Texas's most overlooked real estate markets, offering affordable entry points and strong rental demand for savvy investors. This guide covers the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Amarillo TX.",
@@ -15,7 +32,7 @@
         "Amarillo investment properties",
         "Texas Panhandle real estate"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-investing-with-a-self-directed-ira-the-complete-guide",
