@@ -1,9 +1,10 @@
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Lock, ArrowRight, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSubscription } from '@/contexts/SubscriptionContext';
 import { analytics } from '@/lib/analytics';
+import { stripe } from '@/lib/api-client';
 
 /**
  * Full-screen blocking modal for users whose trial has expired and who
@@ -21,9 +22,19 @@ export function TrialExpiredModal() {
   const { user, signOut } = useAuth();
   const { subscription, loading } = useSubscription();
   const navigate = useNavigate();
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
+  // Fallback-redirect timer is held in a ref so the Sign-out path can cancel
+  // it. Without this, a user who clicks Sign out during the 1.2s fallback
+  // window lands on /pricing instead of /auth (orphaned setTimeout fires
+  // after unmount).
+  const fallbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => {
+    if (fallbackTimerRef.current) clearTimeout(fallbackTimerRef.current);
+  }, []);
 
   // Derive expired-trial state defensively
-  const trialEnd = (subscription as any)?.trial_end as string | null | undefined;
+  const trialEnd = subscription?.trial_end;
   const subscribed = !!subscription?.subscribed;
   const trialEndPast = !!trialEnd && new Date(trialEnd) < new Date();
   const shouldShow = !!user && !loading && !subscribed && trialEndPast;
@@ -34,12 +45,44 @@ export function TrialExpiredModal() {
 
   if (!shouldShow) return null;
 
-  const handleUpgrade = () => {
-    analytics.trialUpgradeClicked('modal');
-    navigate('/pricing');
+  // Drop the user straight into Stripe Checkout instead of bouncing through
+  // /pricing first. Every extra page is a place to abandon; the modal already
+  // shows the price + plan, so the next click should be the card form.
+  // Fallback to navigating /pricing on API error so users aren't trapped.
+  const handleUpgrade = async () => {
+    setCheckoutError(null);
+    setCheckoutLoading(true);
+    try {
+      const response = await stripe.createCheckout('Pro');
+      if (response.error) {
+        throw new Error(response.error);
+      }
+      const url = (response.data as { url?: string } | undefined)?.url;
+      if (url) {
+        // Fire the funnel-entry event only after we have a working redirect.
+        // Firing on raw click would inflate the conversion-intent rate with
+        // network-error / 5xx clicks that never reached Stripe.
+        analytics.trialUpgradeClicked('modal');
+        window.location.href = url;
+        return;
+      }
+      throw new Error('Checkout session missing redirect URL');
+    } catch (err) {
+      setCheckoutLoading(false);
+      setCheckoutError('Could not start checkout. Redirecting to pricing…');
+      // Last-resort fallback so a transient API blip doesn't trap the user.
+      // Stored in a ref so Sign-out can cancel it (see useEffect cleanup).
+      fallbackTimerRef.current = setTimeout(() => navigate('/pricing'), 1200);
+    }
   };
 
   const handleSignOut = async () => {
+    // Cancel any pending "redirect to /pricing" fallback so we don't
+    // override the user's choice to leave.
+    if (fallbackTimerRef.current) {
+      clearTimeout(fallbackTimerRef.current);
+      fallbackTimerRef.current = null;
+    }
     try {
       await signOut();
     } finally {
@@ -92,11 +135,15 @@ export function TrialExpiredModal() {
           <button
             type="button"
             onClick={handleUpgrade}
-            className="w-full inline-flex items-center justify-center gap-2 h-12 rounded-lg bg-cyan-500 hover:bg-cyan-400 active:scale-[0.98] text-black font-semibold text-base transition-all shadow-lg shadow-cyan-500/30"
+            disabled={checkoutLoading}
+            className="w-full inline-flex items-center justify-center gap-2 h-12 rounded-lg bg-cyan-500 hover:bg-cyan-400 active:scale-[0.98] text-black font-semibold text-base transition-all shadow-lg shadow-cyan-500/30 disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            Upgrade to Pro for $49/mo
-            <ArrowRight className="h-4 w-4" />
+            {checkoutLoading ? 'Opening secure checkout…' : 'Upgrade to Pro for $49/mo'}
+            {!checkoutLoading && <ArrowRight className="h-4 w-4" />}
           </button>
+          {checkoutError && (
+            <p className="mt-3 text-xs text-red-400" role="alert">{checkoutError}</p>
+          )}
 
           <button
             type="button"
