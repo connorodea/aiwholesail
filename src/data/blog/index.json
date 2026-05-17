@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-amarillo-tx-the-investor-s-complete-guide-to-the-texas-panh",
+      "title": "Real Estate Deals in Amarillo TX: The Investor's Complete Guide to the Texas Panhandle Market",
+      "excerpt": "Amarillo TX is one of Texas's most overlooked real estate markets, offering affordable entry points and strong rental demand for savvy investors. This guide covers the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Amarillo TX.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-17T12:01:01.871Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Amarillo TX",
+        "Amarillo Texas real estate investing",
+        "wholesale real estate Amarillo",
+        "Amarillo investment properties",
+        "Texas Panhandle real estate"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-investing-with-a-self-directed-ira-the-complete-guide",
       "title": "Real Estate Investing with a Self-Directed IRA: The Complete Guide",
       "excerpt": "A self-directed IRA lets you invest retirement dollars directly into real estate — tax-free or tax-deferred. Learn the rules, benefits, and step-by-step process to get started.",
@@ -15,7 +32,7 @@
         "buy rental property with IRA",
         "tax-free real estate investing"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "wholesaling-vs-brrrr-which-is-better-for-beginners",
