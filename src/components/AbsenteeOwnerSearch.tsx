@@ -395,7 +395,11 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
         const status = String(p.tax_status || '').toLowerCase();
         if (!status.includes('delinquent') && !status.includes('past_due') && !status.includes('past due')) return false;
       }
-      if (minYearsHeld > 0 && (p.equity?.years_held ?? 0) < minYearsHeld) return false;
+      // Same null-check pattern as equity_pct above — missing years_held
+      // passes through instead of being silently treated as 0-years-held
+      // and culled. Same bug class, same fix.
+      const yh = p.equity?.years_held;
+      if (minYearsHeld > 0 && yh != null && yh < minYearsHeld) return false;
       if (recentCutoff && p.sale?.last_sale_date) {
         const sold = new Date(p.sale.last_sale_date);
         if (isFinite(sold.getTime()) && sold > recentCutoff) return false;
@@ -1165,7 +1169,7 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
           of a blank screen. Without this, the page looks broken (no toast
           dismissed yet, no cards) even though the search succeeded. */}
       {data && data.properties.length > 0 && filtered.length === 0 && (
-        <Card className="simple-card">
+        <Card className="simple-card" role="status">
           <CardContent className="pt-6 pb-6 text-center space-y-3">
             <h3 className="text-base font-medium text-zinc-100">
               {data.properties.length} result{data.properties.length === 1 ? '' : 's'} hidden by your filters
