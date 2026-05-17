@@ -1,0 +1,14 @@
+[Unit]
+Description=Run aiwholesail trial-expiry sweep every hour at :30
+
+[Timer]
+# Offset 15 min from trial-lifecycle (:15) so they don't fight over the DB
+# in the same second. Sweep runs FIRST in the hour the trial expires so the
+# lifecycle worker (next firing) sees the correctly downgraded row.
+OnCalendar=*-*-* *:30:00
+Persistent=true
+AccuracySec=1m
+RandomizedDelaySec=30s
+
+[Install]
+WantedBy=timers.target

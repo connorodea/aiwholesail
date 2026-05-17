@@ -159,13 +159,29 @@ test('Stripe checkout config — regression guard', async (t) => {
       'day_zero query must not look into the future — users got "trial ended" emails before their trial actually ended');
   });
 
-  await t.test('trial-lifecycle-worker: day_zero query filters is_trial=true', () => {
+  await t.test('trial-lifecycle-worker: day_zero query excludes paid users', () => {
+    // Invariant: paid users (subscribed=true AND is_trial=false) must never
+    // receive the "your trial just ended" email — that path was the source of
+    // pre-PR-#269 complaints.
+    //
+    // Before the trial-expiry-sweep worker existed, the filter was
+    // `s.is_trial = true` (which incidentally excluded paid users, since
+    // paid users have is_trial=false). After the sweep was added, the filter
+    // became `NOT (subscribed AND NOT is_trial)`, which preserves the
+    // paid-user exclusion AND lets the lifecycle worker still find users
+    // whose trial-end the sweep just downgraded.
+    //
+    // This test pins the *invariant* (paid users excluded), not the SQL
+    // wording, so future predicate changes that maintain the invariant pass.
     const workerPath = path.join(REPO_ROOT, 'aiwholesail-api', 'scripts', 'trial-lifecycle-worker.js');
     const source = fs.readFileSync(workerPath, 'utf8');
     const dayZeroMatch = source.match(/type:\s*['"]day_zero['"][\s\S]*?render:/);
     assert.ok(dayZeroMatch);
     const block = dayZeroMatch[0];
-    assert.match(block, /s\.is_trial\s*=\s*true/i,
-      'day_zero query must filter is_trial=true so paid users do not receive "your trial just ended" emails');
+    const hasOldFilter = /s\.is_trial\s*=\s*true/i.test(block);
+    const hasNewFilter = /NOT\s*\(\s*s\.subscribed\s*=\s*true\s+AND\s+s\.is_trial\s*=\s*false\s*\)/i.test(block);
+    assert.ok(hasOldFilter || hasNewFilter,
+      'day_zero query must exclude paid users via either `s.is_trial = true` (old) or ' +
+      '`NOT (s.subscribed = true AND s.is_trial = false)` (post-sweep). Neither found.');
   });
 });
