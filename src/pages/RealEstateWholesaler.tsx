@@ -43,7 +43,7 @@ import { ArrowUpDown, Eye, EyeOff } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AbsenteeOwnerSearch } from '@/components/AbsenteeOwnerSearch';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
-import { Building2, Home } from 'lucide-react';
+import { Building2, Home, FlaskConical } from 'lucide-react';
 import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { PropertyComparison } from '@/components/PropertyComparison';
 import { AITopPicksSection } from '@/components/AITopPicksSection';
@@ -610,6 +610,24 @@ export default function RealEstateWholesaler() {
                 </div>
               ) : (
                 <div className="text-left">
+                  <div
+                    role="status"
+                    className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-amber-400/30 bg-amber-400/10 px-4 py-2.5 text-sm"
+                  >
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-400 px-2 py-0.5 text-xs font-semibold text-neutral-950">
+                      <FlaskConical className="h-3 w-3" aria-hidden="true" />
+                      Beta
+                    </span>
+                    <span className="text-neutral-200">
+                      Off-market search is in active development — coverage and result quality vary by region.
+                    </span>
+                    <a
+                      href="mailto:connor@upscaledinc.com?subject=Off-market%20feedback"
+                      className="text-amber-300 underline-offset-2 hover:underline"
+                    >
+                      Send feedback
+                    </a>
+                  </div>
                   <ErrorBoundary label="AbsenteeOwnerSearch">
                     <AbsenteeOwnerSearch />
                   </ErrorBoundary>
