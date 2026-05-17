@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-find-profitable-real-estate-deals-in-st-petersburg-fl-2024-guide",
+      "title": "How to Find Profitable Real Estate Deals in St. Petersburg FL (2024 Guide)",
+      "excerpt": "St. Petersburg, FL is one of Florida's hottest markets for real estate investors, with strong rental demand, rising home values, and hidden wholesale opportunities. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in St. Petersburg FL.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-17T18:01:01.017Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in St. Petersburg FL",
+        "St. Petersburg FL real estate investing",
+        "wholesale real estate St. Petersburg",
+        "investment properties St. Pete FL",
+        "off-market deals St. Petersburg"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-virginia-beach-va-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Virginia Beach VA: The Investor's Complete Guide for 2024",
       "excerpt": "Virginia Beach is one of Virginia's most dynamic real estate markets, offering strong rental demand, solid appreciation, and hidden wholesale opportunities. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Virginia Beach VA.",
@@ -15,7 +32,7 @@
         "Virginia Beach rental properties",
         "flip houses Virginia Beach"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-amarillo-tx-the-investor-s-complete-guide-to-the-texas-panh",
