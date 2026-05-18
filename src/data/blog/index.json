@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-kissimmee-fl-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Kissimmee FL: The Investor's Complete Guide for 2024",
+      "excerpt": "Kissimmee, Florida is one of the most overlooked yet high-potential markets for real estate investors in the Southeast. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Kissimmee FL.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-18T12:02:49.299Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Kissimmee FL",
+        "Kissimmee real estate investing",
+        "wholesale deals Kissimmee",
+        "fix and flip Kissimmee",
+        "Kissimmee rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-kansas-city-mo-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Kansas City MO: The Investor's Complete Guide for 2024",
       "excerpt": "Kansas City, MO is one of the most investor-friendly markets in the Midwest, with affordable home prices, strong rental demand, and a steady pipeline of wholesale and flip opportunities. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Kansas City MO.",
@@ -15,7 +32,7 @@
         "flip houses Kansas City",
         "rental properties Kansas City"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "tax-write-offs-for-house-flippers-complete-list-to-maximize-your-profits",
