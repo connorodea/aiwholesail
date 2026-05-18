@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-henderson-nv-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Henderson NV: The Investor's Complete Guide for 2024",
+      "excerpt": "Henderson, Nevada is one of the most overlooked yet profitable markets for real estate investors in the Southwest. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Henderson NV.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-18T18:01:01.725Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Henderson NV",
+        "Henderson Nevada real estate investing",
+        "wholesale real estate Henderson",
+        "fix and flip Henderson NV",
+        "rental properties Henderson Nevada"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-charleston-sc-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Charleston SC: The Investor's Complete Guide for 2024",
       "excerpt": "Charleston, SC is one of the Southeast's hottest real estate markets, offering strong opportunities for wholesalers, flippers, and rental investors alike. This guide breaks down the best neighborhoods, current market trends, and practical strategies for finding profitable deals in Charleston.",
@@ -15,7 +32,7 @@
         "fix and flip Charleston SC",
         "Charleston rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-kissimmee-fl-the-investor-s-complete-guide-for-2024",
