@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-kansas-city-mo-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Kansas City MO: The Investor's Complete Guide for 2024",
+      "excerpt": "Kansas City, MO is one of the most investor-friendly markets in the Midwest, with affordable home prices, strong rental demand, and a steady pipeline of wholesale and flip opportunities. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Kansas City MO.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-18T12:01:11.439Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Kansas City MO",
+        "Kansas City real estate investing",
+        "wholesale deals Kansas City",
+        "flip houses Kansas City",
+        "rental properties Kansas City"
+      ],
+      "featured": true
+    },
+    {
       "slug": "tax-write-offs-for-house-flippers-complete-list-to-maximize-your-profits",
       "title": "Tax Write Offs for House Flippers: Complete List to Maximize Your Profits",
       "excerpt": "House flippers leave thousands of dollars on the table every year by missing legitimate tax deductions. This complete list of tax write offs for house flippers breaks down every deduction you can claim to keep more money in your pocket.",
@@ -15,7 +32,7 @@
         "fix and flip tax deductions",
         "flipping houses taxes"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "tax-implications-of-flipping-houses-as-a-business-what-every-investor-must-know",
