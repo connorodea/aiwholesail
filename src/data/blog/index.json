@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "tax-implications-of-flipping-houses-as-a-business-what-every-investor-must-know",
+      "title": "Tax Implications of Flipping Houses as a Business: What Every Investor Must Know",
+      "excerpt": "Flipping houses as a business comes with serious tax consequences that can eat into your profits if you're not prepared. Learn exactly what taxes you'll owe, how to reduce your bill legally, and how to structure your flipping business the right way.",
+      "category": "Tax",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-18T06:01:07.646Z",
+      "readTime": 7,
+      "tags": [
+        "tax implications of flipping houses as a business",
+        "house flipping taxes",
+        "self-employment tax real estate",
+        "dealer status real estate",
+        "flipping houses LLC"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-surprise-az-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Surprise AZ: The Investor's Complete Guide for 2024",
       "excerpt": "Surprise, Arizona is one of the fastest-growing cities in the Phoenix metro area, making it a hotspot for investors hunting profitable deals. This guide covers the best neighborhoods, deal types, market trends, and practical tips for finding real estate deals in Surprise AZ.",
@@ -15,7 +32,7 @@
         "fix and flip Surprise Arizona",
         "rental properties Surprise AZ"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-find-profitable-real-estate-deals-in-st-petersburg-fl-2024-guide",
