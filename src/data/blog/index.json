@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "tax-write-offs-for-house-flippers-complete-list-to-maximize-your-profits",
+      "title": "Tax Write Offs for House Flippers: Complete List to Maximize Your Profits",
+      "excerpt": "House flippers leave thousands of dollars on the table every year by missing legitimate tax deductions. This complete list of tax write offs for house flippers breaks down every deduction you can claim to keep more money in your pocket.",
+      "category": "Tax Strategy",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-18T06:01:13.702Z",
+      "readTime": 7,
+      "tags": [
+        "tax write offs for house flippers complete list",
+        "house flipping tax deductions",
+        "real estate investor tax write offs",
+        "fix and flip tax deductions",
+        "flipping houses taxes"
+      ],
+      "featured": true
+    },
+    {
       "slug": "tax-implications-of-flipping-houses-as-a-business-what-every-investor-must-know",
       "title": "Tax Implications of Flipping Houses as a Business: What Every Investor Must Know",
       "excerpt": "Flipping houses as a business comes with serious tax consequences that can eat into your profits if you're not prepared. Learn exactly what taxes you'll owe, how to reduce your bill legally, and how to structure your flipping business the right way.",
@@ -15,7 +32,7 @@
         "dealer status real estate",
         "flipping houses LLC"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-surprise-az-the-investor-s-complete-guide-for-2024",
