@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-billings-mt-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Billings MT: A Complete Investor's Guide for 2024",
+      "excerpt": "Billings, Montana is one of the most underrated markets for real estate investors, offering affordable entry points, strong rental demand, and a growing economy. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Billings MT.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-19T12:01:01.420Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Billings MT",
+        "Billings Montana real estate investing",
+        "wholesale real estate Billings",
+        "investment properties Billings MT",
+        "Billings MT rental market"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-analyze-rental-property-for-cash-flow-a-step-by-step-investor-guide",
       "title": "How to Analyze Rental Property for Cash Flow: A Step-by-Step Investor Guide",
       "excerpt": "Learning how to analyze rental property for cash flow is the single most important skill any real estate investor can develop. This guide walks you through every number you need to run a smart, profitable deal analysis.",
@@ -15,7 +32,7 @@
         "rental property investing",
         "real estate cash flow"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "what-is-the-failure-rate-of-house-flippers-and-how-to-beat-the-odds",
