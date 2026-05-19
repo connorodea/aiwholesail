@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-analyze-rental-property-for-cash-flow-a-step-by-step-investor-guide",
+      "title": "How to Analyze Rental Property for Cash Flow: A Step-by-Step Investor Guide",
+      "excerpt": "Learning how to analyze rental property for cash flow is the single most important skill any real estate investor can develop. This guide walks you through every number you need to run a smart, profitable deal analysis.",
+      "category": "Analysis",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-19T06:01:56.303Z",
+      "readTime": 8,
+      "tags": [
+        "how to analyze rental property for cash flow",
+        "rental property analysis",
+        "cash flow calculator",
+        "rental property investing",
+        "real estate cash flow"
+      ],
+      "featured": true
+    },
+    {
       "slug": "what-is-the-failure-rate-of-house-flippers-and-how-to-beat-the-odds",
       "title": "What Is the Failure Rate of House Flippers? (And How to Beat the Odds)",
       "excerpt": "Most people assume house flipping is a quick path to big profits, but the real numbers tell a more complicated story. Learn what the actual failure rate of house flippers looks like, why investors lose money, and the specific steps you can take to protect yourself.",
@@ -15,7 +32,7 @@
         "why house flippers fail",
         "real estate investing mistakes"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-henderson-nv-the-investor-s-complete-guide-for-2024",
