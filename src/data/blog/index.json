@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-savannah-ga-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Savannah GA: The Investor's Complete Guide for 2024",
+      "excerpt": "Savannah, Georgia is one of the Southeast's most exciting markets for real estate investors, with strong rental demand, rising home values, and a steady stream of motivated sellers. This guide breaks down everything you need to know to find profitable real estate deals in Savannah GA.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-19T12:02:30.256Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Savannah GA",
+        "Savannah GA real estate investing",
+        "wholesale deals Savannah",
+        "flip houses Savannah Georgia",
+        "Savannah rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-billings-mt-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Billings MT: A Complete Investor's Guide for 2024",
       "excerpt": "Billings, Montana is one of the most underrated markets for real estate investors, offering affordable entry points, strong rental demand, and a growing economy. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Billings MT.",
@@ -15,7 +32,7 @@
         "investment properties Billings MT",
         "Billings MT rental market"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-analyze-rental-property-for-cash-flow-a-step-by-step-investor-guide",
