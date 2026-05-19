@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-find-profitable-real-estate-deals-in-st-louis-mo-2024-investor-guide",
+      "title": "How to Find Profitable Real Estate Deals in St. Louis MO (2024 Investor Guide)",
+      "excerpt": "St. Louis is one of the most affordable major metros in the Midwest, offering strong returns for wholesalers, flippers, and landlords alike. Here's everything you need to know to find and win profitable real estate deals in St. Louis MO.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-19T18:01:35.078Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in St. Louis MO",
+        "St. Louis real estate investing",
+        "wholesale real estate St. Louis",
+        "flip houses St. Louis",
+        "St. Louis rental property"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-tulsa-ok-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Tulsa OK: The Investor's Complete Guide for 2024",
       "excerpt": "Tulsa, Oklahoma is quietly becoming one of the Midwest's hottest markets for real estate investors. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Tulsa OK.",
@@ -15,7 +32,7 @@
         "flip houses Tulsa Oklahoma",
         "Tulsa rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-savannah-ga-the-investor-s-complete-guide-for-2024",
