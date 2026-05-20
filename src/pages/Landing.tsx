@@ -946,13 +946,13 @@ const Landing = () => {
           </motion.div>
         </Container>
         {/* Bottom gradient fade into footer */}
-        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#060607] to-transparent z-[2] pointer-events-none" />
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent z-[2] pointer-events-none" />
       </motion.section>
 
       </main>
 
       {/* ===== FOOTER ===== */}
-      <footer className="relative bg-[#060607]">
+      <footer className="relative bg-background">
         <div className="border-b border-white/[0.06]">
           <Container>
             <div className="py-12 sm:py-16 flex flex-col md:flex-row items-center justify-between gap-6">
