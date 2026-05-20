@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-wholesale-real-estate-step-by-step-a-complete-beginner-s-guide",
+      "title": "How to Wholesale Real Estate Step by Step: A Complete Beginner's Guide",
+      "excerpt": "Wholesaling real estate is one of the fastest ways to break into investing with little to no money down. This step-by-step guide walks you through the entire process, from finding motivated sellers to closing your first deal.",
+      "category": "Beginner Guide",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-20T06:02:44.910Z",
+      "readTime": 7,
+      "tags": [
+        "how to wholesale real estate step by step",
+        "wholesale real estate for beginners",
+        "wholesaling real estate",
+        "real estate wholesaling process",
+        "how to find wholesale deals"
+      ],
+      "featured": true
+    },
+    {
       "slug": "crm-vs-spreadsheet-for-managing-real-estate-leads-which-one-wins",
       "title": "CRM vs Spreadsheet for Managing Real Estate Leads: Which One Wins?",
       "excerpt": "Choosing between a CRM and a spreadsheet to manage your real estate leads can make or break your deal flow. This guide breaks down the real costs, benefits, and trade-offs so you can pick the right system for your investing business.",
@@ -15,7 +32,7 @@
         "real estate wholesaling tools",
         "real estate investor software"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-find-profitable-real-estate-deals-in-st-louis-mo-2024-investor-guide",
