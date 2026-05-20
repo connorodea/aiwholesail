@@ -3,6 +3,7 @@ import App from './App.tsx'
 import './index.css'
 import { AuthProvider } from './contexts/AuthContext';
 import { SubscriptionProvider } from './contexts/SubscriptionContext';
+import { RevenueCatProvider } from './lib/revenuecat';
 import { captureAttribution } from './lib/marketing-attribution';
 import { applyBrandBoldAttribute, BRAND_BOLD_FLAG } from './lib/brand-flags.js';
 import { getFlagFromCache, refreshFeatureFlags } from './hooks/useFeatureFlag';
@@ -30,8 +31,10 @@ refreshFeatureFlags()
 
 createRoot(document.getElementById("root")!).render(
   <AuthProvider>
-    <SubscriptionProvider>
-      <App />
-    </SubscriptionProvider>
+    <RevenueCatProvider>
+      <SubscriptionProvider>
+        <App />
+      </SubscriptionProvider>
+    </RevenueCatProvider>
   </AuthProvider>
 );
