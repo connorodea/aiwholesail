@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-bowling-green-ky-the-investor-s-complete-guide",
+      "title": "Real Estate Deals in Bowling Green KY: The Investor's Complete Guide",
+      "excerpt": "Bowling Green, Kentucky is one of the South's most underrated real estate markets, offering strong rental demand, affordable entry points, and growing wholesale opportunities. This guide breaks down everything investors need to know to find profitable deals in this fast-growing college town.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-21T12:01:07.076Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Bowling Green KY",
+        "Bowling Green Kentucky real estate investing",
+        "wholesale deals Bowling Green",
+        "investment properties Bowling Green KY",
+        "house flipping Bowling Green"
+      ],
+      "featured": true
+    },
+    {
       "slug": "wholetailing-vs-wholesaling-which-is-more-profitable-in-2025",
       "title": "Wholetailing vs Wholesaling: Which Is More Profitable in 2025?",
       "excerpt": "Wholesaling and wholetailing both offer real estate investors a path to quick profits, but the best strategy depends on your market, capital, and risk tolerance. This guide breaks down the numbers, timelines, and real-world scenarios to help you choose the right exit strategy.",
@@ -15,7 +32,7 @@
         "real estate exit strategies",
         "wholesale deals"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-sell-a-rental-property-portfolio-at-once-a-step-by-step-guide-for-investo",
