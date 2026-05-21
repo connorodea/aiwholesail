@@ -19,7 +19,7 @@ import {
   identifyUser,
   resetUser,
   restorePurchases as restoreCalls,
-  setUserAttributes,
+  setUserEmail,
 } from './client';
 import { isNative } from './config';
 import {
@@ -62,7 +62,7 @@ export function RevenueCatProvider({ children }: { children: React.ReactNode }) 
   const [ready, setReady] = useState(false);
   const [available] = useState<boolean>(() => isNative());
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo | null>(null);
-  const listenerHandleRef = useRef<{ remove: () => void } | null>(null);
+  const listenerIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (!available) {
@@ -78,10 +78,10 @@ export function RevenueCatProvider({ children }: { children: React.ReactNode }) 
         return;
       }
       try {
-        const handle = await Purchases.addCustomerInfoUpdateListener(
+        const callbackId = await Purchases.addCustomerInfoUpdateListener(
           (info) => setCustomerInfo(info as CustomerInfo),
         );
-        listenerHandleRef.current = handle as { remove: () => void };
+        listenerIdRef.current = callbackId;
       } catch (err) {
         console.warn('[RevenueCat] failed to attach listener', err);
       }
@@ -89,12 +89,13 @@ export function RevenueCatProvider({ children }: { children: React.ReactNode }) 
     })();
     return () => {
       cancelled = true;
-      try {
-        listenerHandleRef.current?.remove?.();
-      } catch {
-        /* noop */
+      const id = listenerIdRef.current;
+      if (id) {
+        Purchases.removeCustomerInfoUpdateListener({ listenerToRemove: id }).catch(
+          () => {/* noop */},
+        );
       }
-      listenerHandleRef.current = null;
+      listenerIdRef.current = null;
     };
   }, [available]);
 
@@ -110,7 +111,7 @@ export function RevenueCatProvider({ children }: { children: React.ReactNode }) 
           if (cancelled) return;
           if (info) setCustomerInfo(info);
           if (user.email) {
-            await setUserAttributes({ $email: user.email });
+            await setUserEmail(user.email);
           }
         } else {
           await resetUser();

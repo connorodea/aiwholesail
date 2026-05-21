@@ -55,7 +55,13 @@ export async function setUserAttributes(
 ): Promise<void> {
   const configured = await ensureConfigured();
   if (!configured) return;
-  await Purchases.setAttributes({ attributes });
+  await Purchases.setAttributes(attributes);
+}
+
+export async function setUserEmail(email: string | null): Promise<void> {
+  const configured = await ensureConfigured();
+  if (!configured) return;
+  await Purchases.setEmail({ email });
 }
 
 export async function resetUser(): Promise<void> {
