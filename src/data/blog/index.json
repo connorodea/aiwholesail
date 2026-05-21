@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-baton-rouge-la-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Baton Rouge LA: A Complete Investor's Guide for 2024",
+      "excerpt": "Baton Rouge is one of the South's most overlooked real estate markets, offering strong rental demand, affordable entry points, and plenty of distressed properties for savvy investors. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Baton Rouge LA.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-21T18:01:46.510Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Baton Rouge LA",
+        "Baton Rouge real estate investing",
+        "wholesale real estate Baton Rouge",
+        "flip houses Baton Rouge",
+        "Baton Rouge rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-find-profitable-real-estate-deals-in-san-jose-ca-2024-investor-guide",
       "title": "How to Find Profitable Real Estate Deals in San Jose CA (2024 Investor Guide)",
       "excerpt": "San Jose is one of the most competitive real estate markets in the country, but profitable deals still exist if you know where to look. This guide breaks down the best neighborhoods, deal types, and strategies for investors targeting real estate deals in San Jose CA.",
@@ -15,7 +32,7 @@
         "fix and flip San Jose",
         "off-market deals San Jose"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-huntington-wv-the-investor-s-complete-guide-to-this-overloo",
