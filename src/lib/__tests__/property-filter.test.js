@@ -1,89 +1,157 @@
-// Tests for filterByMaxDaysOnMarket — the "Listed within N days" search filter.
+// Tests for property-filter.js — the "Listed within N days" search filter.
+//
+// Background: Zillow's search payload sometimes omits daysOnZillow on FSBO
+// and recently-relisted properties (zillow-api.ts:394 only checks 3 field-
+// name variants). property-filter.js compensates by falling back to listDate
+// then datePostedString. These tests pin both the fallback chain and the
+// inclusive-on-unknown policy.
 //
 // Run:
 //   node --test src/lib/__tests__/property-filter.test.js
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { filterByMaxDaysOnMarket } from '../property-filter.js';
+import { effectiveDaysOnMarket, filterByMaxDaysOnMarket } from '../property-filter.js';
 
-const make = (id, daysOnMarket) => ({ id, price: 100000, daysOnMarket });
-const fresh = make('a', 3);
-const recent = make('b', 12);
-const stale = make('c', 95);
-const ancient = make('d', 400);
-const unknown = make('e', undefined);
+// Pinned "now" so date-arithmetic tests don't drift by wall-clock.
+const NOW = new Date('2026-05-21T00:00:00.000Z');
 
-test('returns input unchanged when maxDaysOnMarket is undefined', () => {
-  const input = [fresh, stale, ancient];
-  assert.equal(filterByMaxDaysOnMarket(input, undefined), input);
+const make = (id, fields) => ({ id, price: 100000, ...fields });
+
+// --- effectiveDaysOnMarket ---
+
+test('effective: returns daysOnMarket when present and non-negative', () => {
+  assert.equal(effectiveDaysOnMarket({ daysOnMarket: 7 }, NOW), 7);
+  assert.equal(effectiveDaysOnMarket({ daysOnMarket: 0 }, NOW), 0);
 });
 
-test('returns input unchanged when maxDaysOnMarket is "any"', () => {
-  const input = [fresh, stale];
-  assert.equal(filterByMaxDaysOnMarket(input, 'any'), input);
+test('effective: ignores negative daysOnMarket (Zillow data corruption guard)', () => {
+  // Sometimes Zillow returns -1; that should fall through, not be treated as 0.
+  assert.equal(effectiveDaysOnMarket({ daysOnMarket: -1, listDate: '2026-05-14T00:00:00Z' }, NOW), 7);
 });
 
-test('returns input unchanged when maxDaysOnMarket is empty string', () => {
-  const input = [fresh, stale];
-  assert.equal(filterByMaxDaysOnMarket(input, ''), input);
+test('effective: falls back to listDate when daysOnMarket missing', () => {
+  assert.equal(effectiveDaysOnMarket({ listDate: '2026-05-14T00:00:00Z' }, NOW), 7);
 });
 
-test('keeps properties at or below the threshold', () => {
-  const out = filterByMaxDaysOnMarket([fresh, recent, stale, ancient], '14');
-  assert.deepEqual(
-    out.map((p) => p.id),
-    ['a', 'b'],
+test('effective: falls back to datePostedString when listDate also missing', () => {
+  assert.equal(effectiveDaysOnMarket({ datePostedString: '2026-05-10T00:00:00Z' }, NOW), 11);
+});
+
+test('effective: prefers listDate over datePostedString when both present', () => {
+  // listDate is the MLS on-market date (more authoritative). datePostedString
+  // can be a re-post date that resets when the seller relists.
+  const p = { listDate: '2026-05-14T00:00:00Z', datePostedString: '2026-05-20T00:00:00Z' };
+  assert.equal(effectiveDaysOnMarket(p, NOW), 7);
+});
+
+test('effective: returns undefined when no source resolves', () => {
+  assert.equal(effectiveDaysOnMarket({}, NOW), undefined);
+  assert.equal(effectiveDaysOnMarket({ listDate: 'not-a-date' }, NOW), undefined);
+  assert.equal(effectiveDaysOnMarket({ listDate: '' }, NOW), undefined);
+});
+
+test('effective: tolerates future-dated listings as unknown', () => {
+  // A future listDate is almost certainly bad data. Don't return a negative
+  // age — fall through to the next source or return undefined.
+  assert.equal(effectiveDaysOnMarket({ listDate: '2026-06-01T00:00:00Z' }, NOW), undefined);
+});
+
+test('effective: future listDate falls through to datePostedString if valid', () => {
+  const p = { listDate: '2026-06-01T00:00:00Z', datePostedString: '2026-05-19T00:00:00Z' };
+  assert.equal(effectiveDaysOnMarket(p, NOW), 2);
+});
+
+test('effective: tolerates null/undefined property', () => {
+  assert.equal(effectiveDaysOnMarket(null, NOW), undefined);
+  assert.equal(effectiveDaysOnMarket(undefined, NOW), undefined);
+});
+
+// --- filterByMaxDaysOnMarket ---
+
+test('filter: returns input unchanged when maxDaysOnMarket is undefined', () => {
+  const input = [make('a', { daysOnMarket: 3 }), make('b', { daysOnMarket: 95 })];
+  assert.equal(filterByMaxDaysOnMarket(input, undefined, NOW), input);
+});
+
+test('filter: returns input unchanged when maxDaysOnMarket is "any"', () => {
+  const input = [make('a', { daysOnMarket: 3 })];
+  assert.equal(filterByMaxDaysOnMarket(input, 'any', NOW), input);
+});
+
+test('filter: keeps properties at or below threshold via daysOnMarket', () => {
+  const out = filterByMaxDaysOnMarket(
+    [
+      make('a', { daysOnMarket: 3 }),
+      make('b', { daysOnMarket: 12 }),
+      make('c', { daysOnMarket: 95 }),
+    ],
+    '14',
+    NOW,
   );
+  assert.deepEqual(out.map((p) => p.id), ['a', 'b']);
 });
 
-test('boundary: threshold equal to daysOnMarket is INCLUDED', () => {
-  const onDay = make('exact', 14);
-  const out = filterByMaxDaysOnMarket([onDay, stale], '14');
-  assert.deepEqual(
-    out.map((p) => p.id),
-    ['exact'],
+test('filter: boundary — threshold equal to age is INCLUDED', () => {
+  const out = filterByMaxDaysOnMarket([make('exact', { daysOnMarket: 14 })], '14', NOW);
+  assert.deepEqual(out.map((p) => p.id), ['exact']);
+});
+
+test('filter: uses listDate fallback when daysOnMarket missing', () => {
+  // The regression this prevents: prior version excluded any property whose
+  // daysOnMarket was undefined, even if listDate said it was fresh. A FSBO
+  // listing without daysOnZillow + listDate = 5 days ago should pass a
+  // "Last 7 days" filter.
+  const out = filterByMaxDaysOnMarket(
+    [
+      make('fsbo-fresh', { listDate: '2026-05-16T00:00:00Z' }), // 5 days
+      make('fsbo-stale', { listDate: '2026-02-01T00:00:00Z' }), // 109 days
+    ],
+    '7',
+    NOW,
   );
+  assert.deepEqual(out.map((p) => p.id), ['fsbo-fresh']);
 });
 
-test('excludes properties without a daysOnMarket value when filter is active', () => {
-  // Missing-age listings are excluded — a user filtering for "listed within
-  // 14 days" should not see unknowns mixed in.
-  const out = filterByMaxDaysOnMarket([fresh, unknown], '14');
-  assert.deepEqual(
-    out.map((p) => p.id),
-    ['a'],
+test('filter: KEEPS properties with unknown age (inclusive-on-unknown policy)', () => {
+  // Critical decision: when we can't resolve age from any source, keep the
+  // property. Cost of one stale listing slipping through is lower than cost
+  // of hiding a genuine fresh deal because Zillow's payload was incomplete.
+  const out = filterByMaxDaysOnMarket(
+    [
+      make('fresh', { daysOnMarket: 3 }),
+      make('unknown', {}), // no daysOnMarket, listDate, or datePostedString
+      make('stale', { daysOnMarket: 95 }),
+    ],
+    '14',
+    NOW,
   );
+  assert.deepEqual(out.map((p) => p.id), ['fresh', 'unknown']);
 });
 
-test('includes unknown-age properties when filter is INACTIVE', () => {
-  // Counterpart to the previous test: when no filter is set, unknown-age
-  // listings stay in the result set just like everything else.
-  const out = filterByMaxDaysOnMarket([fresh, unknown, stale], undefined);
-  assert.equal(out.length, 3);
+test('filter: treats non-numeric maxDaysOnMarket as "no filter"', () => {
+  const input = [make('a', { daysOnMarket: 3 }), make('b', { daysOnMarket: 95 })];
+  assert.equal(filterByMaxDaysOnMarket(input, 'garbage', NOW), input);
 });
 
-test('treats non-numeric maxDaysOnMarket as "no filter"', () => {
-  // Defensive — the field is a string in the search params and a corrupt
-  // URL fragment ("?maxDaysOnMarket=garbage") shouldn't wipe the result set.
-  const input = [fresh, stale, ancient];
-  assert.equal(filterByMaxDaysOnMarket(input, 'garbage'), input);
+test('filter: treats zero or negative maxDaysOnMarket as "no filter"', () => {
+  const input = [make('a', { daysOnMarket: 3 })];
+  assert.equal(filterByMaxDaysOnMarket(input, '0', NOW), input);
+  assert.equal(filterByMaxDaysOnMarket(input, '-7', NOW), input);
 });
 
-test('treats zero or negative maxDaysOnMarket as "no filter"', () => {
-  const input = [fresh, stale];
-  assert.equal(filterByMaxDaysOnMarket(input, '0'), input);
-  assert.equal(filterByMaxDaysOnMarket(input, '-7'), input);
-});
-
-test('does not mutate the input array', () => {
-  const input = [fresh, stale, ancient];
+test('filter: does not mutate input array', () => {
+  const input = [make('a', { daysOnMarket: 3 }), make('b', { daysOnMarket: 95 })];
   const snapshot = [...input];
-  filterByMaxDaysOnMarket(input, '14');
+  filterByMaxDaysOnMarket(input, '14', NOW);
   assert.deepEqual(input, snapshot);
 });
 
-test('returns empty array when nothing matches', () => {
-  const out = filterByMaxDaysOnMarket([stale, ancient], '7');
+test('filter: returns empty array when nothing matches and no unknowns', () => {
+  const out = filterByMaxDaysOnMarket(
+    [make('a', { daysOnMarket: 95 }), make('b', { daysOnMarket: 200 })],
+    '7',
+    NOW,
+  );
   assert.deepEqual(out, []);
 });
