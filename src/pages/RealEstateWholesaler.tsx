@@ -8,6 +8,7 @@ import { Property, PropertySearchParams } from '@/types/zillow';
 import { zillowAPI } from '@/lib/zillow-api';
 import { sortPropertiesByWholesalePotential } from '@/lib/wholesale-calculator';
 import { applyPreEnrichmentToggles } from '@/lib/property-filters';
+import { filterByMaxDaysOnMarket } from '@/lib/property-filter';
 import { scoreAllProperties, filterMotivatedSellers, MIN_MOTIVATED_SCORE } from '@/lib/motivated-seller-score';
 import { isCountyWithoutState, isStateOnlyLocation } from '@/lib/locationValidation.js';
 import { useSearchHistory } from '@/hooks/useSearchHistory';
@@ -76,6 +77,10 @@ export default function RealEstateWholesaler() {
   const [showFavorites, setShowFavorites] = useState(false);
   const [showAlerts, setShowAlerts] = useState(false);
   const [lastSearchLocation, setLastSearchLocation] = useState<string>('');
+  // "Listed within" filter from the search form, captured AT search time so
+  // re-renders + tab switches don't accidentally re-filter against the live
+  // form (which the user may have changed but not yet re-submitted).
+  const [activeMaxDaysOnMarket, setActiveMaxDaysOnMarket] = useState<string | undefined>(undefined);
   const [sortBy, setSortBy] = useState<'price-high' | 'price-low' | 'newest' | 'oldest' | 'default'>('default');
   const [isSearchingFSBO, setIsSearchingFSBO] = useState<boolean>(false);
   // Unified on/off-market search is gated behind a feature flag while we
@@ -204,6 +209,7 @@ export default function RealEstateWholesaler() {
       setProperties([]);
       setError(null);
       setLastSearchLocation(params.location);
+      setActiveMaxDaysOnMarket(params.maxDaysOnMarket);
       setIsSearchingFSBO(params.fsboOnly || false);
 
       // Reset the second-scroll tracker so this search can re-trigger.
@@ -672,10 +678,12 @@ export default function RealEstateWholesaler() {
 
             {/* Results Section */}
             {!isLoading && properties.length > 0 && (() => {
-              const visibleProperties = hideNegativeSpreads
+              const afterSpreadFilter = hideNegativeSpreads
                 ? properties.filter(p => !isNegativeSpread(p))
                 : properties;
-              const hiddenNegativeCount = properties.length - visibleProperties.length;
+              const visibleProperties = filterByMaxDaysOnMarket(afterSpreadFilter, activeMaxDaysOnMarket);
+              const hiddenNegativeCount = properties.length - afterSpreadFilter.length;
+              const hiddenStaleCount = afterSpreadFilter.length - visibleProperties.length;
               const stillEnriching = loadingProgress > 0 && loadingProgress < 100;
               return (
               <section className="space-y-6 sm:space-y-10 animate-fade-in">
@@ -715,6 +723,12 @@ export default function RealEstateWholesaler() {
                       {visibleProperties.length} {visibleProperties.length === 1 ? 'property' : 'properties'} shown
                       {hideNegativeSpreads && hiddenNegativeCount > 0 && (
                         <span className="text-neutral-500"> · {hiddenNegativeCount} hidden</span>
+                      )}
+                      {activeMaxDaysOnMarket && hiddenStaleCount > 0 && (
+                        <span className="text-neutral-500">
+                          {' · '}
+                          {hiddenStaleCount} older than {activeMaxDaysOnMarket}d
+                        </span>
                       )}
                     </p>
                   </div>
