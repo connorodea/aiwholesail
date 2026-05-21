@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-huntington-wv-the-investor-s-complete-guide-to-this-overloo",
+      "title": "Real Estate Deals in Huntington WV: The Investor's Complete Guide to This Overlooked Market",
+      "excerpt": "Huntington, West Virginia is quietly becoming one of the most affordable real estate markets in the country, with median home prices well below the national average. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Huntington WV.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-21T12:01:50.476Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Huntington WV",
+        "Huntington West Virginia real estate investing",
+        "wholesale real estate Huntington WV",
+        "investment properties Huntington WV",
+        "Huntington WV rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-bowling-green-ky-the-investor-s-complete-guide",
       "title": "Real Estate Deals in Bowling Green KY: The Investor's Complete Guide",
       "excerpt": "Bowling Green, Kentucky is one of the South's most underrated real estate markets, offering strong rental demand, affordable entry points, and growing wholesale opportunities. This guide breaks down everything investors need to know to find profitable deals in this fast-growing college town.",
@@ -15,7 +32,7 @@
         "investment properties Bowling Green KY",
         "house flipping Bowling Green"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "wholetailing-vs-wholesaling-which-is-more-profitable-in-2025",
