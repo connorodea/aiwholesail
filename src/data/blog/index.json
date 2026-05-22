@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-ann-arbor-mi-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Ann Arbor MI: A Complete Investor's Guide for 2024",
+      "excerpt": "Ann Arbor's university-driven economy and tight housing supply create year-round opportunities for investors. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Ann Arbor MI.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-22T18:01:07.795Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Ann Arbor MI",
+        "Ann Arbor investment properties",
+        "wholesaling Ann Arbor",
+        "house flipping Ann Arbor",
+        "Ann Arbor rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-killeen-tx-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Killeen TX: A Complete Investor's Guide for 2024",
       "excerpt": "Killeen, Texas offers some of the most affordable and high-demand real estate deals in the state, fueled by Fort Cavazos and a growing population. This guide breaks down the best neighborhoods, deal types, and strategies for investors looking to profit in this military city.",
@@ -15,7 +32,7 @@
         "flip houses Killeen TX",
         "Killeen rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-dover-de-your-complete-investor-s-guide-for-2024",
