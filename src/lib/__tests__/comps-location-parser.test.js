@@ -233,3 +233,64 @@ test('4-part verbose-state — Apt-style prefix still detected (Apartment 5, New
   const r = parseCompsLocation('Apartment 5, New York, NY, 10001');
   assert.equal(r.cityState, 'New York NY');
 });
+
+// ── Street-address skip for raw-fallback query ──
+// Background: prod logs (2026-05-22) showed ~25 HTTP 400s/day on the comps
+// fallback path. Root cause: when property.address arrived without commas
+// (e.g. "228 Gumtree Dr Kannapolis NC 28083"), the parser put the full
+// street string into queries as a last-resort fallback. Zillow's
+// /homes/<slug>_rb/ endpoint can't resolve a street-level slug into a
+// region and scrape.do then returned 400 on the unresolvable URL. The fix
+// excludes street addresses from the raw-fallback slot — ZIP and cityState
+// already carry the useful signal.
+
+test('street-address skip — no-comma street address excluded from queries', () => {
+  const r = parseCompsLocation('228 Gumtree Dr Kannapolis NC 28083');
+  assert.equal(r.zip, '28083');
+  // The street address should NOT appear in queries — only the ZIP should.
+  assert.deepEqual(r.queries, ['28083']);
+});
+
+test('street-address skip — full street with abbreviation', () => {
+  const r = parseCompsLocation('1234 Main St Charlotte NC 28202');
+  assert.equal(r.zip, '28202');
+  assert.deepEqual(r.queries, ['28202']);
+});
+
+test('street-address skip — spelled-out suffix also detected (Avenue, Boulevard)', () => {
+  const r1 = parseCompsLocation('500 Park Avenue New York NY 10022');
+  assert.equal(r1.queries.includes('500 Park Avenue New York NY 10022'), false);
+  const r2 = parseCompsLocation('100 Sunset Boulevard Los Angeles CA 90028');
+  assert.equal(r2.queries.includes('100 Sunset Boulevard Los Angeles CA 90028'), false);
+});
+
+test('street-address protected: "29 Palms California 92277" — real city, no suffix', () => {
+  // Leading-number is a street signal, but no USPS suffix token. Should
+  // NOT be classified as a street address — "29 Palms" is a real CA city.
+  const r = parseCompsLocation('29 Palms California 92277');
+  assert.equal(r.zip, '92277');
+  // The raw input survives — required so cities like "29 Palms" still get
+  // a fallback when ZIP + cityState don't yield enough comps.
+  assert.equal(r.queries.includes('29 Palms California 92277'), true);
+});
+
+test('street-address protected: bare ZIP unchanged', () => {
+  const r = parseCompsLocation('28083');
+  assert.equal(r.zip, '28083');
+  // Dedupe collapses zip + raw into a single entry — no change here.
+  assert.deepEqual(r.queries, ['28083']);
+});
+
+test('street-address protected: "Charlotte, NC 28083" — region, no leading number', () => {
+  const r = parseCompsLocation('Charlotte, NC 28083');
+  assert.equal(r.queries.includes('Charlotte, NC 28083'), true);
+});
+
+test('street-address protected: "Lakewood Drive" — suffix in name BUT no leading number', () => {
+  // "Drive" is a street suffix, but there's no leading number. The combined
+  // gate requires BOTH signals so "Lakewood Drive" as a (degenerate) input
+  // is not classified as a street address. Edge case — unlikely to appear
+  // as a comps query in practice but pinning the contract.
+  const r = parseCompsLocation('Lakewood Drive');
+  assert.equal(r.queries.includes('Lakewood Drive'), true);
+});
