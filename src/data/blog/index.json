@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-find-profitable-real-estate-deals-in-st-louis-mo-2024-guide",
+      "title": "How to Find Profitable Real Estate Deals in St. Louis MO (2024 Guide)",
+      "excerpt": "St. Louis is one of the most investor-friendly cities in the Midwest, with low entry prices and strong rental demand. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in St. Louis MO.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-22T18:03:07.402Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in St. Louis MO",
+        "St. Louis real estate investing",
+        "wholesale real estate St. Louis",
+        "flip houses St. Louis",
+        "rental properties St. Louis"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-ann-arbor-mi-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Ann Arbor MI: A Complete Investor's Guide for 2024",
       "excerpt": "Ann Arbor's university-driven economy and tight housing supply create year-round opportunities for investors. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Ann Arbor MI.",
@@ -15,7 +32,7 @@
         "house flipping Ann Arbor",
         "Ann Arbor rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-killeen-tx-a-complete-investor-s-guide-for-2024",
