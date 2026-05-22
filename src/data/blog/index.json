@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-dover-de-your-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Dover DE: Your Complete Investor's Guide for 2024",
+      "excerpt": "Dover, Delaware is quietly becoming one of the Mid-Atlantic's most attractive markets for real estate investors. This guide breaks down average home prices, top neighborhoods, and proven strategies for finding profitable deals in Dover DE.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-22T12:01:06.231Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Dover DE",
+        "Dover Delaware real estate investing",
+        "wholesale deals Dover DE",
+        "investment properties Dover Delaware",
+        "flip houses Dover DE"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-buy-tax-lien-properties-for-real-estate-investing-step-by-step-guide",
       "title": "How to Buy Tax Lien Properties for Real Estate Investing (Step-by-Step Guide)",
       "excerpt": "Tax lien properties can deliver double-digit returns or lead to full property ownership for pennies on the dollar. Learn exactly how to buy tax lien properties for real estate investing, from finding auctions to avoiding costly mistakes.",
@@ -15,7 +32,7 @@
         "tax deed investing",
         "real estate investing"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "common-first-time-real-estate-investor-mistakes-to-avoid-and-what-to-do-instead",
