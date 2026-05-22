@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-buy-tax-lien-properties-for-real-estate-investing-step-by-step-guide",
+      "title": "How to Buy Tax Lien Properties for Real Estate Investing (Step-by-Step Guide)",
+      "excerpt": "Tax lien properties can deliver double-digit returns or lead to full property ownership for pennies on the dollar. Learn exactly how to buy tax lien properties for real estate investing, from finding auctions to avoiding costly mistakes.",
+      "category": "Tax Liens",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-22T06:01:21.336Z",
+      "readTime": 7,
+      "tags": [
+        "how to buy tax lien properties",
+        "tax lien investing",
+        "tax lien certificates",
+        "tax deed investing",
+        "real estate investing"
+      ],
+      "featured": true
+    },
+    {
       "slug": "common-first-time-real-estate-investor-mistakes-to-avoid-and-what-to-do-instead",
       "title": "Common First Time Real Estate Investor Mistakes to Avoid (And What to Do Instead)",
       "excerpt": "First-time real estate investors often lose money not from bad luck, but from avoidable mistakes. Learn the most common pitfalls and exactly how to sidestep them before you put a single dollar on the line.",
@@ -15,7 +32,7 @@
         "wholesale real estate mistakes",
         "real estate investing for beginners"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-baton-rouge-la-a-complete-investor-s-guide-for-2024",
