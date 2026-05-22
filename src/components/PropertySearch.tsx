@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { PropertySearchParams } from '@/types/zillow';
-import { Search, Home, Bed, Bath, DollarSign, TrendingDown, MessageSquare, Gavel, Building2, AlertTriangle, Flame, Sparkles, Lock, Radius, SlidersHorizontal, Check } from 'lucide-react';
+import { Search, Home, Bed, Bath, DollarSign, TrendingDown, MessageSquare, Gavel, Building2, AlertTriangle, Flame, Sparkles, Lock, Radius, SlidersHorizontal, Check, CalendarClock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { LocationAutocomplete } from './LocationAutocomplete';
 import { CountyBrowserDialog } from './CountyBrowserDialog';
@@ -404,6 +404,35 @@ export function PropertySearch({
                   />
                 </div>
               </div>
+            </div>
+
+            {/* Listed within — cuts stale listings from the result set. The
+                underlying Zillow feed returns every active listing regardless
+                of when it hit the MLS, so a city search floods with months-old
+                inventory. Filter is applied CLIENT-SIDE after enrichment so it
+                doesn't change the upstream API quota cost — but it does shrink
+                what the user sees to the freshest cohort. */}
+            <div className="space-y-2 sm:col-span-2">
+              <Label className={tidied ? 'text-sm font-medium text-muted-foreground' : 'flex items-center gap-2'}>
+                {!tidied && <CalendarClock className="h-4 w-4 text-primary" />}
+                Listed within
+              </Label>
+              <Select
+                value={searchParams.maxDaysOnMarket || 'any'}
+                onValueChange={(value) => updateParam('maxDaysOnMarket', value === 'any' ? undefined : value)}
+              >
+                <SelectTrigger className="bg-background/50" aria-label="Listed within">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="any">Any time</SelectItem>
+                  <SelectItem value="7">Last 7 days</SelectItem>
+                  <SelectItem value="14">Last 14 days</SelectItem>
+                  <SelectItem value="30">Last 30 days</SelectItem>
+                  <SelectItem value="60">Last 60 days</SelectItem>
+                  <SelectItem value="90">Last 90 days</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
           </div>
