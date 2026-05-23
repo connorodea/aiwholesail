@@ -1,7 +1,7 @@
 const express = require('express');
 const { body, param, validationResult } = require('express-validator');
 const { query } = require('../config/database');
-const { authenticate } = require('../middleware/auth');
+const { authenticate, optionalAuth } = require('../middleware/auth');
 const { asyncHandler } = require('../middleware/errorHandler');
 const { getAllForUser, clearCache } = require('../lib/featureFlags');
 
@@ -30,11 +30,20 @@ function requireAdmin(req, res, next) {
 
 /**
  * GET /api/flags
- * Returns the resolved flag map for the current user.
+ * Returns the resolved flag map for the requesting user.
+ *
+ * Uses optionalAuth so anonymous public-page visitors (Landing, Pricing,
+ * SEO pages) get a sensible response too — the React useFeatureFlag hook
+ * fires from the App-level Suspense fallback as of PR #342, which runs
+ * BEFORE auth resolves. Returning 401 there pollutes monitor SLIs with
+ * per-visitor noise; getAllForUser(null) returns only globally-enabled
+ * fully-rolled-out flags (any flag with enabled=true AND rollout_pct>=100),
+ * which is the correct anonymous read.
+ *
  * Used by the React useFeatureFlag hook.
  */
-router.get('/', authenticate, asyncHandler(async (req, res) => {
-  const flags = await getAllForUser(req.user.id);
+router.get('/', optionalAuth, asyncHandler(async (req, res) => {
+  const flags = await getAllForUser(req.user?.id || null);
   res.json({ flags });
 }));
 

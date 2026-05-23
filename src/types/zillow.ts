@@ -13,6 +13,11 @@ export interface PropertySearchParams {
   parkingSpots?: string;
   page?: string;
   sortOrder?: string;
+  /** Filter — only show listings whose `daysOnMarket` is ≤ this value.
+   *  Stored as a numeric string ("7"/"14"/"30"/"60"/"90") so it round-trips
+   *  through the search-history hook (which stringifies params for URL state)
+   *  without a type-coercion footgun. Undefined / "any" = no filter applied. */
+  maxDaysOnMarket?: string;
   listingStatus?: string;
   wholesaleOnly?: boolean;
   auctionOnly?: boolean;
@@ -43,6 +48,11 @@ export interface Property {
   listDate?: string;
   description?: string;
   isFSBO?: boolean;
+  // Zillow's explicit foreclosure-classification boolean. Surfaced by
+  // mapListingToSummary (search results) and mapPropertyToRapidApiShape
+  // (detail). Consumed by isAuctionSubject() to suppress misleading
+  // "Great Deal" badges on opening-bid listings (PR #408 / #430).
+  isForeclosure?: boolean;
   // Agent/Listing information
   agentName?: string;
   agentPhone?: string;
@@ -56,6 +66,65 @@ export interface Property {
   mlsName?: string;
   listingSource?: string;
   listingUrl?: string;
+  // ─── Extended propertyDetails fields (additive, backend PR ~50 new fields) ───
+  // Construction & systems
+  foundation?: string[];
+  roofType?: string;
+  constructionMaterials?: string[];
+  exteriorFeatures?: string[];
+  structureType?: string;
+  architecturalStyle?: string;
+  stories?: number;
+  basement?: string;
+  basementArea?: number;
+  finishedAreaAboveGrade?: number;
+  finishedAreaBelowGrade?: number;
+  flooring?: string[];
+  fireplaceCount?: number;
+  appliances?: string[];
+  // Utilities
+  waterSource?: string[];
+  sewer?: string[];
+  electric?: string[];
+  electricUtilityCompany?: string;
+  gas?: string[];
+  // Lot / parcel / location
+  apn?: string;
+  zoning?: string;
+  zoningDescription?: string;
+  countyFips?: string;
+  subdivisionName?: string;
+  schoolDistrict?: { elementary?: string; middleOrJunior?: string; high?: string };
+  // Listing terms
+  specialListingConditions?: string[];
+  disclosures?: string[];
+  listingTerms?: string[];
+  buyerCommission?: { amount?: number; type?: string };
+  possession?: string;
+  contingencyType?: string;
+  cumulativeDaysOnMarket?: number;
+  lastStatusChange?: { date?: string; isRecent?: boolean };
+  ownershipType?: string;
+  mlsNumber?: string;
+  // Lifestyle / amenities
+  view?: string[];
+  hasView?: boolean;
+  waterfront?: { features?: string[]; isWaterfront?: boolean };
+  pool?: { features?: string[]; hasPrivatePool?: boolean };
+  spa?: { features?: string[]; hasSpa?: boolean };
+  fencing?: string[];
+  accessibilityFeatures?: string[];
+  garageSpaces?: number;
+  // HOA extended
+  hoaName?: string;
+  hoaFeeIncludes?: string[];
+  hoaAmenities?: string[];
+  hoaPhone?: string;
+  // Computed
+  isOwnerOccupied?: boolean;
+  // Tax (additive)
+  taxHistoryNormalized?: Array<{ year?: number; date?: string; taxPaid?: number; assessedValue?: number; valueIncrease?: number }>;
+  propertyTaxRate?: number;
   // AttomData enhanced fields
   attomData?: {
     propertyType?: string;

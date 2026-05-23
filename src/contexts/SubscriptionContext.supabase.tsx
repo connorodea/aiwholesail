@@ -1,3 +1,14 @@
+// ===========================================================================
+// NOT IN USE — DO NOT WIRE THIS UP — DEAD CODE
+// ===========================================================================
+// AIWholesail does NOT use Supabase. Subscription state is read from Stripe
+// (via /api/stripe/subscription) and cached in the `subscribers` Postgres
+// table on hetznerCO. See memory/reference_aiwholesail_infra.md.
+//
+// Verified 2026-05-13: ZERO importers anywhere in src/. Dead since the
+// migration off Lovable's Supabase starter. Planned removal: full Supabase
+// cleanup PR.
+// ===========================================================================
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './AuthContext';

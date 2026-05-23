@@ -220,7 +220,7 @@ function renderDayMinus1(user, upgradeUrl) {
         ${detailsTable([
           ['Plan', '<span style="color:#06b6d4">Pro</span> · $49/month'],
           ['Trial ends', fmtDate(user.trial_end)],
-          ['What you keep', 'All alerts, AI deal scoring, saved properties, deal pipeline'],
+          ['What you keep', 'All saved leads, alerts, search history, AI assistant access'],
         ])}
         <p style="color:#a3a3a3;font-size:14px;line-height:1.6;margin:24px 0 0">
           Upgrade with one click — we already know who you are. You'll be on Stripe checkout in 2 seconds.
@@ -239,16 +239,16 @@ function renderDayZero(user, upgradeUrl) {
     subject: 'Your AIWholesail trial just ended — restore in one click',
     html: shell({
       headline: 'Your trial just ended',
-      intro: `${nameOf(user)}, your 7-day Pro trial wrapped up. Your account stays — alerts, saved deals, search history, all of it — but premium features are paused until you upgrade. One click and you're back.`,
+      intro: `${nameOf(user)}, your 7-day Pro trial wrapped up. Your account stays — saved leads, alerts, search history, all of it — but premium features are paused until you upgrade. One click and you're back.`,
       body: `
         ${statusBadge('#a3a3a3', 'Trial ended')}
         ${detailsTable([
           ['Plan to restore', '<span style="color:#06b6d4">Pro</span> · $49/month'],
-          ['What stays', 'Alerts, saved deals, search history, AI scores'],
-          ['What pauses', 'New searches, fresh AI rankings, deal alerts'],
+          ['What stays', 'Saved leads, alerts, search history'],
+          ['What pauses', 'New searches, fresh alerts, AI assistant'],
         ])}
         <p style="color:#a3a3a3;font-size:14px;line-height:1.6;margin:24px 0 0">
-          Most members close their first wholesale deal in week 1-2 of paid. Don't let momentum stall.
+          Most upgrades happen within 48 hours of trial end — while your saved leads and alerts are still fresh in your workflow.
         </p>
       `,
       cta: 'Restore access · $49/mo →',
@@ -268,9 +268,9 @@ function renderDayPlus1(user, upgradeUrl) {
       body: `
         ${statusBadge('#f59e0b', 'Reminder')}
         <p style="color:#a3a3a3;font-size:14px;line-height:1.6;margin:0 0 16px">
-          During your trial you got access to AI deal scoring, real-time spread alerts, and the deal pipeline.
-          Everything you set up is preserved on your account — your alerts, saved searches, and pipeline status
-          all snap back the moment you upgrade.
+          During your trial you got access to off-market property search, saved leads, real-time alerts when new
+          matches drop, and the AI assistant. Everything you set up is preserved on your account — your alerts,
+          saved leads, and search history all snap back the moment you upgrade.
         </p>
         ${detailsTable([
           ['Restore plan', '<span style="color:#06b6d4">Pro</span> · $49/month'],

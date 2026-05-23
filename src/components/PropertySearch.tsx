@@ -7,10 +7,17 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { PropertySearchParams } from '@/types/zillow';
-import { Search, Home, Bed, Bath, DollarSign, TrendingDown, MessageSquare, Gavel, Building2, AlertTriangle, Flame, Sparkles, Lock, Radius, SlidersHorizontal, Check } from 'lucide-react';
+import { Search, Home, Bed, Bath, DollarSign, TrendingDown, MessageSquare, Gavel, Building2, AlertTriangle, Flame, Sparkles, Lock, Radius, SlidersHorizontal, Check, CalendarClock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { LocationAutocomplete } from './LocationAutocomplete';
 import { CountyBrowserDialog } from './CountyBrowserDialog';
+import { SearchHistory } from './SearchHistory';
+import type { SearchHistoryEntry } from '@/hooks/useSearchHistory';
+import { isCountyWithoutState } from '@/lib/locationValidation.js';
+import {
+  ON_MARKET_DEFAULTS,
+  applyHistoryDefaults,
+} from '@/lib/searchParamsDefaults.js';
 import { validatePriceRange, sanitizeSearchKeywords, validateLocationInput } from '@/lib/security';
 import { isMultiLocationSearchEnabled } from '@/lib/feature-flags';
 import { useFeatureFlag } from '@/hooks/useFeatureFlag';
@@ -23,14 +30,29 @@ import { MapPin } from 'lucide-react';
 interface PropertySearchProps {
   onSearch: (params: PropertySearchParams) => void;
   isLoading: boolean;
+  /** Recent searches to render as clickable chips. Empty/undefined hides the row. */
+  searchHistory?: SearchHistoryEntry<PropertySearchParams>[];
+  /** Container reads the kill-switch flag and passes the boolean through. */
+  recentChipsEnabled?: boolean;
+  onRemoveHistory?: (id: string) => void;
+  onClearHistory?: () => void;
 }
 
-export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
-  const [searchParams, setSearchParams] = useState<PropertySearchParams>({
-    location: '',
-    homeType: 'Houses, Townhomes, Multi-family, Condos/Co-ops',
-    wholesaleOnly: true // Default: only show properties priced below Zestimate
-  });
+export function PropertySearch({
+  onSearch,
+  isLoading,
+  searchHistory,
+  recentChipsEnabled,
+  onRemoveHistory,
+  onClearHistory,
+}: PropertySearchProps) {
+  // Initial form state pulls from the canonical defaults so a single source
+  // of truth feeds both first-render AND chip-replay (applyHistoryDefaults
+  // below). When a new field gets added to PropertySearchParams, bumping
+  // ON_MARKET_DEFAULTS automatically fills it for old stored entries.
+  const [searchParams, setSearchParams] = useState<PropertySearchParams>(
+    () => ({ ...ON_MARKET_DEFAULTS }),
+  );
   const { toast } = useToast();
   const { user } = useAuth();
   const [countyBrowserOpen, setCountyBrowserOpen] = useState(false);
@@ -75,7 +97,21 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
       });
       return;
     }
-    
+
+    // Reject county-without-state searches BEFORE recording history. The
+    // container (RealEstateWholesaler.handleSearch) re-checks and rejects
+    // these too, but doing it here keeps invalid entries out of the chip
+    // strip — otherwise a rejected search lands in history and every
+    // future chip-click would just re-toast the same error.
+    if (isCountyWithoutState(sanitizedLocation)) {
+      toast({
+        title: "State required for county searches",
+        description: "Please include a state. Example: 'Oakland County, MI'.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     // Validate price range
     const priceValidation = validatePriceRange(searchParams.price_min, searchParams.price_max);
     if (priceValidation.error) {
@@ -98,8 +134,18 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
       price_min: priceValidation.min?.toString(),
       price_max: priceValidation.max?.toString()
     };
-    
+
     onSearch(sanitizedParams);
+  };
+
+  const handleApplyHistory = (params: PropertySearchParams) => {
+    // Merge stored entry over current defaults. If PropertySearchParams has
+    // gained a field since this entry was recorded, the stored entry won't
+    // have that key — `applyHistoryDefaults` fills the missing key from
+    // ON_MARKET_DEFAULTS so the user gets the current default, not undefined.
+    const merged = applyHistoryDefaults(params, ON_MARKET_DEFAULTS);
+    setSearchParams(merged);
+    onSearch(merged);
   };
 
   const updateParam = (key: keyof PropertySearchParams, value: string | boolean) => {
@@ -116,6 +162,14 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+          {recentChipsEnabled && searchHistory && (
+            <SearchHistory<PropertySearchParams>
+              entries={searchHistory}
+              onApply={(entry) => handleApplyHistory(entry.params)}
+              onRemove={onRemoveHistory}
+              onClear={onClearHistory}
+            />
+          )}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             {layoutV2Enabled || tidied ? (
               /* v2 layout (also used by the v3 tidied variants): Location +
@@ -352,6 +406,35 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
               </div>
             </div>
 
+            {/* Listed within — cuts stale listings from the result set. The
+                underlying Zillow feed returns every active listing regardless
+                of when it hit the MLS, so a city search floods with months-old
+                inventory. Filter is applied CLIENT-SIDE after enrichment so it
+                doesn't change the upstream API quota cost — but it does shrink
+                what the user sees to the freshest cohort. */}
+            <div className="space-y-2 sm:col-span-2">
+              <Label className={tidied ? 'text-sm font-medium text-muted-foreground' : 'flex items-center gap-2'}>
+                {!tidied && <CalendarClock className="h-4 w-4 text-primary" />}
+                Listed within
+              </Label>
+              <Select
+                value={searchParams.maxDaysOnMarket || 'any'}
+                onValueChange={(value) => updateParam('maxDaysOnMarket', value === 'any' ? undefined : value)}
+              >
+                <SelectTrigger className="bg-background/50" aria-label="Listed within">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="any">Any time</SelectItem>
+                  <SelectItem value="7">Last 7 days</SelectItem>
+                  <SelectItem value="14">Last 14 days</SelectItem>
+                  <SelectItem value="30">Last 30 days</SelectItem>
+                  <SelectItem value="60">Last 60 days</SelectItem>
+                  <SelectItem value="90">Last 90 days</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
           </div>
 
           {/* Filters — three rendering paths based on variant:
@@ -474,7 +557,7 @@ export function PropertySearch({ onSearch, isLoading }: PropertySearchProps) {
             type="submit"
             variant="default"
             size="lg"
-            className="group w-full h-12 sm:h-12 text-base font-semibold bg-gradient-to-r from-cyan-500 to-cyan-400 text-cyan-950 hover:from-cyan-400 hover:to-cyan-300 shadow-[0_0_0_1px_rgba(6,182,212,0.4),0_8px_24px_-8px_rgba(6,182,212,0.5)] hover:shadow-[0_0_0_1px_rgba(6,182,212,0.5),0_12px_32px_-8px_rgba(6,182,212,0.7)] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
+            className="group w-full h-12 sm:h-12 text-base font-semibold bg-gradient-to-r from-cyan-500 to-cyan-400 text-cyan-950 hover:from-cyan-400 hover:to-cyan-300 shadow-[0_0_0_1px_rgba(0, 196, 200,0.4),0_8px_24px_-8px_rgba(0, 196, 200,0.5)] hover:shadow-[0_0_0_1px_rgba(0, 196, 200,0.5),0_12px_32px_-8px_rgba(0, 196, 200,0.7)] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
             disabled={isLoading || !searchParams.location.trim()}
           >
             {isLoading ? (
@@ -631,7 +714,7 @@ function FilterPillGrid({
               isMotivated ? 'sm:col-span-2' : '',
               f.disabled ? 'opacity-60 cursor-not-allowed' : 'hover:bg-background/40',
               accentActive
-                ? 'border-cyan-500/60 bg-cyan-500/[0.08] shadow-[0_0_0_1px_rgba(6,182,212,0.2)]'
+                ? 'border-cyan-500/60 bg-cyan-500/[0.08] shadow-[0_0_0_1px_rgba(0, 196, 200,0.2)]'
                 : f.checked
                   ? 'border-cyan-500/50 bg-cyan-500/[0.05]'
                   : 'border-border/60 hover:border-border',
@@ -710,7 +793,7 @@ function ToggleRow({
       className={[
         'flex items-center justify-between gap-3 rounded-lg border px-3 py-2.5 transition-all duration-150',
         accentActive
-          ? 'border-cyan-500/40 bg-cyan-500/[0.05] shadow-[0_0_0_1px_rgba(6,182,212,0.15)]'
+          ? 'border-cyan-500/40 bg-cyan-500/[0.05] shadow-[0_0_0_1px_rgba(0, 196, 200,0.15)]'
           : 'border-border/60 hover:border-border hover:bg-background/40',
       ].join(' ')}
     >

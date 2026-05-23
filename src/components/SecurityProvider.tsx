@@ -24,8 +24,13 @@ export function SecurityProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
-    // Track user activity
-    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
+    // Track user activity.
+    //
+    // `keydown` instead of `keypress`: keypress is deprecated and does not
+    // fire reliably for non-character keys (Tab, arrow keys, modifier keys)
+    // — a user filling out a form with tab navigation or autocomplete could
+    // appear "idle" to the inactivity tracker. keydown covers all keystrokes.
+    const events = ['mousedown', 'mousemove', 'keydown', 'scroll', 'touchstart', 'click'];
     
     const activityHandler = () => {
       updateActivity();

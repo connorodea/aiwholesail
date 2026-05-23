@@ -66,7 +66,7 @@ const FRAGMENT_SHADER = `
 
     // Color palette: deep dark with cyan and teal accents
     vec3 darkBase = vec3(0.031, 0.035, 0.039);   // #08090a
-    vec3 cyan     = vec3(0.024, 0.714, 0.831);    // #06b6d4
+    vec3 cyan     = vec3(0.0, 0.769, 0.784);      // #00c4c8 (brand seafoam)
     vec3 teal     = vec3(0.051, 0.647, 0.506);    // #0da581
     vec3 deepBlue = vec3(0.02, 0.06, 0.15);
 

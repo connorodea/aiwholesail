@@ -4,13 +4,20 @@
  */
 import { API_BASE_URL } from './platform';
 import type { Property } from '@/types/zillow';
+import {
+  shouldClearOnStorageEvent,
+  isAuthStorageListenerEnabled,
+  AUTH_STORAGE_LISTENER_FLAG,
+} from './auth-coherence.js';
+import { getFlagFromCache } from '@/hooks/useFeatureFlag';
+import {
+  ACCESS_TOKEN_KEY,
+  REFRESH_TOKEN_KEY,
+  USER_KEY,
+} from './auth-storage-keys';
+import { getDetector as getStormDetector, AUTH_FAILURE_CODES } from './auth-storm-detector.js';
 
 const API_URL = API_BASE_URL;
-
-// Token storage keys
-const ACCESS_TOKEN_KEY = 'aiwholesail_access_token';
-const REFRESH_TOKEN_KEY = 'aiwholesail_refresh_token';
-const USER_KEY = 'aiwholesail_user';
 
 // Types
 export interface User {
@@ -55,16 +62,96 @@ export const tokenStorage = {
 type AuthListener = (user: User | null) => void;
 const authListeners: Set<AuthListener> = new Set();
 
+/**
+ * Return the user record only when localStorage is in a COHERENT auth state —
+ * user record AND access token both present.
+ *
+ * If we find a stored user but no access token, that's a "zombie session":
+ * the UI would render the user as logged in (AuthContext only reads getUser())
+ * but every API call would throw NOT_AUTHENTICATED because the client has no
+ * bearer to send. The user is trapped on a broken page until they manually
+ * clear site storage.
+ *
+ * Ingress paths to the zombie state (observed in production 2026-05-13/14):
+ *   - Token rotation race pre-#319 wiped AT/RT but not user
+ *   - Browser quota-eviction can drop individual localStorage keys
+ *   - Stale service-worker bundle wrote one key layout, new bundle reads another
+ *   - Tab-B-after-Tab-A-signout where storage events partially propagate
+ *
+ * Recovery: clear all auth keys and force a re-signin. No work lost — the user
+ * couldn't do anything anyway. They get a clean toast + Sign-in CTA via
+ * RealEstateWholesaler.tsx's NOT_AUTHENTICATED handler.
+ */
+function getCoherentUser(): User | null {
+  const user = tokenStorage.getUser();
+  if (!user) return null;
+  const token = tokenStorage.getAccessToken();
+  if (!token) {
+    // Zombie session — heal it.
+    tokenStorage.clear();
+    return null;
+  }
+  return user;
+}
+
 export const onAuthStateChange = (callback: AuthListener): (() => void) => {
   authListeners.add(callback);
-  // Call immediately with current state
-  callback(tokenStorage.getUser());
+  // Call immediately with current state — coherence-checked so subscribers
+  // never observe a stored user without a valid token.
+  callback(getCoherentUser());
   return () => authListeners.delete(callback);
 };
 
 const notifyAuthChange = (user: User | null): void => {
   authListeners.forEach(callback => callback(user));
 };
+
+// Cross-tab coherence: a `storage` event fires in other windows for the
+// same origin when localStorage is mutated. PR #376 only self-heals at
+// MOUNT time — if the zombie state develops AFTER mount (parallel-tab
+// signout, iOS Safari ITP eviction, DevTools clear), this tab keeps its
+// React user state stale and the next API call surfaces as the
+// "Your session has expired" toast on /app/search.
+//
+// Listener pushes notifyAuthChange(null) when an auth-critical key is
+// removed elsewhere — React state flips to null, ProtectedRoute redirects
+// to /auth, user lands on a clean sign-in flow instead of a broken page.
+//
+// Set-events (new sign-in / rotation) are intentionally NOT propagated:
+// picking up a new user mid-session is more invasive than a coherence
+// repair and would require a full identity-swap dance. Next navigation's
+// getCoherentUser() picks up the new tokens cleanly.
+//
+// `localStorage` is passed as the second arg so the predicate filters
+// out synthetic StorageEvents from third-party scripts / extensions /
+// sessionStorage — only the real browser-fired localStorage event has
+// `storageArea === window.localStorage`. Hardening flagged in code
+// review of #415.
+//
+// `__aiwAuthStorageListenerRegistered` is a module-level idempotency
+// flag: Vite HMR re-imports this file on every save in dev, which
+// would stack listeners and double-clear on each signout. The flag
+// is scoped to `window` (not module state, which HMR resets) so it
+// survives HMR re-imports.
+if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+  const w = window as Window & { __aiwAuthStorageListenerRegistered?: boolean };
+  if (!w.__aiwAuthStorageListenerRegistered) {
+    w.__aiwAuthStorageListenerRegistered = true;
+    window.addEventListener('storage', (event) => {
+      // Flag-gate (review caveat on #415): default-OFF kill switch via DB
+      // feature flag. Listener stays registered (HMR-safe) but inert until
+      // `auth-storage-listener` is flipped on for cpodea5, then ramped via
+      // rollout_pct. Fail closed on cold cache / lookup error.
+      if (!isAuthStorageListenerEnabled(() => getFlagFromCache(AUTH_STORAGE_LISTENER_FLAG))) {
+        return;
+      }
+      if (shouldClearOnStorageEvent(event, window.localStorage)) {
+        tokenStorage.clear();
+        notifyAuthChange(null);
+      }
+    });
+  }
+}
 
 // Base fetch wrapper with auth
 export async function apiFetch<T>(
@@ -105,6 +192,39 @@ export async function apiFetch<T>(
         tokenStorage.clear();
         notifyAuthChange(null);
       }
+
+      // 401-storm circuit breaker (PR #467 followup, 2026-05-15 incident).
+      // If N auth-coded 401s land inside a tight window, the user is in a
+      // stuck-token render loop (useFavorites + useSubscription firing,
+      // each 401ing, setState, re-render, 401 again). Proactively clear
+      // auth state so the next render sees user === null and the hooks
+      // short-circuit on `if (!user) return` — breaks the loop BEFORE a
+      // component throws into the ErrorBoundary.
+      if (data.code && AUTH_FAILURE_CODES.has(data.code)) {
+        const { shouldTrip } = getStormDetector().recordAuthFailure(Date.now());
+        if (shouldTrip) {
+          console.warn(
+            '[apiFetch] auth-401 storm detected — clearing auth state to break render loop',
+          );
+          tokenStorage.clear();
+          notifyAuthChange(null);
+          // PostHog telemetry — the observability SLO catalog tracks this
+          // event so we can dashboard storm frequency in prod. Window.posthog
+          // global is typed in src/lib/analytics.ts so no cast needed.
+          if (typeof window !== 'undefined' && window.posthog?.capture) {
+            try {
+              window.posthog.capture('auth_storm_tripped', {
+                route: window.location?.pathname,
+                last_endpoint: endpoint,
+                code: data.code,
+              });
+            } catch {
+              /* PostHog optional; swallow telemetry errors */
+            }
+          }
+        }
+      }
+
       // For non-token-expired 401s (e.g. unconfigured services), just return the error
       // without logging the user out
       return { error: data.error || 'Request failed' };
@@ -116,6 +236,9 @@ export async function apiFetch<T>(
       return { error: data.error || 'Request failed', code: data.code, errors: data.errors };
     }
 
+    // 2xx — token is working. Reset the storm detector so a later transient
+    // burst doesn't trip prematurely from old failures.
+    getStormDetector().recordSuccess();
     return { data };
   } catch (error) {
     console.error('[API] Request failed:', error);
@@ -123,8 +246,45 @@ export async function apiFetch<T>(
   }
 }
 
-// Refresh access token
+// Single-flight refresh — multiple concurrent 401s must share one /refresh call.
+//
+// Why this exists (session-lifetime regression, May 2026):
+//   The backend rotates the refresh token on every /refresh call (revokes the
+//   old row, issues a new one). If two requests race a refresh:
+//     T0  R1 + R2 both read RT1 from localStorage.
+//     T1  R1 POSTs /refresh — backend revokes RT1, returns AT2 + RT2 (200).
+//     T2  R1 writes AT2 + RT2.
+//     T3  R2 POSTs /refresh with the now-revoked RT1 — backend returns 401.
+//     T4  R2 receives 401 → apiFetch clears tokenStorage → wipes AT2 + RT2.
+//   Net effect: a user whose session was working seconds ago is now permanently
+//   401'd until they reload + re-sign-in. We saw this in production with a
+//   real paying customer (timeline: 14:13 signin → 14:15:14 200s → 14:15:56
+//   signout 401 → all subsequent calls 401).
+//
+//   The fix is a per-tab mutex: every caller awaits the same in-flight
+//   promise. Only one /refresh fires per refresh-token generation. Losers do
+//   not exist.
+//
+// Why this isn't a backend fix: refresh-token rotation is correct security
+// hygiene (defense against token theft / replay). The race lives in the
+// client — the client must serialize its own refresh attempts.
+let refreshPromise: Promise<boolean> | null = null;
+
 async function refreshAccessToken(): Promise<boolean> {
+  // Coalesce concurrent calls onto the same in-flight promise.
+  if (refreshPromise) return refreshPromise;
+
+  refreshPromise = doRefresh().finally(() => {
+    // Clear the gate AFTER the promise settles so a fresh 401 minutes later
+    // can start a new refresh. If we cleared synchronously the second caller
+    // would re-enter doRefresh() with the just-revoked refresh token.
+    refreshPromise = null;
+  });
+
+  return refreshPromise;
+}
+
+async function doRefresh(): Promise<boolean> {
   const refreshToken = tokenStorage.getRefreshToken();
   if (!refreshToken) return false;
 
@@ -138,6 +298,21 @@ async function refreshAccessToken(): Promise<boolean> {
     if (!response.ok) return false;
 
     const data = await response.json();
+
+    // Defensive: NEVER overwrite a stored token with a falsy value. If the
+    // server responded 200 but the body is malformed (empty body, missing
+    // accessToken, network truncation), writing localStorage.setItem(KEY,
+    // undefined) stores the string "undefined" — every subsequent request
+    // would then send `Authorization: Bearer undefined` and 401-loop. Bail
+    // out and let the caller decide what to do (apiFetch will clear() and
+    // force a sign-in, which is the correct UX for an unrecoverable refresh).
+    if (typeof data?.accessToken !== 'string' || data.accessToken.length === 0) {
+      return false;
+    }
+    if (typeof data?.refreshToken !== 'string' || data.refreshToken.length === 0) {
+      return false;
+    }
+
     tokenStorage.setAccessToken(data.accessToken);
     tokenStorage.setRefreshToken(data.refreshToken);
     return true;
@@ -145,6 +320,13 @@ async function refreshAccessToken(): Promise<boolean> {
     return false;
   }
 }
+
+// Test-only escape hatch: drains the in-flight refresh promise so unit tests
+// don't bleed state across cases. Not exported from the package barrel — only
+// the test file imports it via the file path.
+export const __test = {
+  resetRefreshState: () => { refreshPromise = null; },
+};
 
 // ============ AUTH API ============
 export const auth = {
@@ -646,7 +828,38 @@ export const property = {
       { method: 'GET' }
     );
   },
+
+  /**
+   * Address typeahead — backend proxies Zillow's public suggestions API
+   * through scrape.do so suggestions match listings that actually exist
+   * on Zillow. Used by LocationAutocomplete.tsx. Anonymous-OK
+   * (optionalAuth on the server), so the marketing-site demo can call it
+   * before sign-up.
+   */
+  autocomplete: async (q: string, limit?: number) => {
+    const params: Record<string, string | number> = { q };
+    if (limit) params.limit = limit;
+    return apiFetch<{ suggestions: AutocompleteSuggestion[] }>(
+      `/api/property/autocomplete${buildQuery(params)}`,
+      { method: 'GET' }
+    );
+  },
 };
+
+/**
+ * Flat suggestion shape returned by GET /api/property/autocomplete.
+ * Matches the normalizer in aiwholesail-api/lib/scrapers/zillowAutocompleteScrapeDo.js.
+ */
+export interface AutocompleteSuggestion {
+  display: string;
+  address: string;
+  city: string;
+  state: string;
+  zip: string;
+  zpid?: string;
+  type: 'region' | 'address';
+  regionType?: string;
+}
 
 // ============ COMMUNICATIONS API ============
 export const communications = {
@@ -675,13 +888,6 @@ export const communications = {
     return apiFetch('/api/communications/campaign', {
       method: 'POST',
       body: JSON.stringify({ leadId, campaignType, messageContent }),
-    });
-  },
-
-  sendSpreadAlert: async (deals: any[], location: string, phone: string) => {
-    return apiFetch('/api/communications/spread-alert', {
-      method: 'POST',
-      body: JSON.stringify({ deals, location, phone }),
     });
   },
 };
@@ -1024,9 +1230,18 @@ export const propdata = {
   // off-market-search-v2 when Pre-Foreclosure or Auctions lead types are picked.
   preforeclosure: (p: { zip: string; limit?: number }) =>
     apiFetch<any>(`/api/propdata/preforeclosure${buildQuery(p)}`),
-  // Zillow autocomplete via the shared RapidAPI key — also backend-proxied.
-  zillowAutocomplete: (query: string) =>
-    apiFetch<any>(`/api/propdata/zillow-autocomplete${buildQuery({ query })}`),
+};
+
+// US Housing Market Data (apimaker) — selectively proxied: only the 3
+// endpoints net-new vs Zillow Scraper / PropData. See aiwholesail-api/
+// routes/usHousing.js for the full integration rationale.
+export const usHousing = {
+  walkAndTransitScore: (zpid: string | number) =>
+    apiFetch<any>(`/api/us-housing/walkAndTransitScore${buildQuery({ zpid })}`),
+  propertyByCoordinates: (p: { lat: number; long: number; radius?: number }) =>
+    apiFetch<any>(`/api/us-housing/propertyByCoordinates${buildQuery(p)}`),
+  valueHistoryLocalHomeValues: (zpid: string | number) =>
+    apiFetch<any>(`/api/us-housing/valueHistory/localHomeValues${buildQuery({ zpid })}`),
 };
 
 // Default export for convenience
@@ -1048,6 +1263,7 @@ const apiClient = {
   webhooks,
   utility,
   propdata,
+  usHousing,
   onAuthStateChange,
 };
 

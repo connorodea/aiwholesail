@@ -1,9 +1,9 @@
-import { lazy, Suspense, useMemo, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { LeadTypeChips } from '@/components/LeadTypeChips';
 import {
   LEAD_TYPES,
   applyLeadFilters,
-  getServerParamsForLeads,
+  getSearchPlanForLeads,
   tagRecordWithLeadTypes,
 } from '@/lib/lead-types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,11 +14,20 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { propDataAPI, PropDataError, type PropDataPropertyListResponse, type PropDataPropertyRecord } from '@/lib/propdata-api';
+import { batchdata, type BatchPropertyRecord } from '@/lib/batchdata-api';
 import { mapPropDataListToUnified, type PropDataEnrichment } from '@/lib/unifiedPropertyAdapters';
 import { resolveLocation } from '@/lib/locationResolver';
 import { topZipsInState } from '@/lib/topZipsByState';
 import { fanOutZipSearch, MAX_ZIPS_PER_SEARCH } from '@/lib/zip-search';
 import { OwnerSkipTraceButton } from '@/components/OwnerSkipTraceButton';
+import { LocationAutocomplete } from '@/components/LocationAutocomplete';
+import { SearchHistory } from '@/components/SearchHistory';
+import { useSearchHistory } from '@/hooks/useSearchHistory';
+import { buildOffMarketHistoryLabel } from '@/lib/searchHistoryLabels.js';
+import {
+  RECENT_SEARCHES_CHIPS_FLAG,
+  isRecentSearchesChipsEnabled,
+} from '@/lib/searchHistoryFlag.js';
 import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useFeatureFlag } from '@/hooks/useFeatureFlag';
@@ -204,6 +213,103 @@ function toMailingLabelsCsv(records: PropDataPropertyRecord[]): {
   return { csv, included: rows.length, skipped };
 }
 
+/**
+ * Map a BatchData property record into our PropData-shaped record. This is
+ * the adapter layer that lets us swap providers behind the
+ * `batchdata_offmarket` flag without touching the rest of the search loop.
+ * Only the fields actually consumed downstream (address, owner, valuation,
+ * equity, flags) are mapped; extras pass through under their BatchData
+ * names for any forward-compat needs.
+ */
+function mapBatchToPropData(b: BatchPropertyRecord): PropDataPropertyRecord {
+  const ql = b.quickLists || {};
+  return {
+    parcel_id: b.parcelId,
+    address: {
+      street: b.address?.street,
+      city: b.address?.city,
+      zip: b.address?.zip,
+    },
+    state: b.address?.state,
+    owner: {
+      name: b.owner?.fullName ?? [b.owner?.firstName, b.owner?.lastName].filter(Boolean).join(' '),
+      mailing_address: b.owner?.mailingAddress?.street,
+      mailing_city: b.owner?.mailingAddress?.city,
+      mailing_state: b.owner?.mailingAddress?.state,
+      mailing_zip: b.owner?.mailingAddress?.zip,
+    },
+    valuation: {
+      market_value: b.valuation?.estimatedValue,
+    },
+    sale: {
+      last_sale_date: b.valuation?.lastSaleDate,
+      last_sale_price: b.valuation?.lastSalePrice,
+    },
+    characteristics: {
+      bedrooms: b.characteristics?.bedrooms ?? null,
+      bathrooms: b.characteristics?.bathrooms ?? null,
+      sq_ft_living: b.characteristics?.squareFeet ?? null,
+      sq_ft_lot: b.characteristics?.lotSize ?? null,
+      year_built: b.characteristics?.yearBuilt,
+      property_type: b.characteristics?.propertyType,
+    },
+    equity: b.valuation?.estimatedEquity != null
+      ? {
+          estimated_equity: b.valuation.estimatedEquity,
+          equity_pct: b.valuation?.ltv != null ? Math.max(0, 100 - b.valuation.ltv) : undefined,
+        }
+      : undefined,
+    flags: {
+      is_absentee_owner: ql.absenteeOwner ?? b.owner?.isAbsenteeOwner,
+      has_owner_data: !!b.owner?.fullName || !!b.owner?.firstName,
+      has_phone: false, // BatchData doesn't return phones on /property/search — skip-trace required
+    },
+    source: 'batchdata',
+    // Forward-compat: keep the raw BatchData record under a namespaced field
+    // so lead-type-specific UI can read foreclosure/auction details etc.
+    batchdata_raw: b,
+  };
+}
+
+/**
+ * Adapter for the property-list call site. Picks BatchData or PropData
+ * based on the `batchdata_offmarket` flag and returns the PropData shape
+ * so the downstream search loop doesn't have to branch.
+ */
+async function listPropertiesUnified(
+  useBatch: boolean,
+  zip: string,
+  limit: number,
+  absenteeOnly: boolean | undefined,
+): Promise<PropDataPropertyListResponse> {
+  if (useBatch) {
+    const res = absenteeOnly
+      ? await batchdata.listAbsenteeOwners({ zip, take: limit })
+      : await batchdata.search({
+          searchCriteria: { zip },
+          options: { take: limit },
+        });
+    if (res.error) return { error: res.error };
+    const props = res.data?.results?.properties ?? res.data?.properties ?? [];
+    return { properties: props.map(mapBatchToPropData), count: props.length };
+  }
+  return propDataAPI.listProperties({ zip, limit, absentee_only: absenteeOnly });
+}
+
+async function listPreforeclosuresUnified(
+  useBatch: boolean,
+  zip: string,
+  limit: number,
+): Promise<PropDataPropertyListResponse> {
+  if (useBatch) {
+    const res = await batchdata.listPreforeclosures({ zip, take: limit });
+    if (res.error) return { error: res.error };
+    const props = res.data?.results?.properties ?? res.data?.properties ?? [];
+    return { properties: props.map(mapBatchToPropData), count: props.length };
+  }
+  return propDataAPI.listPreforeclosures({ zip, limit });
+}
+
 export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProps) {
   // Free-form input: single ZIP, multi-ZIP list, "City, ST", "County, ST", or "ST".
   // Resolved into a deduped ZIP fan-out list at search time.
@@ -253,6 +359,15 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
   // selection is ['absentee'] for backward compat — same results as the
   // pre-v2 behaviour.
   const { enabled: leadTypesV2Enabled } = useFeatureFlag('off-market-search-v2');
+  // BatchData vendor swap. When ON, off-market lookups route through
+  // /api/batchdata/* (purpose-built off-market vendor with working absentee
+  // quicklists). When OFF, /api/propdata/* (which has broken absentee
+  // filter as of 2026-05-14 live testing).
+  const { enabled: batchDataEnabled } = useFeatureFlag('batchdata_offmarket');
+  // Recent-searches chips kill switch (added 2026-05-14 after #428 review).
+  // Default OFF until feature_flag_globals.slug='recent-searches-chips' is on.
+  const recentChipsFlag = useFeatureFlag(RECENT_SEARCHES_CHIPS_FLAG);
+  const recentChipsEnabled = isRecentSearchesChipsEnabled(recentChipsFlag);
   const [selectedLeadTypes, setSelectedLeadTypes] = useState<Set<string>>(
     new Set(['absentee'])
   );
@@ -269,12 +384,22 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
       ? new Date(Date.now() - 365 * 24 * 60 * 60 * 1000)
       : null;
     return props.filter((p) => {
-      if (threshold > 0 && (p.equity?.equity_pct ?? 0) < threshold) return false;
+      // Only cull when equity_pct is KNOWN and below threshold. Records
+      // with missing equity data (common for Tax Delinquent + non-FL/MN/TX
+      // PropData parcels) pass through — the card renders "—" via fmtPct,
+      // so the user sees the lead and decides. Treating missing as 0
+      // silently nuked every Tax Delinquent + ≥40% search.
+      const eqPct = p.equity?.equity_pct;
+      if (threshold > 0 && eqPct != null && eqPct < threshold) return false;
       if (taxDelinquentOnly) {
         const status = String(p.tax_status || '').toLowerCase();
         if (!status.includes('delinquent') && !status.includes('past_due') && !status.includes('past due')) return false;
       }
-      if (minYearsHeld > 0 && (p.equity?.years_held ?? 0) < minYearsHeld) return false;
+      // Same null-check pattern as equity_pct above — missing years_held
+      // passes through instead of being silently treated as 0-years-held
+      // and culled. Same bug class, same fix.
+      const yh = p.equity?.years_held;
+      if (minYearsHeld > 0 && yh != null && yh < minYearsHeld) return false;
       if (recentCutoff && p.sale?.last_sale_date) {
         const sold = new Date(p.sale.last_sale_date);
         if (isFinite(sold.getTime()) && sold > recentCutoff) return false;
@@ -298,12 +423,73 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
 
   const enrichment = data?.enrichment;
 
+  // Recent-searches memory — last 4 off-market searches, stored in localStorage.
+  interface OffMarketHistoryParams {
+    locationInput: string;
+    limit: number;
+    equityFilter: EquityFilter;
+    taxDelinquentOnly: boolean;
+    minYearsHeld: 0 | 5 | 10 | 20;
+    excludeRecentSales: boolean;
+    selectedLeadTypes: string[];
+  }
+  const {
+    history: searchHistory,
+    recordSearch: recordSearchHistory,
+    recordResultCount,
+    removeSearch: removeSearchFromHistory,
+    clear: clearSearchHistory,
+  } = useSearchHistory<OffMarketHistoryParams>({
+    mode: 'off-market',
+    buildLabel: buildOffMarketHistoryLabel,
+  });
+
+  // Trigger handleSearch on the next render after a history entry restores
+  // form state. Using a counter ref keeps the deps array clean — only
+  // increments mean replay.
+  const replayTokenRef = useRef(0);
+  const [replayToken, setReplayToken] = useState(0);
+  useEffect(() => {
+    if (replayToken === 0) return;
+    if (replayToken === replayTokenRef.current) return;
+    replayTokenRef.current = replayToken;
+    void handleSearch();
+    // handleSearch reads from current state, which has been freshly set by
+    // handleApplyHistory; intentionally only depends on replayToken.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [replayToken]);
+
+  const handleApplyHistory = (params: OffMarketHistoryParams) => {
+    setLocationInput(params.locationInput);
+    setLimit(params.limit);
+    setEquityFilter(params.equityFilter);
+    setTaxDelinquentOnly(params.taxDelinquentOnly);
+    setMinYearsHeld(params.minYearsHeld);
+    setExcludeRecentSales(params.excludeRecentSales);
+    setSelectedLeadTypes(new Set(params.selectedLeadTypes));
+    // handleSearch (fired via the replayToken effect) will record the
+    // promoted entry — calling recordSearchHistory here would double-record.
+    setReplayToken((t) => t + 1);
+  };
+
   const handleSearch = async () => {
     const input = locationInput.trim();
     if (!input) {
       toast({ title: 'Enter a location', description: 'ZIP, "City, ST", "County, ST", or just "ST".', variant: 'destructive' });
       return;
     }
+    // Capture into a local const so concurrent searches don't race —
+    // each invocation's `recordResultCount` patches the entry it
+    // recorded, not whichever entry was recorded last globally.
+    const historyId = recordSearchHistory({
+      locationInput: input,
+      limit,
+      equityFilter,
+      taxDelinquentOnly,
+      minYearsHeld,
+      excludeRecentSales,
+      selectedLeadTypes: [...selectedLeadTypes],
+    });
     setLoading(true);
     setProgress(null);
     try {
@@ -335,46 +521,99 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
       // — message wording drift would silently break the classification
       // and we'd lose visibility into why searches were failing.
       const outcomes = { ok: 0, noCoverage: 0, rateLimited: 0, network: 0, other: 0 };
-      // v2: pick endpoint + server params from selected lead types. v1 keeps
-      // the legacy absentee_only=true call. v2 with default selection
-      // (['absentee']) maps to the same call, so the migration is silent.
-      const serverPlan = leadTypesV2Enabled
-        ? getServerParamsForLeads([...selectedLeadTypes])
-        : { primarySource: 'property' as const, absentee_only: true };
+      // v2: dual-feed planner. When the selection mixes preforeclosure-source
+      // leads (pre-foreclosure, auctions) with property-source leads, fan out
+      // BOTH feeds per ZIP — the old single-feed planner collapsed to one
+      // feed and silently dropped the other half of the selection. v1 keeps
+      // the legacy single absentee_only=true call.
+      const searchPlan = leadTypesV2Enabled
+        ? getSearchPlanForLeads([...selectedLeadTypes])
+        : { property: { absentee_only: true } as { absentee_only?: boolean }, preforeclosure: null };
+
+      // Defensive: if neither feed is planned (e.g. all selected slugs are
+      // unknown), default to a property-only call so the search isn't a no-op.
+      const propertyParams: { absentee_only?: boolean } | null =
+        searchPlan.property ?? (searchPlan.preforeclosure ? null : {});
+      const preforeclosureRequested = searchPlan.preforeclosure !== null;
+
+      const classify = (err: unknown) => {
+        if (err instanceof PropDataError) {
+          if (err.code === 'RATE_LIMITED') outcomes.rateLimited += 1;
+          else if (err.isCoverageGap) outcomes.noCoverage += 1;
+          else if (err.isTransient) outcomes.network += 1;
+          else outcomes.other += 1;
+        } else {
+          outcomes.other += 1;
+        }
+      };
 
       const batched = await fanOutZipSearch(resolved.zips, async (z) => {
-        try {
-          const res = serverPlan.primarySource === 'preforeclosure'
-            ? await propDataAPI.listPreforeclosures({ zip: z, limit: perZipLimit })
-            : await propDataAPI.listProperties({
-                zip: z,
-                limit: perZipLimit,
-                absentee_only: serverPlan.absentee_only,
-              });
-          completed += 1;
-          setProgress({ done: completed, total: resolved.zips.length });
-          // PropData returns { error, status } with HTTP 200 when a ZIP is
-          // outside their coverage. The client unwrap() throws on res.error
-          // so we shouldn't see this path here — but defensive.
-          if ((res as { error?: string; status?: number }).error) {
-            outcomes.noCoverage += 1;
-            return null;
+        // Per-ZIP merge: each ZIP may hit one or two upstream feeds. Coverage
+        // gaps on the preforeclosure feed are EXPECTED (most ZIPs have no
+        // active pre-foreclosures); don't count those against the user-
+        // visible coverage outcome when the property feed succeeded.
+        const acc: PropDataPropertyListResponse = { properties: [] };
+        let propertyOk = false;
+        let preforeclosureOk = false;
+        let propertyError: unknown = null;
+
+        if (propertyParams) {
+          try {
+            const propRes = await listPropertiesUnified(
+              batchDataEnabled,
+              z,
+              perZipLimit,
+              propertyParams.absentee_only,
+            );
+            if ((propRes as { error?: string }).error) {
+              propertyError = new PropDataError(
+                (propRes as { error?: string }).error || 'no coverage',
+                'NO_COVERAGE',
+              );
+            } else {
+              propertyOk = true;
+              if (propRes.properties) acc.properties = [...(acc.properties ?? []), ...propRes.properties];
+              if (propRes.enrichment) acc.enrichment = propRes.enrichment;
+              if (propRes.count != null) acc.count = (acc.count ?? 0) + propRes.count;
+            }
+          } catch (err) {
+            propertyError = err;
           }
-          outcomes.ok += 1;
-          return res;
-        } catch (err) {
-          completed += 1;
-          setProgress({ done: completed, total: resolved.zips.length });
-          if (err instanceof PropDataError) {
-            if (err.code === 'RATE_LIMITED') outcomes.rateLimited += 1;
-            else if (err.isCoverageGap) outcomes.noCoverage += 1;
-            else if (err.isTransient) outcomes.network += 1;
-            else outcomes.other += 1;
-          } else {
-            outcomes.other += 1;
-          }
-          return null;
         }
+
+        if (preforeclosureRequested) {
+          try {
+            const preRes = await listPreforeclosuresUnified(batchDataEnabled, z, perZipLimit);
+            if (!(preRes as { error?: string }).error) {
+              preforeclosureOk = true;
+              if (preRes.properties) acc.properties = [...(acc.properties ?? []), ...preRes.properties];
+              if (preRes.enrichment && !acc.enrichment) acc.enrichment = preRes.enrichment;
+            }
+            // Coverage gap on preforeclosure is expected; if property feed
+            // succeeded, don't pollute outcomes with a noCoverage tick.
+          } catch (err) {
+            if (err instanceof PropDataError && err.isCoverageGap && propertyOk) {
+              // Silent — property feed carried the ZIP.
+            } else if (!propertyParams) {
+              // Only-preforeclosure search; surface this error as the ZIP's outcome.
+              classify(err);
+            } else if (err instanceof PropDataError && err.code === 'RATE_LIMITED') {
+              // Rate limits matter regardless of which feed they came from.
+              outcomes.rateLimited += 1;
+            }
+          }
+        }
+
+        completed += 1;
+        setProgress({ done: completed, total: resolved.zips.length });
+
+        if (propertyOk || preforeclosureOk) {
+          outcomes.ok += 1;
+          return acc;
+        }
+        // Both feeds failed (or only property feed was attempted and failed).
+        if (propertyError) classify(propertyError);
+        return null;
       });
 
       // Merge results across ZIPs. Dedupe by parcel_id (defensive — PropData
@@ -388,9 +627,16 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
         if (!list?.properties) continue;
         if (!mergedEnrichment) mergedEnrichment = list.enrichment;
         for (const rec of list.properties) {
-          const key = rec.parcel_id || `${rec.address?.street}|${rec.address?.zip}`;
-          if (seenParcels.has(key)) continue;
-          seenParcels.add(key);
+          // Dedupe only by parcel_id. The prior `address|zip` fallback was
+          // unsafe with the dual-feed fan-out: if both the property and
+          // preforeclosure feeds returned the same address without a
+          // parcel_id, one record would be silently dropped. Better to risk
+          // an occasional visible duplicate (rare — PropData almost always
+          // emits parcel_id) than to silently lose a lead.
+          if (rec.parcel_id) {
+            if (seenParcels.has(rec.parcel_id)) continue;
+            seenParcels.add(rec.parcel_id);
+          }
           merged.push(rec);
         }
       }
@@ -416,12 +662,47 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
       });
       setProgress(null);
 
+      // Patch the matching recent-searches chip with the final result count
+      // (the post-filter total, mirroring the `count` we display in result UI).
+      recordResultCount(historyId, filteredMerged.length);
+
+      // v2-aware noun for the result toast — "off-market lead(s)" when the
+      // selection mixes feeds, "absentee owner(s)" for the legacy default.
+      const isV2Selection = leadTypesV2Enabled && selectedLeadTypes.size > 0;
+      const resultNoun = isV2Selection ? 'off-market lead' : 'absentee owner';
+
+      // Fire-and-forget search-summary log → backend emits a structured
+      // journald line that the off-market routing monitor reads to
+      // compute SLI-1 (endpoint diversity) and SLI-3 (empty-result rate).
+      // Failure-tolerant: search UX is already complete, the log is
+      // pure observability.
+      const endpointsDispatched: string[] = [];
+      if (searchPlan.property !== null) endpointsDispatched.push('property');
+      if (searchPlan.preforeclosure !== null) endpointsDispatched.push('preforeclosure');
+      void fetch('/api/offmarket-search-log', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          lead_types_selected: [...selectedLeadTypes],
+          endpoints_dispatched: endpointsDispatched,
+          result_count: filteredMerged.length,
+          region_label: resolved.label,
+          search_id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        }),
+      }).catch(() => { /* observability is best-effort */ });
+
       if (merged.length === 0) {
-        // Pick the most informative explanation. Priority order reflects
-        // user actionability: rate-limit (just wait) > network/transient
-        // (try again) > coverage gap (try a different state) > generic.
+        // Reorder outcome priority so rate-limit only dominates when it
+        // actually drove the failure (not when 24 ZIPs returned OK-empty
+        // and 1 hit a throttle — that produced misleading "1 of 25 hit
+        // rate-limit" toasts that hid the real problem).
         let description: string;
-        if (outcomes.rateLimited > 0) {
+        const totalFailed = outcomes.noCoverage + outcomes.rateLimited + outcomes.network + outcomes.other;
+        const allEmpty = outcomes.ok > 0 && outcomes.ok + totalFailed === resolved.zips.length;
+        if (allEmpty) {
+          description = `Searched ${resolved.zips.length} ZIP${resolved.zips.length === 1 ? '' : 's'} — no ${resultNoun}s matched your filters. Try fewer lead types, lower the equity floor, or pick a different region.`;
+        } else if (outcomes.rateLimited >= Math.ceil(resolved.zips.length / 2)) {
           description = `${outcomes.rateLimited} of ${resolved.zips.length} ZIPs hit rate-limit. Wait a minute and try again, or narrow the search.`;
         } else if (outcomes.network > 0 && outcomes.noCoverage === 0) {
           description = `${outcomes.network} of ${resolved.zips.length} ZIPs hit a temporary upstream error. Try again in a moment.`;
@@ -429,12 +710,18 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
           description = `PropData has no parcel coverage in ${resolved.label} yet. Try a different state — Minnesota and Florida have rich data.`;
         } else if (outcomes.noCoverage > 0) {
           description = `${outcomes.noCoverage} of ${resolved.zips.length} ZIPs returned no coverage. Try a different state — Minnesota and Florida have rich data.`;
+        } else if (outcomes.rateLimited > 0) {
+          description = `${outcomes.rateLimited} of ${resolved.zips.length} ZIPs hit rate-limit. Wait a minute and try again, or narrow the search.`;
         } else {
-          description = `Searched ${resolved.zips.length} ZIP${resolved.zips.length === 1 ? '' : 's'} — no absentee owners matched.`;
+          description = `Searched ${resolved.zips.length} ZIP${resolved.zips.length === 1 ? '' : 's'} — no ${resultNoun}s matched.`;
         }
-        toast({ title: 'No absentee owners found', description, variant: 'destructive' });
+        toast({
+          title: `No ${resultNoun}s found`,
+          description,
+          variant: 'destructive',
+        });
       } else {
-        const okMsg = `${Math.min(merged.length, limit)} absentee owner${merged.length === 1 ? '' : 's'}`
+        const okMsg = `${Math.min(merged.length, limit)} ${resultNoun}${merged.length === 1 ? '' : 's'}`
           + ` from ${outcomes.ok}/${resolved.zips.length} ZIP${resolved.zips.length === 1 ? '' : 's'}`;
         const skipped = outcomes.noCoverage + outcomes.rateLimited + outcomes.network;
         toast({
@@ -479,7 +766,7 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
           toast({ title: 'Search failed', description: err.message, variant: 'destructive' });
         }
       } else {
-        toast({ title: 'Search failed', description: 'Could not fetch absentee owners.', variant: 'destructive' });
+        toast({ title: 'Search failed', description: 'Could not fetch off-market leads.', variant: 'destructive' });
       }
     } finally {
       setLoading(false);
@@ -680,16 +967,30 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
+          {recentChipsEnabled && (
+            <SearchHistory<OffMarketHistoryParams>
+              entries={searchHistory}
+              onApply={(entry) => handleApplyHistory(entry.params)}
+              onRemove={removeSearchFromHistory}
+              onClear={clearSearchHistory}
+            />
+          )}
           <div className="flex flex-col gap-3">
             <div className="space-y-2">
               <Label htmlFor="abs-location">Location</Label>
-              <Input
-                id="abs-location"
+              <LocationAutocomplete
+                inputId="abs-location"
                 value={locationInput}
-                onChange={(e) => setLocationInput(e.target.value)}
-                placeholder='ZIP (55101), multi-ZIP (55101, 55102, 55103), "Detroit, MI", "Oakland County, MI", or just "MI"'
-                className="bg-background/50"
-                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                onChange={setLocationInput}
+                onSelect={() => {
+                  // Auto-fire the search when the user commits a Zillow
+                  // suggestion — matches Google Places' "select-to-search"
+                  // pattern and skips the extra Enter press.
+                  handleSearch();
+                }}
+                placeholder='ZIP (55101), multi-ZIP, "Detroit, MI", "Oakland County, MI", or just "MI"'
+                hideLabel
+                hideHelperText
               />
               <p className="text-xs text-muted-foreground">
                 Multi-ZIP / city / county / state all fan out across up to {MAX_ZIPS_PER_SEARCH} ZIPs.
@@ -815,7 +1116,7 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
             onClick={handleSearch}
             disabled={loading}
             size="lg"
-            className="group w-full h-12 text-base font-semibold bg-gradient-to-r from-cyan-500 to-cyan-400 text-cyan-950 hover:from-cyan-400 hover:to-cyan-300 shadow-[0_0_0_1px_rgba(6,182,212,0.4),0_8px_24px_-8px_rgba(6,182,212,0.5)] hover:shadow-[0_0_0_1px_rgba(6,182,212,0.5),0_12px_32px_-8px_rgba(6,182,212,0.7)] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
+            className="group w-full h-12 text-base font-semibold bg-gradient-to-r from-cyan-500 to-cyan-400 text-cyan-950 hover:from-cyan-400 hover:to-cyan-300 shadow-[0_0_0_1px_rgba(0, 196, 200,0.4),0_8px_24px_-8px_rgba(0, 196, 200,0.5)] hover:shadow-[0_0_0_1px_rgba(0, 196, 200,0.5),0_12px_32px_-8px_rgba(0, 196, 200,0.7)] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none"
           >
             {loading ? (
               <>
@@ -862,6 +1163,27 @@ export function AbsenteeOwnerSearch({ defaultZip = '' }: AbsenteeOwnerSearchProp
           )}
         </CardContent>
       </Card>
+
+      {/* Safety net: if upstream returned results but every one got culled
+          by the motivation filters, render an actionable empty state instead
+          of a blank screen. Without this, the page looks broken (no toast
+          dismissed yet, no cards) even though the search succeeded. */}
+      {data && data.properties.length > 0 && filtered.length === 0 && (
+        <Card className="simple-card" role="status">
+          <CardContent className="pt-6 pb-6 text-center space-y-3">
+            <h3 className="text-base font-medium text-zinc-100">
+              {data.properties.length} result{data.properties.length === 1 ? '' : 's'} hidden by your filters
+            </h3>
+            <p className="text-sm text-zinc-400">
+              Your motivation filters removed every record. Many off-market parcels lack
+              complete equity or tax data — clear filters to see everything.
+            </p>
+            <Button onClick={clearFilters} variant="outline" size="sm" className="h-9">
+              Clear filters
+            </Button>
+          </CardContent>
+        </Card>
+      )}
 
       {filtered.length > 0 && (
         <div className="space-y-4">

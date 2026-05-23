@@ -24,6 +24,11 @@ declare global {
     gtag: (...args: any[]) => void;
     dataLayer: any[];
     fbq: (command: string, ...args: any[]) => void;
+    posthog?: {
+      capture: (eventName: string, properties?: Record<string, any>) => void;
+      get_session_id?: () => string | undefined;
+      [key: string]: any;
+    };
   }
 }
 
@@ -61,9 +66,41 @@ function fireFbq(eventName: string, params?: Record<string, any>, eventId?: stri
   }
 }
 
+/**
+ * Fire a PostHog `capture` event (only if the PostHog snippet is loaded).
+ *
+ * PostHog Cloud was wired in PR #222. We attempt a direct
+ * `window.posthog.capture` call (populates `$session_id` automatically),
+ * and `analytics.capture` also pushes to `dataLayer` so any GTM-side
+ * forwarding still receives the event.
+ */
+function firePosthog(eventName: string, properties?: Record<string, any>) {
+  if (typeof window !== 'undefined' && window.posthog && typeof window.posthog.capture === 'function') {
+    try {
+      window.posthog.capture(eventName, properties);
+    } catch {
+      // Never let analytics throw — degrade silently to dataLayer-only delivery.
+    }
+  }
+}
+
 // ============ AUTH EVENTS ============
 
 export const analytics = {
+  /**
+   * Low-level PostHog capture passthrough. Use when a call site needs to
+   * fire a one-off event that doesn't justify its own typed method on
+   * this object (e.g., observability/alert-source events like
+   * `not_authenticated_toast_shown` — see docs/observability/SLO_SPEC.md P1.1).
+   *
+   * Fires to PostHog directly (if loaded) AND GTM `dataLayer` so the
+   * event is visible in both surfaces.
+   */
+  capture(eventName: string, properties?: Record<string, any>) {
+    firePosthog(eventName, properties);
+    fire(eventName, properties);
+  },
+
   /** User creates a new account */
   signUp(method: string = 'email') {
     fire('sign_up', { method });

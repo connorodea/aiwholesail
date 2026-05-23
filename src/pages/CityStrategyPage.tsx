@@ -536,8 +536,8 @@ export default function CityStrategyPage() {
   return (
     <PublicLayout>
       <SEOHead
-        title={`${meta.heroTitle(`${city.city}, ${city.state}`)} -- Market Data & Strategy Guide`}
-        description={`${meta.heroTitle(`${city.city}, ${city.stateFull}`)}. Median price ${formatCurrency(city.medianHomePrice)}, ${city.priceGrowth}% growth, avg rent $${city.avgRent.toLocaleString()}/mo. AI-powered market intelligence for ${meta.label.toLowerCase()} investors.`}
+        title={`${meta.heroTitle(`${city.city}, ${city.state}`)}: Median ${formatCurrency(city.medianHomePrice)}, ${city.priceGrowth}% Growth (${new Date().getFullYear()})`}
+        description={`${meta.heroTitle(`${city.city}, ${city.stateFull}`)}: median home ${formatCurrency(city.medianHomePrice)}, ${city.priceGrowth}% YoY growth, avg rent $${city.avgRent.toLocaleString()}/mo. AI-scored ${meta.label.toLowerCase()} deals + free calculator. Start a 7-day trial, no credit card.`}
         keywords={`${meta.label.toLowerCase()} ${city.city}, ${city.city} ${city.state} ${validStrategy}, ${validStrategy} real estate ${city.city}, ${city.city} investment properties, ${meta.label.toLowerCase()} ${city.stateFull}`}
         canonicalUrl={canonical}
         breadcrumbs={[
@@ -558,7 +558,7 @@ export default function CityStrategyPage() {
 
       {/* ===== HERO ===== */}
       <section className="relative bg-gradient-to-b from-[#0a0a0a] via-[#0f0f0f] to-[#0a0a0a] text-white overflow-hidden">
-        <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" fill="rgba(6, 182, 212, 0.15)" />
+        <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" fill="rgba(0, 196, 200, 0.15)" />
         <div className="relative container mx-auto max-w-5xl px-4 pt-28 pb-20 text-center">
           <div className="flex items-center justify-center gap-2 mb-6 flex-wrap">
             <Link to="/markets" className="flex items-center gap-1 text-sm text-white/50 hover:text-white transition-colors">

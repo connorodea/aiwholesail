@@ -1,0 +1,769 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>AIWHOLESAIL — Identity</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fafaf9;
+    --card: #ffffff;
+    --ink: #0a0a0a;
+    --muted: #6b6b66;
+    --line: #ececea;
+    --tone: #f1f1ee;
+    --cyan: #00c4c8;
+  }
+  * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg); color: var(--ink);
+    font-family: "Onest", ui-sans-serif, -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: 400; letter-spacing: -0.011em;
+    font-size: 15px; line-height: 1.5;
+  }
+
+  /* ---------- topbar ---------- */
+  .topbar {
+    position: sticky; top: 0; z-index: 10;
+    background: rgba(250,250,249,.85);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-bottom: 1px solid var(--line);
+  }
+  .topbar-inner {
+    max-width: 1180px; margin: 0 auto;
+    padding: 14px 32px;
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 13px; color: var(--muted);
+  }
+  .topbar-inner .mini { display: flex; align-items: center; gap: 8px; color: var(--ink); font-weight: 600; letter-spacing: -0.01em; }
+  .topbar-inner .mini .wm { font-size: 14px; }
+
+  /* ---------- type ---------- */
+  h1, h2 { margin: 0; color: var(--ink); font-weight: 500; }
+  h2 { font-size: 12px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); }
+
+  section { max-width: 1180px; margin: 0 auto; padding: 0 32px; }
+
+  /* ---------- hero ---------- */
+  .hero {
+    padding: 96px 32px 88px;
+    border-bottom: 1px solid var(--line);
+  }
+  .hero-stage {
+    background: #0a0a0a;
+    border-radius: 24px;
+    padding: 120px 64px;
+    display: grid; place-items: center;
+  }
+  .hero-meta {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-top: 20px; font-size: 12px; color: var(--muted); letter-spacing: 0.04em;
+  }
+  .hero-meta .lede { color: var(--ink); font-weight: 500; letter-spacing: -0.01em; font-size: 14px; }
+
+  /* ---------- the wordmark (sail-as-A) ---------- */
+  /* word lays out inline: caps text + inline SVG sail */
+  .wm {
+    font-family: "Onest", sans-serif;
+    font-weight: var(--wm-weight, 700);
+    letter-spacing: -0.045em;
+    color: var(--ink);
+    display: inline-flex;
+    align-items: baseline;
+    line-height: 1;
+    white-space: nowrap;
+    text-transform: var(--wm-case, uppercase);
+  }
+  .wm svg {
+    /* sized to cap-height; hull sits on the baseline */
+    height: 0.78em;
+    width: auto;
+    transform: translateY(0.06em);
+    margin: 0 -0.03em; /* tuck slightly into the adjacent letters */
+    flex-shrink: 0;
+  }
+  .wm.dark   { color: #fff; }
+  .wm.onCyan { color: #0a0a0a; }
+
+  /* hero scale */
+  .wm-hero { font-size: 88px; }
+  .wm-lg   { font-size: 56px; }
+  .wm-md   { font-size: 32px; }
+  .wm-sm   { font-size: 18px; }
+  .wm-xs   { font-size: 13px; letter-spacing: -0.02em; }
+
+  /* ---------- card grid ---------- */
+  .section { padding: 80px 32px 0; }
+  .section-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-bottom: 24px;
+  }
+  .section-head .right { font-size: 12px; color: var(--muted); letter-spacing: 0.02em; }
+  .row { display: grid; gap: 16px; }
+  .row.cols-2 { grid-template-columns: repeat(2, 1fr); }
+  .row.cols-3 { grid-template-columns: repeat(3, 1fr); }
+  .row.cols-4 { grid-template-columns: repeat(4, 1fr); }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .card .stage {
+    flex: 1; min-height: 220px;
+    display: grid; place-items: center;
+    padding: 40px 32px;
+  }
+  .card .stage.dark { background: #0a0a0a; }
+  .card .stage.cyan { background: var(--cyan); }
+  .card .stage.tone { background: var(--tone); }
+  .card .foot {
+    border-top: 1px solid var(--line);
+    padding: 12px 18px;
+    display: flex; justify-content: space-between;
+    font-size: 12px; color: var(--muted); letter-spacing: 0.02em;
+  }
+  .card .foot .name { color: var(--ink); font-weight: 500; }
+
+  /* ---------- mark-only displays ---------- */
+  .glyph-xl { width: 200px; height: auto; }
+  .glyph-lg { width: 120px; height: auto; }
+  .glyph-md { width: 64px;  height: auto; }
+  .glyph-sm { width: 32px;  height: auto; }
+
+  /* ---------- color swatches ---------- */
+  .swatches { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .sw {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .sw .chip { height: 140px; }
+  .sw .meta { padding: 14px 16px; display: flex; justify-content: space-between; font-size: 12px; }
+  .sw .meta .name { color: var(--ink); font-weight: 500; }
+  .sw .meta .hex { color: var(--muted); font-variant-numeric: tabular-nums; }
+
+  /* ---------- scale row ---------- */
+  .scale-row {
+    display: flex; align-items: flex-end; justify-content: space-around;
+    gap: 20px; padding: 16px 8px; flex-wrap: wrap;
+  }
+  .scale-row > div { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  .scale-row .lbl { font-size: 11px; color: var(--muted); letter-spacing: 0.1em; }
+
+  /* ---------- context ---------- */
+  .ctx-card {
+    border-radius: 16px; overflow: hidden;
+    border: 1px solid var(--line);
+    background: var(--card);
+    aspect-ratio: 4 / 3;
+    display: flex; flex-direction: column;
+  }
+  .ctx-card .bar {
+    height: 30px;
+    background: #f6f6f4;
+    border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; gap: 6px; padding: 0 12px;
+  }
+  .ctx-card .bar i { width: 8px; height: 8px; border-radius: 50%; background: #ddd; }
+  .ctx-card .body { flex: 1; padding: 22px 24px; }
+  .nav-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-bottom: 14px; border-bottom: 1px solid var(--line);
+  }
+  .nav-row .links { display: flex; gap: 16px; font-size: 11px; color: var(--muted); }
+  .ctx-card .hero-copy { margin-top: 26px; }
+  .ctx-card .hero-copy h4 { margin: 0; font-size: 20px; font-weight: 600; letter-spacing: -0.025em; }
+  .ctx-card .hero-copy p { margin: 6px 0 0; font-size: 11px; color: var(--muted); max-width: 32ch; }
+
+  footer {
+    max-width: 1180px; margin: 80px auto 0; padding: 28px 32px;
+    border-top: 1px solid var(--line);
+    display: flex; justify-content: space-between;
+    font-size: 12px; color: var(--muted);
+  }
+
+  /* ---------- tweaks panel ---------- */
+  .tweaks-panel {
+    position: fixed; bottom: 20px; right: 20px;
+    width: 280px;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    box-shadow: 0 18px 50px -20px rgba(0,0,0,.18), 0 4px 16px rgba(0,0,0,.06);
+    z-index: 9999;
+    font-size: 12px;
+    display: none;
+    overflow: hidden;
+  }
+  .tweaks-panel.open { display: block; }
+  .tweaks-panel .tp-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--line);
+  }
+  .tweaks-panel .tp-title {
+    font-weight: 600; font-size: 13px; letter-spacing: -0.01em;
+  }
+  .tweaks-panel .tp-close {
+    border: 0; background: transparent; cursor: pointer;
+    font-size: 18px; line-height: 1; padding: 4px 6px;
+    color: var(--muted); border-radius: 6px;
+  }
+  .tweaks-panel .tp-close:hover { background: var(--tone); color: var(--ink); }
+  .tweaks-panel .tp-body {
+    padding: 12px 14px 16px;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .tweaks-panel .tp-label {
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+    margin-bottom: 6px;
+    display: flex; justify-content: space-between;
+  }
+  .tweaks-panel .tp-val { color: var(--ink); font-variant-numeric: tabular-nums; }
+  .tweaks-panel .tp-radio {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    gap: 4px;
+    background: var(--tone);
+    border-radius: 8px;
+    padding: 3px;
+  }
+  .tweaks-panel .tp-radio button {
+    border: 0; background: transparent;
+    padding: 6px 4px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 12px;
+    color: var(--muted);
+    transition: background .12s, color .12s;
+  }
+  .tweaks-panel .tp-radio button:hover { color: var(--ink); }
+  .tweaks-panel .tp-radio button.active {
+    background: #fff;
+    color: var(--ink);
+    font-weight: 500;
+    box-shadow: 0 1px 2px rgba(0,0,0,.06);
+  }
+  .tweaks-panel .tp-slider {
+    -webkit-appearance: none; appearance: none;
+    width: 100%;
+    height: 4px;
+    background: var(--tone);
+    border-radius: 2px;
+    outline: none;
+  }
+  .tweaks-panel .tp-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px; height: 16px;
+    background: var(--ink);
+    border-radius: 50%;
+    cursor: pointer;
+  }
+  .tweaks-panel .tp-slider::-moz-range-thumb {
+    width: 16px; height: 16px;
+    background: var(--ink);
+    border-radius: 50%;
+    cursor: pointer;
+    border: 0;
+  }
+</style>
+</head>
+<body>
+
+<!-- ============== TOPBAR ============== -->
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="mini">
+      <!-- mini sail glyph -->
+      <svg height="16" viewBox="0 0 50 70" aria-hidden="true">
+        <path fill="currentColor"
+          d="M28,4 C33,6 42,30 47,62 Q48,68 42,68 L8,68 Q2,68 3,62 C8,30 23,2 28,4 Z"/>
+      </svg>
+      <span class="wm wm-xs">
+        AIWHOLES<svg viewBox="0 0 50 70" aria-hidden="true"><path fill="currentColor" d="M28,4 C33,6 42,30 47,62 Q48,68 42,68 L8,68 Q2,68 3,62 C8,30 23,2 28,4 Z"/></svg>IL
+      </span>
+    </div>
+    <div>Identity · v3</div>
+  </div>
+</div>
+
+<!-- ============== HERO ============== -->
+<section>
+  <div class="hero">
+    <div class="hero-stage">
+      <span class="wm wm-hero dark">
+        AIWHOLES<svg viewBox="0 0 50 70" aria-hidden="true">
+          <path fill="#00c4c8" d="M28,4 C33,6 42,30 47,62 Q48,68 42,68 L8,68 Q2,68 3,62 C8,30 23,2 28,4 Z"/>
+        </svg>IL
+      </span>
+    </div>
+    <div class="hero-meta">
+      <div class="lede">The sail completes the word.</div>
+      <div>Primary lockup · AIWHOLES[●]IL</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== MARK ============== -->
+<section class="section">
+  <div class="section-head">
+    <h2>Mark</h2>
+    <div class="right">Sail glyph · stands in for the A in SAIL</div>
+  </div>
+
+  <div class="row cols-3">
+    <!-- Primary on light -->
+    <div class="card">
+      <div class="stage">
+        <svg class="glyph-lg" viewBox="0 0 50 70" aria-hidden="true">
+          <path fill="#0a0a0a" d="M28,4 C33,6 42,30 47,62 Q48,68 42,68 L8,68 Q2,68 3,62 C8,30 23,2 28,4 Z"/>
+        </svg>
+      </div>
+      <div class="foot"><span class="name">Primary</span><span>01</span></div>
+    </div>
+
+    <!-- On dark, cyan -->
+    <div class="card">
+      <div class="stage dark">
+        <svg class="glyph-lg" viewBox="0 0 50 70" aria-hidden="true">
+          <path fill="#00c4c8" d="M28,4 C33,6 42,30 47,62 Q48,68 42,68 L8,68 Q2,68 3,62 C8,30 23,2 28,4 Z"/>
+        </svg>
+      </div>
+      <div class="foot"><span class="name">Signal</span><span>02</span></div>
+    </div>
+
+    <!-- On cyan -->
+    <div class="card">
+      <div class="stage cyan">
+        <svg class="glyph-lg" viewBox="0 0 50 70" aria-hidden="true">
+          <path fill="#0a0a0a" d="M28,4 C33,6 42,30 47,62 Q48,68 42,68 L8,68 Q2,68 3,62 C8,30 23,2 28,4 Z"/>
+        </svg>
+      </div>
+      <div class="foot"><span class="name">On accent</span><span>03</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== WORDMARK ============== -->
+<section class="section">
+  <div class="section-head">
+    <h2>Wordmark</h2>
+    <div class="right">Onest 700 · −4.5% tracking</div>
+  </div>
+
+  <div class="row cols-2">
+    <!-- light, black sail -->
+    <div class="card">
+      <div class="stage" style="padding:64px 32px">
+        <span class="wm wm-lg">
+          AIWHOLES<svg viewBox="0 0 50 70" aria-hidden="true"><path fill="currentColor" d="M28,4 C33,6 42,30 47,62 Q48,68 42,68 L8,68 Q2,68 3,62 C8,30 23,2 28,4 Z"/></svg>IL
+        </span>
+      </div>
+      <div class="foot"><span class="name">Mono</span><span>Light</span></div>
+    </div>
+
+    <!-- light, cyan sail -->
+    <div class="card">
+      <div class="stage" style="padding:64px 32px">
+        <span class="wm wm-lg">
+          AIWHOLES<svg viewBox="0 0 50 70" aria-hidden="true"><path fill="#00c4c8" d="M28,4 C33,6 42,30 47,62 Q48,68 42,68 L8,68 Q2,68 3,62 C8,30 23,2 28,4 Z"/></svg>IL
+        </span>
+      </div>
+      <div class="foot"><span class="name">Signal</span><span>Light</span></div>
+    </div>
+
+    <!-- dark, white wordmark + cyan sail -->
+    <div class="card">
+      <div class="stage dark" style="padding:64px 32px">
+        <span class="wm wm-lg dark">
+          AIWHOLES<svg viewBox="0 0 50 70" aria-hidden="true"><path fill="#00c4c8" d="M28,4 C33,6 42,30 47,62 Q48,68 42,68 L8,68 Q2,68 3,62 C8,30 23,2 28,4 Z"/></svg>IL
+        </span>
+      </div>
+      <div class="foot"><span class="name">Signal</span><span>Dark</span></div>
+    </div>
+
+    <!-- cyan bg, black wordmark + white sail -->
+    <div class="card">
+      <div class="stage cyan" style="padding:64px 32px">
+        <span class="wm wm-lg onCyan">
+          AIWHOLES<svg viewBox="0 0 50 70" aria-hidden="true"><path fill="#ffffff" d="M28,4 C33,6 42,30 47,62 Q48,68 42,68 L8,68 Q2,68 3,62 C8,30 23,2 28,4 Z"/></svg>IL
+        </span>
+      </div>
+      <div class="foot"><span class="name">On accent</span><span>Cyan</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== APP ICONS / SQUIRCLES ============== -->
+<section class="section">
+  <div class="section-head">
+    <h2>Icon</h2>
+    <div class="right">Squircle, dark · light · cyan</div>
+  </div>
+
+  <div class="row cols-3">
+    <div class="card">
+      <div class="stage tone">
+        <svg width="160" height="160" viewBox="0 0 100 100" aria-hidden="true">
+          <rect width="100" height="100" rx="22" fill="#0a0a0a"/>
+          <svg x="35" y="18" width="30" height="64" viewBox="0 0 50 70">
+            <path fill="#00c4c8" d="M28,4 C33,6 42,30 47,62 Q48,68 42,68 L8,68 Q2,68 3,62 C8,30 23,2 28,4 Z"/>
+          </svg>
+        </svg>
+      </div>
+      <div class="foot"><span class="name">Dark</span><span>Squircle</span></div>
+    </div>
+
+    <div class="card">
+      <div class="stage tone">
+        <svg width="160" height="160" viewBox="0 0 100 100" aria-hidden="true">
+          <rect width="100" height="100" rx="22" fill="#fafaf9" stroke="#ececea"/>
+          <svg x="35" y="18" width="30" height="64" viewBox="0 0 50 70">
+            <path fill="#0a0a0a" d="M28,4 C33,6 42,30 47,62 Q48,68 42,68 L8,68 Q2,68 3,62 C8,30 23,2 28,4 Z"/>
+          </svg>
+        </svg>
+      </div>
+      <div class="foot"><span class="name">Paper</span><span>Squircle</span></div>
+    </div>
+
+    <div class="card">
+      <div class="stage tone">
+        <svg width="160" height="160" viewBox="0 0 100 100" aria-hidden="true">
+          <rect width="100" height="100" rx="22" fill="#00c4c8"/>
+          <svg x="35" y="18" width="30" height="64" viewBox="0 0 50 70">
+            <path fill="#0a0a0a" d="M28,4 C33,6 42,30 47,62 Q48,68 42,68 L8,68 Q2,68 3,62 C8,30 23,2 28,4 Z"/>
+          </svg>
+        </svg>
+      </div>
+      <div class="foot"><span class="name">Signal</span><span>Squircle</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== COLOR ============== -->
+<section class="section">
+  <div class="section-head">
+    <h2>Color</h2>
+    <div class="right">Mono core · cyan as signal</div>
+  </div>
+  <div class="swatches">
+    <div class="sw">
+      <div class="chip" style="background:#0a0a0a"></div>
+      <div class="meta"><span class="name">Ink</span><span class="hex">#0A0A0A</span></div>
+    </div>
+    <div class="sw">
+      <div class="chip" style="background:#fafaf9; border-bottom:1px solid var(--line)"></div>
+      <div class="meta"><span class="name">Paper</span><span class="hex">#FAFAF9</span></div>
+    </div>
+    <div class="sw">
+      <div class="chip" style="background:#00c4c8"></div>
+      <div class="meta"><span class="name">Signal</span><span class="hex">#00C4C8</span></div>
+    </div>
+    <div class="sw">
+      <div class="chip" style="background:#f1f1ee; border-bottom:1px solid var(--line)"></div>
+      <div class="meta"><span class="name">Tone</span><span class="hex">#F1F1EE</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== SCALE ============== -->
+<section class="section">
+  <div class="section-head">
+    <h2>Scale</h2>
+    <div class="right">Wordmark reduces cleanly</div>
+  </div>
+  <div class="card">
+    <div class="stage" style="padding:40px 24px">
+      <div class="scale-row">
+        <div>
+          <span class="wm" style="font-size:36px">AIWHOLES<svg viewBox="0 0 50 70" aria-hidden="true"><path fill="currentColor" d="M28,4 C33,6 42,30 47,62 Q48,68 42,68 L8,68 Q2,68 3,62 C8,30 23,2 28,4 Z"/></svg>IL</span>
+          <div class="lbl">36</div>
+        </div>
+        <div>
+          <span class="wm" style="font-size:24px">AIWHOLES<svg viewBox="0 0 50 70" aria-hidden="true"><path fill="currentColor" d="M28,4 C33,6 42,30 47,62 Q48,68 42,68 L8,68 Q2,68 3,62 C8,30 23,2 28,4 Z"/></svg>IL</span>
+          <div class="lbl">24</div>
+        </div>
+        <div>
+          <span class="wm" style="font-size:17px">AIWHOLES<svg viewBox="0 0 50 70" aria-hidden="true"><path fill="currentColor" d="M28,4 C33,6 42,30 47,62 Q48,68 42,68 L8,68 Q2,68 3,62 C8,30 23,2 28,4 Z"/></svg>IL</span>
+          <div class="lbl">17</div>
+        </div>
+        <div>
+          <span class="wm" style="font-size:13px">AIWHOLES<svg viewBox="0 0 50 70" aria-hidden="true"><path fill="currentColor" d="M28,4 C33,6 42,30 47,62 Q48,68 42,68 L8,68 Q2,68 3,62 C8,30 23,2 28,4 Z"/></svg>IL</span>
+          <div class="lbl">13</div>
+        </div>
+      </div>
+    </div>
+    <div class="foot"><span class="name">Reduction</span><span>Holds at 13px</span></div>
+  </div>
+</section>
+
+<!-- ============== IN CONTEXT ============== -->
+<section class="section">
+  <div class="section-head">
+    <h2>In context</h2>
+    <div class="right">Web · app icon · social avatar</div>
+  </div>
+
+  <div class="row cols-3">
+    <div class="ctx-card">
+      <div class="bar"><i></i><i></i><i></i></div>
+      <div class="body">
+        <div class="nav-row">
+          <span class="wm" style="font-size:13px">
+            AIWHOLES<svg viewBox="0 0 50 70" aria-hidden="true"><path fill="#00c4c8" d="M28,4 C33,6 42,30 47,62 Q48,68 42,68 L8,68 Q2,68 3,62 C8,30 23,2 28,4 Z"/></svg>IL
+          </span>
+          <div class="links"><span>Deals</span><span>Comps</span><span>Skip Trace</span></div>
+        </div>
+        <div class="hero-copy">
+          <h4>Find your next deal in seconds.</h4>
+          <p>Off-market properties, scored and sorted by AI before they hit the MLS.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ctx-card">
+      <div class="bar"><i></i><i></i><i></i></div>
+      <div class="body" style="display:grid;place-items:center;background:var(--tone)">
+        <svg width="120" height="120" viewBox="0 0 100 100" aria-hidden="true">
+          <rect width="100" height="100" rx="22" fill="#0a0a0a"/>
+          <svg x="35" y="18" width="30" height="64" viewBox="0 0 50 70">
+            <path fill="#00c4c8" d="M28,4 C33,6 42,30 47,62 Q48,68 42,68 L8,68 Q2,68 3,62 C8,30 23,2 28,4 Z"/>
+          </svg>
+        </svg>
+      </div>
+    </div>
+
+    <div class="ctx-card">
+      <div class="bar"><i></i><i></i><i></i></div>
+      <div class="body" style="display:grid;place-items:center">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:14px">
+          <div style="width:88px;height:88px;border-radius:50%;background:#0a0a0a;display:grid;place-items:center">
+            <svg width="34" height="46" viewBox="0 0 50 70" aria-hidden="true">
+              <path fill="#00c4c8" d="M28,4 C33,6 42,30 47,62 Q48,68 42,68 L8,68 Q2,68 3,62 C8,30 23,2 28,4 Z"/>
+            </svg>
+          </div>
+          <div style="text-align:center">
+            <span class="wm" style="font-size:13px">
+              AIWHOLES<svg viewBox="0 0 50 70" aria-hidden="true"><path fill="currentColor" d="M28,4 C33,6 42,30 47,62 Q48,68 42,68 L8,68 Q2,68 3,62 C8,30 23,2 28,4 Z"/></svg>IL
+            </span>
+            <div style="font-size:11px;color:var(--muted);margin-top:4px">Real-estate intelligence</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div>AIWHOLESAIL · brand identity</div>
+  <div>v3 · sail-as-A</div>
+</footer>
+
+<!-- ============== TWEAKS ============== -->
+<script>
+(function() {
+  const TWEAKS = /*EDITMODE-BEGIN*/{
+    "glyph": "boat",
+    "heroBg": "ink",
+    "wordCase": "upper",
+    "weight": 700
+  }/*EDITMODE-END*/;
+
+  // Glyph variants — all use viewBox 0 0 60 80 so they swap in place
+  const GLYPHS = {
+    sail: {
+      vb: '0 0 60 80',
+      paths: [
+        'M33,6 C38,8 47,30 53,60 Q54,66 48,66 L14,66 Q8,66 9,60 C15,30 28,4 33,6 Z'
+      ]
+    },
+    boat: {
+      vb: '0 0 60 80',
+      paths: [
+        // mast + main sail
+        'M33,6 C38,8 47,28 52,56 Q53,60 49,60 L15,60 Q11,60 12,56 C17,28 28,4 33,6 Z',
+        // hull
+        'M4,66 C20,64 40,64 58,66 C60,72 50,76 30,76 C10,76 2,72 4,66 Z'
+      ]
+    },
+    full: {
+      vb: '0 0 60 80',
+      paths: [
+        // main sail (shifted slightly right)
+        'M37,6 C42,8 50,28 55,56 Q56,60 52,60 L23,60 Q19,60 20,56 C25,28 33,4 37,6 Z',
+        // jib (smaller, leading)
+        'M16,26 C18,28 22,42 25,56 Q26,60 22,60 L9,60 Q5,60 6,56 C9,42 14,24 16,26 Z',
+        // hull
+        'M3,66 C20,64 40,64 58,66 C60,72 50,76 30,76 C10,76 1,72 3,66 Z'
+      ]
+    }
+  };
+
+  const HERO_BG = { ink: '#0a0a0a', paper: '#fafaf9', cyan: '#00c4c8' };
+
+  function scanGlyphs() {
+    // Tag every svg whose first path starts with the canonical sail d.
+    document.querySelectorAll('svg').forEach(svg => {
+      if (svg.dataset.glyph) return;
+      const path = svg.querySelector('path');
+      if (!path) return;
+      const d = path.getAttribute('d') || '';
+      if (d.indexOf('M28,4 C33,6') === 0) {
+        svg.dataset.glyph = '1';
+        svg.dataset.fill = path.getAttribute('fill') || 'currentColor';
+      }
+    });
+  }
+
+  function renderGlyphs() {
+    const v = GLYPHS[TWEAKS.glyph] || GLYPHS.sail;
+    document.querySelectorAll('svg[data-glyph]').forEach(svg => {
+      svg.setAttribute('viewBox', v.vb);
+      const fill = svg.dataset.fill || 'currentColor';
+      svg.innerHTML = v.paths.map(d => `<path fill="${fill}" d="${d}"/>`).join('');
+    });
+  }
+
+  function applyTweaks() {
+    // type vars
+    document.documentElement.style.setProperty('--wm-case', TWEAKS.wordCase === 'lower' ? 'lowercase' : 'uppercase');
+    document.documentElement.style.setProperty('--wm-weight', String(TWEAKS.weight));
+
+    // hero bg + sail color in hero only
+    const stage = document.querySelector('.hero-stage');
+    if (stage) {
+      const bg = HERO_BG[TWEAKS.heroBg] || HERO_BG.ink;
+      stage.style.background = bg;
+      const wm = stage.querySelector('.wm');
+      if (wm) {
+        wm.style.color = TWEAKS.heroBg === 'ink' ? '#ffffff' : '#0a0a0a';
+      }
+      // update sail fill in hero based on bg
+      const sail = stage.querySelector('svg[data-glyph]');
+      if (sail) {
+        sail.dataset.fill = TWEAKS.heroBg === 'cyan' ? '#ffffff'
+                          : TWEAKS.heroBg === 'paper' ? '#00c4c8'
+                          : '#00c4c8';
+      }
+    }
+
+    renderGlyphs();
+  }
+
+  function setTweak(key, value) {
+    TWEAKS[key] = value;
+    applyTweaks();
+    try {
+      window.parent.postMessage({ type: '__edit_mode_set_keys', edits: { [key]: value } }, '*');
+    } catch (e) {}
+  }
+
+  function buildPanel() {
+    const p = document.createElement('div');
+    p.className = 'tweaks-panel';
+    p.id = 'tweaks-panel';
+    p.innerHTML = `
+      <div class="tp-head">
+        <div class="tp-title">Tweaks</div>
+        <button class="tp-close" aria-label="Close">×</button>
+      </div>
+      <div class="tp-body">
+        <div>
+          <div class="tp-label"><span>Glyph</span></div>
+          <div class="tp-radio" data-tweak="glyph">
+            <button type="button" data-val="sail">Sail</button>
+            <button type="button" data-val="boat">Sailboat</button>
+            <button type="button" data-val="full">Full rig</button>
+          </div>
+        </div>
+        <div>
+          <div class="tp-label"><span>Hero background</span></div>
+          <div class="tp-radio" data-tweak="heroBg">
+            <button type="button" data-val="ink">Ink</button>
+            <button type="button" data-val="paper">Paper</button>
+            <button type="button" data-val="cyan">Cyan</button>
+          </div>
+        </div>
+        <div>
+          <div class="tp-label"><span>Word case</span></div>
+          <div class="tp-radio" data-tweak="wordCase">
+            <button type="button" data-val="upper">UPPER</button>
+            <button type="button" data-val="lower">lower</button>
+          </div>
+        </div>
+        <div>
+          <div class="tp-label"><span>Weight</span><span class="tp-val" id="tp-weight-val"></span></div>
+          <input type="range" class="tp-slider" data-tweak="weight" min="400" max="800" step="100" />
+        </div>
+      </div>
+    `;
+    document.body.appendChild(p);
+
+    p.querySelectorAll('.tp-radio').forEach(group => {
+      const key = group.dataset.tweak;
+      group.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          setTweak(key, btn.dataset.val);
+          syncPanel();
+        });
+      });
+    });
+    const slider = p.querySelector('input[data-tweak="weight"]');
+    slider.value = TWEAKS.weight;
+    slider.addEventListener('input', () => {
+      setTweak('weight', parseInt(slider.value, 10));
+      document.getElementById('tp-weight-val').textContent = slider.value;
+    });
+    p.querySelector('.tp-close').addEventListener('click', () => {
+      p.classList.remove('open');
+      try { window.parent.postMessage({ type: '__edit_mode_dismissed' }, '*'); } catch (e) {}
+    });
+
+    syncPanel();
+  }
+
+  function syncPanel() {
+    document.querySelectorAll('.tp-radio').forEach(group => {
+      const key = group.dataset.tweak;
+      group.querySelectorAll('button').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.val === TWEAKS[key]);
+      });
+    });
+    const wv = document.getElementById('tp-weight-val');
+    if (wv) wv.textContent = TWEAKS.weight;
+  }
+
+  // Register message listener FIRST
+  window.addEventListener('message', (e) => {
+    if (!e.data || typeof e.data !== 'object') return;
+    if (e.data.type === '__activate_edit_mode') {
+      document.getElementById('tweaks-panel')?.classList.add('open');
+    } else if (e.data.type === '__deactivate_edit_mode') {
+      document.getElementById('tweaks-panel')?.classList.remove('open');
+    }
+  });
+
+  // Init after DOM is ready (script is at end of body, so it should be)
+  scanGlyphs();
+  applyTweaks();
+  buildPanel();
+
+  // Announce that tweaks are available
+  try { window.parent.postMessage({ type: '__edit_mode_available' }, '*'); } catch (e) {}
+})();
+</script>
+
+</body>
+</html>

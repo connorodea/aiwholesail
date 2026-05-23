@@ -1,3 +1,19 @@
+// ===========================================================================
+// NOT IN USE — DO NOT WIRE THIS UP — DEAD CODE
+// ===========================================================================
+// AIWholesail does NOT use Supabase. The active AuthContext lives next door
+// at src/contexts/AuthContext.tsx and uses the Express + Postgres stack on
+// hetznerCO. See memory/reference_aiwholesail_infra.md for the canonical
+// infra map.
+//
+// This `.supabase.tsx` variant is a legacy pre-migration artifact. Verified
+// 2026-05-13: ZERO importers anywhere in src/. The file is dead — it ships
+// nothing because tree-shaking drops it, but it exists in the repo and
+// confuses code-search ("which AuthContext is the real one?").
+//
+// Planned removal: full Supabase cleanup PR. If you're hunting an auth bug,
+// the real implementation is `AuthContext.tsx` (no .supabase suffix).
+// ===========================================================================
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';

@@ -1,12 +1,43 @@
 import { PropertySearchParams, Property, ZillowAPIResponse } from '@/types/zillow';
+// ===========================================================================
+// SUPABASE IMPORT IS LIVE BUT NOT USED — DO NOT TREAT AS ACTIVE
+// ===========================================================================
+// AIWholesail does NOT use Supabase. The active backend is Express on port
+// 3202 + Postgres + Stripe + Resend on hetznerCO. The Supabase code paths
+// in this file are gated on VITE_USE_SUPABASE_ZILLOW='true', which is OFF
+// in production. See memory/reference_aiwholesail_infra.md.
+//
+// BUT — importing `supabase` at module-top still runs createClient() on
+// every page load, which instantiates an unused client (auto-refresh +
+// localStorage storage + ~70KB bundle weight). This is the ONLY remaining
+// importer of the Supabase client; the four other `.supabase.{ts,tsx}`
+// variant files have zero importers (verified 2026-05-13).
+//
+// Planned removal: full Supabase cleanup PR. Strip this import + the
+// SUPABASE_URL / SUPABASE_KEY / USE_SUPABASE constants below + the three
+// `supabase.functions.invoke(...)` call sites (~lines 209, 691, 825), then
+// delete src/integrations/supabase/ and drop @supabase/supabase-js from
+// package.json.
+// ===========================================================================
 import { supabase } from '@/integrations/supabase/client';
+import { tokenStorage } from '@/lib/api-client';
+import { rankCompsBySimilarity } from '@/lib/comps-similarity';
+import { parseCompsLocation } from '@/lib/comps-location-parser';
+import { composeFullAddress } from '@/lib/zillow-address.js';
 
-// Supabase Edge Function for Zillow data
+// Supabase Edge Function for Zillow data — DEAD PATH, see banner above.
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://ztgsevhzbeywytoqlsbf.supabase.co';
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || '';
 
-// Fallback to Hetzner API if Supabase is not configured
-const ZILLOW_API_URL = import.meta.env.VITE_ZILLOW_API_URL || 'https://api.aiwholesail.com/zillow/zillow';
+// Default to SAME-ORIGIN `/api/zillow/proxy` so the call doesn't trigger a
+// CORS preflight. This works around the Facebook/Instagram in-app browser
+// CORS bug where OPTIONS preflight succeeds (204) but the follow-up POST
+// is silently dropped — the user sees "Load failed" with no recourse.
+// Nginx vhost on aiwholesail.com forwards /api/* to the local Express
+// backend (port 3202), so this is identical to hitting api.aiwholesail.com
+// directly except no cross-origin, no preflight, no in-app browser quirks.
+// Env override preserved for staging/local.
+const ZILLOW_API_URL = import.meta.env.VITE_ZILLOW_API_URL || '/api/zillow/proxy';
 const ZILLOW_API_KEY = import.meta.env.VITE_ZILLOW_API_KEY || '';
 
 // Supabase edge function is available but currently returns errors.
@@ -213,8 +244,23 @@ export class ZillowAPI {
   }
 
   private async fetchPageViaHetzner(params: PropertySearchParams, page: number) {
+    // /api/zillow/proxy is authenticate-gated; legacy /zillow/zillow used
+    // x-api-key. Send both — backend ignores whichever isn't applicable.
+    // Without this, search() against the new proxy 401s and surfaces as
+    // "Zillow API request failed: 401" to the user.
+    //
+    // GATE: if there's no access token, don't fire the request at all —
+    // it would 401 unconditionally and surface as a generic error toast
+    // with no recovery path. Throw a typed NOT_AUTHENTICATED so callers
+    // can render a "Sign in to search" CTA instead. See cpodea5 incident
+    // 2026-05-13: expired session → bundle fired search → ugly 401 toast.
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new Error('NOT_AUTHENTICATED');
+    }
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
+      'Authorization': `Bearer ${accessToken}`,
     };
     if (ZILLOW_API_KEY) headers['x-api-key'] = ZILLOW_API_KEY;
 
@@ -329,17 +375,7 @@ export class ZillowAPI {
 
     flatten(prop);
 
-    // Map common fields to standardized property structure
-    // Handle both old API format and new Zillow Scraper API format
-    const address = flattened.property_address_streetAddress ||
-                   flattened.rental_metrics_streetAddress ||
-                   flattened.address ||
-                   'Unknown Address';
-
-    const city = flattened.property_address_city || flattened.city || '';
-    const state = flattened.property_address_state || flattened.state || '';
-    const zipcode = flattened.zipcode || '';
-    const fullAddress = city && state ? `${address}, ${city}, ${state}${zipcode ? ' ' + zipcode : ''}` : address;
+    const fullAddress = composeFullAddress(flattened);
 
     const isFSBO = this.detectFSBO(flattened);
 
@@ -680,8 +716,20 @@ export class ZillowAPI {
   }
 
   private async callApiViaHetzner(action: string, searchParams?: any): Promise<any> {
+    // The new /api/zillow/proxy endpoint requires bearer auth; the legacy
+    // /zillow/zillow path used x-api-key. Send the bearer when we have one
+    // and the x-api-key when the env override points at the legacy URL.
+    //
+    // GATE: same auth-gate logic as fetchPageViaHetzner — fail fast with
+    // a typed error instead of letting the backend 401 surface as an
+    // opaque "Zillow API request failed: 401" toast.
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      throw new Error('NOT_AUTHENTICATED');
+    }
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
+      'Authorization': `Bearer ${accessToken}`,
     };
     if (ZILLOW_API_KEY) headers['x-api-key'] = ZILLOW_API_KEY;
 
@@ -826,8 +874,26 @@ export class ZillowAPI {
 
         // Hetzner fallback: batch endpoint
         if (!chunkSuccess) {
+          // NOTE: ZILLOW_API_URL is /api/zillow/proxy post-#313, so this
+          // replace() is a no-op and the resulting path is
+          // /api/zillow/proxy/batch-zestimates — which is the route that
+          // PR #314 added on the backend. Working coincidence; left as-is
+          // to match the backend handler.
           const ZILLOW_BASE = ZILLOW_API_URL.replace(/\/zillow$/, '');
           const batchHeaders: Record<string, string> = { 'Content-Type': 'application/json' };
+          // Backend batch-zestimates route is auth-gated. Without a Bearer
+          // the whole chunk 401s and every zpid gets marked unavailable.
+          // Gate: if no token, skip the fetch entirely and mark the chunk
+          // as null (non-fatal — caller already tolerates missing data).
+          const batchToken = tokenStorage.getAccessToken();
+          if (!batchToken) {
+            for (const zpid of chunk) {
+              allZestimates[zpid] = null;
+            }
+            onProgress?.(Math.min(i + chunk.length, allZpids.length), allZpids.length);
+            continue;
+          }
+          batchHeaders['Authorization'] = `Bearer ${batchToken}`;
           if (ZILLOW_API_KEY) batchHeaders['x-api-key'] = ZILLOW_API_KEY;
 
           try {
@@ -909,19 +975,6 @@ export class ZillowAPI {
     });
   }
 
-  async autocomplete(query: string): Promise<any[]> {
-    try {
-      // Migrated to backend proxy in PR #169 — RapidAPI key no longer in browser.
-      const { propdata } = await import('./api-client');
-      const res = await propdata.zillowAutocomplete(query);
-      if (res.error) return [];
-      const data = res.data as { suggestions?: any[] } | undefined;
-      return data?.suggestions || [];
-    } catch {
-      return [];
-    }
-  }
-
   async testConnection(): Promise<boolean> {
     try {
       const data = await this.callApi('test');
@@ -961,7 +1014,13 @@ export class ZillowAPI {
     }
   }
 
-  async getPropertyComps(zpid: string, location?: string, subjectLat?: number, subjectLng?: number): Promise<any> {
+  async getPropertyComps(
+    zpid: string,
+    location?: string,
+    subjectLat?: number,
+    subjectLng?: number,
+    subject?: { beds?: number; sqft?: number }
+  ): Promise<any> {
     // Cap comps to a reasonable radius — anything farther isn't a real comparable
     const MAX_COMP_DISTANCE_MI = 10;
 
@@ -978,21 +1037,10 @@ export class ZillowAPI {
     // Fallback: search for recently sold properties near the same location.
     // ZIP is the strongest signal — for small towns, "City STATE" makes the
     // scraper expand to a 50+ mile metro, so we prefer ZIP when present.
+    // Parser handles 2-part ("City, ST ZIP"), 3-part ("City, State, ZIP"),
+    // bare ZIP, and a few other shapes — see comps-location-parser.js.
     if (location) {
-      const parts = location.split(',').map(p => p.trim()).filter(Boolean);
-      // Pull a 5-digit zip from any segment (handles "NC 28083", "28083", etc.)
-      const zipMatch = location.match(/\b(\d{5})\b/);
-      const zip = zipMatch ? zipMatch[1] : null;
-      let cityState: string | null = null;
-      if (parts.length >= 2) {
-        const stateZip = parts[parts.length - 1];
-        const city = parts[parts.length - 2];
-        const stateOnly = stateZip.replace(/\d+/g, '').trim();
-        cityState = `${city} ${stateOnly}`.trim();
-      }
-
-      // Try ZIP first (tightest radius), then City STATE as fallback
-      const queries = [zip, cityState, location].filter(Boolean) as string[];
+      const { queries } = parseCompsLocation(location);
 
       for (const searchLocation of queries) {
         try {
@@ -1033,6 +1081,11 @@ export class ZillowAPI {
                   l.closingDate ||
                   null,
                 zpid: l.zpid || null,
+                // Preserve lat/lng for the map view — the comps action in
+                // zillowScrapeDo now surfaces these on the homeRecommendations
+                // shape, and the recently-sold search fallback always had them.
+                latitude: l.latitude ?? l.latLong?.latitude ?? null,
+                longitude: l.longitude ?? l.latLong?.longitude ?? null,
                 distance,
               };
             })
@@ -1042,16 +1095,23 @@ export class ZillowAPI {
               if (l.distance === null) return true; // keep when we can't measure
               if (l.distance <= 0.02) return false; // subject self-match
               return l.distance <= MAX_COMP_DISTANCE_MI;
-            })
-            .slice(0, 15);
+            });
+
+          // Re-rank by structural similarity to the subject (beds/sqft)
+          // before truncating. Geographically-nearest isn't always
+          // structurally-nearest — a 5-bed mansion across the street
+          // is a worse comp for a 3-bed ranch than the same 3-bed two
+          // streets over. No-op when subject beds/sqft is missing.
+          // Net-new value extracted from stale PR #93.
+          const ranked = rankCompsBySimilarity(subject, mapped).slice(0, 15);
 
           // Only return if at least 3 valid comps survived the radius filter —
           // otherwise try the next (looser) query
-          if (mapped.length >= 3) return mapped;
+          if (ranked.length >= 3) return ranked;
           // If first attempt returned <3 within radius, keep what we have as
           // a fallback in case all later queries fail
-          if (mapped.length > 0 && searchLocation === queries[queries.length - 1]) {
-            return mapped;
+          if (ranked.length > 0 && searchLocation === queries[queries.length - 1]) {
+            return ranked;
           }
         } catch (fallbackError) {
           console.warn(`Comps query "${searchLocation}" failed:`, fallbackError);

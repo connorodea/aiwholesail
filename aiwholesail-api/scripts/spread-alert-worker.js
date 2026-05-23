@@ -25,14 +25,26 @@ require('dotenv').config();
 const axios = require('axios');
 const { Pool } = require('pg');
 const { Resend } = require('resend');
+const { zillowUrl, appPropUrl, buildPrimaryUrl } = require('../lib/spread-alert-urls');
+const { proxyZillow } = require('../lib/agent/zillowProxy');
+const { makeSpreadAlertZillow } = require('../lib/spread-alert-zillow');
+const { sendWithRetry } = require('../lib/sendWithRetry');
+const { planAlertSideEffects } = require('../lib/planAlertSideEffects');
+const { isAuctionSubject } = require('../lib/auction-detection');
 const resend = new Resend(process.env.RESEND_API_KEY);
+
+// Resend free/default tier caps at 5 requests/second. The Phase-3
+// dispatch loop blasts every due alert in a tight loop and used to
+// 429 on the overflow (12/22 failures observed 2026-05-15). Sleeping
+// 220ms between alerts keeps us at ~4.5 RPS — comfortably under the
+// limit even when sendWithRetry's exponential backoff fires.
+const RESEND_INTER_ALERT_DELAY_MS = 220;
+function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
+
+const { searchZillow, getZestimate } = makeSpreadAlertZillow({ proxyZillow });
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const DRY_RUN = process.argv.includes('--dry-run');
-
-// Zillow Scraper API config
-const RAPIDAPI_KEY = process.env.RAPIDAPI_KEY || process.env.ZILLOW_RAPIDAPI_KEY;
-const RAPIDAPI_HOST = 'zillow-scraper-api.p.rapidapi.com';
 
 // Twilio config
 const TWILIO_SID = process.env.TWILIO_ACCOUNT_SID;
@@ -69,41 +81,6 @@ function resolveSearchLocation(location) {
     return STATE_NAMES[upper];
   }
   return trimmed;
-}
-
-// ---------- Zillow API helpers ----------
-
-async function searchZillow(location, page = 1) {
-  const response = await axios.get(`https://${RAPIDAPI_HOST}/zillow/search`, {
-    params: {
-      location,
-      listing_type: 'for_sale',
-      home_type: 'house',
-      sort: 'newest',
-      page: String(page),
-    },
-    headers: {
-      'x-rapidapi-key': RAPIDAPI_KEY,
-      'x-rapidapi-host': RAPIDAPI_HOST,
-    },
-    timeout: 30000,
-  });
-  return response.data;
-}
-
-async function getZestimate(zpid) {
-  try {
-    const response = await axios.get(`https://${RAPIDAPI_HOST}/zillow/valuation/${zpid}`, {
-      headers: {
-        'x-rapidapi-key': RAPIDAPI_KEY,
-        'x-rapidapi-host': RAPIDAPI_HOST,
-      },
-      timeout: 15000,
-    });
-    return response.data?.data?.zestimate || null;
-  } catch {
-    return null;
-  }
 }
 
 async function enrichWithZestimates(properties) {
@@ -171,10 +148,12 @@ async function sendAlertEmail(userEmail, location, deals, userOptions = {}) {
     ? `${minutesAgo} minute${minutesAgo > 1 ? 's' : ''} ago`
     : `${Math.round(minutesAgo / 60)} hour${Math.round(minutesAgo / 60) > 1 ? 's' : ''} ago`;
 
-  // /app already routes ?zpid=<id> into the property modal — deep-link the
-  // address tap so users land on the deal in-context.
-  const appPropUrl = (zpid) => `https://aiwholesail.com/app?zpid=${encodeURIComponent(zpid)}&utm_source=alert-email`;
-  const zillowUrl = (d) => d.listing_url || (d.zpid ? `https://www.zillow.com/homedetails/${encodeURIComponent(d.zpid)}_zpid/` : null);
+  // Primary card link → Zillow (fastest path to see the property; works without
+  // login and gives the user photos + listing details immediately).
+  // URL builders extracted to aiwholesail-api/lib/spread-alert-urls.js so the
+  // logic is unit-testable in isolation. `buildPrimaryUrl` returns null when
+  // no valid URL can be built — caller renders cells without an anchor in
+  // that case (no broken `?zpid=&...` URL in user emails).
 
   // One card per deal — image left, content right (stacks naturally on
   // narrow widths since each cell is its own table).
@@ -197,21 +176,30 @@ async function sendAlertEmail(userEmail, location, deals, userOptions = {}) {
       ? `<span style="display:inline-block;background:rgba(245,158,11,0.12);color:#f59e0b;font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;letter-spacing:0.05em;text-transform:uppercase;margin-left:8px;">New · ${dom}d</span>`
       : '';
 
-    const propUrl = appPropUrl(d.zpid || '');
     const zUrl = zillowUrl(d);
+    const appUrl = d.zpid ? appPropUrl(d.zpid) : null;
+    const primaryUrl = buildPrimaryUrl(d);  // null when no valid URL can be built
+
+    // When primaryUrl is null, the image / address cells render without an
+    // <a> wrapper — image is shown but not clickable, address is plain text.
+    // Prevents the pre-fix broken `?zpid=&utm_source=alert-email` URLs.
+    const openA = primaryUrl ? `<a href="${primaryUrl}" style="text-decoration:none;display:block;">` : '';
+    const closeA = primaryUrl ? '</a>' : '';
+    const openAddrA = primaryUrl ? `<a href="${primaryUrl}" style="color:#ffffff;font-size:15px;font-weight:600;line-height:1.3;text-decoration:none;">` : '<span style="color:#ffffff;font-size:15px;font-weight:600;line-height:1.3;">';
+    const closeAddrA = primaryUrl ? '</a>' : '</span>';
 
     const imgCell = d.image_url
       ? `<td valign="top" width="120" style="padding-right:14px;width:120px;">
-           <a href="${propUrl}" style="text-decoration:none;display:block;">
+           ${openA}
              <img src="${d.image_url}" alt="" width="120" height="90" style="display:block;width:120px;height:90px;object-fit:cover;border-radius:8px;border:1px solid #1a1a1a;" />
-           </a>
+           ${closeA}
          </td>`
       : `<td valign="top" width="120" style="padding-right:14px;width:120px;">
-           <a href="${propUrl}" style="text-decoration:none;display:block;">
+           ${openA}
              <table cellpadding="0" cellspacing="0" border="0" width="120" style="width:120px;height:90px;background:#111;border-radius:8px;border:1px solid #1a1a1a;">
                <tr><td align="center" style="color:#525252;font-size:11px;height:90px;">No photo</td></tr>
              </table>
-           </a>
+           ${closeA}
          </td>`;
 
     return `
@@ -223,7 +211,7 @@ async function sendAlertEmail(userEmail, location, deals, userOptions = {}) {
               <td valign="top">
                 <table width="100%" cellpadding="0" cellspacing="0" border="0">
                   <tr><td style="padding-bottom:6px;">
-                    <a href="${propUrl}" style="color:#ffffff;font-size:15px;font-weight:600;line-height:1.3;text-decoration:none;">${addr}</a>
+                    ${openAddrA}${addr}${closeAddrA}
                     ${domBadge}
                   </td></tr>
                   ${specsText ? `<tr><td style="color:#737373;font-size:12px;padding-bottom:8px;">${specsText}</td></tr>` : ''}
@@ -247,8 +235,8 @@ async function sendAlertEmail(userEmail, location, deals, userOptions = {}) {
                           ${spreadPct > 0 ? `<span style="color:#16a34a;font-weight:600;font-size:11px;margin-left:6px;">${spreadPct}% under</span>` : ''}
                         </td>
                         <td style="padding-left:10px;">
-                          <a href="${propUrl}" style="color:#06b6d4;font-weight:600;font-size:12px;text-decoration:none;">View →</a>
-                          ${zUrl ? `<span style="color:#262626;padding:0 6px;">·</span><a href="${zUrl}" style="color:#525252;font-weight:500;font-size:12px;text-decoration:none;">Zillow</a>` : ''}
+                          ${zUrl ? `<a href="${zUrl}" style="color:#06b6d4;font-weight:600;font-size:12px;text-decoration:none;">View on Zillow →</a>` : ''}
+                          ${d.zpid ? `<span style="color:#262626;padding:0 6px;">·</span><a href="${appUrl}" style="color:#525252;font-weight:500;font-size:12px;text-decoration:none;">Analyze</a>` : ''}
                         </td>
                       </tr>
                     </table>
@@ -314,7 +302,7 @@ async function sendAlertEmail(userEmail, location, deals, userOptions = {}) {
                 ${firstName ? `Hey ${firstName} — ${deals.length} new ${deals.length > 1 ? 'deals' : 'deal'} for you` : `${deals.length} new ${deals.length > 1 ? 'deals' : 'deal'} just hit your alert`}
               </td></tr>
               <tr><td style="color:#a3a3a3;font-size:14px;line-height:1.6;padding-bottom:20px;">
-                Listed at <strong style="color:#ffffff;">$30K+ under Zestimate</strong> in <strong style="color:#ffffff;">${location}</strong>. Tap any property to open it in your dashboard.
+                Listed at <strong style="color:#ffffff;">$30K+ under Zestimate</strong> in <strong style="color:#ffffff;">${location}</strong>. Tap any property to view it on Zillow, or hit <strong style="color:#ffffff;">Analyze</strong> for the full AI breakdown.
               </td></tr>
             </table>
           </td></tr>
@@ -371,18 +359,15 @@ async function sendAlertEmail(userEmail, location, deals, userOptions = {}) {
     return { id: 'dry-run' };
   }
 
-  const result = await resend.emails.send({
+  // sendWithRetry retries on Resend's 429 with exponential backoff and
+  // re-throws every other error immediately. Validation / auth failures
+  // still bubble up so the caller's `emailSent = false` branch fires.
+  return sendWithRetry(() => resend.emails.send({
     from: 'AIWholesail Alerts <alerts@aiwholesail.com>',
     to: userEmail,
     subject,
     html,
-  });
-  if (result?.error) {
-    // Resend SDK returns {error} instead of throwing on auth/validation failures.
-    // Surface as a real error so callers don't mark the deal as sent in the dedup table.
-    throw new Error(`Resend rejected alert email: ${JSON.stringify(result.error)}`);
-  }
-  return result;
+  }));
 }
 
 // ---------- Main worker ----------
@@ -473,17 +458,26 @@ async function run() {
         ];
 
         // Upsert into property_search_cache
+        // description + is_foreclosure added in migration 035 so the
+        // spread-alert auction filter (PR #437) can use Zillow's
+        // explicit foreclosure boolean and the description-keyword
+        // regex — the two strongest detection signals. ON CONFLICT
+        // UPDATE backfills both onto legacy rows the next time the
+        // worker scrapes that location.
         for (const p of allWithZestimates) {
           if (!p.zpid) continue;
           await pool.query(`
             INSERT INTO property_search_cache
               (location, zpid, address, price, zestimate, bedrooms, bathrooms, sqft,
-               property_type, days_on_market, listing_url, image_url, last_seen_at)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW())
+               property_type, days_on_market, listing_url, image_url,
+               description, is_foreclosure, last_seen_at)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, NOW())
             ON CONFLICT (location, zpid) DO UPDATE SET
               price = EXCLUDED.price,
               zestimate = COALESCE(EXCLUDED.zestimate, property_search_cache.zestimate),
               days_on_market = EXCLUDED.days_on_market,
+              description = COALESCE(EXCLUDED.description, property_search_cache.description),
+              is_foreclosure = COALESCE(EXCLUDED.is_foreclosure, property_search_cache.is_foreclosure),
               last_seen_at = NOW()
           `, [
             location,
@@ -498,6 +492,8 @@ async function run() {
             p.days_on_zillow || p.days_on_market || null,
             p.detail_url || null,
             p.image_url || null,
+            (typeof p.description === 'string' && p.description.length > 0) ? p.description : null,
+            p.isForeclosure === true ? true : (p.isForeclosure === false ? false : null),
           ]);
         }
 
@@ -570,11 +566,62 @@ async function run() {
           continue;
         }
 
+        // Filter out auction / foreclosure "deals" before sending. A
+        // foreclosure with a $5k opening bid against a $300k zestimate
+        // has spread=$295k — comfortably above every user's threshold —
+        // but the price isn't a market price. Without this filter the
+        // alert email subject reads "+$295,000 total spread" and the
+        // user clicks expecting a wholesale deal. PR #408/#430/#433
+        // closed the same gap in the in-app UI.
+        //
+        // The cache currently carries price + sqft (no description or
+        // is_foreclosure column), so only the PPSF + low-absolute-price
+        // heuristics fire here. That catches the most common pattern;
+        // the keyword + isForeclosure branches will activate once a
+        // future migration adds those columns to property_search_cache.
+        const nonAuctionDeals = deals.rows.filter((d) => !isAuctionSubject({
+          price: typeof d.price === 'number' ? d.price : (d.price != null ? Number(d.price) : null),
+          sqft: typeof d.sqft === 'number' ? d.sqft : (d.sqft != null ? Number(d.sqft) : null),
+          description: typeof d.description === 'string' ? d.description : undefined,
+          isForeclosure: d.is_foreclosure === true ? true : undefined,
+        }));
+
+        if (nonAuctionDeals.length === 0) {
+          const skipped = deals.rows.length;
+          console.log(`  Alert ${alert.id} (${alert.location}): ${skipped} candidate(s) all filtered as auction subjects — no email sent`);
+          continue;
+        }
+        if (nonAuctionDeals.length < deals.rows.length) {
+          console.log(`  Alert ${alert.id} (${alert.location}): filtered ${deals.rows.length - nonAuctionDeals.length} auction subject(s); ${nonAuctionDeals.length} real deal(s) remain`);
+        }
+        // Reassign so the rest of the loop body uses the filtered set
+        // without touching the original `deals.rows` reference.
+        deals.rows = nonAuctionDeals;
+
         const userEmail = alert.email;
-        console.log(`  Alert ${alert.id} (${alert.location}): ${deals.rows.length} new deals for ${userEmail}${alert.phone_number ? ` + SMS to ${alert.phone_number}` : ''}`);
+        console.log(`  Alert ${alert.id} (${alert.location}): ${deals.rows.length} new deals for ${userEmail}`);
 
         let emailSent = false;
-        let smsSent = false;
+        // SMS is intentionally disabled — Twilio credentials are not active and
+        // the SMS UI was removed from the product. Keeping the phone_number
+        // column + sendSMS() helper in place so we can re-enable later without
+        // a schema migration. For now, alerts ship via email only.
+        //
+        // Contract: this `smsSent = false` hardcode is the single
+        // reversible-disable layer for the email-only-alerts decision shipped
+        // in #374 + #378. The per-request user-initiated SMS path (client
+        // method + server route + rate-limit bucket) was removed in #378. Do
+        // NOT remove this hardcode without first re-establishing one of those
+        // paths AND validating Twilio credentials in env. The regression
+        // guard at aiwholesail-api/test/routes/communications-no-spread-alert-sms.test.js
+        // asserts both halves of this contract (the hardcode is present;
+        // the per-request path is gone).
+        const smsSent = false;
+
+        // Throttle between dispatches to stay under Resend's 5 RPS cap.
+        // Sleeping before the call (rather than after) keeps the wait
+        // out of the no-deals path that hit `continue` above.
+        await sleep(RESEND_INTER_ALERT_DELAY_MS);
 
         // Always send email alert
         try {
@@ -586,64 +633,38 @@ async function run() {
           stats.errors.push(`email to ${userEmail}: ${emailErr.message}`);
         }
 
-        // Send SMS if phone number exists (optional)
-        if (alert.phone_number) {
-          try {
-            const topDeals = deals.rows.slice(0, 3);
-            const dealLines = topDeals.map(d =>
-              `${d.address || 'Unknown'}: $${(d.price / 1000).toFixed(0)}K list / $${(d.zestimate / 1000).toFixed(0)}K Zest = +$${(d.spread / 1000).toFixed(0)}K`
+        if (emailSent) stats.alerts++;
+
+        // Side-effect planning lives in lib/planAlertSideEffects.js so
+        // the data-integrity contract ("don't mark failed-email deals
+        // as sent") is unit-tested independently of the I/O loop.
+        const actions = planAlertSideEffects({
+          alert,
+          deals: deals.rows,
+          emailSent,
+          smsSent,
+        });
+        for (const action of actions) {
+          if (action.type === 'insert_sent_deal') {
+            await pool.query(
+              'INSERT INTO alert_sent_deals (alert_id, zpid, spread) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING',
+              [action.alertId, action.zpid, action.spread]
             );
-
-            const smsBody = [
-              `AIWholesail Alert!`,
-              `${deals.rows.length} new +$${(minSpread / 1000).toFixed(0)}K spread deals in ${alert.location}:`,
-              '',
-              ...dealLines,
-              deals.rows.length > 3 ? `...and ${deals.rows.length - 3} more` : '',
-              '',
-              'aiwholesail.com/app',
-            ].filter(Boolean).join('\n');
-
-            await sendSMS(alert.phone_number, smsBody);
-            smsSent = true;
-            console.log(`    SMS sent to ${alert.phone_number}`);
-          } catch (smsErr) {
-            console.error(`    Failed to send SMS to ${alert.phone_number}: ${smsErr.message}`);
-            stats.errors.push(`sms to ${alert.phone_number}: ${smsErr.message}`);
+          } else if (action.type === 'bump_last_alert_sent') {
+            await pool.query(
+              'UPDATE property_alerts SET last_alert_sent = NOW() WHERE id = $1',
+              [action.alertId]
+            );
+          } else if (action.type === 'insert_match') {
+            // property_id is NOT NULL on the underlying table (migration 001)
+            // and serves as the durable per-property key. We use the Zillow
+            // zpid as the canonical id — same value already in alert_sent_deals.
+            await pool.query(`
+              INSERT INTO property_alert_matches (alert_id, property_id, zpid, property_data, matched_at, sms_sent, email_sent)
+              VALUES ($1, $2, $3, $4, NOW(), $5, $6)
+              ON CONFLICT DO NOTHING
+            `, [action.alertId, String(action.zpid), action.zpid, JSON.stringify(action.dealPayload), action.smsSent, action.emailSent]);
           }
-        }
-
-        if (emailSent || smsSent) {
-          stats.alerts++;
-        }
-
-        // Log sent deals (dedup)
-        for (const deal of deals.rows) {
-          await pool.query(
-            'INSERT INTO alert_sent_deals (alert_id, zpid, spread) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING',
-            [alert.id, deal.zpid, deal.spread]
-          );
-        }
-
-        // Update last_alert_sent
-        await pool.query(
-          'UPDATE property_alerts SET last_alert_sent = NOW() WHERE id = $1',
-          [alert.id]
-        );
-
-        // Log match.
-        // property_id is NOT NULL on the underlying table (migration 001) and
-        // serves as the durable per-property key. We use the Zillow zpid as
-        // the canonical id — same value the worker already stores in
-        // alert_sent_deals. Prior insert omitted this column, causing every
-        // match row to fail with a not-null constraint violation (the email
-        // still went out, but the audit trail was silently dropped).
-        for (const deal of deals.rows) {
-          await pool.query(`
-            INSERT INTO property_alert_matches (alert_id, property_id, zpid, property_data, matched_at, sms_sent, email_sent)
-            VALUES ($1, $2, $3, $4, NOW(), $5, $6)
-            ON CONFLICT DO NOTHING
-          `, [alert.id, String(deal.zpid), deal.zpid, JSON.stringify(deal), smsSent, emailSent]);
         }
 
         // Webhook dispatch (Pro/Elite feature) — fire-and-forget.

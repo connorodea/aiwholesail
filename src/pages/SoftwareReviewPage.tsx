@@ -8,6 +8,7 @@ import { SEOHead } from '@/components/SEOHead';
 import { PublicLayout } from '@/components/PublicLayout';
 import { Spotlight } from '@/components/ui/spotlight';
 import softwareReviews from '@/data/software-reviews.json';
+import { buildMetaDescription } from '@/lib/seo/software-review-meta';
 
 const LAST_UPDATED = '2026-05-12';
 
@@ -175,7 +176,7 @@ export default function SoftwareReviewPage() {
     <PublicLayout>
       <SEOHead
         title={`Is ${review.name} Worth It? Honest Review (${new Date().getFullYear()}) — ${review.rating}/5`}
-        description={`${review.name} review: ${review.rating}/5. ${review.pricing}. Best for ${review.bestFor.toLowerCase()}. ${review.pros.length} pros, ${review.cons.length} cons, and how it compares to AIWholesail at $49/mo. Updated ${LAST_UPDATED}.`}
+        description={buildMetaDescription(review, LAST_UPDATED)}
         keywords={`${review.name} review, ${review.name} review 2026, ${review.name} pricing, ${review.name} pros cons, ${review.name} vs AIWholesail, best wholesaling software, ${review.name} alternative, is ${review.name} worth it`}
         canonicalUrl={canonical}
         breadcrumbs={[
@@ -194,7 +195,7 @@ export default function SoftwareReviewPage() {
 
       {/* ===== HERO ===== */}
       <section className="relative bg-gradient-to-b from-[#0a0a0a] via-[#0f0f0f] to-[#0a0a0a] text-white overflow-hidden">
-        <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" fill="rgba(6, 182, 212, 0.15)" />
+        <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" fill="rgba(0, 196, 200, 0.15)" />
         <div className="relative container mx-auto max-w-5xl px-4 pt-28 pb-20 text-center">
           {/* Breadcrumbs */}
           <nav className="flex items-center justify-center gap-1.5 text-xs text-neutral-500 mb-8">
@@ -592,45 +593,6 @@ export default function SoftwareReviewPage() {
         </div>
       </section>
 
-      {/* ===== SCHEMA MARKUP ===== */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "Review",
-            "itemReviewed": {
-              "@type": "SoftwareApplication",
-              "name": review.name,
-              "applicationCategory": "BusinessApplication",
-              "operatingSystem": "Web",
-              "offers": {
-                "@type": "Offer",
-                "price": review.pricing.replace(/[^0-9.]/g, ''),
-                "priceCurrency": "USD",
-              },
-            },
-            "reviewRating": {
-              "@type": "Rating",
-              "ratingValue": review.rating,
-              "bestRating": 5,
-              "worstRating": 1,
-            },
-            "author": {
-              "@type": "Organization",
-              "name": "AIWholesail",
-              "url": "https://aiwholesail.com",
-            },
-            "publisher": {
-              "@type": "Organization",
-              "name": "AIWholesail",
-              "url": "https://aiwholesail.com",
-            },
-            "datePublished": "2026-01-15",
-            "dateModified": "2026-04-30",
-          }),
-        }}
-      />
     </PublicLayout>
   );
 }

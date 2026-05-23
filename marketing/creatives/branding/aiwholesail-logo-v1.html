@@ -1,0 +1,735 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>AIWHOLESAIL — Logo Exploration</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f6f6f4;
+    --ink: #0a0a0a;
+    --cyan: #00c4c8;
+    --cyan-soft: #cdeff0;
+    --line: #e4e4df;
+    --muted: #8b8b85;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink);
+    font-family: "Space Grotesk", ui-sans-serif, -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    letter-spacing: -0.01em;
+  }
+  body { padding: 56px 40px 80px; }
+  .head {
+    max-width: 1300px; margin: 0 auto 36px;
+    display: flex; align-items: baseline; justify-content: space-between; gap: 24px;
+    font-size: 14px; color: var(--muted);
+  }
+  .head h1 {
+    margin: 0; font-size: 14px; font-weight: 500; color: var(--ink);
+    letter-spacing: 0.08em; text-transform: uppercase;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 20px;
+    max-width: 1300px;
+    margin: 0 auto;
+  }
+  .card {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .stage {
+    height: 280px;
+    display: grid; place-items: center;
+    background: #fff;
+    border-bottom: 1px solid var(--line);
+    padding: 24px;
+  }
+  .stage.dark { background: #0a0a0a; }
+  .stage.cyan { background: var(--cyan); }
+  .stage.soft { background: #f6f6f4; }
+
+  .meta {
+    padding: 14px 18px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px;
+  }
+  .meta .label {
+    font-size: 11px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .meta .num {
+    font-size: 11px; letter-spacing: 0.14em; color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .meta .name { font-size: 14px; font-weight: 500; color: var(--ink); }
+
+  /* swatch row at bottom of card */
+  .swatches {
+    display: flex; gap: 0; height: 22px; border-top: 1px solid var(--line);
+  }
+  .swatches span { flex: 1; }
+
+  /* shared wordmark type */
+  .wm {
+    font-family: "Space Grotesk", sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  /* ============ A · sail-as-letter mark + wordmark ============ */
+  .opt-a .lockup { display: flex; align-items: center; gap: 18px; }
+  .opt-a .markA { width: 84px; height: 84px; }
+  .opt-a .word {
+    font-size: 34px; font-weight: 600; letter-spacing: -0.025em;
+    color: var(--ink);
+  }
+  .opt-a .word .ai { color: var(--cyan); }
+
+  /* ============ B · wordmark, "A" replaced by sail ============ */
+  .opt-b .wrap { display: flex; align-items: baseline; gap: 0; }
+  .opt-b .text {
+    font-size: 44px; font-weight: 700; letter-spacing: -0.035em;
+    color: #fff;
+  }
+  .opt-b .sailA { width: 50px; height: 60px; transform: translateY(8px); }
+
+  /* ============ C · monogram aw ============ */
+  .opt-c .mono { width: 180px; height: 180px; }
+  .opt-c .tag {
+    margin-top: 14px;
+    font-size: 11px; letter-spacing: 0.32em;
+    text-transform: uppercase; color: var(--muted);
+  }
+
+  /* ============ D · house+sail hybrid mark ============ */
+  .opt-d .stack { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .opt-d .mark { width: 130px; height: 130px; }
+  .opt-d .word {
+    font-size: 22px; font-weight: 600; letter-spacing: 0.05em;
+    color: var(--ink); text-transform: uppercase;
+  }
+  .opt-d .word .ai { color: var(--cyan); margin-right: 4px; }
+
+  /* ============ E · wordmark only, unified ============ */
+  .opt-e .word {
+    font-size: 40px; font-weight: 700; letter-spacing: -0.04em;
+    color: var(--ink);
+    display: flex; align-items: center;
+  }
+  .opt-e .word .dot {
+    display: inline-block;
+    width: 14px; height: 14px;
+    background: var(--cyan);
+    border-radius: 50%;
+    margin: 0 4px 0 2px;
+    transform: translateY(2px);
+  }
+
+  /* ============ F · blob mark + wordmark ============ */
+  .opt-f .lockup { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  .opt-f .blob { width: 110px; height: 110px; }
+  .opt-f .word {
+    font-size: 18px; font-weight: 500; letter-spacing: 0.42em;
+    color: var(--ink); text-transform: uppercase;
+  }
+
+  /* ============ G · fleet of sails ============ */
+  .opt-g .stack { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  .opt-g .fleet { width: 170px; height: 110px; }
+  .opt-g .word {
+    font-size: 16px; font-weight: 600; letter-spacing: 0.32em;
+    color: var(--ink); text-transform: uppercase;
+  }
+
+  /* ============ H · wave-underline wordmark ============ */
+  .opt-h .lockup { display: flex; flex-direction: column; align-items: center; }
+  .opt-h .word {
+    font-size: 42px; font-weight: 700; letter-spacing: -0.04em;
+    color: var(--ink);
+  }
+  .opt-h .wave { width: 280px; height: 28px; margin-top: -4px; }
+
+  /* ============ I · negative-space sail ============ */
+  .opt-i .stack { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+  .opt-i .neg { width: 150px; height: 150px; }
+  .opt-i .word {
+    font-size: 18px; font-weight: 600; letter-spacing: 0.36em;
+    color: #fff; text-transform: uppercase;
+  }
+
+  /* ============ J · AW ligature ============ */
+  .opt-j .stack { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  .opt-j .lig { width: 160px; height: 130px; }
+  .opt-j .tag {
+    font-size: 11px; letter-spacing: 0.36em;
+    color: var(--muted); text-transform: uppercase;
+  }
+
+  /* ============ K · compass rose ============ */
+  .opt-k .lockup { display: flex; align-items: center; gap: 18px; }
+  .opt-k .rose { width: 80px; height: 80px; }
+  .opt-k .word {
+    font-size: 30px; font-weight: 600; letter-spacing: -0.025em;
+    color: var(--ink);
+  }
+  .opt-k .word .ai { color: var(--cyan); }
+
+  /* ============ L · sail with speed lines ============ */
+  .opt-l .lockup { display: flex; align-items: center; gap: 18px; }
+  .opt-l .speed { width: 110px; height: 80px; }
+  .opt-l .word {
+    font-size: 26px; font-weight: 700; letter-spacing: -0.03em;
+    color: var(--ink);
+  }
+
+  /* ============ G · contextual usage row ============ */
+  .usage {
+    max-width: 1300px; margin: 56px auto 0;
+    border: 1px solid var(--line); border-radius: 14px;
+    background: #fff;
+    padding: 28px 32px;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px;
+  }
+  .usage h2 {
+    grid-column: 1 / -1;
+    margin: 0 0 8px;
+    font-size: 11px; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--muted); font-weight: 500;
+  }
+  .u-card {
+    border: 1px solid var(--line); border-radius: 10px;
+    height: 120px; display: grid; place-items: center;
+    overflow: hidden;
+  }
+  .u-card.dark { background: #0a0a0a; }
+  .u-card.cyan { background: var(--cyan); }
+  .u-card.soft { background: #f6f6f4; }
+  .u-card svg { display: block; }
+
+</style>
+</head>
+<body>
+
+<div class="head">
+  <h1>AIWHOLESAIL — Logo Directions</h1>
+  <div>6 options · b/w + cyan · organic system</div>
+</div>
+
+<div class="grid">
+
+  <!-- ============ A ============ -->
+  <div class="card opt-a">
+    <div class="stage">
+      <div class="lockup">
+        <!-- mark: blobby sail + base wave -->
+        <svg class="markA" viewBox="0 0 100 100" aria-hidden="true">
+          <!-- sail -->
+          <path fill="#0a0a0a"
+            d="M50,12
+               C58,14 70,28 76,52
+               C80,72 78,80 70,80
+               L34,80
+               C26,80 24,72 28,52
+               C34,28 42,10 50,12 Z"/>
+          <!-- inner cyan curve hinting wind -->
+          <path fill="none" stroke="#00c4c8" stroke-width="3" stroke-linecap="round"
+            d="M44,28 C56,46 56,62 48,76"/>
+          <!-- base / hull blob -->
+          <path fill="#00c4c8"
+            d="M18,84
+               C30,82 70,82 82,84
+               C92,86 88,94 70,94
+               L30,94
+               C12,94 8,86 18,84 Z"/>
+        </svg>
+        <div class="word"><span class="ai">ai</span>wholesail</div>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="name">Sail mark + wordmark</div>
+      <div class="num">A / 01</div>
+    </div>
+    <div class="swatches">
+      <span style="background:#0a0a0a"></span>
+      <span style="background:#00c4c8"></span>
+      <span style="background:#fff;border-left:1px solid var(--line)"></span>
+    </div>
+  </div>
+
+  <!-- ============ B ============ -->
+  <div class="card opt-b">
+    <div class="stage dark">
+      <div class="wrap">
+        <span class="text">AIWHOLES</span>
+        <!-- big sail standing in for A -->
+        <svg class="sailA" viewBox="0 0 50 60" aria-hidden="true">
+          <path fill="#00c4c8"
+            d="M25,4
+               C32,6 42,28 46,52
+               C48,58 46,58 40,58
+               L10,58
+               C4,58 2,58 4,52
+               C8,28 18,6 25,4 Z"/>
+          <!-- crossbar A -->
+          <rect x="14" y="38" width="22" height="4" rx="2" fill="#0a0a0a"/>
+        </svg>
+        <span class="text">IL</span>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="name">Sail-as-A wordmark</div>
+      <div class="num">B / 02</div>
+    </div>
+    <div class="swatches">
+      <span style="background:#0a0a0a"></span>
+      <span style="background:#00c4c8"></span>
+      <span style="background:#fff;border-left:1px solid var(--line)"></span>
+    </div>
+  </div>
+
+  <!-- ============ C · monogram ============ -->
+  <div class="card opt-c">
+    <div class="stage" style="flex-direction:column">
+      <svg class="mono" viewBox="0 0 200 200" aria-hidden="true">
+        <!-- soft squircle frame -->
+        <path fill="#0a0a0a"
+          d="M100,8
+             C160,8 192,40 192,100
+             C192,160 160,192 100,192
+             C40,192 8,160 8,100
+             C8,40 40,8 100,8 Z"/>
+        <!-- a sail forming the 'a' counter / 'w' peaks -->
+        <!-- W peaks built from 3 blob triangles, middle one taller (sail) -->
+        <path fill="#fff"
+          d="M44,138
+             C44,132 50,128 56,132
+             L70,98
+             C72,94 78,94 80,98
+             L92,124
+             L100,72
+             C102,64 110,64 112,72
+             L120,124
+             L132,98
+             C134,94 140,94 142,98
+             L156,132
+             C162,128 168,132 168,138
+             L168,150
+             C168,156 164,158 158,158
+             L52,158
+             C46,158 42,156 42,150 Z"/>
+        <!-- cyan dot — the i of AI -->
+        <circle cx="106" cy="56" r="9" fill="#00c4c8"/>
+      </svg>
+      <div class="tag">AI · WHOLESAIL</div>
+    </div>
+    <div class="meta">
+      <div class="name">Monogram badge</div>
+      <div class="num">C / 03</div>
+    </div>
+    <div class="swatches">
+      <span style="background:#0a0a0a"></span>
+      <span style="background:#00c4c8"></span>
+      <span style="background:#fff;border-left:1px solid var(--line)"></span>
+    </div>
+  </div>
+
+  <!-- ============ D · house+sail hybrid ============ -->
+  <div class="card opt-d">
+    <div class="stage soft">
+      <div class="stack">
+        <svg class="mark" viewBox="0 0 130 130" aria-hidden="true">
+          <!-- soft house body -->
+          <path fill="#0a0a0a"
+            d="M22,72
+               Q22,64 30,60
+               L62,32
+               Q66,28 70,32
+               L100,60
+               Q108,64 108,72
+               L108,108
+               Q108,116 100,116
+               L30,116
+               Q22,116 22,108 Z"/>
+          <!-- sail rising out of the roof -->
+          <path fill="#00c4c8"
+            d="M66,14
+               C70,14 84,30 88,52
+               C90,64 88,68 82,68
+               L52,68
+               C46,68 44,64 46,52
+               C50,30 62,14 66,14 Z"/>
+          <!-- mast notch -->
+          <rect x="64" y="14" width="3" height="58" rx="1.5" fill="#0a0a0a"/>
+          <!-- door negative -->
+          <path fill="#fff"
+            d="M58,116
+               L58,92
+               Q58,84 65,84
+               Q72,84 72,92
+               L72,116 Z"/>
+        </svg>
+        <div class="word"><span class="ai">AI</span>WHOLESAIL</div>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="name">House + sail hybrid</div>
+      <div class="num">D / 04</div>
+    </div>
+    <div class="swatches">
+      <span style="background:#0a0a0a"></span>
+      <span style="background:#00c4c8"></span>
+      <span style="background:#fff;border-left:1px solid var(--line)"></span>
+    </div>
+  </div>
+
+  <!-- ============ E · wordmark only ============ -->
+  <div class="card opt-e">
+    <div class="stage cyan">
+      <div class="word" style="color:#0a0a0a">
+        <span>ai</span><span class="dot" style="background:#fff"></span><span>wholesail</span>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="name">Wordmark with cyan dot</div>
+      <div class="num">E / 05</div>
+    </div>
+    <div class="swatches">
+      <span style="background:#0a0a0a"></span>
+      <span style="background:#00c4c8"></span>
+      <span style="background:#fff;border-left:1px solid var(--line)"></span>
+    </div>
+  </div>
+
+  <!-- ============ F · blob mark only ============ -->
+  <div class="card opt-f">
+    <div class="stage">
+      <div class="lockup">
+        <svg class="blob" viewBox="0 0 110 110" aria-hidden="true">
+          <!-- organic blob containing a small sail -->
+          <path fill="#0a0a0a"
+            d="M55,6
+               C82,8 102,28 104,55
+               C106,82 88,102 60,104
+               C32,106 12,90 8,60
+               C4,32 28,4 55,6 Z"/>
+          <!-- inner sail in cyan -->
+          <path fill="#00c4c8"
+            d="M55,26
+               C61,28 72,44 76,64
+               C78,72 76,76 70,76
+               L42,76
+               C36,76 34,72 36,64
+               C42,44 49,24 55,26 Z"/>
+          <!-- wind whisker -->
+          <path fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"
+            d="M50,42 C58,52 58,62 52,72"/>
+        </svg>
+        <div class="word">AIWHOLESAIL</div>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="name">Blob mark + spaced wordmark</div>
+      <div class="num">F / 06</div>
+    </div>
+    <div class="swatches">
+      <span style="background:#0a0a0a"></span>
+      <span style="background:#00c4c8"></span>
+      <span style="background:#fff;border-left:1px solid var(--line)"></span>
+    </div>
+  </div>
+
+  <!-- ============ G · fleet of sails ============ -->
+  <div class="card opt-g">
+    <div class="stage soft">
+      <div class="stack">
+        <svg class="fleet" viewBox="0 0 170 110" aria-hidden="true">
+          <!-- back sail (small, cyan) -->
+          <path fill="#00c4c8"
+            d="M40,28
+               C44,28 54,42 58,60
+               C60,68 58,72 52,72
+               L28,72
+               C22,72 20,68 22,60
+               C26,42 36,28 40,28 Z"/>
+          <!-- middle sail (big) -->
+          <path fill="#0a0a0a"
+            d="M88,10
+               C94,12 108,30 114,58
+               C116,68 114,72 106,72
+               L70,72
+               C62,72 60,68 62,58
+               C68,30 82,10 88,10 Z"/>
+          <!-- front sail (small) -->
+          <path fill="#0a0a0a"
+            d="M134,32
+               C138,32 148,46 152,62
+               C154,68 152,72 146,72
+               L122,72
+               C116,72 114,68 116,62
+               C120,46 130,32 134,32 Z"/>
+          <!-- wave base -->
+          <path fill="#0a0a0a" opacity=".9"
+            d="M8,78
+               C30,72 50,82 80,80
+               C110,78 130,84 162,78
+               C168,78 168,86 162,90
+               C130,96 110,92 80,94
+               C50,96 30,92 8,90
+               C2,88 2,80 8,78 Z"/>
+          <!-- cyan wave accent -->
+          <path fill="none" stroke="#00c4c8" stroke-width="2.5" stroke-linecap="round"
+            d="M14,100 C44,96 64,104 92,100 C120,96 140,104 160,100"/>
+        </svg>
+        <div class="word">AIWHOLESAIL</div>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="name">Fleet of sails</div>
+      <div class="num">G / 07</div>
+    </div>
+    <div class="swatches">
+      <span style="background:#0a0a0a"></span>
+      <span style="background:#00c4c8"></span>
+      <span style="background:#fff;border-left:1px solid var(--line)"></span>
+    </div>
+  </div>
+
+  <!-- ============ H · wave underline wordmark ============ -->
+  <div class="card opt-h">
+    <div class="stage">
+      <div class="lockup">
+        <div class="word">aiwholesail</div>
+        <svg class="wave" viewBox="0 0 280 28" aria-hidden="true">
+          <path fill="none" stroke="#00c4c8" stroke-width="4" stroke-linecap="round"
+            d="M6,18 C30,4 54,4 78,18 C102,32 126,32 150,18 C174,4 198,4 222,18 C246,32 264,28 274,18"/>
+          <circle cx="6" cy="18" r="4" fill="#0a0a0a"/>
+          <circle cx="274" cy="18" r="4" fill="#0a0a0a"/>
+        </svg>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="name">Wave-underline wordmark</div>
+      <div class="num">H / 08</div>
+    </div>
+    <div class="swatches">
+      <span style="background:#0a0a0a"></span>
+      <span style="background:#00c4c8"></span>
+      <span style="background:#fff;border-left:1px solid var(--line)"></span>
+    </div>
+  </div>
+
+  <!-- ============ I · negative space sail in circle ============ -->
+  <div class="card opt-i">
+    <div class="stage dark">
+      <div class="stack">
+        <svg class="neg" viewBox="0 0 150 150" aria-hidden="true">
+          <!-- cyan blobby disc with sail-shaped negative cutout -->
+          <path fill="#00c4c8" fill-rule="evenodd"
+            d="M75,8
+               C115,8 142,38 142,75
+               C142,118 110,142 75,142
+               C32,142 8,112 8,75
+               C8,32 38,8 75,8 Z
+               M75,38
+               C68,38 56,58 50,90
+               C48,100 50,104 58,104
+               L92,104
+               C100,104 102,100 100,90
+               C94,58 82,40 75,38 Z"/>
+          <!-- mast dot -->
+          <circle cx="75" cy="40" r="5" fill="#fff"/>
+        </svg>
+        <div class="word">AIWHOLESAIL</div>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="name">Negative-space disc</div>
+      <div class="num">I / 09</div>
+    </div>
+    <div class="swatches">
+      <span style="background:#0a0a0a"></span>
+      <span style="background:#00c4c8"></span>
+      <span style="background:#fff;border-left:1px solid var(--line)"></span>
+    </div>
+  </div>
+
+  <!-- ============ J · Sail over waves (A over W) ============ -->
+  <div class="card opt-j">
+    <div class="stage">
+      <div class="stack">
+        <svg class="lig" viewBox="0 0 160 130" aria-hidden="true">
+          <!-- A as sail -->
+          <path fill="#0a0a0a"
+            d="M80,8
+               C86,10 104,40 116,84
+               C118,92 116,96 110,96
+               L50,96
+               C44,96 42,92 44,84
+               C56,40 74,6 80,8 Z"/>
+          <!-- crossbar -->
+          <rect x="60" y="74" width="40" height="6" rx="3" fill="#fff"/>
+          <!-- W as cyan waves at base -->
+          <path fill="none" stroke="#00c4c8" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"
+            d="M20,118 Q40,104 60,118 T100,118 T140,118"/>
+        </svg>
+        <div class="tag">SAIL OVER WAVES</div>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="name">A · W lockup</div>
+      <div class="num">J / 10</div>
+    </div>
+    <div class="swatches">
+      <span style="background:#0a0a0a"></span>
+      <span style="background:#00c4c8"></span>
+      <span style="background:#fff;border-left:1px solid var(--line)"></span>
+    </div>
+  </div>
+
+  <!-- ============ K · compass rose ============ -->
+  <div class="card opt-k">
+    <div class="stage soft">
+      <div class="lockup">
+        <svg class="rose" viewBox="0 0 80 80" aria-hidden="true">
+          <!-- 4-point soft star -->
+          <path fill="#0a0a0a"
+            d="M40,4
+               C42,18 46,32 56,40
+               C46,48 42,62 40,76
+               C38,62 34,48 24,40
+               C34,32 38,18 40,4 Z"/>
+          <path fill="#00c4c8"
+            d="M4,40
+               C18,42 32,46 40,56
+               C48,46 62,42 76,40
+               C62,38 48,34 40,24
+               C32,34 18,38 4,40 Z" opacity=".85"/>
+          <circle cx="40" cy="40" r="5" fill="#fff"/>
+          <circle cx="40" cy="40" r="3" fill="#0a0a0a"/>
+        </svg>
+        <div class="word"><span class="ai">ai</span>wholesail</div>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="name">Compass rose</div>
+      <div class="num">K / 11</div>
+    </div>
+    <div class="swatches">
+      <span style="background:#0a0a0a"></span>
+      <span style="background:#00c4c8"></span>
+      <span style="background:#fff;border-left:1px solid var(--line)"></span>
+    </div>
+  </div>
+
+  <!-- ============ L · sail with speed lines ============ -->
+  <div class="card opt-l">
+    <div class="stage cyan">
+      <div class="lockup">
+        <svg class="speed" viewBox="0 0 110 80" aria-hidden="true">
+          <!-- speed lines -->
+          <path stroke="#0a0a0a" stroke-width="3" stroke-linecap="round" fill="none"
+            d="M4,22 L26,22"/>
+          <path stroke="#0a0a0a" stroke-width="3" stroke-linecap="round" fill="none"
+            d="M10,40 L32,40"/>
+          <path stroke="#0a0a0a" stroke-width="3" stroke-linecap="round" fill="none"
+            d="M4,58 L24,58"/>
+          <!-- leaning sail -->
+          <path fill="#0a0a0a"
+            d="M70,8
+               C76,10 92,28 100,58
+               C102,68 100,72 92,72
+               L48,72
+               C40,72 38,68 42,58
+               C52,28 64,6 70,8 Z"/>
+          <!-- white wind curve -->
+          <path fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"
+            d="M62,24 C72,38 72,52 66,68"/>
+        </svg>
+        <div class="word" style="font-size: 35px; font-family: -apple-system">AIWHOLESAIL</div>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="name">Sail in motion</div>
+      <div class="num">L / 12</div>
+    </div>
+    <div class="swatches">
+      <span style="background:#0a0a0a"></span>
+      <span style="background:#00c4c8"></span>
+      <span style="background:#fff;border-left:1px solid var(--line)"></span>
+    </div>
+  </div>
+
+</div>
+
+
+<!-- usage row using direction A as default -->
+<div class="usage">
+  <h2>In context · favoring direction A</h2>
+
+  <div class="u-card">
+    <svg viewBox="0 0 220 60" width="200" height="54" aria-hidden="true">
+      <g transform="translate(0,4)">
+        <path fill="#0a0a0a"
+          d="M28,6 C33,7 41,16 45,30 C47,42 46,46 41,46 L19,46 C14,46 13,42 16,30 C19,16 23,5 28,6 Z"/>
+        <path fill="none" stroke="#00c4c8" stroke-width="2" stroke-linecap="round" d="M24,16 C32,26 32,36 26,44"/>
+        <ellipse cx="28" cy="50" rx="22" ry="3" fill="#00c4c8"/>
+      </g>
+      <text x="64" y="40" font-family="Space Grotesk, sans-serif" font-weight="600"
+        font-size="26" letter-spacing="-0.6" fill="#0a0a0a">
+        <tspan fill="#00c4c8">ai</tspan>wholesail
+      </text>
+    </svg>
+  </div>
+
+  <div class="u-card dark">
+    <svg viewBox="0 0 220 60" width="200" height="54" aria-hidden="true">
+      <g transform="translate(0,4)">
+        <path fill="#fff"
+          d="M28,6 C33,7 41,16 45,30 C47,42 46,46 41,46 L19,46 C14,46 13,42 16,30 C19,16 23,5 28,6 Z"/>
+        <path fill="none" stroke="#00c4c8" stroke-width="2" stroke-linecap="round" d="M24,16 C32,26 32,36 26,44"/>
+        <ellipse cx="28" cy="50" rx="22" ry="3" fill="#00c4c8"/>
+      </g>
+      <text x="64" y="40" font-family="Space Grotesk, sans-serif" font-weight="600"
+        font-size="26" letter-spacing="-0.6" fill="#fff">
+        <tspan fill="#00c4c8">ai</tspan>wholesail
+      </text>
+    </svg>
+  </div>
+
+  <div class="u-card cyan">
+    <svg viewBox="0 0 220 60" width="200" height="54" aria-hidden="true">
+      <g transform="translate(0,4)">
+        <path fill="#0a0a0a"
+          d="M28,6 C33,7 41,16 45,30 C47,42 46,46 41,46 L19,46 C14,46 13,42 16,30 C19,16 23,5 28,6 Z"/>
+        <path fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" d="M24,16 C32,26 32,36 26,44"/>
+        <ellipse cx="28" cy="50" rx="22" ry="3" fill="#fff"/>
+      </g>
+      <text x="64" y="40" font-family="Space Grotesk, sans-serif" font-weight="600"
+        font-size="26" letter-spacing="-0.6" fill="#0a0a0a">
+        aiwholesail
+      </text>
+    </svg>
+  </div>
+
+  <!-- favicon -->
+  <div class="u-card soft">
+    <svg viewBox="0 0 64 64" width="64" height="64" aria-hidden="true">
+      <rect width="64" height="64" rx="14" fill="#0a0a0a"/>
+      <path fill="#fff"
+        d="M32,12 C37,14 47,28 51,44 C53,52 51,54 45,54 L19,54 C13,54 11,52 13,44 C17,28 27,10 32,12 Z"/>
+      <path fill="none" stroke="#00c4c8" stroke-width="2.5" stroke-linecap="round" d="M28,24 C36,34 36,44 30,52"/>
+    </svg>
+  </div>
+
+</div>
+
+</body>
+</html>

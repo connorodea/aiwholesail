@@ -7,6 +7,7 @@ import { Eye, EyeOff, Shield, CheckCircle, ArrowRight } from 'lucide-react';
 import { stripe, auth } from '@/lib/api-client';
 import { SEOHead } from '@/components/SEOHead';
 import { PublicLayout } from '@/components/PublicLayout';
+import { AIWholesailLogo } from '@/components/AIWholesailLogo';
 import { cn } from '@/lib/utils';
 import * as LabelPrimitive from '@radix-ui/react-label';
 
@@ -62,7 +63,7 @@ function resolveCssColorToRGB(color: string): [number, number, number] {
 const MeshGradient: React.FC<{ className?: string }> = ({ className }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const rafRef = useRef<number | null>(null);
-  const colors = ['#06b6d4', '#0891b2', '#0e7490', '#164e63', '#083344'];
+  const colors = ['#00c4c8', '#00a0a4', '#057a7d', '#0a5d60', '#062a2c'];
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -273,10 +274,7 @@ export default function Auth() {
             {/* ===== LEFT: FORM ===== */}
             <div className="pt-10 md:pt-16">
               <Link to="/" className="inline-block mb-6">
-                <picture>
-                  <source srcSet="/logo-white.webp" type="image/webp" />
-                  <img src="/logo-white.png" alt="AIWholesail" className="h-16 w-auto" width="88" height="64" />
-                </picture>
+                <AIWholesailLogo variant="dark" className="text-[52px]" />
               </Link>
 
               <h1 className="text-left text-3xl font-bold tracking-tight text-foreground lg:text-5xl">

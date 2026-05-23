@@ -13,23 +13,31 @@ const leadsRoutes = require('./routes/leads');
 const favoritesRoutes = require('./routes/favorites');
 const alertsRoutes = require('./routes/alerts');
 const stripeRoutes = require('./routes/stripe');
+const revenuecatRoutes = require('./routes/revenuecat');
 const aiRoutes = require('./routes/ai');
 const aiAgentRoutes = require('./routes/aiAgent');
 const mcpRoutes = require('./routes/mcp');
 const eventsRoutes = require('./routes/events');
+const offmarketSearchLogRoutes = require('./routes/offmarketSearchLog');
+const zillowRoutes = require('./routes/zillow');
 const propertyRoutes = require('./routes/property');
 const communicationsRoutes = require('./routes/communications');
 const buyersRoutes = require('./routes/buyers');
 const sequencesRoutes = require('./routes/sequences');
 const contractsRoutes = require('./routes/contracts');
 const contactRoutes = require('./routes/contact');
+const emailCaptureRoutes = require('./routes/emailCapture');
 const utilityRoutes = require('./routes/utility');
 const skipTraceRoutes = require('./routes/skipTrace');
 const webhookRoutes = require('./routes/webhooks');
 const propdataRoutes = require('./routes/propdata');
+const batchdataRoutes = require('./routes/batchdata');
+const offmarketIqRoutes = require('./routes/offmarket');
+const usHousingRoutes = require('./routes/usHousing');
 const flagsRoutes = require('./routes/flags');
 const healthIntegrationsRoutes = require('./routes/healthIntegrations');
 const unsubscribeRoutes = require('./routes/unsubscribe');
+const adminRoutes = require('./routes/admin');
 
 // Import middleware
 const { errorHandler } = require('./middleware/errorHandler');
@@ -53,36 +61,69 @@ app.use(helmet({
   xContentTypeOptions: false // Handled by Nginx global config
 }));
 
-// CORS configuration
-const corsOrigins = process.env.CORS_ORIGINS
-  ? process.env.CORS_ORIGINS.split(',')
-  : ['https://aiwholesail.com', 'https://www.aiwholesail.com'];
+// CORS configuration — locked to known origins.
+//
+// WHY: chunks are served with cache-control: max-age=31536000, immutable.
+// A stale bundle that still calls https://api.aiwholesail.com/* cross-origin
+// would previously get a silent 200/drop on Facebook/Instagram in-app WebKit.
+// By rejecting unknown origins with an explicit 403 + CORS error, DevTools
+// surfaces the breakage immediately instead of silently dropping the request.
+//
+// Vary: Origin is added below so shared caches never serve a response intended
+// for one origin to a different origin.
+const ALLOWED_CORS_ORIGINS = new Set([
+  'https://aiwholesail.com',
+  'https://www.aiwholesail.com', // user reached login here on 2026-05-13 → CORS preflight 403
+  'https://staging.aiwholesail.com',
+  'http://localhost:5173', // Vite dev server
+]);
 
-// In development only, also allow localhost
-if (process.env.NODE_ENV === 'development') {
-  corsOrigins.push('http://localhost:3000', 'http://localhost:5173', 'http://localhost:8080');
+function buildCorsOptions() {
+  return {
+    origin: (origin, callback) => {
+      // Allow requests with no origin (curl, server-to-server, Stripe webhooks).
+      // The Stripe webhook path also validates the signature, so this is safe.
+      if (!origin) return callback(null, true);
+
+      if (ALLOWED_CORS_ORIGINS.has(origin)) {
+        callback(null, true);
+      } else {
+        const err = new Error('Not allowed by CORS');
+        err.status = 403;
+        callback(err);
+      }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    // x-api-key is sent by VITE_ZILLOW_API_KEY in the browser bundle.
+    // Without it here the preflight returns 204 but the actual request
+    // is blocked by the browser — a separate silent-failure vector.
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'X-Requested-With',
+      'Accept',
+      'Origin',
+      'X-Client-Info',
+      'x-api-key',
+    ],
+  };
 }
 
-app.use(cors({
-  origin: (origin, callback) => {
-    // Allow requests with no origin (mobile apps, server-to-server, curl)
-    if (!origin) return callback(null, true);
+const corsMiddleware = cors(buildCorsOptions());
 
-    if (corsOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      const err = new Error('Not allowed by CORS');
-      err.status = 403;
-      callback(err);
-    }
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin', 'X-Client-Info']
-}));
+// Attach Vary: Origin so HTTP caches (CDN, nginx proxy_cache) never serve
+// a response for one origin to a different origin.
+app.use((req, res, next) => {
+  res.vary('Origin');
+  next();
+});
 
-// Handle preflight requests
-app.options('*', cors());
+app.use(corsMiddleware);
+
+// Preflight: use the same tightened config — NOT a bare cors() call, which
+// would accept any origin and undo the lock above.
+app.options('*', corsMiddleware);
 
 // Request parsing — skip JSON body parsing for the Stripe webhook so the route
 // handler can verify the raw body signature. Stripe's constructEvent() needs
@@ -120,25 +161,36 @@ app.use('/api/leads', leadsRoutes);
 app.use('/api/favorites', favoritesRoutes);
 app.use('/api/alerts', alertsRoutes);
 app.use('/api/stripe', stripeRoutes);
+app.use('/api/iap/revenuecat', revenuecatRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/ai/agent', aiAgentRoutes);
 app.use('/mcp', mcpRoutes);
 app.use('/api/events', eventsRoutes);
+app.use('/api/offmarket-search-log', offmarketSearchLogRoutes);
 app.use('/api/property', propertyRoutes);
+app.use('/api/zillow', zillowRoutes);
+
 app.use('/api/communications', communicationsRoutes);
 app.use('/api/buyers', buyersRoutes);
 app.use('/api/sequences', sequencesRoutes);
 app.use('/api/contracts', contractsRoutes);
 app.use('/api/contact', contactRoutes);
+app.use('/api/email-capture', emailCaptureRoutes);
 app.use('/api/skip-trace', skipTraceRoutes);
 app.use('/api/webhooks', webhookRoutes);
 app.use('/api/propdata', propdataRoutes);
+app.use('/api/batchdata', batchdataRoutes);
+app.use('/api/offmarket-iq', offmarketIqRoutes);
+app.use('/api/us-housing', usHousingRoutes);
 app.use('/api/flags', flagsRoutes);
 app.use('/api/health', healthIntegrationsRoutes);
 // Public unsubscribe endpoint — no auth, accessible from any email client.
 // Mounted before the catch-all utility routes so /api/unsubscribe/:token
 // resolves to its own handler.
 app.use('/api/unsubscribe', unsubscribeRoutes);
+// Admin-only endpoints (operator allowlist; see routes/admin.js for auth).
+// Mounted before the catch-all utility routes so /api/admin/* resolves here.
+app.use('/api/admin', adminRoutes);
 app.use('/api', utilityRoutes);
 
 // Exec dashboard at /exec/* — served via the nginx vhost for
@@ -164,7 +216,7 @@ app.use(errorHandler);
 app.listen(PORT, () => {
   console.log(`[Server] AIWholesail API running on port ${PORT}`);
   console.log(`[Server] Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`[Server] CORS origins: ${corsOrigins.join(', ')}`);
+  console.log(`[Server] CORS origins: ${[...ALLOWED_CORS_ORIGINS].join(', ')}`);
 });
 
 // Handle uncaught exceptions

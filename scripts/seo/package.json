@@ -1,0 +1,10 @@
+{
+  "name": "seo-scripts",
+  "version": "1.0.0",
+  "description": "Standalone SEO lint + helper scripts",
+  "type": "commonjs",
+  "scripts": {
+    "test": "node check-blog-meta.test.js",
+    "lint:blog": "node check-blog-meta.js"
+  }
+}

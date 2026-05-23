@@ -94,8 +94,8 @@ export default function SoftwareReviews() {
   return (
     <PublicLayout>
       <SEOHead
-        title="Best Wholesaling Software Reviews 2026 -- Honest Comparisons"
-        description="Honest reviews of the top real estate wholesaling software in 2026. Compare PropStream, BatchLeads, DealMachine, REsimpli, and more. Find the best tool for your investing strategy."
+        title="Best Wholesaling Software Reviews 2026 — AIWholesail"
+        description="Honest reviews of top real estate wholesaling software in 2026. Compare PropStream, BatchLeads, DealMachine, REsimpli & more. Find the right tool."
         keywords="best wholesaling software, real estate investing software reviews, PropStream review, BatchLeads review, DealMachine review, wholesaling CRM, best real estate investor tools 2026"
         canonicalUrl="https://aiwholesail.com/reviews"
         breadcrumbs={[
@@ -106,7 +106,7 @@ export default function SoftwareReviews() {
 
       {/* ===== HERO ===== */}
       <section className="relative bg-gradient-to-b from-[#0a0a0a] via-[#0f0f0f] to-[#0a0a0a] text-white overflow-hidden">
-        <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" fill="rgba(6, 182, 212, 0.15)" />
+        <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" fill="rgba(0, 196, 200, 0.15)" />
         <div className="relative container mx-auto max-w-5xl px-4 pt-28 pb-16 text-center">
           <p className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-6">SOFTWARE REVIEWS</p>
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[0.95] text-white mb-6">

@@ -1,0 +1,12 @@
+[Unit]
+Description=AIWholesail sequence-execution-worker (one-shot run)
+After=network.target postgresql.service
+
+[Service]
+Type=oneshot
+User=deploy
+WorkingDirectory=/var/www/aiwholesail-api
+ExecStart=/usr/bin/node /var/www/aiwholesail-api/scripts/sequence-execution-worker.js
+StandardOutput=append:/var/log/aiwholesail/sequence-worker.log
+StandardError=append:/var/log/aiwholesail/sequence-worker.log
+NoNewPrivileges=true

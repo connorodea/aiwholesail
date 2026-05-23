@@ -106,7 +106,7 @@ export function LeadTypeChips({
                 isLocked
                   ? 'border-border/40 bg-background/20 text-muted-foreground/70 hover:border-border/60'
                   : isActive
-                    ? 'border-cyan-500/60 bg-cyan-500/[0.08] shadow-[0_0_0_1px_rgba(6,182,212,0.2)] hover:bg-cyan-500/[0.12]'
+                    ? 'border-cyan-500/60 bg-cyan-500/[0.08] shadow-[0_0_0_1px_rgba(0, 196, 200,0.2)] hover:bg-cyan-500/[0.12]'
                     : 'border-border/60 hover:border-border hover:bg-background/40 hover:-translate-y-px',
               ].join(' ')}
             >

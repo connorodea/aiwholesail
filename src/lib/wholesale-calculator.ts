@@ -1,4 +1,6 @@
 import { Property } from '@/types/zillow';
+import { isAuctionSubject } from '@/lib/auction-detection';
+import { compareWholesalePotential } from '@/lib/wholesale-sort.js';
 
 export interface WholesalePotential {
   spreadAmount: number;
@@ -8,9 +10,25 @@ export interface WholesalePotential {
 }
 
 export function calculateWholesalePotential(property: Property): WholesalePotential {
+  // Auction subjects (foreclosure / trustee's sale / opening-bid listings)
+  // have a `price` that is the opening bid, not a market price. Computing
+  // `zestimate - price` produces a wildly inflated "spread" that ranks
+  // them above every legitimate market deal. Bail to poor tier with a
+  // zero score so the sorter demotes them and the modal/banner renders
+  // neutral. Pairs with the ComparableSalesTable gate from PR #408 and
+  // the PropertyCard gate added alongside this change.
+  if (isAuctionSubject(property)) {
+    return {
+      spreadAmount: 0,
+      spreadPercentage: 0,
+      score: 0,
+      tier: 'poor'
+    };
+  }
+
   const price = property.price || 0;
   const zestimate = property.zestimate || 0;
-  
+
   // If no price or zestimate, return poor potential
   if (!price || !zestimate || price >= zestimate) {
     return {
@@ -114,58 +132,5 @@ export function calculateWholesalePotential(property: Property): WholesalePotent
 export const MIN_DEAL_SPREAD = 30000;
 
 export function sortPropertiesByWholesalePotential(properties: Property[]): Property[] {
-  return properties
-    .map(property => {
-      const price = property.price || 0;
-      const zestimate = property.zestimate || 0;
-      const hasZestimate = !!(property.zestimate && property.price);
-      const rawSpread = hasZestimate ? zestimate - price : -Infinity;
-      const daysOnMarket = property.daysOnMarket ?? 9999; // Default to high if unknown
-      const isQualifiedDeal = rawSpread >= MIN_DEAL_SPREAD;
-      return { property, potential: calculateWholesalePotential(property), hasZestimate, rawSpread, daysOnMarket, isQualifiedDeal };
-    })
-    .sort((a, b) => {
-      // 1. Qualified deals ($30k+ spread) always first
-      if (a.isQualifiedDeal && !b.isQualifiedDeal) return -1;
-      if (!a.isQualifiedDeal && b.isQualifiedDeal) return 1;
-
-      // 2. Among qualified deals: SPREAD primary (user expectation — biggest
-      //    spread on top), days-on-market as a tiebreaker. Previously this
-      //    had days primary, which buried $200K-spread 30-day-old listings
-      //    under $30K-spread brand-new ones — user reported "highest spreads
-      //    aren't autopopulating to the top anymore".
-      if (a.isQualifiedDeal && b.isQualifiedDeal) {
-        if (a.rawSpread !== b.rawSpread) {
-          return b.rawSpread - a.rawSpread;
-        }
-        return a.daysOnMarket - b.daysOnMarket;
-      }
-
-      // 3. Properties with positive spread (but < $30k) next.
-      //    Same priority: spread primary, days-on-market tiebreaker.
-      const aPositive = a.rawSpread > 0;
-      const bPositive = b.rawSpread > 0;
-      if (aPositive && !bPositive) return -1;
-      if (!aPositive && bPositive) return 1;
-
-      if (aPositive && bPositive) {
-        if (a.rawSpread !== b.rawSpread) {
-          return b.rawSpread - a.rawSpread;
-        }
-        return a.daysOnMarket - b.daysOnMarket;
-      }
-
-      // 4. Properties with zestimates next (even if negative spread)
-      if (a.hasZestimate && !b.hasZestimate) return -1;
-      if (!a.hasZestimate && b.hasZestimate) return 1;
-
-      // 5. Among properties with zestimates, sort by spread descending
-      if (a.hasZestimate && b.hasZestimate) {
-        return b.rawSpread - a.rawSpread;
-      }
-
-      // 6. Properties without zestimates: sort by newest first
-      return a.daysOnMarket - b.daysOnMarket;
-    })
-    .map(item => item.property);
+  return [...properties].sort(compareWholesalePotential);
 }

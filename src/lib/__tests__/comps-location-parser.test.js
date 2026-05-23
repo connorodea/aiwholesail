@@ -1,0 +1,296 @@
+// Tests for the comps-fallback location parser used by
+// ZillowAPI.getPropertyComps when the direct `comps` endpoint returns nothing
+// and we fall back to a recently-sold search. The parser pulls out a ZIP
+// and a "City STATE" query string from arbitrary location strings.
+//
+// Why this exists (rework of stale PR #92, May 2026):
+//   On main today, multi-word cities in 3-part comma-separated input
+//   ("Saint Augustine, FL, 32092") are parsed as cityState="FL", which
+//   makes the search expand to the entire state of Florida instead of
+//   the actual city. The 2-part format ("City, ST ZIP") works correctly.
+//   This parser fixes the 3-part case while preserving every other format.
+//
+// Plain JS / ESM so node:test can run without a transpiler — matches
+// the comps-similarity.js pattern from PR #371.
+//
+// Run:
+//   node --test src/lib/__tests__/comps-location-parser.test.js
+
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { parseCompsLocation } from '../comps-location-parser.js';
+
+test('2-part "City, ST ZIP" — current main behavior preserved', () => {
+  const r = parseCompsLocation('Charlotte, NC 28083');
+  assert.equal(r.zip, '28083');
+  assert.equal(r.cityState, 'Charlotte NC');
+});
+
+test('3-part "City, State, ZIP" — multi-word city, the #92 bug', () => {
+  // PRE-FIX: cityState was "FL" (just the state) because the parser took
+  // parts[length-1] as state-with-digits and parts[length-2] as city.
+  // POST-FIX: cityState must be "Saint Augustine FL" so the fallback
+  // search hits the actual city, not the whole state.
+  const r = parseCompsLocation('Saint Augustine, FL, 32092');
+  assert.equal(r.zip, '32092');
+  assert.equal(r.cityState, 'Saint Augustine FL');
+});
+
+test('3-part "City, State, ZIP" — single-word city', () => {
+  const r = parseCompsLocation('Charlotte, NC, 28083');
+  assert.equal(r.zip, '28083');
+  assert.equal(r.cityState, 'Charlotte NC');
+});
+
+test('3-part with ZIP+4', () => {
+  const r = parseCompsLocation('Saint Augustine, FL, 32092-1234');
+  assert.equal(r.zip, '32092');
+  assert.equal(r.cityState, 'Saint Augustine FL');
+});
+
+test('2-part "City, State" — no ZIP', () => {
+  const r = parseCompsLocation('Asheville, NC');
+  assert.equal(r.zip, null);
+  assert.equal(r.cityState, 'Asheville NC');
+});
+
+test('bare ZIP only', () => {
+  const r = parseCompsLocation('28083');
+  assert.equal(r.zip, '28083');
+  assert.equal(r.cityState, null);
+});
+
+test('single-segment "City State ZIP" (no commas)', () => {
+  // Real-world: users sometimes type without commas. Parser should still
+  // extract the ZIP. cityState may be null (we can't reliably split city
+  // from state without the comma) — that's acceptable; ZIP is the
+  // strongest signal anyway per the existing comment.
+  const r = parseCompsLocation('Charlotte NC 28083');
+  assert.equal(r.zip, '28083');
+});
+
+test('whitespace + trailing comma robustness', () => {
+  const r = parseCompsLocation('  Saint Augustine ,  FL ,  32092 , ');
+  assert.equal(r.zip, '32092');
+  assert.equal(r.cityState, 'Saint Augustine FL');
+});
+
+test('null / empty / non-string input returns empty result, does not throw', () => {
+  for (const input of [null, undefined, '', '   ', 42, {}]) {
+    const r = parseCompsLocation(input);
+    assert.equal(r.zip, null, `zip should be null for ${JSON.stringify(input)}`);
+    assert.equal(r.cityState, null, `cityState should be null for ${JSON.stringify(input)}`);
+  }
+});
+
+test('queries array prefers ZIP, then cityState, then raw — none falsy, deduped', () => {
+  // The queries field captures the same priority logic used in
+  // getPropertyComps' fallback. ZIP first (tightest), then cityState
+  // (city scope), then raw location (last resort). Falsy entries
+  // (null, "") are filtered out so the search loop doesn't waste a
+  // round-trip on an empty query.
+  //
+  // Deduping prevents wasted scrape.do round-trips when two priority
+  // tiers resolve to the same string (e.g. bare ZIP input where
+  // queries[0]=zip and queries[2]=raw are both "28083"). Pre-fix this
+  // emitted ["28083", "28083"] and the fallback loop hit scrape.do
+  // twice; post-fix it's a single query.
+  const r = parseCompsLocation('Saint Augustine, FL, 32092');
+  assert.deepEqual(r.queries, ['32092', 'Saint Augustine FL', 'Saint Augustine, FL, 32092']);
+
+  const r2 = parseCompsLocation('28083');
+  assert.deepEqual(r2.queries, ['28083'], 'bare ZIP must not duplicate when raw == zip');
+
+  const r3 = parseCompsLocation('Asheville, NC');
+  assert.deepEqual(r3.queries, ['Asheville NC', 'Asheville, NC']);
+});
+
+test('4-part address-style "Street, City, ST, ZIP" — preserved (city scoping)', () => {
+  // Real-world: users paste a full address. Current parser correctly
+  // takes parts[length-3] as city, parts[length-2] as state, ignoring
+  // the leading street segment. cityState scopes the fallback search
+  // to the actual city, not the street.
+  const r = parseCompsLocation('123 Main St, Saint Augustine, FL, 32092');
+  assert.equal(r.zip, '32092');
+  assert.equal(r.cityState, 'Saint Augustine FL');
+});
+
+test('4-part with unit prefix "Unit 4B, City, ST, ZIP" — preserved', () => {
+  const r = parseCompsLocation('Unit 4B, Saint Augustine, FL, 32092');
+  assert.equal(r.zip, '32092');
+  assert.equal(r.cityState, 'Saint Augustine FL');
+});
+
+test('4-part verbose-state "City, FullStateName, ST, ZIP" — full state name is skipped', () => {
+  // The parser detects when parts[length-3] is a full US state name
+  // (e.g. "Florida") and treats it as redundant with parts[length-2]
+  // (the abbreviation). It then uses parts[length-4] (or earlier) as
+  // the city. Verbose-state input is uncommon but happens when users
+  // paste copy-pasted addresses from sources that include both forms.
+  const r = parseCompsLocation('Saint Augustine, Florida, FL, 32092');
+  assert.equal(r.zip, '32092');
+  assert.equal(r.cityState, 'Saint Augustine FL');
+});
+
+test('4-part verbose-state — short state names (Texas, Idaho, Maine, Ohio)', () => {
+  // The 5-letter and 4-letter states need the same handling. Tests
+  // states whose names are short — easy to miss in a length-based
+  // heuristic and require an actual lookup.
+  for (const [input, expected] of [
+    ['Austin, Texas, TX, 78701',     'Austin TX'],
+    ['Boise, Idaho, ID, 83702',      'Boise ID'],
+    ['Portland, Maine, ME, 04101',   'Portland ME'],
+    ['Columbus, Ohio, OH, 43215',    'Columbus OH'],
+  ]) {
+    const r = parseCompsLocation(input);
+    assert.equal(r.cityState, expected, `${input} → cityState should be "${expected}", got "${r.cityState}"`);
+  }
+});
+
+test('4-part verbose-state — case-insensitive state name match', () => {
+  // Users paste with varying case. The state-name detection must be
+  // case-insensitive so "florida", "FLORIDA", and "Florida" all trigger
+  // the redundancy handling.
+  for (const verbose of ['florida', 'FLORIDA', 'Florida', 'fLoRiDa']) {
+    const r = parseCompsLocation(`Saint Augustine, ${verbose}, FL, 32092`);
+    assert.equal(r.cityState, 'Saint Augustine FL', `case "${verbose}" should still detect as state name`);
+  }
+});
+
+test('4-part NON-verbose: multi-word city that contains state-name word', () => {
+  // Defensive: 3-part "Washington, MO, 63090" (city named after a state).
+  // 3-part — should NOT trigger the verbose-state branch even though
+  // "Washington" is a US state name. State-name detection only fires
+  // when length >= 4 (the verbose-state pattern needs 4+ parts).
+  const r = parseCompsLocation('Washington, MO, 63090');
+  assert.equal(r.cityState, 'Washington MO');
+});
+
+test('5-part address + verbose-state: "Unit 4B, City, FullState, ST, ZIP"', () => {
+  // The most extreme realistic case. Should: detect verbose-state at
+  // parts[length-3] ("Florida"), drop it, use parts[length-4] as city.
+  // Result: "Saint Augustine FL" — same as the 4-part verbose case.
+  const r = parseCompsLocation('Unit 4B, Saint Augustine, Florida, FL, 32092');
+  assert.equal(r.zip, '32092');
+  assert.equal(r.cityState, 'Saint Augustine FL');
+});
+
+test('4-part address with state-named city — does NOT trigger verbose-state branch', () => {
+  // Regression guard (review of PR #385): "Washington" is a US state name,
+  // but in this input it's the CITY (Washington, MO). The state
+  // abbreviation MO does NOT match Washington's abbreviation (WA), so the
+  // verbose-state branch should NOT fire. cityState must be "Washington
+  // MO", not "123 Main St MO". Same for "New York, NY" with a street
+  // prefix, "Indiana, IN", etc. The Set-only check in PR #385 saw any US
+  // state name at parts[length-3] and skipped to parts[length-4]; the Map
+  // check requires the abbreviation at parts[length-2] to ACTUALLY match
+  // that state's two-letter code.
+  for (const [input, expected] of [
+    ['123 Main St, Washington, MO, 63090',    'Washington MO'],
+    ['Apartment 5, New York, NY, 10001',      'New York NY'],
+    ['Suite 100, Indiana, IN, 46201',         'Indiana IN'],
+    ['Unit 4B, Oregon, IL, 61061',            'Oregon IL'],
+    ['Box 1, Nevada, MO, 64772',              'Nevada MO'],
+    ['Apt 2, Kansas, OK, 73869',              'Kansas OK'],
+  ]) {
+    const r = parseCompsLocation(input);
+    assert.equal(
+      r.cityState,
+      expected,
+      `${input}: cityState should be "${expected}" (state-name-as-city, abbreviation doesn't match)`
+    );
+  }
+});
+
+test('function is pure: same input always returns same output', () => {
+  const a = parseCompsLocation('Saint Augustine, FL, 32092');
+  const b = parseCompsLocation('Saint Augustine, FL, 32092');
+  assert.deepEqual(a, b);
+});
+
+test('4-part verbose-state — real city with leading digits preserved (29 Palms CA, 100 Mile House)', () => {
+  // Regression guard from post-fix review: cities like "29 Palms, CA" or
+  // "100 Mile House" have leading digits but are real city names, NOT
+  // address-prefixes. The looksLikeAddressDebris check must not flag
+  // them as debris when used in verbose-state shape.
+  const r = parseCompsLocation('29 Palms, California, CA, 92277');
+  assert.equal(r.cityState, '29 Palms CA');
+});
+
+test('4-part verbose-state — real city with keyword token preserved (Box Elder SD, Lake Worth FL)', () => {
+  // Regression guard from post-fix review: cities like "Box Elder, SD"
+  // or "Lake Worth, FL" contain words that match unit-designator keywords
+  // (box, lot, etc.) but are real city names. The looksLikeAddressDebris
+  // check must require digit + keyword together, not either alone.
+  const r = parseCompsLocation('Box Elder, South Dakota, SD, 57719');
+  assert.equal(r.cityState, 'Box Elder SD');
+});
+
+test('4-part verbose-state — Apt-style prefix still detected (Apartment 5, New York, NY, 10001)', () => {
+  // Counter-test: the legitimate address-prefix case must STILL trigger
+  // the debris gate. Apartment 5 has BOTH a keyword and a digit, which
+  // is the tightened criterion.
+  const r = parseCompsLocation('Apartment 5, New York, NY, 10001');
+  assert.equal(r.cityState, 'New York NY');
+});
+
+// ── Street-address skip for raw-fallback query ──
+// Background: prod logs (2026-05-22) showed ~25 HTTP 400s/day on the comps
+// fallback path. Root cause: when property.address arrived without commas
+// (e.g. "228 Gumtree Dr Kannapolis NC 28083"), the parser put the full
+// street string into queries as a last-resort fallback. Zillow's
+// /homes/<slug>_rb/ endpoint can't resolve a street-level slug into a
+// region and scrape.do then returned 400 on the unresolvable URL. The fix
+// excludes street addresses from the raw-fallback slot — ZIP and cityState
+// already carry the useful signal.
+
+test('street-address skip — no-comma street address excluded from queries', () => {
+  const r = parseCompsLocation('228 Gumtree Dr Kannapolis NC 28083');
+  assert.equal(r.zip, '28083');
+  // The street address should NOT appear in queries — only the ZIP should.
+  assert.deepEqual(r.queries, ['28083']);
+});
+
+test('street-address skip — full street with abbreviation', () => {
+  const r = parseCompsLocation('1234 Main St Charlotte NC 28202');
+  assert.equal(r.zip, '28202');
+  assert.deepEqual(r.queries, ['28202']);
+});
+
+test('street-address skip — spelled-out suffix also detected (Avenue, Boulevard)', () => {
+  const r1 = parseCompsLocation('500 Park Avenue New York NY 10022');
+  assert.equal(r1.queries.includes('500 Park Avenue New York NY 10022'), false);
+  const r2 = parseCompsLocation('100 Sunset Boulevard Los Angeles CA 90028');
+  assert.equal(r2.queries.includes('100 Sunset Boulevard Los Angeles CA 90028'), false);
+});
+
+test('street-address protected: "29 Palms California 92277" — real city, no suffix', () => {
+  // Leading-number is a street signal, but no USPS suffix token. Should
+  // NOT be classified as a street address — "29 Palms" is a real CA city.
+  const r = parseCompsLocation('29 Palms California 92277');
+  assert.equal(r.zip, '92277');
+  // The raw input survives — required so cities like "29 Palms" still get
+  // a fallback when ZIP + cityState don't yield enough comps.
+  assert.equal(r.queries.includes('29 Palms California 92277'), true);
+});
+
+test('street-address protected: bare ZIP unchanged', () => {
+  const r = parseCompsLocation('28083');
+  assert.equal(r.zip, '28083');
+  // Dedupe collapses zip + raw into a single entry — no change here.
+  assert.deepEqual(r.queries, ['28083']);
+});
+
+test('street-address protected: "Charlotte, NC 28083" — region, no leading number', () => {
+  const r = parseCompsLocation('Charlotte, NC 28083');
+  assert.equal(r.queries.includes('Charlotte, NC 28083'), true);
+});
+
+test('street-address protected: "Lakewood Drive" — suffix in name BUT no leading number', () => {
+  // "Drive" is a street suffix, but there's no leading number. The combined
+  // gate requires BOTH signals so "Lakewood Drive" as a (degenerate) input
+  // is not classified as a street address. Edge case — unlikely to appear
+  // as a comps query in practice but pinning the contract.
+  const r = parseCompsLocation('Lakewood Drive');
+  assert.equal(r.queries.includes('Lakewood Drive'), true);
+});

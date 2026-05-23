@@ -26,8 +26,7 @@ import { useSubscription } from '@/contexts/SubscriptionContext';
 import { useFavorites } from '@/hooks/useFavorites';
 import { stripe } from '@/lib/api-client';
 import { toast } from 'sonner';
-
-const aiWholesailLogo = '/logo-white.png';
+import { AIWholesailLogo } from '@/components/AIWholesailLogo';
 
 const navItems = [
   { href: '/app', label: 'Search', icon: IconSearch },
@@ -97,7 +96,7 @@ export function DashboardNav() {
           <div className="flex items-center justify-between h-14">
             {/* Logo */}
             <Link to="/app" className="flex items-center gap-2 shrink-0">
-              <img src={aiWholesailLogo} alt="AIWholesail" className="h-10 w-auto object-contain" />
+              <AIWholesailLogo variant="dark" className="text-[28px]" />
             </Link>
 
             {/* Desktop Nav */}

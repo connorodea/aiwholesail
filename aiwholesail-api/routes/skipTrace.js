@@ -36,6 +36,39 @@ const { asyncHandler } = require('../middleware/errorHandler');
 const { attachSubscription, TIERS } = require('../middleware/subscription');
 const { logEvent, EVENTS } = require('../lib/events');
 const { callV2Fallback, SUPPORTED_FALLBACKS } = require('../lib/skip-trace-v2');
+const tps = require('../lib/scrapers/truePeopleSearch');
+
+// Search-types we have a TPS implementation for. Mirrors SUPPORTED_FALLBACKS
+// but stays in this file so the source of truth lives next to the TPS call.
+const TPS_SUPPORTED = new Set(['byaddress', 'bynameaddress']);
+
+/**
+ * Call TruePeopleSearch via scrape.do. Returns the V1-shaped payload
+ * (people: [...]) the rest of the route already expects, or null if TPS
+ * couldn't answer (caller falls back to RapidAPI V1).
+ */
+async function callTpsPrimary(searchType, params) {
+  try {
+    if (searchType === 'byaddress') {
+      const out = await tps.byaddress({
+        street: params.street,
+        citystatezip: params.citystatezip,
+      });
+      return out;
+    }
+    if (searchType === 'bynameaddress') {
+      const out = await tps.bynameaddress({
+        name: params.name,
+        citystatezip: params.citystatezip,
+      });
+      return out;
+    }
+    return null;
+  } catch (err) {
+    console.warn(`[skip-trace] TPS primary failed (${searchType}): ${err.message}`);
+    return null;
+  }
+}
 
 const router = express.Router();
 
@@ -283,39 +316,61 @@ router.post(
       });
     }
 
-    // ─── Call primary upstream (skip-tracing-working-api) ───
+    // ─── PRIMARY: TPS via scrape.do (unconditional for supported types) ───
+    // Changed 2026-05-13 (PR #321): TPS is now the unconditional primary for
+    // searchTypes it supports (byaddress, bynameaddress). RapidAPI V1 + V2
+    // become fallbacks. No flag check — skip_trace_tps is deprecated and
+    // RapidAPI's skip-tracing-working-api has been failing every call.
     let upstreamStatus = 0;
     let upstreamData = null;
     let upstreamError = null;
     let providerUsed = 'v1';
-    try {
-      const upstream = await callUpstream(config.path, params);
-      upstreamStatus = upstream.status;
-      if (upstream.status >= 200 && upstream.status < 300) {
-        upstreamData = upstream.data;
-      } else {
-        upstreamError = typeof upstream.data === 'string'
-          ? upstream.data.slice(0, 500)
-          : JSON.stringify(upstream.data).slice(0, 500);
+
+    if (TPS_SUPPORTED.has(searchType)) {
+      const tpsData = await callTpsPrimary(searchType, params);
+      if (tpsData && Array.isArray(tpsData.people)) {
+        upstreamData = tpsData;
+        upstreamStatus = 200;
+        providerUsed = 'tps';
       }
-    } catch (err) {
-      upstreamStatus = 0;
-      upstreamError = (err.message || 'unknown error').slice(0, 500);
     }
 
-    // ─── V2 fallback (skip-tracing-api) ───
-    // Only fires when primary genuinely failed AND the searchType has a
-    // V2 equivalent (byaddress / bynameaddress only). Treats:
+    // ─── FALLBACK 1: RapidAPI V1 (skip-tracing-working-api) ───
+    // Only fires when TPS didn't answer (handler missing or TPS threw). The
+    // legacy RapidAPI primary path is preserved here so non-TPS search-types
+    // (byname, byphone, byemail) keep working — they never had a TPS path.
+    if (!upstreamData) {
+      try {
+        const upstream = await callUpstream(config.path, params);
+        upstreamStatus = upstream.status;
+        if (upstream.status >= 200 && upstream.status < 300) {
+          upstreamData = upstream.data;
+          // Provider stays 'v1' (default initial value) — TPS didn't answer
+          // so the RapidAPI V1 path did.
+        } else {
+          upstreamError = typeof upstream.data === 'string'
+            ? upstream.data.slice(0, 500)
+            : JSON.stringify(upstream.data).slice(0, 500);
+        }
+      } catch (err) {
+        upstreamStatus = 0;
+        upstreamError = (err.message || 'unknown error').slice(0, 500);
+      }
+    }
+
+    // ─── FALLBACK 2: RapidAPI V2 (skip-tracing-api) ───
+    // Only fires when V1 genuinely failed AND the searchType has a V2
+    // equivalent (byaddress / bynameaddress only). Treats:
     //   - HTTP 5xx, timeout, network error  → fallback
     //   - HTTP 200 + empty results          → DO NOT fallback (real "no match")
     // Both providers count against the same RapidAPI account quota; the
     // user's monthly skip_trace_lookups counter increments once regardless
     // of which provider answered.
-    const primaryFailed =
+    const v1Failed =
       !upstreamData &&
       (upstreamStatus === 0 || upstreamStatus >= 500);
-    if (primaryFailed && SUPPORTED_FALLBACKS.includes(searchType)) {
-      console.warn(`[skip-trace] primary failed (status=${upstreamStatus}), trying V2 fallback for ${searchType}`);
+    if (v1Failed && SUPPORTED_FALLBACKS.includes(searchType)) {
+      console.warn(`[skip-trace] V1 fallback failed (status=${upstreamStatus}), trying V2 fallback for ${searchType}`);
       const v2 = await callV2Fallback({
         searchType,
         params,
@@ -439,19 +494,27 @@ router.get(
       });
     }
 
-    // Upstream call
+    // Upstream call. Content-addressed routing: TPS peo_ids contain letters
+    // or hyphens (e.g. "P5x9-aB2"), RapidAPI peo_ids are pure digits. So we
+    // can decide which backend to use from the id alone — no extra flag check.
     let upstreamStatus = 0;
     let upstreamData = null;
     let upstreamError = null;
+    const looksLikeTpsId = /[A-Za-z_-]/.test(peoId);
     try {
-      const upstream = await callUpstream('/search/detailsbyID', { peo_id: peoId });
-      upstreamStatus = upstream.status;
-      if (upstream.status >= 200 && upstream.status < 300) {
-        upstreamData = upstream.data;
+      if (looksLikeTpsId) {
+        upstreamData = await tps.detailsByPeoId(peoId);
+        upstreamStatus = 200;
       } else {
-        upstreamError = typeof upstream.data === 'string'
-          ? upstream.data.slice(0, 500)
-          : JSON.stringify(upstream.data).slice(0, 500);
+        const upstream = await callUpstream('/search/detailsbyID', { peo_id: peoId });
+        upstreamStatus = upstream.status;
+        if (upstream.status >= 200 && upstream.status < 300) {
+          upstreamData = upstream.data;
+        } else {
+          upstreamError = typeof upstream.data === 'string'
+            ? upstream.data.slice(0, 500)
+            : JSON.stringify(upstream.data).slice(0, 500);
+        }
       }
     } catch (err) {
       upstreamError = (err.message || 'unknown error').slice(0, 500);

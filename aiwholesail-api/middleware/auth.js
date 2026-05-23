@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const { query } = require('../config/database');
+const { recordZombieAuthEvent } = require('../lib/observability/authMetrics');
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -36,6 +37,17 @@ const authenticate = async (req, res, next) => {
     );
 
     if (result.rows.length === 0) {
+      // Zombie-auth state: JWT verified successfully but the userId claim
+      // does not match any row in `users`. Record an observability event
+      // (fire-and-forget; never blocks the 401) so SLO_SPEC C3 / C4
+      // alerts can detect this class of incident in real time.
+      // See lib/observability/authMetrics.js and migration 022.
+      recordZombieAuthEvent({
+        jwtUserId: decoded && decoded.userId,
+        clientIp: req.ip,
+        userAgent: req.get && req.get('user-agent'),
+        requestPath: req.originalUrl || req.path,
+      });
       return res.status(401).json({
         error: 'User not found',
         timestamp: new Date().toISOString()

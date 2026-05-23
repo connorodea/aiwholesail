@@ -467,8 +467,8 @@ export default function DistressPage() {
   return (
     <PublicLayout>
       <SEOHead
-        title={`${dt.fullLabel} in ${city.city}, ${city.state} -- Deal Signals & Market Data`}
-        description={`Find ${dt.label.toLowerCase()} properties in ${city.city}, ${city.stateFull}. Median price ${formatCurrency(city.medianHomePrice)}, ${city.priceGrowth}% growth. AI-powered distress signals for real estate investors.`}
+        title={`${dt.fullLabel} in ${city.city}, ${city.state}: How to Find Them (${new Date().getFullYear()})`}
+        description={`Find ${dt.label.toLowerCase()} properties in ${city.city}, ${city.stateFull}. Live lists, owner skip tracing, AI deal scoring, and contract templates. Median home ${formatCurrency(city.medianHomePrice)}, ${city.priceGrowth}% YoY growth. Start free, no credit card.`}
         keywords={`${dt.label.toLowerCase()} ${city.city}, ${dt.label.toLowerCase()} properties ${city.state}, ${dt.label.toLowerCase()} deals ${city.city}, distressed properties ${city.city}, motivated sellers ${city.city} ${city.state}`}
         canonicalUrl={canonical}
         breadcrumbs={[
@@ -489,7 +489,7 @@ export default function DistressPage() {
 
       {/* ===== HERO ===== */}
       <section className="relative bg-gradient-to-b from-[#0a0a0a] via-[#0f0f0f] to-[#0a0a0a] text-white overflow-hidden">
-        <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" fill="rgba(6, 182, 212, 0.15)" />
+        <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" fill="rgba(0, 196, 200, 0.15)" />
         <div className="relative container mx-auto max-w-5xl px-4 pt-28 pb-20 text-center">
           <div className="flex items-center justify-center gap-2 mb-6 flex-wrap">
             <Link to="/deals" className="flex items-center gap-1 text-sm text-white/50 hover:text-white transition-colors">

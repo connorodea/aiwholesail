@@ -18,10 +18,10 @@ interface SEOHeadProps {
   breadcrumbs?: BreadcrumbItem[];
 }
 
-export function SEOHead({ 
-  title = "AIWholesail - Find Profitable Real Estate Deals with AI",
-  description = "AI-powered tools for real estate professionals. Find profitable deals, analyze properties, and close faster with advanced AI analytics and market intelligence.",
-  keywords = "real estate deals, property analysis, AI real estate, profitable deals, property investment, real estate analytics, real estate investing",
+export function SEOHead({
+  title = "AIWholesail — Find Profitable Real Estate Deals Before Everyone Else",
+  description = "AIWholesail scans thousands of properties daily, scores each deal 0–100 with AI, and alerts you when $30K+ spreads hit the market. Skip tracing, contracts, and 14 free calculators included. Start free, no credit card.",
+  keywords = "AIWholesail, AI real estate, wholesale real estate software, real estate investing AI, property deal finder, motivated seller leads, real estate AI tools",
   canonicalUrl,
   ogImage = "https://aiwholesail.com/og-image.png",
   noIndex = false,
@@ -34,7 +34,13 @@ export function SEOHead({
   const { inModal } = useInModal();
   if (inModal) return null;
 
-  const fullTitle = title.includes('AI Wholesail') ? title : `${title} | AI Wholesail`;
+  // Append brand only when the title doesn't already contain it.
+  // Match BOTH "AIWholesail" (one word) and "AI Wholesail" (two words).
+  // Without this, the home title was rendering as
+  //   "AIWholesail - Find Profitable Real Estate Deals with AI | AI Wholesail"
+  // which Google truncated to "AI ..." in the SERP.
+  const titleMentionsBrand = /\bai\s?wholesail\b/i.test(title);
+  const fullTitle = titleMentionsBrand ? title : `${title} | AIWholesail`;
   // Always compute a self-canonical so GSC doesn't have to guess.
   // Strips query string + fragment, normalizes to the apex (non-www) host,
   // drops trailing slash on non-root paths.
@@ -77,11 +83,14 @@ export function SEOHead({
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={ogImage} />
       
-      {/* Security Headers */}
+      {/* Security Headers
+       * Only CSP and Referrer-Policy are valid as <meta> tags. Browsers IGNORE
+       * X-Frame-Options, X-Content-Type-Options, and X-XSS-Protection meta tags
+       * (and log them as console errors, dragging Best Practices score down).
+       * Those three should be set as HTTP response headers via nginx/Cloudflare
+       * configuration. See marketing/LIGHTHOUSE_REPORT_2026-05-12.md.
+       */}
       <meta httpEquiv="Content-Security-Policy" content={generateCSPHeader()} />
-      <meta httpEquiv="X-Content-Type-Options" content="nosniff" />
-      <meta httpEquiv="X-Frame-Options" content="DENY" />
-      <meta httpEquiv="X-XSS-Protection" content="1; mode=block" />
       <meta httpEquiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
       
       {/* Preconnect to Supabase API (font preconnects are in index.html) */}
@@ -89,7 +98,7 @@ export function SEOHead({
       
       {/* Additional Meta */}
       <meta name="theme-color" content="#08090a" />
-      <meta name="msapplication-TileColor" content="#06b6d4" />
+      <meta name="msapplication-TileColor" content="#00c4c8" />
       <meta name="application-name" content="AI Wholesail" />
       
       {/* Structured Data for Real Estate Business */}

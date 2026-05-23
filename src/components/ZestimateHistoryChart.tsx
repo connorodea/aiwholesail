@@ -169,8 +169,8 @@ export function ZestimateHistoryChart({ property }: { property: Property }) {
             <AreaChart data={points} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id="zestColor" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#06b6d4" stopOpacity={0.4} />
-                  <stop offset="100%" stopColor="#06b6d4" stopOpacity={0} />
+                  <stop offset="0%" stopColor="#00c4c8" stopOpacity={0.4} />
+                  <stop offset="100%" stopColor="#00c4c8" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <XAxis
@@ -192,7 +192,7 @@ export function ZestimateHistoryChart({ property }: { property: Property }) {
                 contentStyle={{ background: 'rgb(20 20 22)', border: '1px solid rgb(64 64 64)', borderRadius: 6 }}
                 labelStyle={{ color: 'rgb(212 212 212)', fontSize: 12 }}
               />
-              <Area type="monotone" dataKey="value" stroke="#06b6d4" strokeWidth={2} fill="url(#zestColor)" />
+              <Area type="monotone" dataKey="value" stroke="#00c4c8" strokeWidth={2} fill="url(#zestColor)" />
             </AreaChart>
           </ResponsiveContainer>
         </div>

@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
 const { body, validationResult } = require('express-validator');
 const { query } = require('../config/database');
-const { authenticate, generateAccessToken, generateRefreshToken, verifyRefreshToken } = require('../middleware/auth');
+const { authenticate, optionalAuth, generateAccessToken, generateRefreshToken, verifyRefreshToken } = require('../middleware/auth');
 const { asyncHandler, AppError, logSecurityEvent } = require('../middleware/errorHandler');
 const { checkDatabaseRateLimit } = require('../middleware/rateLimit');
 const { getClient } = require('../config/database');
@@ -673,10 +673,32 @@ router.post('/signin', [
 
 /**
  * POST /api/auth/signout
- * Sign out the current user
+ * Sign out the current user.
+ *
+ * Idempotent — if the caller has no/invalid token, return 200 anyway.
+ * Signout is a "make sure I'm signed out" operation, NOT a "verify I was
+ * signed in first" operation. Pre-PR-#357 used `authenticate` middleware
+ * which 401'd anyone whose token had already expired or been revoked —
+ * those callers are *already* logged out by definition, so returning 401
+ * was just noise that polluted monitor SLIs and (paired with the
+ * pre-#356 SecurityMonitor loop) drove a real 401-storm incident
+ * (2026-05-14 00:10 UTC, ~624 × 401 in 30 min from 14+ users).
+ *
+ * Behavior with optionalAuth:
+ *   - Authed caller w/ valid token: revoke their session(s) as before.
+ *     If `refreshToken` body param provided, revoke that one specifically;
+ *     otherwise revoke ALL of the user's sessions.
+ *   - Unauthed caller (no token, expired token, revoked token): return
+ *     200 with `{ok: true, message: 'Already signed out'}`. No DB write,
+ *     no security event logged (nothing to log).
  */
-router.post('/signout', authenticate, asyncHandler(async (req, res) => {
-  const { refreshToken } = req.body;
+router.post('/signout', optionalAuth, asyncHandler(async (req, res) => {
+  // No authenticated user → caller is already signed out, return 200.
+  if (!req.user) {
+    return res.json({ ok: true, message: 'Already signed out' });
+  }
+
+  const { refreshToken } = req.body || {};
 
   // Revoke the specific refresh token if provided
   if (refreshToken) {
@@ -691,7 +713,7 @@ router.post('/signout', authenticate, asyncHandler(async (req, res) => {
 
   await logSecurityEvent('signout_success', {}, req.user.id, req);
 
-  res.json({ message: 'Signed out successfully' });
+  res.json({ ok: true, message: 'Signed out successfully' });
 }));
 
 /**

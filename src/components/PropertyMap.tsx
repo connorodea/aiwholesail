@@ -5,6 +5,7 @@ import 'leaflet/dist/leaflet.css';
 import 'leaflet.heat';
 import { Property } from '@/types/zillow';
 import { useFeatureFlag } from '@/hooks/useFeatureFlag';
+import { isAuctionSubject } from '@/lib/auction-detection';
 import { Flame, MapPin as MapPinIcon } from 'lucide-react';
 
 // Fix default marker icon issue with bundlers (Leaflet assets not found)
@@ -45,6 +46,13 @@ const grayIcon = createColoredIcon('#6b7280');
 
 function getMarkerIcon(property: Property): L.DivIcon {
   if (!property.price || !property.zestimate) return grayIcon;
+  // Auction subjects have an inflated spread (opening bid vs market
+  // zestimate) and would otherwise get a green marker. Fall back to
+  // gray so the at-a-glance map signal is neutral — matches the same
+  // gate applied to PropertyCard (PR #430) and ComparableSalesTable
+  // (PR #408/#446). Caller can still click through and see the
+  // amber "Auction subject" warning in the popup / modal.
+  if (isAuctionSubject(property)) return grayIcon;
   const spread = property.zestimate - property.price;
   if (spread >= 30000) return greenIcon;
   if (spread > 0) return yellowIcon;
@@ -86,7 +94,7 @@ function HeatLayer({ points }: { points: Array<[number, number, number]> }) {
       max: 1.0,
       gradient: {
         0.0: 'rgba(0, 0, 255, 0)',
-        0.25: '#0891b2',  // cyan-600
+        0.25: '#00a0a4',  // cyan-600 (brand seafoam dark)
         0.5: '#eab308',   // yellow-500
         0.75: '#f97316',  // orange-500
         1.0: '#dc2626',   // red-600 — hottest = strongest wholesale margin
@@ -146,6 +154,11 @@ export function PropertyMap({ properties, onSelectProperty }: PropertyMapProps) 
     if (mappableProperties.length === 0) return [];
     const spreads = mappableProperties.map((p) => {
       if (!p.price || !p.zestimate) return 0;
+      // Auction subjects have inflated spreads — zero them out so a
+      // single foreclosure with $295K opening-bid spread doesn't
+      // dominate the heatmap's color normalization (every other
+      // listing would render at the minimum 0.2 floor).
+      if (isAuctionSubject(p)) return 0;
       return Math.max(0, p.zestimate - p.price);
     });
     const maxSpread = Math.max(...spreads, 1);

@@ -37,7 +37,8 @@ import {
   Loader2,
   Zap,
   GraduationCap,
-  Trees
+  Trees,
+  Map as MapIcon
 } from 'lucide-react';
 import { calculateWholesalePotential } from '@/lib/wholesale-calculator';
 import { zillowAPI } from '@/lib/zillow-api';
@@ -54,6 +55,7 @@ import { PropertyToolsTab } from './PropertyToolsTab';
 import { AIPhotoAnalysis } from './AIPhotoAnalysis';
 import { PropertySchoolsTab } from './PropertySchoolsTab';
 import { PropertyNeighborhoodTab } from './PropertyNeighborhoodTab';
+import { PropertyMapTab } from './PropertyMapTab';
 import { PropertyMortgageSection } from './PropertyMortgageSection';
 import { ZestimateHistoryChart } from './ZestimateHistoryChart';
 import { PropertyRentalEstimate } from './PropertyRentalEstimate';
@@ -243,7 +245,7 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
   const TIER_THEME: Record<string, { label: string; ring: string; ringBg: string; text: string; bg: string; border: string; chip: string; ctaLabel: string }> = {
     excellent: { label: 'Excellent Deal', ring: '#10b981', ringBg: 'rgba(16,185,129,0.10)', text: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/30', chip: 'bg-emerald-500 text-black', ctaLabel: 'Top-tier opportunity — strong margin, move fast' },
     great:     { label: 'Great Deal',     ring: '#10b981', ringBg: 'rgba(16,185,129,0.10)', text: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/30', chip: 'bg-emerald-500 text-black', ctaLabel: 'Strong margin — well below market' },
-    good:      { label: 'Good Deal',      ring: '#06b6d4', ringBg: 'rgba(6,182,212,0.10)',  text: 'text-cyan-400',     bg: 'bg-cyan-500/10',     border: 'border-cyan-500/30',     chip: 'bg-cyan-500 text-black',    ctaLabel: 'Solid spread — worth a closer look' },
+    good:      { label: 'Good Deal',      ring: '#00c4c8', ringBg: 'rgba(0,196,200,0.10)',  text: 'text-cyan-400',     bg: 'bg-cyan-500/10',     border: 'border-cyan-500/30',     chip: 'bg-cyan-500 text-black',    ctaLabel: 'Solid spread — worth a closer look' },
     fair:      { label: 'Fair Deal',      ring: '#f59e0b', ringBg: 'rgba(245,158,11,0.10)', text: 'text-amber-400',    bg: 'bg-amber-500/10',    border: 'border-amber-500/30',    chip: 'bg-amber-500 text-black',   ctaLabel: 'Modest margin — verify comps before pursuing' },
     poor:      { label: 'Weak Deal',      ring: '#737373', ringBg: 'rgba(115,115,115,0.10)',text: 'text-neutral-400',  bg: 'bg-neutral-500/10',  border: 'border-neutral-500/30',  chip: 'bg-neutral-700 text-white', ctaLabel: 'Limited spread — likely not a wholesale fit' },
   };
@@ -347,7 +349,7 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                 )}
                 {/* mobile property type — only shows here when sm hidden */}
                 {displayProperty.propertyType && (
-                  <span className="sm:hidden text-[11px] text-muted-foreground ml-auto">
+                  <span className="sm:hidden text-[11px] font-medium text-muted-foreground ml-auto">
                     {humanize(displayProperty.propertyType)}
                   </span>
                 )}
@@ -373,7 +375,7 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                 <Button
                   size="sm"
                   onClick={handleFullArv}
-                  className="gap-1.5 h-9 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-black font-semibold shadow-[0_0_18px_rgba(6,182,212,0.25)]"
+                  className="gap-1.5 h-9 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-black font-semibold shadow-[0_0_18px_rgba(0, 196, 200,0.25)]"
                 >
                   <Zap className="h-4 w-4" />
                   {/* hidden xl:inline matches sibling buttons so the row doesn't overflow at lg width */}
@@ -423,7 +425,7 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
                 <Button
                   size="sm"
                   onClick={handleFullArv}
-                  className="gap-1.5 h-9 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-black font-semibold flex-shrink-0 shadow-[0_0_18px_rgba(6,182,212,0.25)]"
+                  className="gap-1.5 h-9 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-black font-semibold flex-shrink-0 shadow-[0_0_18px_rgba(0, 196, 200,0.25)]"
                 >
                   <Zap className="h-4 w-4" />
                   Full ARV
@@ -468,55 +470,59 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
         <Tabs defaultValue="overview" className="flex-1 flex flex-col min-h-0 w-full">
             <div className="shrink-0 px-3 sm:px-8 pt-3 sm:pt-5 pb-3 sm:pb-4 border-b border-border/30 bg-gradient-to-r from-muted/5 to-transparent overflow-x-auto scrollbar-none">
               <TabsList className="inline-flex w-auto min-w-full bg-muted/30 rounded-xl p-1 backdrop-blur-sm gap-1 shrink-0">
-                <TabsTrigger value="overview" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_0_1px_rgba(6,182,212,0.25),0_2px_8px_rgba(0,0,0,0.4)] rounded-lg transition-all duration-200 text-xs font-medium px-3 h-8">
+                <TabsTrigger value="overview" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_0_1px_rgba(0, 196, 200,0.25),0_2px_8px_rgba(0,0,0,0.4)] rounded-lg transition-all duration-200 text-xs font-medium px-3 h-8">
                   <Home className="h-3.5 w-3.5" />
                   Overview
                 </TabsTrigger>
-                <TabsTrigger value="investment" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_0_1px_rgba(6,182,212,0.25),0_2px_8px_rgba(0,0,0,0.4)] rounded-lg transition-all duration-200 text-xs font-medium px-3 h-8">
+                <TabsTrigger value="investment" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_0_1px_rgba(0, 196, 200,0.25),0_2px_8px_rgba(0,0,0,0.4)] rounded-lg transition-all duration-200 text-xs font-medium px-3 h-8">
                   <Calculator className="h-3.5 w-3.5" />
                   Investment
                 </TabsTrigger>
-                <TabsTrigger value="arv" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_0_1px_rgba(6,182,212,0.25),0_2px_8px_rgba(0,0,0,0.4)] rounded-lg transition-all duration-200 text-xs font-medium px-3 h-8">
+                <TabsTrigger value="arv" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_0_1px_rgba(0, 196, 200,0.25),0_2px_8px_rgba(0,0,0,0.4)] rounded-lg transition-all duration-200 text-xs font-medium px-3 h-8">
                   <TrendingUp className="h-3.5 w-3.5" />
                   ARV
                 </TabsTrigger>
-                <TabsTrigger value="comps" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_0_1px_rgba(6,182,212,0.25),0_2px_8px_rgba(0,0,0,0.4)] rounded-lg transition-all duration-200 text-xs font-medium px-3 h-8">
+                <TabsTrigger value="comps" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_0_1px_rgba(0, 196, 200,0.25),0_2px_8px_rgba(0,0,0,0.4)] rounded-lg transition-all duration-200 text-xs font-medium px-3 h-8">
                   <BadgeCheck className="h-3.5 w-3.5" />
                   Comps
                 </TabsTrigger>
-                <TabsTrigger value="tools" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_0_1px_rgba(6,182,212,0.25),0_2px_8px_rgba(0,0,0,0.4)] rounded-lg transition-all duration-200 text-xs font-medium px-3 h-8">
+                <TabsTrigger value="tools" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_0_1px_rgba(0, 196, 200,0.25),0_2px_8px_rgba(0,0,0,0.4)] rounded-lg transition-all duration-200 text-xs font-medium px-3 h-8">
                   <Calculator className="h-3.5 w-3.5" />
                   Tools
                 </TabsTrigger>
-                <TabsTrigger value="price-history" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_0_1px_rgba(6,182,212,0.25),0_2px_8px_rgba(0,0,0,0.4)] rounded-lg transition-all duration-200 text-xs font-medium px-3 h-8">
+                <TabsTrigger value="price-history" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_0_1px_rgba(0, 196, 200,0.25),0_2px_8px_rgba(0,0,0,0.4)] rounded-lg transition-all duration-200 text-xs font-medium px-3 h-8">
                   <History className="h-3.5 w-3.5" />
                   History
                 </TabsTrigger>
-                <TabsTrigger value="taxes" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_0_1px_rgba(6,182,212,0.25),0_2px_8px_rgba(0,0,0,0.4)] rounded-lg transition-all duration-200 text-xs font-medium px-3 h-8">
+                <TabsTrigger value="taxes" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_0_1px_rgba(0, 196, 200,0.25),0_2px_8px_rgba(0,0,0,0.4)] rounded-lg transition-all duration-200 text-xs font-medium px-3 h-8">
                   <Receipt className="h-3.5 w-3.5" />
                   Taxes
                 </TabsTrigger>
-                <TabsTrigger value="schools" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_0_1px_rgba(6,182,212,0.25),0_2px_8px_rgba(0,0,0,0.4)] rounded-lg transition-all duration-200 text-xs font-medium px-3 h-8">
+                <TabsTrigger value="schools" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_0_1px_rgba(0, 196, 200,0.25),0_2px_8px_rgba(0,0,0,0.4)] rounded-lg transition-all duration-200 text-xs font-medium px-3 h-8">
                   <GraduationCap className="h-3.5 w-3.5" />
                   Schools
                 </TabsTrigger>
-                <TabsTrigger value="neighborhood" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_0_1px_rgba(6,182,212,0.25),0_2px_8px_rgba(0,0,0,0.4)] rounded-lg transition-all duration-200 text-xs font-medium px-3 h-8">
+                <TabsTrigger value="neighborhood" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_0_1px_rgba(0, 196, 200,0.25),0_2px_8px_rgba(0,0,0,0.4)] rounded-lg transition-all duration-200 text-xs font-medium px-3 h-8">
                   <Trees className="h-3.5 w-3.5" />
                   Neighborhood
                 </TabsTrigger>
-                <TabsTrigger value="photos" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_0_1px_rgba(6,182,212,0.25),0_2px_8px_rgba(0,0,0,0.4)] rounded-lg transition-all duration-200 text-xs font-medium px-3 h-8">
+                <TabsTrigger value="map" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_0_1px_rgba(0, 196, 200,0.25),0_2px_8px_rgba(0,0,0,0.4)] rounded-lg transition-all duration-200 text-xs font-medium px-3 h-8">
+                  <MapIcon className="h-3.5 w-3.5" />
+                  Map
+                </TabsTrigger>
+                <TabsTrigger value="photos" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_0_1px_rgba(0, 196, 200,0.25),0_2px_8px_rgba(0,0,0,0.4)] rounded-lg transition-all duration-200 text-xs font-medium px-3 h-8">
                   <Image className="h-3.5 w-3.5" />
                   Photos
                 </TabsTrigger>
-                <TabsTrigger value="details" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_0_1px_rgba(6,182,212,0.25),0_2px_8px_rgba(0,0,0,0.4)] rounded-lg transition-all duration-200 text-xs font-medium px-3 h-8">
+                <TabsTrigger value="details" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_0_1px_rgba(0, 196, 200,0.25),0_2px_8px_rgba(0,0,0,0.4)] rounded-lg transition-all duration-200 text-xs font-medium px-3 h-8">
                   <FileText className="h-3.5 w-3.5" />
                   Details
                 </TabsTrigger>
-                <TabsTrigger value="photo-analysis" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_0_1px_rgba(6,182,212,0.25),0_2px_8px_rgba(0,0,0,0.4)] rounded-lg transition-all duration-200 text-xs font-medium px-3 h-8">
+                <TabsTrigger value="photo-analysis" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_0_1px_rgba(0, 196, 200,0.25),0_2px_8px_rgba(0,0,0,0.4)] rounded-lg transition-all duration-200 text-xs font-medium px-3 h-8">
                   <Image className="h-3.5 w-3.5" />
                   AI Vision
                 </TabsTrigger>
-                <TabsTrigger value="ai-analysis" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_0_1px_rgba(6,182,212,0.25),0_2px_8px_rgba(0,0,0,0.4)] rounded-lg transition-all duration-200 text-xs font-medium px-3 h-8">
+                <TabsTrigger value="ai-analysis" className="flex items-center gap-1.5 data-[state=active]:bg-background data-[state=active]:text-cyan-400 data-[state=active]:shadow-[0_0_0_1px_rgba(0, 196, 200,0.25),0_2px_8px_rgba(0,0,0,0.4)] rounded-lg transition-all duration-200 text-xs font-medium px-3 h-8">
                   <Brain className="h-3.5 w-3.5" />
                   AI
                 </TabsTrigger>
@@ -691,6 +697,10 @@ export function PropertyModal({ property, isOpen, onClose }: PropertyModalProps)
 
             <TabsContent value="neighborhood" className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-6 mt-0">
               <PropertyNeighborhoodTab property={displayProperty} />
+            </TabsContent>
+
+            <TabsContent value="map" className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-6 mt-0">
+              <PropertyMapTab property={displayProperty} />
             </TabsContent>
 
             <TabsContent value="details" className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-6 mt-0">

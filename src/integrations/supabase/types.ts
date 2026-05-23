@@ -1,3 +1,12 @@
+// ===========================================================================
+// NOT IN USE — DO NOT WIRE THIS UP
+// ===========================================================================
+// AIWholesail does NOT use Supabase. See client.ts in this directory + the
+// canonical infra map at memory/reference_aiwholesail_infra.md. This file is
+// auto-generated Supabase-schema types from the Lovable starter template and
+// has no active consumers in the codebase. Planned removal: full cleanup PR.
+// ===========================================================================
+
 export type Json =
   | string
   | number

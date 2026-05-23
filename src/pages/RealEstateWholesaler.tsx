@@ -8,12 +8,20 @@ import { Property, PropertySearchParams } from '@/types/zillow';
 import { zillowAPI } from '@/lib/zillow-api';
 import { sortPropertiesByWholesalePotential } from '@/lib/wholesale-calculator';
 import { applyPreEnrichmentToggles } from '@/lib/property-filters';
+import { filterByMaxDaysOnMarket } from '@/lib/property-filter';
 import { scoreAllProperties, filterMotivatedSellers, MIN_MOTIVATED_SCORE } from '@/lib/motivated-seller-score';
+import { isCountyWithoutState, isStateOnlyLocation } from '@/lib/locationValidation.js';
+import { useSearchHistory } from '@/hooks/useSearchHistory';
+import { buildOnMarketHistoryLabel } from '@/lib/searchHistoryLabels.js';
+import {
+  RECENT_SEARCHES_CHIPS_FLAG,
+  isRecentSearchesChipsEnabled,
+} from '@/lib/searchHistoryFlag.js';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { User, Download, Bell, MessageSquare, GitCompareArrows, Check, LayoutGrid, Map as MapIcon } from 'lucide-react';
+import { User, Download, Bell, GitCompareArrows, Check, LayoutGrid, Map as MapIcon } from 'lucide-react';
 import { lazy, Suspense } from 'react';
-import { communications, property as propertyApi } from '@/lib/api-client';
+import { property as propertyApi, tokenStorage } from '@/lib/api-client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useLeads } from '@/hooks/useLeads';
@@ -36,7 +44,7 @@ import { ArrowUpDown, Eye, EyeOff } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AbsenteeOwnerSearch } from '@/components/AbsenteeOwnerSearch';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
-import { Building2, Home } from 'lucide-react';
+import { Building2, Home, FlaskConical } from 'lucide-react';
 import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { PropertyComparison } from '@/components/PropertyComparison';
 import { AITopPicksSection } from '@/components/AITopPicksSection';
@@ -69,6 +77,10 @@ export default function RealEstateWholesaler() {
   const [showFavorites, setShowFavorites] = useState(false);
   const [showAlerts, setShowAlerts] = useState(false);
   const [lastSearchLocation, setLastSearchLocation] = useState<string>('');
+  // "Listed within" filter from the search form, captured AT search time so
+  // re-renders + tab switches don't accidentally re-filter against the live
+  // form (which the user may have changed but not yet re-submitted).
+  const [activeMaxDaysOnMarket, setActiveMaxDaysOnMarket] = useState<string | undefined>(undefined);
   const [sortBy, setSortBy] = useState<'price-high' | 'price-low' | 'newest' | 'oldest' | 'default'>('default');
   const [isSearchingFSBO, setIsSearchingFSBO] = useState<boolean>(false);
   // Unified on/off-market search is gated behind a feature flag while we
@@ -84,6 +96,23 @@ export default function RealEstateWholesaler() {
   const { enabled: onMarketHeatmapEnabled } = useFeatureFlag('on-market-heatmap');
   const [resultsView, setResultsView] = useState<'cards' | 'map'>('cards');
 
+  // Recent-searches history — lifted from PropertySearch so the container
+  // (which knows when results land) can populate `resultCount` after a
+  // search completes. Chip click flows back through `handleSearch` via
+  // `onSearch(params)`, which re-records and dedupes by hash.
+  const recentChipsFlag = useFeatureFlag(RECENT_SEARCHES_CHIPS_FLAG);
+  const recentChipsEnabled = isRecentSearchesChipsEnabled(recentChipsFlag);
+  const {
+    history: searchHistory,
+    recordSearch: recordSearchHistory,
+    recordResultCount,
+    removeSearch: removeSearchFromHistory,
+    clear: clearSearchHistory,
+  } = useSearchHistory<PropertySearchParams>({
+    mode: 'on-market',
+    buildLabel: buildOnMarketHistoryLabel,
+  });
+
   const [searchParams, setSearchParams] = useSearchParams();
   const urlMode = searchParams.get('mode') === 'off-market' ? 'off-market' : 'on-market';
   const [searchMode, setSearchModeState] = useState<'on-market' | 'off-market'>(urlMode);
@@ -97,9 +126,6 @@ export default function RealEstateWholesaler() {
   // Effective mode is what the render path actually reads. When the flag
   // is off, force on-market — independent of stored state or URL.
   const effectiveSearchMode = unifiedSearchEnabled ? searchMode : 'on-market';
-  const [showSmsAlert, setShowSmsAlert] = useState(false);
-  const [smsPhone, setSmsPhone] = useState('');
-  const [sendingSms, setSendingSms] = useState(false);
   const [compareMode, setCompareMode] = useState(false);
   const [compareSelected, setCompareSelected] = useState<Property[]>([]);
   const [showComparison, setShowComparison] = useState(false);
@@ -155,58 +181,6 @@ export default function RealEstateWholesaler() {
   const isNegativeSpread = (p: Property) =>
     !!p.price && !!p.zestimate && p.price >= p.zestimate;
 
-  // US States lookup
-  const US_STATES: Record<string, string> = {
-    'alabama': 'AL', 'alaska': 'AK', 'arizona': 'AZ', 'arkansas': 'AR',
-    'california': 'CA', 'colorado': 'CO', 'connecticut': 'CT', 'delaware': 'DE',
-    'florida': 'FL', 'georgia': 'GA', 'hawaii': 'HI', 'idaho': 'ID',
-    'illinois': 'IL', 'indiana': 'IN', 'iowa': 'IA', 'kansas': 'KS',
-    'kentucky': 'KY', 'louisiana': 'LA', 'maine': 'ME', 'maryland': 'MD',
-    'massachusetts': 'MA', 'michigan': 'MI', 'minnesota': 'MN', 'mississippi': 'MS',
-    'missouri': 'MO', 'montana': 'MT', 'nebraska': 'NE', 'nevada': 'NV',
-    'new hampshire': 'NH', 'new jersey': 'NJ', 'new mexico': 'NM', 'new york': 'NY',
-    'north carolina': 'NC', 'north dakota': 'ND', 'ohio': 'OH', 'oklahoma': 'OK',
-    'oregon': 'OR', 'pennsylvania': 'PA', 'rhode island': 'RI', 'south carolina': 'SC',
-    'south dakota': 'SD', 'tennessee': 'TN', 'texas': 'TX', 'utah': 'UT',
-    'vermont': 'VT', 'virginia': 'VA', 'washington': 'WA', 'west virginia': 'WV',
-    'wisconsin': 'WI', 'wyoming': 'WY'
-  };
-  const STATE_ABBREVIATIONS = Object.values(US_STATES);
-
-  // Check if location is just a state name or abbreviation
-  const isStateOnlyLocation = (location: string): boolean => {
-    const trimmed = location.trim().toLowerCase();
-    // Check full state name
-    if (US_STATES[trimmed]) return true;
-    // Check abbreviation (2 letters only)
-    if (trimmed.length === 2 && STATE_ABBREVIATIONS.includes(trimmed.toUpperCase())) return true;
-    // Check "State, United States" format
-    const parts = trimmed.split(',').map(p => p.trim());
-    if (parts.length === 2 && (parts[1] === 'united states' || parts[1] === 'usa' || parts[1] === 'us')) {
-      if (US_STATES[parts[0]]) return true;
-    }
-    return false;
-  };
-
-  // Check if it's a county search without a state
-  const isCountyWithoutState = (location: string): boolean => {
-    const trimmed = location.trim().toLowerCase();
-    if (!trimmed.includes('county')) return false;
-
-    const parts = trimmed.split(',').map(p => p.trim());
-    if (parts.length >= 2) {
-      // Check if any part after the county name is a valid state
-      for (let i = 1; i < parts.length; i++) {
-        const part = parts[i].toLowerCase();
-        if (part === 'united states' || part === 'usa' || part === 'us') continue;
-        if (US_STATES[part] || STATE_ABBREVIATIONS.includes(parts[i].toUpperCase())) {
-          return false; // Has a valid state
-        }
-      }
-    }
-    return true; // County without state
-  };
-
   const handleSearch = async (params: PropertySearchParams) => {
     // Track search event
     analytics.propertySearch(params.location, { propertyType: params.homeType, minPrice: params.price_min, maxPrice: params.price_max });
@@ -217,6 +191,12 @@ export default function RealEstateWholesaler() {
       toast.error("Please add a state to your county search (e.g., 'Oakland County, MI')");
       return;
     }
+
+    // Record into recent-searches history AFTER the county-check passes —
+    // so rejected county-without-state entries never land in the chip row.
+    // `recordSearchHistory` returns the entry id; we patch its
+    // `resultCount` once enrichment settles.
+    const historyId = recordSearchHistory(params);
 
     // Increment search ID to prevent stale enrichment overwrites
     searchIdRef.current += 1;
@@ -229,6 +209,7 @@ export default function RealEstateWholesaler() {
       setProperties([]);
       setError(null);
       setLastSearchLocation(params.location);
+      setActiveMaxDaysOnMarket(params.maxDaysOnMarket);
       setIsSearchingFSBO(params.fsboOnly || false);
 
       // Reset the second-scroll tracker so this search can re-trigger.
@@ -322,6 +303,7 @@ export default function RealEstateWholesaler() {
 
       if (searchResults.length === 0) {
         setError("No properties found. Try adjusting your search criteria.");
+        recordResultCount(historyId, 0);
         return;
       }
 
@@ -359,6 +341,7 @@ export default function RealEstateWholesaler() {
         } else {
           setError('No properties found. Try adjusting your search criteria.');
         }
+        recordResultCount(historyId, 0);
         return;
       }
 
@@ -446,6 +429,11 @@ export default function RealEstateWholesaler() {
 
         setProperties(enrichedSorted);
 
+        // Patch the recent-searches chip with the final visible result
+        // count so the user can see, at a glance, which past search
+        // returned how much.
+        recordResultCount(historyId, enrichedSorted.length);
+
         // Cache results for the AI Analyzer tab. Use localStorage so the
         // cache survives tab switches, and write to sessionStorage too so
         // any older code paths still find data.
@@ -487,6 +475,8 @@ export default function RealEstateWholesaler() {
       const errorMessage = error instanceof Error ? error.message : "An error occurred while searching";
 
       // Check for subscription-related errors
+      const isNotAuth = errorMessage === 'NOT_AUTHENTICATED' || errorMessage.includes('NOT_AUTHENTICATED');
+
       if (errorMessage.includes('search limit') || errorMessage.includes('SEARCH_LIMIT_REACHED')) {
         toast.error('Daily search limit reached. Upgrade to Elite for unlimited searches.', {
           action: {
@@ -501,11 +491,45 @@ export default function RealEstateWholesaler() {
             onClick: () => navigate('/pricing'),
           },
         });
+      } else if (isNotAuth) {
+        // Thrown by ZillowAPI when the access token is missing/expired.
+        // Surface a sign-in CTA instead of the opaque "401" toast that
+        // cpodea5 hit on 2026-05-13.
+        //
+        // Emit a PostHog event BEFORE showing the toast so the observability
+        // pipeline (docs/observability/SLO_SPEC.md P1.1) sees every occurrence.
+        // The combination `has_stored_user=true` AND `has_access_token=false`
+        // is the precise zombie-session signature the alert rule filters on.
+        analytics.capture('not_authenticated_toast_shown', {
+          route: typeof window !== 'undefined' ? window.location.pathname : '',
+          has_stored_user: tokenStorage.getUser() !== null,
+          has_access_token: tokenStorage.getAccessToken() !== null,
+          posthog_session_id:
+            typeof window !== 'undefined' &&
+            window.posthog &&
+            typeof window.posthog.get_session_id === 'function'
+              ? window.posthog.get_session_id()
+              : undefined,
+          user_id: user?.id,
+        });
+        toast.error('Your session has expired. Please sign in to search.', {
+          action: {
+            label: 'Sign in',
+            onClick: () => navigate('/auth?mode=signin'),
+          },
+        });
       } else {
         toast.error(errorMessage);
       }
 
-      setError(errorMessage);
+      // Suppress the inline <section> error box for NOT_AUTHENTICATED — the
+      // toast above already explains it with a recovery action. Rendering the
+      // raw "NOT_AUTHENTICATED" string in the red box made it look like a P1
+      // production incident to cpodea5 on 2026-05-14. All other error classes
+      // keep their inline render (search-limit, subscription-required, etc.).
+      if (!isNotAuth) {
+        setError(errorMessage);
+      }
     } finally {
       setIsLoading(false);
       setLoadingProgress(0);
@@ -528,10 +552,10 @@ export default function RealEstateWholesaler() {
             {/* Hero Search Section */}
             <section className="text-center space-y-6 sm:space-y-10 max-w-6xl mx-auto animate-fade-in">
               <div className="space-y-3 sm:space-y-6">
-                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-medium tracking-tight leading-tight">
+                <h1 className="text-3xl md:text-4xl font-medium tracking-tight">
                   Find profitable real estate deals
                 </h1>
-                <p className="text-base sm:text-lg md:text-xl text-neutral-400 font-light max-w-2xl mx-auto leading-relaxed">
+                <p className="text-lg text-muted-foreground font-light max-w-2xl mx-auto leading-relaxed">
                   {effectiveSearchMode === 'on-market'
                     ? 'Discover undervalued listings with AI-powered analysis and comprehensive market data'
                     : 'Search off-market properties — absentee owners, pre-foreclosure, tax delinquent, high equity, and more'}
@@ -581,10 +605,35 @@ export default function RealEstateWholesaler() {
                   Off-market = PropData absentee owner search (PR #170). */}
               {effectiveSearchMode === 'on-market' ? (
                 <div className="feature-card p-8 backdrop-blur-sm">
-                  <PropertySearch onSearch={handleSearch} isLoading={isLoading} />
+                  <PropertySearch
+                    onSearch={handleSearch}
+                    isLoading={isLoading}
+                    searchHistory={searchHistory}
+                    recentChipsEnabled={recentChipsEnabled}
+                    onRemoveHistory={removeSearchFromHistory}
+                    onClearHistory={clearSearchHistory}
+                  />
                 </div>
               ) : (
                 <div className="text-left">
+                  <div
+                    role="status"
+                    className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-amber-400/30 bg-amber-400/10 px-4 py-2.5 text-sm"
+                  >
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-400 px-2 py-0.5 text-xs font-semibold text-neutral-950">
+                      <FlaskConical className="h-3 w-3" aria-hidden="true" />
+                      Beta
+                    </span>
+                    <span className="text-neutral-200">
+                      Off-market search is in active development — coverage and result quality vary by region.
+                    </span>
+                    <a
+                      href="mailto:connor@upscaledinc.com?subject=Off-market%20feedback"
+                      className="text-amber-300 underline-offset-2 hover:underline"
+                    >
+                      Send feedback
+                    </a>
+                  </div>
                   <ErrorBoundary label="AbsenteeOwnerSearch">
                     <AbsenteeOwnerSearch />
                   </ErrorBoundary>
@@ -629,10 +678,12 @@ export default function RealEstateWholesaler() {
 
             {/* Results Section */}
             {!isLoading && properties.length > 0 && (() => {
-              const visibleProperties = hideNegativeSpreads
+              const afterSpreadFilter = hideNegativeSpreads
                 ? properties.filter(p => !isNegativeSpread(p))
                 : properties;
-              const hiddenNegativeCount = properties.length - visibleProperties.length;
+              const visibleProperties = filterByMaxDaysOnMarket(afterSpreadFilter, activeMaxDaysOnMarket);
+              const hiddenNegativeCount = properties.length - afterSpreadFilter.length;
+              const hiddenStaleCount = afterSpreadFilter.length - visibleProperties.length;
               const stillEnriching = loadingProgress > 0 && loadingProgress < 100;
               return (
               <section className="space-y-6 sm:space-y-10 animate-fade-in">
@@ -672,6 +723,12 @@ export default function RealEstateWholesaler() {
                       {visibleProperties.length} {visibleProperties.length === 1 ? 'property' : 'properties'} shown
                       {hideNegativeSpreads && hiddenNegativeCount > 0 && (
                         <span className="text-neutral-500"> · {hiddenNegativeCount} hidden</span>
+                      )}
+                      {activeMaxDaysOnMarket && hiddenStaleCount > 0 && (
+                        <span className="text-neutral-500">
+                          {' · '}
+                          {hiddenStaleCount} older than {activeMaxDaysOnMarket}d
+                        </span>
                       )}
                     </p>
                   </div>
@@ -816,62 +873,9 @@ export default function RealEstateWholesaler() {
                         </Button>
                       )}
 
-                      {/* SMS Alert for deals */}
-                      {properties.some(p => p.price && p.zestimate && (p.zestimate - p.price) >= 30000) && (
-                        <Button
-                          onClick={() => setShowSmsAlert(!showSmsAlert)}
-                          variant={showSmsAlert ? 'default' : 'outline'}
-                          size="sm"
-                          className="gap-2 h-9 px-4 text-sm font-medium smooth-transition"
-                        >
-                          <MessageSquare className="h-4 w-4" />
-                          SMS Alert
-                        </Button>
-                      )}
                     </div>
                   )}
                 </div>
-
-                {/* SMS Alert Input */}
-                {showSmsAlert && (
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-3 p-4 bg-white/[0.02] rounded-xl border border-border">
-                    <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <MessageSquare className="h-5 w-5 text-primary flex-shrink-0" />
-                      <Input
-                        placeholder="Your phone number (e.g., +1234567890)"
-                        value={smsPhone}
-                        onChange={(e) => setSmsPhone(e.target.value)}
-                        className="flex-1 sm:max-w-xs bg-background h-11 sm:h-10"
-                      />
-                    </div>
-                    <Button
-                      size="sm"
-                      className="w-full sm:w-auto h-11 sm:h-9"
-                      disabled={sendingSms || !smsPhone.trim()}
-                      onClick={async () => {
-                        const deals = properties.filter(p => p.price && p.zestimate && (p.zestimate - p.price) >= 30000);
-                        if (deals.length === 0) return;
-                        setSendingSms(true);
-                        try {
-                          const response = await communications.sendSpreadAlert(
-                            deals.map(d => ({ address: d.address, price: d.price, zestimate: d.zestimate })),
-                            lastSearchLocation,
-                            smsPhone
-                          );
-                          if ((response as any).error) throw new Error((response as any).error);
-                          toast.success(`SMS alert sent with ${deals.length} deals!`);
-                          setShowSmsAlert(false);
-                        } catch (err: any) {
-                          toast.error(err.message || 'Failed to send SMS alert');
-                        } finally {
-                          setSendingSms(false);
-                        }
-                      }}
-                    >
-                      {sendingSms ? 'Sending...' : `Send ${properties.filter(p => p.price && p.zestimate && (p.zestimate - p.price) >= 30000).length} Deals`}
-                    </Button>
-                  </div>
-                )}
 
                 <AITopPicksSection
                   properties={visibleProperties}

@@ -18,10 +18,10 @@ All colors MUST be HSL.
     --popover: 0 0% 8%;
     --popover-foreground: 0 0% 100%;
 
-    /* Primary - Cyan matching homepage */
-    --primary: 187 85% 53%; /* cyan-500 #06b6d4 */
+    /* Primary — brand seafoam #00c4c8 (sourced from aiwholesail-logo-main.html) */
+    --primary: 181 100% 39%; /* brand seafoam #00c4c8 */
     --primary-foreground: 0 0% 0%; /* black text on cyan */
-    --primary-glow: 187 85% 60%;
+    --primary-glow: 181 100% 48%;
 
     /* Secondary */
     --secondary: 0 0% 10%; /* neutral-900 */
@@ -30,8 +30,8 @@ All colors MUST be HSL.
     --muted: 0 0% 14%;
     --muted-foreground: 0 0% 72%; /* much brighter — readable on dark bg */
 
-    /* Accent */
-    --accent: 187 85% 53%; /* cyan-500 */
+    /* Accent — brand seafoam */
+    --accent: 181 100% 39%;
     --accent-foreground: 0 0% 0%;
 
     --destructive: 0 72% 51%;
@@ -39,7 +39,7 @@ All colors MUST be HSL.
 
     --border: 0 0% 20%; /* brighter borders for visibility */
     --input: 0 0% 15%; /* lighter input bg for contrast */
-    --ring: 187 85% 53%; /* cyan-500 */
+    --ring: 181 100% 39%; /* brand seafoam */
 
     --radius: 0.5rem;
 
@@ -48,7 +48,7 @@ All colors MUST be HSL.
     --success-foreground: 0 0% 100%;
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
-    --info: 187 85% 53%;
+    --info: 181 100% 39%;
     --info-foreground: 0 0% 0%;
 
     /* Dark theme gradients */
@@ -90,7 +90,7 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 9%;
 
-    --primary: 187 85% 43%; /* cyan-600 for contrast on white */
+    --primary: 181 100% 39%; /* brand seafoam #00c4c8 — same in light + dark for brand consistency */
     --primary-foreground: 0 0% 100%;
 
     --secondary: 0 0% 94%;
@@ -99,7 +99,7 @@ All colors MUST be HSL.
     --muted: 0 0% 94%;
     --muted-foreground: 0 0% 40%;
 
-    --accent: 187 85% 43%;
+    --accent: 181 100% 39%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 72% 51%;
@@ -107,7 +107,29 @@ All colors MUST be HSL.
 
     --border: 0 0% 88%;
     --input: 0 0% 94%;
-    --ring: 187 85% 43%;
+    --ring: 181 100% 39%;
+    --info: 181 100% 39%;
+    --info-foreground: 0 0% 100%;
+  }
+
+  /* Brand tokens — source of truth: marketing/creatives/branding/aiwholesail-logo-main.html.
+     --brand-signal #00c4c8 is the canonical brand cyan and matches --primary. */
+  :root, .light {
+    --brand-ink: #0a0a0a;
+    --brand-paper: #fafaf9;
+    --brand-signal: #00c4c8;
+    --brand-tone: #f1f1ee;
+  }
+}
+
+@layer components {
+  /* Wordmark — same Onest font as the rest of the site, but with the brand-spec
+     uppercase + heavy weight + tight tracking. */
+  .aiwholesail-wordmark {
+    font-family: "Onest", system-ui, -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.045em;
+    text-transform: uppercase;
   }
 }
 
@@ -117,14 +139,30 @@ All colors MUST be HSL.
   }
 
   body {
+    /* Brand-bold (font-bold 700 body, font-extrabold 800 headings) is gated
+       behind the `brand-bold` feature flag — see src/lib/brand-flags.js.
+       Default OFF reverts to the pre-#413 appearance. */
     @apply bg-background text-foreground font-sans antialiased;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
     scroll-behavior: smooth;
   }
 
+  html[data-brand-bold="true"] body {
+    @apply font-bold;
+  }
+
   h1, h2, h3, h4, h5, h6 {
-    @apply font-semibold tracking-tight;
+    @apply tracking-tight;
+  }
+
+  html[data-brand-bold="true"] h1,
+  html[data-brand-bold="true"] h2,
+  html[data-brand-bold="true"] h3,
+  html[data-brand-bold="true"] h4,
+  html[data-brand-bold="true"] h5,
+  html[data-brand-bold="true"] h6 {
+    @apply font-extrabold;
   }
 
   h1 { @apply text-4xl lg:text-5xl; }
@@ -138,16 +176,20 @@ All colors MUST be HSL.
     background-color: hsl(0 0% 12%) !important;
     color: white !important;
     border-color: hsl(0 0% 22%) !important;
+    /* Don't inherit body's font-bold (700) — UI text the user typed should
+       read at normal weight, not shouted. */
+    font-weight: 400 !important;
   }
 
   input::placeholder, textarea::placeholder {
     color: hsl(0 0% 45%) !important;
+    font-weight: 400 !important;
   }
 
   input:focus, textarea:focus, select:focus {
-    border-color: hsl(187 85% 53% / 0.4) !important;
+    border-color: hsl(var(--ring) / 0.4) !important;
     outline: none !important;
-    box-shadow: 0 0 0 2px hsl(187 85% 53% / 0.15) !important;
+    box-shadow: 0 0 0 2px hsl(var(--ring) / 0.15) !important;
   }
 
   label {
@@ -209,10 +251,12 @@ All colors MUST be HSL.
     background-color: white !important;
     color: hsl(0 0% 9%) !important;
     border-color: hsl(0 0% 85%) !important;
+    font-weight: 400 !important;
   }
 
   .light input::placeholder, .light textarea::placeholder {
     color: hsl(0 0% 55%) !important;
+    font-weight: 400 !important;
   }
 
   .light label {
@@ -319,6 +363,19 @@ All colors MUST be HSL.
   }
   .scrollbar-none::-webkit-scrollbar {
     display: none;
+  }
+}
+
+@layer base {
+  /* Leaflet stacking-context guard.
+     Leaflet's `.leaflet-container` is `position: relative` with no z-index,
+     so its internal panes (.leaflet-popup-pane = 700, .leaflet-control =
+     800) leak into the document stacking context and paint over Radix
+     Dialog / Sheet overlays (z-50). `isolation: isolate` forces the
+     container to form its own stacking context, scoping every pane
+     inside it. */
+  .leaflet-container {
+    isolation: isolate;
   }
 }
 

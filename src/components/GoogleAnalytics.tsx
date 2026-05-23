@@ -15,13 +15,18 @@ export function GoogleAnalytics() {
   const location = useLocation();
 
   useEffect(() => {
-    // Load Google Tag Manager script
+    // Load Google Tag Manager script.
+    // PREVIOUS BUG: j.src was '/metrics/' (own domain) instead of the GTM CDN —
+    // every page view loaded the SPA's HTML as a script, threw SyntaxError,
+    // and GTM silently failed. Funnel tracking was broken site-wide.
+    // Diagnosed via Lighthouse audit 2026-05-12; see
+    // marketing/LIGHTHOUSE_REPORT_2026-05-12.md.
     const script = document.createElement('script');
     script.innerHTML = `
       (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
       new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
       j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-      '/metrics/';f.parentNode.insertBefore(j,f);
+      'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
       })(window,document,'script','dataLayer','${GTM_ID}');
     `;
     document.head.appendChild(script);

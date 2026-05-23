@@ -140,8 +140,13 @@ export default function Pricing() {
   return (
     <PublicLayout>
       <SEOHead
-        title="Pricing Plans"
+        title="AIWholesail Pricing — $49 Pro, $99 Elite, 7-Day Free Trial"
         description="Choose the perfect AIWholesail plan for your real estate business. Start with a 7-day free trial. Pro at $49/month or Elite at $99/month."
+        canonicalUrl="https://aiwholesail.com/pricing"
+        breadcrumbs={[
+          { name: 'Home', url: 'https://aiwholesail.com' },
+          { name: 'Pricing', url: 'https://aiwholesail.com/pricing' },
+        ]}
         noIndex={false}
       />
 
@@ -228,7 +233,7 @@ export default function Pricing() {
 
       {/* ===== HERO ===== */}
       <section className="relative bg-gradient-to-b from-background via-card to-background text-foreground overflow-hidden">
-        <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" fill="rgba(6, 182, 212, 0.15)" />
+        <Spotlight className="-top-40 left-0 md:left-60 md:-top-20" fill="rgba(0, 196, 200, 0.15)" />
         <div className="relative container mx-auto max-w-5xl px-4 pt-28 pb-20 text-center">
           <motion.p {...heroFadeUp(0)} className="text-xs font-semibold tracking-[0.2em] uppercase text-cyan-400 mb-6">PRICING</motion.p>
           <motion.h1 {...heroFadeUp(0.1)} className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[0.95] text-foreground mb-6">

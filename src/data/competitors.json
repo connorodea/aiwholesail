@@ -141,7 +141,10 @@
         "q": "Does BatchLeads analyze deals?",
         "a": "BatchLeads is primarily a list-pull and skip-trace tool. Deal analysis, ARV estimation, AI scoring, and contract generation are not its focus \u2014 that's where AIWholesail differentiates."
       }
-    ]
+    ],
+    "acquiredBy": "PropStream",
+    "acquiredDate": "2025-07",
+    "acquisitionNote": "BatchLeads (and BatchDialer) were acquired by PropStream in July 2025. They are now part of the PropStream bundle, not a standalone competitor."
   },
   {
     "slug": "privy",
