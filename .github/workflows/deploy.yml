@@ -48,6 +48,19 @@ jobs:
       - name: Lint Zillow proxy actions
         run: node scripts/check-zillow-actions.mjs
 
+      # Run the full API test suite — closes TD-011. Previously CI ran
+      # typecheck + build only; the regression guards in PR #287
+      # (Stripe Checkout / cardless-trial) were decorative because nothing
+      # executed them in CI. Runs ~1012 tests in ~12s; ~30s for npm ci on
+      # a cold cache. Tests gate the deploy jobs via `needs: ci`.
+      - name: Install API dependencies
+        working-directory: aiwholesail-api
+        run: npm ci
+
+      - name: Run API tests
+        working-directory: aiwholesail-api
+        run: npm test
+
       # SEO contract tests — assert SEOHead title length, schema dedupe,
       # description caps, em-dash typography, canonical URLs, meta-description
       # helper output, blog-meta lint, LSI aggregator + converter behavior.
