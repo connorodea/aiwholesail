@@ -12,14 +12,20 @@ import {
   isNative,
 } from './config';
 
-let configurePromise: Promise<void> | null = null;
+let configurePromise: Promise<boolean> | null = null;
 let currentAppUserId: string | null = null;
 
 export async function ensureConfigured(): Promise<boolean> {
   if (!isNative()) return false;
+  // Cache a successful or in-flight configure. A rejected configure is
+  // cleared below so the next caller can retry instead of perpetually
+  // re-throwing a cached rejection.
   if (configurePromise) {
-    await configurePromise;
-    return true;
+    try {
+      return await configurePromise;
+    } catch {
+      return false;
+    }
   }
   const apiKey = getRevenueCatApiKey();
   if (!apiKey) {
@@ -27,15 +33,21 @@ export async function ensureConfigured(): Promise<boolean> {
     return false;
   }
   configurePromise = (async () => {
-    if (import.meta.env.DEV) {
-      await Purchases.setLogLevel({ level: LOG_LEVEL.DEBUG });
-    } else {
-      await Purchases.setLogLevel({ level: LOG_LEVEL.WARN });
+    try {
+      if (import.meta.env.DEV) {
+        await Purchases.setLogLevel({ level: LOG_LEVEL.DEBUG });
+      } else {
+        await Purchases.setLogLevel({ level: LOG_LEVEL.WARN });
+      }
+      await Purchases.configure({ apiKey });
+      return true;
+    } catch (err) {
+      console.error('[RevenueCat] configure() failed', err);
+      configurePromise = null; // allow retry on next call
+      return false;
     }
-    await Purchases.configure({ apiKey });
   })();
-  await configurePromise;
-  return true;
+  return await configurePromise;
 }
 
 export async function identifyUser(appUserId: string): Promise<CustomerInfo | null> {

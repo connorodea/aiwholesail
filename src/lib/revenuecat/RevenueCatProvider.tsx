@@ -71,21 +71,33 @@ export function RevenueCatProvider({ children }: { children: React.ReactNode }) 
     }
     let cancelled = false;
     (async () => {
-      const ok = await ensureConfigured();
-      if (cancelled) return;
-      if (!ok) {
-        setReady(true);
-        return;
-      }
       try {
-        const callbackId = await Purchases.addCustomerInfoUpdateListener(
-          (info) => setCustomerInfo(info as CustomerInfo),
-        );
-        listenerIdRef.current = callbackId;
+        const ok = await ensureConfigured();
+        if (cancelled || !ok) return;
+        let callbackId: string | null = null;
+        try {
+          callbackId = await Purchases.addCustomerInfoUpdateListener((info) => {
+            if (!cancelled) setCustomerInfo(info as CustomerInfo);
+          });
+        } catch (err) {
+          console.warn('[RevenueCat] failed to attach listener', err);
+        }
+        // If unmount raced the awaited attach, remove the just-created
+        // listener immediately instead of orphaning it.
+        if (cancelled && callbackId) {
+          Purchases.removeCustomerInfoUpdateListener({ listenerToRemove: callbackId }).catch(
+            () => {/* noop */},
+          );
+          return;
+        }
+        if (callbackId) listenerIdRef.current = callbackId;
       } catch (err) {
-        console.warn('[RevenueCat] failed to attach listener', err);
+        console.warn('[RevenueCat] init failed', err);
+      } finally {
+        // Always flip ready=true so consumers don't hang on a configure
+        // failure or listener-attach failure.
+        if (!cancelled) setReady(true);
       }
-      setReady(true);
     })();
     return () => {
       cancelled = true;
@@ -140,7 +152,8 @@ export function RevenueCatProvider({ children }: { children: React.ReactNode }) 
     if (!available) return 'unavailable';
     try {
       const info = await restoreCalls();
-      if (info) setCustomerInfo(info);
+      if (info === null) return 'unavailable'; // configure failed / no api key
+      setCustomerInfo(info);
       return hasProEntitlement(info) ? 'restored' : 'cancelled';
     } catch (err) {
       console.warn('[RevenueCat] restore failed', err);
