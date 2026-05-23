@@ -15,6 +15,7 @@ import {
   REFRESH_TOKEN_KEY,
   USER_KEY,
 } from './auth-storage-keys';
+import { getDetector as getStormDetector, AUTH_FAILURE_CODES } from './auth-storm-detector.js';
 
 const API_URL = API_BASE_URL;
 
@@ -191,6 +192,39 @@ export async function apiFetch<T>(
         tokenStorage.clear();
         notifyAuthChange(null);
       }
+
+      // 401-storm circuit breaker (PR #467 followup, 2026-05-15 incident).
+      // If N auth-coded 401s land inside a tight window, the user is in a
+      // stuck-token render loop (useFavorites + useSubscription firing,
+      // each 401ing, setState, re-render, 401 again). Proactively clear
+      // auth state so the next render sees user === null and the hooks
+      // short-circuit on `if (!user) return` — breaks the loop BEFORE a
+      // component throws into the ErrorBoundary.
+      if (data.code && AUTH_FAILURE_CODES.has(data.code)) {
+        const { shouldTrip } = getStormDetector().recordAuthFailure(Date.now());
+        if (shouldTrip) {
+          console.warn(
+            '[apiFetch] auth-401 storm detected — clearing auth state to break render loop',
+          );
+          tokenStorage.clear();
+          notifyAuthChange(null);
+          // PostHog telemetry — the observability SLO catalog tracks this
+          // event so we can dashboard storm frequency in prod. Window.posthog
+          // global is typed in src/lib/analytics.ts so no cast needed.
+          if (typeof window !== 'undefined' && window.posthog?.capture) {
+            try {
+              window.posthog.capture('auth_storm_tripped', {
+                route: window.location?.pathname,
+                last_endpoint: endpoint,
+                code: data.code,
+              });
+            } catch {
+              /* PostHog optional; swallow telemetry errors */
+            }
+          }
+        }
+      }
+
       // For non-token-expired 401s (e.g. unconfigured services), just return the error
       // without logging the user out
       return { error: data.error || 'Request failed' };
@@ -202,6 +236,9 @@ export async function apiFetch<T>(
       return { error: data.error || 'Request failed', code: data.code, errors: data.errors };
     }
 
+    // 2xx — token is working. Reset the storm detector so a later transient
+    // burst doesn't trip prematurely from old failures.
+    getStormDetector().recordSuccess();
     return { data };
   } catch (error) {
     console.error('[API] Request failed:', error);
