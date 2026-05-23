@@ -143,3 +143,48 @@ test('default now is `new Date()` when omitted', () => {
   const result = yearsHeldFromPriceHistory(history);
   assert.ok(typeof result === 'number' && result > 10);
 });
+
+// ── Anniversary boundary correctness (reviewer fix 2026-05-23) ──
+// Calendar-exact semantics: "years held" advances on the ANNIVERSARY day,
+// not before. A sale on 2001-05-24 with NOW=2026-05-23 is 24 years 364
+// days old, not 25 — the 25th anniversary hasn't been reached yet. The
+// prior 365-days/year approximation over-counted by up to ~25 days per
+// year-of-hold, creating false positives at the senior-owner (>=25) and
+// tired-landlord (>=15) thresholds.
+
+test('boundary: one day BEFORE anniversary subtracts a year', () => {
+  // 2001-05-24 → 2026-05-23 = 24y 364d. Not 25 yet.
+  const history = ph(e('2001-05-24', 'Sold'));
+  assert.equal(yearsHeldFromPriceHistory(history, opts), 24);
+});
+
+test('boundary: exactly on anniversary returns the integer year count', () => {
+  // 2001-05-23 → 2026-05-23 = exactly 25y.
+  const history = ph(e('2001-05-23', 'Sold'));
+  assert.equal(yearsHeldFromPriceHistory(history, opts), 25);
+});
+
+test('boundary: one day AFTER anniversary returns the integer year count', () => {
+  // 2001-05-22 → 2026-05-23 = 25y 1d.
+  const history = ph(e('2001-05-22', 'Sold'));
+  assert.equal(yearsHeldFromPriceHistory(history, opts), 25);
+});
+
+test('boundary: senior-owner threshold (>=25) does NOT false-fire at 24y364d', () => {
+  // Senior-owner predicate uses `>= 25`. A property sold 24y364d ago must
+  // return 24, not 25, or it false-positives into the quicklist.
+  const years = yearsHeldFromPriceHistory(ph(e('2001-05-24', 'Sold')), opts);
+  assert.equal(years >= 25, false, `expected 24, got ${years} — senior-owner false positive`);
+});
+
+test('boundary: tired-landlord threshold (>=15) does NOT false-fire at 14y364d', () => {
+  const years = yearsHeldFromPriceHistory(ph(e('2011-05-24', 'Sold')), opts);
+  assert.equal(years >= 15, false, `expected 14, got ${years} — tired-landlord false positive`);
+});
+
+test('boundary: leap-day sale handled correctly across non-leap anniversaries', () => {
+  // Sale 2020-02-29 (Feb 29 exists in 2020). NOW=2026-05-23.
+  // 2020-02-29 to 2026-05-23 is 6+ full years (May > Feb), so 6.
+  const history = ph(e('2020-02-29', 'Sold'));
+  assert.equal(yearsHeldFromPriceHistory(history, opts), 6);
+});

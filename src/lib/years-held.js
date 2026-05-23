@@ -37,9 +37,6 @@ export function yearsHeldFromPriceHistory(priceHistory, options = {}) {
   if (!Array.isArray(priceHistory) || priceHistory.length === 0) return null;
   const now = options.now instanceof Date ? options.now : new Date();
   const nowMs = now.getTime();
-  // 365 days/year — see backend file for the rationale (short windows
-  // with varying leap-day counts drift under 365.25 average).
-  const msPerYear = 365 * 24 * 60 * 60 * 1000;
 
   const validSaleTimes = priceHistory
     .filter((h) => h && SALE_EVENT_NAMES.has(h.event))
@@ -48,7 +45,17 @@ export function yearsHeldFromPriceHistory(priceHistory, options = {}) {
 
   if (validSaleTimes.length === 0) return null;
 
-  const mostRecentSaleMs = Math.max(...validSaleTimes);
-  const yearsHeld = (nowMs - mostRecentSaleMs) / msPerYear;
-  return Math.floor(yearsHeld);
+  // Calendar arithmetic — see backend file for the boundary-bug rationale.
+  // Reviewer fix 2026-05-23: 365-day approximation false-fired senior-owner
+  // (`>=25`) and tired-landlord (`>=15`) thresholds at off-anniversary dates.
+  const saleDate = new Date(Math.max(...validSaleTimes));
+  let years = now.getUTCFullYear() - saleDate.getUTCFullYear();
+  const beforeAnniversaryMonth = now.getUTCMonth() < saleDate.getUTCMonth();
+  const sameMonthBeforeDay =
+    now.getUTCMonth() === saleDate.getUTCMonth() &&
+    now.getUTCDate() < saleDate.getUTCDate();
+  if (beforeAnniversaryMonth || sameMonthBeforeDay) {
+    years -= 1;
+  }
+  return years;
 }

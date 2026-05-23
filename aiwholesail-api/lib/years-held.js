@@ -61,16 +61,9 @@ function yearsHeldFromPriceHistory(priceHistory, options = {}) {
   if (!Array.isArray(priceHistory) || priceHistory.length === 0) return null;
   const now = options.now instanceof Date ? options.now : new Date();
   const nowMs = now.getTime();
-  // 365 days/year — NOT 365.25 average. Short windows (e.g. 2020→2026,
-  // 6 years with only 1 leap day) divide unevenly by 365.25 and floor to
-  // years-1. 365.0 over-estimates by leap-day count, but combined with
-  // Math.floor that's always safe — never drifts a true 6-year hold to 5.
-  // Verified at 6, 7, 8, 10.7, and 100-year holds; all floor correctly.
-  const msPerYear = 365 * 24 * 60 * 60 * 1000;
 
-  // Filter to Sold events with parseable, non-future dates; sort
-  // chronologically; pick the most recent. We can't just pick max-time
-  // because future-dated entries would always "win" — filter first.
+  // Filter to Sold events with parseable, non-future dates; pick the most
+  // recent. Future-dated entries would always "win" Math.max — filter first.
   const validSaleTimes = priceHistory
     .filter((h) => h && SALE_EVENT_NAMES.has(h.event))
     .map(entryTime)
@@ -78,9 +71,26 @@ function yearsHeldFromPriceHistory(priceHistory, options = {}) {
 
   if (validSaleTimes.length === 0) return null;
 
-  const mostRecentSaleMs = Math.max(...validSaleTimes);
-  const yearsHeld = (nowMs - mostRecentSaleMs) / msPerYear;
-  return Math.floor(yearsHeld);
+  // Calendar arithmetic — NOT a 365-or-365.25-day ms approximation.
+  // Reviewer fix 2026-05-23: the earlier 365-day approach over-counted by
+  // ~25 days/year at every anniversary boundary. A sale on 2001-05-24
+  // with now=2026-05-23 returned 25 (the 25th anniversary hadn't actually
+  // been reached — 24y 364d held), false-firing the senior-owner predicate
+  // at the `>=25` threshold. Same shape at tired-landlord (`>=15`).
+  //
+  // Calendar logic: years = (now.year - sale.year), minus 1 if the
+  // anniversary hasn't been reached yet THIS year. Integer-exact, no
+  // leap-day drift.
+  const saleDate = new Date(Math.max(...validSaleTimes));
+  let years = now.getUTCFullYear() - saleDate.getUTCFullYear();
+  const beforeAnniversaryMonth = now.getUTCMonth() < saleDate.getUTCMonth();
+  const sameMonthBeforeDay =
+    now.getUTCMonth() === saleDate.getUTCMonth() &&
+    now.getUTCDate() < saleDate.getUTCDate();
+  if (beforeAnniversaryMonth || sameMonthBeforeDay) {
+    years -= 1;
+  }
+  return years;
 }
 
 module.exports = {
