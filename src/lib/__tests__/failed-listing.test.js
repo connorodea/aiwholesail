@@ -2,7 +2,8 @@
 // produces correct outputs for the canonical cases.
 //
 // Full exhaustive predicate coverage lives in
-// aiwholesail-api/test/lib/failed-listing.test.js (30 cases). This file
+// aiwholesail-api/test/lib/failed-listing.test.js (35 cases as of PR #480
+// post-review — adds boundary + future-date + asymmetry pins). This file
 // is intentionally smaller — it tests the FRONTEND MIRROR specifically
 // (correct exports, ESM resolves, predicate parity on the cases most
 // likely to drift if the mirror gets out of sync).
