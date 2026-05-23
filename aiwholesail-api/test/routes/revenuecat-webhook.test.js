@@ -361,6 +361,39 @@ test('POST /api/iap/revenuecat/webhook', async (t) => {
     );
   });
 
+  // ── Cross-source state machine guard (reviewer Blocker 1, fix 2026-05-23) ──
+  // Migration 036 adds a `source` column. RC writes `source='revenuecat'`,
+  // Stripe must write `source='stripe'`. If a Stripe upsert lands on a row
+  // currently owned by RC and DOES NOT stamp source, the row keeps
+  // `source='revenuecat'`. Then RC's downgrade query
+  //   UPDATE subscribers SET subscribed=FALSE WHERE source='revenuecat'
+  // would wrongly downgrade a Stripe-owned subscription. Fix: every
+  // Stripe upsert's ON CONFLICT SET clause must include `source='stripe'`.
+
+  await t.test('every ON CONFLICT block in routes/stripe.js stamps source=stripe', () => {
+    const fs = require('node:fs');
+    const stripePath = path.join(__dirname, '..', '..', 'routes', 'stripe.js');
+    const src = fs.readFileSync(stripePath, 'utf8');
+
+    // Find every "ON CONFLICT (email) DO UPDATE SET" block that targets
+    // the subscribers table. For each, the SET clause (everything up to
+    // the closing backtick / next sql operation) must mention source.
+    const blocks = src.match(/ON CONFLICT \(email\) DO UPDATE SET[\s\S]*?updated_at = NOW\(\)/g) || [];
+    assert.ok(
+      blocks.length >= 2,
+      `Expected ≥2 ON CONFLICT (email) blocks in routes/stripe.js (subscribers upserts); found ${blocks.length}`,
+    );
+
+    const missing = blocks.filter((b) => !/source\s*=\s*'stripe'/i.test(b));
+    assert.equal(
+      missing.length,
+      0,
+      `${missing.length} of ${blocks.length} ON CONFLICT blocks in routes/stripe.js are missing source='stripe'. ` +
+      `Without this, RC's WHERE source='revenuecat' downgrade can wrongly nuke a Stripe-owned row. ` +
+      `First missing block (truncated): ${missing[0]?.slice(0, 200) ?? '(none)'}`,
+    );
+  });
+
   // ── Idempotency on event.id (reviewer fix 2026-05-23) ──
   // RC retries non-2xx webhooks aggressively. Without per-event dedup, a
   // retry can re-process a stale CANCELLATION/PURCHASE after the state has

@@ -382,8 +382,8 @@ router.get('/subscription', authenticate, asyncHandler(async (req, res) => {
   // tier breadcrumb.
   if (hasActiveSub) {
     await query(
-      `INSERT INTO subscribers (email, user_id, stripe_customer_id, subscribed, subscription_tier, subscription_end, is_trial, trial_start, trial_end, updated_at)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())
+      `INSERT INTO subscribers (email, user_id, stripe_customer_id, subscribed, subscription_tier, subscription_end, is_trial, trial_start, trial_end, source, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'stripe', NOW())
        ON CONFLICT (email) DO UPDATE SET
          stripe_customer_id = EXCLUDED.stripe_customer_id,
          subscribed = EXCLUDED.subscribed,
@@ -392,6 +392,10 @@ router.get('/subscription', authenticate, asyncHandler(async (req, res) => {
          is_trial = EXCLUDED.is_trial,
          trial_start = EXCLUDED.trial_start,
          trial_end = EXCLUDED.trial_end,
+         -- Stamp source on every Stripe write so RC's downgrade query
+         -- (WHERE source='revenuecat') never matches a row Stripe has
+         -- taken ownership of. See migration 036.
+         source = 'stripe',
          updated_at = NOW()`,
       [user.email, user.id, customerId, hasActiveSub, subscriptionTier, subscriptionEnd, isOnTrial, trialStart, trialEnd]
     );
@@ -645,8 +649,8 @@ async function reconcileCustomerSubscriptions(customerId) {
   let subscriptionTier = reconcilePrice ? resolveTierFromPrice(reconcilePrice) : 'Pro';
 
   await query(
-    `INSERT INTO subscribers (email, stripe_customer_id, subscribed, subscription_tier, subscription_end, is_trial, trial_start, trial_end, updated_at)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW())
+    `INSERT INTO subscribers (email, stripe_customer_id, subscribed, subscription_tier, subscription_end, is_trial, trial_start, trial_end, source, updated_at)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'stripe', NOW())
      ON CONFLICT (email) DO UPDATE SET
        stripe_customer_id = EXCLUDED.stripe_customer_id,
        subscribed = EXCLUDED.subscribed,
@@ -655,6 +659,10 @@ async function reconcileCustomerSubscriptions(customerId) {
        is_trial = EXCLUDED.is_trial,
        trial_start = EXCLUDED.trial_start,
        trial_end = EXCLUDED.trial_end,
+       -- Stamp source on every Stripe write so RC's downgrade query
+       -- (WHERE source='revenuecat') never matches a row Stripe has
+       -- taken ownership of. See migration 036.
+       source = 'stripe',
        updated_at = NOW()`,
     [email, customerId, hasActiveSub, subscriptionTier, subscriptionEnd, isOnTrial, trialStart, trialEnd]
   );
