@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-find-profitable-real-estate-deals-in-st-louis-mo-2024-guide",
+      "title": "How to Find Profitable Real Estate Deals in St. Louis MO (2024 Guide)",
+      "excerpt": "St. Louis is one of the most investor-friendly cities in the Midwest, with low entry prices, strong rental demand, and plenty of distressed properties ripe for wholesale and flip deals. Learn which neighborhoods to target, what the numbers look like, and how out-of-state investors can break into this market.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-23T12:01:01.250Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in St. Louis MO",
+        "St. Louis real estate investing",
+        "wholesale real estate St. Louis",
+        "flip houses St. Louis",
+        "St. Louis rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-build-a-real-estate-investing-team-that-scales-with-you",
       "title": "How to Build a Real Estate Investing Team That Scales With You",
       "excerpt": "Building the right team is the difference between doing a few deals a year and running a true real estate business. Learn who to hire, when to hire them, and how to structure your team for long-term growth.",
@@ -15,7 +32,7 @@
         "real estate investing partners",
         "property investor team"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "airbnb-arbitrage-vs-owning-rental-property-which-strategy-wins-in-2025",
