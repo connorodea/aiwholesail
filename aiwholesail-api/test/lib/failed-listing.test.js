@@ -407,3 +407,47 @@ test('future-date guard: future-dated entries are filtered, real ones still clas
   // close the cycle. Result: failed.
   assert.equal(isFailedListing(rec, opts), true);
 });
+
+// ── Deliberate asymmetric cycle-walking between the two predicates ──
+// Second-round reviewer (2026-05-23) flagged that the two predicates can
+// produce DIFFERENT answers on a record whose latest priceHistory event
+// is an unclosed listing-start. This asymmetry is INTENTIONAL — it
+// reflects the semantic split between them:
+//
+//   isFailedListing: "is the property currently in a failed-listing
+//     state?" — an open (no-close) latest cycle means the current state
+//     is UNCLEAR, so the predicate returns false (conservative). The
+//     trailing "Listed for sale" event resets foundFailedInLookback.
+//
+//   hasPreviousFailedListing: "has the property's HISTORY contained a
+//     closed failure within lookback?" — independent of current state;
+//     closed cycles remain closed even when a new cycle opens after.
+//
+// This test pins the deliberate divergence so a future refactor that
+// "harmonizes" the two by removing the reset would silently change
+// product behavior.
+
+test('asymmetry pin: open trailing listing + earlier failed cycle — predicates diverge by design', () => {
+  const sharedPriceHistory = [
+    e('2024-08-01', 'Listed for sale'),
+    e('2025-04-01', 'Listing removed'),    // closed: failed (inside lookback)
+    e('2026-02-01', 'Listed for sale'),    // re-listed, no subsequent close
+  ];
+
+  // isFailedListing: latest cycle is OPEN → state is unclear → false
+  // (the trailing Listed-for-sale resets the foundFailedInLookback bit).
+  assert.equal(
+    isFailedListing({ homeStatus: 'OFF_MARKET', priceHistory: sharedPriceHistory }, opts),
+    false,
+    'isFailedListing must NOT fire when the latest cycle is open',
+  );
+
+  // hasPreviousFailedListing: closed prior cycle exists → fires regardless
+  // of what the latest cycle is doing. The new "Listed for sale" matches
+  // FOR_SALE status, the canonical relisted-after-failure case.
+  assert.equal(
+    hasPreviousFailedListing({ homeStatus: 'FOR_SALE', priceHistory: sharedPriceHistory }, opts),
+    true,
+    'hasPreviousFailedListing must fire when a closed prior cycle exists in lookback',
+  );
+});
