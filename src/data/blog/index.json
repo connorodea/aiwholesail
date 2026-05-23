@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-worcester-ma-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Worcester MA: The Investor's Complete Guide for 2024",
+      "excerpt": "Worcester MA is one of New England's most underrated investment markets, offering affordable entry points and strong rental demand. Discover the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Worcester MA.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-23T12:02:46.866Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Worcester MA",
+        "Worcester MA investment properties",
+        "wholesale real estate Worcester",
+        "flip houses Worcester MA",
+        "Worcester rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-find-profitable-real-estate-deals-in-st-louis-mo-2024-guide",
       "title": "How to Find Profitable Real Estate Deals in St. Louis MO (2024 Guide)",
       "excerpt": "St. Louis is one of the most investor-friendly cities in the Midwest, with low entry prices, strong rental demand, and plenty of distressed properties ripe for wholesale and flip deals. Learn which neighborhoods to target, what the numbers look like, and how out-of-state investors can break into this market.",
@@ -15,7 +32,7 @@
         "flip houses St. Louis",
         "St. Louis rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-build-a-real-estate-investing-team-that-scales-with-you",
