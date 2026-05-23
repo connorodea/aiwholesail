@@ -1,0 +1,453 @@
+// Tests for isFailedListing — Phase 2d off-market lead-type predicate.
+//
+// A "failed listing" is a Zillow record that:
+//   1. Has a "Listed for sale" event in priceHistory
+//   2. Has a subsequent "Listing removed" / equivalent
+//   3. Does NOT have a "Sold" event after the listing started
+//   4. Is NOT currently for sale (homeStatus not in FOR_SALE / PENDING)
+//   5. The withdrawal happened within the lookback window (default 18mo)
+//
+// Run:
+//   node --test aiwholesail-api/test/lib/failed-listing.test.js
+
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const {
+  isFailedListing,
+  hasPreviousFailedListing,
+  DEFAULT_LOOKBACK_MONTHS,
+} = require('../../lib/failed-listing.js');
+
+// Pinned "now" so date math is stable across runs.
+const NOW = new Date('2026-05-23T00:00:00.000Z');
+const opts = { now: NOW };
+
+const ph = (...entries) => ({ homeStatus: 'OFF_MARKET', priceHistory: entries });
+const e = (date, event, price = 350000) => ({ date, event, price });
+
+test('classic failed listing: listed → removed, no sale, currently off-market', () => {
+  const rec = ph(
+    e('2026-02-15', 'Listed for sale'),
+    e('2026-04-01', 'Price change'),
+    e('2026-05-10', 'Listing removed'),
+  );
+  assert.equal(isFailedListing(rec, opts), true);
+});
+
+test('sold between listing and removal: NOT a failed listing', () => {
+  // The listing succeeded — the post-sale "removed" entry is just Zillow
+  // closing out the active record, not a failure signal.
+  const rec = ph(
+    e('2026-02-15', 'Listed for sale'),
+    e('2026-04-01', 'Sold'),
+    e('2026-04-02', 'Listing removed'),
+  );
+  assert.equal(isFailedListing(rec, opts), false);
+});
+
+test('currently FOR_SALE — even with prior withdrawal, not yet failed', () => {
+  // Relisting pattern: previous attempt failed, but the current attempt
+  // is still active. Don't classify as failed until THIS cycle ends.
+  const rec = {
+    homeStatus: 'FOR_SALE',
+    priceHistory: [
+      e('2024-08-01', 'Listed for sale'),
+      e('2024-12-01', 'Listing removed'),
+      e('2026-04-01', 'Listed for sale'), // current cycle
+    ],
+  };
+  assert.equal(isFailedListing(rec, opts), false);
+});
+
+test('relisted-and-now-sold cycle: NOT failed', () => {
+  // Earlier failure THEN current cycle sold — the SOLD wipes out the
+  // failed state.
+  const rec = ph(
+    e('2024-08-01', 'Listed for sale'),
+    e('2024-12-01', 'Listing removed'),
+    e('2026-01-01', 'Listed for sale'),
+    e('2026-04-01', 'Sold'),
+  );
+  assert.equal(isFailedListing(rec, opts), false);
+});
+
+test('relisted-then-failed-again: still failed (latest cycle is failed)', () => {
+  const rec = ph(
+    e('2024-08-01', 'Listed for sale'),
+    e('2024-09-01', 'Sold'),
+    e('2025-12-01', 'Listed for sale'), // resold, then relisted
+    e('2026-04-01', 'Listing removed'),
+  );
+  assert.equal(isFailedListing(rec, opts), true);
+});
+
+test('withdrawal outside lookback (default 18mo): NOT failed', () => {
+  // Listed and removed in 2023 — beyond 18mo window from May 2026.
+  const rec = ph(
+    e('2023-05-01', 'Listed for sale'),
+    e('2023-08-01', 'Listing removed'),
+  );
+  assert.equal(isFailedListing(rec, opts), false);
+});
+
+test('withdrawal exactly at the lookback boundary: included', () => {
+  // 18 months back from 2026-05-23 ≈ 2024-11-23. Withdrawal one day
+  // before the cutoff falls outside; one day after falls inside.
+  const recInside = ph(
+    e('2024-11-01', 'Listed for sale'),
+    e('2024-12-01', 'Listing removed'),
+  );
+  assert.equal(isFailedListing(recInside, opts), true);
+
+  const recOutside = ph(
+    e('2024-06-01', 'Listed for sale'),
+    e('2024-08-01', 'Listing removed'),
+  );
+  assert.equal(isFailedListing(recOutside, opts), false);
+});
+
+test('lookback window is configurable', () => {
+  const rec = ph(
+    e('2024-06-01', 'Listed for sale'),
+    e('2024-08-01', 'Listing removed'),
+  );
+  // 18mo (default): outside window
+  assert.equal(isFailedListing(rec, { now: NOW, lookbackMonths: 18 }), false);
+  // 36mo: inside window
+  assert.equal(isFailedListing(rec, { now: NOW, lookbackMonths: 36 }), true);
+});
+
+test('missing priceHistory: NOT failed (cannot classify)', () => {
+  assert.equal(isFailedListing({ homeStatus: 'OFF_MARKET' }, opts), false);
+});
+
+test('empty priceHistory: NOT failed', () => {
+  assert.equal(isFailedListing({ homeStatus: 'OFF_MARKET', priceHistory: [] }, opts), false);
+});
+
+test('priceHistory with no listing events: NOT failed', () => {
+  // Just price changes with no "Listed for sale" or "Listing removed".
+  const rec = ph(
+    e('2026-01-01', 'Price change'),
+    e('2026-03-01', 'Price change'),
+  );
+  assert.equal(isFailedListing(rec, opts), false);
+});
+
+test('listed but never removed: NOT failed', () => {
+  // Active listing or under contract — not failed.
+  const rec = ph(
+    e('2026-02-01', 'Listed for sale'),
+    e('2026-03-01', 'Price change'),
+  );
+  assert.equal(isFailedListing(rec, opts), false);
+});
+
+test('null / undefined / non-object: NOT failed, does not throw', () => {
+  for (const input of [null, undefined, '', 0, [], 'foo', 42]) {
+    assert.equal(isFailedListing(input, opts), false, `input ${JSON.stringify(input)} should be false`);
+  }
+});
+
+test('priceHistory entries without date: filtered out, not crashed', () => {
+  const rec = ph(
+    { event: 'Listed for sale' }, // no date — filtered
+    e('2026-02-01', 'Listed for sale'),
+    e('2026-04-01', 'Listing removed'),
+  );
+  assert.equal(isFailedListing(rec, opts), true);
+});
+
+test('priceHistory entries with garbage date: filtered out', () => {
+  const rec = ph(
+    e('not-a-date', 'Listed for sale'),
+    e('2026-02-01', 'Listed for sale'),
+    e('2026-04-01', 'Listing removed'),
+  );
+  assert.equal(isFailedListing(rec, opts), true);
+});
+
+test('PENDING / CONTINGENT statuses count as "currently active"', () => {
+  for (const status of ['PENDING', 'CONTINGENT', 'AUCTION']) {
+    const rec = {
+      homeStatus: status,
+      priceHistory: [
+        e('2026-02-01', 'Listed for sale'),
+        e('2026-04-01', 'Listing removed'),
+      ],
+    };
+    assert.equal(isFailedListing(rec, opts), false, `${status} should not be failed`);
+  }
+});
+
+test('alternate withdrawal event names ("Cancelled", "Off market") still trigger', () => {
+  for (const event of ['Listing withdrawn', 'Off market', 'Cancelled']) {
+    const rec = ph(
+      e('2026-02-01', 'Listed for sale'),
+      e('2026-04-01', event),
+    );
+    assert.equal(isFailedListing(rec, opts), true, `${event} should trigger failed`);
+  }
+});
+
+test('"Back on market" + "Relisted" reset the listing window', () => {
+  // Sold → relisted → removed = current cycle failed.
+  const rec = ph(
+    e('2024-08-01', 'Listed for sale'),
+    e('2024-09-01', 'Sold'),
+    e('2025-12-01', 'Relisted'),
+    e('2026-04-01', 'Listing removed'),
+  );
+  assert.equal(isFailedListing(rec, opts), true);
+});
+
+test('unsorted priceHistory tolerated — sorts internally', () => {
+  // Real Zillow payloads come newest-first; tolerate either direction.
+  const rec = ph(
+    e('2026-04-01', 'Listing removed'),
+    e('2026-02-01', 'Listed for sale'),
+  );
+  assert.equal(isFailedListing(rec, opts), true);
+});
+
+test('DEFAULT_LOOKBACK_MONTHS exported for callers that want to surface it in UI copy', () => {
+  assert.equal(DEFAULT_LOOKBACK_MONTHS, 18);
+});
+
+// ─── hasPreviousFailedListing ─────────────────────────────────────────
+// Companion predicate. Inverse status guard — fires on currently-active
+// listings that have a prior failed cycle. The shippable subset of the
+// Phase 2d signal until proper failed-listing region discovery lands.
+
+test('previous: currently for sale with prior withdrawal → true', () => {
+  // Owner tried in early 2024, withdrew, relisted in 2026. The current
+  // listing IS active; the PRIOR cycle was a failure.
+  const rec = {
+    homeStatus: 'FOR_SALE',
+    priceHistory: [
+      { date: '2024-08-01', event: 'Listed for sale', price: 400000 },
+      { date: '2024-12-01', event: 'Listing removed', price: 400000 },
+      { date: '2026-04-01', event: 'Listed for sale', price: 380000 },
+    ],
+  };
+  assert.equal(hasPreviousFailedListing(rec, opts), true);
+});
+
+test('previous: currently for sale with NO prior cycle → false', () => {
+  // First-time listing — no history of giving up.
+  const rec = {
+    homeStatus: 'FOR_SALE',
+    priceHistory: [
+      { date: '2026-04-01', event: 'Listed for sale', price: 380000 },
+    ],
+  };
+  assert.equal(hasPreviousFailedListing(rec, opts), false);
+});
+
+test('previous: prior cycle SOLD (not failed) → false', () => {
+  // Owner sold once, bought again, now relisting — no prior failure.
+  const rec = {
+    homeStatus: 'FOR_SALE',
+    priceHistory: [
+      { date: '2024-01-01', event: 'Listed for sale', price: 300000 },
+      { date: '2024-03-01', event: 'Sold', price: 295000 },
+      { date: '2026-04-01', event: 'Listed for sale', price: 400000 },
+    ],
+  };
+  assert.equal(hasPreviousFailedListing(rec, opts), false);
+});
+
+test('previous: currently OFF_MARKET → false (use isFailedListing instead)', () => {
+  // Mirror test of isFailedListing's status guard. This predicate is
+  // *only* for currently-active listings; off-market goes to the other
+  // predicate.
+  const rec = {
+    homeStatus: 'OFF_MARKET',
+    priceHistory: [
+      { date: '2026-02-01', event: 'Listed for sale', price: 400000 },
+      { date: '2026-04-01', event: 'Listing removed', price: 400000 },
+    ],
+  };
+  assert.equal(hasPreviousFailedListing(rec, opts), false);
+});
+
+test('previous: PENDING + prior failure → true (still counts as "active and motivated")', () => {
+  // Under contract IS currently-active in our status set. A pending
+  // listing with a prior failure is still a "relisted motivated seller."
+  // Withdrawal date 2024-12-01 is inside the 18-mo window from 2026-05-23.
+  const rec = {
+    homeStatus: 'PENDING',
+    priceHistory: [
+      { date: '2024-08-01', event: 'Listed for sale', price: 400000 },
+      { date: '2024-12-01', event: 'Listing removed', price: 400000 },
+      { date: '2026-03-01', event: 'Listed for sale', price: 380000 },
+      { date: '2026-04-15', event: 'Pending sale', price: 380000 },
+    ],
+  };
+  assert.equal(hasPreviousFailedListing(rec, opts), true);
+});
+
+test('previous: multiple prior failed cycles → true (only need one)', () => {
+  const rec = {
+    homeStatus: 'FOR_SALE',
+    priceHistory: [
+      { date: '2024-06-01', event: 'Listed for sale', price: 400000 },
+      { date: '2024-10-01', event: 'Listing removed', price: 400000 },
+      { date: '2025-01-01', event: 'Listed for sale', price: 390000 },
+      { date: '2025-05-01', event: 'Listing removed', price: 390000 },
+      { date: '2026-04-01', event: 'Listed for sale', price: 380000 },
+    ],
+  };
+  assert.equal(hasPreviousFailedListing(rec, opts), true);
+});
+
+test('previous: prior failure OUTSIDE lookback window → false', () => {
+  const rec = {
+    homeStatus: 'FOR_SALE',
+    priceHistory: [
+      { date: '2023-01-01', event: 'Listed for sale', price: 400000 },
+      { date: '2023-05-01', event: 'Listing removed', price: 400000 },
+      { date: '2026-04-01', event: 'Listed for sale', price: 380000 },
+    ],
+  };
+  // 2023 withdrawal is > 18mo before May 2026. Beyond default lookback.
+  assert.equal(hasPreviousFailedListing(rec, opts), false);
+});
+
+test('previous: current cycle still open but unsold → does NOT itself count as failure', () => {
+  // The CURRENT listing-start is still "in progress" — we ignore it.
+  // Only closed prior cycles can mark a property as previously-failed.
+  const rec = {
+    homeStatus: 'FOR_SALE',
+    priceHistory: [
+      { date: '2026-04-01', event: 'Listed for sale', price: 380000 },
+      // No close event yet — current cycle is open.
+    ],
+  };
+  assert.equal(hasPreviousFailedListing(rec, opts), false);
+});
+
+test('previous: null / undefined / non-object → false, does not throw', () => {
+  for (const input of [null, undefined, '', 0, [], 'foo', 42]) {
+    assert.equal(hasPreviousFailedListing(input, opts), false);
+  }
+});
+
+test('previous: predicates are complementary on the same record', () => {
+  // Critical invariant: a record is EITHER currently-active-with-prior-failure
+  // OR off-market-and-failed — never both. The status guard ensures this.
+  const offMarketFailed = {
+    homeStatus: 'OFF_MARKET',
+    priceHistory: [
+      { date: '2026-02-01', event: 'Listed for sale', price: 400000 },
+      { date: '2026-04-01', event: 'Listing removed', price: 400000 },
+    ],
+  };
+  assert.equal(isFailedListing(offMarketFailed, opts), true);
+  assert.equal(hasPreviousFailedListing(offMarketFailed, opts), false);
+
+  const relistedAfterFailure = {
+    homeStatus: 'FOR_SALE',
+    priceHistory: [
+      { date: '2024-08-01', event: 'Listed for sale', price: 400000 },
+      { date: '2024-12-01', event: 'Listing removed', price: 400000 },
+      { date: '2026-04-01', event: 'Listed for sale', price: 380000 },
+    ],
+  };
+  assert.equal(isFailedListing(relistedAfterFailure, opts), false);
+  assert.equal(hasPreviousFailedListing(relistedAfterFailure, opts), true);
+});
+
+// ── Cross-boundary cycle + future-date guards (reviewer fix 2026-05-23) ──
+// Reviewer flagged that the lookback gate only checks the WITHDRAWAL's
+// time, not the LISTING-START's. These tests pin the deliberate decision
+// (withdrawal-time semantic: "seller gave up recently") and add the
+// future-date guard so corrupt timestamps can't misfire the predicate.
+
+test('cross-boundary: listing-start OUTSIDE lookback + withdrawal INSIDE → fires (recent failure)', () => {
+  // Listed 2024-01-01 is outside the 18-mo cutoff (2024-11-23 from NOW
+  // 2026-05-23). Withdrawal 2026-04-01 is inside. Semantic: "seller
+  // gave up RECENTLY" — fires. Decision pinned.
+  const rec = ph(
+    e('2024-01-01', 'Listed for sale'),
+    e('2026-04-01', 'Listing removed'),
+  );
+  assert.equal(isFailedListing(rec, opts), true);
+});
+
+test('cross-boundary: BOTH listing-start AND withdrawal outside lookback → does NOT fire', () => {
+  // Both events older than 18 months — too stale to count.
+  const rec = ph(
+    e('2023-01-01', 'Listed for sale'),
+    e('2023-05-01', 'Listing removed'),
+  );
+  assert.equal(isFailedListing(rec, opts), false);
+});
+
+test('future-date guard: future-dated withdrawal does NOT trigger failed', () => {
+  // Bad-clock or corrupt-data Zillow payload with withdrawal timestamp
+  // beyond NOW. Without this guard, t >= cutoffTime trivially holds
+  // (since future > cutoff) and the predicate misfires.
+  const rec = ph(
+    e('2026-01-01', 'Listed for sale'),
+    e('2030-06-01', 'Listing removed'),  // future
+  );
+  assert.equal(isFailedListing(rec, opts), false);
+});
+
+test('future-date guard: future-dated entries are filtered, real ones still classify', () => {
+  // Mixed valid + future entries. The valid pattern still classifies
+  // correctly after future-date filtering.
+  const rec = ph(
+    e('2026-02-15', 'Listed for sale'),
+    e('2026-04-10', 'Listing removed'),
+    e('2030-01-01', 'Sold'),  // future Sold — must be filtered out
+  );
+  // Withdrawal is inside lookback; future "Sold" is filtered so doesn't
+  // close the cycle. Result: failed.
+  assert.equal(isFailedListing(rec, opts), true);
+});
+
+// ── Deliberate asymmetric cycle-walking between the two predicates ──
+// Second-round reviewer (2026-05-23) flagged that the two predicates can
+// produce DIFFERENT answers on a record whose latest priceHistory event
+// is an unclosed listing-start. This asymmetry is INTENTIONAL — it
+// reflects the semantic split between them:
+//
+//   isFailedListing: "is the property currently in a failed-listing
+//     state?" — an open (no-close) latest cycle means the current state
+//     is UNCLEAR, so the predicate returns false (conservative). The
+//     trailing "Listed for sale" event resets foundFailedInLookback.
+//
+//   hasPreviousFailedListing: "has the property's HISTORY contained a
+//     closed failure within lookback?" — independent of current state;
+//     closed cycles remain closed even when a new cycle opens after.
+//
+// This test pins the deliberate divergence so a future refactor that
+// "harmonizes" the two by removing the reset would silently change
+// product behavior.
+
+test('asymmetry pin: open trailing listing + earlier failed cycle — predicates diverge by design', () => {
+  const sharedPriceHistory = [
+    e('2024-08-01', 'Listed for sale'),
+    e('2025-04-01', 'Listing removed'),    // closed: failed (inside lookback)
+    e('2026-02-01', 'Listed for sale'),    // re-listed, no subsequent close
+  ];
+
+  // isFailedListing: latest cycle is OPEN → state is unclear → false
+  // (the trailing Listed-for-sale resets the foundFailedInLookback bit).
+  assert.equal(
+    isFailedListing({ homeStatus: 'OFF_MARKET', priceHistory: sharedPriceHistory }, opts),
+    false,
+    'isFailedListing must NOT fire when the latest cycle is open',
+  );
+
+  // hasPreviousFailedListing: closed prior cycle exists → fires regardless
+  // of what the latest cycle is doing. The new "Listed for sale" matches
+  // FOR_SALE status, the canonical relisted-after-failure case.
+  assert.equal(
+    hasPreviousFailedListing({ homeStatus: 'FOR_SALE', priceHistory: sharedPriceHistory }, opts),
+    true,
+    'hasPreviousFailedListing must fire when a closed prior cycle exists in lookback',
+  );
+});
