@@ -102,12 +102,21 @@ function postJson(app, urlPath, body, headers = {}) {
   });
 }
 
+// Counter for unique default event.ids — each call gets a fresh id so
+// repeated test invocations don't dedup-collide with each other.
+let _eventIdSeq = 1;
+
 function initialPurchaseEvent({
   appUserId = 'user-abc-123',
   productId = 'aiwholesail_pro_monthly',
+  eventId, // optional override; default auto-generates unique
 } = {}) {
   return {
     event: {
+      // RC always sends an event.id. The webhook dedups on it (migration 037).
+      // Default to a fresh unique value; explicit tests override with a
+      // specific id to assert dedup behavior.
+      id: eventId || `evt-test-${_eventIdSeq++}`,
       type: 'INITIAL_PURCHASE',
       app_user_id: appUserId,
       original_app_user_id: appUserId,
@@ -118,6 +127,13 @@ function initialPurchaseEvent({
       period_type: 'NORMAL',
     },
   };
+}
+
+// Convenience: queue a "new event, dedup OK" response. Use this BEFORE
+// queueing the user-lookup + state-mutation responses in every test
+// that expects the handler to proceed past the dedup gate.
+function pushDedupNew(pool) {
+  pool.responses.push({ rowCount: 1 });
 }
 
 test('POST /api/iap/revenuecat/webhook', async (t) => {
@@ -173,10 +189,9 @@ test('POST /api/iap/revenuecat/webhook', async (t) => {
 
   await t.test('INITIAL_PURCHASE → upserts subscribers with subscribed=true, tier=Pro, source=revenuecat', async () => {
     const pool = makeMockPool();
-    // 1st query: user lookup
-    pool.responses.push({ rows: [{ id: 'user-abc-123', email: 'u@example.com' }], rowCount: 1 });
-    // 2nd query: upsert
-    pool.responses.push({ rows: [], rowCount: 1 });
+    pushDedupNew(pool); // 1st query: idempotency dedup INSERT (new event)
+    pool.responses.push({ rows: [{ id: 'user-abc-123', email: 'u@example.com' }], rowCount: 1 }); // 2nd: user lookup
+    pool.responses.push({ rows: [], rowCount: 1 }); // 3rd: subscribers upsert
 
     const app = makeAppWithStubs({ pool });
     const res = await postJson(
@@ -188,18 +203,18 @@ test('POST /api/iap/revenuecat/webhook', async (t) => {
     assert.equal(res.status, 200);
     assert.equal(res.body.action, 'activated');
     assert.equal(res.body.tier, 'Pro');
-    assert.equal(pool.calls.length, 2);
-    assert.match(pool.calls[0].text, /FROM users WHERE id =/);
-    assert.match(pool.calls[1].text, /INSERT INTO subscribers/);
-    assert.match(pool.calls[1].text, /ON CONFLICT \(email\) DO UPDATE/);
-    // Tier is the 3rd parameter in the INSERT
-    assert.equal(pool.calls[1].params[2], 'Pro');
-    // source literal is in the SQL, not the params
-    assert.match(pool.calls[1].text, /'revenuecat'/);
+    assert.equal(pool.calls.length, 3);
+    assert.match(pool.calls[0].text, /INSERT INTO revenuecat_processed_events/i);
+    assert.match(pool.calls[1].text, /FROM users WHERE id =/);
+    assert.match(pool.calls[2].text, /INSERT INTO subscribers/);
+    assert.match(pool.calls[2].text, /ON CONFLICT \(email\) DO UPDATE/);
+    assert.equal(pool.calls[2].params[2], 'Pro'); // tier is param 3
+    assert.match(pool.calls[2].text, /'revenuecat'/); // source literal in SQL
   });
 
   await t.test('CANCELLATION → only updates rows where source=revenuecat', async () => {
     const pool = makeMockPool();
+    pushDedupNew(pool);
     pool.responses.push({ rows: [{ id: 'user-x', email: 'x@example.com' }], rowCount: 1 });
     pool.responses.push({ rows: [], rowCount: 1 });
 
@@ -211,13 +226,14 @@ test('POST /api/iap/revenuecat/webhook', async (t) => {
     });
     assert.equal(res.status, 200);
     assert.equal(res.body.action, 'deactivated');
-    assert.match(pool.calls[1].text, /UPDATE subscribers SET/);
-    assert.match(pool.calls[1].text, /source = 'revenuecat'/);
-    assert.match(pool.calls[1].text, /subscribed = FALSE/);
+    assert.match(pool.calls[2].text, /UPDATE subscribers SET/);
+    assert.match(pool.calls[2].text, /source = 'revenuecat'/);
+    assert.match(pool.calls[2].text, /subscribed = FALSE/);
   });
 
-  await t.test('anonymous $RCAnonymousID app_user_id → 200 noop, no DB writes', async () => {
+  await t.test('anonymous $RCAnonymousID app_user_id → 200 noop, only dedup INSERT touches DB', async () => {
     const pool = makeMockPool();
+    pushDedupNew(pool); // dedup runs before the anonymous-id guard
     const app = makeAppWithStubs({ pool });
     const event = initialPurchaseEvent({ appUserId: '$RCAnonymousID:abc123' });
     const res = await postJson(app, '/api/iap/revenuecat/webhook', event, {
@@ -225,11 +241,13 @@ test('POST /api/iap/revenuecat/webhook', async (t) => {
     });
     assert.equal(res.status, 200);
     assert.equal(res.body.ignored, 'anonymous app_user_id');
-    assert.equal(pool.calls.length, 0);
+    assert.equal(pool.calls.length, 1, 'only the dedup INSERT — no user lookup, no upsert');
+    assert.match(pool.calls[0].text, /INSERT INTO revenuecat_processed_events/i);
   });
 
   await t.test('unknown user_id → 200 noop (no upsert for orphan event)', async () => {
     const pool = makeMockPool();
+    pushDedupNew(pool);
     pool.responses.push({ rows: [], rowCount: 0 }); // user lookup miss
     const app = makeAppWithStubs({ pool });
     const res = await postJson(app, '/api/iap/revenuecat/webhook', initialPurchaseEvent(), {
@@ -237,11 +255,12 @@ test('POST /api/iap/revenuecat/webhook', async (t) => {
     });
     assert.equal(res.status, 200);
     assert.equal(res.body.ignored, 'unknown user');
-    assert.equal(pool.calls.length, 1, 'only the user lookup, no upsert');
+    assert.equal(pool.calls.length, 2, 'dedup INSERT + user lookup; no upsert');
   });
 
-  await t.test('event for an unrelated entitlement → 200 noop', async () => {
+  await t.test('event for an unrelated entitlement → 200 noop, only dedup INSERT touches DB', async () => {
     const pool = makeMockPool();
+    pushDedupNew(pool); // dedup runs before the entitlement guard
     const app = makeAppWithStubs({ pool });
     const event = initialPurchaseEvent();
     event.event.entitlement_ids = ['some_other_entitlement'];
@@ -250,11 +269,12 @@ test('POST /api/iap/revenuecat/webhook', async (t) => {
     });
     assert.equal(res.status, 200);
     assert.equal(res.body.ignored, 'entitlement not Pro');
-    assert.equal(pool.calls.length, 0);
+    assert.equal(pool.calls.length, 1, 'only the dedup INSERT');
   });
 
   await t.test('elite product id resolves tier=Elite', async () => {
     const pool = makeMockPool();
+    pushDedupNew(pool);
     pool.responses.push({ rows: [{ id: 'user-e', email: 'e@example.com' }], rowCount: 1 });
     pool.responses.push({ rows: [], rowCount: 1 });
     const app = makeAppWithStubs({ pool });
@@ -267,11 +287,12 @@ test('POST /api/iap/revenuecat/webhook', async (t) => {
     });
     assert.equal(res.status, 200);
     assert.equal(res.body.tier, 'Elite');
-    assert.equal(pool.calls[1].params[2], 'Elite');
+    assert.equal(pool.calls[2].params[2], 'Elite'); // index +1 due to dedup
   });
 
   await t.test('TRIAL period_type sets is_trial=true and trial_end', async () => {
     const pool = makeMockPool();
+    pushDedupNew(pool);
     pool.responses.push({ rows: [{ id: 'user-t', email: 't@example.com' }], rowCount: 1 });
     pool.responses.push({ rows: [], rowCount: 1 });
     const app = makeAppWithStubs({ pool });
@@ -281,14 +302,15 @@ test('POST /api/iap/revenuecat/webhook', async (t) => {
       Authorization: WEBHOOK_AUTH,
     });
     assert.equal(res.status, 200);
-    // is_trial is param 5 in the INSERT
-    assert.equal(pool.calls[1].params[4], true);
-    // trial_end is param 6 — must equal subscription_end when trial
-    assert.equal(pool.calls[1].params[5], pool.calls[1].params[3]);
+    // is_trial is param 5; index +1 on calls due to dedup
+    assert.equal(pool.calls[2].params[4], true);
+    // trial_end (param 6) must equal subscription_end (param 4) when trial
+    assert.equal(pool.calls[2].params[5], pool.calls[2].params[3]);
   });
 
   await t.test('BILLING_ISSUE → 200 noop without state change', async () => {
     const pool = makeMockPool();
+    pushDedupNew(pool);
     pool.responses.push({ rows: [{ id: 'user-b', email: 'b@example.com' }], rowCount: 1 });
     const app = makeAppWithStubs({ pool });
     const event = initialPurchaseEvent({ appUserId: 'user-b' });
@@ -298,7 +320,7 @@ test('POST /api/iap/revenuecat/webhook', async (t) => {
     });
     assert.equal(res.status, 200);
     assert.equal(res.body.action, 'noop');
-    assert.equal(pool.calls.length, 1, 'only the user lookup, no state mutation');
+    assert.equal(pool.calls.length, 2, 'dedup INSERT + user lookup; no state mutation');
   });
 
   await t.test('malformed body (no event key) → 400', async () => {
@@ -309,5 +331,103 @@ test('POST /api/iap/revenuecat/webhook', async (t) => {
     });
     assert.equal(res.status, 400);
     assert.equal(pool.calls.length, 0);
+  });
+
+  // ── Security regression guards (reviewer fix 2026-05-23) ──
+  // Source-level guards: a future refactor that removes the constant-time
+  // comparator or reverts to bare `!==` would expose the shared secret to
+  // timing-side-channel attacks. Fail loudly if that happens.
+  // Pattern matches PR #470's regression-guard tests.
+
+  await t.test('auth check uses crypto.timingSafeEqual (timing-attack guard)', () => {
+    const fs = require('node:fs');
+    const routePath = path.join(__dirname, '..', '..', 'routes', 'revenuecat.js');
+    const src = fs.readFileSync(routePath, 'utf8');
+    assert.match(
+      src,
+      /crypto\.timingSafeEqual/,
+      'revenuecat.js auth check must use crypto.timingSafeEqual to prevent timing leaks',
+    );
+  });
+
+  await t.test('auth check does NOT use bare !== on the shared secret', () => {
+    const fs = require('node:fs');
+    const routePath = path.join(__dirname, '..', '..', 'routes', 'revenuecat.js');
+    const src = fs.readFileSync(routePath, 'utf8');
+    assert.doesNotMatch(
+      src,
+      /req\.headers\.authorization\s*!==\s*REVENUECAT_WEBHOOK_AUTH/,
+      'revenuecat.js must not compare the auth secret with bare !==; use crypto.timingSafeEqual',
+    );
+  });
+
+  // ── Idempotency on event.id (reviewer fix 2026-05-23) ──
+  // RC retries non-2xx webhooks aggressively. Without per-event dedup, a
+  // retry can re-process a stale CANCELLATION/PURCHASE after the state has
+  // moved on — flipping subscribed back, double-billing analytics, etc.
+  // Fix: dedup INSERT-OR-CONFLICT on event.id into a processed-events
+  // table BEFORE any state mutation. New event → INSERT succeeds (rowCount=1)
+  // → proceed. Retry → INSERT conflicts (rowCount=0) → 200 noop, no work.
+
+  await t.test('new event.id → dedup INSERT runs FIRST before any other query', async () => {
+    const pool = makeMockPool();
+    pool.responses.push({ rowCount: 1 });  // dedup INSERT — new event, succeeds
+    pool.responses.push({ rows: [{ id: 'user-abc-123', email: 'u@example.com' }], rowCount: 1 }); // user lookup
+    pool.responses.push({ rowCount: 1 }); // subscribers upsert
+
+    const app = makeAppWithStubs({ pool });
+    const event = initialPurchaseEvent({ appUserId: 'user-abc-123' });
+    event.event.id = 'evt-test-new-001';
+    const res = await postJson(app, '/api/iap/revenuecat/webhook', event, {
+      Authorization: WEBHOOK_AUTH,
+    });
+
+    assert.equal(res.status, 200);
+    assert.equal(pool.calls.length >= 1, true);
+    assert.match(
+      pool.calls[0].text,
+      /INSERT\s+INTO\s+revenuecat_processed_events/i,
+      'first query MUST be the dedup INSERT against revenuecat_processed_events',
+    );
+    assert.deepEqual(pool.calls[0].params, ['evt-test-new-001']);
+  });
+
+  await t.test('duplicate event.id → 200 noop, NO state-mutation queries fire', async () => {
+    const pool = makeMockPool();
+    pool.responses.push({ rowCount: 0 });  // dedup INSERT conflicts — event already processed
+
+    const app = makeAppWithStubs({ pool });
+    const event = initialPurchaseEvent({ appUserId: 'user-abc-123' });
+    event.event.id = 'evt-test-dup-001';
+    const res = await postJson(app, '/api/iap/revenuecat/webhook', event, {
+      Authorization: WEBHOOK_AUTH,
+    });
+
+    assert.equal(res.status, 200);
+    assert.match(
+      JSON.stringify(res.body).toLowerCase(),
+      /duplicate|already.processed|idempotent/,
+      'response body must indicate the event was a duplicate',
+    );
+    assert.equal(
+      pool.calls.length,
+      1,
+      `only the dedup INSERT should fire; no user lookup, no upsert. Got ${pool.calls.length} calls: ${JSON.stringify(pool.calls.map((c) => c.text.slice(0, 40)))}`,
+    );
+  });
+
+  await t.test('missing event.id → 400 (RC always sends id; missing means malformed)', async () => {
+    const pool = makeMockPool();
+    const app = makeAppWithStubs({ pool });
+    const event = initialPurchaseEvent({ appUserId: 'user-abc-123' });
+    // Fixture auto-sets event.id by default; delete it to simulate
+    // malformed payload or non-RC source. Without event_id we can't dedup.
+    delete event.event.id;
+    const res = await postJson(app, '/api/iap/revenuecat/webhook', event, {
+      Authorization: WEBHOOK_AUTH,
+    });
+
+    assert.equal(res.status, 400);
+    assert.equal(pool.calls.length, 0, 'malformed payload must not touch DB');
   });
 });

@@ -1,4 +1,5 @@
 const express = require('express');
+const crypto = require('node:crypto');
 const { query } = require('../config/database');
 const { asyncHandler, logSecurityEvent } = require('../middleware/errorHandler');
 
@@ -6,6 +7,22 @@ const router = express.Router();
 
 const REVENUECAT_PRO_ENTITLEMENT = process.env.REVENUECAT_PRO_ENTITLEMENT || 'AIWHOLESAIL Pro';
 const REVENUECAT_WEBHOOK_AUTH = process.env.REVENUECAT_WEBHOOK_AUTH;
+
+/**
+ * Constant-time string comparison for the RC shared-secret auth header.
+ * Plain `===` / `!==` short-circuits at the first byte mismatch, leaking
+ * per-byte timing info that lets an attacker incrementally guess the
+ * secret. `crypto.timingSafeEqual` runs in length-dependent (NOT
+ * content-dependent) time. Length-mismatched buffers throw — we explicitly
+ * return false up front to keep the comparator side-channel-clean.
+ *
+ * Reviewer fix 2026-05-23.
+ */
+function timingSafeStringEqual(a, b) {
+  if (typeof a !== 'string' || typeof b !== 'string') return false;
+  if (a.length !== b.length) return false;
+  return crypto.timingSafeEqual(Buffer.from(a), Buffer.from(b));
+}
 
 // RC sends absolute ms-since-epoch timestamps. Coerce to ISO for Postgres.
 function msToIso(ms) {
@@ -68,7 +85,7 @@ router.post('/webhook', express.json({ limit: '256kb' }), asyncHandler(async (re
     console.error('[RevenueCat] REVENUECAT_WEBHOOK_AUTH is not set — refusing to process webhook');
     return res.status(503).json({ error: 'webhook auth not configured' });
   }
-  if (req.headers.authorization !== REVENUECAT_WEBHOOK_AUTH) {
+  if (!timingSafeStringEqual(req.headers.authorization, REVENUECAT_WEBHOOK_AUTH)) {
     await logSecurityEvent('revenuecat_webhook_invalid_auth', {
       provided: req.headers.authorization ? '<present>' : '<missing>',
     }, null, req);
@@ -78,6 +95,24 @@ router.post('/webhook', express.json({ limit: '256kb' }), asyncHandler(async (re
   const event = req.body?.event;
   if (!event || !event.type) {
     return res.status(400).json({ error: 'missing event' });
+  }
+
+  // 2. Idempotency dedup — RC retries non-2xx webhooks aggressively; a
+  //    retry of a stale CANCELLATION after state has moved on would flip
+  //    `subscribed` back to false. INSERT-OR-CONFLICT on event.id rejects
+  //    duplicates BEFORE any state mutation. See migration 037.
+  //    Missing event.id is malformed (RC always sends one) → 400 + log.
+  if (!event.id || typeof event.id !== 'string') {
+    return res.status(400).json({ error: 'missing event.id' });
+  }
+  const dedupResult = await query(
+    `INSERT INTO revenuecat_processed_events (event_id) VALUES ($1)
+     ON CONFLICT (event_id) DO NOTHING`,
+    [event.id],
+  );
+  if (dedupResult.rowCount === 0) {
+    console.log('[RevenueCat] duplicate event dropped', { eventId: event.id, type: event.type });
+    return res.status(200).json({ ignored: 'duplicate event', eventId: event.id });
   }
 
   const {
