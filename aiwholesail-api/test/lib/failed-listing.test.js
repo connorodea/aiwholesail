@@ -14,6 +14,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const {
   isFailedListing,
+  hasPreviousFailedListing,
   DEFAULT_LOOKBACK_MONTHS,
 } = require('../../lib/failed-listing.js');
 
@@ -211,4 +212,148 @@ test('unsorted priceHistory tolerated — sorts internally', () => {
 
 test('DEFAULT_LOOKBACK_MONTHS exported for callers that want to surface it in UI copy', () => {
   assert.equal(DEFAULT_LOOKBACK_MONTHS, 18);
+});
+
+// ─── hasPreviousFailedListing ─────────────────────────────────────────
+// Companion predicate. Inverse status guard — fires on currently-active
+// listings that have a prior failed cycle. The shippable subset of the
+// Phase 2d signal until proper failed-listing region discovery lands.
+
+test('previous: currently for sale with prior withdrawal → true', () => {
+  // Owner tried in early 2024, withdrew, relisted in 2026. The current
+  // listing IS active; the PRIOR cycle was a failure.
+  const rec = {
+    homeStatus: 'FOR_SALE',
+    priceHistory: [
+      { date: '2024-08-01', event: 'Listed for sale', price: 400000 },
+      { date: '2024-12-01', event: 'Listing removed', price: 400000 },
+      { date: '2026-04-01', event: 'Listed for sale', price: 380000 },
+    ],
+  };
+  assert.equal(hasPreviousFailedListing(rec, opts), true);
+});
+
+test('previous: currently for sale with NO prior cycle → false', () => {
+  // First-time listing — no history of giving up.
+  const rec = {
+    homeStatus: 'FOR_SALE',
+    priceHistory: [
+      { date: '2026-04-01', event: 'Listed for sale', price: 380000 },
+    ],
+  };
+  assert.equal(hasPreviousFailedListing(rec, opts), false);
+});
+
+test('previous: prior cycle SOLD (not failed) → false', () => {
+  // Owner sold once, bought again, now relisting — no prior failure.
+  const rec = {
+    homeStatus: 'FOR_SALE',
+    priceHistory: [
+      { date: '2024-01-01', event: 'Listed for sale', price: 300000 },
+      { date: '2024-03-01', event: 'Sold', price: 295000 },
+      { date: '2026-04-01', event: 'Listed for sale', price: 400000 },
+    ],
+  };
+  assert.equal(hasPreviousFailedListing(rec, opts), false);
+});
+
+test('previous: currently OFF_MARKET → false (use isFailedListing instead)', () => {
+  // Mirror test of isFailedListing's status guard. This predicate is
+  // *only* for currently-active listings; off-market goes to the other
+  // predicate.
+  const rec = {
+    homeStatus: 'OFF_MARKET',
+    priceHistory: [
+      { date: '2026-02-01', event: 'Listed for sale', price: 400000 },
+      { date: '2026-04-01', event: 'Listing removed', price: 400000 },
+    ],
+  };
+  assert.equal(hasPreviousFailedListing(rec, opts), false);
+});
+
+test('previous: PENDING + prior failure → true (still counts as "active and motivated")', () => {
+  // Under contract IS currently-active in our status set. A pending
+  // listing with a prior failure is still a "relisted motivated seller."
+  // Withdrawal date 2024-12-01 is inside the 18-mo window from 2026-05-23.
+  const rec = {
+    homeStatus: 'PENDING',
+    priceHistory: [
+      { date: '2024-08-01', event: 'Listed for sale', price: 400000 },
+      { date: '2024-12-01', event: 'Listing removed', price: 400000 },
+      { date: '2026-03-01', event: 'Listed for sale', price: 380000 },
+      { date: '2026-04-15', event: 'Pending sale', price: 380000 },
+    ],
+  };
+  assert.equal(hasPreviousFailedListing(rec, opts), true);
+});
+
+test('previous: multiple prior failed cycles → true (only need one)', () => {
+  const rec = {
+    homeStatus: 'FOR_SALE',
+    priceHistory: [
+      { date: '2024-06-01', event: 'Listed for sale', price: 400000 },
+      { date: '2024-10-01', event: 'Listing removed', price: 400000 },
+      { date: '2025-01-01', event: 'Listed for sale', price: 390000 },
+      { date: '2025-05-01', event: 'Listing removed', price: 390000 },
+      { date: '2026-04-01', event: 'Listed for sale', price: 380000 },
+    ],
+  };
+  assert.equal(hasPreviousFailedListing(rec, opts), true);
+});
+
+test('previous: prior failure OUTSIDE lookback window → false', () => {
+  const rec = {
+    homeStatus: 'FOR_SALE',
+    priceHistory: [
+      { date: '2023-01-01', event: 'Listed for sale', price: 400000 },
+      { date: '2023-05-01', event: 'Listing removed', price: 400000 },
+      { date: '2026-04-01', event: 'Listed for sale', price: 380000 },
+    ],
+  };
+  // 2023 withdrawal is > 18mo before May 2026. Beyond default lookback.
+  assert.equal(hasPreviousFailedListing(rec, opts), false);
+});
+
+test('previous: current cycle still open but unsold → does NOT itself count as failure', () => {
+  // The CURRENT listing-start is still "in progress" — we ignore it.
+  // Only closed prior cycles can mark a property as previously-failed.
+  const rec = {
+    homeStatus: 'FOR_SALE',
+    priceHistory: [
+      { date: '2026-04-01', event: 'Listed for sale', price: 380000 },
+      // No close event yet — current cycle is open.
+    ],
+  };
+  assert.equal(hasPreviousFailedListing(rec, opts), false);
+});
+
+test('previous: null / undefined / non-object → false, does not throw', () => {
+  for (const input of [null, undefined, '', 0, [], 'foo', 42]) {
+    assert.equal(hasPreviousFailedListing(input, opts), false);
+  }
+});
+
+test('previous: predicates are complementary on the same record', () => {
+  // Critical invariant: a record is EITHER currently-active-with-prior-failure
+  // OR off-market-and-failed — never both. The status guard ensures this.
+  const offMarketFailed = {
+    homeStatus: 'OFF_MARKET',
+    priceHistory: [
+      { date: '2026-02-01', event: 'Listed for sale', price: 400000 },
+      { date: '2026-04-01', event: 'Listing removed', price: 400000 },
+    ],
+  };
+  assert.equal(isFailedListing(offMarketFailed, opts), true);
+  assert.equal(hasPreviousFailedListing(offMarketFailed, opts), false);
+
+  const relistedAfterFailure = {
+    homeStatus: 'FOR_SALE',
+    priceHistory: [
+      { date: '2024-08-01', event: 'Listed for sale', price: 400000 },
+      { date: '2024-12-01', event: 'Listing removed', price: 400000 },
+      { date: '2026-04-01', event: 'Listed for sale', price: 380000 },
+    ],
+  };
+  assert.equal(isFailedListing(relistedAfterFailure, opts), false);
+  assert.equal(hasPreviousFailedListing(relistedAfterFailure, opts), true);
 });

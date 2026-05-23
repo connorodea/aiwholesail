@@ -156,8 +156,86 @@ function isFailedListing(record, options = {}) {
   return foundFailedInLookback;
 }
 
+/**
+ * Companion predicate — returns true iff the record IS currently active
+ * for sale AND has a PRIOR failed-listing cycle in its priceHistory
+ * within the lookback window. This is the "relisted by motivated seller"
+ * signal: the owner tried once, gave up, and is now trying again — they're
+ * primed for a direct-to-seller offer because they've already accepted
+ * the idea of selling.
+ *
+ * Why a companion, not a flag: Zillow does NOT expose an "off-market" /
+ * "withdrawn" filter in its searchQueryState (verified against the
+ * filterState flags in zillowScrapeDo.js: isRecentlySold, isComingSoon,
+ * isForSaleByAgent/Owner, isAuction, isForSaleForeclosure, isForRent —
+ * no withdrawn filter). That means `isFailedListing` itself has NO
+ * region-search discovery mechanism via Zillow alone — finding truly-
+ * failed listings requires county recorder data or a temporal property
+ * cache (separate work, debate Position C's territory).
+ *
+ * `hasPreviousFailedListing` IS discoverable today because it operates on
+ * currently-for-sale properties — every record returned by an existing
+ * region search has priceHistory we can inspect. That makes it the
+ * shippable subset of the Phase 2d signal until proper failed-listing
+ * discovery lands.
+ *
+ * @param {ZillowRecordLike} record
+ * @param {object} [options]
+ * @param {Date} [options.now]
+ * @param {number} [options.lookbackMonths]
+ * @returns {boolean}
+ */
+function hasPreviousFailedListing(record, options = {}) {
+  if (!record || typeof record !== 'object') return false;
+  // Inverse of isFailedListing's status guard — we want CURRENTLY active.
+  if (!CURRENTLY_ACTIVE_STATUSES.has(record.homeStatus)) return false;
+
+  const history = Array.isArray(record.priceHistory) ? record.priceHistory : [];
+  if (history.length === 0) return false;
+
+  const now = options.now instanceof Date ? options.now : new Date();
+  const lookbackMonths = Number.isFinite(options.lookbackMonths)
+    ? options.lookbackMonths
+    : DEFAULT_LOOKBACK_MONTHS;
+  const lookbackMs = lookbackMonths * 30.44 * 24 * 60 * 60 * 1000;
+  const cutoffTime = now.getTime() - lookbackMs;
+
+  const chronological = [...history]
+    .filter((h) => h && Number.isFinite(entryTime(h)))
+    .sort((a, b) => entryTime(a) - entryTime(b));
+
+  if (chronological.length === 0) return false;
+
+  // Two-state walk: track when a listing started, and whether the current
+  // (still-open) cycle is the CURRENT one. We only care about *closed*
+  // failed cycles — i.e., a listing-start followed by a withdrawal with
+  // no sale in between. The currently-active cycle (still on the market
+  // right now) doesn't count — by definition it hasn't failed yet.
+  //
+  // We identify "the current cycle" as the LAST listing-start event in
+  // the chronological history that doesn't have a subsequent close (sale
+  // or withdrawal). Everything before that is a closed historical cycle.
+  let lastListedAt = NaN;
+  let hasClosedFailedCycle = false;
+  for (const h of chronological) {
+    const t = entryTime(h);
+    if (LISTING_START_EVENTS.has(h.event)) {
+      lastListedAt = t;
+    } else if (SALE_EVENTS.has(h.event)) {
+      lastListedAt = NaN; // closed by sale — not a failure
+    } else if (WITHDRAW_EVENTS.has(h.event) && Number.isFinite(lastListedAt)) {
+      // A closed failed cycle.
+      if (t >= cutoffTime) hasClosedFailedCycle = true;
+      lastListedAt = NaN; // close the cycle
+    }
+  }
+
+  return hasClosedFailedCycle;
+}
+
 module.exports = {
   isFailedListing,
+  hasPreviousFailedListing,
   DEFAULT_LOOKBACK_MONTHS,
   LISTING_START_EVENTS,
   SALE_EVENTS,
