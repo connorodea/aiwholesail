@@ -59,13 +59,21 @@ export function isFailedListing(record, options = {}) {
   const history = Array.isArray(record.priceHistory) ? record.priceHistory : [];
   if (history.length === 0) return false;
   const now = options.now instanceof Date ? options.now : new Date();
+  const nowMs = now.getTime();
   const lookbackMonths = Number.isFinite(options.lookbackMonths)
     ? options.lookbackMonths
     : DEFAULT_LOOKBACK_MONTHS;
-  const lookbackMs = lookbackMonths * 30.44 * 24 * 60 * 60 * 1000;
-  const cutoffTime = now.getTime() - lookbackMs;
+  // Calendar months (matches backend `aiwholesail-api/lib/failed-listing.js`).
+  // Reviewer consistency fix 2026-05-23 — see backend file for rationale.
+  const cutoffDate = new Date(nowMs);
+  cutoffDate.setUTCMonth(cutoffDate.getUTCMonth() - lookbackMonths);
+  const cutoffTime = cutoffDate.getTime();
+  // Future-dated entries filtered (corrupt Zillow payloads).
   const chronological = [...history]
-    .filter((h) => h && Number.isFinite(entryTime(h)))
+    .filter((h) => {
+      const t = entryTime(h);
+      return Number.isFinite(t) && t <= nowMs;
+    })
     .sort((a, b) => entryTime(a) - entryTime(b));
   if (chronological.length === 0) return false;
   let lastListedAt = NaN;
@@ -91,13 +99,21 @@ export function hasPreviousFailedListing(record, options = {}) {
   const history = Array.isArray(record.priceHistory) ? record.priceHistory : [];
   if (history.length === 0) return false;
   const now = options.now instanceof Date ? options.now : new Date();
+  const nowMs = now.getTime();
   const lookbackMonths = Number.isFinite(options.lookbackMonths)
     ? options.lookbackMonths
     : DEFAULT_LOOKBACK_MONTHS;
-  const lookbackMs = lookbackMonths * 30.44 * 24 * 60 * 60 * 1000;
-  const cutoffTime = now.getTime() - lookbackMs;
+  // Calendar months (matches backend `aiwholesail-api/lib/failed-listing.js`).
+  // Reviewer consistency fix 2026-05-23 — see backend file for rationale.
+  const cutoffDate = new Date(nowMs);
+  cutoffDate.setUTCMonth(cutoffDate.getUTCMonth() - lookbackMonths);
+  const cutoffTime = cutoffDate.getTime();
+  // Future-dated entries filtered (corrupt Zillow payloads).
   const chronological = [...history]
-    .filter((h) => h && Number.isFinite(entryTime(h)))
+    .filter((h) => {
+      const t = entryTime(h);
+      return Number.isFinite(t) && t <= nowMs;
+    })
     .sort((a, b) => entryTime(a) - entryTime(b));
   if (chronological.length === 0) return false;
   let lastListedAt = NaN;
