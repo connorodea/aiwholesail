@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-build-a-real-estate-investing-team-that-scales-with-you",
+      "title": "How to Build a Real Estate Investing Team That Scales With You",
+      "excerpt": "Building the right team is the difference between doing a few deals a year and running a true real estate business. Learn who to hire, when to hire them, and how to structure your team for long-term growth.",
+      "category": "Scaling",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-23T06:00:59.388Z",
+      "readTime": 7,
+      "tags": [
+        "how to build a real estate investing team",
+        "real estate team building",
+        "wholesaling team",
+        "real estate investing partners",
+        "property investor team"
+      ],
+      "featured": true
+    },
+    {
       "slug": "airbnb-arbitrage-vs-owning-rental-property-which-strategy-wins-in-2025",
       "title": "Airbnb Arbitrage vs Owning Rental Property: Which Strategy Wins in 2025?",
       "excerpt": "Choosing between Airbnb arbitrage and owning rental property can make or break your real estate investing strategy. This guide breaks down the costs, risks, and returns of both so you can decide which path fits your goals.",
@@ -15,7 +32,7 @@
         "Airbnb business model",
         "real estate investing strategies"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-find-profitable-real-estate-deals-in-st-louis-mo-2024-guide",
