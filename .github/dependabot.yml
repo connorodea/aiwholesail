@@ -1,0 +1,46 @@
+version: 2
+updates:
+  # Frontend (Vite + React app at repo root)
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: America/New_York
+    open-pull-requests-limit: 5
+    labels: [dependencies, frontend]
+    reviewers: [connorodea]
+    groups:
+      minor-and-patch:
+        applies-to: version-updates
+        update-types: [minor, patch]
+    # Security updates always raised individually and immediately
+
+  # Backend (Express API)
+  - package-ecosystem: npm
+    directory: /aiwholesail-api
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: America/New_York
+    open-pull-requests-limit: 5
+    labels: [dependencies, backend]
+    reviewers: [connorodea]
+    groups:
+      minor-and-patch:
+        applies-to: version-updates
+        update-types: [minor, patch]
+
+  # GitHub Actions versions
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: America/New_York
+    open-pull-requests-limit: 3
+    labels: [dependencies, ci]
+    reviewers: [connorodea]
