@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-amarillo-tx-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Amarillo TX: The Investor's Complete Guide for 2024",
+      "excerpt": "Amarillo, Texas is quietly becoming one of the Southwest's most attractive markets for real estate investors. This guide breaks down the best neighborhoods, deal types, and strategies to help you profit in the Panhandle city.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-23T18:02:41.514Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Amarillo TX",
+        "Amarillo real estate investing",
+        "wholesale deals Amarillo",
+        "flip houses Amarillo Texas",
+        "Amarillo rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-memphis-tn-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Memphis TN: A Complete Investor's Guide for 2024",
       "excerpt": "Memphis is one of the most affordable and cash-flow-friendly real estate markets in the country. Learn where to find the best deals, which neighborhoods to target, and how to analyze properties for maximum profit.",
@@ -15,7 +32,7 @@
         "Memphis rental properties",
         "Memphis house flipping"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-worcester-ma-the-investor-s-complete-guide-for-2024",
