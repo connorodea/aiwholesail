@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "airbnb-arbitrage-vs-owning-rental-property-which-strategy-wins-in-2025",
+      "title": "Airbnb Arbitrage vs Owning Rental Property: Which Strategy Wins in 2025?",
+      "excerpt": "Choosing between Airbnb arbitrage and owning rental property can make or break your real estate investing strategy. This guide breaks down the costs, risks, and returns of both so you can decide which path fits your goals.",
+      "category": "Comparison",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-23T06:00:52.540Z",
+      "readTime": 7,
+      "tags": [
+        "Airbnb arbitrage vs owning rental property",
+        "rental arbitrage",
+        "short term rental investing",
+        "Airbnb business model",
+        "real estate investing strategies"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-find-profitable-real-estate-deals-in-st-louis-mo-2024-guide",
       "title": "How to Find Profitable Real Estate Deals in St. Louis MO (2024 Guide)",
       "excerpt": "St. Louis is one of the most investor-friendly cities in the Midwest, with low entry prices and strong rental demand. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in St. Louis MO.",
@@ -15,7 +32,7 @@
         "flip houses St. Louis",
         "rental properties St. Louis"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-ann-arbor-mi-a-complete-investor-s-guide-for-2024",
