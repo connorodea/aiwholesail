@@ -83,8 +83,6 @@ export default function BRRRRCalculator() {
         keywords="brrrr calculator, brrrr method calculator, buy rehab rent refinance repeat, brrrr analysis, real estate brrrr, brrrr investment calculator, rental property calculator"
       />
 
-      <CalculatorSchema {...CALCULATOR_METADATA['brrrr-calculator']} />
-
       {/* Calculator */}
       <section className={inModal ? 'px-0' : 'pt-10 pb-16 px-4'}>
         <div className={inModal ? '' : 'container mx-auto max-w-6xl'}>
@@ -404,6 +402,7 @@ export default function BRRRRCalculator() {
         </div>
       </section>
       )}
+    <CalculatorSchema {...CALCULATOR_METADATA['brrrr-calculator']} />
     </PublicLayout>
   );
 }

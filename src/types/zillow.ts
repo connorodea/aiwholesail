@@ -13,6 +13,11 @@ export interface PropertySearchParams {
   parkingSpots?: string;
   page?: string;
   sortOrder?: string;
+  /** Filter — only show listings whose `daysOnMarket` is ≤ this value.
+   *  Stored as a numeric string ("7"/"14"/"30"/"60"/"90") so it round-trips
+   *  through the search-history hook (which stringifies params for URL state)
+   *  without a type-coercion footgun. Undefined / "any" = no filter applied. */
+  maxDaysOnMarket?: string;
   listingStatus?: string;
   wholesaleOnly?: boolean;
   auctionOnly?: boolean;

@@ -125,10 +125,17 @@ const MILESTONES = [
         ON e.user_id = u.id AND e.email_type = 'day_zero'
       WHERE s.trial_end BETWEEN NOW() - INTERVAL '24 hours' AND NOW()
         AND e.id IS NULL
-        AND s.is_trial = true
+        AND NOT (s.subscribed = true AND s.is_trial = false)
     `,
     render: renderDayZero,
   },
+  // post-expiry stages: filter on "haven't converted to paid", NOT on
+  // `is_trial = true`. The trial-expiry-sweep flips `is_trial -> false`
+  // shortly after trial_end, so anchoring on `is_trial` would silently
+  // skip every user the sweep has already touched (which, post-deploy,
+  // is everyone). The new predicate `NOT (subscribed AND NOT is_trial)`
+  // correctly catches: still-trialing rows (pre-sweep), downgraded rows
+  // (post-sweep), and explicitly EXCLUDES paid customers.
   {
     type: 'day_plus_1',
     description: 'Trial ended 1-7 days ago, unconverted, no day_plus_1 sent',
@@ -140,7 +147,7 @@ const MILESTONES = [
         ON e.user_id = u.id AND e.email_type = 'day_plus_1'
       WHERE s.trial_end BETWEEN NOW() - INTERVAL '7 days' AND NOW() - INTERVAL '23 hours'
         AND e.id IS NULL
-        AND s.is_trial = true
+        AND NOT (s.subscribed = true AND s.is_trial = false)
     `,
     render: renderDayPlus1,
   },
@@ -155,7 +162,7 @@ const MILESTONES = [
         ON e.user_id = u.id AND e.email_type = 'day_plus_7'
       WHERE s.trial_end BETWEEN NOW() - INTERVAL '14 days' AND NOW() - INTERVAL '6 days 23 hours'
         AND e.id IS NULL
-        AND s.is_trial = true
+        AND NOT (s.subscribed = true AND s.is_trial = false)
     `,
     render: renderDayPlus7,
   },

@@ -71,8 +71,6 @@ export default function SeventyPercentRuleCalculator() {
         keywords="70 percent rule calculator, 70% rule calculator, maximum allowable offer, mao calculator, real estate investing calculator, wholesale offer calculator, flip calculator"
       />
 
-      <CalculatorSchema {...CALCULATOR_METADATA['70-percent-rule-calculator']} />
-
       {/* Calculator */}
       <section className={inModal ? 'px-0' : 'pt-10 pb-16 px-4'}>
         <div className={inModal ? '' : 'container mx-auto max-w-6xl'}>
@@ -272,6 +270,7 @@ export default function SeventyPercentRuleCalculator() {
         </div>
       </section>
       )}
+    <CalculatorSchema {...CALCULATOR_METADATA['70-percent-rule-calculator']} />
     </PublicLayout>
   );
 }

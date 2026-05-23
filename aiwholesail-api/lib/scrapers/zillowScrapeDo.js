@@ -1139,34 +1139,153 @@ function parseSearchQueryStateFromUrl(url) {
 }
 
 /**
- * Append a `searchQueryState` with `sort: { value: 'days' }` to a Zillow
- * slug URL so Zillow returns newest-first instead of its default
- * "Homes for you" (popularity) sort. The default sort buries minutes-
- * old listings on later pages — user-reported regression 2026-05-15.
+ * Return the slug URL unchanged.
  *
- * Preserves the slug, sub-paths (sold/, rentals/), and pagination
- * segments (/N_p/). Caller can pass `{ sort: 'popular' }` to opt back
- * into Zillow's default ordering — that simply returns the URL
- * unchanged so future toggle wiring stays trivial.
+ * BACKGROUND — the previous implementation appended a `searchQueryState`
+ * query param with `sort: { value: 'days' }` so Zillow would return
+ * newest-first instead of its default "Homes for you" sort. That comment
+ * claimed "the slug still scopes the region, so we don't need mapBounds."
+ *
+ * That assumption was WRONG. Reproduced 2026-05-15 server-side:
+ *
+ *   /homes/idaho-county-id_rb/                      → Grangeville, Kooskia, McCall, ID ✓
+ *   /homes/idaho-county-id_rb/?searchQueryState=…   → Warren, MI ✗
+ *   /homes/idaho-county-id_rb/?…&usersSearchTerm=…  → Elizabeth, NJ ✗ (still broken)
+ *
+ * Zillow's frontend respects whatever `searchQueryState` we pass — and
+ * ours had no `mapBounds`/`regionSelection`, so Zillow fell back to a
+ * default region (looks IP-geo or "trending US"), returning random
+ * out-of-state listings under the user's correctly-typed search. Catastrophic
+ * — affected EVERY location-string search (ZIPs, cities, states, counties).
+ *
+ * Fix: never inject `searchQueryState` on slug-based searches. Tradeoff:
+ * loses the newest-first sort (results revert to Zillow's default
+ * "Homes for you" ordering). That's a real regression but immeasurably
+ * smaller than serving wrong-state results. Restoring newest-first sort
+ * without breaking region scoping is a follow-up — requires a path-based
+ * sort segment or a queryState that includes the resolved regionId.
  *
  * @param {string} slugUrl - the URL produced by searchUrlForLocation +
  *   status sub-path + pagination
- * @param {{sort?: 'newest' | 'popular'}} [opts]
+ * @param {{sort?: 'newest' | 'popular'}} [_opts] - kept for caller compat;
+ *   currently ignored
  * @returns {string}
  */
-function buildSearchUrlWithSort(slugUrl, opts = {}) {
-  const sort = opts.sort === 'popular' ? 'popular' : 'newest';
-  if (sort === 'popular') return slugUrl;
+function buildSearchUrlWithSort(slugUrl, _opts = {}) {
+  return slugUrl;
+}
 
-  // Minimal queryState — pagination + sort + isListVisible. Zillow
-  // honours this on slug URLs as an override; the slug still scopes
-  // the region, so we don't need mapBounds.
-  const state = {
-    pagination: {},
-    sort: { value: 'days' },
-    isListVisible: true,
+// ─────────────────────── Region resolution (filtered-search fix) ──────────────
+//
+// Zillow's slug URLs (/homes/<slug>_rb/) resolve to a region server-side when
+// the user hits them with no queryState. The resolved region info is exposed
+// in the page's __NEXT_DATA__ blob at:
+//   props.pageProps.searchPageState.queryState.regionSelection  // [{regionId, regionType}]
+//   props.pageProps.searchPageState.queryState.mapBounds        // {n, s, e, w}
+//
+// For FILTERED searches (comingSoon, auctionListings, home-type filters) we
+// need to send a queryState because that's where filterState lives — but the
+// queryState MUST include regionSelection or Zillow ignores the slug entirely
+// and serves a default region (the PR #445 bug class).
+//
+// Strategy: resolve the slug to its canonical region once via a plain-slug
+// scrape.do call, cache the result, then build the filtered queryState with
+// the resolved region anchors injected. Adds ~1 RTT to first call per
+// location; subsequent calls hit cache.
+
+const REGION_CACHE = new Map(); // location → { region, expiresAt }
+const REGION_CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour — region IDs are stable
+
+/**
+ * Resolve a free-form location string ("Idaho County, ID", "Boise, ID", a ZIP,
+ * etc.) to Zillow's canonical region anchors (regionSelection + mapBounds).
+ *
+ * Caches successful resolutions in-memory for 1h. Failures are NOT cached so
+ * a transient scrape.do hiccup doesn't permanently break filtered searches
+ * for a given location.
+ *
+ * Returns the region object the queryState builder expects, or `null` if the
+ * slug page returned no `queryState.regionSelection` (e.g. the location
+ * doesn't map to a Zillow region).
+ *
+ * @param {string} location
+ * @returns {Promise<{regionSelection: Array, mapBounds: object}|null>}
+ */
+async function resolveRegionForLocation(location) {
+  const key = String(location || '').trim().toLowerCase();
+  if (!key) return null;
+
+  const cached = REGION_CACHE.get(key);
+  if (cached && cached.expiresAt > Date.now()) {
+    return cached.region;
+  }
+
+  const url = searchUrlForLocation(location);
+  let resp;
+  try {
+    resp = await scrape(url, { headers: DEFAULT_HEADERS, geoCode: 'us', render: false });
+  } catch (err) {
+    // Don't cache failure — let next call retry.
+    return null;
+  }
+
+  // extractNextData throws on empty body / missing __NEXT_DATA__ / parse error.
+  // For region resolution, every one of those is "couldn't determine region"
+  // → return null (better than propagating an error from a helper call).
+  let nextData;
+  try {
+    nextData = extractNextData(resp.data);
+  } catch (_err) {
+    return null;
+  }
+  const queryState = nextData?.props?.pageProps?.searchPageState?.queryState;
+  if (!queryState || !Array.isArray(queryState.regionSelection) || !queryState.regionSelection.length) {
+    return null;
+  }
+
+  const region = {
+    regionSelection: queryState.regionSelection,
+    // mapBounds is optional on the queryState we emit — Zillow seems to need
+    // EITHER mapBounds OR regionSelection. Including both is most robust
+    // (verified live 2026-05-15 against LA, Idaho County, Cook County).
+    mapBounds: queryState.mapBounds && typeof queryState.mapBounds === 'object'
+      ? queryState.mapBounds
+      : undefined,
   };
-  return `${slugUrl}?searchQueryState=${encodeURIComponent(JSON.stringify(state))}`;
+  REGION_CACHE.set(key, { region, expiresAt: Date.now() + REGION_CACHE_TTL_MS });
+  return region;
+}
+
+/**
+ * Build a region-scoped, filter-bearing search URL.
+ *
+ * This is the safe counterpart to the naive `<slug>?searchQueryState=…`
+ * pattern that broke region scoping for the entire backend until PR #445.
+ * Always include the resolved `regionSelection` (+ optional `mapBounds`)
+ * from `resolveRegionForLocation` — without them, Zillow ignores the slug
+ * and returns wrong-state listings.
+ *
+ * @param {string} location  - free-form location string (becomes the slug)
+ * @param {{regionSelection: Array, mapBounds?: object}} region - from resolveRegionForLocation()
+ * @param {{filterState: object, pagination?: object, isListVisible?: boolean}} opts
+ * @returns {string}
+ */
+function buildRegionScopedSearchUrl(location, region, opts = {}) {
+  const slug = searchUrlForLocation(location);
+  const queryState = {
+    pagination: opts.pagination || {},
+    isMapVisible: false,
+    isListVisible: opts.isListVisible !== false,
+    regionSelection: region.regionSelection,
+    filterState: opts.filterState || {},
+  };
+  if (region.mapBounds) queryState.mapBounds = region.mapBounds;
+  return `${slug}?searchQueryState=${encodeURIComponent(JSON.stringify(queryState))}`;
+}
+
+/** Test hook — clear the in-memory region cache. Used by node:test. */
+function _resetRegionCache() {
+  REGION_CACHE.clear();
 }
 
 async function search(args = {}) {
@@ -1183,12 +1302,51 @@ async function search(args = {}) {
   if (page && Number(page) > 1) {
     url = url.replace(/\/$/, `/${Number(page)}_p/`);
   }
-  // Sort: newest-first by default (user-reported regression 2026-05-15).
-  // Zillow's default "Homes for you" sort buried minutes-old listings on
-  // later pages, which the frontend never fetched. `sort=days` returns
-  // newest-first so freshly-listed properties always reach page 1.
-  // Caller can pass `sort: 'popular'` to opt back into Zillow's default.
+  // buildSearchUrlWithSort is now a no-op (PR #445 — the old searchQueryState
+  // injection broke region scoping). Kept for back-compat with any external
+  // caller; produces an identity output.
   url = buildSearchUrlWithSort(url, { sort: sort || 'newest' });
+
+  // Newest-first sort restoration (PR #447 + this one).
+  //
+  // The original 2026-05-15 incident: users were missing minutes-old listings
+  // because Zillow's default "Homes for you" sort buried them on later pages.
+  // The naive fix (inject `searchQueryState` with sort) broke region scoping
+  // for every search. PR #445 reverted that. PR #447 added safe region
+  // resolution.
+  //
+  // Now we can do newest-first SAFELY: resolve the slug to its canonical
+  // region, then build a queryState that carries BOTH regionSelection (so
+  // Zillow respects the slug's region) AND filterState.sortSelection (so
+  // Zillow returns newest-first).
+  //
+  // Scope: only applied to the default For Sale flow (no status sub-path
+  // like /sold/ or /rentals/). Sold + rental searches keep the plain slug
+  // and Zillow's default sort — acceptable; main user-visible sort is the
+  // For Sale list.
+  //
+  // Opt-outs:
+  //   - sort === 'popular' → skip region resolution, use plain slug (faster,
+  //     no extra RTT, restores Zillow's default sort)
+  //   - status sub-path present → skip (sold/rentals stay path-style)
+  //   - region resolution fails → fall back to plain slug (still scoped via
+  //     the slug, just not newest-sorted)
+  //
+  // Latency: +1 RTT on the FIRST search per location (~1-2s). Subsequent
+  // searches hit the in-memory region cache (1h TTL) so the overhead is
+  // amortised away under realistic usage.
+  const wantNewest = (sort || 'newest') !== 'popular';
+  if (wantNewest && !z) {
+    const region = await resolveRegionForLocation(location);
+    if (region) {
+      url = buildRegionScopedSearchUrl(location, region, {
+        pagination: page && Number(page) > 1 ? { currentPage: Number(page) } : {},
+        filterState: { sortSelection: { value: 'days' } },
+      });
+    }
+    // region == null → leave url as the plain slug; we'd rather get correct-
+    // state default-sorted results than no results at all.
+  }
 
   let resp;
   try {
@@ -2804,26 +2962,37 @@ async function comingSoon(args = {}) {
   if (!location) {
     throw new ZillowScrapeError('comingSoon requires location', { reason: 'bad_args' });
   }
-  // We don't know exact bounds for the location — rely on the location-string
-  // URL and append the coming-soon filter via searchQueryState. Zillow accepts
-  // both forms. We use the simpler /homes/<location>_rb/ + searchQueryState
-  // overlay so we don't need to geocode the location first.
-  let url = `${searchUrlForLocation(location)}?searchQueryState=${encodeURIComponent(
-    JSON.stringify({
-      pagination: page && Number(page) > 1 ? { currentPage: Number(page) } : {},
-      isMapVisible: false,
-      isListVisible: true,
-      filterState: {
-        isComingSoon: { value: true },
-        isForSaleByAgent: { value: false },
-        isForSaleByOwner: { value: false },
-        isNewConstruction: { value: false },
-        isAuction: { value: false },
-        isForSaleForeclosure: { value: false },
-        isRecentlySold: { value: false },
-      },
-    })
-  )}`;
+
+  // Step 1 — resolve the slug to its canonical region. Required for filtered
+  // searches: without regionSelection in the queryState, Zillow ignores the
+  // slug and serves a default region (the PR #445 bug class).
+  const region = await resolveRegionForLocation(location);
+  if (!region) {
+    // No region resolution → return empty rather than wrong-state results.
+    // Better silent-empty than NJ listings for an Idaho County search.
+    return {
+      location,
+      status: 'ComingSoon',
+      page: Number(page) || 1,
+      totalResultCount: 0,
+      results: [],
+    };
+  }
+
+  // Step 2 — build the region-scoped filtered URL.
+  const url = buildRegionScopedSearchUrl(location, region, {
+    pagination: page && Number(page) > 1 ? { currentPage: Number(page) } : {},
+    filterState: {
+      isComingSoon: { value: true },
+      isForSaleByAgent: { value: false },
+      isForSaleByOwner: { value: false },
+      isNewConstruction: { value: false },
+      isAuction: { value: false },
+      isForSaleForeclosure: { value: false },
+      isRecentlySold: { value: false },
+    },
+  });
+
   let resp;
   try {
     resp = await scrape(url, { headers: DEFAULT_HEADERS, geoCode: 'us', render: false });
@@ -2840,10 +3009,14 @@ async function comingSoon(args = {}) {
   const nextData = extractNextData(resp.data);
   const listResults = findListResults(nextData);
   if (!Array.isArray(listResults)) {
-    throw new ZillowScrapeError('Could not locate listResults in __NEXT_DATA__', {
-      action: 'comingSoon',
-      reason: 'no_list_results',
-    });
+    // Empty result is valid; throw only if the shape is broken.
+    return {
+      location,
+      status: 'ComingSoon',
+      page: Number(page) || 1,
+      totalResultCount: 0,
+      results: [],
+    };
   }
   const total = findTotalResultCount(nextData);
   return {
@@ -3203,24 +3376,32 @@ async function auctionListings(args = {}) {
   if (!location) {
     throw new ZillowScrapeError('auctionListings requires location', { reason: 'bad_args' });
   }
-  // Use searchQueryState overlay; Zillow doesn't have a stable /auctions/
-  // sub-path URL across all locations so the searchQueryState route is more
-  // robust.
-  const url = `${searchUrlForLocation(location)}?searchQueryState=${encodeURIComponent(
-    JSON.stringify({
-      pagination: page && Number(page) > 1 ? { currentPage: Number(page) } : {},
-      isMapVisible: false,
-      isListVisible: true,
-      filterState: {
-        isAuction: { value: true },
-        isForSaleByAgent: { value: false },
-        isForSaleByOwner: { value: false },
-        isNewConstruction: { value: false },
-        isComingSoon: { value: false },
-        isRecentlySold: { value: false },
-      },
-    })
-  )}`;
+
+  // Resolve the slug to its canonical region — same fix as comingSoon. The
+  // naive slug + searchQueryState pattern (without regionSelection) returns
+  // wrong-state results across ALL locations. See PR #445 incident notes.
+  const region = await resolveRegionForLocation(location);
+  if (!region) {
+    return {
+      location,
+      status: 'Auction',
+      page: Number(page) || 1,
+      totalResultCount: 0,
+      results: [],
+    };
+  }
+
+  const url = buildRegionScopedSearchUrl(location, region, {
+    pagination: page && Number(page) > 1 ? { currentPage: Number(page) } : {},
+    filterState: {
+      isAuction: { value: true },
+      isForSaleByAgent: { value: false },
+      isForSaleByOwner: { value: false },
+      isNewConstruction: { value: false },
+      isComingSoon: { value: false },
+      isRecentlySold: { value: false },
+    },
+  });
   return runSearchUrl(url, { location, status: 'Auction', page });
 }
 
@@ -3277,6 +3458,10 @@ module.exports = {
   buildNewConstructionSearchUrl,
   buildTinyHomesSearchUrl,
   buildHudHomesSearchUrl,
+  // Region resolution (filtered-search fix — PR #445 follow-up):
+  resolveRegionForLocation,
+  buildRegionScopedSearchUrl,
+  _resetRegionCache,
   // Value / market / mortgage / agent:
   mortgageRates,
   mortgageCalculator,

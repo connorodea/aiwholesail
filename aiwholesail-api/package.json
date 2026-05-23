@@ -7,7 +7,7 @@
     "start": "node index.js",
     "dev": "nodemon index.js",
     "migrate": "node scripts/migrate.js",
-    "test": "node --test test/**/*.test.js"
+    "test": "node --test $(find test -name '*.test.js' -print | sort)"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.95.0",

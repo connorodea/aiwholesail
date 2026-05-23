@@ -134,6 +134,55 @@ function looksLikeAddressDebris(segment) {
   return hasKeyword && hasDigit;
 }
 
+// USPS street-suffix abbreviations (Publication 28). Matched as standalone
+// tokens (case-insensitive) — bare presence inside a longer name like
+// "Lakewood" or "Streamwood" would false-positive. The standalone-token
+// requirement is enforced by the regex `\b<token>\b` boundary in
+// looksLikeStreetAddress.
+const STREET_SUFFIXES = new Set([
+  'st', 'street', 'ave', 'avenue', 'blvd', 'boulevard', 'rd', 'road',
+  'dr', 'drive', 'ln', 'lane', 'ct', 'court', 'cir', 'circle', 'way',
+  'pl', 'place', 'pkwy', 'parkway', 'hwy', 'highway', 'ter', 'terrace',
+  'trl', 'trail', 'cv', 'cove', 'sq', 'square', 'aly', 'alley', 'plz',
+  'plaza', 'crk', 'creek', 'xing', 'crossing', 'row', 'loop',
+]);
+
+// True iff `s` looks like a full street address rather than a city/region.
+// Used by the comps fallback to skip queries that would always 400 from
+// scrape.do — Zillow's /homes/<slug>_rb/ endpoint requires a REGION-level
+// slug (city, neighborhood, ZIP), not a single-address slug. A street
+// address like "228 Gumtree Dr Kannapolis NC 28083" slugifies to
+// "228-gumtree-dr-kannapolis-nc-28083" which Zillow can't resolve to a
+// region; scrape.do then returns HTTP 400 on the unresolvable URL.
+//
+// Detection signals (require BOTH to avoid false positives):
+//   1. Starts with a number (the street number) followed by a space and
+//      at least one alphabetic word — "228 Gumtree…", "1234 Main…".
+//      Bare ZIP "28083" has no trailing alphabetic word, so it's safe.
+//   2. Contains a standalone USPS street-suffix token (Dr, St, Ave, etc.)
+//      — this rules out "29 Palms California" (real CA city, no suffix).
+//
+// Protected cases (these must NOT be flagged as street addresses):
+//   - Bare ZIP "28083"                              — no leading-number-then-word
+//   - "29 Palms, California"                        — no suffix token
+//   - "Charlotte, NC 28083"                         — no leading number
+//   - "Lakewood Drive"                              — wait, this IS a street;
+//     but it's also extremely unlikely to be passed as a comps query (the
+//     ComparableSalesTable parses property.address before calling this,
+//     and a no-comma input is the only path here). Accept this false-pos.
+function looksLikeStreetAddress(s) {
+  const str = String(s || '').trim();
+  if (!str) return false;
+  const hasLeadingNumberAndWord = /^\d+\s+[A-Za-z]/.test(str);
+  if (!hasLeadingNumberAndWord) return false;
+  const tokens = str.toLowerCase().split(/[\s,]+/).filter(Boolean);
+  for (const t of tokens) {
+    const cleaned = t.replace(/[.,]+$/, '');
+    if (STREET_SUFFIXES.has(cleaned)) return true;
+  }
+  return false;
+}
+
 export function parseCompsLocation(location) {
   if (typeof location !== 'string') {
     return { zip: null, cityState: null, queries: [] };
@@ -223,7 +272,15 @@ export function parseCompsLocation(location) {
   // ("28083") where queries[0]=zip and queries[2]=raw resolve to the same
   // string. Pre-dedup the fallback loop hit scrape.do twice and added
   // ~1.5s of wasted latency per bare-ZIP comps lookup.
-  const queries = [...new Set([zip, cityState, trimmed].filter(Boolean))];
+  //
+  // Skip `trimmed` when it looks like a street address. Zillow's
+  // /homes/<slug>_rb/ endpoint requires a region-level slug and 400s on
+  // street-level slugs ("228-gumtree-dr-…") via scrape.do. The ZIP and
+  // cityState branches already captured the useful signal — no need to
+  // burn a round-trip on a query we know will fail. Observed in prod
+  // logs as ~25 HTTP 400s/day on the comps fallback path 2026-05-22.
+  const rawQuery = looksLikeStreetAddress(trimmed) ? null : trimmed;
+  const queries = [...new Set([zip, cityState, rawQuery].filter(Boolean))];
 
   return { zip, cityState, queries };
 }

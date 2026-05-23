@@ -13,6 +13,7 @@ const leadsRoutes = require('./routes/leads');
 const favoritesRoutes = require('./routes/favorites');
 const alertsRoutes = require('./routes/alerts');
 const stripeRoutes = require('./routes/stripe');
+const revenuecatRoutes = require('./routes/revenuecat');
 const aiRoutes = require('./routes/ai');
 const aiAgentRoutes = require('./routes/aiAgent');
 const mcpRoutes = require('./routes/mcp');
@@ -31,6 +32,7 @@ const skipTraceRoutes = require('./routes/skipTrace');
 const webhookRoutes = require('./routes/webhooks');
 const propdataRoutes = require('./routes/propdata');
 const batchdataRoutes = require('./routes/batchdata');
+const offmarketIqRoutes = require('./routes/offmarket');
 const usHousingRoutes = require('./routes/usHousing');
 const flagsRoutes = require('./routes/flags');
 const healthIntegrationsRoutes = require('./routes/healthIntegrations');
@@ -159,6 +161,7 @@ app.use('/api/leads', leadsRoutes);
 app.use('/api/favorites', favoritesRoutes);
 app.use('/api/alerts', alertsRoutes);
 app.use('/api/stripe', stripeRoutes);
+app.use('/api/iap/revenuecat', revenuecatRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/ai/agent', aiAgentRoutes);
 app.use('/mcp', mcpRoutes);
@@ -166,29 +169,6 @@ app.use('/api/events', eventsRoutes);
 app.use('/api/offmarket-search-log', offmarketSearchLogRoutes);
 app.use('/api/property', propertyRoutes);
 app.use('/api/zillow', zillowRoutes);
-
-// RapidAPI gateway mount — same upstream proxy (scrape.do + RapidAPI fallback)
-// but auth via shared-secret header injection instead of session JWT. Disabled
-// by default; flip RAPIDAPI_GATEWAY_ENABLED=true once the listing is wired in
-// the RapidAPI dashboard. Companion repo: connorodea/aiwholesail-rapidapi.
-if (process.env.RAPIDAPI_GATEWAY_ENABLED === 'true') {
-  const { rapidapiProxySecret } = require('./middleware/rapidapiProxySecret');
-  const rapidapiZillowRoutes = require('./routes/rapidapiZillow');
-  // Per-request metrics → rapidapi_request_metrics table (feeds the alert
-  // worker scripts/rapidapi-alert-worker.js). Mounted BEFORE the auth check
-  // so we count 401s, not just authenticated requests.
-  const { createCollector } = require('./lib/observability/rapidapi-metrics-collector');
-  const { writeMetrics } = require('./lib/observability/rapidapi-metrics-writer');
-  const collector = createCollector();
-  app.use('/rapidapi/zillow', collector.middleware, rapidapiProxySecret, rapidapiZillowRoutes);
-  // Flush every 60s. Errors logged but don't crash the server.
-  setInterval(() => {
-    collector.flush(writeMetrics).catch((err) =>
-      console.error('[rapidapi-metrics] flush failed:', err.message)
-    );
-  }, 60_000).unref();
-  console.log('[Server] RapidAPI gateway mount enabled at /rapidapi/zillow');
-}
 
 app.use('/api/communications', communicationsRoutes);
 app.use('/api/buyers', buyersRoutes);
@@ -200,6 +180,7 @@ app.use('/api/skip-trace', skipTraceRoutes);
 app.use('/api/webhooks', webhookRoutes);
 app.use('/api/propdata', propdataRoutes);
 app.use('/api/batchdata', batchdataRoutes);
+app.use('/api/offmarket-iq', offmarketIqRoutes);
 app.use('/api/us-housing', usHousingRoutes);
 app.use('/api/flags', flagsRoutes);
 app.use('/api/health', healthIntegrationsRoutes);

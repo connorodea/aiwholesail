@@ -114,6 +114,15 @@ const ACTION_INPUTS = {
   searchTinyHomes: { location: DEFAULT_LOCATION },
   // ── Tier B5 cycle 1 (PR #394) — market analytics time-series
   localPriceTrends: { region: DEFAULT_LOCATION },
+  // ── Tier B5 cycles 2, 3, 4, 5 (PR #410) — market trend extractors.
+  // domTrends + inventoryTrends + forecast share the home-values cached
+  // payload with localPriceTrends, so running them in one smoke pass costs
+  // 1 scrape.do fetch (not 4). rentTrends lives on /rental-manager/* and
+  // does its own fetch.
+  forecast: { region: DEFAULT_LOCATION },
+  domTrends: { region: DEFAULT_LOCATION },
+  inventoryTrends: { region: DEFAULT_LOCATION },
+  rentTrends: { region: DEFAULT_LOCATION },
 };
 
 function parseArgs(argv) {

@@ -1,5 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 import { Calendar } from 'lucide-react';
+import { useInModal } from '@/lib/in-modal-context';
 
 const LAST_UPDATED = '2026-05-12';
 
@@ -44,6 +45,12 @@ export function CalculatorSchema({
   showVisible = true,
 }: CalculatorSchemaProps) {
   const canonical = `https://aiwholesail.com/tools/${slug}`;
+  // When this component renders inside the property modal's Tools tab, the
+  // visible sections (answer block, How-to, FAQ) duplicate marketing content
+  // the user already saw in the parent property modal. Suppress them — the
+  // Helmet JSON-LD is also redundant in modal but harmless and cheap to keep.
+  const { inModal } = useInModal();
+  const renderVisible = showVisible && !inModal;
 
   const howToJsonLd = {
     '@context': 'https://schema.org',
@@ -111,7 +118,7 @@ export function CalculatorSchema({
         <meta property="article:modified_time" content={LAST_UPDATED} />
       </Helmet>
 
-      {showVisible && (
+      {renderVisible && (
         <>
           {/* AI-extractable answer block */}
           <section className="py-10 px-4">

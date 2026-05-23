@@ -7,13 +7,17 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { PropertySearchParams } from '@/types/zillow';
-import { Search, Home, Bed, Bath, DollarSign, TrendingDown, MessageSquare, Gavel, Building2, AlertTriangle, Flame, Sparkles, Lock, Radius, SlidersHorizontal, Check } from 'lucide-react';
+import { Search, Home, Bed, Bath, DollarSign, TrendingDown, MessageSquare, Gavel, Building2, AlertTriangle, Flame, Sparkles, Lock, Radius, SlidersHorizontal, Check, CalendarClock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { LocationAutocomplete } from './LocationAutocomplete';
 import { CountyBrowserDialog } from './CountyBrowserDialog';
 import { SearchHistory } from './SearchHistory';
 import type { SearchHistoryEntry } from '@/hooks/useSearchHistory';
 import { isCountyWithoutState } from '@/lib/locationValidation.js';
+import {
+  ON_MARKET_DEFAULTS,
+  applyHistoryDefaults,
+} from '@/lib/searchParamsDefaults.js';
 import { validatePriceRange, sanitizeSearchKeywords, validateLocationInput } from '@/lib/security';
 import { isMultiLocationSearchEnabled } from '@/lib/feature-flags';
 import { useFeatureFlag } from '@/hooks/useFeatureFlag';
@@ -42,11 +46,13 @@ export function PropertySearch({
   onRemoveHistory,
   onClearHistory,
 }: PropertySearchProps) {
-  const [searchParams, setSearchParams] = useState<PropertySearchParams>({
-    location: '',
-    homeType: 'Houses, Townhomes, Multi-family, Condos/Co-ops',
-    wholesaleOnly: true // Default: only show properties priced below Zestimate
-  });
+  // Initial form state pulls from the canonical defaults so a single source
+  // of truth feeds both first-render AND chip-replay (applyHistoryDefaults
+  // below). When a new field gets added to PropertySearchParams, bumping
+  // ON_MARKET_DEFAULTS automatically fills it for old stored entries.
+  const [searchParams, setSearchParams] = useState<PropertySearchParams>(
+    () => ({ ...ON_MARKET_DEFAULTS }),
+  );
   const { toast } = useToast();
   const { user } = useAuth();
   const [countyBrowserOpen, setCountyBrowserOpen] = useState(false);
@@ -133,11 +139,13 @@ export function PropertySearch({
   };
 
   const handleApplyHistory = (params: PropertySearchParams) => {
-    // Restore the criteria into the form and re-fire — the container's
-    // handleSearch records into history (dedupes by hash) and patches in
-    // the resultCount when results land.
-    setSearchParams(params);
-    onSearch(params);
+    // Merge stored entry over current defaults. If PropertySearchParams has
+    // gained a field since this entry was recorded, the stored entry won't
+    // have that key — `applyHistoryDefaults` fills the missing key from
+    // ON_MARKET_DEFAULTS so the user gets the current default, not undefined.
+    const merged = applyHistoryDefaults(params, ON_MARKET_DEFAULTS);
+    setSearchParams(merged);
+    onSearch(merged);
   };
 
   const updateParam = (key: keyof PropertySearchParams, value: string | boolean) => {
@@ -396,6 +404,35 @@ export function PropertySearch({
                   />
                 </div>
               </div>
+            </div>
+
+            {/* Listed within — cuts stale listings from the result set. The
+                underlying Zillow feed returns every active listing regardless
+                of when it hit the MLS, so a city search floods with months-old
+                inventory. Filter is applied CLIENT-SIDE after enrichment so it
+                doesn't change the upstream API quota cost — but it does shrink
+                what the user sees to the freshest cohort. */}
+            <div className="space-y-2 sm:col-span-2">
+              <Label className={tidied ? 'text-sm font-medium text-muted-foreground' : 'flex items-center gap-2'}>
+                {!tidied && <CalendarClock className="h-4 w-4 text-primary" />}
+                Listed within
+              </Label>
+              <Select
+                value={searchParams.maxDaysOnMarket || 'any'}
+                onValueChange={(value) => updateParam('maxDaysOnMarket', value === 'any' ? undefined : value)}
+              >
+                <SelectTrigger className="bg-background/50" aria-label="Listed within">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="any">Any time</SelectItem>
+                  <SelectItem value="7">Last 7 days</SelectItem>
+                  <SelectItem value="14">Last 14 days</SelectItem>
+                  <SelectItem value="30">Last 30 days</SelectItem>
+                  <SelectItem value="60">Last 60 days</SelectItem>
+                  <SelectItem value="90">Last 90 days</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
           </div>

@@ -26,7 +26,7 @@ export function PublicLayout({ children }: PublicLayoutProps) {
       </main>
 
       {/* ===== FOOTER ===== */}
-      <footer className="relative border-t border-foreground/[0.06] bg-card">
+      <footer className="relative border-t border-foreground/[0.06] bg-background">
         {/* Top section — CTA banner */}
         <div className="border-b border-foreground/[0.06]">
           <Container>

@@ -26,15 +26,25 @@ const axios = require('axios');
 const { Pool } = require('pg');
 const { Resend } = require('resend');
 const { zillowUrl, appPropUrl, buildPrimaryUrl } = require('../lib/spread-alert-urls');
+const { proxyZillow } = require('../lib/agent/zillowProxy');
+const { makeSpreadAlertZillow } = require('../lib/spread-alert-zillow');
+const { sendWithRetry } = require('../lib/sendWithRetry');
+const { planAlertSideEffects } = require('../lib/planAlertSideEffects');
 const { isAuctionSubject } = require('../lib/auction-detection');
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+// Resend free/default tier caps at 5 requests/second. The Phase-3
+// dispatch loop blasts every due alert in a tight loop and used to
+// 429 on the overflow (12/22 failures observed 2026-05-15). Sleeping
+// 220ms between alerts keeps us at ~4.5 RPS — comfortably under the
+// limit even when sendWithRetry's exponential backoff fires.
+const RESEND_INTER_ALERT_DELAY_MS = 220;
+function sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
+
+const { searchZillow, getZestimate } = makeSpreadAlertZillow({ proxyZillow });
+
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const DRY_RUN = process.argv.includes('--dry-run');
-
-// Zillow Scraper API config
-const RAPIDAPI_KEY = process.env.RAPIDAPI_KEY || process.env.ZILLOW_RAPIDAPI_KEY;
-const RAPIDAPI_HOST = 'zillow-scraper-api.p.rapidapi.com';
 
 // Twilio config
 const TWILIO_SID = process.env.TWILIO_ACCOUNT_SID;
@@ -71,41 +81,6 @@ function resolveSearchLocation(location) {
     return STATE_NAMES[upper];
   }
   return trimmed;
-}
-
-// ---------- Zillow API helpers ----------
-
-async function searchZillow(location, page = 1) {
-  const response = await axios.get(`https://${RAPIDAPI_HOST}/zillow/search`, {
-    params: {
-      location,
-      listing_type: 'for_sale',
-      home_type: 'house',
-      sort: 'newest',
-      page: String(page),
-    },
-    headers: {
-      'x-rapidapi-key': RAPIDAPI_KEY,
-      'x-rapidapi-host': RAPIDAPI_HOST,
-    },
-    timeout: 30000,
-  });
-  return response.data;
-}
-
-async function getZestimate(zpid) {
-  try {
-    const response = await axios.get(`https://${RAPIDAPI_HOST}/zillow/valuation/${zpid}`, {
-      headers: {
-        'x-rapidapi-key': RAPIDAPI_KEY,
-        'x-rapidapi-host': RAPIDAPI_HOST,
-      },
-      timeout: 15000,
-    });
-    return response.data?.data?.zestimate || null;
-  } catch {
-    return null;
-  }
 }
 
 async function enrichWithZestimates(properties) {
@@ -384,18 +359,15 @@ async function sendAlertEmail(userEmail, location, deals, userOptions = {}) {
     return { id: 'dry-run' };
   }
 
-  const result = await resend.emails.send({
+  // sendWithRetry retries on Resend's 429 with exponential backoff and
+  // re-throws every other error immediately. Validation / auth failures
+  // still bubble up so the caller's `emailSent = false` branch fires.
+  return sendWithRetry(() => resend.emails.send({
     from: 'AIWholesail Alerts <alerts@aiwholesail.com>',
     to: userEmail,
     subject,
     html,
-  });
-  if (result?.error) {
-    // Resend SDK returns {error} instead of throwing on auth/validation failures.
-    // Surface as a real error so callers don't mark the deal as sent in the dedup table.
-    throw new Error(`Resend rejected alert email: ${JSON.stringify(result.error)}`);
-  }
-  return result;
+  }));
 }
 
 // ---------- Main worker ----------
@@ -486,17 +458,26 @@ async function run() {
         ];
 
         // Upsert into property_search_cache
+        // description + is_foreclosure added in migration 035 so the
+        // spread-alert auction filter (PR #437) can use Zillow's
+        // explicit foreclosure boolean and the description-keyword
+        // regex — the two strongest detection signals. ON CONFLICT
+        // UPDATE backfills both onto legacy rows the next time the
+        // worker scrapes that location.
         for (const p of allWithZestimates) {
           if (!p.zpid) continue;
           await pool.query(`
             INSERT INTO property_search_cache
               (location, zpid, address, price, zestimate, bedrooms, bathrooms, sqft,
-               property_type, days_on_market, listing_url, image_url, last_seen_at)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW())
+               property_type, days_on_market, listing_url, image_url,
+               description, is_foreclosure, last_seen_at)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, NOW())
             ON CONFLICT (location, zpid) DO UPDATE SET
               price = EXCLUDED.price,
               zestimate = COALESCE(EXCLUDED.zestimate, property_search_cache.zestimate),
               days_on_market = EXCLUDED.days_on_market,
+              description = COALESCE(EXCLUDED.description, property_search_cache.description),
+              is_foreclosure = COALESCE(EXCLUDED.is_foreclosure, property_search_cache.is_foreclosure),
               last_seen_at = NOW()
           `, [
             location,
@@ -511,6 +492,8 @@ async function run() {
             p.days_on_zillow || p.days_on_market || null,
             p.detail_url || null,
             p.image_url || null,
+            (typeof p.description === 'string' && p.description.length > 0) ? p.description : null,
+            p.isForeclosure === true ? true : (p.isForeclosure === false ? false : null),
           ]);
         }
 
@@ -635,6 +618,11 @@ async function run() {
         // the per-request path is gone).
         const smsSent = false;
 
+        // Throttle between dispatches to stay under Resend's 5 RPS cap.
+        // Sleeping before the call (rather than after) keeps the wait
+        // out of the no-deals path that hit `continue` above.
+        await sleep(RESEND_INTER_ALERT_DELAY_MS);
+
         // Always send email alert
         try {
           await sendAlertEmail(userEmail, alert.location, deals.rows, { fullName: alert.full_name });
@@ -645,37 +633,38 @@ async function run() {
           stats.errors.push(`email to ${userEmail}: ${emailErr.message}`);
         }
 
-        if (emailSent) {
-          stats.alerts++;
-        }
+        if (emailSent) stats.alerts++;
 
-        // Log sent deals (dedup)
-        for (const deal of deals.rows) {
-          await pool.query(
-            'INSERT INTO alert_sent_deals (alert_id, zpid, spread) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING',
-            [alert.id, deal.zpid, deal.spread]
-          );
-        }
-
-        // Update last_alert_sent
-        await pool.query(
-          'UPDATE property_alerts SET last_alert_sent = NOW() WHERE id = $1',
-          [alert.id]
-        );
-
-        // Log match.
-        // property_id is NOT NULL on the underlying table (migration 001) and
-        // serves as the durable per-property key. We use the Zillow zpid as
-        // the canonical id — same value the worker already stores in
-        // alert_sent_deals. Prior insert omitted this column, causing every
-        // match row to fail with a not-null constraint violation (the email
-        // still went out, but the audit trail was silently dropped).
-        for (const deal of deals.rows) {
-          await pool.query(`
-            INSERT INTO property_alert_matches (alert_id, property_id, zpid, property_data, matched_at, sms_sent, email_sent)
-            VALUES ($1, $2, $3, $4, NOW(), $5, $6)
-            ON CONFLICT DO NOTHING
-          `, [alert.id, String(deal.zpid), deal.zpid, JSON.stringify(deal), smsSent, emailSent]);
+        // Side-effect planning lives in lib/planAlertSideEffects.js so
+        // the data-integrity contract ("don't mark failed-email deals
+        // as sent") is unit-tested independently of the I/O loop.
+        const actions = planAlertSideEffects({
+          alert,
+          deals: deals.rows,
+          emailSent,
+          smsSent,
+        });
+        for (const action of actions) {
+          if (action.type === 'insert_sent_deal') {
+            await pool.query(
+              'INSERT INTO alert_sent_deals (alert_id, zpid, spread) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING',
+              [action.alertId, action.zpid, action.spread]
+            );
+          } else if (action.type === 'bump_last_alert_sent') {
+            await pool.query(
+              'UPDATE property_alerts SET last_alert_sent = NOW() WHERE id = $1',
+              [action.alertId]
+            );
+          } else if (action.type === 'insert_match') {
+            // property_id is NOT NULL on the underlying table (migration 001)
+            // and serves as the durable per-property key. We use the Zillow
+            // zpid as the canonical id — same value already in alert_sent_deals.
+            await pool.query(`
+              INSERT INTO property_alert_matches (alert_id, property_id, zpid, property_data, matched_at, sms_sent, email_sent)
+              VALUES ($1, $2, $3, $4, NOW(), $5, $6)
+              ON CONFLICT DO NOTHING
+            `, [action.alertId, String(action.zpid), action.zpid, JSON.stringify(action.dealPayload), action.smsSent, action.emailSent]);
+          }
         }
 
         // Webhook dispatch (Pro/Elite feature) — fire-and-forget.

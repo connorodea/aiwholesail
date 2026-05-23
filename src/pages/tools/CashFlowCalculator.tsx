@@ -104,8 +104,6 @@ export default function CashFlowCalculator() {
         description="Free rental property cash flow calculator. Analyze monthly cash flow, cash-on-cash return, cap rate, and GRM. See a complete expense breakdown for any rental investment property."
         keywords="cash flow calculator, rental property calculator, cash on cash return calculator, cap rate calculator, rental income calculator, investment property analysis, real estate ROI calculator"
       />
-
-      <CalculatorSchema {...CALCULATOR_METADATA['cash-flow-calculator']} />
       {/* Calculator */}
       <section className={inModal ? 'px-0' : 'pt-10 pb-16 px-4'}>
         <div className={inModal ? '' : 'container mx-auto max-w-5xl'}>
@@ -388,6 +386,7 @@ export default function CashFlowCalculator() {
           )}
         </div>
       </section>
+    <CalculatorSchema {...CALCULATOR_METADATA['cash-flow-calculator']} />
     </PublicLayout>
   );
 }

@@ -76,8 +76,6 @@ export default function CapRateCalculator() {
         keywords="cap rate calculator, capitalization rate calculator, noi calculator, gross rent multiplier, real estate cap rate, investment property calculator, rental property analysis"
       />
 
-      <CalculatorSchema {...CALCULATOR_METADATA['cap-rate-calculator']} />
-
       {/* Calculator */}
       <section className={inModal ? 'px-0' : 'pt-10 pb-16 px-4'}>
         <div className={inModal ? '' : 'container mx-auto max-w-6xl'}>
@@ -388,6 +386,7 @@ export default function CapRateCalculator() {
         </div>
       </section>
       )}
+    <CalculatorSchema {...CALCULATOR_METADATA['cap-rate-calculator']} />
     </PublicLayout>
   );
 }

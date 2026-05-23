@@ -8,6 +8,7 @@ import { Property, PropertySearchParams } from '@/types/zillow';
 import { zillowAPI } from '@/lib/zillow-api';
 import { sortPropertiesByWholesalePotential } from '@/lib/wholesale-calculator';
 import { applyPreEnrichmentToggles } from '@/lib/property-filters';
+import { filterByMaxDaysOnMarket } from '@/lib/property-filter';
 import { scoreAllProperties, filterMotivatedSellers, MIN_MOTIVATED_SCORE } from '@/lib/motivated-seller-score';
 import { isCountyWithoutState, isStateOnlyLocation } from '@/lib/locationValidation.js';
 import { useSearchHistory } from '@/hooks/useSearchHistory';
@@ -43,7 +44,7 @@ import { ArrowUpDown, Eye, EyeOff } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AbsenteeOwnerSearch } from '@/components/AbsenteeOwnerSearch';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
-import { Building2, Home } from 'lucide-react';
+import { Building2, Home, FlaskConical } from 'lucide-react';
 import { useFeatureFlag } from '@/hooks/useFeatureFlag';
 import { PropertyComparison } from '@/components/PropertyComparison';
 import { AITopPicksSection } from '@/components/AITopPicksSection';
@@ -76,6 +77,10 @@ export default function RealEstateWholesaler() {
   const [showFavorites, setShowFavorites] = useState(false);
   const [showAlerts, setShowAlerts] = useState(false);
   const [lastSearchLocation, setLastSearchLocation] = useState<string>('');
+  // "Listed within" filter from the search form, captured AT search time so
+  // re-renders + tab switches don't accidentally re-filter against the live
+  // form (which the user may have changed but not yet re-submitted).
+  const [activeMaxDaysOnMarket, setActiveMaxDaysOnMarket] = useState<string | undefined>(undefined);
   const [sortBy, setSortBy] = useState<'price-high' | 'price-low' | 'newest' | 'oldest' | 'default'>('default');
   const [isSearchingFSBO, setIsSearchingFSBO] = useState<boolean>(false);
   // Unified on/off-market search is gated behind a feature flag while we
@@ -204,6 +209,7 @@ export default function RealEstateWholesaler() {
       setProperties([]);
       setError(null);
       setLastSearchLocation(params.location);
+      setActiveMaxDaysOnMarket(params.maxDaysOnMarket);
       setIsSearchingFSBO(params.fsboOnly || false);
 
       // Reset the second-scroll tracker so this search can re-trigger.
@@ -546,10 +552,10 @@ export default function RealEstateWholesaler() {
             {/* Hero Search Section */}
             <section className="text-center space-y-6 sm:space-y-10 max-w-6xl mx-auto animate-fade-in">
               <div className="space-y-3 sm:space-y-6">
-                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-medium tracking-tight leading-tight">
+                <h1 className="text-3xl md:text-4xl font-medium tracking-tight">
                   Find profitable real estate deals
                 </h1>
-                <p className="text-base sm:text-lg md:text-xl text-neutral-400 font-light max-w-2xl mx-auto leading-relaxed">
+                <p className="text-lg text-muted-foreground font-light max-w-2xl mx-auto leading-relaxed">
                   {effectiveSearchMode === 'on-market'
                     ? 'Discover undervalued listings with AI-powered analysis and comprehensive market data'
                     : 'Search off-market properties — absentee owners, pre-foreclosure, tax delinquent, high equity, and more'}
@@ -610,6 +616,24 @@ export default function RealEstateWholesaler() {
                 </div>
               ) : (
                 <div className="text-left">
+                  <div
+                    role="status"
+                    className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-amber-400/30 bg-amber-400/10 px-4 py-2.5 text-sm"
+                  >
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-400 px-2 py-0.5 text-xs font-semibold text-neutral-950">
+                      <FlaskConical className="h-3 w-3" aria-hidden="true" />
+                      Beta
+                    </span>
+                    <span className="text-neutral-200">
+                      Off-market search is in active development — coverage and result quality vary by region.
+                    </span>
+                    <a
+                      href="mailto:connor@upscaledinc.com?subject=Off-market%20feedback"
+                      className="text-amber-300 underline-offset-2 hover:underline"
+                    >
+                      Send feedback
+                    </a>
+                  </div>
                   <ErrorBoundary label="AbsenteeOwnerSearch">
                     <AbsenteeOwnerSearch />
                   </ErrorBoundary>
@@ -654,10 +678,12 @@ export default function RealEstateWholesaler() {
 
             {/* Results Section */}
             {!isLoading && properties.length > 0 && (() => {
-              const visibleProperties = hideNegativeSpreads
+              const afterSpreadFilter = hideNegativeSpreads
                 ? properties.filter(p => !isNegativeSpread(p))
                 : properties;
-              const hiddenNegativeCount = properties.length - visibleProperties.length;
+              const visibleProperties = filterByMaxDaysOnMarket(afterSpreadFilter, activeMaxDaysOnMarket);
+              const hiddenNegativeCount = properties.length - afterSpreadFilter.length;
+              const hiddenStaleCount = afterSpreadFilter.length - visibleProperties.length;
               const stillEnriching = loadingProgress > 0 && loadingProgress < 100;
               return (
               <section className="space-y-6 sm:space-y-10 animate-fade-in">
@@ -697,6 +723,12 @@ export default function RealEstateWholesaler() {
                       {visibleProperties.length} {visibleProperties.length === 1 ? 'property' : 'properties'} shown
                       {hideNegativeSpreads && hiddenNegativeCount > 0 && (
                         <span className="text-neutral-500"> · {hiddenNegativeCount} hidden</span>
+                      )}
+                      {activeMaxDaysOnMarket && hiddenStaleCount > 0 && (
+                        <span className="text-neutral-500">
+                          {' · '}
+                          {hiddenStaleCount} older than {activeMaxDaysOnMarket}d
+                        </span>
                       )}
                     </p>
                   </div>

@@ -122,8 +122,6 @@ export default function RehabEstimator() {
         keywords="rehab cost estimator, renovation cost calculator, rehab budget calculator, property renovation costs, fix and flip cost estimator, real estate rehab costs"
       />
 
-      <CalculatorSchema {...CALCULATOR_METADATA['rehab-estimator']} />
-
       {/* Calculator */}
       <section className={inModal ? 'px-0' : 'pt-10 pb-16 px-4'}>
         <div className={inModal ? '' : 'container mx-auto max-w-6xl'}>
@@ -407,6 +405,7 @@ export default function RehabEstimator() {
         </div>
       </section>
       )}
+    <CalculatorSchema {...CALCULATOR_METADATA['rehab-estimator']} />
     </PublicLayout>
   );
 }
