@@ -1193,9 +1193,6 @@ export const propdata = {
   // off-market-search-v2 when Pre-Foreclosure or Auctions lead types are picked.
   preforeclosure: (p: { zip: string; limit?: number }) =>
     apiFetch<any>(`/api/propdata/preforeclosure${buildQuery(p)}`),
-  // Zillow autocomplete via the shared RapidAPI key — also backend-proxied.
-  zillowAutocomplete: (query: string) =>
-    apiFetch<any>(`/api/propdata/zillow-autocomplete${buildQuery({ query })}`),
 };
 
 // US Housing Market Data (apimaker) — selectively proxied: only the 3
