@@ -357,3 +357,53 @@ test('previous: predicates are complementary on the same record', () => {
   assert.equal(isFailedListing(relistedAfterFailure, opts), false);
   assert.equal(hasPreviousFailedListing(relistedAfterFailure, opts), true);
 });
+
+// ── Cross-boundary cycle + future-date guards (reviewer fix 2026-05-23) ──
+// Reviewer flagged that the lookback gate only checks the WITHDRAWAL's
+// time, not the LISTING-START's. These tests pin the deliberate decision
+// (withdrawal-time semantic: "seller gave up recently") and add the
+// future-date guard so corrupt timestamps can't misfire the predicate.
+
+test('cross-boundary: listing-start OUTSIDE lookback + withdrawal INSIDE → fires (recent failure)', () => {
+  // Listed 2024-01-01 is outside the 18-mo cutoff (2024-11-23 from NOW
+  // 2026-05-23). Withdrawal 2026-04-01 is inside. Semantic: "seller
+  // gave up RECENTLY" — fires. Decision pinned.
+  const rec = ph(
+    e('2024-01-01', 'Listed for sale'),
+    e('2026-04-01', 'Listing removed'),
+  );
+  assert.equal(isFailedListing(rec, opts), true);
+});
+
+test('cross-boundary: BOTH listing-start AND withdrawal outside lookback → does NOT fire', () => {
+  // Both events older than 18 months — too stale to count.
+  const rec = ph(
+    e('2023-01-01', 'Listed for sale'),
+    e('2023-05-01', 'Listing removed'),
+  );
+  assert.equal(isFailedListing(rec, opts), false);
+});
+
+test('future-date guard: future-dated withdrawal does NOT trigger failed', () => {
+  // Bad-clock or corrupt-data Zillow payload with withdrawal timestamp
+  // beyond NOW. Without this guard, t >= cutoffTime trivially holds
+  // (since future > cutoff) and the predicate misfires.
+  const rec = ph(
+    e('2026-01-01', 'Listed for sale'),
+    e('2030-06-01', 'Listing removed'),  // future
+  );
+  assert.equal(isFailedListing(rec, opts), false);
+});
+
+test('future-date guard: future-dated entries are filtered, real ones still classify', () => {
+  // Mixed valid + future entries. The valid pattern still classifies
+  // correctly after future-date filtering.
+  const rec = ph(
+    e('2026-02-15', 'Listed for sale'),
+    e('2026-04-10', 'Listing removed'),
+    e('2030-01-01', 'Sold'),  // future Sold — must be filtered out
+  );
+  // Withdrawal is inside lookback; future "Sold" is filtered so doesn't
+  // close the cycle. Result: failed.
+  assert.equal(isFailedListing(rec, opts), true);
+});

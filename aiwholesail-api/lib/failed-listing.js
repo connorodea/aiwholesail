@@ -113,20 +113,26 @@ function isFailedListing(record, options = {}) {
   if (history.length === 0) return false;
 
   const now = options.now instanceof Date ? options.now : new Date();
+  const nowMs = now.getTime();
   const lookbackMonths = Number.isFinite(options.lookbackMonths)
     ? options.lookbackMonths
     : DEFAULT_LOOKBACK_MONTHS;
-  // Approximate months as 30.44 days so the cutoff doesn't drift
-  // calendar-cliff for short months.
-  const lookbackMs = lookbackMonths * 30.44 * 24 * 60 * 60 * 1000;
-  const cutoffTime = now.getTime() - lookbackMs;
+  // Calendar months — matches the calendar-arithmetic in years-held.js so
+  // the two predicates interpret "recent" the same way. Earlier 30.44-day
+  // approximation drifted ~2 days from a true 18-mo cutoff. (Reviewer
+  // consistency fix 2026-05-23.)
+  const cutoffDate = new Date(nowMs);
+  cutoffDate.setUTCMonth(cutoffDate.getUTCMonth() - lookbackMonths);
+  const cutoffTime = cutoffDate.getTime();
 
-  // Sort chronologically (oldest first). priceHistory from Zillow's payload
-  // arrives newest-first; reversing once is cheaper than a comparator-sort
-  // for the typical array of <50 entries, but we use a comparator anyway
-  // to be robust against unsorted inputs from cached / merged sources.
+  // Sort chronologically (oldest first). Filter future-dated entries
+  // (corrupt/bad-clock Zillow payloads) — without this guard a future
+  // withdrawal trivially satisfies `t >= cutoffTime` and misfires.
   const chronological = [...history]
-    .filter((h) => h && Number.isFinite(entryTime(h)))
+    .filter((h) => {
+      const t = entryTime(h);
+      return Number.isFinite(t) && t <= nowMs;
+    })
     .sort((a, b) => entryTime(a) - entryTime(b));
 
   if (chronological.length === 0) return false;
@@ -136,6 +142,11 @@ function isFailedListing(record, options = {}) {
   // between, we've found a failed-listing window. Restart on each new
   // listing-start so a relisted property whose latest cycle SOLD doesn't
   // count as failed even if an earlier cycle was withdrawn.
+  //
+  // Lookback semantic: only the WITHDRAWAL's time is gated. A listing
+  // started outside the window but withdrawn inside it counts as
+  // "seller gave up recently" — that's the motivation signal we want.
+  // Pinned by cross-boundary tests.
   let lastListedAt = NaN;
   let foundFailedInLookback = false;
   for (const h of chronological) {
@@ -194,14 +205,21 @@ function hasPreviousFailedListing(record, options = {}) {
   if (history.length === 0) return false;
 
   const now = options.now instanceof Date ? options.now : new Date();
+  const nowMs = now.getTime();
   const lookbackMonths = Number.isFinite(options.lookbackMonths)
     ? options.lookbackMonths
     : DEFAULT_LOOKBACK_MONTHS;
-  const lookbackMs = lookbackMonths * 30.44 * 24 * 60 * 60 * 1000;
-  const cutoffTime = now.getTime() - lookbackMs;
+  // Calendar months — same as isFailedListing. Reviewer consistency fix.
+  const cutoffDate = new Date(nowMs);
+  cutoffDate.setUTCMonth(cutoffDate.getUTCMonth() - lookbackMonths);
+  const cutoffTime = cutoffDate.getTime();
 
+  // Future-dated entries are filtered — see isFailedListing for rationale.
   const chronological = [...history]
-    .filter((h) => h && Number.isFinite(entryTime(h)))
+    .filter((h) => {
+      const t = entryTime(h);
+      return Number.isFinite(t) && t <= nowMs;
+    })
     .sort((a, b) => entryTime(a) - entryTime(b));
 
   if (chronological.length === 0) return false;
