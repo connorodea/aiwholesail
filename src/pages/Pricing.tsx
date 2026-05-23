@@ -12,6 +12,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { SEOHead } from '@/components/SEOHead';
 import { PublicLayout } from '@/components/PublicLayout';
 import { Spotlight } from '@/components/ui/spotlight';
+import { isNative, useRevenueCat } from '@/lib/revenuecat';
 
 const plans = [
   {
@@ -57,6 +58,8 @@ const plans = [
 export default function Pricing() {
   const { user } = useAuth();
   const [loading, setLoading] = useState<string | null>(null);
+  const rc = useRevenueCat();
+  const onNative = isNative();
 
   // Fire ViewContent for the pricing page — high-intent signal for FB/GA optimization
   useEffect(() => {
@@ -115,7 +118,27 @@ export default function Pricing() {
       return;
     }
 
-    // Already logged in -> go to Stripe checkout
+    // Native iOS/Android: Apple/Google IAP is mandatory for digital subs
+    // (App Store guideline 3.1.1). Stripe checkout would get the app rejected.
+    if (onNative) {
+      setLoading(plan.priceId);
+      try {
+        const outcome = await rc.presentPaywall();
+        if (outcome === 'purchased' || outcome === 'restored') {
+          toast.success('Subscription active. Welcome to AIWholesail Pro.');
+        } else if (outcome === 'error') {
+          toast.error('Something went wrong. Please try again.');
+        } else if (outcome === 'unavailable') {
+          toast.error('In-app purchase is unavailable on this device.');
+        }
+        // 'cancelled' is a normal user action — stay silent.
+      } finally {
+        setLoading(null);
+      }
+      return;
+    }
+
+    // Web -> Stripe checkout
     setLoading(plan.priceId);
     try {
       const response = await stripe.createCheckout(plan.name, false);
@@ -132,6 +155,23 @@ export default function Pricing() {
     } catch (error: any) {
       console.error('Error creating checkout:', error);
       toast.error(error.message || 'Failed to start checkout. Please try again.');
+    } finally {
+      setLoading(null);
+    }
+  };
+
+  const handleRestore = async () => {
+    if (!onNative) return;
+    setLoading('__restore__');
+    try {
+      const outcome = await rc.restore();
+      if (outcome === 'restored') {
+        toast.success('Purchases restored.');
+      } else if (outcome === 'cancelled') {
+        toast.info('No active purchases to restore.');
+      } else if (outcome === 'error') {
+        toast.error('Restore failed. Please try again.');
+      }
     } finally {
       setLoading(null);
     }
@@ -432,6 +472,27 @@ export default function Pricing() {
           </div>
         </div>
       </motion.section>
+
+      {/* Native iOS/Android only: Apple/Google require visible Restore +
+          Manage Subscription affordances for apps that use IAP. */}
+      {onNative && (
+        <section className="border-t border-foreground/[0.06] py-10 text-center">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Button
+              variant="ghost"
+              onClick={handleRestore}
+              disabled={loading === '__restore__'}
+            >
+              {loading === '__restore__' ? 'Restoring…' : 'Restore Purchases'}
+            </Button>
+            {rc.isPro && (
+              <Button variant="ghost" onClick={() => rc.presentCustomerCenter()}>
+                Manage Subscription
+              </Button>
+            )}
+          </div>
+        </section>
+      )}
     </PublicLayout>
   );
 }
