@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-stockton-ca-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Stockton CA: The Investor's Complete Guide for 2024",
+      "excerpt": "Stockton, California offers some of the most affordable entry points for real estate investors in the entire state. Discover the best neighborhoods, deal types, and strategies to find profitable real estate deals in Stockton CA.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-24T18:01:54.775Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Stockton CA",
+        "Stockton CA real estate investing",
+        "wholesale deals Stockton",
+        "fix and flip Stockton CA",
+        "Stockton rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-dayton-oh-the-investor-s-complete-guide-to-a-hidden-gem-mar",
       "title": "Real Estate Deals in Dayton OH: The Investor's Complete Guide to a Hidden Gem Market",
       "excerpt": "Dayton, Ohio is one of the most affordable and cash-flow-friendly real estate markets in the Midwest, with median home prices well below the national average. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Dayton OH.",
@@ -15,7 +32,7 @@
         "investment properties Dayton Ohio",
         "Dayton OH rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-washington-dc-a-complete-investor-s-guide-for-2024",
