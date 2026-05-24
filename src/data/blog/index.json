@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-many-rental-properties-do-you-need-to-retire-a-real-number-guide",
+      "title": "How Many Rental Properties Do You Need to Retire? A Real Number Guide",
+      "excerpt": "Figuring out how many rental properties to retire comfortably is one of the most common questions real estate investors ask. This guide breaks down the math, the strategy, and the steps to build a rental portfolio that replaces your paycheck for good.",
+      "category": "Strategy",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-24T06:02:13.205Z",
+      "readTime": 7,
+      "tags": [
+        "how many rental properties to retire",
+        "rental property retirement",
+        "passive income real estate",
+        "rental portfolio strategy",
+        "real estate financial freedom"
+      ],
+      "featured": true
+    },
+    {
       "slug": "best-real-estate-investment-calculator-online-free-how-to-analyze-deals-fast",
       "title": "Best Real Estate Investment Calculator Online Free: How to Analyze Deals Fast",
       "excerpt": "Discover the best free real estate investment calculators online and learn how to use them to analyze deals, estimate profits, and avoid costly mistakes. Whether you're a wholesaler, flipper, or landlord, the right calculator can save you thousands.",
@@ -15,7 +32,7 @@
         "ARV calculator",
         "ROI calculator real estate"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-amarillo-tx-the-investor-s-complete-guide-for-2024",
