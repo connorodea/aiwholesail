@@ -7,6 +7,8 @@
  *
  * Routes:
  *   POST /api/offmarket-iq/lists/build         → POST  /api/v1/lists/build
+ *   POST /api/offmarket-iq/lists/quicklist     → POST  /api/v1/lists/quicklist  (BatchData-parity named-preset UX)
+ *   POST /api/offmarket-iq/lists/export        → POST  /api/v1/lists/export     (CSV streaming)
  *   GET  /api/offmarket-iq/scores/top          → GET   /api/v1/scores/top
  *   GET  /api/offmarket-iq/properties/by-parcel  → GET   /api/v1/properties/by-parcel
  *   GET  /api/offmarket-iq/properties/by-address → GET   /api/v1/properties/by-address
@@ -147,6 +149,24 @@ router.get('/scores/top', authenticate, asyncHandler((req, res) =>
 // Filter-based list builder.
 router.post('/lists/build', authenticate, asyncHandler((req, res) =>
   proxy(req, res, 'POST', '/api/v1/lists/build', { body: req.body }),
+));
+
+// Named-preset quicklist resolver. Body shape:
+//   { name: "inherited" | "tired_landlord" | "out_of_state_investor" | ...,
+//     overrides?: { state, zip_codes, limit, ... } }
+// Python service resolves the name + overrides to a ListFilters, runs
+// build_list, returns the same response shape as /lists/build plus a
+// `quicklist` field echoing the resolved name. See
+// aiwholesail-offmarket-api app/services/quicklists.py for available names.
+router.post('/lists/quicklist', authenticate, asyncHandler((req, res) =>
+  proxy(req, res, 'POST', '/api/v1/lists/quicklist', { body: req.body }),
+));
+
+// CSV export. Same filter shape as /lists/build but streams a text/csv
+// attachment. The proxy() helper already detects Content-Type: text/csv
+// from the upstream and forwards Content-Disposition through.
+router.post('/lists/export', authenticate, asyncHandler((req, res) =>
+  proxy(req, res, 'POST', '/api/v1/lists/export', { body: req.body }),
 ));
 
 // Single-property lookups.
