@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-dayton-oh-the-investor-s-complete-guide-to-a-hidden-gem-mar",
+      "title": "Real Estate Deals in Dayton OH: The Investor's Complete Guide to a Hidden Gem Market",
+      "excerpt": "Dayton, Ohio is one of the most affordable and cash-flow-friendly real estate markets in the Midwest, with median home prices well below the national average. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Dayton OH.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-24T18:01:05.144Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Dayton OH",
+        "Dayton Ohio real estate investing",
+        "wholesale real estate Dayton",
+        "investment properties Dayton Ohio",
+        "Dayton OH rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-washington-dc-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Washington DC: A Complete Investor's Guide for 2024",
       "excerpt": "Washington DC offers some of the most resilient real estate deals in the country, backed by a stable government-driven economy and strong rental demand. This guide breaks down the best neighborhoods, deal types, and strategies for investors looking to profit in the nation's capital.",
@@ -15,7 +32,7 @@
         "DC house flipping",
         "DC rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-new-orleans-la-a-complete-investor-s-guide-for-2024",
