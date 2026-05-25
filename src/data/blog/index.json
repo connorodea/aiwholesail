@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "what-renovations-add-the-most-value-to-a-flip-and-which-ones-to-skip",
+      "title": "What Renovations Add the Most Value to a Flip (And Which Ones to Skip)",
+      "excerpt": "Not every renovation dollar comes back to you at closing. Learn which upgrades consistently deliver the highest returns on fix and flip projects so you can maximize profit on every deal.",
+      "category": "Rehab Costs",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-25T06:02:10.290Z",
+      "readTime": 7,
+      "tags": [
+        "what renovations add the most value to a flip",
+        "best renovations for house flipping",
+        "flip house upgrades ROI",
+        "rehab cost vs value",
+        "fix and flip renovations"
+      ],
+      "featured": true
+    },
+    {
       "slug": "mixed-use-property-investing-pros-and-cons-what-every-investor-needs-to-know",
       "title": "Mixed Use Property Investing Pros and Cons: What Every Investor Needs to Know",
       "excerpt": "Mixed use properties offer a unique blend of residential and commercial income streams, but they come with their own set of challenges. Here's a complete breakdown of the pros and cons to help you decide if this strategy fits your portfolio.",
@@ -15,7 +32,7 @@
         "mixed use building",
         "real estate investing strategy"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-stockton-ca-the-investor-s-complete-guide-for-2024",
