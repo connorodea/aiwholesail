@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "what-is-the-2-percent-rule-in-real-estate-a-practical-guide-for-investors",
+      "title": "What Is the 2 Percent Rule in Real Estate? A Practical Guide for Investors",
+      "excerpt": "The 2 percent rule is a quick screening tool that helps rental property investors decide if a deal is worth pursuing. Learn how it works, when to use it, and what its limitations are in today's market.",
+      "category": "FAQ",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-26T06:00:52.563Z",
+      "readTime": 6,
+      "tags": [
+        "what is the 2 percent rule in real estate",
+        "2 percent rule rental property",
+        "real estate investing rules",
+        "rental property analysis",
+        "cash flow investing"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-corpus-christi-tx-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Corpus Christi TX: A Complete Investor's Guide for 2024",
       "excerpt": "Corpus Christi is one of Texas's most underrated markets for real estate investors, offering affordable entry points and strong rental demand driven by the energy sector and tourism. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Corpus Christi TX.",
@@ -15,7 +32,7 @@
         "investment properties Corpus Christi",
         "Corpus Christi rental market"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-evansville-in-a-complete-investor-s-guide-for-2024",
