@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-rochester-mn-the-investor-s-complete-guide",
+      "title": "Real Estate Deals in Rochester MN: The Investor's Complete Guide",
+      "excerpt": "Rochester, MN is one of the Midwest's most overlooked real estate markets, offering steady demand, affordable prices, and strong rental yields. Here's everything investors need to know to find profitable deals in this growing medical city.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-26T18:02:37.953Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Rochester MN",
+        "Rochester MN investment properties",
+        "wholesale real estate Rochester",
+        "flip houses Rochester MN",
+        "Rochester MN rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-long-beach-ca-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Long Beach CA: The Investor's Complete Guide for 2024",
       "excerpt": "Long Beach, CA offers a unique mix of affordable entry points, strong rental demand, and motivated sellers that make it one of Southern California's most attractive markets for investors. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Long Beach CA.",
@@ -15,7 +32,7 @@
         "fix and flip Long Beach CA",
         "Long Beach rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-savannah-ga-the-investor-s-complete-guide-for-2024",
