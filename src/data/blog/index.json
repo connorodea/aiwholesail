@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-scale-a-real-estate-investment-business-a-step-by-step-growth-guide",
+      "title": "How to Scale a Real Estate Investment Business: A Step-by-Step Growth Guide",
+      "excerpt": "Scaling a real estate investment business takes more than buying more properties — it requires systems, capital, and the right team. This guide breaks down exactly how to grow from a handful of deals to a thriving portfolio.",
+      "category": "Scaling",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-26T06:01:07.912Z",
+      "readTime": 8,
+      "tags": [
+        "how to scale a real estate investment business",
+        "real estate portfolio growth",
+        "real estate investing systems",
+        "scaling rental portfolio",
+        "real estate team building"
+      ],
+      "featured": true
+    },
+    {
       "slug": "what-is-the-2-percent-rule-in-real-estate-a-practical-guide-for-investors",
       "title": "What Is the 2 Percent Rule in Real Estate? A Practical Guide for Investors",
       "excerpt": "The 2 percent rule is a quick screening tool that helps rental property investors decide if a deal is worth pursuing. Learn how it works, when to use it, and what its limitations are in today's market.",
@@ -15,7 +32,7 @@
         "rental property analysis",
         "cash flow investing"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-corpus-christi-tx-a-complete-investor-s-guide-for-2024",
