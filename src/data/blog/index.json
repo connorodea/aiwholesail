@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-find-motivated-sellers-without-cold-calling-7-proven-methods",
+      "title": "How to Find Motivated Sellers Without Cold Calling (7 Proven Methods)",
+      "excerpt": "Cold calling isn't the only way to find motivated sellers in real estate. Discover 7 proven strategies that help investors, wholesalers, and flippers locate distressed property owners without ever picking up the phone.",
+      "category": "Deal Finding",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-27T06:01:03.352Z",
+      "readTime": 7,
+      "tags": [
+        "how to find motivated sellers without cold calling",
+        "motivated seller leads",
+        "wholesale real estate leads",
+        "distressed property owners",
+        "real estate lead generation"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-sell-rental-property-with-bad-tenants-and-still-make-a-profit",
       "title": "How to Sell Rental Property with Bad Tenants (And Still Make a Profit)",
       "excerpt": "Dealing with problem tenants doesn't mean you're stuck. Learn the practical steps to sell rental property with bad tenants while protecting your profit and staying out of legal trouble.",
@@ -15,7 +32,7 @@
         "sell rental property as-is",
         "cash buyers rental property"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-rochester-mn-the-investor-s-complete-guide",
