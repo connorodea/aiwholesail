@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-st-louis-mo-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in St. Louis MO: The Investor's Complete Guide for 2024",
+      "excerpt": "St. Louis is one of the Midwest's most underrated markets for real estate investors, with low entry prices, strong rental demand, and a steady stream of distressed properties. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in St. Louis MO.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-27T12:01:54.230Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in St. Louis MO",
+        "St. Louis real estate investing",
+        "wholesale real estate St. Louis",
+        "flip houses St. Louis",
+        "rental properties St. Louis"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-palmdale-ca-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Palmdale CA: The Investor's Complete Guide for 2024",
       "excerpt": "Palmdale, CA is one of the Antelope Valley's most overlooked markets for investors seeking high-ROI deals. This guide covers average home prices, top neighborhoods, deal types, and actionable tips for finding profitable real estate deals in Palmdale CA.",
@@ -15,7 +32,7 @@
         "Palmdale fix and flip",
         "Palmdale rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-find-motivated-sellers-without-cold-calling-7-proven-methods",
