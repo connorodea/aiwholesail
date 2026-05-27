@@ -1,19 +1,16 @@
 /**
- * Client for the aiwholesail-auctions-api Python service.
+ * Client for the auctions feed.
  *
- * Reads VITE_AUCTIONS_API_URL — defaults to the production host. In dev,
- * point it at a local uvicorn instance via `.env.local`:
- *   VITE_AUCTIONS_API_URL=http://localhost:8000
+ * The frontend hits the Node `aiwholesail-api` at `/api/auctions/*`, which
+ * proxies to the Python `aiwholesail-auctions-api` service. Same posture as
+ * `/api/offmarket-iq/*` — single origin, auth + rate-limit at the Node layer.
  *
- * The Node `aiwholesail-api` may later proxy this so the browser only ever
- * talks to one origin; for now the frontend calls the auctions API directly.
+ * We reuse the existing `apiFetch` from `api-client` so auth tokens, refresh
+ * logic, and error normalization flow through one code path.
  */
 
+import { apiFetch } from '@/lib/api-client';
 import type { AuctionFilters, AuctionListResponse } from '@/types/auction';
-
-const AUCTIONS_API_URL =
-  (import.meta as ImportMeta & { env: Record<string, string | undefined> }).env
-    ?.VITE_AUCTIONS_API_URL || 'https://auctions-api.aiwholesail.com';
 
 export class AuctionsApiError extends Error {
   constructor(message: string, public status: number) {
@@ -34,15 +31,11 @@ function buildQuery(filters: AuctionFilters): string {
 }
 
 export async function listAuctions(filters: AuctionFilters = {}): Promise<AuctionListResponse> {
-  const res = await fetch(`${AUCTIONS_API_URL}/api/v1/auctions${buildQuery(filters)}`, {
-    headers: { Accept: 'application/json' },
+  const res = await apiFetch<AuctionListResponse>(`/api/auctions${buildQuery(filters)}`, {
+    method: 'GET',
   });
-  if (!res.ok) {
-    const text = await res.text().catch(() => '');
-    throw new AuctionsApiError(
-      `Auctions API ${res.status}: ${text.slice(0, 200) || res.statusText}`,
-      res.status,
-    );
+  if (res.error || !res.data) {
+    throw new AuctionsApiError(res.error || 'Auctions API returned no data', 0);
   }
-  return res.json();
+  return res.data;
 }
