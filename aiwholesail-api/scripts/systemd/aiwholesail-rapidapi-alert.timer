@@ -1,0 +1,11 @@
+[Unit]
+Description=Run RapidAPI alert worker every 5 minutes
+
+[Timer]
+OnCalendar=*:0/5
+Persistent=true
+AccuracySec=30s
+RandomizedDelaySec=20s
+
+[Install]
+WantedBy=timers.target
