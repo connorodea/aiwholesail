@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-santa-ana-ca-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Santa Ana CA: A Complete Investor's Guide for 2024",
+      "excerpt": "Santa Ana, CA is one of Orange County's most overlooked markets for real estate investors, offering strong rental demand, flip opportunities, and wholesale deals at prices well below coastal neighbors. This guide breaks down exactly where to find profitable real estate deals in Santa Ana CA and how to evaluate them like a pro.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-28T18:01:12.311Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Santa Ana CA",
+        "Santa Ana real estate investing",
+        "wholesale deals Santa Ana",
+        "fix and flip Santa Ana",
+        "Santa Ana rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-springfield-ma-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Springfield MA: A Complete Investor's Guide for 2024",
       "excerpt": "Springfield, MA is one of New England's most underrated markets for real estate investors, offering low entry prices, strong rental demand, and solid wholesale opportunities. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Springfield MA.",
@@ -15,7 +32,7 @@
         "investment properties Springfield Massachusetts",
         "Springfield MA rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-las-cruces-nm-a-complete-investor-s-guide-for-2024",
