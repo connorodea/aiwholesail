@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-springfield-ma-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Springfield MA: A Complete Investor's Guide for 2024",
+      "excerpt": "Springfield, MA is one of New England's most underrated markets for real estate investors, offering low entry prices, strong rental demand, and solid wholesale opportunities. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Springfield MA.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-28T12:01:34.490Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Springfield MA",
+        "Springfield MA real estate investing",
+        "wholesale real estate Springfield",
+        "investment properties Springfield Massachusetts",
+        "Springfield MA rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-las-cruces-nm-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Las Cruces NM: A Complete Investor's Guide for 2024",
       "excerpt": "Las Cruces, NM is quietly becoming one of the Southwest's most attractive markets for real estate investors. From affordable entry points to strong rental demand, here's everything you need to find profitable deals in this growing desert city.",
@@ -15,7 +32,7 @@
         "fix and flip Las Cruces",
         "rental properties Las Cruces NM"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-scale-a-real-estate-investment-business-a-step-by-step-growth-guide",
