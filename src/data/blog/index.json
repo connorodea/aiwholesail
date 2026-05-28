@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-scale-a-real-estate-investment-business-a-step-by-step-growth-guide",
+      "title": "How to Scale a Real Estate Investment Business: A Step-by-Step Growth Guide",
+      "excerpt": "Scaling a real estate investment business takes more than buying more properties — it requires smart systems, the right team, and a repeatable deal flow. This guide breaks down exactly how to grow from a few deals a year to a thriving portfolio.",
+      "category": "Scaling",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-28T06:01:46.807Z",
+      "readTime": 8,
+      "tags": [
+        "how to scale a real estate investment business",
+        "grow real estate portfolio",
+        "real estate business growth",
+        "scaling rental properties",
+        "real estate systems"
+      ],
+      "featured": true
+    },
+    {
       "slug": "commercial-real-estate-investing-for-beginners-2026-your-complete-getting-starte",
       "title": "Commercial Real Estate Investing for Beginners 2026: Your Complete Getting-Started Guide",
       "excerpt": "Commercial real estate offers some of the highest returns in the investing world, but getting started requires knowing the right property types, financing strategies, and market conditions. This guide breaks down everything beginners need to know to make their first commercial deal in 2026.",
@@ -15,7 +32,7 @@
         "how to invest in commercial real estate",
         "commercial property investing"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-plano-tx-the-investor-s-guide-to-one-of-texas-s-hottest-mar",
