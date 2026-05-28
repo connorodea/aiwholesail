@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "commercial-real-estate-investing-for-beginners-2026-your-complete-getting-starte",
+      "title": "Commercial Real Estate Investing for Beginners 2026: Your Complete Getting-Started Guide",
+      "excerpt": "Commercial real estate offers some of the highest returns in the investing world, but getting started requires knowing the right property types, financing strategies, and market conditions. This guide breaks down everything beginners need to know to make their first commercial deal in 2026.",
+      "category": "Beginner Guide",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-28T06:00:58.995Z",
+      "readTime": 8,
+      "tags": [
+        "commercial real estate investing for beginners 2026",
+        "commercial real estate investing",
+        "CRE for beginners",
+        "how to invest in commercial real estate",
+        "commercial property investing"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-plano-tx-the-investor-s-guide-to-one-of-texas-s-hottest-mar",
       "title": "Real Estate Deals in Plano TX: The Investor's Guide to One of Texas's Hottest Markets",
       "excerpt": "Plano, TX is one of the Dallas-Fort Worth metro's most sought-after markets for real estate investors. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Plano TX.",
@@ -15,7 +32,7 @@
         "fix and flip Plano TX",
         "Plano TX rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-huntington-wv-a-complete-investor-s-guide",
