@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-sunnyvale-ca-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Sunnyvale CA: A Complete Investor's Guide for 2024",
+      "excerpt": "Sunnyvale CA is one of Silicon Valley's most competitive real estate markets, but profitable deals still exist for investors who know where to look. This guide covers the best neighborhoods, deal types, market trends, and practical tips for finding real estate deals in Sunnyvale CA.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-28T18:02:35.309Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Sunnyvale CA",
+        "Sunnyvale real estate investing",
+        "wholesale deals Sunnyvale",
+        "flip houses Sunnyvale",
+        "Sunnyvale rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-santa-ana-ca-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Santa Ana CA: A Complete Investor's Guide for 2024",
       "excerpt": "Santa Ana, CA is one of Orange County's most overlooked markets for real estate investors, offering strong rental demand, flip opportunities, and wholesale deals at prices well below coastal neighbors. This guide breaks down exactly where to find profitable real estate deals in Santa Ana CA and how to evaluate them like a pro.",
@@ -15,7 +32,7 @@
         "fix and flip Santa Ana",
         "Santa Ana rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-springfield-ma-a-complete-investor-s-guide-for-2024",
