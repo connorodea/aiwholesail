@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-reno-nv-the-investor-s-complete-guide-to-the-biggest-little",
+      "title": "Real Estate Deals in Reno NV: The Investor's Complete Guide to the Biggest Little City",
+      "excerpt": "Reno, Nevada is one of the most overlooked real estate markets in the West, offering strong rental demand, no state income tax, and motivated sellers across every deal type. Here's everything investors need to know to find profitable real estate deals in Reno NV right now.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-29T12:02:56.728Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Reno NV",
+        "Reno Nevada real estate investing",
+        "wholesale deals Reno",
+        "flip houses Reno NV",
+        "Reno rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-augusta-me-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Augusta ME: The Investor's Complete Guide for 2024",
       "excerpt": "Augusta, Maine is emerging as a hidden gem for real estate investors, offering low entry prices, strong rental demand, and motivated sellers. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Augusta ME.",
@@ -15,7 +32,7 @@
         "Augusta ME rental properties",
         "flip houses Augusta Maine"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "what-renovations-add-the-most-value-to-a-flip-and-which-ones-to-skip",
