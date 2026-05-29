@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "1031-exchange-into-dst-delaware-statutory-trust-a-complete-guide-for-real-estate",
+      "title": "1031 Exchange into DST Delaware Statutory Trust: A Complete Guide for Real Estate Investors",
+      "excerpt": "A 1031 exchange into a DST Delaware statutory trust lets you defer capital gains taxes while stepping away from active property management. Learn how the process works, who qualifies, and whether a DST is the right exit strategy for your portfolio.",
+      "category": "Tax Strategy",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-29T06:00:58.770Z",
+      "readTime": 7,
+      "tags": [
+        "1031 exchange into DST",
+        "Delaware statutory trust",
+        "DST real estate investment",
+        "1031 exchange rules",
+        "passive real estate investing"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-sunnyvale-ca-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Sunnyvale CA: A Complete Investor's Guide for 2024",
       "excerpt": "Sunnyvale CA is one of Silicon Valley's most competitive real estate markets, but profitable deals still exist for investors who know where to look. This guide covers the best neighborhoods, deal types, market trends, and practical tips for finding real estate deals in Sunnyvale CA.",
@@ -15,7 +32,7 @@
         "flip houses Sunnyvale",
         "Sunnyvale rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-santa-ana-ca-a-complete-investor-s-guide-for-2024",
