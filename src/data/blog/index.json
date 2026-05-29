@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-augusta-me-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Augusta ME: The Investor's Complete Guide for 2024",
+      "excerpt": "Augusta, Maine is emerging as a hidden gem for real estate investors, offering low entry prices, strong rental demand, and motivated sellers. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Augusta ME.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-29T12:01:04.881Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Augusta ME",
+        "Augusta Maine real estate investing",
+        "wholesale real estate Maine",
+        "Augusta ME rental properties",
+        "flip houses Augusta Maine"
+      ],
+      "featured": true
+    },
+    {
       "slug": "what-renovations-add-the-most-value-to-a-flip-and-which-ones-to-skip",
       "title": "What Renovations Add the Most Value to a Flip (And Which Ones to Skip)",
       "excerpt": "Not every renovation pays off equally when you flip a house. Learn which upgrades consistently deliver the highest returns and how to budget smarter before you swing a single hammer.",
@@ -15,7 +32,7 @@
         "house flipping tips",
         "real estate renovation strategy"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "1031-exchange-into-dst-delaware-statutory-trust-a-complete-guide-for-real-estate",
