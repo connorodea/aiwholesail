@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-memphis-tn-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Memphis TN: The Investor's Complete Guide for 2024",
+      "excerpt": "Memphis, Tennessee is one of the most affordable and cash-flow-friendly real estate markets in the country. Learn where to find the best deals, which neighborhoods to target, and how to profit whether you're wholesaling, flipping, or buying rentals.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-30T18:02:45.713Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Memphis TN",
+        "Memphis real estate investing",
+        "Memphis wholesale deals",
+        "Memphis rental properties",
+        "Memphis house flipping"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-find-profitable-real-estate-deals-in-san-francisco-ca",
       "title": "How to Find Profitable Real Estate Deals in San Francisco CA",
       "excerpt": "San Francisco is one of the most expensive real estate markets in the country, but serious investors know where to look for opportunity. This guide breaks down the best neighborhoods, deal types, and strategies for finding real estate deals in San Francisco CA.",
@@ -15,7 +32,7 @@
         "flip houses San Francisco",
         "San Francisco off-market deals"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-milwaukee-wi-the-investor-s-complete-guide-for-2024",
