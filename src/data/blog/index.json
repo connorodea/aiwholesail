@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-gulfport-ms-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Gulfport MS: The Investor's Complete Guide for 2024",
+      "excerpt": "Gulfport, Mississippi is quietly becoming one of the Gulf Coast's most attractive markets for real estate investors. This guide covers the best neighborhoods, deal types, and practical strategies for finding profitable real estate deals in Gulfport MS.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-31T18:02:01.236Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Gulfport MS",
+        "Gulfport Mississippi real estate investing",
+        "wholesale deals Gulfport",
+        "fix and flip Gulfport MS",
+        "Gulfport rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-casper-wy-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Casper WY: A Complete Investor's Guide for 2024",
       "excerpt": "Casper, Wyoming is an underrated market with affordable home prices, strong rental demand, and plenty of motivated sellers. Here's everything investors need to know to find profitable real estate deals in Casper WY.",
@@ -15,7 +32,7 @@
         "flip houses Casper Wyoming",
         "rental properties Casper WY"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-casper-wy-a-complete-investor-s-guide-for-2024",
