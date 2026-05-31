@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "tax-delinquent-property-list-how-to-get-and-use-them-to-find-real-estate-deals",
+      "title": "Tax Delinquent Property List: How to Get and Use Them to Find Real Estate Deals",
+      "excerpt": "Tax delinquent property lists are one of the most powerful tools for finding motivated sellers before properties hit the open market. Learn exactly how to get these lists, what to do with them, and how to turn unpaid taxes into profitable real estate deals.",
+      "category": "Deal Finding",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-05-31T06:01:05.542Z",
+      "readTime": 7,
+      "tags": [
+        "tax delinquent property list",
+        "how to get tax delinquent list",
+        "delinquent tax properties",
+        "motivated sellers",
+        "tax lien properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "baselane-landlord-banking-review-is-it-worth-it-for-real-estate-investors",
       "title": "Baselane Landlord Banking Review: Is It Worth It for Real Estate Investors?",
       "excerpt": "Baselane promises to simplify banking and financial management for landlords — but does it deliver? This in-depth Baselane landlord banking review breaks down its features, fees, and whether it fits your rental portfolio strategy.",
@@ -15,7 +32,7 @@
         "real estate investor banking",
         "rental property banking"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-memphis-tn-the-investor-s-complete-guide-for-2024",
