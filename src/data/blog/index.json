@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-nampa-id-the-investor-s-complete-guide-to-idaho-s-fastest-g",
+      "title": "Real Estate Deals in Nampa ID: The Investor's Complete Guide to Idaho's Fastest-Growing Market",
+      "excerpt": "Nampa, Idaho is one of the most overlooked yet opportunity-rich real estate markets in the entire Pacific Northwest. This guide breaks down where to find profitable real estate deals in Nampa ID, which neighborhoods to target, and how out-of-state investors can get started today.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-01T18:01:24.395Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Nampa ID",
+        "Nampa Idaho real estate investing",
+        "wholesale deals Nampa",
+        "flip houses Nampa Idaho",
+        "Nampa rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-find-profitable-real-estate-deals-in-corpus-christi-tx",
       "title": "How to Find Profitable Real Estate Deals in Corpus Christi TX",
       "excerpt": "Corpus Christi is one of Texas's most overlooked markets for real estate investors, with affordable entry points and strong rental demand driven by military and energy sectors. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Corpus Christi TX.",
@@ -15,7 +32,7 @@
         "flip houses Corpus Christi",
         "rental properties Corpus Christi"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-find-profitable-real-estate-deals-in-dallas-tx-2024-investor-guide",
