@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-many-deals-does-the-average-wholesaler-close-per-month-real-numbers-inside",
+      "title": "How Many Deals Does the Average Wholesaler Close Per Month? (Real Numbers Inside)",
+      "excerpt": "Most new wholesalers are surprised to learn how few deals the average investor actually closes each month — and what separates high performers from the rest. This guide breaks down real deal volume benchmarks and shows you exactly how to improve your numbers.",
+      "category": "FAQ",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-01T06:00:57.550Z",
+      "readTime": 7,
+      "tags": [
+        "how many deals does the average wholesaler close per month",
+        "wholesale real estate deals per month",
+        "wholesaling deal volume",
+        "real estate wholesaler income",
+        "how to close more wholesale deals"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-gulfport-ms-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Gulfport MS: The Investor's Complete Guide for 2024",
       "excerpt": "Gulfport, Mississippi is quietly becoming one of the Gulf Coast's most attractive markets for real estate investors. This guide covers the best neighborhoods, deal types, and practical strategies for finding profitable real estate deals in Gulfport MS.",
@@ -15,7 +32,7 @@
         "fix and flip Gulfport MS",
         "Gulfport rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-casper-wy-a-complete-investor-s-guide-for-2024",
