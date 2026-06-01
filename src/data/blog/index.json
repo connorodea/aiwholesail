@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-chandler-az-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Chandler AZ: A Complete Investor's Guide for 2024",
+      "excerpt": "Chandler, AZ is one of the fastest-growing cities in the Southwest, making it a hotbed for real estate investors. This guide breaks down the best neighborhoods, deal types, and strategies to find profitable real estate deals in Chandler AZ.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-01T12:01:06.388Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Chandler AZ",
+        "Chandler AZ investment properties",
+        "wholesale deals Chandler Arizona",
+        "flip houses Chandler AZ",
+        "Chandler rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "relocating-and-need-to-sell-your-house-fast-here-s-exactly-what-to-do",
       "title": "Relocating and Need to Sell Your House Fast? Here's Exactly What to Do",
       "excerpt": "When a job transfer, family situation, or fresh start forces you to move quickly, selling your home on your timeline — not the market's — becomes the top priority. This guide walks you through every option, with real numbers and actionable steps to close fast without leaving money on the table.",
@@ -15,7 +32,7 @@
         "cash home buyers",
         "sell before moving"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-many-deals-does-the-average-wholesaler-close-per-month-real-numbers-inside",
