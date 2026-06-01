@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-find-profitable-real-estate-deals-in-corpus-christi-tx",
+      "title": "How to Find Profitable Real Estate Deals in Corpus Christi TX",
+      "excerpt": "Corpus Christi is one of Texas's most overlooked markets for real estate investors, with affordable entry points and strong rental demand driven by military and energy sectors. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Corpus Christi TX.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-01T18:01:11.514Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Corpus Christi TX",
+        "Corpus Christi real estate investing",
+        "wholesale deals Corpus Christi",
+        "flip houses Corpus Christi",
+        "rental properties Corpus Christi"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-find-profitable-real-estate-deals-in-dallas-tx-2024-investor-guide",
       "title": "How to Find Profitable Real Estate Deals in Dallas TX (2024 Investor Guide)",
       "excerpt": "Dallas is one of the hottest real estate markets in the country, with strong job growth, population gains, and neighborhoods that offer serious upside for investors. Whether you're wholesaling, flipping, or building a rental portfolio, this guide breaks down exactly where to look and how to win deals in DFW.",
@@ -15,7 +32,7 @@
         "fix and flip Dallas TX",
         "rental properties Dallas"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-chandler-az-a-complete-investor-s-guide-for-2024",
