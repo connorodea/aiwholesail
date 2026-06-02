@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-jefferson-city-mo-a-complete-investor-s-guide",
+      "title": "Real Estate Deals in Jefferson City MO: A Complete Investor's Guide",
+      "excerpt": "Jefferson City, Missouri offers real estate investors affordable entry points, steady rental demand, and motivated sellers flying under the radar of larger markets. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Jefferson City MO.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-02T12:01:53.382Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Jefferson City MO",
+        "Jefferson City Missouri real estate investing",
+        "wholesale real estate Jefferson City",
+        "flip houses Jefferson City MO",
+        "rental property Jefferson City"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-colorado-springs-co-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Colorado Springs CO: A Complete Investor's Guide for 2024",
       "excerpt": "Colorado Springs is one of Colorado's most investor-friendly markets, offering strong rental demand, growing population, and motivated sellers across multiple neighborhoods. This guide breaks down where to find profitable real estate deals in Colorado Springs CO and how to analyze them like a pro.",
@@ -15,7 +32,7 @@
         "flip houses Colorado Springs",
         "Colorado Springs rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "assignment-fee-calculator-for-wholesale-real-estate-how-to-price-your-deals-righ",
