@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "assignment-fee-calculator-for-wholesale-real-estate-how-to-price-your-deals-righ",
+      "title": "Assignment Fee Calculator for Wholesale Real Estate: How to Price Your Deals Right",
+      "excerpt": "Knowing how to calculate your assignment fee is the difference between a profitable wholesale deal and leaving money on the table. This guide walks you through exactly how to price your assignments with confidence.",
+      "category": "Calculator",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-02T06:01:32.578Z",
+      "readTime": 7,
+      "tags": [
+        "assignment fee calculator wholesale",
+        "wholesale real estate assignment fee",
+        "how to calculate assignment fee",
+        "wholesaling real estate profit",
+        "wholesale deal calculator"
+      ],
+      "featured": true
+    },
+    {
       "slug": "when-to-sell-investment-property-for-maximum-profit-a-timing-guide-for-real-esta",
       "title": "When to Sell Investment Property for Maximum Profit: A Timing Guide for Real Estate Investors",
       "excerpt": "Knowing when to sell investment property for maximum profit can mean the difference between a good deal and a great one. This guide breaks down the key market signals, tax strategies, and financial indicators that tell you it's time to sell.",
@@ -15,7 +32,7 @@
         "sell investment property tax tips",
         "real estate market timing"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-nampa-id-the-investor-s-complete-guide-to-idaho-s-fastest-g",
