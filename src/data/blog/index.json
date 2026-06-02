@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "when-to-sell-investment-property-for-maximum-profit-a-timing-guide-for-real-esta",
+      "title": "When to Sell Investment Property for Maximum Profit: A Timing Guide for Real Estate Investors",
+      "excerpt": "Knowing when to sell investment property for maximum profit can mean the difference between a good deal and a great one. This guide breaks down the key market signals, tax strategies, and financial indicators that tell you it's time to sell.",
+      "category": "Strategy",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-02T06:01:00.089Z",
+      "readTime": 7,
+      "tags": [
+        "when to sell investment property for maximum profit",
+        "best time to sell rental property",
+        "real estate investment exit strategy",
+        "sell investment property tax tips",
+        "real estate market timing"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-nampa-id-the-investor-s-complete-guide-to-idaho-s-fastest-g",
       "title": "Real Estate Deals in Nampa ID: The Investor's Complete Guide to Idaho's Fastest-Growing Market",
       "excerpt": "Nampa, Idaho is one of the most overlooked yet opportunity-rich real estate markets in the entire Pacific Northwest. This guide breaks down where to find profitable real estate deals in Nampa ID, which neighborhoods to target, and how out-of-state investors can get started today.",
@@ -15,7 +32,7 @@
         "flip houses Nampa Idaho",
         "Nampa rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-find-profitable-real-estate-deals-in-corpus-christi-tx",
