@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-colorado-springs-co-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Colorado Springs CO: A Complete Investor's Guide for 2024",
+      "excerpt": "Colorado Springs is one of Colorado's most investor-friendly markets, offering strong rental demand, growing population, and motivated sellers across multiple neighborhoods. This guide breaks down where to find profitable real estate deals in Colorado Springs CO and how to analyze them like a pro.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-02T12:01:08.806Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Colorado Springs CO",
+        "Colorado Springs real estate investing",
+        "wholesale deals Colorado Springs",
+        "flip houses Colorado Springs",
+        "Colorado Springs rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "assignment-fee-calculator-for-wholesale-real-estate-how-to-price-your-deals-righ",
       "title": "Assignment Fee Calculator for Wholesale Real Estate: How to Price Your Deals Right",
       "excerpt": "Knowing how to calculate your assignment fee is the difference between a profitable wholesale deal and leaving money on the table. This guide walks you through exactly how to price your assignments with confidence.",
@@ -15,7 +32,7 @@
         "wholesaling real estate profit",
         "wholesale deal calculator"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "when-to-sell-investment-property-for-maximum-profit-a-timing-guide-for-real-esta",
