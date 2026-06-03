@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-buffalo-ny-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Buffalo NY: The Investor's Complete Guide for 2024",
+      "excerpt": "Buffalo, NY is one of the most affordable and fast-growing real estate markets in the Northeast. Discover the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Buffalo NY.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-03T12:01:06.789Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Buffalo NY",
+        "Buffalo NY real estate investing",
+        "wholesale real estate Buffalo",
+        "Buffalo NY investment properties",
+        "Buffalo NY house flipping"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-crm-comparison-which-is-best-for-investors-in-2024",
       "title": "Real Estate CRM Comparison: Which Is Best for Investors in 2024?",
       "excerpt": "Choosing the right CRM can mean the difference between closing 5 deals a month and closing 15. This real estate CRM comparison breaks down the top platforms for investors, wholesalers, and flippers so you can pick the one that fits your business.",
@@ -15,7 +32,7 @@
         "real estate investor software",
         "deal pipeline CRM"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "airbnb-vs-long-term-rental-which-makes-more-money-in-2025",
