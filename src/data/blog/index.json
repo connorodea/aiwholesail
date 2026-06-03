@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-midland-tx-the-investor-s-complete-guide-to-the-permian-bas",
+      "title": "Real Estate Deals in Midland TX: The Investor's Complete Guide to the Permian Basin Market",
+      "excerpt": "Midland, Texas offers real estate investors a unique opportunity driven by oil industry cycles, population growth, and a tight housing supply. Discover the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Midland TX.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-03T12:01:46.093Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Midland TX",
+        "Midland Texas real estate investing",
+        "wholesale deals Midland TX",
+        "investment properties Midland Texas",
+        "Permian Basin real estate"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-buffalo-ny-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Buffalo NY: The Investor's Complete Guide for 2024",
       "excerpt": "Buffalo, NY is one of the most affordable and fast-growing real estate markets in the Northeast. Discover the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Buffalo NY.",
@@ -15,7 +32,7 @@
         "Buffalo NY investment properties",
         "Buffalo NY house flipping"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-crm-comparison-which-is-best-for-investors-in-2024",
