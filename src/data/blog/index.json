@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-north-las-vegas-nv-the-investor-s-complete-guide",
+      "title": "Real Estate Deals in North Las Vegas NV: The Investor's Complete Guide",
+      "excerpt": "North Las Vegas is one of Nevada's fastest-growing markets, offering real estate investors strong rental demand, below-average entry prices, and a steady flow of wholesale and flip opportunities. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in North Las Vegas NV.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-03T18:01:02.925Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in North Las Vegas NV",
+        "North Las Vegas investment properties",
+        "wholesale real estate North Las Vegas",
+        "flip houses North Las Vegas",
+        "rental properties North Las Vegas Nevada"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-midland-tx-the-investor-s-complete-guide-to-the-permian-bas",
       "title": "Real Estate Deals in Midland TX: The Investor's Complete Guide to the Permian Basin Market",
       "excerpt": "Midland, Texas offers real estate investors a unique opportunity driven by oil industry cycles, population growth, and a tight housing supply. Discover the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Midland TX.",
@@ -15,7 +32,7 @@
         "investment properties Midland Texas",
         "Permian Basin real estate"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-buffalo-ny-the-investor-s-complete-guide-for-2024",
