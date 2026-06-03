@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "airbnb-vs-long-term-rental-which-makes-more-money-in-2025",
+      "title": "Airbnb vs Long Term Rental: Which Makes More Money in 2025?",
+      "excerpt": "Wondering whether Airbnb or long-term renting will earn you more money? This guide breaks down the real numbers, hidden costs, and key factors that determine which strategy wins for your property.",
+      "category": "Comparison",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-03T06:00:54.026Z",
+      "readTime": 7,
+      "tags": [
+        "Airbnb vs long term rental which makes more money",
+        "short term vs long term rental income",
+        "Airbnb investment property",
+        "rental property strategy",
+        "short term rental profit"
+      ],
+      "featured": true
+    },
+    {
       "slug": "finding-profitable-real-estate-deals-in-scottsdale-az-a-complete-investor-s-guid",
       "title": "Finding Profitable Real Estate Deals in Scottsdale AZ: A Complete Investor's Guide",
       "excerpt": "Scottsdale, AZ is one of the hottest real estate markets in the Southwest, offering strong returns for wholesalers, flippers, and landlords alike. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Scottsdale AZ.",
@@ -15,7 +32,7 @@
         "fix and flip Scottsdale",
         "Scottsdale rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-sunnyvale-ca-a-complete-investor-s-guide-for-2024",
