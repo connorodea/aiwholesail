@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-pueblo-co-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Pueblo CO: A Complete Investor's Guide for 2024",
+      "excerpt": "Pueblo, Colorado is one of the most underrated markets for real estate investors, offering affordable entry points and strong rental demand. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Pueblo CO.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-04T12:01:06.879Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Pueblo CO",
+        "Pueblo Colorado real estate investing",
+        "wholesale real estate Pueblo",
+        "Pueblo CO investment properties",
+        "flipping houses Pueblo Colorado"
+      ],
+      "featured": true
+    },
+    {
       "slug": "why-am-i-not-finding-wholesale-deals-7-honest-reasons-and-how-to-fix-them",
       "title": "Why Am I Not Finding Wholesale Deals? 7 Honest Reasons (And How to Fix Them)",
       "excerpt": "If you're putting in the hours but still not finding wholesale deals, the problem is usually one of a handful of fixable mistakes. Here's an honest breakdown of what's going wrong and exactly how to turn it around.",
@@ -15,7 +32,7 @@
         "real estate wholesaling",
         "motivated sellers"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-find-absentee-owner-properties-for-investing-step-by-step-guide",
