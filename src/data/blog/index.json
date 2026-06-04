@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-norfolk-va-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Norfolk VA: A Complete Investor's Guide for 2024",
+      "excerpt": "Norfolk, Virginia is quietly becoming one of the Mid-Atlantic's most attractive markets for real estate investors. From affordable entry points to strong rental demand, here's everything you need to know to find profitable real estate deals in Norfolk VA.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-04T18:01:04.833Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Norfolk VA",
+        "Norfolk VA real estate investing",
+        "Norfolk wholesale deals",
+        "Norfolk VA rental properties",
+        "flip houses Norfolk VA"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-cranston-ri-a-complete-investor-s-guide",
       "title": "Real Estate Deals in Cranston RI: A Complete Investor's Guide",
       "excerpt": "Cranston, Rhode Island is one of New England's most underrated markets for real estate investors. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Cranston RI.",
@@ -15,7 +32,7 @@
         "flip houses Cranston RI",
         "rental properties Cranston"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-pueblo-co-a-complete-investor-s-guide-for-2024",
