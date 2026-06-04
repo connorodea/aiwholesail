@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-cranston-ri-a-complete-investor-s-guide",
+      "title": "Real Estate Deals in Cranston RI: A Complete Investor's Guide",
+      "excerpt": "Cranston, Rhode Island is one of New England's most underrated markets for real estate investors. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Cranston RI.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-04T12:02:47.582Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Cranston RI",
+        "Cranston Rhode Island real estate investing",
+        "wholesale deals Cranston",
+        "flip houses Cranston RI",
+        "rental properties Cranston"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-pueblo-co-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Pueblo CO: A Complete Investor's Guide for 2024",
       "excerpt": "Pueblo, Colorado is one of the most underrated markets for real estate investors, offering affordable entry points and strong rental demand. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Pueblo CO.",
@@ -15,7 +32,7 @@
         "Pueblo CO investment properties",
         "flipping houses Pueblo Colorado"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "why-am-i-not-finding-wholesale-deals-7-honest-reasons-and-how-to-fix-them",
