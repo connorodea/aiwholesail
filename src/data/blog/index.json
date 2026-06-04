@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "why-am-i-not-finding-wholesale-deals-7-honest-reasons-and-how-to-fix-them",
+      "title": "Why Am I Not Finding Wholesale Deals? 7 Honest Reasons (And How to Fix Them)",
+      "excerpt": "If you're putting in the hours but still not finding wholesale deals, the problem is usually one of a handful of fixable mistakes. Here's an honest breakdown of what's going wrong and exactly how to turn it around.",
+      "category": "Troubleshooting",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-04T06:02:14.444Z",
+      "readTime": 7,
+      "tags": [
+        "why am I not finding wholesale deals",
+        "wholesale real estate tips",
+        "finding wholesale deals",
+        "real estate wholesaling",
+        "motivated sellers"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-find-absentee-owner-properties-for-investing-step-by-step-guide",
       "title": "How to Find Absentee Owner Properties for Investing (Step-by-Step Guide)",
       "excerpt": "Absentee owner properties are one of the best sources of motivated seller leads in real estate investing. Learn exactly how to find them, what to look for, and how to turn them into profitable deals.",
@@ -15,7 +32,7 @@
         "off-market deals",
         "wholesale real estate"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-wilmington-nc-the-investor-s-complete-guide-for-2024",
