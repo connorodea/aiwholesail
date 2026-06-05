@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-investor-business-plan-template-build-your-roadmap-to-profit",
+      "title": "Real Estate Investor Business Plan Template: Build Your Roadmap to Profit",
+      "excerpt": "A solid real estate investor business plan template gives you the structure to set goals, manage money, and scale strategically. This guide walks you through every section you need to build a plan that actually works.",
+      "category": "Getting Started",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-05T06:01:42.945Z",
+      "readTime": 7,
+      "tags": [
+        "real estate investor business plan template",
+        "real estate business plan",
+        "real estate investing plan",
+        "wholesaling business plan",
+        "real estate investment strategy"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-much-earnest-money-for-a-wholesale-deal-a-practical-guide-for-investors",
       "title": "How Much Earnest Money for a Wholesale Deal? A Practical Guide for Investors",
       "excerpt": "Knowing how much earnest money to put down on a wholesale deal can make or break your negotiation. This guide breaks down the numbers, the strategy, and what sellers actually expect.",
@@ -15,7 +32,7 @@
         "earnest money deposit real estate",
         "wholesaling real estate tips"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-greenville-sc-the-investor-s-complete-guide-for-2024",
