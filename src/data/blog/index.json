@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-philadelphia-pa-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Philadelphia PA: The Investor's Complete Guide for 2024",
+      "excerpt": "Philadelphia offers some of the most affordable and cash-flow-positive real estate deals on the East Coast. Learn which neighborhoods to target, what deals are available, and how to profit in the City of Brotherly Love.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-05T18:01:07.141Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Philadelphia PA",
+        "Philadelphia investment properties",
+        "wholesale deals Philadelphia",
+        "fix and flip Philadelphia",
+        "rental properties Philadelphia"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-charlotte-nc-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Charlotte NC: The Investor's Complete Guide for 2024",
       "excerpt": "Charlotte, NC is one of the Southeast's hottest real estate markets, offering strong opportunities for wholesalers, flippers, and landlords alike. Discover the best neighborhoods, deal types, and strategies to find profitable real estate deals in Charlotte NC.",
@@ -15,7 +32,7 @@
         "flip houses Charlotte NC",
         "Charlotte rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-charleston-wv-the-investor-s-complete-guide-to-west-virgini",
