@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-find-profitable-real-estate-deals-in-dallas-tx-2024-investor-guide",
+      "title": "How to Find Profitable Real Estate Deals in Dallas TX (2024 Investor Guide)",
+      "excerpt": "Dallas is one of the hottest real estate markets in the country, offering strong returns for wholesalers, flippers, and buy-and-hold investors. This guide breaks down the best neighborhoods, deal types, and strategies to help you profit in the Dallas TX market.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-05T18:03:00.723Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Dallas TX",
+        "Dallas real estate investing",
+        "wholesale deals Dallas",
+        "flip houses Dallas",
+        "Dallas rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-philadelphia-pa-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Philadelphia PA: The Investor's Complete Guide for 2024",
       "excerpt": "Philadelphia offers some of the most affordable and cash-flow-positive real estate deals on the East Coast. Learn which neighborhoods to target, what deals are available, and how to profit in the City of Brotherly Love.",
@@ -15,7 +32,7 @@
         "fix and flip Philadelphia",
         "rental properties Philadelphia"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-charlotte-nc-the-investor-s-complete-guide-for-2024",
