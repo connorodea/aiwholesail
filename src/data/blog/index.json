@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "baselane-landlord-banking-review-is-it-worth-it-for-real-estate-investors",
+      "title": "Baselane Landlord Banking Review: Is It Worth It for Real Estate Investors?",
+      "excerpt": "Baselane promises to simplify landlord banking with features built specifically for rental property owners. This in-depth review breaks down what it offers, what it costs, and whether it's the right fit for your real estate portfolio.",
+      "category": "Review",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-06T06:00:55.895Z",
+      "readTime": 7,
+      "tags": [
+        "Baselane landlord banking review",
+        "Baselane review",
+        "landlord banking",
+        "rental property banking",
+        "real estate investor banking"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-find-profitable-real-estate-deals-in-dallas-tx-2024-investor-guide",
       "title": "How to Find Profitable Real Estate Deals in Dallas TX (2024 Investor Guide)",
       "excerpt": "Dallas is one of the hottest real estate markets in the country, offering strong returns for wholesalers, flippers, and buy-and-hold investors. This guide breaks down the best neighborhoods, deal types, and strategies to help you profit in the Dallas TX market.",
@@ -15,7 +32,7 @@
         "flip houses Dallas",
         "Dallas rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-philadelphia-pa-the-investor-s-complete-guide-for-2024",
