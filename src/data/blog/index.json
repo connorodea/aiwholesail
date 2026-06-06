@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-fort-wayne-in-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Fort Wayne IN: The Investor's Complete Guide for 2024",
+      "excerpt": "Fort Wayne, Indiana is one of the Midwest's most overlooked markets for real estate investors, offering low entry prices, strong rental demand, and growing appreciation. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Fort Wayne IN.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-06T12:02:27.551Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Fort Wayne IN",
+        "Fort Wayne Indiana real estate investing",
+        "wholesale deals Fort Wayne",
+        "fix and flip Fort Wayne",
+        "rental properties Fort Wayne Indiana"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-garland-tx-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Garland TX: The Investor's Complete Guide for 2024",
       "excerpt": "Garland, TX is one of the Dallas-Fort Worth area's most overlooked markets for real estate investors, offering strong rental demand, affordable entry points, and solid appreciation. This guide breaks down the best neighborhoods, deal types, and strategies to find profitable real estate deals in Garland TX.",
@@ -15,7 +32,7 @@
         "flip houses Garland TX",
         "Garland TX rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-approach-fsbo-sellers-as-an-investor-and-actually-get-the-deal",
