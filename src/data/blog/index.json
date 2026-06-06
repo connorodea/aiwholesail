@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-fort-wayne-in-the-investor-s-complete-guide-to-indiana-s-hi",
+      "title": "Real Estate Deals in Fort Wayne IN: The Investor's Complete Guide to Indiana's Hidden Gem",
+      "excerpt": "Fort Wayne, Indiana is one of the Midwest's most underrated markets for real estate investors, offering affordable entry points, strong rental demand, and consistent appreciation. This guide covers everything you need to know to find and close profitable real estate deals in Fort Wayne IN.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-06T18:01:10.528Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Fort Wayne IN",
+        "Fort Wayne Indiana real estate investing",
+        "Fort Wayne wholesale deals",
+        "Fort Wayne rental properties",
+        "Fort Wayne fix and flip"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-columbia-mo-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Columbia MO: The Investor's Complete Guide for 2024",
       "excerpt": "Columbia, Missouri is quietly becoming one of the Midwest's most attractive markets for real estate investors, with steady population growth, a major university anchoring demand, and home prices well below national averages. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Columbia MO.",
@@ -15,7 +32,7 @@
         "investment properties Columbia Missouri",
         "Columbia MO rental market"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-fort-wayne-in-the-investor-s-complete-guide-for-2024",
