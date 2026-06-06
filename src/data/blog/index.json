@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-approach-fsbo-sellers-as-an-investor-and-actually-get-the-deal",
+      "title": "How to Approach FSBO Sellers as an Investor (And Actually Get the Deal)",
+      "excerpt": "FSBO sellers are one of the most overlooked sources of motivated leads in real estate investing. Learn exactly how to approach them, what to say, and how to turn a conversation into a signed contract.",
+      "category": "Approaching Sellers",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-06T06:02:21.158Z",
+      "readTime": 7,
+      "tags": [
+        "how to approach FSBO sellers as an investor",
+        "FSBO real estate investing",
+        "motivated seller leads",
+        "wholesale real estate FSBO",
+        "FSBO negotiation tips"
+      ],
+      "featured": true
+    },
+    {
       "slug": "baselane-landlord-banking-review-is-it-worth-it-for-real-estate-investors",
       "title": "Baselane Landlord Banking Review: Is It Worth It for Real Estate Investors?",
       "excerpt": "Baselane promises to simplify landlord banking with features built specifically for rental property owners. This in-depth review breaks down what it offers, what it costs, and whether it's the right fit for your real estate portfolio.",
@@ -15,7 +32,7 @@
         "rental property banking",
         "real estate investor banking"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-find-profitable-real-estate-deals-in-dallas-tx-2024-investor-guide",
