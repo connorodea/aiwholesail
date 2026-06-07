@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-mobile-al-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Mobile AL: The Investor's Complete Guide for 2024",
+      "excerpt": "Mobile, Alabama is quietly becoming one of the Southeast's most attractive markets for real estate investors. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Mobile AL.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-07T18:02:11.442Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Mobile AL",
+        "Mobile Alabama real estate investing",
+        "wholesale real estate Mobile AL",
+        "investment properties Mobile Alabama",
+        "flip houses Mobile AL"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-rochester-ny-a-practical-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Rochester NY: A Practical Investor's Guide for 2024",
       "excerpt": "Rochester, NY is one of the most affordable and cash-flow-friendly markets in the Northeast, offering investors strong rental yields and deep deal flow. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Rochester NY.",
@@ -15,7 +32,7 @@
         "Rochester NY rental properties",
         "Rochester NY house flipping"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-tacoma-wa-the-investor-s-complete-guide-for-2024",
