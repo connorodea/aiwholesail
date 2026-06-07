@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "what-is-subject-to-financing-in-real-estate-a-complete-investor-s-guide",
+      "title": "What Is Subject To Financing in Real Estate? A Complete Investor's Guide",
+      "excerpt": "Subject to financing lets investors take over a seller's existing mortgage without qualifying for a new loan. Learn how this creative strategy works, when to use it, and how to protect yourself.",
+      "category": "Creative Financing",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-07T06:00:56.386Z",
+      "readTime": 7,
+      "tags": [
+        "what is subject to financing in real estate",
+        "subject to mortgage",
+        "subject to real estate investing",
+        "creative financing real estate",
+        "take over mortgage"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-fort-wayne-in-the-investor-s-complete-guide-to-indiana-s-hi",
       "title": "Real Estate Deals in Fort Wayne IN: The Investor's Complete Guide to Indiana's Hidden Gem",
       "excerpt": "Fort Wayne, Indiana is one of the Midwest's most underrated markets for real estate investors, offering affordable entry points, strong rental demand, and consistent appreciation. This guide covers everything you need to know to find and close profitable real estate deals in Fort Wayne IN.",
@@ -15,7 +32,7 @@
         "Fort Wayne rental properties",
         "Fort Wayne fix and flip"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-columbia-mo-the-investor-s-complete-guide-for-2024",
