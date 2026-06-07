@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-youngstown-oh-the-investor-s-complete-guide-to-one-of-ohio-",
+      "title": "Real Estate Deals in Youngstown OH: The Investor's Complete Guide to One of Ohio's Best Kept Secrets",
+      "excerpt": "Youngstown, Ohio offers some of the most affordable real estate deals in the Midwest, with median home prices under $60,000 and strong rental demand. This guide breaks down the best neighborhoods, deal types, and strategies for investors looking to profit in this overlooked market.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-07T12:01:09.355Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Youngstown OH",
+        "Youngstown Ohio real estate investing",
+        "wholesale deals Youngstown",
+        "investment properties Youngstown",
+        "cheap houses Ohio"
+      ],
+      "featured": true
+    },
+    {
       "slug": "pre-foreclosure-vs-foreclosure-vs-reo-explained-a-real-estate-investor-s-complet",
       "title": "Pre Foreclosure vs Foreclosure vs REO Explained: A Real Estate Investor's Complete Guide",
       "excerpt": "Understanding the difference between pre foreclosure, foreclosure, and REO properties can mean the difference between landing a great deal and wasting months of effort. This guide breaks down each stage, what to expect, and how to profit from each one.",
@@ -15,7 +32,7 @@
         "REO properties",
         "pre foreclosure deals"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "what-is-subject-to-financing-in-real-estate-a-complete-investor-s-guide",
