@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-madison-wi-the-investor-s-complete-guide-to-wisconsin-s-cap",
+      "title": "Real Estate Deals in Madison WI: The Investor's Complete Guide to Wisconsin's Capital City",
+      "excerpt": "Madison, WI is one of the Midwest's most overlooked real estate markets, offering strong rental demand, steady appreciation, and motivated sellers. Here's everything investors need to know to find profitable deals in 2024.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-08T18:01:26.159Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Madison WI",
+        "Madison Wisconsin real estate investing",
+        "wholesale real estate Madison WI",
+        "Madison WI investment properties",
+        "off-market deals Madison Wisconsin"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-los-angeles-ca-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Los Angeles CA: The Investor's Complete Guide for 2024",
       "excerpt": "Los Angeles offers some of the most lucrative real estate deals in the country — but only if you know where to look. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable investments in the LA market.",
@@ -15,7 +32,7 @@
         "fix and flip Los Angeles",
         "off-market deals LA"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-dayton-oh-the-investor-s-complete-guide-for-2024",
