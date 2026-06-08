@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-dayton-oh-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Dayton OH: The Investor's Complete Guide for 2024",
+      "excerpt": "Dayton, Ohio is quietly becoming one of the Midwest's hottest markets for real estate investors, with low entry prices, strong rental demand, and plenty of distressed properties to flip or wholesale. This guide breaks down everything you need to know to find profitable real estate deals in Dayton OH.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-08T12:02:10.057Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Dayton OH",
+        "Dayton Ohio real estate investing",
+        "wholesale real estate Dayton",
+        "flip houses Dayton Ohio",
+        "Dayton rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "finding-profitable-real-estate-deals-in-madison-wi-a-complete-investor-s-guide",
       "title": "Finding Profitable Real Estate Deals in Madison WI: A Complete Investor's Guide",
       "excerpt": "Madison, WI is one of the Midwest's most overlooked real estate markets, offering steady appreciation, strong rental demand, and hidden wholesale opportunities. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Madison WI.",
@@ -15,7 +32,7 @@
         "flip houses Madison Wisconsin",
         "rental properties Madison WI"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-structure-a-real-estate-joint-venture-agreement-step-by-step-guide",
