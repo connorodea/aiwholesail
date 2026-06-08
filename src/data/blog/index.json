@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "finding-profitable-real-estate-deals-in-madison-wi-a-complete-investor-s-guide",
+      "title": "Finding Profitable Real Estate Deals in Madison WI: A Complete Investor's Guide",
+      "excerpt": "Madison, WI is one of the Midwest's most overlooked real estate markets, offering steady appreciation, strong rental demand, and hidden wholesale opportunities. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Madison WI.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-08T12:01:10.318Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Madison WI",
+        "Madison WI real estate investing",
+        "wholesale real estate Madison",
+        "flip houses Madison Wisconsin",
+        "rental properties Madison WI"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-structure-a-real-estate-joint-venture-agreement-step-by-step-guide",
       "title": "How to Structure a Real Estate Joint Venture Agreement (Step-by-Step Guide)",
       "excerpt": "A well-structured real estate joint venture agreement protects every partner and sets the deal up for success. Learn exactly how to build one from scratch, including profit splits, roles, and exit strategies.",
@@ -15,7 +32,7 @@
         "real estate partnership agreement",
         "joint venture profit split"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "bonus-depreciation-on-rental-property-2026-rules-what-every-investor-needs-to-kn",
