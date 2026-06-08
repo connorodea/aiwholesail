@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-structure-a-real-estate-joint-venture-agreement-step-by-step-guide",
+      "title": "How to Structure a Real Estate Joint Venture Agreement (Step-by-Step Guide)",
+      "excerpt": "A well-structured real estate joint venture agreement protects every partner and sets the deal up for success. Learn exactly how to build one from scratch, including profit splits, roles, and exit strategies.",
+      "category": "Legal",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-08T06:02:19.725Z",
+      "readTime": 7,
+      "tags": [
+        "how to structure a real estate joint venture agreement",
+        "real estate joint venture",
+        "JV agreement real estate",
+        "real estate partnership agreement",
+        "joint venture profit split"
+      ],
+      "featured": true
+    },
+    {
       "slug": "bonus-depreciation-on-rental-property-2026-rules-what-every-investor-needs-to-kn",
       "title": "Bonus Depreciation on Rental Property 2026 Rules: What Every Investor Needs to Know",
       "excerpt": "The bonus depreciation rules for rental property are changing significantly in 2026, and investors who plan ahead will keep far more money in their pockets. This guide breaks down exactly what the new rules mean, how to calculate your deductions, and what steps to take now before the window closes.",
@@ -15,7 +32,7 @@
         "rental property tax deductions",
         "real estate depreciation 2026"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-mobile-al-the-investor-s-complete-guide-for-2024",
