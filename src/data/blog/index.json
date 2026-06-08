@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "bonus-depreciation-on-rental-property-2026-rules-what-every-investor-needs-to-kn",
+      "title": "Bonus Depreciation on Rental Property 2026 Rules: What Every Investor Needs to Know",
+      "excerpt": "The bonus depreciation rules for rental property are changing significantly in 2026, and investors who plan ahead will keep far more money in their pockets. This guide breaks down exactly what the new rules mean, how to calculate your deductions, and what steps to take now before the window closes.",
+      "category": "Tax Strategy",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-08T06:01:09.378Z",
+      "readTime": 7,
+      "tags": [
+        "bonus depreciation on rental property 2026 rules",
+        "bonus depreciation phase out",
+        "cost segregation study",
+        "rental property tax deductions",
+        "real estate depreciation 2026"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-mobile-al-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Mobile AL: The Investor's Complete Guide for 2024",
       "excerpt": "Mobile, Alabama is quietly becoming one of the Southeast's most attractive markets for real estate investors. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Mobile AL.",
@@ -15,7 +32,7 @@
         "investment properties Mobile Alabama",
         "flip houses Mobile AL"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-rochester-ny-a-practical-investor-s-guide-for-2024",
