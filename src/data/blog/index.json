@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-amarillo-tx-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Amarillo TX: The Investor's Complete Guide for 2024",
+      "excerpt": "Amarillo, Texas is quietly becoming one of the most attractive markets for real estate investors seeking strong cash flow and affordable entry points. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Amarillo TX.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-09T18:02:02.925Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Amarillo TX",
+        "Amarillo Texas real estate investing",
+        "wholesale real estate Amarillo",
+        "investment properties Amarillo TX",
+        "flip houses Amarillo"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-great-falls-mt-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Great Falls MT: A Complete Investor's Guide for 2024",
       "excerpt": "Great Falls, Montana offers real estate investors affordable entry points, strong rental demand, and a steady pipeline of distressed properties. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Great Falls MT.",
@@ -15,7 +32,7 @@
         "investment properties Great Falls MT",
         "Montana real estate market"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-baltimore-md-the-investor-s-complete-guide-for-2024",
