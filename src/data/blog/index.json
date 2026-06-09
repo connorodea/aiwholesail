@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-create-a-scope-of-work-for-a-house-flip-step-by-step-guide",
+      "title": "How to Create a Scope of Work for a House Flip (Step-by-Step Guide)",
+      "excerpt": "A solid scope of work can make or break your house flip — it keeps contractors accountable, protects your budget, and helps you close on time. Learn exactly how to build one from scratch with real examples and numbers.",
+      "category": "Rehab Costs",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-09T06:01:21.088Z",
+      "readTime": 7,
+      "tags": [
+        "scope of work house flip",
+        "how to create scope of work real estate",
+        "flip house renovation plan",
+        "rehab scope of work template",
+        "house flipping budget"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-raise-capital-for-a-real-estate-syndication-a-step-by-step-guide",
       "title": "How to Raise Capital for a Real Estate Syndication: A Step-by-Step Guide",
       "excerpt": "Raising capital for a real estate syndication doesn't have to be intimidating. This guide walks you through exactly how to attract investors, structure your deal, and close your first syndication with confidence.",
@@ -15,7 +32,7 @@
         "syndication investors",
         "passive real estate investing"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-madison-wi-the-investor-s-complete-guide-to-wisconsin-s-cap",
