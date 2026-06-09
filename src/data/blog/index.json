@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-great-falls-mt-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Great Falls MT: A Complete Investor's Guide for 2024",
+      "excerpt": "Great Falls, Montana offers real estate investors affordable entry points, strong rental demand, and a steady pipeline of distressed properties. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Great Falls MT.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-09T18:01:13.155Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Great Falls MT",
+        "Great Falls Montana real estate investing",
+        "wholesale deals Great Falls",
+        "investment properties Great Falls MT",
+        "Montana real estate market"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-baltimore-md-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Baltimore MD: The Investor's Complete Guide for 2024",
       "excerpt": "Baltimore's real estate market offers some of the most affordable entry points on the East Coast, with strong rental demand and deep wholesale inventory. Here's everything investors need to know to find profitable deals in Charm City.",
@@ -15,7 +32,7 @@
         "Baltimore investment properties",
         "flip houses Baltimore"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-augusta-me-a-complete-investor-s-guide-for-2024",
