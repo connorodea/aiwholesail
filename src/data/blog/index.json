@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-hartford-ct-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Hartford CT: A Complete Investor's Guide for 2024",
+      "excerpt": "Hartford, CT is quietly becoming one of the Northeast's most overlooked markets for real estate investors. Discover the best neighborhoods, deal types, and strategies to find profitable real estate deals in Hartford CT right now.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-10T18:01:04.990Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Hartford CT",
+        "Hartford CT real estate investing",
+        "Hartford wholesale deals",
+        "Hartford CT house flipping",
+        "Hartford rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-knoxville-tn-the-investor-s-complete-guide-for-2025",
       "title": "Real Estate Deals in Knoxville TN: The Investor's Complete Guide for 2025",
       "excerpt": "Knoxville, Tennessee is quietly becoming one of the Southeast's hottest markets for real estate investors. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Knoxville TN.",
@@ -15,7 +32,7 @@
         "Knoxville fix and flip",
         "Knoxville rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-olympia-wa-the-investor-s-complete-guide-to-washington-s-ca",
