@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "strip-mall-investment-returns-what-investors-need-to-know-in-2024",
+      "title": "Strip Mall Investment Returns: What Investors Need to Know in 2024",
+      "excerpt": "Strip mall investments can deliver strong cash flow and diversified tenant income when you know what to look for. This guide breaks down realistic returns, key metrics, and how to evaluate your next commercial deal.",
+      "category": "Strategy",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-10T06:01:33.920Z",
+      "readTime": 7,
+      "tags": [
+        "strip mall investment returns",
+        "strip mall cap rate",
+        "commercial real estate investing",
+        "retail property returns",
+        "strip mall cash flow"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-llc-vs-sole-proprietorship-which-is-better-for-investors",
       "title": "Real Estate LLC vs Sole Proprietorship: Which Is Better for Investors?",
       "excerpt": "Choosing between a real estate LLC vs sole proprietorship is one of the most important decisions you'll make as an investor. This guide breaks down the pros, cons, taxes, and legal protections of each structure so you can choose wisely.",
@@ -15,7 +32,7 @@
         "real estate business structure",
         "LLC for real estate investors"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-amarillo-tx-the-investor-s-complete-guide-for-2024",
