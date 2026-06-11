@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-brownsville-tx-the-investor-s-guide-to-the-rio-grande-valle",
+      "title": "Real Estate Deals in Brownsville TX: The Investor's Guide to the Rio Grande Valley",
+      "excerpt": "Brownsville, TX is one of the most underrated markets for real estate investors, offering low entry prices, strong rental demand, and growing appreciation. Here's everything you need to know to find profitable real estate deals in Brownsville TX.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-11T18:01:06.123Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Brownsville TX",
+        "Brownsville TX real estate investing",
+        "wholesale deals Brownsville",
+        "Brownsville TX rental properties",
+        "Rio Grande Valley real estate"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-lancaster-ca-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Lancaster CA: The Investor's Complete Guide for 2024",
       "excerpt": "Lancaster, CA is one of the Antelope Valley's most affordable markets for real estate investors, offering strong rental demand and solid flip margins. Discover the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Lancaster CA.",
@@ -15,7 +32,7 @@
         "flip houses Lancaster CA",
         "Antelope Valley real estate"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-find-profitable-real-estate-deals-in-honolulu-hi",
