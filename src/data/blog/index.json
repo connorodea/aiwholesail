@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "behind-on-mortgage-payments-options-what-homeowners-and-investors-need-to-know",
+      "title": "Behind on Mortgage Payments Options: What Homeowners and Investors Need to Know",
+      "excerpt": "Falling behind on mortgage payments can feel overwhelming, but there are more options available than most people realize. This guide breaks down every path forward — for struggling homeowners and the savvy investors who can help them.",
+      "category": "Motivation",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-11T06:01:00.618Z",
+      "readTime": 7,
+      "tags": [
+        "behind on mortgage payments options",
+        "missed mortgage payments",
+        "loan modification",
+        "forbearance",
+        "short sale"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-hartford-ct-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Hartford CT: A Complete Investor's Guide for 2024",
       "excerpt": "Hartford, CT is quietly becoming one of the Northeast's most overlooked markets for real estate investors. Discover the best neighborhoods, deal types, and strategies to find profitable real estate deals in Hartford CT right now.",
@@ -15,7 +32,7 @@
         "Hartford CT house flipping",
         "Hartford rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-knoxville-tn-the-investor-s-complete-guide-for-2025",
