@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-find-profitable-real-estate-deals-in-honolulu-hi",
+      "title": "How to Find Profitable Real Estate Deals in Honolulu HI",
+      "excerpt": "Honolulu's real estate market offers unique opportunities for investors willing to dig deeper than the MLS. This guide covers the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Honolulu HI.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-11T12:01:08.815Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Honolulu HI",
+        "Honolulu real estate investing",
+        "wholesale real estate Honolulu",
+        "Honolulu investment properties",
+        "off-market deals Honolulu"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-sell-a-house-in-probate-fast-a-step-by-step-guide-for-investors-and-heirs",
       "title": "How to Sell a House in Probate Fast: A Step-by-Step Guide for Investors and Heirs",
       "excerpt": "Selling a house in probate doesn't have to take months or drain an estate's resources. This guide walks you through the fastest, most practical ways to move a probate property quickly while staying legally compliant.",
@@ -15,7 +32,7 @@
         "wholesaling probate homes",
         "probate investing"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "behind-on-mortgage-payments-options-what-homeowners-and-investors-need-to-know",
