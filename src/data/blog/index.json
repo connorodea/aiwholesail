@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-providence-ri-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Providence RI: A Complete Investor's Guide for 2024",
+      "excerpt": "Providence, Rhode Island is quietly becoming one of the Northeast's most attractive markets for real estate investors. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Providence RI.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-12T12:01:09.859Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Providence RI",
+        "Providence Rhode Island real estate investing",
+        "Providence wholesale deals",
+        "Providence fix and flip",
+        "Rhode Island investment properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "is-real-estate-investing-worth-it-in-2026-here-s-what-the-data-says",
       "title": "Is Real Estate Investing Worth It in 2026? Here's What the Data Says",
       "excerpt": "With rising rates, shifting markets, and economic uncertainty, many investors are asking: is real estate investing worth it in 2026? Here's an honest breakdown of the risks, rewards, and strategies that actually work right now.",
@@ -15,7 +32,7 @@
         "wholesale real estate 2026",
         "real estate market outlook"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-scale-from-one-rental-property-to-ten-a-step-by-step-investor-roadmap",
