@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-omaha-ne-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Omaha NE: The Investor's Complete Guide for 2024",
+      "excerpt": "Omaha's stable economy and affordable home prices make it one of the Midwest's best-kept secrets for real estate investors. Discover the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Omaha NE.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-12T18:01:38.686Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Omaha NE",
+        "Omaha real estate investing",
+        "wholesale deals Omaha",
+        "flip houses Omaha",
+        "Omaha rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-tallahassee-fl-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Tallahassee FL: The Investor's Complete Guide for 2024",
       "excerpt": "Tallahassee is one of Florida's most overlooked real estate markets, offering strong rental demand, affordable entry points, and hidden wholesale opportunities. Here's everything investors need to know to find profitable deals in Florida's capital city.",
@@ -15,7 +32,7 @@
         "Tallahassee rental properties",
         "flip houses Tallahassee Florida"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-fort-wayne-in-the-investor-s-complete-guide-for-2024",
