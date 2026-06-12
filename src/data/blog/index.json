@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "is-real-estate-investing-worth-it-in-2026-here-s-what-the-data-says",
+      "title": "Is Real Estate Investing Worth It in 2026? Here's What the Data Says",
+      "excerpt": "With rising rates, shifting markets, and economic uncertainty, many investors are asking: is real estate investing worth it in 2026? Here's an honest breakdown of the risks, rewards, and strategies that actually work right now.",
+      "category": "Getting Started",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-12T06:01:14.340Z",
+      "readTime": 7,
+      "tags": [
+        "is real estate investing worth it in 2026",
+        "real estate investing 2026",
+        "should I invest in real estate",
+        "wholesale real estate 2026",
+        "real estate market outlook"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-scale-from-one-rental-property-to-ten-a-step-by-step-investor-roadmap",
       "title": "How to Scale from One Rental Property to Ten: A Step-by-Step Investor Roadmap",
       "excerpt": "Going from your first rental to a 10-property portfolio is achievable with the right strategy, financing plan, and team in place. This guide walks you through each stage of the journey with real numbers and actionable steps.",
@@ -15,7 +32,7 @@
         "real estate portfolio growth",
         "rental property investing"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-cleveland-oh-the-investor-s-complete-guide-for-2024",
