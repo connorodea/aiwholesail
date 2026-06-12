@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-scale-from-one-rental-property-to-ten-a-step-by-step-investor-roadmap",
+      "title": "How to Scale from One Rental Property to Ten: A Step-by-Step Investor Roadmap",
+      "excerpt": "Going from your first rental to a 10-property portfolio is achievable with the right strategy, financing plan, and team in place. This guide walks you through each stage of the journey with real numbers and actionable steps.",
+      "category": "Strategy",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-12T06:01:03.945Z",
+      "readTime": 7,
+      "tags": [
+        "how to scale from one rental property to ten",
+        "grow rental portfolio",
+        "scaling rental properties",
+        "real estate portfolio growth",
+        "rental property investing"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-cleveland-oh-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Cleveland OH: The Investor's Complete Guide for 2024",
       "excerpt": "Cleveland, Ohio is one of the most affordable and cash-flow-friendly real estate markets in the country. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Cleveland OH.",
@@ -15,7 +32,7 @@
         "Cleveland investment properties",
         "flip houses Cleveland"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-brownsville-tx-the-investor-s-guide-to-the-rio-grande-valle",
