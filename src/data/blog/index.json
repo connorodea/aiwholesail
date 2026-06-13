@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "single-family-vs-multifamily-which-should-you-invest-in",
+      "title": "Single Family vs Multifamily: Which Should You Invest In?",
+      "excerpt": "Choosing between single family and multifamily real estate is one of the biggest decisions a new investor faces. This guide breaks down the pros, cons, costs, and cash flow differences to help you pick the right path.",
+      "category": "Comparison",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-13T06:02:11.503Z",
+      "readTime": 7,
+      "tags": [
+        "single family vs multifamily which to invest in",
+        "single family investing",
+        "multifamily real estate",
+        "rental property types",
+        "real estate investment strategy"
+      ],
+      "featured": true
+    },
+    {
       "slug": "memorandum-of-contract-for-real-estate-wholesaling-what-it-is-and-why-you-need-o",
       "title": "Memorandum of Contract for Real Estate Wholesaling: What It Is and Why You Need One",
       "excerpt": "A memorandum of contract is one of the most powerful legal tools a real estate wholesaler can use to protect their deals. Learn exactly how it works, when to file it, and how to use it to stop sellers from backing out or selling to someone else.",
@@ -15,7 +32,7 @@
         "protect wholesale deal",
         "assignment contract real estate"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-omaha-ne-the-investor-s-complete-guide-for-2024",
