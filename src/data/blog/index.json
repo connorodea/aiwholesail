@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-orlando-fl-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Orlando FL: The Investor's Complete Guide for 2024",
+      "excerpt": "Orlando's booming population and strong rental demand make it one of the hottest markets for real estate investors in the Southeast. This guide covers the best neighborhoods, deal types, current market trends, and practical tips for finding profitable real estate deals in Orlando FL.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-13T12:01:07.891Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Orlando FL",
+        "Orlando real estate investing",
+        "wholesale real estate Orlando",
+        "flip houses Orlando",
+        "Orlando investment properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "single-family-vs-multifamily-which-should-you-invest-in",
       "title": "Single Family vs Multifamily: Which Should You Invest In?",
       "excerpt": "Choosing between single family and multifamily real estate is one of the biggest decisions a new investor faces. This guide breaks down the pros, cons, costs, and cash flow differences to help you pick the right path.",
@@ -15,7 +32,7 @@
         "rental property types",
         "real estate investment strategy"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "memorandum-of-contract-for-real-estate-wholesaling-what-it-is-and-why-you-need-o",
