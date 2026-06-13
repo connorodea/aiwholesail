@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-find-profitable-real-estate-deals-in-sarasota-fl-2024-investor-guide",
+      "title": "How to Find Profitable Real Estate Deals in Sarasota FL (2024 Investor Guide)",
+      "excerpt": "Sarasota, FL is one of Florida's hottest real estate markets, offering strong opportunities for wholesalers, flippers, and landlords. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Sarasota FL.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-13T18:02:44.322Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Sarasota FL",
+        "Sarasota real estate investing",
+        "wholesale deals Sarasota",
+        "fix and flip Sarasota",
+        "Sarasota rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-fort-worth-tx-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Fort Worth TX: A Complete Investor's Guide for 2024",
       "excerpt": "Fort Worth is one of Texas's fastest-growing cities, creating strong opportunities for wholesalers, flippers, and landlords. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Fort Worth TX.",
@@ -15,7 +32,7 @@
         "flip houses Fort Worth",
         "Fort Worth rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-savannah-ga-the-investor-s-complete-guide-for-2024",
