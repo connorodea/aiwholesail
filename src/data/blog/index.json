@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "memorandum-of-contract-for-real-estate-wholesaling-what-it-is-and-why-you-need-o",
+      "title": "Memorandum of Contract for Real Estate Wholesaling: What It Is and Why You Need One",
+      "excerpt": "A memorandum of contract is one of the most powerful legal tools a real estate wholesaler can use to protect their deals. Learn exactly how it works, when to file it, and how to use it to stop sellers from backing out or selling to someone else.",
+      "category": "Legal",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-13T06:00:54.867Z",
+      "readTime": 7,
+      "tags": [
+        "memorandum of contract real estate wholesaling",
+        "memorandum of agreement wholesaling",
+        "cloud on title wholesaling",
+        "protect wholesale deal",
+        "assignment contract real estate"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-omaha-ne-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Omaha NE: The Investor's Complete Guide for 2024",
       "excerpt": "Omaha's stable economy and affordable home prices make it one of the Midwest's best-kept secrets for real estate investors. Discover the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Omaha NE.",
@@ -15,7 +32,7 @@
         "flip houses Omaha",
         "Omaha rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-tallahassee-fl-the-investor-s-complete-guide-for-2024",
