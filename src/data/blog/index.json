@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-nampa-id-the-investor-s-complete-guide-to-idaho-s-fastest-g",
+      "title": "Real Estate Deals in Nampa ID: The Investor's Complete Guide to Idaho's Fastest-Growing Market",
+      "excerpt": "Nampa, Idaho is one of the most overlooked yet profitable real estate markets in the Northwest. This guide breaks down where to find the best deals, which neighborhoods to target, and how to profit whether you're wholesaling, flipping, or building a rental portfolio.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-14T12:01:07.429Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Nampa ID",
+        "Nampa Idaho real estate investing",
+        "wholesale deals Nampa",
+        "flip houses Nampa Idaho",
+        "Nampa rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "is-wholesaling-real-estate-still-profitable-in-2026-the-honest-answer",
       "title": "Is Wholesaling Real Estate Still Profitable in 2026? The Honest Answer",
       "excerpt": "With rising interest rates and shifting markets, many investors are asking if wholesaling real estate is still worth pursuing in 2026. Here's what the numbers and current trends actually say.",
@@ -15,7 +32,7 @@
         "wholesale deals 2026",
         "how to wholesale real estate"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "cash-flow-vs-appreciation-which-matters-more-for-real-estate-investors",
