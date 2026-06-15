@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-get-your-real-estate-investing-license-a-step-by-step-guide",
+      "title": "How to Get Your Real Estate Investing License: A Step-by-Step Guide",
+      "excerpt": "Wondering if you need a real estate license to invest — and how to get one? This guide breaks down the licensing process, costs, timelines, and when it actually makes sense for investors.",
+      "category": "Legal",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-15T06:00:54.365Z",
+      "readTime": 7,
+      "tags": [
+        "how to get your real estate investing license",
+        "real estate license for investors",
+        "should investors get licensed",
+        "real estate license requirements",
+        "wholesaling real estate license"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-springfield-il-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Springfield IL: The Investor's Complete Guide for 2024",
       "excerpt": "Springfield, Illinois offers some of the most affordable entry points for real estate investors in the Midwest, with strong rental demand and motivated sellers driving consistent deal flow. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Springfield IL.",
@@ -15,7 +32,7 @@
         "Springfield IL rental properties",
         "Springfield IL fix and flip"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-columbia-mo-the-investor-s-complete-guide-to-mid-missouri-s",
