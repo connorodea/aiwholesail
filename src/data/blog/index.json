@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-jackson-ms-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Jackson MS: A Complete Investor's Guide for 2024",
+      "excerpt": "Jackson, Mississippi is one of the most affordable real estate markets in the country, offering serious upside for wholesalers, flippers, and buy-and-hold investors. This guide breaks down the best neighborhoods, deal types, and strategies to help you profit in the Jackson MS market.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-15T18:01:07.794Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Jackson MS",
+        "Jackson Mississippi real estate investing",
+        "wholesale real estate Jackson MS",
+        "flip houses Jackson MS",
+        "Jackson MS rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-birmingham-al-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Birmingham AL: The Investor's Complete Guide for 2024",
       "excerpt": "Birmingham, Alabama is one of the South's most underrated markets for real estate investors, offering low entry prices, strong rental demand, and consistent deal flow. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Birmingham AL.",
@@ -15,7 +32,7 @@
         "flip houses Birmingham",
         "Birmingham rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-green-bay-wi-a-complete-investor-s-guide-for-2024",
