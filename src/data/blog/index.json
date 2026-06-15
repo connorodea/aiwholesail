@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-birmingham-al-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Birmingham AL: The Investor's Complete Guide for 2024",
+      "excerpt": "Birmingham, Alabama is one of the South's most underrated markets for real estate investors, offering low entry prices, strong rental demand, and consistent deal flow. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Birmingham AL.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-15T12:01:21.422Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Birmingham AL",
+        "Birmingham Alabama real estate investing",
+        "wholesale real estate Birmingham",
+        "flip houses Birmingham",
+        "Birmingham rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-green-bay-wi-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Green Bay WI: A Complete Investor's Guide for 2024",
       "excerpt": "Green Bay, Wisconsin is quietly becoming one of the Midwest's most attractive markets for real estate investors, with affordable home prices and strong rental demand. This guide covers the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Green Bay WI.",
@@ -15,7 +32,7 @@
         "Green Bay rental properties",
         "fix and flip Green Bay WI"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "what-is-the-failure-rate-of-house-flippers-the-real-numbers-you-need-to-know",
