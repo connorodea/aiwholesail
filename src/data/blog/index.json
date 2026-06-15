@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-green-bay-wi-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Green Bay WI: A Complete Investor's Guide for 2024",
+      "excerpt": "Green Bay, Wisconsin is quietly becoming one of the Midwest's most attractive markets for real estate investors, with affordable home prices and strong rental demand. This guide covers the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Green Bay WI.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-15T12:01:08.393Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Green Bay WI",
+        "Green Bay Wisconsin real estate investing",
+        "wholesale real estate Green Bay",
+        "Green Bay rental properties",
+        "fix and flip Green Bay WI"
+      ],
+      "featured": true
+    },
+    {
       "slug": "what-is-the-failure-rate-of-house-flippers-the-real-numbers-you-need-to-know",
       "title": "What Is the Failure Rate of House Flippers? The Real Numbers You Need to Know",
       "excerpt": "Most new house flippers lose money on their first deal — but the reasons why are predictable and avoidable. Here's what the data says about flip failure rates and how smart investors beat the odds.",
@@ -15,7 +32,7 @@
         "real estate flipping risks",
         "house flipping tips"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-get-your-real-estate-investing-license-a-step-by-step-guide",
