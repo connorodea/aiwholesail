@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-chicago-il-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Chicago IL: A Complete Investor's Guide for 2024",
+      "excerpt": "Chicago offers some of the most diverse and profitable real estate deals in the Midwest, from wholesale opportunities in emerging neighborhoods to strong rental cash flow on the South Side. This guide breaks down exactly where to find deals, what to pay, and how to profit in the Chicago market.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-16T18:01:07.646Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Chicago IL",
+        "Chicago real estate investing",
+        "wholesale real estate Chicago",
+        "flip houses Chicago",
+        "Chicago rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-lakeland-fl-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Lakeland FL: A Complete Investor's Guide for 2024",
       "excerpt": "Lakeland, Florida is one of the most overlooked yet profitable real estate markets in the state, offering strong rental demand, affordable entry points, and growing appreciation. This guide covers everything investors need to know to find and close profitable real estate deals in Lakeland FL.",
@@ -15,7 +32,7 @@
         "investment properties Lakeland",
         "Lakeland FL rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-syracuse-ny-a-complete-investor-s-guide-for-2024",
