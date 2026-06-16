@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-use-mls-data-to-analyze-investment-properties-like-a-pro",
+      "title": "How to Use MLS Data to Analyze Investment Properties Like a Pro",
+      "excerpt": "MLS data is one of the most powerful tools available to real estate investors, but most people only scratch the surface of what it can reveal. Learn how to dig deeper into comps, days on market, price trends, and more to find your next profitable deal.",
+      "category": "Comparable Sales",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-16T06:00:59.573Z",
+      "readTime": 7,
+      "tags": [
+        "how to use MLS data to analyze investment properties",
+        "MLS data for investors",
+        "real estate comps",
+        "investment property analysis",
+        "MLS market trends"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-savannah-ga-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Savannah GA: A Complete Investor's Guide for 2024",
       "excerpt": "Savannah, Georgia is one of the Southeast's most overlooked real estate markets, offering strong rental demand, rising home values, and wholesale opportunities for savvy investors. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Savannah GA.",
@@ -15,7 +32,7 @@
         "Savannah investment properties",
         "flip houses Savannah Georgia"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-jackson-ms-a-complete-investor-s-guide-for-2024",
