@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-investing-certificate-program-online-what-you-need-to-know-before-yo",
+      "title": "Real Estate Investing Certificate Program Online: What You Need to Know Before You Enroll",
+      "excerpt": "Online real estate investing certificate programs can fast-track your education, but not all programs deliver equal value. Here's how to choose the right one and what to expect from your investment.",
+      "category": "Education",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-16T06:01:09.680Z",
+      "readTime": 7,
+      "tags": [
+        "real estate investing certificate program online",
+        "online real estate investing course",
+        "real estate wholesaling certification",
+        "real estate investor education",
+        "best real estate courses online"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-use-mls-data-to-analyze-investment-properties-like-a-pro",
       "title": "How to Use MLS Data to Analyze Investment Properties Like a Pro",
       "excerpt": "MLS data is one of the most powerful tools available to real estate investors, but most people only scratch the surface of what it can reveal. Learn how to dig deeper into comps, days on market, price trends, and more to find your next profitable deal.",
@@ -15,7 +32,7 @@
         "investment property analysis",
         "MLS market trends"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-savannah-ga-a-complete-investor-s-guide-for-2024",
