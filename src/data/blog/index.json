@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-rochester-mn-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Rochester MN: A Complete Investor's Guide for 2024",
+      "excerpt": "Rochester, Minnesota is one of the Midwest's most overlooked real estate markets, offering stable demand, strong rental yields, and growing wholesale opportunities. This guide breaks down exactly how to find and profit from real estate deals in Rochester MN.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-17T12:01:08.832Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Rochester MN",
+        "Rochester MN real estate investing",
+        "wholesale real estate Rochester",
+        "Rochester MN rental properties",
+        "Rochester MN house flipping"
+      ],
+      "featured": true
+    },
+    {
       "slug": "what-happens-if-a-tenant-destroys-your-property-and-how-to-protect-yourself",
       "title": "What Happens If a Tenant Destroys Your Property (And How to Protect Yourself)",
       "excerpt": "Tenant damage is one of the most stressful situations a landlord can face. This guide walks you through exactly what to do, what your legal rights are, and how to recover your losses fast.",
@@ -15,7 +32,7 @@
         "security deposit damage",
         "sue tenant for damages"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "is-now-a-good-time-to-invest-in-real-estate-what-the-numbers-say-in-2025",
