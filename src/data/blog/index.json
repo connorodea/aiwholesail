@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-columbus-oh-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Columbus OH: The Investor's Complete Guide for 2024",
+      "excerpt": "Columbus, Ohio is one of the hottest real estate markets in the Midwest, offering strong rental demand, affordable entry points, and consistent appreciation. Here's everything investors need to know to find profitable deals in Columbus right now.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-17T18:02:09.184Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Columbus OH",
+        "Columbus Ohio real estate investing",
+        "wholesale deals Columbus",
+        "Columbus investment properties",
+        "Columbus OH rental market"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-amarillo-tx-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Amarillo TX: The Investor's Complete Guide for 2024",
       "excerpt": "Amarillo, Texas is emerging as one of the Southwest's most overlooked markets for real estate investors. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Amarillo TX.",
@@ -15,7 +32,7 @@
         "investment properties Amarillo TX",
         "Amarillo TX rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-santa-fe-nm-the-investor-s-complete-guide-for-2024",
