@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "is-now-a-good-time-to-invest-in-real-estate-what-the-numbers-say-in-2025",
+      "title": "Is Now a Good Time to Invest in Real Estate? What the Numbers Say in 2025",
+      "excerpt": "With interest rates shifting and home prices staying elevated, many investors are asking whether now is a good time to invest in real estate. Here's a data-driven look at the current market and how smart investors are finding deals anyway.",
+      "category": "Market Analysis",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-17T06:00:57.452Z",
+      "readTime": 7,
+      "tags": [
+        "is now a good time to invest in real estate",
+        "real estate investing 2025",
+        "real estate market outlook",
+        "best time to buy investment property",
+        "real estate deals 2025"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-bowling-green-ky-the-investor-s-complete-guide",
       "title": "Real Estate Deals in Bowling Green KY: The Investor's Complete Guide",
       "excerpt": "Bowling Green, Kentucky is one of the South's most underrated real estate markets, offering strong rental demand, affordable entry points, and growing population. This guide covers everything investors need to know to find profitable deals in 2024.",
@@ -15,7 +32,7 @@
         "investment properties Bowling Green KY",
         "Bowling Green rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-chicago-il-a-complete-investor-s-guide-for-2024",
