@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-independence-mo-a-complete-investor-s-guide",
+      "title": "Real Estate Deals in Independence MO: A Complete Investor's Guide",
+      "excerpt": "Independence, Missouri is one of the Kansas City metro's best-kept secrets for real estate investors. This guide breaks down the local market, top neighborhoods, and practical strategies for finding profitable deals in Independence MO.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-18T18:01:00.341Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Independence MO",
+        "Independence Missouri real estate investing",
+        "wholesale deals Independence MO",
+        "fix and flip Independence Missouri",
+        "rental properties Independence MO"
+      ],
+      "featured": true
+    },
+    {
       "slug": "finding-profitable-real-estate-deals-in-richmond-va-a-complete-investor-s-guide",
       "title": "Finding Profitable Real Estate Deals in Richmond VA: A Complete Investor's Guide",
       "excerpt": "Richmond, VA is one of the Southeast's most overlooked real estate markets, offering strong rental demand, affordable entry points, and growing equity for investors. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Richmond VA.",
@@ -15,7 +32,7 @@
         "Richmond VA rental properties",
         "Richmond VA house flipping"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-worcester-ma-the-investor-s-complete-guide-for-2024",
