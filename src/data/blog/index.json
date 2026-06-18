@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-wholesale-real-estate-with-no-money-a-step-by-step-beginner-s-guide",
+      "title": "How to Wholesale Real Estate with No Money: A Step-by-Step Beginner's Guide",
+      "excerpt": "You don't need cash, credit, or a real estate license to start wholesaling properties. Learn the exact steps to close your first wholesale deal with zero money out of pocket.",
+      "category": "Beginner Guide",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-18T06:02:00.937Z",
+      "readTime": 7,
+      "tags": [
+        "how to wholesale real estate with no money",
+        "wholesaling real estate no money",
+        "real estate wholesaling beginners",
+        "wholesale real estate step by step",
+        "no money real estate investing"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-keep-books-and-records-for-rental-property-taxes-step-by-step-guide",
       "title": "How to Keep Books and Records for Rental Property Taxes (Step-by-Step Guide)",
       "excerpt": "Good recordkeeping is the backbone of a profitable rental portfolio and a stress-free tax season. Learn exactly how to keep books and records for rental property taxes so you never leave money on the table.",
@@ -15,7 +32,7 @@
         "rental income tracking",
         "real estate tax deductions"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-columbus-oh-the-investor-s-complete-guide-for-2024",
