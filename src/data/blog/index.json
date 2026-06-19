@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-wholesale-commercial-property-a-step-by-step-guide-for-real-estate-invest",
+      "title": "How to Wholesale Commercial Property: A Step-by-Step Guide for Real Estate Investors",
+      "excerpt": "Commercial wholesaling offers bigger assignment fees and less competition than residential deals — but the process works differently. This guide walks you through exactly how to wholesale commercial property, from finding deals to closing your first assignment.",
+      "category": "Strategy",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-19T06:02:24.615Z",
+      "readTime": 7,
+      "tags": [
+        "how to wholesale commercial property",
+        "commercial real estate wholesaling",
+        "wholesale commercial deals",
+        "commercial property assignment",
+        "commercial real estate investing"
+      ],
+      "featured": true
+    },
+    {
       "slug": "llc-vs-s-corp-for-real-estate-investors-which-is-better-in-2025",
       "title": "LLC vs S Corp for Real Estate Investors: Which Is Better in 2025?",
       "excerpt": "Choosing between an LLC and an S corp can save real estate investors thousands in taxes every year. This guide breaks down the key differences, pros, cons, and exactly when each structure makes sense for your investing business.",
@@ -15,7 +32,7 @@
         "best entity structure real estate",
         "real estate business taxes"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-pensacola-fl-the-investor-s-complete-guide-for-2024",
