@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-winston-salem-nc-the-investor-s-complete-guide",
+      "title": "Real Estate Deals in Winston-Salem NC: The Investor's Complete Guide",
+      "excerpt": "Winston-Salem NC is emerging as one of the Southeast's most overlooked real estate markets, with affordable home prices, strong rental demand, and growing job opportunities. This guide breaks down the best neighborhoods, deal types, and strategies for investors looking to profit in the Camel City.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-19T12:02:58.356Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Winston-Salem NC",
+        "Winston-Salem investment properties",
+        "wholesaling Winston-Salem",
+        "Winston-Salem rental properties",
+        "off-market deals Winston-Salem"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-virginia-beach-va-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Virginia Beach VA: The Investor's Complete Guide for 2024",
       "excerpt": "Virginia Beach is one of Virginia's most active real estate markets, offering strong opportunities for wholesalers, flippers, and landlords alike. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Virginia Beach VA.",
@@ -15,7 +32,7 @@
         "flip houses Virginia Beach",
         "Virginia Beach rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-wholesale-commercial-property-a-step-by-step-guide-for-real-estate-invest",
