@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "llc-vs-s-corp-for-real-estate-investors-which-is-better-in-2025",
+      "title": "LLC vs S Corp for Real Estate Investors: Which Is Better in 2025?",
+      "excerpt": "Choosing between an LLC and an S corp can save real estate investors thousands in taxes every year. This guide breaks down the key differences, pros, cons, and exactly when each structure makes sense for your investing business.",
+      "category": "LLC",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-19T06:00:59.388Z",
+      "readTime": 7,
+      "tags": [
+        "LLC vs S corp real estate investors",
+        "real estate LLC",
+        "S corp real estate",
+        "best entity structure real estate",
+        "real estate business taxes"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-pensacola-fl-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Pensacola FL: The Investor's Complete Guide for 2024",
       "excerpt": "Pensacola, FL is one of the Gulf Coast's most underrated markets for real estate investors. Discover the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Pensacola FL.",
@@ -15,7 +32,7 @@
         "flip houses Pensacola",
         "Pensacola rental property"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-independence-mo-a-complete-investor-s-guide",
