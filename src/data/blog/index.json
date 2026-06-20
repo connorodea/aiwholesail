@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-find-profitable-real-estate-deals-in-omaha-ne-2024-investor-s-guide",
+      "title": "How to Find Profitable Real Estate Deals in Omaha NE (2024 Investor's Guide)",
+      "excerpt": "Omaha's steady economy and affordable home prices make it one of the Midwest's best-kept secrets for real estate investors. Discover the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Omaha NE.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-20T12:01:50.236Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Omaha NE",
+        "Omaha real estate investing",
+        "Omaha wholesale deals",
+        "investment properties Omaha",
+        "Omaha fix and flip"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-lexington-ky-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Lexington KY: The Investor's Complete Guide for 2024",
       "excerpt": "Lexington, Kentucky is one of the South's most underrated real estate markets, offering investors strong rental demand, affordable entry points, and growing home values. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Lexington KY.",
@@ -15,7 +32,7 @@
         "investment properties Lexington Kentucky",
         "Lexington KY rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "gross-rent-multiplier-what-is-a-good-grm-and-how-to-use-it",
