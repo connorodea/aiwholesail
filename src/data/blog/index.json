@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "gross-rent-multiplier-what-is-a-good-grm-and-how-to-use-it",
+      "title": "Gross Rent Multiplier: What Is a Good GRM and How to Use It",
+      "excerpt": "The gross rent multiplier is one of the fastest ways to screen rental properties before doing a deep analysis. Learn what a good GRM looks like, how to calculate it, and when to use it in your investing strategy.",
+      "category": "Analysis",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-20T06:02:37.484Z",
+      "readTime": 7,
+      "tags": [
+        "gross rent multiplier",
+        "what is a good GRM",
+        "GRM real estate",
+        "how to calculate gross rent multiplier",
+        "rental property analysis"
+      ],
+      "featured": true
+    },
+    {
       "slug": "housing-market-crash-indicators-to-watch-in-2024-and-what-to-do-about-them",
       "title": "Housing Market Crash Indicators to Watch in 2024 (And What to Do About Them)",
       "excerpt": "Knowing the warning signs of a housing market downturn can be the difference between a profitable year and a devastating loss. Here are the key housing market crash indicators every real estate investor should monitor right now.",
@@ -15,7 +32,7 @@
         "real estate investing 2024",
         "market downturn signals"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-kissimmee-fl-the-investor-s-complete-guide-for-2024",

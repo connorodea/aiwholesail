@@ -1,0 +1,191 @@
+{
+  "slug": "gross-rent-multiplier-what-is-a-good-grm-and-how-to-use-it",
+  "title": "Gross Rent Multiplier: What Is a Good GRM and How to Use It",
+  "excerpt": "The gross rent multiplier is one of the fastest ways to screen rental properties before doing a deep analysis. Learn what a good GRM looks like, how to calculate it, and when to use it in your investing strategy.",
+  "category": "Analysis",
+  "author": "AIWholesail Team",
+  "publishedAt": "2026-06-20T06:02:37.484Z",
+  "readTime": 7,
+  "tags": [
+    "gross rent multiplier",
+    "what is a good GRM",
+    "GRM real estate",
+    "how to calculate gross rent multiplier",
+    "rental property analysis"
+  ],
+  "metaDescription": "What is a good gross rent multiplier? Learn how to calculate GRM, what numbers to target by market, and how to use it to screen rental deals fast.",
+  "metaKeywords": "gross rent multiplier, what is a good GRM, GRM real estate, how to calculate gross rent multiplier, rental property analysis, GRM formula, investment property screening",
+  "sections": [
+    {
+      "type": "paragraph",
+      "content": "If you've ever looked at a rental property and wondered whether the numbers make sense before running a full analysis, the gross rent multiplier is the tool you need. It's a quick, back-of-the-envelope calculation that helps you filter deals in seconds. Understanding the gross rent multiplier — and knowing what is a good GRM for your market — can save you hours of wasted analysis on deals that never had a chance. For a complete framework on evaluating investment properties, check out our guide on [How to Analyze Real Estate Deals Like a Pro](https://aiwholesail.com/guides/real-estate-deal-analysis)."
+    },
+    {
+      "type": "heading",
+      "content": "What Is the Gross Rent Multiplier?"
+    },
+    {
+      "type": "paragraph",
+      "content": "The gross rent multiplier (GRM) is a simple ratio that compares a property's purchase price to its gross annual rental income. It tells you how many years it would take for the property's gross rent to equal the purchase price — before any expenses. The lower the GRM, the faster the property generates income relative to what you paid for it."
+    },
+    {
+      "type": "subheading",
+      "content": "The GRM Formula"
+    },
+    {
+      "type": "paragraph",
+      "content": "The formula is straightforward: GRM = Property Price ÷ Gross Annual Rent. For example, if you buy a rental home for $180,000 and it rents for $1,500 per month ($18,000 per year), the GRM is 180,000 ÷ 18,000 = 10. That means the property earns its purchase price in gross rent over 10 years. You can also reverse the formula to estimate value: Property Value = GRM × Gross Annual Rent. If comparable rentals in your market sell at a GRM of 8, and your target property rents for $18,000 per year, the implied value is 8 × 18,000 = $144,000."
+    },
+    {
+      "type": "heading",
+      "content": "What Is a Good GRM in Real Estate?"
+    },
+    {
+      "type": "paragraph",
+      "content": "This is where most investors get confused, because a good GRM is not a fixed number — it depends heavily on your market. In general, a lower GRM signals a better deal because you're paying less for each dollar of rent the property generates. However, high-appreciation markets tend to have higher GRMs, and that's not always a red flag if your strategy includes long-term equity growth."
+    },
+    {
+      "type": "list",
+      "items": [
+        "GRM of 4–6: Excellent — common in low-cost, high-rent markets like parts of the Midwest and South",
+        "GRM of 7–9: Good — solid cash flow potential in most mid-tier markets",
+        "GRM of 10–12: Acceptable — borderline cash flow, likely requires careful expense management",
+        "GRM of 13–16: Marginal — common in expensive coastal and high-appreciation markets",
+        "GRM above 16: Difficult to cash flow — only appropriate for appreciation-focused strategies"
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": "Markets like [Atlanta, GA](https://aiwholesail.com/markets/atlanta-ga) and [Dallas, TX](https://aiwholesail.com/markets/dallas-tx) often see GRMs in the 8–12 range, making them popular targets for cash flow investors. Meanwhile, a market like [Phoenix, AZ](https://aiwholesail.com/markets/phoenix-az) has seen GRMs push higher as home prices rose faster than rents over the past few years. Always benchmark GRM against local comps, not national averages."
+    },
+    {
+      "type": "tip",
+      "content": "Pro Tip: Never use GRM in isolation. It ignores vacancy, operating expenses, property taxes, and insurance. Use it as a first filter — if a property passes the GRM test, then run a full cash flow analysis. Try the free [Cash Flow Calculator](https://aiwholesail.com/tools/cash-flow-calculator) at AIWholesail to dig deeper on any deal that clears your GRM threshold."
+    },
+    {
+      "type": "heading",
+      "content": "How to Calculate GRM Step by Step"
+    },
+    {
+      "type": "paragraph",
+      "content": "Let's walk through a real example so you can see exactly how this works in practice."
+    },
+    {
+      "type": "list",
+      "items": [
+        "Step 1 — Find the listing price: The property is listed at $220,000",
+        "Step 2 — Determine gross monthly rent: The current tenant pays $1,800/month",
+        "Step 3 — Calculate gross annual rent: $1,800 × 12 = $21,600",
+        "Step 4 — Divide price by annual rent: $220,000 ÷ $21,600 = 10.19 GRM",
+        "Step 5 — Compare to local comps: If your market average GRM is 9, this deal is slightly above average — worth deeper analysis but not a slam dunk",
+        "Step 6 — Run full numbers: Use operating expenses, vacancy rate, and financing costs to calculate actual cash flow and ROI"
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": "That sixth step is critical. GRM only uses gross rent — it doesn't account for property taxes, maintenance, vacancy, or management fees. A property with a GRM of 9 can still be a bad investment if it's in a high-expense market. Always follow up a GRM screening with a complete analysis. Our article on [How to Calculate ROI on Rental Property](https://aiwholesail.com/blog/how-to-calculate-roi-rental) walks through the next layer of numbers you'll need."
+    },
+    {
+      "type": "heading",
+      "content": "GRM vs. Cap Rate: What's the Difference?"
+    },
+    {
+      "type": "paragraph",
+      "content": "Investors often ask whether GRM or cap rate is more useful. The honest answer is both, at different stages of analysis. GRM is faster and needs less information — you only need price and rent. Cap rate requires net operating income (NOI), which means you need to estimate all operating expenses first. Use GRM to screen dozens of deals quickly. Switch to cap rate when you've narrowed down to your top two or three candidates. A property with a GRM of 8 and a 7% cap rate is almost always a stronger candidate than one with a GRM of 8 and a 5% cap rate — even though both look similar on the surface."
+    },
+    {
+      "type": "quote",
+      "content": "\"The gross rent multiplier gets you in the door. The cash flow analysis tells you whether to stay.\" — Common wisdom among experienced rental property investors"
+    },
+    {
+      "type": "heading",
+      "content": "When GRM Can Mislead You"
+    },
+    {
+      "type": "paragraph",
+      "content": "GRM has real blind spots that every investor should know. First, it uses gross rent — so a property with below-market rents will show a worse GRM than it deserves. If you're buying a value-add deal where rents are $200/month below market, the real GRM after renovation could look much better. This is why understanding rehab costs matters so much — you need to factor in what it costs to get the property to market-rate rent. See our guide on [How to Estimate Rehab Costs for Investment Properties](https://aiwholesail.com/blog/how-to-estimate-rehab-costs) to build that part of your analysis."
+    },
+    {
+      "type": "paragraph",
+      "content": "Second, GRM ignores property condition, neighborhood trajectory, and expense ratios. A fourplex with a GRM of 7 might look incredible until you realize it needs $80,000 in roof and foundation work. Always pair GRM with a physical inspection and a realistic rehab budget. Similarly, if you're comparing properties with different layouts, ages, or amenities, make sure you're adjusting your rent estimates appropriately — our article on [How to Adjust Comps for Property Differences](https://aiwholesail.com/blog/how-to-adjust-real-estate-comps) explains how to do that accurately."
+    },
+    {
+      "type": "subheading",
+      "content": "GRM and the BRRRR Strategy"
+    },
+    {
+      "type": "paragraph",
+      "content": "If you're using the BRRRR method — Buy, Rehab, Rent, Refinance, Repeat — GRM becomes especially useful at the acquisition stage. You want to find properties with a post-rehab GRM that beats your market average, which signals strong rent-to-value ratios after the refinance. The goal is to pull out as much of your invested capital as possible while keeping strong cash flow. Learn more about structuring these deals in our [BRRRR Method Real Estate](https://aiwholesail.com/guides/brrrr-method-explained) guide. If you're new to investing altogether, start with [Real Estate Investing for Beginners](https://aiwholesail.com/guides/real-estate-investing-for-beginners) before diving into advanced strategies."
+    },
+    {
+      "type": "tip",
+      "content": "Pro Tip: When analyzing a value-add deal, calculate two GRM figures — one based on current rent and one based on projected market rent after improvements. The gap between these two numbers shows the upside potential of the deal."
+    },
+    {
+      "type": "heading",
+      "content": "How to Use GRM to Set Your Maximum Offer"
+    },
+    {
+      "type": "paragraph",
+      "content": "Once you know what a good GRM looks like in your target market, you can use it to work backward to a maximum offer price. If comparable rentals sell at a GRM of 8, and your target property has a gross annual rent of $24,000, your maximum price to hit that GRM would be 8 × $24,000 = $192,000. If the seller is asking $220,000, you know right away the deal is overpriced relative to local income metrics — giving you a data-backed starting point for negotiation."
+    },
+    {
+      "type": "paragraph",
+      "content": "This approach works especially well when you're evaluating multiple properties in the same area. By comparing GRMs across similar deals, you can quickly rank them by income efficiency and focus your deeper analysis on the strongest candidates. It turns what used to be hours of spreadsheet work into a reliable 60-second screening process."
+    },
+    {
+      "type": "cta",
+      "content": "Ready to find rental properties with strong GRM numbers without spending hours on manual research? AIWholesail uses AI to surface off-market deals and help you screen them fast. Start your free trial at aiwholesail.com and run your first deal analysis today — no credit card required."
+    }
+  ],
+  "relatedLinks": {
+    "pillarPage": {
+      "title": "How to Analyze Real Estate Deals Like a Pro",
+      "url": "/guides/real-estate-deal-analysis"
+    },
+    "siblingArticles": [
+      {
+        "title": "How to Estimate Rehab Costs for Investment Properties",
+        "url": "/blog/how-to-estimate-rehab-costs"
+      },
+      {
+        "title": "How to Adjust Comps for Property Differences",
+        "url": "/blog/how-to-adjust-real-estate-comps"
+      },
+      {
+        "title": "How to Calculate ROI on Rental Property",
+        "url": "/blog/how-to-calculate-roi-rental"
+      }
+    ],
+    "relatedGuides": [
+      {
+        "title": "Real Estate Investing for Beginners",
+        "url": "/guides/real-estate-investing-for-beginners"
+      },
+      {
+        "title": "BRRRR Method Real Estate",
+        "url": "/guides/brrrr-method-explained"
+      }
+    ],
+    "relatedTools": [
+      {
+        "tool": "Cash Flow Calculator",
+        "url": "/tools/cash-flow-calculator"
+      }
+    ],
+    "relatedMarkets": [
+      {
+        "slug": "atlanta-ga",
+        "url": "/markets/atlanta-ga"
+      },
+      {
+        "slug": "dallas-tx",
+        "url": "/markets/dallas-tx"
+      },
+      {
+        "slug": "phoenix-az",
+        "url": "/markets/phoenix-az"
+      }
+    ]
+  }
+}
