@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-anchorage-ak-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Anchorage AK: A Complete Investor's Guide for 2024",
+      "excerpt": "Anchorage, Alaska offers surprisingly strong real estate investment opportunities with stable rental demand, motivated sellers, and less competition than Lower 48 markets. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Anchorage AK.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-21T12:01:26.438Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Anchorage AK",
+        "Anchorage real estate investing",
+        "Anchorage wholesale deals",
+        "investment properties Anchorage Alaska",
+        "Anchorage rental market"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-montgomery-al-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Montgomery AL: A Complete Investor's Guide for 2024",
       "excerpt": "Montgomery, Alabama is quietly becoming one of the South's most attractive markets for real estate investors, with low entry prices and strong rental demand. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Montgomery AL.",
@@ -15,7 +32,7 @@
         "investment properties Montgomery AL",
         "Montgomery AL rental market"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "best-websites-to-find-foreclosed-homes-for-investing-2026-guide",
