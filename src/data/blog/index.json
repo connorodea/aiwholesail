@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-montgomery-al-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Montgomery AL: A Complete Investor's Guide for 2024",
+      "excerpt": "Montgomery, Alabama is quietly becoming one of the South's most attractive markets for real estate investors, with low entry prices and strong rental demand. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Montgomery AL.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-21T12:01:02.293Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Montgomery AL",
+        "Montgomery Alabama real estate investing",
+        "wholesale real estate Montgomery",
+        "investment properties Montgomery AL",
+        "Montgomery AL rental market"
+      ],
+      "featured": true
+    },
+    {
       "slug": "best-websites-to-find-foreclosed-homes-for-investing-2026-guide",
       "title": "Best Websites to Find Foreclosed Homes for Investing (2026 Guide)",
       "excerpt": "Discover the top websites real estate investors use to find foreclosed homes before they hit the open market. This guide breaks down each platform, what it costs, and how to turn foreclosure listings into profitable deals.",
@@ -15,7 +32,7 @@
         "foreclosure listings for investors",
         "REO properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-transition-from-flipping-to-buy-and-hold-a-step-by-step-guide",
