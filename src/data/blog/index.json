@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-transition-from-flipping-to-buy-and-hold-a-step-by-step-guide",
+      "title": "How to Transition from Flipping to Buy and Hold: A Step-by-Step Guide",
+      "excerpt": "Flipping houses builds fast cash, but buy and hold investing builds lasting wealth. Learn exactly how to make the shift without losing momentum or leaving money on the table.",
+      "category": "Strategy",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-21T06:01:01.121Z",
+      "readTime": 7,
+      "tags": [
+        "how to transition from flipping to buy and hold",
+        "buy and hold real estate",
+        "rental property investing",
+        "flipping vs buy and hold",
+        "real estate wealth building"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-lancaster-ca-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Lancaster CA: A Complete Investor's Guide for 2024",
       "excerpt": "Lancaster, CA is emerging as one of the Antelope Valley's most attractive markets for real estate investors seeking high returns. This guide covers local market trends, top neighborhoods, and actionable strategies for finding profitable deals in Lancaster.",
@@ -15,7 +32,7 @@
         "fix and flip Lancaster CA",
         "Antelope Valley real estate investing"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-kansas-city-mo-the-investor-s-complete-guide-for-2024",
