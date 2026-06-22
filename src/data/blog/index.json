@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-overland-park-ks-the-investor-s-complete-guide",
+      "title": "Real Estate Deals in Overland Park KS: The Investor's Complete Guide",
+      "excerpt": "Overland Park, Kansas is one of the Midwest's most overlooked markets for real estate investors, offering strong rental demand, affordable entry points, and growing appreciation. This guide breaks down everything you need to find profitable real estate deals in Overland Park KS, from the best neighborhoods to the numbers that make deals work.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-22T18:01:09.474Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Overland Park KS",
+        "Overland Park real estate investing",
+        "wholesale deals Overland Park",
+        "flip houses Overland Park Kansas",
+        "rental properties Overland Park KS"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-youngstown-oh-the-investor-s-complete-guide-to-this-high-ca",
       "title": "Real Estate Deals in Youngstown OH: The Investor's Complete Guide to This High-Cash-Flow Market",
       "excerpt": "Youngstown, Ohio is one of the most affordable real estate markets in the country, offering investors strong cash flow and deep discount deals. Here's everything you need to know to find and profit from real estate deals in Youngstown OH.",
@@ -15,7 +32,7 @@
         "Youngstown investment properties",
         "cheap houses Youngstown Ohio"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-find-profitable-real-estate-deals-in-boca-raton-fl-2024-investor-guide",
