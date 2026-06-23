@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-find-a-real-estate-investing-coach-and-actually-get-your-money-s-worth",
+      "title": "How to Find a Real Estate Investing Coach (And Actually Get Your Money's Worth)",
+      "excerpt": "Finding the right real estate investing coach can cut years off your learning curve and help you close deals faster. Here's a step-by-step guide to identifying, vetting, and working with a coach who delivers real results.",
+      "category": "Education",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-23T06:02:12.176Z",
+      "readTime": 7,
+      "tags": [
+        "how to find a real estate investing coach",
+        "real estate coaching",
+        "real estate mentor",
+        "real estate investing coach",
+        "wholesale real estate coach"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-contract-contingencies-every-investor-needs-to-know",
       "title": "Real Estate Contract Contingencies Every Investor Needs to Know",
       "excerpt": "Contract contingencies are your legal safety net in any real estate deal — skip the wrong ones and you could lose your earnest money or get stuck in a bad investment. Learn the essential contingencies every investor should include before signing on the dotted line.",
@@ -15,7 +32,7 @@
         "financing contingency",
         "wholesaling contracts"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-hialeah-fl-the-investor-s-complete-guide-for-2024",
