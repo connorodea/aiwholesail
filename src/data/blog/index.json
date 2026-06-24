@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-find-reliable-contractors-for-house-flipping-without-getting-burned",
+      "title": "How to Find Reliable Contractors for House Flipping (Without Getting Burned)",
+      "excerpt": "Finding trustworthy contractors is one of the biggest challenges in house flipping — bad hires can drain your profits fast. This guide shows you exactly how to vet, hire, and manage contractors so your rehab stays on budget and on schedule.",
+      "category": "Contractor Tips",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-24T06:02:39.882Z",
+      "readTime": 7,
+      "tags": [
+        "how to find reliable contractors for house flipping",
+        "house flipping contractors",
+        "rehab contractors",
+        "vetting contractors",
+        "real estate investing"
+      ],
+      "featured": true
+    },
+    {
       "slug": "1031-exchange-rules-and-timeline-explained-simply-for-real-estate-investors",
       "title": "1031 Exchange Rules and Timeline Explained Simply for Real Estate Investors",
       "excerpt": "A 1031 exchange lets you defer capital gains taxes when you sell an investment property — but the rules and deadlines are strict. This guide breaks down everything you need to know in plain English.",
@@ -15,7 +32,7 @@
         "like-kind exchange",
         "real estate tax deferral"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-find-profitable-real-estate-deals-in-oxnard-ca-2024-investor-guide",
