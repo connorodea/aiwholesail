@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-find-profitable-real-estate-deals-in-charleston-sc-in-2024",
+      "title": "How to Find Profitable Real Estate Deals in Charleston SC in 2024",
+      "excerpt": "Charleston, SC is one of the Southeast's hottest real estate markets, offering strong opportunities for wholesalers, flippers, and rental investors alike. Here's everything you need to know to find and close profitable deals in the Holy City.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-24T12:01:09.674Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Charleston SC",
+        "Charleston SC real estate investing",
+        "wholesale real estate Charleston",
+        "flip houses Charleston SC",
+        "Charleston rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-find-reliable-contractors-for-house-flipping-without-getting-burned",
       "title": "How to Find Reliable Contractors for House Flipping (Without Getting Burned)",
       "excerpt": "Finding trustworthy contractors is one of the biggest challenges in house flipping — bad hires can drain your profits fast. This guide shows you exactly how to vet, hire, and manage contractors so your rehab stays on budget and on schedule.",
@@ -15,7 +32,7 @@
         "vetting contractors",
         "real estate investing"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "1031-exchange-rules-and-timeline-explained-simply-for-real-estate-investors",
