@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-colorado-springs-co-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Colorado Springs CO: The Investor's Complete Guide for 2024",
+      "excerpt": "Colorado Springs is one of Colorado's hottest markets for real estate investors, offering strong rental demand, solid appreciation, and untapped wholesale opportunities. Here's everything you need to know to find profitable real estate deals in Colorado Springs CO.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-24T12:03:01.549Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Colorado Springs CO",
+        "Colorado Springs real estate investing",
+        "wholesale deals Colorado Springs",
+        "fix and flip Colorado Springs",
+        "Colorado Springs rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-find-profitable-real-estate-deals-in-charleston-sc-in-2024",
       "title": "How to Find Profitable Real Estate Deals in Charleston SC in 2024",
       "excerpt": "Charleston, SC is one of the Southeast's hottest real estate markets, offering strong opportunities for wholesalers, flippers, and rental investors alike. Here's everything you need to know to find and close profitable deals in the Holy City.",
@@ -15,7 +32,7 @@
         "flip houses Charleston SC",
         "Charleston rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-find-reliable-contractors-for-house-flipping-without-getting-burned",
