@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "crm-vs-spreadsheet-for-managing-real-estate-leads-which-one-wins",
+      "title": "CRM vs Spreadsheet for Managing Real Estate Leads: Which One Wins?",
+      "excerpt": "Choosing between a CRM and a spreadsheet for managing real estate leads can make or break your deal pipeline. This guide breaks down the real costs, benefits, and when to upgrade so you never lose a motivated seller again.",
+      "category": "CRM",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-25T06:02:20.317Z",
+      "readTime": 7,
+      "tags": [
+        "CRM vs spreadsheet real estate",
+        "managing real estate leads",
+        "real estate CRM",
+        "wholesaling leads",
+        "real estate investor tools"
+      ],
+      "featured": true
+    },
+    {
       "slug": "dealmachine-pricing-plans-2026-what-real-estate-investors-need-to-know",
       "title": "DealMachine Pricing Plans 2026: What Real Estate Investors Need to Know",
       "excerpt": "Thinking about subscribing to DealMachine in 2026? This guide breaks down every pricing tier, what you get for your money, and how to decide if it fits your investing strategy.",
@@ -15,7 +32,7 @@
         "real estate wholesaling tools",
         "deal finding software"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-missoula-mt-a-complete-investor-s-guide-for-2024",
