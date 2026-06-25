@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-topeka-ks-the-investor-s-complete-guide-to-profits-in-the-c",
+      "title": "Real Estate Deals in Topeka KS: The Investor's Complete Guide to Profits in the Capital City",
+      "excerpt": "Topeka, Kansas offers real estate investors some of the most affordable entry points in the Midwest, with strong rental demand and consistent deal flow. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Topeka KS.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-25T12:02:17.400Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Topeka KS",
+        "Topeka Kansas real estate investing",
+        "wholesale real estate Topeka",
+        "fix and flip Topeka KS",
+        "rental properties Topeka Kansas"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-find-profitable-real-estate-deals-in-port-st-lucie-fl-2024-investor-guide",
       "title": "How to Find Profitable Real Estate Deals in Port St. Lucie FL (2024 Investor Guide)",
       "excerpt": "Port St. Lucie is one of Florida's fastest-growing cities, creating strong opportunities for wholesalers, flippers, and landlords. This guide breaks down the local market, best neighborhoods, and practical strategies for finding real estate deals in Port St. Lucie FL.",
@@ -15,7 +32,7 @@
         "fix and flip Port St. Lucie",
         "Port St. Lucie rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "crm-vs-spreadsheet-for-managing-real-estate-leads-which-one-wins",
