@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "hoa-rental-restrictions-for-investors-what-you-must-know-before-you-buy",
+      "title": "HOA Rental Restrictions for Investors: What You Must Know Before You Buy",
+      "excerpt": "HOA rental restrictions can turn a promising investment property into a cash flow nightmare overnight. Learn how to research, navigate, and avoid costly HOA rules before you close on your next deal.",
+      "category": "Legal",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-26T06:02:38.007Z",
+      "readTime": 7,
+      "tags": [
+        "HOA rental restrictions for investors",
+        "HOA rental cap",
+        "can HOA restrict rentals",
+        "HOA rules for landlords",
+        "investment property HOA"
+      ],
+      "featured": true
+    },
+    {
       "slug": "can-you-do-a-1031-exchange-on-a-flip-property-what-investors-need-to-know",
       "title": "Can You Do a 1031 Exchange on a Flip Property? What Investors Need to Know",
       "excerpt": "Many real estate investors wonder if they can use a 1031 exchange to defer taxes on a flip property. The short answer is complicated — and understanding the rules could save you tens of thousands of dollars.",
@@ -15,7 +32,7 @@
         "fix and flip taxes",
         "real estate tax strategy"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-rockford-il-a-complete-investor-s-guide-for-2024",
