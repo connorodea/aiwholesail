@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-sioux-falls-sd-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Sioux Falls SD: The Investor's Complete Guide for 2024",
+      "excerpt": "Sioux Falls, South Dakota is quietly becoming one of the Midwest's hottest markets for real estate investors. Discover the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Sioux Falls SD.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-26T12:02:31.522Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Sioux Falls SD",
+        "Sioux Falls real estate investing",
+        "wholesale real estate Sioux Falls",
+        "flip houses Sioux Falls",
+        "rental properties Sioux Falls South Dakota"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-provo-ut-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Provo UT: A Complete Investor's Guide for 2024",
       "excerpt": "Provo, Utah is one of the West's most underrated markets for real estate investors, combining strong population growth with a thriving tech economy. This guide breaks down where to find profitable real estate deals in Provo UT, from wholesale opportunities to long-term rentals.",
@@ -15,7 +32,7 @@
         "fix and flip Provo Utah",
         "Provo rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "hoa-rental-restrictions-for-investors-what-you-must-know-before-you-buy",
