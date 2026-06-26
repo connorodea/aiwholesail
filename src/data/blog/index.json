@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-provo-ut-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Provo UT: A Complete Investor's Guide for 2024",
+      "excerpt": "Provo, Utah is one of the West's most underrated markets for real estate investors, combining strong population growth with a thriving tech economy. This guide breaks down where to find profitable real estate deals in Provo UT, from wholesale opportunities to long-term rentals.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-26T12:01:08.815Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Provo UT",
+        "Provo Utah real estate investing",
+        "wholesale deals Provo",
+        "fix and flip Provo Utah",
+        "Provo rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "hoa-rental-restrictions-for-investors-what-you-must-know-before-you-buy",
       "title": "HOA Rental Restrictions for Investors: What You Must Know Before You Buy",
       "excerpt": "HOA rental restrictions can turn a promising investment property into a cash flow nightmare overnight. Learn how to research, navigate, and avoid costly HOA rules before you close on your next deal.",
@@ -15,7 +32,7 @@
         "HOA rules for landlords",
         "investment property HOA"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "can-you-do-a-1031-exchange-on-a-flip-property-what-investors-need-to-know",
