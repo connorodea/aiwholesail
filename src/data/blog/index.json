@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-shreveport-la-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Shreveport LA: The Investor's Complete Guide for 2024",
+      "excerpt": "Shreveport, Louisiana is quietly becoming one of the South's most attractive markets for real estate investors, with low entry prices and strong rental demand. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Shreveport LA.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-26T18:01:05.990Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Shreveport LA",
+        "Shreveport real estate investing",
+        "wholesale real estate Shreveport",
+        "investment properties Shreveport Louisiana",
+        "Shreveport rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-sioux-falls-sd-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Sioux Falls SD: The Investor's Complete Guide for 2024",
       "excerpt": "Sioux Falls, South Dakota is quietly becoming one of the Midwest's hottest markets for real estate investors. Discover the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Sioux Falls SD.",
@@ -15,7 +32,7 @@
         "flip houses Sioux Falls",
         "rental properties Sioux Falls South Dakota"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-provo-ut-a-complete-investor-s-guide-for-2024",
