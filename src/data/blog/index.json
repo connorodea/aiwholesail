@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-pittsburgh-pa-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Pittsburgh PA: The Investor's Complete Guide for 2024",
+      "excerpt": "Pittsburgh is one of the most underrated real estate markets in the country, offering affordable entry points and strong cash flow potential. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Pittsburgh PA.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-27T12:01:05.317Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Pittsburgh PA",
+        "Pittsburgh real estate investing",
+        "Pittsburgh wholesale deals",
+        "Pittsburgh rental properties",
+        "Pittsburgh house flipping"
+      ],
+      "featured": true
+    },
+    {
       "slug": "stessa-rental-property-management-review-is-it-right-for-your-portfolio",
       "title": "Stessa Rental Property Management Review: Is It Right for Your Portfolio?",
       "excerpt": "Stessa is one of the most popular free tools for tracking rental property finances, but it's not perfect for every investor. This in-depth review breaks down its features, pricing, pros and cons, and who it works best for.",
@@ -15,7 +32,7 @@
         "rental property software",
         "property management tools"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "when-to-sell-investment-property-for-maximum-profit-a-timing-guide-for-investors",
