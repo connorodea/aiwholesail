@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-cheyenne-wy-the-investor-s-guide-to-wyoming-s-capital-city",
+      "title": "Real Estate Deals in Cheyenne WY: The Investor's Guide to Wyoming's Capital City",
+      "excerpt": "Cheyenne, Wyoming is quietly becoming one of the most attractive markets for real estate investors in the Mountain West. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Cheyenne WY.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-27T18:01:03.730Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Cheyenne WY",
+        "Cheyenne Wyoming real estate investing",
+        "wholesale real estate Cheyenne",
+        "flip houses Cheyenne WY",
+        "rental property Cheyenne Wyoming"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-columbia-mo-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Columbia MO: The Investor's Complete Guide for 2024",
       "excerpt": "Columbia, Missouri is quietly becoming one of the Midwest's most attractive markets for real estate investors. Here's everything you need to know to find profitable deals in this college town with strong fundamentals.",
@@ -15,7 +32,7 @@
         "investment properties Columbia Missouri",
         "Columbia MO rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-pittsburgh-pa-the-investor-s-complete-guide-for-2024",
