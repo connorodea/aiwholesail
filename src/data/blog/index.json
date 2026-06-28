@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-augusta-me-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Augusta ME: A Complete Investor's Guide for 2024",
+      "excerpt": "Augusta, Maine is quietly becoming one of New England's most accessible markets for real estate investors, with low entry prices and strong rental demand driven by state government employment. This guide covers the best neighborhoods, deal types, and practical strategies for finding profitable real estate deals in Augusta ME.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-28T12:01:25.874Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Augusta ME",
+        "Augusta Maine real estate investing",
+        "wholesale real estate Augusta Maine",
+        "Augusta ME rental properties",
+        "flip houses Augusta Maine"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-newark-nj-the-investor-s-complete-guide-to-one-of-the-north",
       "title": "Real Estate Deals in Newark NJ: The Investor's Complete Guide to One of the Northeast's Best Markets",
       "excerpt": "Newark, NJ is one of the most underrated markets for real estate investors on the East Coast, offering wholesale deals, fix-and-flips, and strong rental returns just minutes from Manhattan. This guide breaks down the best neighborhoods, current prices, and exactly how to find profitable deals in Newark today.",
@@ -15,7 +32,7 @@
         "fix and flip Newark NJ",
         "Newark rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-investor-business-plan-template-a-step-by-step-guide-to-building-you",
