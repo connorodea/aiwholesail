@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-investor-business-plan-template-a-step-by-step-guide-to-building-you",
+      "title": "Real Estate Investor Business Plan Template: A Step-by-Step Guide to Building Your Blueprint",
+      "excerpt": "A solid real estate investor business plan template gives you a clear roadmap to find deals, manage money, and grow your portfolio. Follow this step-by-step guide to build a plan that actually works in today's market.",
+      "category": "Getting Started",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-28T06:01:25.464Z",
+      "readTime": 7,
+      "tags": [
+        "real estate investor business plan template",
+        "real estate business plan",
+        "wholesaling business plan",
+        "real estate investing strategy",
+        "real estate investor goals"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-calculate-cap-rate-for-investment-property-with-real-examples",
       "title": "How to Calculate Cap Rate for Investment Property (With Real Examples)",
       "excerpt": "Cap rate is one of the most important numbers in real estate investing, but many investors misuse it. Learn exactly how to calculate cap rate for investment property and use it to make smarter buying decisions.",
@@ -15,7 +32,7 @@
         "net operating income",
         "investment property analysis"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-dallas-tx-the-investor-s-complete-guide-to-the-dfw-market",
