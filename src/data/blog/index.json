@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-newark-nj-the-investor-s-complete-guide-to-one-of-the-north",
+      "title": "Real Estate Deals in Newark NJ: The Investor's Complete Guide to One of the Northeast's Best Markets",
+      "excerpt": "Newark, NJ is one of the most underrated markets for real estate investors on the East Coast, offering wholesale deals, fix-and-flips, and strong rental returns just minutes from Manhattan. This guide breaks down the best neighborhoods, current prices, and exactly how to find profitable deals in Newark today.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-28T12:01:07.321Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Newark NJ",
+        "Newark NJ real estate investing",
+        "wholesale deals Newark",
+        "fix and flip Newark NJ",
+        "Newark rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-investor-business-plan-template-a-step-by-step-guide-to-building-you",
       "title": "Real Estate Investor Business Plan Template: A Step-by-Step Guide to Building Your Blueprint",
       "excerpt": "A solid real estate investor business plan template gives you a clear roadmap to find deals, manage money, and grow your portfolio. Follow this step-by-step guide to build a plan that actually works in today's market.",
@@ -15,7 +32,7 @@
         "real estate investing strategy",
         "real estate investor goals"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-calculate-cap-rate-for-investment-property-with-real-examples",
