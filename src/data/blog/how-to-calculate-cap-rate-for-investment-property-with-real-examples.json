@@ -1,0 +1,203 @@
+{
+  "slug": "how-to-calculate-cap-rate-for-investment-property-with-real-examples",
+  "title": "How to Calculate Cap Rate for Investment Property (With Real Examples)",
+  "excerpt": "Cap rate is one of the most important numbers in real estate investing, but many investors misuse it. Learn exactly how to calculate cap rate for investment property and use it to make smarter buying decisions.",
+  "category": "Calculator",
+  "author": "AIWholesail Team",
+  "publishedAt": "2026-06-28T06:00:50.230Z",
+  "readTime": 7,
+  "tags": [
+    "how to calculate cap rate for investment property",
+    "cap rate formula",
+    "cap rate real estate",
+    "net operating income",
+    "investment property analysis"
+  ],
+  "metaDescription": "Learn how to calculate cap rate for investment property with step-by-step examples, formulas, and pro tips to evaluate rental deals with confidence.",
+  "metaKeywords": "how to calculate cap rate for investment property, cap rate formula, cap rate real estate, net operating income, investment property analysis, rental property cap rate, good cap rate real estate",
+  "sections": [
+    {
+      "type": "paragraph",
+      "content": "If you are evaluating a rental property, you will hear the term cap rate within the first five minutes. It is one of the fastest ways to size up a deal and compare it against other investments. But a lot of investors either use the wrong numbers or do not fully understand what cap rate is actually telling them. This guide breaks down exactly how to calculate cap rate for investment property, what the number means, and how to use it to make smarter decisions. For a deeper look at the full picture, check out our guide on [How to Analyze Real Estate Deals Like a Pro](https://aiwholesail.com/guides/real-estate-deal-analysis)."
+    },
+    {
+      "type": "heading",
+      "content": "What Is Cap Rate?"
+    },
+    {
+      "type": "paragraph",
+      "content": "Cap rate, short for capitalization rate, measures the return on an investment property based on the income it generates. It tells you what percentage of the property's value you can expect to earn each year from net operating income — before financing costs. Cap rate is expressed as a percentage. A higher cap rate generally means more return, but it can also mean more risk. A lower cap rate often signals a safer, more stable market or property."
+    },
+    {
+      "type": "quote",
+      "content": "Cap rate is the investor's shorthand for risk and return. It does not tell you everything about a deal, but it tells you a lot about the market you are buying into."
+    },
+    {
+      "type": "heading",
+      "content": "The Cap Rate Formula"
+    },
+    {
+      "type": "paragraph",
+      "content": "The formula is straightforward: Cap Rate = Net Operating Income (NOI) ÷ Property Value. You can also flip this formula to solve for property value or NOI depending on what you are trying to figure out. Here is the key: cap rate does not include your mortgage payments. It is purely about the income the property generates versus what it costs."
+    },
+    {
+      "type": "subheading",
+      "content": "How to Calculate Net Operating Income (NOI)"
+    },
+    {
+      "type": "paragraph",
+      "content": "Before you can calculate cap rate, you need your NOI. Net Operating Income is the annual income left over after you subtract all operating expenses from your gross rental income. Operating expenses include property taxes, insurance, property management fees, maintenance and repairs, utilities you pay, and vacancy allowance. They do not include your mortgage principal or interest."
+    },
+    {
+      "type": "list",
+      "items": [
+        "Gross Annual Rental Income: $24,000 (a $2,000/month rental)",
+        "Minus Vacancy Allowance (5%): -$1,200",
+        "Minus Property Taxes: -$2,400",
+        "Minus Insurance: -$1,200",
+        "Minus Property Management (10%): -$2,400",
+        "Minus Maintenance Reserve: -$1,800",
+        "Net Operating Income (NOI): $15,000"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "Step-by-Step: How to Calculate Cap Rate for Investment Property"
+    },
+    {
+      "type": "paragraph",
+      "content": "Let's walk through a real example. Say you are looking at a single-family rental in a growing suburb. The asking price is $200,000 and the property rents for $1,800 per month."
+    },
+    {
+      "type": "list",
+      "items": [
+        "Step 1 — Calculate Gross Annual Rent: $1,800 x 12 = $21,600",
+        "Step 2 — Subtract Vacancy (5%): $21,600 x 0.95 = $20,520",
+        "Step 3 — Subtract Annual Operating Expenses: Taxes $2,100 + Insurance $900 + Management $2,052 + Maintenance $1,500 = $6,552",
+        "Step 4 — Calculate NOI: $20,520 - $6,552 = $13,968",
+        "Step 5 — Divide by Property Value: $13,968 ÷ $200,000 = 0.0698",
+        "Step 6 — Convert to Percentage: 0.0698 x 100 = 6.98% cap rate"
+      ]
+    },
+    {
+      "type": "tip",
+      "content": "Always use the full purchase price — not just the down payment — when calculating cap rate. The formula measures return on the asset's total value, not just your equity stake. Want to skip the math? Use our free [Cap Rate Calculator](https://aiwholesail.com/tools/cap-rate-calculator) to run these numbers in seconds."
+    },
+    {
+      "type": "heading",
+      "content": "What Is a Good Cap Rate?"
+    },
+    {
+      "type": "paragraph",
+      "content": "There is no universal answer, but here is a practical framework. Cap rates between 4% and 6% are typical in high-demand, lower-risk urban markets. Cap rates between 7% and 10% are more common in secondary cities and value-add opportunities. Anything above 10% warrants a close look — the returns may be real, but so might the risks, like high vacancy, deferred maintenance, or a declining neighborhood."
+    },
+    {
+      "type": "paragraph",
+      "content": "Market context matters enormously. In competitive markets like [Atlanta, GA](https://aiwholesail.com/markets/atlanta-ga) or [Dallas, TX](https://aiwholesail.com/markets/dallas-tx), cap rates have compressed significantly as prices have risen. Meanwhile, markets like [Phoenix, AZ](https://aiwholesail.com/markets/phoenix-az) have attracted investors seeking stronger cash flow in a high-growth metro. Always compare cap rates within the same market and property type — comparing a multifamily cap rate in Phoenix to a single-family cap rate in downtown Atlanta is like comparing apples to hammers."
+    },
+    {
+      "type": "subheading",
+      "content": "Cap Rate vs. Cash-on-Cash Return"
+    },
+    {
+      "type": "paragraph",
+      "content": "Cap rate and cash-on-cash return are related but different. Cap rate ignores financing. Cash-on-cash measures your actual return based on the money you put in — including the effect of your mortgage. If you are using leverage, cash-on-cash gives you a more accurate picture of what your dollars are actually earning. Use cap rate to compare properties on equal footing. Use cash-on-cash to evaluate your personal deal structure."
+    },
+    {
+      "type": "heading",
+      "content": "Common Mistakes Investors Make With Cap Rate"
+    },
+    {
+      "type": "list",
+      "items": [
+        "Using gross income instead of net operating income — this inflates your cap rate significantly",
+        "Forgetting to include vacancy — even strong markets have turnover between tenants",
+        "Ignoring capital expenditures like roof, HVAC, or plumbing that will eventually need replacing",
+        "Trusting the seller's pro forma numbers without verifying actual rent rolls and expenses",
+        "Comparing cap rates across different property types or markets without adjusting for risk"
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": "One often-overlooked expense category is holding costs — the ongoing costs you pay while a property sits vacant or is being renovated. These can quietly eat into your NOI projections. Learn more in our breakdown of [Holding Costs: What They Are and How to Reduce Them](https://aiwholesail.com/blog/holding-costs-real-estate)."
+    },
+    {
+      "type": "heading",
+      "content": "How Cap Rate Fits Into Your Bigger Analysis"
+    },
+    {
+      "type": "paragraph",
+      "content": "Cap rate is a powerful screening tool, but it is only one piece of the puzzle. Smart investors pair it with other metrics to get the full picture. If you are flipping properties, the [70% Rule](https://aiwholesail.com/blog/70-percent-rule-real-estate) gives you a fast way to evaluate whether a deal has enough margin. If you are doing a value-add rehab or a BRRRR strategy, you also need accurate rehab cost estimates — which you can learn about in our guide on [How to Estimate Rehab Costs for Investment Properties](https://aiwholesail.com/blog/how-to-estimate-rehab-costs). And if you want to understand how cap rate plays into the BRRRR method, our [BRRRR Method Real Estate guide](https://aiwholesail.com/guides/brrrr-method-explained) walks you through the full cycle of buying, rehabbing, and refinancing."
+    },
+    {
+      "type": "subheading",
+      "content": "Using Cap Rate to Determine What to Offer"
+    },
+    {
+      "type": "paragraph",
+      "content": "You can also reverse the formula to figure out what a property is worth based on your target cap rate. If the NOI is $14,000 and you want a 7% cap rate, divide $14,000 by 0.07 to get a maximum purchase price of $200,000. This is called income-based valuation, and it is how commercial real estate appraisers and institutional investors price assets. Even for smaller residential rentals, this approach keeps your offer grounded in real numbers instead of emotion."
+    },
+    {
+      "type": "tip",
+      "content": "When analyzing a deal, always build two scenarios: one using the seller's stated income and expenses, and one using your own conservative estimates. The gap between those two numbers tells you how much risk you are actually taking on."
+    },
+    {
+      "type": "paragraph",
+      "content": "New to investing and still learning the fundamentals? Our [Wholesaling Real Estate for Beginners guide](https://aiwholesail.com/guides/wholesaling-real-estate-for-beginners) is a great starting point for understanding how deals are sourced, evaluated, and assigned before you ever need to manage a rental."
+    },
+    {
+      "type": "cta",
+      "content": "Ready to find investment properties worth running these numbers on? AIWholesail uses AI to surface off-market deals, distressed properties, and motivated seller leads across the country — so you spend less time searching and more time analyzing. Try it free at aiwholesail.com and use our built-in Cap Rate Calculator at aiwholesail.com/tools/cap-rate-calculator to evaluate your next deal in minutes."
+    }
+  ],
+  "relatedLinks": {
+    "pillarPage": {
+      "title": "How to Analyze Real Estate Deals Like a Pro",
+      "url": "/guides/real-estate-deal-analysis"
+    },
+    "siblingArticles": [
+      {
+        "title": "The 70% Rule in Real Estate: How It Works",
+        "url": "/blog/70-percent-rule-real-estate"
+      },
+      {
+        "title": "How to Estimate Rehab Costs for Investment Properties",
+        "url": "/blog/how-to-estimate-rehab-costs"
+      },
+      {
+        "title": "Holding Costs: What They Are and How to Reduce Them",
+        "url": "/blog/holding-costs-real-estate"
+      }
+    ],
+    "relatedGuides": [
+      {
+        "title": "Wholesaling Real Estate for Beginners",
+        "url": "/guides/wholesaling-real-estate-for-beginners"
+      },
+      {
+        "title": "BRRRR Method Real Estate",
+        "url": "/guides/brrrr-method-explained"
+      }
+    ],
+    "relatedTools": [
+      {
+        "tool": "Cap Rate Calculator",
+        "url": "/tools/cap-rate-calculator"
+      }
+    ],
+    "relatedMarkets": [
+      {
+        "slug": "atlanta-ga",
+        "url": "/markets/atlanta-ga"
+      },
+      {
+        "slug": "dallas-tx",
+        "url": "/markets/dallas-tx"
+      },
+      {
+        "slug": "phoenix-az",
+        "url": "/markets/phoenix-az"
+      }
+    ]
+  }
+}

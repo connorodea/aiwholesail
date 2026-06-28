@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-calculate-cap-rate-for-investment-property-with-real-examples",
+      "title": "How to Calculate Cap Rate for Investment Property (With Real Examples)",
+      "excerpt": "Cap rate is one of the most important numbers in real estate investing, but many investors misuse it. Learn exactly how to calculate cap rate for investment property and use it to make smarter buying decisions.",
+      "category": "Calculator",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-28T06:00:50.230Z",
+      "readTime": 7,
+      "tags": [
+        "how to calculate cap rate for investment property",
+        "cap rate formula",
+        "cap rate real estate",
+        "net operating income",
+        "investment property analysis"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-dallas-tx-the-investor-s-complete-guide-to-the-dfw-market",
       "title": "Real Estate Deals in Dallas TX: The Investor's Complete Guide to the DFW Market",
       "excerpt": "Dallas-Fort Worth is one of the hottest real estate markets in the country, offering profitable opportunities for wholesalers, flippers, and landlords alike. Discover the best neighborhoods, current market trends, and practical strategies for finding real estate deals in Dallas TX.",
@@ -15,7 +32,7 @@
         "Dallas house flipping",
         "Dallas rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-cheyenne-wy-the-investor-s-guide-to-wyoming-s-capital-city",
