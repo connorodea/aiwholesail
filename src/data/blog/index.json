@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-cincinnati-oh-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Cincinnati OH: A Complete Investor's Guide for 2024",
+      "excerpt": "Cincinnati is one of the Midwest's most overlooked real estate markets, offering affordable home prices, strong rental demand, and plenty of off-market opportunities for savvy investors. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Cincinnati OH.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-29T12:01:03.320Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Cincinnati OH",
+        "Cincinnati real estate investing",
+        "wholesale real estate Cincinnati",
+        "Cincinnati investment properties",
+        "flip houses Cincinnati"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-vs-stocks-which-is-a-better-investment-in-2026",
       "title": "Real Estate vs Stocks: Which Is a Better Investment in 2026?",
       "excerpt": "Trying to decide between real estate vs stocks as your next investment? This guide breaks down the returns, risks, tax advantages, and real-world numbers so you can choose the strategy that fits your goals.",
@@ -15,7 +32,7 @@
         "is real estate better than stocks",
         "real estate investment returns"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "using-drones-for-property-inspection-and-analysis-a-real-estate-investor-s-compl",
