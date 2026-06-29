@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "using-drones-for-property-inspection-and-analysis-a-real-estate-investor-s-compl",
+      "title": "Using Drones for Property Inspection and Analysis: A Real Estate Investor's Complete Guide",
+      "excerpt": "Drones are changing how real estate investors evaluate properties, cutting inspection costs and revealing hidden issues before you make an offer. Learn how to use drone technology to analyze deals faster and with greater confidence.",
+      "category": "Tools",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-29T06:01:03.106Z",
+      "readTime": 7,
+      "tags": [
+        "using drones for property inspection and analysis",
+        "drone real estate inspection",
+        "drone property analysis",
+        "real estate drone photography",
+        "wholesale real estate tools"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-savannah-ga-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Savannah GA: A Complete Investor's Guide for 2024",
       "excerpt": "Savannah, Georgia is one of the South's most underrated real estate markets, offering strong rental demand, rising home values, and plenty of off-market opportunities. Here's everything investors need to know before diving in.",
@@ -15,7 +32,7 @@
         "investment properties Savannah GA",
         "Savannah rental market"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-albany-ny-a-complete-investor-s-guide-for-2024",
