@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-vs-stocks-which-is-a-better-investment-in-2026",
+      "title": "Real Estate vs Stocks: Which Is a Better Investment in 2026?",
+      "excerpt": "Trying to decide between real estate vs stocks as your next investment? This guide breaks down the returns, risks, tax advantages, and real-world numbers so you can choose the strategy that fits your goals.",
+      "category": "Comparison",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-29T06:02:44.331Z",
+      "readTime": 7,
+      "tags": [
+        "real estate vs stocks which is a better investment",
+        "real estate vs stock market",
+        "investing in real estate vs stocks",
+        "is real estate better than stocks",
+        "real estate investment returns"
+      ],
+      "featured": true
+    },
+    {
       "slug": "using-drones-for-property-inspection-and-analysis-a-real-estate-investor-s-compl",
       "title": "Using Drones for Property Inspection and Analysis: A Real Estate Investor's Complete Guide",
       "excerpt": "Drones are changing how real estate investors evaluate properties, cutting inspection costs and revealing hidden issues before you make an offer. Learn how to use drone technology to analyze deals faster and with greater confidence.",
@@ -15,7 +32,7 @@
         "real estate drone photography",
         "wholesale real estate tools"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-savannah-ga-a-complete-investor-s-guide-for-2024",
