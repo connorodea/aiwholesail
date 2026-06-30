@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "seller-financing-terms-and-how-to-negotiate-them-a-complete-guide-for-investors",
+      "title": "Seller Financing Terms and How to Negotiate Them: A Complete Guide for Investors",
+      "excerpt": "Seller financing can unlock deals that traditional lenders won't touch — but only if you know how to structure the terms in your favor. This guide breaks down every key term and shows you exactly how to negotiate them.",
+      "category": "Seller Financing",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-06-30T06:00:56.668Z",
+      "readTime": 7,
+      "tags": [
+        "seller financing terms",
+        "how to negotiate seller financing",
+        "owner financing real estate",
+        "seller carryback",
+        "creative real estate financing"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-laredo-tx-the-investor-s-complete-guide-to-this-underrated-",
       "title": "Real Estate Deals in Laredo TX: The Investor's Complete Guide to This Underrated Market",
       "excerpt": "Laredo, Texas offers real estate investors a unique combination of affordable entry points, strong rental demand, and consistent deal flow driven by cross-border commerce. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Laredo TX.",
@@ -15,7 +32,7 @@
         "Laredo TX rental properties",
         "flip houses Laredo Texas"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-find-profitable-real-estate-deals-in-tempe-az-2024-investor-guide",
