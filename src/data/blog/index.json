@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-santa-ana-ca-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Santa Ana CA: The Investor's Complete Guide for 2024",
+      "excerpt": "Santa Ana, CA is one of Orange County's most overlooked markets for real estate investors, offering strong rental demand, value-add opportunities, and wholesale deals below the county average. This guide breaks down the neighborhoods, deal types, and strategies you need to profit in this dense urban market.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-01T12:02:54.812Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Santa Ana CA",
+        "Santa Ana real estate investing",
+        "wholesale deals Santa Ana",
+        "fix and flip Santa Ana CA",
+        "rental properties Santa Ana"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-peoria-il-the-investor-s-complete-guide-to-this-hidden-midw",
       "title": "Real Estate Deals in Peoria IL: The Investor's Complete Guide to This Hidden Midwest Market",
       "excerpt": "Peoria, Illinois offers real estate investors affordable entry points, strong rental demand, and consistent deal flow that bigger markets simply can't match. This guide covers everything you need to know to find and profit from real estate deals in Peoria IL.",
@@ -15,7 +32,7 @@
         "investment properties Peoria IL",
         "Peoria rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "buy-and-hold-real-estate-investing-explained-the-complete-beginner-s-guide",
