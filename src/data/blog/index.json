@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-use-an-fha-loan-to-start-investing-in-real-estate-step-by-step-guide",
+      "title": "How to Use an FHA Loan to Start Investing in Real Estate (Step-by-Step Guide)",
+      "excerpt": "An FHA loan can be one of the smartest ways to break into real estate investing with as little as 3.5% down. Learn how the house hacking strategy turns your primary residence into a cash-flowing investment property.",
+      "category": "Low Money Down",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-01T06:01:01.040Z",
+      "readTime": 7,
+      "tags": [
+        "how to use FHA loan to start investing in real estate",
+        "FHA loan real estate investing",
+        "house hacking FHA loan",
+        "FHA multifamily investing",
+        "first time investor FHA loan"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-reno-nv-the-investor-s-complete-guide-to-the-biggest-little",
       "title": "Real Estate Deals in Reno NV: The Investor's Complete Guide to the Biggest Little City",
       "excerpt": "Reno, Nevada is one of the most underrated real estate markets in the West, offering strong rental demand, rising home values, and motivated sellers. This guide breaks down exactly where and how to find profitable real estate deals in Reno NV right now.",
@@ -15,7 +32,7 @@
         "Reno investment properties",
         "flip houses Reno NV"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-find-profitable-real-estate-deals-in-columbus-oh-2024-investor-guide",
