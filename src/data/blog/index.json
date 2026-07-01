@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-tucson-az-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Tucson AZ: A Complete Investor's Guide for 2024",
+      "excerpt": "Tucson, Arizona is one of the Southwest's most underrated markets for real estate investors, offering affordable entry points, strong rental demand, and steady appreciation. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Tucson AZ.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-01T18:01:07.374Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Tucson AZ",
+        "Tucson real estate investing",
+        "Tucson wholesale deals",
+        "Tucson fix and flip",
+        "Tucson rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-santa-ana-ca-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Santa Ana CA: The Investor's Complete Guide for 2024",
       "excerpt": "Santa Ana, CA is one of Orange County's most overlooked markets for real estate investors, offering strong rental demand, value-add opportunities, and wholesale deals below the county average. This guide breaks down the neighborhoods, deal types, and strategies you need to profit in this dense urban market.",
@@ -15,7 +32,7 @@
         "fix and flip Santa Ana CA",
         "rental properties Santa Ana"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-peoria-il-the-investor-s-complete-guide-to-this-hidden-midw",
