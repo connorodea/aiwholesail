@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-peoria-il-the-investor-s-complete-guide-to-this-hidden-midw",
+      "title": "Real Estate Deals in Peoria IL: The Investor's Complete Guide to This Hidden Midwest Market",
+      "excerpt": "Peoria, Illinois offers real estate investors affordable entry points, strong rental demand, and consistent deal flow that bigger markets simply can't match. This guide covers everything you need to know to find and profit from real estate deals in Peoria IL.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-01T12:01:07.857Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Peoria IL",
+        "Peoria Illinois real estate investing",
+        "wholesale deals Peoria",
+        "investment properties Peoria IL",
+        "Peoria rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "buy-and-hold-real-estate-investing-explained-the-complete-beginner-s-guide",
       "title": "Buy and Hold Real Estate Investing Explained: The Complete Beginner's Guide",
       "excerpt": "Buy and hold real estate investing is one of the most proven ways to build long-term wealth through rental income and property appreciation. This guide breaks down exactly how it works, what returns to expect, and how to get started today.",
@@ -15,7 +32,7 @@
         "long term real estate investing",
         "passive income real estate"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-use-an-fha-loan-to-start-investing-in-real-estate-step-by-step-guide",
