@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "buy-and-hold-real-estate-investing-explained-the-complete-beginner-s-guide",
+      "title": "Buy and Hold Real Estate Investing Explained: The Complete Beginner's Guide",
+      "excerpt": "Buy and hold real estate investing is one of the most proven ways to build long-term wealth through rental income and property appreciation. This guide breaks down exactly how it works, what returns to expect, and how to get started today.",
+      "category": "Strategy",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-01T06:01:15.216Z",
+      "readTime": 7,
+      "tags": [
+        "buy and hold real estate investing explained",
+        "buy and hold strategy",
+        "rental property investing",
+        "long term real estate investing",
+        "passive income real estate"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-use-an-fha-loan-to-start-investing-in-real-estate-step-by-step-guide",
       "title": "How to Use an FHA Loan to Start Investing in Real Estate (Step-by-Step Guide)",
       "excerpt": "An FHA loan can be one of the smartest ways to break into real estate investing with as little as 3.5% down. Learn how the house hacking strategy turns your primary residence into a cash-flowing investment property.",
@@ -15,7 +32,7 @@
         "FHA multifamily investing",
         "first time investor FHA loan"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-reno-nv-the-investor-s-complete-guide-to-the-biggest-little",
