@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-charlotte-nc-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Charlotte NC: The Investor's Complete Guide for 2024",
+      "excerpt": "Charlotte, NC is one of the Southeast's hottest real estate markets, offering strong opportunities for wholesalers, flippers, and landlords alike. Here's everything you need to know to find profitable real estate deals in Charlotte NC right now.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-02T12:01:23.208Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Charlotte NC",
+        "Charlotte NC investment properties",
+        "wholesale real estate Charlotte",
+        "flip houses Charlotte NC",
+        "Charlotte rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-south-bend-in-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in South Bend IN: A Complete Investor's Guide for 2024",
       "excerpt": "South Bend, Indiana is quietly becoming one of the Midwest's most attractive markets for real estate investors. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in South Bend IN.",
@@ -15,7 +32,7 @@
         "investment properties South Bend",
         "South Bend rental market"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-find-real-estate-syndication-deals-to-invest-in-step-by-step-guide",
