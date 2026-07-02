@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-port-st-lucie-fl-the-investor-s-complete-guide",
+      "title": "Real Estate Deals in Port St. Lucie FL: The Investor's Complete Guide",
+      "excerpt": "Port St. Lucie is one of Florida's fastest-growing cities, offering real estate investors a mix of wholesale deals, fix-and-flips, and cash-flowing rentals. This guide breaks down the best neighborhoods, current market trends, and how to find profitable deals in this booming Treasure Coast market.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-02T18:01:09.294Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Port St. Lucie FL",
+        "Port St. Lucie investment properties",
+        "wholesale real estate Port St. Lucie",
+        "fix and flip Port St. Lucie",
+        "Port St. Lucie rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-fort-myers-fl-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Fort Myers FL: The Investor's Complete Guide for 2024",
       "excerpt": "Fort Myers, Florida is quietly becoming one of the Southeast's hottest markets for real estate investors. Discover the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Fort Myers FL.",
@@ -15,7 +32,7 @@
         "fix and flip Fort Myers",
         "rental properties Fort Myers"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-charlotte-nc-the-investor-s-complete-guide-for-2024",
