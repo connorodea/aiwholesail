@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-south-bend-in-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in South Bend IN: A Complete Investor's Guide for 2024",
+      "excerpt": "South Bend, Indiana is quietly becoming one of the Midwest's most attractive markets for real estate investors. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in South Bend IN.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-02T12:01:06.864Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in South Bend IN",
+        "South Bend Indiana real estate investing",
+        "wholesale deals South Bend",
+        "investment properties South Bend",
+        "South Bend rental market"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-find-real-estate-syndication-deals-to-invest-in-step-by-step-guide",
       "title": "How to Find Real Estate Syndication Deals to Invest In (Step-by-Step Guide)",
       "excerpt": "Real estate syndication lets you invest in large properties without managing them yourself — but finding the right deals takes strategy. This guide breaks down exactly where to look, what to evaluate, and how to get started with your first syndication investment.",
@@ -15,7 +32,7 @@
         "syndication deals for investors",
         "real estate limited partnerships"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "fsbo-negotiation-tips-for-real-estate-investors-how-to-close-more-deals-directly",
