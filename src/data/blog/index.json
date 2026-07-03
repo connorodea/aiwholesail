@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "reverse-wholesaling-strategy-explained-how-to-find-buyers-before-you-find-deals",
+      "title": "Reverse Wholesaling Strategy Explained: How to Find Buyers Before You Find Deals",
+      "excerpt": "Reverse wholesaling flips the traditional script by building your buyer list first, then hunting for deals that match what investors already want. Learn how this strategy can speed up your closings and reduce the risk of deals falling apart.",
+      "category": "Strategy",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-03T06:02:42.863Z",
+      "readTime": 7,
+      "tags": [
+        "reverse wholesaling strategy explained",
+        "reverse wholesaling",
+        "wholesaling real estate",
+        "build buyer list",
+        "real estate investing"
+      ],
+      "featured": true
+    },
+    {
       "slug": "best-skip-tracing-services-for-real-estate-investors-in-2024",
       "title": "Best Skip Tracing Services for Real Estate Investors in 2024",
       "excerpt": "Finding the right skip tracing service can mean the difference between landing a deal and chasing dead ends. This guide breaks down the top options, what to look for, and how to use skip tracing to build a steady pipeline of motivated seller leads.",
@@ -15,7 +32,7 @@
         "wholesale real estate leads",
         "property owner contact info"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-port-st-lucie-fl-the-investor-s-complete-guide",
