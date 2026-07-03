@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-fayetteville-nc-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Fayetteville NC: A Complete Investor's Guide for 2024",
+      "excerpt": "Fayetteville NC is one of the Southeast's most overlooked markets for real estate investors, offering affordable entry points and strong rental demand. This guide breaks down the best neighborhoods, deal types, and strategies to find profitable real estate deals in Fayetteville NC.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-03T12:01:08.793Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Fayetteville NC",
+        "Fayetteville NC real estate investing",
+        "wholesale real estate Fayetteville",
+        "investment properties Fayetteville NC",
+        "Fayetteville rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "reverse-wholesaling-strategy-explained-how-to-find-buyers-before-you-find-deals",
       "title": "Reverse Wholesaling Strategy Explained: How to Find Buyers Before You Find Deals",
       "excerpt": "Reverse wholesaling flips the traditional script by building your buyer list first, then hunting for deals that match what investors already want. Learn how this strategy can speed up your closings and reduce the risk of deals falling apart.",
@@ -15,7 +32,7 @@
         "build buyer list",
         "real estate investing"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "best-skip-tracing-services-for-real-estate-investors-in-2024",
