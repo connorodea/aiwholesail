@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-st-petersburg-fl-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in St. Petersburg FL: The Investor's Complete Guide for 2024",
+      "excerpt": "St. Petersburg, FL is one of Florida's hottest markets for real estate investors, with strong rental demand, rising home values, and a steady pipeline of distressed properties. This guide covers everything you need to find profitable deals in St. Pete — from the best neighborhoods to actionable strategies for wholesalers, flippers, and landlords.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-04T18:01:24.098Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in St. Petersburg FL",
+        "St. Pete real estate investing",
+        "wholesale deals St. Petersburg",
+        "flip houses St. Pete",
+        "St. Petersburg rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-provo-ut-the-investor-s-complete-guide-to-utah-valley",
       "title": "Real Estate Deals in Provo UT: The Investor's Complete Guide to Utah Valley",
       "excerpt": "Provo, Utah is one of the Mountain West's fastest-growing real estate markets, offering strong returns for wholesalers, flippers, and rental investors. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Provo UT.",
@@ -15,7 +32,7 @@
         "Provo UT investment properties",
         "Utah Valley real estate"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-find-profitable-real-estate-deals-in-st-paul-mn-2024-investor-guide",
