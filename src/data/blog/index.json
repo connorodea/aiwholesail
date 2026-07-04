@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-find-distressed-properties-for-sale-near-me-7-proven-methods",
+      "title": "How to Find Distressed Properties for Sale Near Me (7 Proven Methods)",
+      "excerpt": "Distressed properties are some of the best opportunities in real estate investing, but knowing where to look makes all the difference. This guide walks you through 7 proven methods to find distressed properties in your local market right now.",
+      "category": "Deal Finding",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-04T06:01:25.067Z",
+      "readTime": 7,
+      "tags": [
+        "how to find distressed properties for sale near me",
+        "distressed properties",
+        "motivated sellers",
+        "pre-foreclosure leads",
+        "wholesale real estate"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-start-a-real-estate-investing-business-a-step-by-step-guide",
       "title": "How to Start a Real Estate Investing Business: A Step-by-Step Guide",
       "excerpt": "Starting a real estate investing business doesn't have to be overwhelming. This step-by-step guide walks you through everything from choosing your strategy to closing your first deal.",
@@ -15,7 +32,7 @@
         "real estate business setup",
         "real estate investing strategies"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-athens-ga-the-investor-s-complete-guide-for-2024",
