@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-provo-ut-the-investor-s-complete-guide-to-utah-valley",
+      "title": "Real Estate Deals in Provo UT: The Investor's Complete Guide to Utah Valley",
+      "excerpt": "Provo, Utah is one of the Mountain West's fastest-growing real estate markets, offering strong returns for wholesalers, flippers, and rental investors. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Provo UT.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-04T18:01:04.368Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Provo UT",
+        "Provo Utah real estate investing",
+        "wholesale deals Provo",
+        "Provo UT investment properties",
+        "Utah Valley real estate"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-find-profitable-real-estate-deals-in-st-paul-mn-2024-investor-guide",
       "title": "How to Find Profitable Real Estate Deals in St. Paul MN (2024 Investor Guide)",
       "excerpt": "St. Paul MN offers real estate investors a mix of affordable entry points, strong rental demand, and motivated sellers — if you know where to look. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in St. Paul MN.",
@@ -15,7 +32,7 @@
         "St. Paul rental properties",
         "fix and flip St. Paul MN"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-dayton-oh-a-complete-investor-s-guide-for-2024",
