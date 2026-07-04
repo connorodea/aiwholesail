@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-dayton-oh-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Dayton OH: A Complete Investor's Guide for 2024",
+      "excerpt": "Dayton, Ohio is one of the Midwest's most underrated real estate markets, offering investors affordable entry points, strong rental demand, and consistent wholesale opportunities. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Dayton OH.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-04T12:01:12.380Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Dayton OH",
+        "Dayton Ohio real estate investing",
+        "wholesale real estate Dayton",
+        "Dayton investment properties",
+        "off-market deals Dayton Ohio"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-find-distressed-properties-for-sale-near-me-7-proven-methods",
       "title": "How to Find Distressed Properties for Sale Near Me (7 Proven Methods)",
       "excerpt": "Distressed properties are some of the best opportunities in real estate investing, but knowing where to look makes all the difference. This guide walks you through 7 proven methods to find distressed properties in your local market right now.",
@@ -15,7 +32,7 @@
         "pre-foreclosure leads",
         "wholesale real estate"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-start-a-real-estate-investing-business-a-step-by-step-guide",
