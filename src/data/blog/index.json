@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-much-money-do-you-need-to-retire-from-real-estate",
+      "title": "How Much Money Do You Need to Retire from Real Estate?",
+      "excerpt": "Figuring out how much money you need to retire from real estate comes down to your monthly expenses, passive income streams, and portfolio size. This guide breaks down the exact numbers and steps to build a retirement-ready real estate portfolio.",
+      "category": "Strategy",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-05T06:01:54.992Z",
+      "readTime": 7,
+      "tags": [
+        "how much money do you need to retire from real estate",
+        "real estate retirement",
+        "passive income real estate",
+        "retire on rental income",
+        "real estate financial freedom"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-lead-generation-strategies-that-actually-work-in-2024",
       "title": "Real Estate Lead Generation Strategies That Actually Work in 2024",
       "excerpt": "Finding motivated sellers is the lifeblood of any successful real estate investing business. This guide breaks down the lead generation strategies that top investors use to find profitable deals consistently.",
@@ -15,7 +32,7 @@
         "wholesale real estate leads",
         "real estate investor marketing"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-st-petersburg-fl-the-investor-s-complete-guide-for-2024",
