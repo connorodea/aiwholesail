@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-plano-tx-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Plano TX: A Complete Investor's Guide for 2024",
+      "excerpt": "Plano, TX is one of the hottest real estate markets in the Dallas-Fort Worth area, offering strong opportunities for wholesalers, flippers, and rental investors alike. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Plano TX.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-05T12:01:08.385Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Plano TX",
+        "Plano TX real estate investing",
+        "wholesale deals Plano Texas",
+        "Plano TX rental properties",
+        "fix and flip Plano TX"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-much-money-do-you-need-to-retire-from-real-estate",
       "title": "How Much Money Do You Need to Retire from Real Estate?",
       "excerpt": "Figuring out how much money you need to retire from real estate comes down to your monthly expenses, passive income streams, and portfolio size. This guide breaks down the exact numbers and steps to build a retirement-ready real estate portfolio.",
@@ -15,7 +32,7 @@
         "retire on rental income",
         "real estate financial freedom"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-lead-generation-strategies-that-actually-work-in-2024",
