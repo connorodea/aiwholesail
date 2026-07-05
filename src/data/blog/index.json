@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-baton-rouge-la-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Baton Rouge LA: A Complete Investor's Guide for 2024",
+      "excerpt": "Baton Rouge is one of the South's most overlooked real estate markets, offering strong rental demand, affordable entry points, and motivated sellers across multiple neighborhoods. This guide breaks down where to find the best real estate deals in Baton Rouge LA and how to profit from them.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-05T12:01:14.657Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Baton Rouge LA",
+        "Baton Rouge real estate investing",
+        "wholesale real estate Baton Rouge",
+        "flip houses Baton Rouge",
+        "Baton Rouge rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-plano-tx-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Plano TX: A Complete Investor's Guide for 2024",
       "excerpt": "Plano, TX is one of the hottest real estate markets in the Dallas-Fort Worth area, offering strong opportunities for wholesalers, flippers, and rental investors alike. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Plano TX.",
@@ -15,7 +32,7 @@
         "Plano TX rental properties",
         "fix and flip Plano TX"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-much-money-do-you-need-to-retire-from-real-estate",
