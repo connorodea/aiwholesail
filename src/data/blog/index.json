@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-oceanside-ca-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Oceanside CA: The Investor's Complete Guide for 2024",
+      "excerpt": "Oceanside, CA is one of Southern California's most overlooked markets for real estate investors, offering coastal appreciation, strong rental demand, and motivated sellers. Here's everything you need to know to find profitable real estate deals in Oceanside CA.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-05T18:03:03.270Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Oceanside CA",
+        "Oceanside real estate investing",
+        "wholesale deals Oceanside",
+        "flip houses Oceanside CA",
+        "Oceanside rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-charlotte-nc-the-investor-s-guide-to-the-queen-city",
       "title": "Real Estate Deals in Charlotte NC: The Investor's Guide to the Queen City",
       "excerpt": "Charlotte, NC is one of the Southeast's hottest real estate markets, offering strong opportunities for wholesalers, flippers, and buy-and-hold investors. Here's everything you need to know to find profitable deals in the Queen City.",
@@ -15,7 +32,7 @@
         "fix and flip Charlotte NC",
         "Charlotte rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-baton-rouge-la-a-complete-investor-s-guide-for-2024",
