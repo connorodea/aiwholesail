@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-find-profitable-real-estate-deals-in-miami-fl-2024-investor-guide",
+      "title": "How to Find Profitable Real Estate Deals in Miami FL (2024 Investor Guide)",
+      "excerpt": "Miami's real estate market offers serious upside for investors who know where to look. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Miami FL.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-06T12:02:19.113Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Miami FL",
+        "Miami real estate investing",
+        "wholesale deals Miami",
+        "fix and flip Miami",
+        "Miami investment properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-midland-tx-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Midland TX: The Investor's Complete Guide for 2024",
       "excerpt": "Midland, TX is one of the most overlooked but high-potential real estate markets in the country, driven by oil industry demand and steady population growth. Learn how to find profitable real estate deals in Midland TX, from the best neighborhoods to target to strategies for out-of-state investors.",
@@ -15,7 +32,7 @@
         "Midland TX rental properties",
         "fix and flip Midland TX"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-automate-your-real-estate-investing-business-and-scale-faster",
