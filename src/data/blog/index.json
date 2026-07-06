@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-automate-rental-property-management-and-save-10-hours-a-week",
+      "title": "How to Automate Rental Property Management (And Save 10+ Hours a Week)",
+      "excerpt": "Managing rental properties doesn't have to eat up your evenings and weekends. Learn how to automate rental property management with the right tools, systems, and workflows that keep your business running smoothly.",
+      "category": "Automation",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-06T06:00:57.099Z",
+      "readTime": 7,
+      "tags": [
+        "how to automate rental property management",
+        "property management automation",
+        "landlord software",
+        "rental property tools",
+        "automated rent collection"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-oceanside-ca-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Oceanside CA: The Investor's Complete Guide for 2024",
       "excerpt": "Oceanside, CA is one of Southern California's most overlooked markets for real estate investors, offering coastal appreciation, strong rental demand, and motivated sellers. Here's everything you need to know to find profitable real estate deals in Oceanside CA.",
@@ -15,7 +32,7 @@
         "flip houses Oceanside CA",
         "Oceanside rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-charlotte-nc-the-investor-s-guide-to-the-queen-city",
