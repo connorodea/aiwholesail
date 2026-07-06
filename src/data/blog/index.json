@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-norfolk-va-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Norfolk VA: The Investor's Complete Guide for 2024",
+      "excerpt": "Norfolk, Virginia is quietly becoming one of the Southeast's most compelling markets for real estate investors, with affordable entry points and strong rental demand driven by the world's largest naval base. This guide breaks down where to find the best deals, which neighborhoods to target, and how to profit whether you're flipping, wholesaling, or building a rental portfolio.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-06T18:03:07.510Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Norfolk VA",
+        "Norfolk VA investment properties",
+        "wholesaling Norfolk Virginia",
+        "Norfolk real estate market",
+        "flip houses Norfolk VA"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-dover-de-the-investor-s-complete-guide-to-delaware-s-capita",
       "title": "Real Estate Deals in Dover DE: The Investor's Complete Guide to Delaware's Capital City",
       "excerpt": "Dover, Delaware is one of the mid-Atlantic's most overlooked markets for real estate investors, offering affordable entry points, strong rental demand, and motivated sellers. This guide breaks down where to find the best deals, which neighborhoods to target, and how to profit whether you're wholesaling, flipping, or buying rentals.",
@@ -15,7 +32,7 @@
         "investment properties Dover Delaware",
         "flip houses Dover DE"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-find-profitable-real-estate-deals-in-miami-fl-2024-investor-guide",
