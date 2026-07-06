@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-automate-your-real-estate-investing-business-and-scale-faster",
+      "title": "How to Automate Your Real Estate Investing Business (And Scale Faster)",
+      "excerpt": "Manual processes are the #1 reason real estate investors hit a ceiling. Learn how to automate your real estate investing business step by step — from lead generation to deal closing — so you can do more deals with less effort.",
+      "category": "Technology",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-06T06:01:59.925Z",
+      "readTime": 7,
+      "tags": [
+        "how to automate your real estate investing business",
+        "real estate automation",
+        "wholesale real estate systems",
+        "real estate investing tools",
+        "automate lead generation"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-automate-rental-property-management-and-save-10-hours-a-week",
       "title": "How to Automate Rental Property Management (And Save 10+ Hours a Week)",
       "excerpt": "Managing rental properties doesn't have to eat up your evenings and weekends. Learn how to automate rental property management with the right tools, systems, and workflows that keep your business running smoothly.",
@@ -15,7 +32,7 @@
         "rental property tools",
         "automated rent collection"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-oceanside-ca-the-investor-s-complete-guide-for-2024",
