@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-las-cruces-nm-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Las Cruces NM: A Complete Investor's Guide for 2024",
+      "excerpt": "Las Cruces, New Mexico is emerging as one of the Southwest's most overlooked real estate markets, offering investors strong rental demand, affordable entry points, and growing appreciation. This guide breaks down where to find the best deals, which neighborhoods to target, and how to profit whether you're wholesaling, flipping, or building a rental portfolio.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-07T18:01:20.780Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Las Cruces NM",
+        "Las Cruces real estate investing",
+        "wholesale real estate New Mexico",
+        "flip houses Las Cruces",
+        "rental properties Las Cruces"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-bend-or-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Bend OR: A Complete Investor's Guide for 2024",
       "excerpt": "Bend, Oregon is one of the Pacific Northwest's most compelling real estate markets, offering investors a rare mix of strong appreciation, outdoor lifestyle demand, and emerging wholesale opportunities. This guide breaks down everything you need to know to find profitable real estate deals in Bend OR.",
@@ -15,7 +32,7 @@
         "Bend OR investment properties",
         "flipping houses Bend Oregon"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-tucson-az-the-investor-s-complete-guide-for-2024",
