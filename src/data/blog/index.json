@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-new-haven-ct-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in New Haven CT: The Investor's Complete Guide for 2024",
+      "excerpt": "New Haven, CT is an underrated market packed with wholesale, flip, and rental opportunities driven by Yale University and a growing urban core. Here's everything investors need to know to find profitable real estate deals in New Haven CT.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-07T12:01:07.546Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in New Haven CT",
+        "New Haven CT investment properties",
+        "wholesaling New Haven CT",
+        "fix and flip New Haven",
+        "New Haven rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-quit-your-job-through-real-estate-investing-a-step-by-step-guide",
       "title": "How to Quit Your Job Through Real Estate Investing: A Step-by-Step Guide",
       "excerpt": "Thousands of everyday people have replaced their 9-to-5 income with real estate profits — and you can too. This guide breaks down exactly how to quit your job through real estate investing, with realistic timelines, income targets, and strategies that work.",
@@ -15,7 +32,7 @@
         "wholesaling real estate",
         "financial freedom real estate"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "what-are-reo-properties-and-how-to-buy-them-a-complete-investor-s-guide",
