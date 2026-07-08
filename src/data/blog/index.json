@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-chandler-az-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Chandler AZ: A Complete Investor's Guide for 2024",
+      "excerpt": "Chandler, AZ is one of the hottest real estate markets in the Southwest, offering strong opportunities for wholesalers, flippers, and landlords alike. This guide covers local market data, the best neighborhoods to target, and practical tips for finding profitable deals.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-08T18:01:54.141Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Chandler AZ",
+        "Chandler AZ investment properties",
+        "wholesale deals Chandler",
+        "fix and flip Chandler AZ",
+        "rental properties Chandler AZ"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-providence-ri-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Providence RI: A Complete Investor's Guide for 2024",
       "excerpt": "Providence, Rhode Island is quietly becoming one of the Northeast's most attractive markets for real estate investors. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Providence RI.",
@@ -15,7 +32,7 @@
         "flip houses Providence Rhode Island",
         "Providence RI rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-portland-or-a-complete-investor-s-guide-for-2024",
