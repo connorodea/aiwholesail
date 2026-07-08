@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-portland-or-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Portland OR: A Complete Investor's Guide for 2024",
+      "excerpt": "Portland's real estate market offers serious opportunities for wholesalers, flippers, and landlords who know where to look. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Portland OR.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-08T12:02:44.432Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Portland OR",
+        "Portland real estate investing",
+        "wholesale real estate Portland",
+        "Portland fix and flip",
+        "Portland rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-montpelier-vt-a-complete-investor-s-guide",
       "title": "Real Estate Deals in Montpelier VT: A Complete Investor's Guide",
       "excerpt": "Montpelier VT is one of New England's most overlooked markets for real estate investors, offering affordable entry points and steady rental demand. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Montpelier VT.",
@@ -15,7 +32,7 @@
         "flip houses Montpelier",
         "rental properties Montpelier VT"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-use-a-heloc-to-buy-investment-property-step-by-step-guide",
