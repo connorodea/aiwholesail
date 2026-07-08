@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-use-a-heloc-to-buy-investment-property-step-by-step-guide",
+      "title": "How to Use a HELOC to Buy Investment Property (Step-by-Step Guide)",
+      "excerpt": "A Home Equity Line of Credit can be one of the most powerful—and underused—tools for funding your next real estate deal. Learn exactly how to use a HELOC to buy investment property, including real numbers, common pitfalls, and smart strategies.",
+      "category": "Creative Financing",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-08T06:02:03.479Z",
+      "readTime": 7,
+      "tags": [
+        "how to use a HELOC to buy investment property",
+        "HELOC real estate investing",
+        "home equity line of credit investment property",
+        "HELOC strategy real estate",
+        "real estate financing"
+      ],
+      "featured": true
+    },
+    {
       "slug": "best-real-estate-investor-software-tools-compared-2026-guide",
       "title": "Best Real Estate Investor Software Tools Compared (2026 Guide)",
       "excerpt": "Choosing the right software can mean the difference between finding one deal a month and closing five. We break down the best real estate investor software tools compared side by side so you can stop guessing and start investing smarter.",
@@ -15,7 +32,7 @@
         "wholesaling software",
         "real estate deal finder"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-las-cruces-nm-a-complete-investor-s-guide-for-2024",
