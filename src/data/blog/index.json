@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "cash-flow-vs-appreciation-which-matters-more-for-real-estate-investors",
+      "title": "Cash Flow vs Appreciation: Which Matters More for Real Estate Investors?",
+      "excerpt": "Should you chase monthly cash flow or long-term appreciation when buying investment properties? This guide breaks down both strategies with real numbers so you can build a portfolio that matches your goals.",
+      "category": "Strategy",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-09T06:01:06.669Z",
+      "readTime": 7,
+      "tags": [
+        "cash flow vs appreciation",
+        "real estate investing strategy",
+        "rental property cash flow",
+        "property appreciation",
+        "buy and hold real estate"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-set-up-automated-text-messaging-for-seller-leads-step-by-step-guide",
       "title": "How to Set Up Automated Text Messaging for Seller Leads (Step-by-Step Guide)",
       "excerpt": "Automated text messaging can dramatically increase your response rates with motivated sellers — but only if you set it up correctly. This guide walks you through everything from choosing a platform to writing follow-up sequences that convert leads into deals.",
@@ -15,7 +32,7 @@
         "real estate lead follow-up automation",
         "wholesale real estate texting"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-chandler-az-a-complete-investor-s-guide-for-2024",
