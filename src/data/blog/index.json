@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-find-profitable-real-estate-deals-in-myrtle-beach-sc-2024-investor-guide",
+      "title": "How to Find Profitable Real Estate Deals in Myrtle Beach SC (2024 Investor Guide)",
+      "excerpt": "Myrtle Beach is one of the Southeast's fastest-growing real estate markets, offering strong opportunities for wholesalers, flippers, and rental investors. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Myrtle Beach SC.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-09T12:02:17.273Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Myrtle Beach SC",
+        "Myrtle Beach real estate investing",
+        "wholesale real estate Myrtle Beach",
+        "Myrtle Beach investment properties",
+        "flip houses Myrtle Beach"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-columbia-sc-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Columbia SC: The Investor's Complete Guide for 2024",
       "excerpt": "Columbia, SC is one of the Southeast's most overlooked real estate markets, offering investors strong rental demand, affordable entry points, and motivated sellers. Here's everything you need to know to find profitable deals in South Carolina's capital city.",
@@ -15,7 +32,7 @@
         "Columbia SC rental properties",
         "best neighborhoods Columbia SC investors"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "cash-flow-vs-appreciation-which-matters-more-for-real-estate-investors",
