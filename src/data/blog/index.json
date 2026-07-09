@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-columbia-sc-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Columbia SC: The Investor's Complete Guide for 2024",
+      "excerpt": "Columbia, SC is one of the Southeast's most overlooked real estate markets, offering investors strong rental demand, affordable entry points, and motivated sellers. Here's everything you need to know to find profitable deals in South Carolina's capital city.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-09T12:01:11.407Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Columbia SC",
+        "Columbia SC investment properties",
+        "wholesale real estate Columbia SC",
+        "Columbia SC rental properties",
+        "best neighborhoods Columbia SC investors"
+      ],
+      "featured": true
+    },
+    {
       "slug": "cash-flow-vs-appreciation-which-matters-more-for-real-estate-investors",
       "title": "Cash Flow vs Appreciation: Which Matters More for Real Estate Investors?",
       "excerpt": "Should you chase monthly cash flow or long-term appreciation when buying investment properties? This guide breaks down both strategies with real numbers so you can build a portfolio that matches your goals.",
@@ -15,7 +32,7 @@
         "property appreciation",
         "buy and hold real estate"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-set-up-automated-text-messaging-for-seller-leads-step-by-step-guide",
