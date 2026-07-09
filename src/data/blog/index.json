@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-virginia-beach-va-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Virginia Beach VA: The Investor's Complete Guide for 2024",
+      "excerpt": "Virginia Beach is one of Virginia's most resilient real estate markets, with strong rental demand, steady appreciation, and plenty of off-market opportunities for savvy investors. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Virginia Beach VA.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-09T18:01:42.757Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Virginia Beach VA",
+        "Virginia Beach real estate investing",
+        "wholesale real estate Virginia Beach",
+        "flip houses Virginia Beach",
+        "Virginia Beach rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-rancho-cucamonga-ca-the-investor-s-complete-guide",
       "title": "Real Estate Deals in Rancho Cucamonga CA: The Investor's Complete Guide",
       "excerpt": "Rancho Cucamonga is one of the Inland Empire's hottest markets for real estate investors, offering strong rental demand, solid appreciation, and motivated sellers. Here's everything you need to find profitable deals in this Southern California city.",
@@ -15,7 +32,7 @@
         "flip houses Rancho Cucamonga",
         "rental properties Rancho Cucamonga"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-find-profitable-real-estate-deals-in-myrtle-beach-sc-2024-investor-guide",
