@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "wholesale-to-retail-flip-conversion-strategy-how-to-maximize-profit-on-every-dea",
+      "title": "Wholesale to Retail Flip Conversion Strategy: How to Maximize Profit on Every Deal",
+      "excerpt": "A wholesale to retail flip conversion strategy lets investors buy at wholesale prices, renovate, and sell at full retail value — capturing equity most buyers never see. Learn the step-by-step process, real numbers, and proven tactics to execute this strategy successfully.",
+      "category": "Strategy",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-10T06:01:03.546Z",
+      "readTime": 7,
+      "tags": [
+        "wholesale to retail flip conversion strategy",
+        "wholesale flip",
+        "real estate flipping",
+        "buy renovate sell",
+        "ARV strategy"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-virginia-beach-va-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Virginia Beach VA: The Investor's Complete Guide for 2024",
       "excerpt": "Virginia Beach is one of Virginia's most resilient real estate markets, with strong rental demand, steady appreciation, and plenty of off-market opportunities for savvy investors. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Virginia Beach VA.",
@@ -15,7 +32,7 @@
         "flip houses Virginia Beach",
         "Virginia Beach rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-rancho-cucamonga-ca-the-investor-s-complete-guide",
