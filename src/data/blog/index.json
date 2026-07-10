@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "can-you-do-a-1031-exchange-on-a-wholesale-deal-here-s-the-truth",
+      "title": "Can You Do a 1031 Exchange on a Wholesale Deal? Here's the Truth",
+      "excerpt": "Many real estate investors wonder if a 1031 exchange can shield their wholesale profits from taxes. The answer depends on how the deal is structured — and the details matter a lot.",
+      "category": "1031 Exchange",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-10T06:01:20.433Z",
+      "readTime": 7,
+      "tags": [
+        "1031 exchange wholesale deal",
+        "can you 1031 exchange a wholesale deal",
+        "wholesaling and 1031 exchange",
+        "tax deferral real estate wholesale",
+        "wholesale deal tax strategy"
+      ],
+      "featured": true
+    },
+    {
       "slug": "wholesale-to-retail-flip-conversion-strategy-how-to-maximize-profit-on-every-dea",
       "title": "Wholesale to Retail Flip Conversion Strategy: How to Maximize Profit on Every Deal",
       "excerpt": "A wholesale to retail flip conversion strategy lets investors buy at wholesale prices, renovate, and sell at full retail value — capturing equity most buyers never see. Learn the step-by-step process, real numbers, and proven tactics to execute this strategy successfully.",
@@ -15,7 +32,7 @@
         "buy renovate sell",
         "ARV strategy"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-virginia-beach-va-the-investor-s-complete-guide-for-2024",
