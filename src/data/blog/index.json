@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-find-profitable-real-estate-deals-in-atlanta-ga-2024-investor-guide",
+      "title": "How to Find Profitable Real Estate Deals in Atlanta GA (2024 Investor Guide)",
+      "excerpt": "Atlanta's booming population and diverse neighborhoods make it one of the best cities in the country for real estate investors. This guide covers the best areas, deal types, market trends, and tips for finding profitable real estate deals in Atlanta GA.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-10T12:01:06.303Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Atlanta GA",
+        "Atlanta real estate investing",
+        "wholesale real estate Atlanta",
+        "flip houses Atlanta",
+        "Atlanta rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "can-you-do-a-1031-exchange-on-a-wholesale-deal-here-s-the-truth",
       "title": "Can You Do a 1031 Exchange on a Wholesale Deal? Here's the Truth",
       "excerpt": "Many real estate investors wonder if a 1031 exchange can shield their wholesale profits from taxes. The answer depends on how the deal is structured — and the details matter a lot.",
@@ -15,7 +32,7 @@
         "tax deferral real estate wholesale",
         "wholesale deal tax strategy"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "wholesale-to-retail-flip-conversion-strategy-how-to-maximize-profit-on-every-dea",
