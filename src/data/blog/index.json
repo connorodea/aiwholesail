@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-pittsburgh-pa-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Pittsburgh PA: The Investor's Complete Guide for 2024",
+      "excerpt": "Pittsburgh offers some of the most affordable real estate deals in any major U.S. city, with strong rental demand and a rebounding economy. This guide covers the best neighborhoods, deal types, and strategies for investors looking to profit in the Steel City.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-10T18:02:06.177Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Pittsburgh PA",
+        "Pittsburgh real estate investing",
+        "Pittsburgh wholesale deals",
+        "Pittsburgh investment properties",
+        "Pittsburgh fix and flip"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-find-profitable-real-estate-deals-in-raleigh-nc-2024-investor-guide",
       "title": "How to Find Profitable Real Estate Deals in Raleigh NC (2024 Investor Guide)",
       "excerpt": "Raleigh NC is one of the Southeast's hottest real estate markets, offering strong returns for wholesalers, flippers, and landlords alike. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Raleigh NC.",
@@ -15,7 +32,7 @@
         "Raleigh NC investment properties",
         "best neighborhoods Raleigh investors"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-sunnyvale-ca-a-complete-investor-s-guide-for-2024",
