@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-find-profitable-real-estate-deals-in-boston-ma-2024-investor-guide",
+      "title": "How to Find Profitable Real Estate Deals in Boston MA (2024 Investor Guide)",
+      "excerpt": "Boston is one of the most competitive real estate markets in the country, but profitable deals still exist for investors who know where to look. This guide breaks down the best neighborhoods, deal types, and strategies for finding real estate deals in Boston MA.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-11T18:01:33.678Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Boston MA",
+        "Boston real estate investing",
+        "wholesale deals Boston",
+        "Boston investment properties",
+        "flip houses Boston MA"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-olympia-wa-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Olympia WA: A Complete Investor's Guide for 2024",
       "excerpt": "Olympia, Washington is emerging as one of the Pacific Northwest's most underrated real estate markets, offering wholesalers, flippers, and landlords strong profit potential. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Olympia WA.",
@@ -15,7 +32,7 @@
         "fix and flip Olympia WA",
         "rental properties Olympia Washington"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-cincinnati-oh-the-investor-s-complete-guide-for-2024",
