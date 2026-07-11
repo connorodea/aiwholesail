@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-cincinnati-oh-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Cincinnati OH: The Investor's Complete Guide for 2024",
+      "excerpt": "Cincinnati is quietly becoming one of the Midwest's hottest markets for real estate investors, with affordable home prices, strong rental demand, and motivated sellers around every corner. Here's everything you need to find profitable real estate deals in Cincinnati OH.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-11T12:02:43.184Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Cincinnati OH",
+        "Cincinnati real estate investing",
+        "wholesale real estate Cincinnati",
+        "Cincinnati rental properties",
+        "Cincinnati fix and flip"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-youngstown-oh-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Youngstown OH: The Investor's Complete Guide for 2024",
       "excerpt": "Youngstown, Ohio is one of the most affordable real estate markets in the country, with home prices well below the national average and strong rental demand. This guide breaks down the best neighborhoods, deal types, and strategies for investors looking to find profitable real estate deals in Youngstown OH.",
@@ -15,7 +32,7 @@
         "investment properties Youngstown",
         "Youngstown rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "can-i-invest-in-real-estate-with-5000-dollars-yes-here-s-how",
