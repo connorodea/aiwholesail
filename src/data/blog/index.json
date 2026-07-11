@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "transactional-funding-for-double-closings-explained-a-complete-guide-for-real-es",
+      "title": "Transactional Funding for Double Closings Explained: A Complete Guide for Real Estate Wholesalers",
+      "excerpt": "Transactional funding makes double closings possible without using your own cash, letting wholesalers flip contracts same-day. Learn exactly how it works, what it costs, and how to use it to close more deals.",
+      "category": "Financing",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-11T06:00:57.119Z",
+      "readTime": 7,
+      "tags": [
+        "transactional funding for double closings explained",
+        "transactional funding real estate",
+        "double closing wholesaling",
+        "same day closing funding",
+        "wholesale real estate funding"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-pittsburgh-pa-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Pittsburgh PA: The Investor's Complete Guide for 2024",
       "excerpt": "Pittsburgh offers some of the most affordable real estate deals in any major U.S. city, with strong rental demand and a rebounding economy. This guide covers the best neighborhoods, deal types, and strategies for investors looking to profit in the Steel City.",
@@ -15,7 +32,7 @@
         "Pittsburgh investment properties",
         "Pittsburgh fix and flip"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-find-profitable-real-estate-deals-in-raleigh-nc-2024-investor-guide",
