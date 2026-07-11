@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-youngstown-oh-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Youngstown OH: The Investor's Complete Guide for 2024",
+      "excerpt": "Youngstown, Ohio is one of the most affordable real estate markets in the country, with home prices well below the national average and strong rental demand. This guide breaks down the best neighborhoods, deal types, and strategies for investors looking to find profitable real estate deals in Youngstown OH.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-11T12:01:04.136Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Youngstown OH",
+        "Youngstown Ohio real estate investing",
+        "wholesale deals Youngstown",
+        "investment properties Youngstown",
+        "Youngstown rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "can-i-invest-in-real-estate-with-5000-dollars-yes-here-s-how",
       "title": "Can I Invest in Real Estate with 5000 Dollars? Yes — Here's How",
       "excerpt": "You don't need a six-figure bank account to get started in real estate. Discover the best strategies for investing in real estate with just $5,000 and start building wealth today.",
@@ -15,7 +32,7 @@
         "how to invest in real estate for beginners",
         "wholesaling real estate"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "transactional-funding-for-double-closings-explained-a-complete-guide-for-real-es",
