@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "can-i-invest-in-real-estate-with-5000-dollars-yes-here-s-how",
+      "title": "Can I Invest in Real Estate with 5000 Dollars? Yes — Here's How",
+      "excerpt": "You don't need a six-figure bank account to get started in real estate. Discover the best strategies for investing in real estate with just $5,000 and start building wealth today.",
+      "category": "FAQ",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-11T06:01:43.818Z",
+      "readTime": 7,
+      "tags": [
+        "can I invest in real estate with 5000 dollars",
+        "real estate investing with little money",
+        "low capital real estate investing",
+        "how to invest in real estate for beginners",
+        "wholesaling real estate"
+      ],
+      "featured": true
+    },
+    {
       "slug": "transactional-funding-for-double-closings-explained-a-complete-guide-for-real-es",
       "title": "Transactional Funding for Double Closings Explained: A Complete Guide for Real Estate Wholesalers",
       "excerpt": "Transactional funding makes double closings possible without using your own cash, letting wholesalers flip contracts same-day. Learn exactly how it works, what it costs, and how to use it to close more deals.",
@@ -15,7 +32,7 @@
         "same day closing funding",
         "wholesale real estate funding"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-pittsburgh-pa-the-investor-s-complete-guide-for-2024",
