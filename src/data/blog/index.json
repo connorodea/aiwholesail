@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-atlanta-ga-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Atlanta GA: The Investor's Complete Guide for 2024",
+      "excerpt": "Atlanta's booming population growth and diverse neighborhoods make it one of the hottest markets for real estate investors in the Southeast. This guide breaks down the best areas, deal types, and strategies to help you find profitable real estate deals in Atlanta GA.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-12T18:01:07.639Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Atlanta GA",
+        "Atlanta real estate investing",
+        "wholesale deals Atlanta",
+        "fix and flip Atlanta",
+        "rental properties Atlanta"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-corpus-christi-tx-the-investor-s-complete-guide",
       "title": "Real Estate Deals in Corpus Christi TX: The Investor's Complete Guide",
       "excerpt": "Corpus Christi is quietly becoming one of Texas's most compelling markets for real estate investors, with affordable home prices, strong rental demand, and a growing coastal economy. This guide breaks down where to find the best deals, which neighborhoods to target, and how to analyze opportunities in the Sparkling City by the Sea.",
@@ -15,7 +32,7 @@
         "flip houses Corpus Christi",
         "Corpus Christi rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-great-falls-mt-a-practical-investor-s-guide-for-2024",
