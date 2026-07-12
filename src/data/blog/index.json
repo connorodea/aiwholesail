@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-corpus-christi-tx-the-investor-s-complete-guide",
+      "title": "Real Estate Deals in Corpus Christi TX: The Investor's Complete Guide",
+      "excerpt": "Corpus Christi is quietly becoming one of Texas's most compelling markets for real estate investors, with affordable home prices, strong rental demand, and a growing coastal economy. This guide breaks down where to find the best deals, which neighborhoods to target, and how to analyze opportunities in the Sparkling City by the Sea.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-12T12:02:29.732Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Corpus Christi TX",
+        "Corpus Christi real estate investing",
+        "wholesale real estate Corpus Christi",
+        "flip houses Corpus Christi",
+        "Corpus Christi rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-great-falls-mt-a-practical-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Great Falls MT: A Practical Investor's Guide for 2024",
       "excerpt": "Great Falls, Montana is an under-the-radar market where savvy investors are finding affordable deals with strong rental demand and solid upside potential. This guide breaks down the local market, best neighborhoods, and strategies for finding profitable real estate deals in Great Falls MT.",
@@ -15,7 +32,7 @@
         "flip houses Great Falls MT",
         "rental properties Great Falls Montana"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-evaluate-a-real-estate-syndication-deal-a-step-by-step-investor-s-guide",
