@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-great-falls-mt-a-practical-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Great Falls MT: A Practical Investor's Guide for 2024",
+      "excerpt": "Great Falls, Montana is an under-the-radar market where savvy investors are finding affordable deals with strong rental demand and solid upside potential. This guide breaks down the local market, best neighborhoods, and strategies for finding profitable real estate deals in Great Falls MT.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-12T12:01:13.635Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Great Falls MT",
+        "Great Falls Montana real estate investing",
+        "wholesale deals Great Falls",
+        "flip houses Great Falls MT",
+        "rental properties Great Falls Montana"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-evaluate-a-real-estate-syndication-deal-a-step-by-step-investor-s-guide",
       "title": "How to Evaluate a Real Estate Syndication Deal: A Step-by-Step Investor's Guide",
       "excerpt": "Real estate syndications let you invest in large properties without managing them yourself, but knowing how to evaluate a deal is critical before you write a check. This guide breaks down the exact metrics, red flags, and due diligence steps every investor needs to know.",
@@ -15,7 +32,7 @@
         "syndication due diligence",
         "real estate syndication metrics"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-llc-vs-sole-proprietorship-which-is-better-for-investors",
