@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-evaluate-a-real-estate-syndication-deal-a-step-by-step-investor-s-guide",
+      "title": "How to Evaluate a Real Estate Syndication Deal: A Step-by-Step Investor's Guide",
+      "excerpt": "Real estate syndications let you invest in large properties without managing them yourself, but knowing how to evaluate a deal is critical before you write a check. This guide breaks down the exact metrics, red flags, and due diligence steps every investor needs to know.",
+      "category": "Analysis",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-12T06:01:17.109Z",
+      "readTime": 8,
+      "tags": [
+        "how to evaluate a real estate syndication deal",
+        "real estate syndication investing",
+        "passive real estate investing",
+        "syndication due diligence",
+        "real estate syndication metrics"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-llc-vs-sole-proprietorship-which-is-better-for-investors",
       "title": "Real Estate LLC vs Sole Proprietorship: Which Is Better for Investors?",
       "excerpt": "Choosing between a real estate LLC and sole proprietorship is one of the most important decisions you'll make as an investor. This guide breaks down the pros, cons, taxes, and liability differences so you can pick the right structure for your business.",
@@ -15,7 +32,7 @@
         "real estate business structure",
         "LLC taxes real estate"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-find-profitable-real-estate-deals-in-boston-ma-2024-investor-guide",
