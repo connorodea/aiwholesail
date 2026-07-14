@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "end-of-year-tax-planning-for-real-estate-investors-a-complete-guide",
+      "title": "End of Year Tax Planning for Real Estate Investors: A Complete Guide",
+      "excerpt": "Smart end of year tax planning can save real estate investors thousands of dollars before December 31st. This guide covers depreciation, cost segregation, 1031 exchanges, and more strategies to reduce your tax bill legally.",
+      "category": "Tax Strategy",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-14T06:00:58.135Z",
+      "readTime": 7,
+      "tags": [
+        "end of year tax planning real estate investors",
+        "real estate tax strategies",
+        "depreciation real estate",
+        "1031 exchange",
+        "cost segregation study"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-investing-kpis-what-to-track-and-why-it-matters",
       "title": "Real Estate Investing KPIs: What to Track and Why It Matters",
       "excerpt": "Knowing which numbers to watch can make or break your real estate investing business. This guide breaks down the essential KPIs every investor should track to grow profits and scale smarter.",
@@ -15,7 +32,7 @@
         "deal flow tracking",
         "real estate performance indicators"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-glendale-az-the-investor-s-complete-guide-for-2024",
