@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-chandler-az-the-investor-s-guide-to-finding-profitable-prop",
+      "title": "Real Estate Deals in Chandler AZ: The Investor's Guide to Finding Profitable Properties",
+      "excerpt": "Chandler, Arizona is one of the hottest real estate markets in the Southwest, offering strong opportunities for wholesalers, flippers, and rental investors. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Chandler AZ.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-14T18:01:04.143Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Chandler AZ",
+        "Chandler Arizona real estate investing",
+        "wholesale deals Chandler AZ",
+        "fix and flip Chandler Arizona",
+        "rental properties Chandler AZ"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-jacksonville-fl-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Jacksonville FL: The Investor's Complete Guide for 2024",
       "excerpt": "Jacksonville, FL is one of the Southeast's most overlooked real estate markets, offering strong cash flow, low entry prices, and massive growth potential. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Jacksonville FL.",
@@ -15,7 +32,7 @@
         "Jacksonville rental properties",
         "flip houses Jacksonville"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-colorado-springs-co-a-complete-investor-s-guide-for-2024",
