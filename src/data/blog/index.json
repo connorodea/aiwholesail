@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-henderson-nv-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Henderson NV: The Investor's Complete Guide for 2024",
+      "excerpt": "Henderson, Nevada is one of the fastest-growing cities in the Southwest, offering real estate investors a rare mix of strong rental demand, appreciation potential, and motivated sellers. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Henderson NV.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-14T18:02:45.407Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Henderson NV",
+        "Henderson Nevada real estate investing",
+        "wholesale real estate Henderson",
+        "Henderson NV rental properties",
+        "fix and flip Henderson Nevada"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-chandler-az-the-investor-s-guide-to-finding-profitable-prop",
       "title": "Real Estate Deals in Chandler AZ: The Investor's Guide to Finding Profitable Properties",
       "excerpt": "Chandler, Arizona is one of the hottest real estate markets in the Southwest, offering strong opportunities for wholesalers, flippers, and rental investors. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Chandler AZ.",
@@ -15,7 +32,7 @@
         "fix and flip Chandler Arizona",
         "rental properties Chandler AZ"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-jacksonville-fl-the-investor-s-complete-guide-for-2024",
