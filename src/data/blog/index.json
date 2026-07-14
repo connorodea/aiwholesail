@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-jacksonville-fl-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Jacksonville FL: The Investor's Complete Guide for 2024",
+      "excerpt": "Jacksonville, FL is one of the Southeast's most overlooked real estate markets, offering strong cash flow, low entry prices, and massive growth potential. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Jacksonville FL.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-14T12:02:16.772Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Jacksonville FL",
+        "Jacksonville real estate investing",
+        "wholesale deals Jacksonville",
+        "Jacksonville rental properties",
+        "flip houses Jacksonville"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-colorado-springs-co-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Colorado Springs CO: A Complete Investor's Guide for 2024",
       "excerpt": "Colorado Springs is one of Colorado's most underrated investment markets, offering affordable entry points and strong rental demand. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Colorado Springs CO.",
@@ -15,7 +32,7 @@
         "fix and flip Colorado Springs",
         "rental properties Colorado Springs"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "end-of-year-tax-planning-for-real-estate-investors-a-complete-guide",
