@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "investorlift-review-for-wholesalers-is-it-worth-the-cost-in-2025",
+      "title": "InvestorLift Review for Wholesalers: Is It Worth the Cost in 2025?",
+      "excerpt": "InvestorLift has become one of the most talked-about platforms for real estate wholesalers looking to scale their buyer lists and close more deals. This honest review breaks down the features, pricing, pros and cons, and how it compares to newer AI-powered alternatives.",
+      "category": "Review",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-15T06:02:48.158Z",
+      "readTime": 7,
+      "tags": [
+        "InvestorLift review for wholesalers",
+        "InvestorLift pricing",
+        "InvestorLift alternatives",
+        "real estate wholesaling software",
+        "wholesale deal platform"
+      ],
+      "featured": true
+    },
+    {
       "slug": "best-websites-to-find-for-sale-by-owner-homes-investor-s-guide",
       "title": "Best Websites to Find For Sale By Owner Homes (Investor's Guide)",
       "excerpt": "FSBO listings are goldmines for real estate investors who know where to look. This guide breaks down the best websites to find for sale by owner homes and how to turn those leads into profitable deals.",
@@ -15,7 +32,7 @@
         "FSBO leads for investors",
         "find FSBO homes"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-henderson-nv-the-investor-s-complete-guide-for-2024",
