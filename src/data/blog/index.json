@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-jacksonville-fl-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Jacksonville FL: A Complete Investor's Guide for 2024",
+      "excerpt": "Jacksonville, FL is one of the fastest-growing real estate markets in the Southeast, offering strong opportunities for wholesalers, flippers, and landlords. This guide covers the best neighborhoods, deal types, market trends, and practical tips to help you profit in Jacksonville's booming market.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-15T18:02:57.040Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Jacksonville FL",
+        "Jacksonville real estate investing",
+        "wholesale deals Jacksonville",
+        "flip houses Jacksonville",
+        "Jacksonville rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-albany-ny-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Albany NY: A Complete Investor's Guide for 2024",
       "excerpt": "Albany, NY is quietly becoming one of the Northeast's most attractive markets for real estate investors, with affordable entry points and strong rental demand. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Albany NY.",
@@ -15,7 +32,7 @@
         "Albany NY rental properties",
         "Albany house flipping"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-lansing-mi-the-investor-s-guide-to-michigan-s-capital-city",
