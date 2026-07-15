@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "best-websites-to-find-for-sale-by-owner-homes-investor-s-guide",
+      "title": "Best Websites to Find For Sale By Owner Homes (Investor's Guide)",
+      "excerpt": "FSBO listings are goldmines for real estate investors who know where to look. This guide breaks down the best websites to find for sale by owner homes and how to turn those leads into profitable deals.",
+      "category": "Finding FSBO",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-15T06:00:57.418Z",
+      "readTime": 7,
+      "tags": [
+        "best websites to find for sale by owner homes",
+        "FSBO listings",
+        "for sale by owner real estate",
+        "FSBO leads for investors",
+        "find FSBO homes"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-henderson-nv-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Henderson NV: The Investor's Complete Guide for 2024",
       "excerpt": "Henderson, Nevada is one of the fastest-growing cities in the Southwest, offering real estate investors a rare mix of strong rental demand, appreciation potential, and motivated sellers. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Henderson NV.",
@@ -15,7 +32,7 @@
         "Henderson NV rental properties",
         "fix and flip Henderson Nevada"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-chandler-az-the-investor-s-guide-to-finding-profitable-prop",
