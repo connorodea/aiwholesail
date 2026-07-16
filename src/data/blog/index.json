@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "what-is-a-1031-exchange-and-how-does-it-work-a-real-estate-investor-s-complete-g",
+      "title": "What Is a 1031 Exchange and How Does It Work? A Real Estate Investor's Complete Guide",
+      "excerpt": "A 1031 exchange lets real estate investors defer capital gains taxes by reinvesting proceeds into a new property. Learn exactly how the process works, the deadlines you must hit, and how to use it to build serious long-term wealth.",
+      "category": "1031 Exchange",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-16T06:00:59.902Z",
+      "readTime": 7,
+      "tags": [
+        "1031 exchange",
+        "what is a 1031 exchange",
+        "how does a 1031 exchange work",
+        "real estate tax deferral",
+        "like-kind exchange"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-jacksonville-fl-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Jacksonville FL: A Complete Investor's Guide for 2024",
       "excerpt": "Jacksonville, FL is one of the fastest-growing real estate markets in the Southeast, offering strong opportunities for wholesalers, flippers, and landlords. This guide covers the best neighborhoods, deal types, market trends, and practical tips to help you profit in Jacksonville's booming market.",
@@ -15,7 +32,7 @@
         "flip houses Jacksonville",
         "Jacksonville rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-albany-ny-a-complete-investor-s-guide-for-2024",
