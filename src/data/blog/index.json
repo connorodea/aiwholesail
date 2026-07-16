@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-bridgeport-ct-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Bridgeport CT: The Investor's Complete Guide for 2024",
+      "excerpt": "Bridgeport, CT offers some of the most affordable entry points for real estate investors in the Northeast, with strong rental demand and growing wholesale opportunities. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Bridgeport CT.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-16T18:01:05.449Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Bridgeport CT",
+        "Bridgeport CT real estate investing",
+        "wholesale deals Bridgeport",
+        "Bridgeport CT rental properties",
+        "flip houses Bridgeport"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-alexandria-va-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Alexandria VA: The Investor's Complete Guide for 2024",
       "excerpt": "Alexandria, VA is one of the most competitive yet rewarding real estate markets in the DMV area. This guide breaks down the best neighborhoods, deal types, and strategies to find profitable real estate deals in Alexandria VA.",
@@ -15,7 +32,7 @@
         "flip houses Alexandria VA",
         "Alexandria VA rental property"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-lakeland-fl-the-investor-s-complete-guide-for-2024",
