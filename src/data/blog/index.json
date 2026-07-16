@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-get-started-in-real-estate-investing-with-no-money-2024-guide",
+      "title": "How to Get Started in Real Estate Investing With No Money (2024 Guide)",
+      "excerpt": "Think you need a lot of cash to break into real estate? Think again. This guide walks you through proven strategies to start investing with little to no money out of pocket.",
+      "category": "Getting Started",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-16T06:01:19.820Z",
+      "readTime": 7,
+      "tags": [
+        "how to get started in real estate investing with no money",
+        "real estate investing no money",
+        "wholesale real estate beginners",
+        "no money down real estate",
+        "real estate wholesaling"
+      ],
+      "featured": true
+    },
+    {
       "slug": "what-is-a-1031-exchange-and-how-does-it-work-a-real-estate-investor-s-complete-g",
       "title": "What Is a 1031 Exchange and How Does It Work? A Real Estate Investor's Complete Guide",
       "excerpt": "A 1031 exchange lets real estate investors defer capital gains taxes by reinvesting proceeds into a new property. Learn exactly how the process works, the deadlines you must hit, and how to use it to build serious long-term wealth.",
@@ -15,7 +32,7 @@
         "real estate tax deferral",
         "like-kind exchange"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-jacksonville-fl-a-complete-investor-s-guide-for-2024",
