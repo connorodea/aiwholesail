@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-fort-collins-co-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Fort Collins CO: The Investor's Complete Guide for 2024",
+      "excerpt": "Fort Collins is one of Colorado's most resilient real estate markets, offering strong rental demand, steady appreciation, and overlooked wholesale opportunities. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Fort Collins CO.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-17T12:02:29.322Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Fort Collins CO",
+        "Fort Collins real estate investing",
+        "wholesale real estate Fort Collins",
+        "Fort Collins rental properties",
+        "fix and flip Fort Collins"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-st-petersburg-fl-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in St. Petersburg FL: A Complete Investor's Guide for 2024",
       "excerpt": "St. Petersburg FL is one of Florida's hottest markets for real estate investors, with strong rental demand, rising home values, and plenty of off-market opportunities. This guide breaks down the best neighborhoods, deal types, and strategies to help you profit in the Sunshine City.",
@@ -15,7 +32,7 @@
         "house flipping St. Pete FL",
         "rental properties St. Petersburg Florida"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "the-ultimate-real-estate-investing-automation-stack-to-scale-your-business-in-20",
