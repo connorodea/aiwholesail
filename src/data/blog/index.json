@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-tucson-az-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Tucson AZ: The Investor's Complete Guide for 2024",
+      "excerpt": "Tucson, Arizona is quietly becoming one of the Southwest's most attractive markets for real estate investors. This guide covers the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Tucson AZ.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-17T18:01:08.023Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Tucson AZ",
+        "Tucson real estate investing",
+        "Tucson wholesale deals",
+        "Tucson fix and flip",
+        "Tucson rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-fort-collins-co-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Fort Collins CO: The Investor's Complete Guide for 2024",
       "excerpt": "Fort Collins is one of Colorado's most resilient real estate markets, offering strong rental demand, steady appreciation, and overlooked wholesale opportunities. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Fort Collins CO.",
@@ -15,7 +32,7 @@
         "Fort Collins rental properties",
         "fix and flip Fort Collins"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-st-petersburg-fl-a-complete-investor-s-guide-for-2024",
