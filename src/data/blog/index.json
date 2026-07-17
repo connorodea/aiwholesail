@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "the-ultimate-real-estate-investing-automation-stack-to-scale-your-business-in-20",
+      "title": "The Ultimate Real Estate Investing Automation Stack to Scale Your Business in 2025",
+      "excerpt": "A well-built real estate investing automation stack can save you 20+ hours per week and help you close more deals with less effort. Learn exactly which tools to stack, how to connect them, and where AI fits in.",
+      "category": "Automation",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-17T06:01:49.009Z",
+      "readTime": 7,
+      "tags": [
+        "real estate investing automation stack",
+        "real estate automation tools",
+        "wholesaling automation",
+        "real estate CRM",
+        "deal finding software"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-much-do-house-flippers-actually-make-after-taxes-a-real-look-at-the-numbers",
       "title": "How Much Do House Flippers Actually Make After Taxes? A Real Look at the Numbers",
       "excerpt": "House flipping can be highly profitable, but taxes take a bigger bite than most beginners expect. This guide breaks down real after-tax earnings so you know exactly what to plan for.",
@@ -15,7 +32,7 @@
         "fix and flip income",
         "short-term capital gains real estate"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-lexington-ky-the-investor-s-complete-guide-for-2024",
