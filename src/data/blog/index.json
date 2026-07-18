@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-long-beach-ca-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Long Beach CA: The Investor's Complete Guide for 2024",
+      "excerpt": "Long Beach, CA offers some of Southern California's most accessible entry points for real estate investors, with diverse neighborhoods and strong rental demand. This guide breaks down where to find profitable deals, what to expect from the local market, and how to compete as an out-of-state investor.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-18T12:01:07.603Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Long Beach CA",
+        "Long Beach investment properties",
+        "Long Beach wholesale deals",
+        "Long Beach CA real estate market",
+        "flip houses Long Beach"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-manchester-nh-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Manchester NH: A Complete Investor's Guide for 2024",
       "excerpt": "Manchester, NH is one of New England's most overlooked real estate markets, offering strong rental demand, affordable entry points, and growing appreciation. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Manchester NH.",
@@ -15,7 +32,7 @@
         "flip houses Manchester NH",
         "rental properties Manchester NH"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "what-are-reo-properties-and-how-to-buy-them-a-complete-investor-s-guide",
