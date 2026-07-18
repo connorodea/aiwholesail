@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-portland-me-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Portland ME: The Investor's Complete Guide for 2024",
+      "excerpt": "Portland, Maine is one of New England's most overlooked real estate markets, offering wholesalers, flippers, and landlords strong returns in a city with tight inventory and growing demand. This guide covers the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Portland ME.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-18T18:01:07.378Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Portland ME",
+        "Portland Maine real estate investing",
+        "wholesale real estate Portland Maine",
+        "flip houses Portland ME",
+        "Portland ME rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-long-beach-ca-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Long Beach CA: The Investor's Complete Guide for 2024",
       "excerpt": "Long Beach, CA offers some of Southern California's most accessible entry points for real estate investors, with diverse neighborhoods and strong rental demand. This guide breaks down where to find profitable deals, what to expect from the local market, and how to compete as an out-of-state investor.",
@@ -15,7 +32,7 @@
         "Long Beach CA real estate market",
         "flip houses Long Beach"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-manchester-nh-a-complete-investor-s-guide-for-2024",
