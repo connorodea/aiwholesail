@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-build-a-real-estate-portfolio-from-scratch-step-by-step-guide",
+      "title": "How to Build a Real Estate Portfolio from Scratch (Step-by-Step Guide)",
+      "excerpt": "Building a real estate portfolio from scratch is more achievable than most beginners think. This step-by-step guide walks you through your first purchase, smart scaling strategies, and how to grow long-term wealth through rental properties.",
+      "category": "Strategy",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-18T06:00:55.394Z",
+      "readTime": 7,
+      "tags": [
+        "how to build a real estate portfolio from scratch",
+        "build real estate portfolio",
+        "rental property portfolio",
+        "real estate investing beginners",
+        "grow rental portfolio"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-find-profitable-real-estate-deals-in-bellevue-wa-2024-investor-guide",
       "title": "How to Find Profitable Real Estate Deals in Bellevue WA (2024 Investor Guide)",
       "excerpt": "Bellevue, WA is one of the hottest real estate markets in the Pacific Northwest, but finding profitable deals takes local knowledge and the right strategy. This guide breaks down the best neighborhoods, deal types, and investor tips for cracking the Bellevue market.",
@@ -15,7 +32,7 @@
         "fix and flip Bellevue WA",
         "off-market deals Bellevue"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-tucson-az-the-investor-s-complete-guide-for-2024",
