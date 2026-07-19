@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-columbus-oh-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Columbus OH: The Investor's Complete Guide for 2024",
+      "excerpt": "Columbus, Ohio is one of the hottest real estate markets in the Midwest, offering strong rental demand, affordable entry points, and consistent appreciation. Whether you're wholesaling, flipping, or building a rental portfolio, here's everything you need to find profitable real estate deals in Columbus OH.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-19T12:01:06.943Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Columbus OH",
+        "Columbus Ohio real estate investing",
+        "wholesale deals Columbus",
+        "flip houses Columbus Ohio",
+        "rental properties Columbus"
+      ],
+      "featured": true
+    },
+    {
       "slug": "contractor-ghosted-me-during-house-flip-what-to-do-right-now",
       "title": "Contractor Ghosted Me During House Flip: What to Do Right Now",
       "excerpt": "Getting ghosted by a contractor mid-flip can derail your entire project and eat into your profits. Here's exactly what to do when a contractor disappears and how to protect yourself from it happening again.",
@@ -15,7 +32,7 @@
         "how to handle contractor ghosting",
         "real estate investor contractor tips"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-wholesale-real-estate-without-cold-calling-and-still-close-deals",
