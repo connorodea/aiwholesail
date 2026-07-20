@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-newark-nj-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Newark NJ: The Investor's Complete Guide for 2024",
+      "excerpt": "Newark, NJ is one of the most underrated markets for real estate investors on the East Coast. This guide covers the best neighborhoods, deal types, current market trends, and practical tips for finding profitable real estate deals in Newark NJ.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-20T12:01:08.882Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Newark NJ",
+        "Newark NJ real estate investing",
+        "Newark wholesale deals",
+        "Newark NJ investment properties",
+        "Newark NJ house flipping"
+      ],
+      "featured": true
+    },
+    {
       "slug": "rv-park-investing-returns-and-cap-rates-what-investors-need-to-know-in-2024",
       "title": "RV Park Investing Returns and Cap Rates: What Investors Need to Know in 2024",
       "excerpt": "RV park investing offers some of the strongest cap rates in commercial real estate, often ranging from 7% to 12%. Learn how to evaluate returns, calculate cap rates, and find profitable RV park deals in today's market.",
@@ -15,7 +32,7 @@
         "campground investing",
         "RV park NOI"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "inherited-property-i-don-t-want-how-to-sell-fast-and-move-on",
