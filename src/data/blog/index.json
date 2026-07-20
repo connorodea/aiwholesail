@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-lancaster-ca-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Lancaster CA: A Complete Investor's Guide for 2024",
+      "excerpt": "Lancaster, CA is emerging as one of the Antelope Valley's most attractive markets for investors seeking affordable entry points and strong rental demand. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Lancaster CA.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-20T12:01:52.036Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Lancaster CA",
+        "Lancaster CA real estate investing",
+        "wholesale deals Lancaster",
+        "fix and flip Lancaster CA",
+        "Lancaster rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-newark-nj-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Newark NJ: The Investor's Complete Guide for 2024",
       "excerpt": "Newark, NJ is one of the most underrated markets for real estate investors on the East Coast. This guide covers the best neighborhoods, deal types, current market trends, and practical tips for finding profitable real estate deals in Newark NJ.",
@@ -15,7 +32,7 @@
         "Newark NJ investment properties",
         "Newark NJ house flipping"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "rv-park-investing-returns-and-cap-rates-what-investors-need-to-know-in-2024",
