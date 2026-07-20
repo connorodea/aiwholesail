@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "rv-park-investing-returns-and-cap-rates-what-investors-need-to-know-in-2024",
+      "title": "RV Park Investing Returns and Cap Rates: What Investors Need to Know in 2024",
+      "excerpt": "RV park investing offers some of the strongest cap rates in commercial real estate, often ranging from 7% to 12%. Learn how to evaluate returns, calculate cap rates, and find profitable RV park deals in today's market.",
+      "category": "Strategy",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-20T06:01:03.996Z",
+      "readTime": 7,
+      "tags": [
+        "RV park investing returns",
+        "RV park cap rates",
+        "RV park investment",
+        "campground investing",
+        "RV park NOI"
+      ],
+      "featured": true
+    },
+    {
       "slug": "inherited-property-i-don-t-want-how-to-sell-fast-and-move-on",
       "title": "Inherited Property I Don't Want: How to Sell Fast and Move On",
       "excerpt": "Inheriting a property sounds like good news, but it can quickly become a financial and emotional burden. Here's exactly how to sell an unwanted inherited property fast — and walk away with cash in hand.",
@@ -15,7 +32,7 @@
         "probate real estate",
         "cash buyers for inherited homes"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-find-profitable-real-estate-deals-in-boca-raton-fl-2024-guide",
