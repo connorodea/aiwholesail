@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-philadelphia-pa-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Philadelphia PA: A Complete Investor's Guide for 2024",
+      "excerpt": "Philadelphia is one of the most accessible and profitable real estate markets on the East Coast, with median home prices well below New York and Washington D.C. This guide covers the best neighborhoods, deal types, and strategies for finding real estate deals in Philadelphia PA.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-21T18:01:07.009Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Philadelphia PA",
+        "Philadelphia real estate investing",
+        "wholesale deals Philadelphia",
+        "flip houses Philadelphia",
+        "Philadelphia rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-greenville-sc-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Greenville SC: The Investor's Complete Guide for 2024",
       "excerpt": "Greenville, SC has quietly become one of the Southeast's hottest real estate markets, offering strong returns for wholesalers, flippers, and landlords alike. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Greenville SC.",
@@ -15,7 +32,7 @@
         "house flipping Greenville SC",
         "Greenville SC rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-find-profitable-real-estate-deals-in-richmond-va-2024-investor-guide",
