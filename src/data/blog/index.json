@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-greenville-sc-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Greenville SC: The Investor's Complete Guide for 2024",
+      "excerpt": "Greenville, SC has quietly become one of the Southeast's hottest real estate markets, offering strong returns for wholesalers, flippers, and landlords alike. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Greenville SC.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-21T12:01:45.595Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Greenville SC",
+        "Greenville SC investment properties",
+        "wholesale real estate Greenville",
+        "house flipping Greenville SC",
+        "Greenville SC rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-find-profitable-real-estate-deals-in-richmond-va-2024-investor-guide",
       "title": "How to Find Profitable Real Estate Deals in Richmond VA (2024 Investor Guide)",
       "excerpt": "Richmond, VA is one of the Southeast's most underrated real estate markets, offering investors strong rental demand, affordable home prices, and a growing economy. This guide covers the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Richmond VA.",
@@ -15,7 +32,7 @@
         "flip houses Richmond VA",
         "rental properties Richmond VA"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-investment-strategies-for-2026-what-s-working-now",
