@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "land-flipping-vs-house-wholesaling-profit-comparison-which-strategy-wins",
+      "title": "Land Flipping vs House Wholesaling Profit Comparison: Which Strategy Wins?",
+      "excerpt": "Choosing between land flipping and house wholesaling can make or break your real estate investing career. This deep-dive profit comparison breaks down the real numbers, risks, and timelines so you can pick the right strategy for your goals.",
+      "category": "Comparison",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-22T06:00:54.964Z",
+      "readTime": 7,
+      "tags": [
+        "land flipping vs house wholesaling profit comparison",
+        "land flipping profits",
+        "wholesaling real estate profits",
+        "real estate investing strategy",
+        "land vs houses"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-albuquerque-nm-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Albuquerque NM: A Complete Investor's Guide for 2024",
       "excerpt": "Albuquerque is quietly becoming one of the Southwest's most attractive markets for real estate investors, with affordable home prices and strong rental demand. This guide covers the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Albuquerque NM.",
@@ -15,7 +32,7 @@
         "Albuquerque investment properties",
         "flip houses Albuquerque"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-philadelphia-pa-a-complete-investor-s-guide-for-2024",
