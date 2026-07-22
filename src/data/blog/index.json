@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-new-orleans-la-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in New Orleans LA: The Investor's Complete Guide for 2024",
+      "excerpt": "New Orleans offers a rare mix of affordable prices, strong rental demand, and motivated sellers that savvy investors are capitalizing on right now. Discover the best neighborhoods, deal types, and local strategies to find profitable real estate deals in New Orleans LA.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-22T12:01:43.496Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in New Orleans LA",
+        "New Orleans real estate investing",
+        "wholesale real estate New Orleans",
+        "New Orleans investment properties",
+        "flip houses New Orleans"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-tulsa-ok-the-investor-s-complete-guide-to-oklahoma-s-hidden",
       "title": "Real Estate Deals in Tulsa OK: The Investor's Complete Guide to Oklahoma's Hidden Gem Market",
       "excerpt": "Tulsa, Oklahoma is one of the most affordable and investor-friendly markets in the country, with strong rental demand and plenty of distressed properties ripe for wholesale and flip deals. Here's everything you need to know to find profitable real estate deals in Tulsa OK.",
@@ -15,7 +32,7 @@
         "Tulsa OK flipping houses",
         "Tulsa rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-use-driving-for-dollars-to-find-wholesale-deals-step-by-step-guide",
