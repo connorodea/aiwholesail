@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-use-driving-for-dollars-to-find-wholesale-deals-step-by-step-guide",
+      "title": "How to Use Driving for Dollars to Find Wholesale Deals (Step-by-Step Guide)",
+      "excerpt": "Driving for dollars is one of the most reliable ways to find motivated sellers and off-market wholesale deals before your competition does. Learn the exact process, tools, and follow-up strategies that turn a simple drive through a neighborhood into consistent deal flow.",
+      "category": "Deal Finding",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-22T06:01:34.168Z",
+      "readTime": 7,
+      "tags": [
+        "driving for dollars",
+        "wholesale real estate",
+        "find wholesale deals",
+        "motivated sellers",
+        "off-market deals"
+      ],
+      "featured": true
+    },
+    {
       "slug": "land-flipping-vs-house-wholesaling-profit-comparison-which-strategy-wins",
       "title": "Land Flipping vs House Wholesaling Profit Comparison: Which Strategy Wins?",
       "excerpt": "Choosing between land flipping and house wholesaling can make or break your real estate investing career. This deep-dive profit comparison breaks down the real numbers, risks, and timelines so you can pick the right strategy for your goals.",
@@ -15,7 +32,7 @@
         "real estate investing strategy",
         "land vs houses"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-albuquerque-nm-a-complete-investor-s-guide-for-2024",
