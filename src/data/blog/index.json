@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-oceanside-ca-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Oceanside CA: A Complete Investor's Guide for 2024",
+      "excerpt": "Oceanside, CA is one of Southern California's most overlooked markets for real estate investors, offering a mix of wholesale deals, flip opportunities, and strong rental demand. This guide breaks down the local market, best neighborhoods, and practical strategies for finding profitable real estate deals in Oceanside CA.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-22T18:01:03.786Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Oceanside CA",
+        "Oceanside CA real estate investing",
+        "wholesale deals Oceanside",
+        "house flipping Oceanside California",
+        "Oceanside rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-new-orleans-la-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in New Orleans LA: The Investor's Complete Guide for 2024",
       "excerpt": "New Orleans offers a rare mix of affordable prices, strong rental demand, and motivated sellers that savvy investors are capitalizing on right now. Discover the best neighborhoods, deal types, and local strategies to find profitable real estate deals in New Orleans LA.",
@@ -15,7 +32,7 @@
         "New Orleans investment properties",
         "flip houses New Orleans"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-tulsa-ok-the-investor-s-complete-guide-to-oklahoma-s-hidden",
