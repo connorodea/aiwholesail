@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-tell-if-a-real-estate-market-is-overpriced-and-what-to-do-about-it",
+      "title": "How to Tell If a Real Estate Market Is Overpriced (And What to Do About It)",
+      "excerpt": "Buying in an overpriced market is one of the fastest ways to lose money in real estate. Learn the key signals that tell you a market has gotten too hot — and how to protect your investments.",
+      "category": "Market Trends",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-23T06:02:29.174Z",
+      "readTime": 7,
+      "tags": [
+        "how to tell if a real estate market is overpriced",
+        "overpriced housing market",
+        "real estate market analysis",
+        "price to rent ratio",
+        "days on market"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-keep-books-and-records-for-rental-property-taxes-step-by-step-guide",
       "title": "How to Keep Books and Records for Rental Property Taxes (Step-by-Step Guide)",
       "excerpt": "Keeping clean books for your rental properties can save you thousands at tax time and protect you during an audit. This step-by-step guide shows real estate investors exactly how to track income, expenses, and depreciation the right way.",
@@ -15,7 +32,7 @@
         "rental income tracking",
         "real estate investor taxes"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-bend-or-the-investor-s-complete-guide-to-oregon-s-high-dese",
