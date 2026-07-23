@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-kansas-city-mo-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Kansas City MO: The Investor's Complete Guide for 2024",
+      "excerpt": "Kansas City, MO is one of the Midwest's most investor-friendly markets, with affordable home prices, strong rental demand, and a steady pipeline of wholesale and flip opportunities. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Kansas City MO.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-23T18:01:04.796Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Kansas City MO",
+        "Kansas City real estate investing",
+        "wholesale real estate Kansas City",
+        "fix and flip Kansas City",
+        "Kansas City rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-find-profitable-real-estate-deals-in-tucson-az-2024-investor-guide",
       "title": "How to Find Profitable Real Estate Deals in Tucson AZ (2024 Investor Guide)",
       "excerpt": "Tucson, Arizona is quietly becoming one of the Southwest's most attractive markets for real estate investors. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Tucson AZ.",
@@ -15,7 +32,7 @@
         "fix and flip Tucson",
         "Tucson rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-moreno-valley-ca-the-investor-s-complete-guide-for-2024",
