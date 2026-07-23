@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-keep-books-and-records-for-rental-property-taxes-step-by-step-guide",
+      "title": "How to Keep Books and Records for Rental Property Taxes (Step-by-Step Guide)",
+      "excerpt": "Keeping clean books for your rental properties can save you thousands at tax time and protect you during an audit. This step-by-step guide shows real estate investors exactly how to track income, expenses, and depreciation the right way.",
+      "category": "Tax Deductions",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-23T06:00:58.726Z",
+      "readTime": 7,
+      "tags": [
+        "how to keep books and records for rental property taxes",
+        "rental property bookkeeping",
+        "landlord tax records",
+        "rental income tracking",
+        "real estate investor taxes"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-bend-or-the-investor-s-complete-guide-to-oregon-s-high-dese",
       "title": "Real Estate Deals in Bend OR: The Investor's Complete Guide to Oregon's High Desert Hotspot",
       "excerpt": "Bend, Oregon has transformed from a quiet ski town into one of the Pacific Northwest's most competitive real estate markets. Here's everything investors need to know about finding profitable real estate deals in Bend OR right now.",
@@ -15,7 +32,7 @@
         "investment properties Bend OR",
         "flip houses Bend Oregon"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-oceanside-ca-a-complete-investor-s-guide-for-2024",
