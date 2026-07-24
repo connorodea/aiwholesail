@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-check-for-liens-on-a-property-before-buying-step-by-step-guide",
+      "title": "How to Check for Liens on a Property Before Buying (Step-by-Step Guide)",
+      "excerpt": "Buying a property with hidden liens can cost you thousands of dollars and derail your entire deal. Learn exactly how to check for liens on a property before buying so you never get blindsided at closing.",
+      "category": "Process",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-24T06:00:59.240Z",
+      "readTime": 7,
+      "tags": [
+        "how to check for liens on a property before buying",
+        "property lien search",
+        "title search real estate",
+        "IRS tax lien search",
+        "mechanic lien property"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-tampa-fl-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Tampa FL: The Investor's Complete Guide for 2024",
       "excerpt": "Tampa, Florida is one of the hottest real estate markets in the country, offering strong opportunities for wholesalers, flippers, and landlords alike. This guide breaks down the best neighborhoods, deal types, market trends, and tips for finding profitable real estate deals in Tampa FL.",
@@ -15,7 +32,7 @@
         "flip houses Tampa",
         "Tampa FL investment properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-kansas-city-mo-the-investor-s-complete-guide-for-2024",
