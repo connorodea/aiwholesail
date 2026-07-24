@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-little-rock-ar-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Little Rock AR: The Investor's Complete Guide for 2024",
+      "excerpt": "Little Rock, Arkansas is quietly becoming one of the South's most attractive markets for real estate investors, offering low entry prices, strong rental demand, and motivated sellers. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Little Rock AR.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-24T18:02:06.839Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Little Rock AR",
+        "Little Rock real estate investing",
+        "wholesale deals Little Rock",
+        "flip houses Little Rock Arkansas",
+        "Little Rock rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-aurora-co-the-investor-s-complete-guide-to-this-booming-den",
       "title": "Real Estate Deals in Aurora CO: The Investor's Complete Guide to This Booming Denver Suburb",
       "excerpt": "Aurora, Colorado is one of the Denver metro's hottest markets for real estate investors, offering a mix of wholesale opportunities, fix-and-flip potential, and strong rental demand. This guide breaks down the best neighborhoods, current market trends, and actionable strategies for finding profitable real estate deals in Aurora CO.",
@@ -15,7 +32,7 @@
         "fix and flip Aurora Colorado",
         "Aurora CO rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-santa-rosa-ca-a-complete-investor-s-guide-for-2024",
