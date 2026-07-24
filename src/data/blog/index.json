@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-sunnyvale-ca-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Sunnyvale CA: The Investor's Complete Guide for 2024",
+      "excerpt": "Sunnyvale sits at the heart of Silicon Valley, making it one of California's most competitive — and rewarding — real estate markets for savvy investors. This guide breaks down where to find profitable real estate deals in Sunnyvale CA, which neighborhoods to target, and how to analyze opportunities before you commit.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-24T12:01:14.079Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Sunnyvale CA",
+        "Sunnyvale real estate investing",
+        "wholesale deals Sunnyvale",
+        "flip houses Sunnyvale CA",
+        "Sunnyvale rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-check-for-liens-on-a-property-before-buying-step-by-step-guide",
       "title": "How to Check for Liens on a Property Before Buying (Step-by-Step Guide)",
       "excerpt": "Buying a property with hidden liens can cost you thousands of dollars and derail your entire deal. Learn exactly how to check for liens on a property before buying so you never get blindsided at closing.",
@@ -15,7 +32,7 @@
         "IRS tax lien search",
         "mechanic lien property"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-tampa-fl-the-investor-s-complete-guide-for-2024",
