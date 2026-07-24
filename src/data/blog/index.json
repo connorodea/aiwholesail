@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-aurora-co-the-investor-s-complete-guide-to-this-booming-den",
+      "title": "Real Estate Deals in Aurora CO: The Investor's Complete Guide to This Booming Denver Suburb",
+      "excerpt": "Aurora, Colorado is one of the Denver metro's hottest markets for real estate investors, offering a mix of wholesale opportunities, fix-and-flip potential, and strong rental demand. This guide breaks down the best neighborhoods, current market trends, and actionable strategies for finding profitable real estate deals in Aurora CO.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-24T18:01:03.266Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Aurora CO",
+        "Aurora Colorado real estate investing",
+        "wholesale deals Aurora CO",
+        "fix and flip Aurora Colorado",
+        "Aurora CO rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-santa-rosa-ca-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Santa Rosa CA: A Complete Investor's Guide for 2024",
       "excerpt": "Santa Rosa, CA offers real estate investors a unique blend of post-wildfire recovery opportunities, strong rental demand, and a market ripe for off-market deals. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Santa Rosa CA.",
@@ -15,7 +32,7 @@
         "flip houses Santa Rosa CA",
         "Santa Rosa rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-sunnyvale-ca-the-investor-s-complete-guide-for-2024",
