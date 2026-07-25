@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-find-profitable-real-estate-deals-in-san-diego-ca-2024-investor-guide",
+      "title": "How to Find Profitable Real Estate Deals in San Diego CA (2024 Investor Guide)",
+      "excerpt": "San Diego's real estate market offers strong returns for savvy investors who know where to look. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in San Diego CA.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-25T12:01:04.531Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in San Diego CA",
+        "San Diego real estate investing",
+        "wholesale deals San Diego",
+        "fix and flip San Diego",
+        "San Diego rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "self-storage-facility-investment-guide-how-to-profit-from-america-s-hottest-asse",
       "title": "Self Storage Facility Investment Guide: How to Profit From America's Hottest Asset Class",
       "excerpt": "Self storage facilities generate consistent cash flow with lower overhead than traditional real estate, making them one of the most resilient investments available. This guide walks you through everything you need to know to evaluate, acquire, and profit from self storage deals.",
@@ -15,7 +32,7 @@
         "self storage cap rates",
         "how to invest in self storage"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-crm-comparison-which-is-best-for-investors-in-2024",
