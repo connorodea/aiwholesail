@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-paterson-nj-the-investor-s-complete-guide-to-this-underrate",
+      "title": "Real Estate Deals in Paterson NJ: The Investor's Complete Guide to This Underrated Market",
+      "excerpt": "Paterson, NJ is one of the most overlooked cities for real estate investors in the Northeast, offering wholesale deals, fix-and-flips, and strong rental yields at prices far below neighboring markets. This guide breaks down the best neighborhoods, current market trends, and exactly how to find profitable real estate deals in Paterson NJ.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-26T12:01:09.996Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Paterson NJ",
+        "Paterson NJ real estate investing",
+        "wholesale deals Paterson NJ",
+        "fix and flip Paterson NJ",
+        "rental properties Paterson NJ"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-duluth-mn-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Duluth MN: The Investor's Complete Guide for 2024",
       "excerpt": "Duluth, Minnesota is quietly becoming one of the Midwest's most interesting markets for real estate investors. This guide breaks down the best neighborhoods, deal types, and strategies to find profitable real estate deals in Duluth MN.",
@@ -15,7 +32,7 @@
         "Duluth MN rental properties",
         "flip houses Duluth MN"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-find-profitable-real-estate-deals-in-tacoma-wa-2024-investor-guide",
