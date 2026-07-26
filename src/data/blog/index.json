@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-bismarck-nd-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Bismarck ND: The Investor's Complete Guide for 2024",
+      "excerpt": "Bismarck, North Dakota is quietly becoming one of the Midwest's most compelling markets for real estate investors. Discover the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Bismarck ND.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-26T12:02:06.997Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Bismarck ND",
+        "Bismarck North Dakota real estate investing",
+        "wholesale deals Bismarck",
+        "investment properties Bismarck ND",
+        "Bismarck real estate market"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-paterson-nj-the-investor-s-complete-guide-to-this-underrate",
       "title": "Real Estate Deals in Paterson NJ: The Investor's Complete Guide to This Underrated Market",
       "excerpt": "Paterson, NJ is one of the most overlooked cities for real estate investors in the Northeast, offering wholesale deals, fix-and-flips, and strong rental yields at prices far below neighboring markets. This guide breaks down the best neighborhoods, current market trends, and exactly how to find profitable real estate deals in Paterson NJ.",
@@ -15,7 +32,7 @@
         "fix and flip Paterson NJ",
         "rental properties Paterson NJ"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-duluth-mn-the-investor-s-complete-guide-for-2024",
