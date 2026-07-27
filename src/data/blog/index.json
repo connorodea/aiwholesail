@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-find-profitable-real-estate-deals-in-miami-fl-2024-investor-guide",
+      "title": "How to Find Profitable Real Estate Deals in Miami FL (2024 Investor Guide)",
+      "excerpt": "Miami's real estate market offers serious profit potential for wholesalers, flippers, and landlords — if you know where to look. This guide breaks down the best neighborhoods, deal types, and strategies for finding real estate deals in Miami FL right now.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-27T12:01:06.451Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Miami FL",
+        "Miami investment properties",
+        "wholesale real estate Miami",
+        "fix and flip Miami",
+        "Miami rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-wholesale-vacant-land-deals-a-step-by-step-guide-for-real-estate-investor",
       "title": "How to Wholesale Vacant Land Deals: A Step-by-Step Guide for Real Estate Investors",
       "excerpt": "Vacant land wholesaling is one of the most overlooked — and profitable — strategies in real estate investing. Learn how to find, analyze, and close land deals with less competition and lower upfront costs than traditional house wholesaling.",
@@ -15,7 +32,7 @@
         "wholesale real estate",
         "land deals"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "commercial-real-estate-for-beginners-2026-your-complete-getting-started-guide",
