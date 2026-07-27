@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-wholesale-vacant-land-deals-a-step-by-step-guide-for-real-estate-investor",
+      "title": "How to Wholesale Vacant Land Deals: A Step-by-Step Guide for Real Estate Investors",
+      "excerpt": "Vacant land wholesaling is one of the most overlooked — and profitable — strategies in real estate investing. Learn how to find, analyze, and close land deals with less competition and lower upfront costs than traditional house wholesaling.",
+      "category": "Wholesaling",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-27T06:02:36.279Z",
+      "readTime": 7,
+      "tags": [
+        "how to wholesale vacant land deals",
+        "land wholesaling",
+        "vacant land investing",
+        "wholesale real estate",
+        "land deals"
+      ],
+      "featured": true
+    },
+    {
       "slug": "commercial-real-estate-for-beginners-2026-your-complete-getting-started-guide",
       "title": "Commercial Real Estate for Beginners 2026: Your Complete Getting-Started Guide",
       "excerpt": "Commercial real estate offers some of the biggest wealth-building opportunities available to investors today, but it works very differently from residential deals. This guide breaks down everything beginners need to know to get started confidently in 2026.",
@@ -15,7 +32,7 @@
         "commercial property types",
         "NOI real estate"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "finding-profitable-real-estate-deals-in-peoria-az-a-complete-investor-s-guide",
