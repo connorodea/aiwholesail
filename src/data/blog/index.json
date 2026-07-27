@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "commercial-real-estate-for-beginners-2026-your-complete-getting-started-guide",
+      "title": "Commercial Real Estate for Beginners 2026: Your Complete Getting-Started Guide",
+      "excerpt": "Commercial real estate offers some of the biggest wealth-building opportunities available to investors today, but it works very differently from residential deals. This guide breaks down everything beginners need to know to get started confidently in 2026.",
+      "category": "Beginner Guide",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-27T06:01:04.192Z",
+      "readTime": 7,
+      "tags": [
+        "commercial real estate for beginners 2026",
+        "how to invest in commercial real estate",
+        "CRE investing guide",
+        "commercial property types",
+        "NOI real estate"
+      ],
+      "featured": true
+    },
+    {
       "slug": "finding-profitable-real-estate-deals-in-peoria-az-a-complete-investor-s-guide",
       "title": "Finding Profitable Real Estate Deals in Peoria AZ: A Complete Investor's Guide",
       "excerpt": "Peoria, AZ is one of the Phoenix metro's fastest-growing suburbs, offering real estate investors a mix of wholesale deals, fix-and-flips, and strong rental opportunities. This guide covers everything you need to know to find and evaluate profitable real estate deals in Peoria AZ.",
@@ -15,7 +32,7 @@
         "investment properties Peoria AZ",
         "Peoria AZ rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-santa-ana-ca-the-investor-s-guide-to-orange-county-s-hidden",
