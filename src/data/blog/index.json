@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-marietta-ga-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Marietta GA: The Investor's Complete Guide for 2024",
+      "excerpt": "Marietta, GA is one of metro Atlanta's most active markets for real estate investors, offering strong rental demand, flip opportunities, and wholesale deals. This guide breaks down the best neighborhoods, current market trends, and practical strategies to find profitable real estate deals in Marietta GA.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-28T12:02:46.305Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Marietta GA",
+        "Marietta GA investment properties",
+        "wholesale deals Marietta",
+        "fix and flip Marietta GA",
+        "rental properties Marietta GA"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-coeur-d-alene-id-a-complete-investor-s-guide",
       "title": "Real Estate Deals in Coeur d'Alene ID: A Complete Investor's Guide",
       "excerpt": "Coeur d'Alene, Idaho is quietly becoming one of the Northwest's hottest real estate investment markets, with strong rental demand, rising home values, and motivated sellers creating real opportunity. This guide breaks down where to find profitable deals, which neighborhoods to target, and how out-of-state investors can compete effectively.",
@@ -15,7 +32,7 @@
         "wholesale real estate Idaho",
         "Coeur d'Alene rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-build-a-cash-buyers-list-for-wholesaling-step-by-step-guide",
