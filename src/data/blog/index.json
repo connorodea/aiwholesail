@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "best-direct-mail-strategies-for-real-estate-investors-in-2024",
+      "title": "Best Direct Mail Strategies for Real Estate Investors in 2024",
+      "excerpt": "Direct mail remains one of the most effective ways to reach motivated sellers before your competition does. Learn the proven strategies, scripts, and targeting methods that top investors use to generate consistent off-market deals.",
+      "category": "Marketing",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-28T06:00:57.780Z",
+      "readTime": 7,
+      "tags": [
+        "direct mail real estate investors",
+        "best direct mail strategies",
+        "motivated seller mailers",
+        "real estate direct mail campaigns",
+        "wholesale direct mail"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-irvine-ca-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Irvine CA: A Complete Investor's Guide for 2024",
       "excerpt": "Irvine, CA is one of Southern California's most competitive real estate markets — but profitable deals still exist for investors who know where to look. This guide breaks down the best neighborhoods, deal types, and strategies for finding real estate deals in Irvine CA.",
@@ -15,7 +32,7 @@
         "fix and flip Irvine CA",
         "rental properties Irvine"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-find-profitable-real-estate-deals-in-honolulu-hi-2024-investor-guide",
