@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-coeur-d-alene-id-a-complete-investor-s-guide",
+      "title": "Real Estate Deals in Coeur d'Alene ID: A Complete Investor's Guide",
+      "excerpt": "Coeur d'Alene, Idaho is quietly becoming one of the Northwest's hottest real estate investment markets, with strong rental demand, rising home values, and motivated sellers creating real opportunity. This guide breaks down where to find profitable deals, which neighborhoods to target, and how out-of-state investors can compete effectively.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-28T12:01:13.182Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Coeur d'Alene ID",
+        "Coeur d'Alene real estate investing",
+        "Idaho investment properties",
+        "wholesale real estate Idaho",
+        "Coeur d'Alene rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-build-a-cash-buyers-list-for-wholesaling-step-by-step-guide",
       "title": "How to Build a Cash Buyers List for Wholesaling (Step-by-Step Guide)",
       "excerpt": "A strong cash buyers list is the backbone of every successful wholesale business. Learn proven strategies to find, qualify, and grow your list of ready buyers so you can close deals faster and more consistently.",
@@ -15,7 +32,7 @@
         "find cash buyers",
         "wholesaling real estate"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "best-direct-mail-strategies-for-real-estate-investors-in-2024",
