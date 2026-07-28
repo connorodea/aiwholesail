@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-build-a-cash-buyers-list-for-wholesaling-step-by-step-guide",
+      "title": "How to Build a Cash Buyers List for Wholesaling (Step-by-Step Guide)",
+      "excerpt": "A strong cash buyers list is the backbone of every successful wholesale business. Learn proven strategies to find, qualify, and grow your list of ready buyers so you can close deals faster and more consistently.",
+      "category": "Buyer List",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-28T06:02:49.951Z",
+      "readTime": 7,
+      "tags": [
+        "how to build a cash buyers list for wholesaling",
+        "cash buyers list",
+        "wholesale real estate buyers",
+        "find cash buyers",
+        "wholesaling real estate"
+      ],
+      "featured": true
+    },
+    {
       "slug": "best-direct-mail-strategies-for-real-estate-investors-in-2024",
       "title": "Best Direct Mail Strategies for Real Estate Investors in 2024",
       "excerpt": "Direct mail remains one of the most effective ways to reach motivated sellers before your competition does. Learn the proven strategies, scripts, and targeting methods that top investors use to generate consistent off-market deals.",
@@ -15,7 +32,7 @@
         "real estate direct mail campaigns",
         "wholesale direct mail"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-irvine-ca-a-complete-investor-s-guide-for-2024",
