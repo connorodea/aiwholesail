@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-find-profitable-real-estate-deals-in-durham-nc-2024-investor-guide",
+      "title": "How to Find Profitable Real Estate Deals in Durham NC (2024 Investor Guide)",
+      "excerpt": "Durham NC is one of the Southeast's hottest real estate markets, offering strong rental demand, rising home values, and plenty of wholesale and flip opportunities. Here's everything investors need to know to find profitable real estate deals in Durham NC right now.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-29T18:01:16.589Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Durham NC",
+        "Durham NC investment properties",
+        "wholesale real estate Durham",
+        "flip houses Durham NC",
+        "Durham rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-santa-clarita-ca-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Santa Clarita CA: The Investor's Complete Guide for 2024",
       "excerpt": "Santa Clarita is one of Southern California's most overlooked markets for real estate investors, offering strong rental demand, flippable inventory, and wholesale opportunities just 30 miles from Los Angeles. This guide breaks down where to find profitable real estate deals in Santa Clarita CA and how to analyze them like a pro.",
@@ -15,7 +32,7 @@
         "house flipping Santa Clarita",
         "Santa Clarita rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-clarksville-tn-the-investor-s-complete-guide-for-2024",
