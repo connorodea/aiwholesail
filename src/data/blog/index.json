@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-san-jose-ca-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in San Jose CA: A Complete Investor's Guide for 2024",
+      "excerpt": "San Jose is one of the most expensive real estate markets in the country, but savvy investors are still finding profitable deals if they know where to look. This guide breaks down the best neighborhoods, deal types, and strategies for finding real estate deals in San Jose CA.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-29T12:01:07.437Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in San Jose CA",
+        "San Jose real estate investing",
+        "wholesale real estate San Jose",
+        "flip houses San Jose",
+        "off-market deals San Jose"
+      ],
+      "featured": true
+    },
+    {
       "slug": "ai-property-analysis-tools-vs-manual-spreadsheet-analysis-which-is-right-for-rea",
       "title": "AI Property Analysis Tools vs Manual Spreadsheet Analysis: Which Is Right for Real Estate Investors?",
       "excerpt": "Real estate investors are ditching manual spreadsheets for AI-powered analysis tools — but is the switch worth it? We break down the real differences in speed, accuracy, and profitability so you can make the right call.",
@@ -15,7 +32,7 @@
         "real estate deal analysis",
         "wholesale deal calculator"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "house-flip-profit-calculator-free-how-to-estimate-your-real-profit-before-you-bu",
