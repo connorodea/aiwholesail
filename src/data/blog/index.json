@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-santa-clarita-ca-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Santa Clarita CA: The Investor's Complete Guide for 2024",
+      "excerpt": "Santa Clarita is one of Southern California's most overlooked markets for real estate investors, offering strong rental demand, flippable inventory, and wholesale opportunities just 30 miles from Los Angeles. This guide breaks down where to find profitable real estate deals in Santa Clarita CA and how to analyze them like a pro.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-29T18:01:10.704Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Santa Clarita CA",
+        "Santa Clarita real estate investing",
+        "wholesale real estate Santa Clarita",
+        "house flipping Santa Clarita",
+        "Santa Clarita rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-clarksville-tn-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Clarksville TN: The Investor's Complete Guide for 2024",
       "excerpt": "Clarksville, Tennessee is one of the Southeast's fastest-growing cities, creating real opportunity for investors who know where to look. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Clarksville TN.",
@@ -15,7 +32,7 @@
         "fix and flip Clarksville TN",
         "Clarksville rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-san-jose-ca-a-complete-investor-s-guide-for-2024",
