@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "house-flip-profit-calculator-free-how-to-estimate-your-real-profit-before-you-bu",
+      "title": "House Flip Profit Calculator Free: How to Estimate Your Real Profit Before You Buy",
+      "excerpt": "A free house flip profit calculator can save you from costly mistakes before you ever make an offer. Learn how to calculate your true flip profit step by step, with real numbers and tools you can use today.",
+      "category": "Calculator",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-29T06:00:56.554Z",
+      "readTime": 7,
+      "tags": [
+        "house flip profit calculator free",
+        "house flipping calculator",
+        "fix and flip profit calculator",
+        "real estate flip calculator",
+        "ARV calculator"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-marietta-ga-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Marietta GA: The Investor's Complete Guide for 2024",
       "excerpt": "Marietta, GA is one of metro Atlanta's most active markets for real estate investors, offering strong rental demand, flip opportunities, and wholesale deals. This guide breaks down the best neighborhoods, current market trends, and practical strategies to find profitable real estate deals in Marietta GA.",
@@ -15,7 +32,7 @@
         "fix and flip Marietta GA",
         "rental properties Marietta GA"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-coeur-d-alene-id-a-complete-investor-s-guide",
