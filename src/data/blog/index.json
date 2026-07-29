@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-clarksville-tn-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Clarksville TN: The Investor's Complete Guide for 2024",
+      "excerpt": "Clarksville, Tennessee is one of the Southeast's fastest-growing cities, creating real opportunity for investors who know where to look. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Clarksville TN.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-29T12:02:51.677Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Clarksville TN",
+        "Clarksville Tennessee real estate investing",
+        "wholesale deals Clarksville",
+        "fix and flip Clarksville TN",
+        "Clarksville rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-san-jose-ca-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in San Jose CA: A Complete Investor's Guide for 2024",
       "excerpt": "San Jose is one of the most expensive real estate markets in the country, but savvy investors are still finding profitable deals if they know where to look. This guide breaks down the best neighborhoods, deal types, and strategies for finding real estate deals in San Jose CA.",
@@ -15,7 +32,7 @@
         "flip houses San Jose",
         "off-market deals San Jose"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "ai-property-analysis-tools-vs-manual-spreadsheet-analysis-which-is-right-for-rea",
