@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-eugene-or-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Eugene OR: A Complete Investor's Guide for 2024",
+      "excerpt": "Eugene, Oregon offers a compelling mix of affordable entry points, strong rental demand, and motivated sellers that smart investors are capitalizing on right now. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Eugene OR.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-30T12:01:11.755Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Eugene OR",
+        "Eugene Oregon real estate investing",
+        "Eugene OR wholesale deals",
+        "Eugene rental properties",
+        "Eugene OR house flipping"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-invest-in-duplexes-for-beginners-a-step-by-step-guide",
       "title": "How to Invest in Duplexes for Beginners: A Step-by-Step Guide",
       "excerpt": "Duplexes are one of the smartest entry points into real estate investing, letting you live in one unit while your tenant pays your mortgage. This beginner's guide walks you through everything you need to know to buy your first duplex and start building wealth.",
@@ -15,7 +32,7 @@
         "duplex real estate",
         "beginner real estate investing"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-wholesaling-business-plan-step-by-step-build-a-profitable-operation-",
