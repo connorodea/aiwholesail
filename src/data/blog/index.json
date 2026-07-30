@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-bismarck-nd-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Bismarck ND: A Complete Investor's Guide for 2024",
+      "excerpt": "Bismarck, North Dakota is quietly becoming one of the Midwest's most overlooked markets for real estate investors. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Bismarck ND.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-30T12:02:28.735Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Bismarck ND",
+        "Bismarck North Dakota real estate investing",
+        "wholesale deals Bismarck",
+        "investment properties Bismarck ND",
+        "Bismarck rental property"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-eugene-or-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Eugene OR: A Complete Investor's Guide for 2024",
       "excerpt": "Eugene, Oregon offers a compelling mix of affordable entry points, strong rental demand, and motivated sellers that smart investors are capitalizing on right now. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Eugene OR.",
@@ -15,7 +32,7 @@
         "Eugene rental properties",
         "Eugene OR house flipping"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-invest-in-duplexes-for-beginners-a-step-by-step-guide",
