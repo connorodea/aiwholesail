@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-concord-nh-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Concord NH: A Complete Investor's Guide for 2024",
+      "excerpt": "Concord, NH is emerging as one of New England's most overlooked real estate markets, with strong rental demand and motivated sellers creating real opportunity for investors. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Concord NH.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-30T18:02:03.366Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Concord NH",
+        "Concord NH real estate investing",
+        "wholesale real estate Concord NH",
+        "investment properties Concord NH",
+        "off-market deals Concord NH"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-gainesville-fl-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Gainesville FL: A Complete Investor's Guide for 2024",
       "excerpt": "Gainesville, FL offers investors a rare combination of a stable university-driven rental market and undervalued properties ripe for wholesale and flip opportunities. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Gainesville FL.",
@@ -15,7 +32,7 @@
         "Gainesville rental properties",
         "off-market deals Gainesville"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-bismarck-nd-a-complete-investor-s-guide-for-2024",
