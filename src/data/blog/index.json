@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "memorandum-of-contract-for-real-estate-wholesaling-what-it-is-and-why-you-need-o",
+      "title": "Memorandum of Contract for Real Estate Wholesaling: What It Is and Why You Need One",
+      "excerpt": "A memorandum of contract is one of the most powerful legal tools a wholesaler can use to protect a deal before it closes. Learn how it works, when to file it, and how to use it to keep sellers from backing out.",
+      "category": "Legal",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-31T06:00:52.084Z",
+      "readTime": 7,
+      "tags": [
+        "memorandum of contract real estate wholesaling",
+        "memorandum of agreement wholesale deal",
+        "cloud title wholesaling",
+        "wholesale real estate contract protection",
+        "notice of interest real estate"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-concord-nh-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Concord NH: A Complete Investor's Guide for 2024",
       "excerpt": "Concord, NH is emerging as one of New England's most overlooked real estate markets, with strong rental demand and motivated sellers creating real opportunity for investors. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Concord NH.",
@@ -15,7 +32,7 @@
         "investment properties Concord NH",
         "off-market deals Concord NH"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-gainesville-fl-a-complete-investor-s-guide-for-2024",
