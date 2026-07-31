@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-get-pre-approved-for-an-investment-property-loan-a-step-by-step-guide",
+      "title": "How to Get Pre Approved for an Investment Property Loan: A Step-by-Step Guide",
+      "excerpt": "Getting pre approved for an investment property loan is a critical first step before making offers on deals. This guide walks you through exactly what lenders look for and how to position yourself for approval.",
+      "category": "Financing Types",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-31T06:02:31.884Z",
+      "readTime": 7,
+      "tags": [
+        "how to get pre approved for an investment property loan",
+        "investment property loan pre approval",
+        "rental property financing",
+        "investment property mortgage",
+        "real estate investor loan requirements"
+      ],
+      "featured": true
+    },
+    {
       "slug": "memorandum-of-contract-for-real-estate-wholesaling-what-it-is-and-why-you-need-o",
       "title": "Memorandum of Contract for Real Estate Wholesaling: What It Is and Why You Need One",
       "excerpt": "A memorandum of contract is one of the most powerful legal tools a wholesaler can use to protect a deal before it closes. Learn how it works, when to file it, and how to use it to keep sellers from backing out.",
@@ -15,7 +32,7 @@
         "wholesale real estate contract protection",
         "notice of interest real estate"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-concord-nh-a-complete-investor-s-guide-for-2024",
