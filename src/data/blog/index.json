@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-ogden-ut-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Ogden UT: A Complete Investor's Guide for 2024",
+      "excerpt": "Ogden, Utah is quietly becoming one of the Mountain West's most exciting markets for real estate investors. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Ogden UT.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-31T18:01:09.190Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Ogden UT",
+        "Ogden Utah investment properties",
+        "wholesaling in Ogden",
+        "Ogden real estate market",
+        "off-market deals Ogden"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-santa-fe-nm-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Santa Fe NM: A Complete Investor's Guide for 2024",
       "excerpt": "Santa Fe, New Mexico offers real estate investors a unique blend of high demand, limited inventory, and strong rental yields. Discover the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Santa Fe NM.",
@@ -15,7 +32,7 @@
         "Santa Fe flip properties",
         "Santa Fe rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "finding-profitable-real-estate-deals-in-atlanta-ga-a-complete-investor-s-guide",
