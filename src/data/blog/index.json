@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "finding-profitable-real-estate-deals-in-atlanta-ga-a-complete-investor-s-guide",
+      "title": "Finding Profitable Real Estate Deals in Atlanta GA: A Complete Investor's Guide",
+      "excerpt": "Atlanta's booming population and diverse neighborhoods make it one of the best markets for real estate investors in the Southeast. This guide covers the best areas, deal types, and strategies for finding profitable real estate deals in Atlanta GA.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-07-31T12:02:04.836Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Atlanta GA",
+        "Atlanta real estate investing",
+        "Atlanta wholesale deals",
+        "Atlanta fix and flip",
+        "Atlanta rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-surprise-az-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Surprise AZ: The Investor's Complete Guide for 2024",
       "excerpt": "Surprise, Arizona is one of the Phoenix metro's fastest-growing cities, offering real estate investors a strong mix of wholesale, flip, and rental opportunities. This guide breaks down the local market, best neighborhoods, and practical strategies for finding profitable real estate deals in Surprise AZ.",
@@ -15,7 +32,7 @@
         "fix and flip Surprise Arizona",
         "rental properties Surprise AZ"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-get-pre-approved-for-an-investment-property-loan-a-step-by-step-guide",
