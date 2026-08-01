@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-everett-wa-your-complete-investor-s-guide-to-the-market",
+      "title": "Real Estate Deals in Everett WA: Your Complete Investor's Guide to the Market",
+      "excerpt": "Everett, WA is one of the Pacific Northwest's most overlooked markets for real estate investors, offering wholesale, flip, and rental opportunities at prices well below Seattle. This guide breaks down the best neighborhoods, current market trends, and practical strategies for finding profitable real estate deals in Everett WA.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-01T12:01:06.398Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Everett WA",
+        "Everett WA real estate investing",
+        "wholesale real estate Everett",
+        "flip houses Everett Washington",
+        "Everett rental property"
+      ],
+      "featured": true
+    },
+    {
       "slug": "seller-financing-amortization-calculator-how-to-structure-creative-deals-like-a-",
       "title": "Seller Financing Amortization Calculator: How to Structure Creative Deals Like a Pro",
       "excerpt": "A seller financing amortization calculator helps real estate investors model payment schedules, negotiate better terms, and close more creative deals. Learn how to use one step-by-step and avoid common structuring mistakes.",
@@ -15,7 +32,7 @@
         "amortization schedule",
         "owner financing calculator"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "seo-for-real-estate-investors-how-to-rank-locally-and-generate-motivated-seller-",
