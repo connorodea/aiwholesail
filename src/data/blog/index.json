@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "seo-for-real-estate-investors-how-to-rank-locally-and-generate-motivated-seller-",
+      "title": "SEO for Real Estate Investors: How to Rank Locally and Generate Motivated Seller Leads",
+      "excerpt": "Local SEO is one of the most powerful — and underused — lead generation tools for real estate investors. Learn how to rank on Google in your market and attract motivated sellers who are actively searching for help.",
+      "category": "Marketing",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-01T06:01:07.032Z",
+      "readTime": 7,
+      "tags": [
+        "SEO for real estate investors",
+        "how to rank locally",
+        "local SEO real estate",
+        "motivated seller leads",
+        "real estate investor website"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-ogden-ut-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Ogden UT: A Complete Investor's Guide for 2024",
       "excerpt": "Ogden, Utah is quietly becoming one of the Mountain West's most exciting markets for real estate investors. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Ogden UT.",
@@ -15,7 +32,7 @@
         "Ogden real estate market",
         "off-market deals Ogden"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-santa-fe-nm-a-complete-investor-s-guide-for-2024",
