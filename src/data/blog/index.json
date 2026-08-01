@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-detroit-mi-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Detroit MI: The Investor's Complete Guide for 2024",
+      "excerpt": "Detroit is one of the most affordable real estate markets in America, offering wholesalers, flippers, and landlords a rare mix of low entry costs and strong cash flow potential. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Detroit, MI.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-01T18:01:09.104Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Detroit MI",
+        "Detroit real estate investing",
+        "wholesale real estate Detroit",
+        "Detroit investment properties",
+        "Detroit rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-st-louis-mo-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in St. Louis MO: The Investor's Complete Guide for 2024",
       "excerpt": "St. Louis is one of the Midwest's most affordable and investor-friendly markets, with strong rental demand and plenty of distressed properties ripe for wholesaling and flipping. This guide breaks down the best neighborhoods, current market trends, and practical strategies for finding profitable real estate deals in St. Louis MO.",
@@ -15,7 +32,7 @@
         "flip houses St. Louis",
         "St. Louis rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-cheyenne-wy-a-investor-s-guide-to-wyoming-s-capital-city",
