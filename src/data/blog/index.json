@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-gainesville-fl-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Gainesville FL: A Complete Investor's Guide for 2024",
+      "excerpt": "Gainesville, FL offers a unique combination of a stable university-driven rental market and motivated seller opportunities that smart investors are quietly capitalizing on. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Gainesville FL.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-02T12:01:08.050Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Gainesville FL",
+        "Gainesville FL real estate investing",
+        "wholesale real estate Gainesville",
+        "Gainesville rental properties",
+        "flip houses Gainesville Florida"
+      ],
+      "featured": true
+    },
+    {
       "slug": "fsbo-lead-generation-strategies-for-real-estate-investors-2024-guide",
       "title": "FSBO Lead Generation Strategies for Real Estate Investors (2024 Guide)",
       "excerpt": "For-sale-by-owner properties are one of the most overlooked goldmines in real estate investing. Learn proven FSBO lead generation strategies that help investors find motivated sellers, negotiate better deals, and close faster.",
@@ -15,7 +32,7 @@
         "motivated seller leads",
         "wholesale real estate leads"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-quit-your-job-through-real-estate-investing-a-step-by-step-roadmap",
