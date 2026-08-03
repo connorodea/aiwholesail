@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-el-paso-tx-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in El Paso TX: The Investor's Complete Guide for 2024",
+      "excerpt": "El Paso is one of Texas's most underrated real estate markets, offering affordable entry points and strong rental demand driven by military and border economy growth. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in El Paso TX.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-03T18:01:05.655Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in El Paso TX",
+        "El Paso real estate investing",
+        "wholesale deals El Paso",
+        "flip houses El Paso",
+        "El Paso rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-find-profitable-real-estate-deals-in-asheville-nc-2024-investor-guide",
       "title": "How to Find Profitable Real Estate Deals in Asheville NC (2024 Investor Guide)",
       "excerpt": "Asheville, NC is one of the Southeast's most sought-after real estate markets, offering strong rental demand, flip opportunities, and wholesale deals. This guide breaks down the best neighborhoods, current market trends, and practical strategies for investors looking to profit in the Asheville market.",
@@ -15,7 +32,7 @@
         "flip houses Asheville NC",
         "Asheville rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-irving-tx-a-complete-investor-s-guide-for-2024",
