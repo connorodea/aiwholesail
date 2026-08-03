@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-irving-tx-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Irving TX: A Complete Investor's Guide for 2024",
+      "excerpt": "Irving, TX sits at the heart of the Dallas-Fort Worth metroplex and offers investors a steady stream of wholesale, flip, and rental opportunities. This guide covers the best neighborhoods, current market trends, and practical strategies to find profitable real estate deals in Irving TX.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-03T12:01:01.723Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Irving TX",
+        "Irving TX investment properties",
+        "Irving wholesale deals",
+        "Irving TX real estate market",
+        "DFW real estate investing"
+      ],
+      "featured": true
+    },
+    {
       "slug": "is-the-brrrr-method-still-working-in-2026-what-investors-need-to-know",
       "title": "Is the BRRRR Method Still Working in 2026? What Investors Need to Know",
       "excerpt": "With higher interest rates and tighter lending standards, many investors are asking if the BRRRR method still makes sense in 2026. The short answer is yes — but the numbers require more precision than ever before.",
@@ -15,7 +32,7 @@
         "buy rehab rent refinance repeat",
         "BRRRR investing"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "best-real-estate-investing-app-2026-top-tools-to-find-and-analyze-deals-faster",
