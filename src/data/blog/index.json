@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "best-real-estate-investing-app-2026-top-tools-to-find-and-analyze-deals-faster",
+      "title": "Best Real Estate Investing App 2026: Top Tools to Find and Analyze Deals Faster",
+      "excerpt": "Finding profitable real estate deals in 2026 requires the right technology in your corner. We break down the best real estate investing apps available today and what to look for before you download.",
+      "category": "Review",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-03T06:00:54.926Z",
+      "readTime": 7,
+      "tags": [
+        "best real estate investing app 2026",
+        "real estate investing apps",
+        "wholesaling app",
+        "deal finder app",
+        "property analysis app"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-rochester-mn-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Rochester MN: The Investor's Complete Guide for 2024",
       "excerpt": "Rochester, MN is one of the Midwest's most overlooked real estate markets, offering strong rental demand, affordable entry points, and steady appreciation. Here's everything investors need to know to find profitable deals in the Med City.",
@@ -15,7 +32,7 @@
         "Rochester MN rental market",
         "flipping houses Rochester MN"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-warwick-ri-the-investor-s-complete-guide-to-profit-in-rhode",
