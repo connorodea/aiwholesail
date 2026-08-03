@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-find-profitable-real-estate-deals-in-asheville-nc-2024-investor-guide",
+      "title": "How to Find Profitable Real Estate Deals in Asheville NC (2024 Investor Guide)",
+      "excerpt": "Asheville, NC is one of the Southeast's most sought-after real estate markets, offering strong rental demand, flip opportunities, and wholesale deals. This guide breaks down the best neighborhoods, current market trends, and practical strategies for investors looking to profit in the Asheville market.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-03T12:01:17.658Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Asheville NC",
+        "Asheville real estate investing",
+        "wholesale real estate Asheville",
+        "flip houses Asheville NC",
+        "Asheville rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-irving-tx-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Irving TX: A Complete Investor's Guide for 2024",
       "excerpt": "Irving, TX sits at the heart of the Dallas-Fort Worth metroplex and offers investors a steady stream of wholesale, flip, and rental opportunities. This guide covers the best neighborhoods, current market trends, and practical strategies to find profitable real estate deals in Irving TX.",
@@ -15,7 +32,7 @@
         "Irving TX real estate market",
         "DFW real estate investing"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "is-the-brrrr-method-still-working-in-2026-what-investors-need-to-know",
