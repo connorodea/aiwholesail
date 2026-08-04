@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-sioux-falls-sd-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Sioux Falls SD: A Complete Investor's Guide for 2024",
+      "excerpt": "Sioux Falls, South Dakota is one of the Midwest's best-kept secrets for real estate investors, offering strong rental demand, affordable entry points, and a growing job market. This guide covers the best neighborhoods, deal types, and practical strategies for finding profitable real estate deals in Sioux Falls SD.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-04T18:01:03.125Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Sioux Falls SD",
+        "Sioux Falls real estate investing",
+        "wholesale real estate Sioux Falls",
+        "investment properties Sioux Falls South Dakota",
+        "Sioux Falls rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-austin-tx-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Austin TX: A Complete Investor's Guide for 2024",
       "excerpt": "Austin's real estate market offers strong opportunities for wholesalers, flippers, and landlords — but only if you know where to look. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Austin TX.",
@@ -15,7 +32,7 @@
         "Austin fix and flip",
         "Austin rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-hialeah-fl-a-complete-investor-s-guide-for-2024",
