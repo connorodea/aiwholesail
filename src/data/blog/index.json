@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-hialeah-fl-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Hialeah FL: A Complete Investor's Guide for 2024",
+      "excerpt": "Hialeah, FL is one of South Florida's most overlooked markets for real estate investors, offering strong rental demand, affordable entry points, and consistent appreciation. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Hialeah FL.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-04T12:01:01.912Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Hialeah FL",
+        "Hialeah real estate investing",
+        "wholesale deals Hialeah",
+        "investment properties Hialeah",
+        "Hialeah rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-syndication-for-beginners-explained-how-to-invest-in-big-deals-witho",
       "title": "Real Estate Syndication for Beginners Explained: How to Invest in Big Deals Without Buying Alone",
       "excerpt": "Real estate syndication lets everyday investors pool money together to buy large properties they couldn't afford on their own. This beginner's guide explains how syndications work, what to expect, and how to decide if they're right for you.",
@@ -15,7 +32,7 @@
         "syndication deal structure",
         "real estate limited partner"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "warehouse-investing-opportunities-2026-how-real-estate-investors-can-cash-in-on-",
