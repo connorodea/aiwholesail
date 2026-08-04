@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "warehouse-investing-opportunities-2026-how-real-estate-investors-can-cash-in-on-",
+      "title": "Warehouse Investing Opportunities 2026: How Real Estate Investors Can Cash In on Industrial Real Estate",
+      "excerpt": "Warehouse and industrial real estate is quietly becoming one of the hottest asset classes for savvy investors heading into 2026. Learn which markets are booming, what numbers to target, and how to find your first industrial deal.",
+      "category": "Strategy",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-04T06:01:08.562Z",
+      "readTime": 7,
+      "tags": [
+        "warehouse investing opportunities 2026",
+        "industrial real estate investing",
+        "warehouse investment strategy",
+        "industrial property deals",
+        "commercial real estate 2026"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-billings-mt-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Billings MT: The Investor's Complete Guide for 2024",
       "excerpt": "Billings, Montana is one of the most overlooked markets for real estate investors, offering affordable entry points and strong rental demand. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Billings MT.",
@@ -15,7 +32,7 @@
         "investment properties Billings MT",
         "Billings MT rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-el-paso-tx-the-investor-s-complete-guide-for-2024",
