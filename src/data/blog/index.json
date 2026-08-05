@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-bellevue-wa-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Bellevue WA: A Complete Investor's Guide for 2024",
+      "excerpt": "Bellevue, WA is one of the Pacific Northwest's most competitive real estate markets — but profitable deals still exist if you know where to look. This guide breaks down the best neighborhoods, deal types, and strategies for finding real estate deals in Bellevue WA.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-05T12:01:55.472Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Bellevue WA",
+        "Bellevue WA investment properties",
+        "wholesale real estate Bellevue",
+        "fix and flip Bellevue WA",
+        "Bellevue rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-olympia-wa-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Olympia WA: The Investor's Complete Guide for 2024",
       "excerpt": "Olympia, Washington is one of the Pacific Northwest's most overlooked markets for real estate investors. This guide breaks down where to find profitable deals, which neighborhoods to target, and how to analyze opportunities in this growing state capital.",
@@ -15,7 +32,7 @@
         "fix and flip Olympia WA",
         "Olympia rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-get-started-wholesaling-with-no-experience-step-by-step-guide",
