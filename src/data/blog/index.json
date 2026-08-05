@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-get-started-wholesaling-with-no-experience-step-by-step-guide",
+      "title": "How to Get Started Wholesaling with No Experience (Step-by-Step Guide)",
+      "excerpt": "Wholesaling real estate is one of the few ways to make money in real estate without cash, credit, or a license. This guide walks you through exactly how to get started wholesaling with no experience — from your first motivated seller call to closing your first deal.",
+      "category": "Beginner Guide",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-05T06:01:44.459Z",
+      "readTime": 7,
+      "tags": [
+        "how to get started wholesaling with no experience",
+        "wholesale real estate beginners",
+        "wholesaling real estate steps",
+        "how to wholesale houses",
+        "real estate wholesaling guide"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-integrate-real-estate-tools-for-a-seamless-workflow-step-by-step-guide",
       "title": "How to Integrate Real Estate Tools for a Seamless Workflow (Step-by-Step Guide)",
       "excerpt": "Juggling a dozen disconnected apps kills your productivity and costs you deals. Learn how to integrate real estate tools for a seamless workflow that saves time, reduces errors, and helps you close more profitable investments.",
@@ -15,7 +32,7 @@
         "real estate workflow automation",
         "wholesale real estate software"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-palmdale-ca-the-investor-s-complete-guide-for-2024",
