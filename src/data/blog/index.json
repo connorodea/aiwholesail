@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-jackson-ms-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Jackson MS: A Complete Investor's Guide for 2024",
+      "excerpt": "Jackson, Mississippi offers some of the most affordable real estate deals in the Southeast, with median home prices well below the national average. Whether you're wholesaling, flipping, or building a rental portfolio, this guide breaks down everything you need to know about investing in Jackson MS.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-05T18:01:11.604Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Jackson MS",
+        "Jackson Mississippi real estate investing",
+        "wholesale deals Jackson MS",
+        "investment properties Jackson Mississippi",
+        "Jackson MS rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-bellevue-wa-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Bellevue WA: A Complete Investor's Guide for 2024",
       "excerpt": "Bellevue, WA is one of the Pacific Northwest's most competitive real estate markets — but profitable deals still exist if you know where to look. This guide breaks down the best neighborhoods, deal types, and strategies for finding real estate deals in Bellevue WA.",
@@ -15,7 +32,7 @@
         "fix and flip Bellevue WA",
         "Bellevue rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-olympia-wa-the-investor-s-complete-guide-for-2024",
