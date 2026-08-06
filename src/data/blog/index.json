@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-laredo-tx-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Laredo TX: A Complete Investor's Guide for 2024",
+      "excerpt": "Laredo, Texas is one of the most overlooked markets for real estate investors — offering affordable entry points, strong rental demand, and growing wholesale opportunities. Here's everything you need to know to find profitable real estate deals in Laredo TX.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-06T12:01:55.653Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Laredo TX",
+        "Laredo Texas real estate investing",
+        "wholesale deals Laredo",
+        "Laredo TX rental properties",
+        "flip houses Laredo Texas"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-akron-oh-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Akron OH: The Investor's Complete Guide for 2024",
       "excerpt": "Akron, Ohio is quietly becoming one of the Midwest's most attractive markets for real estate investors, with low entry prices and strong rental demand. This guide covers the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Akron OH.",
@@ -15,7 +32,7 @@
         "Akron investment properties",
         "flip houses Akron Ohio"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "whole-tailing-real-estate-explained-the-hybrid-strategy-that-s-changing-how-inve",
