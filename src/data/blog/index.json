@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "hoa-rental-restrictions-for-investors-what-you-must-know-before-you-buy",
+      "title": "HOA Rental Restrictions for Investors: What You Must Know Before You Buy",
+      "excerpt": "HOA rental restrictions can turn a promising investment property into a cash flow nightmare overnight. Learn how to spot restrictive rules before you buy and protect your rental income.",
+      "category": "Legal",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-06T06:01:01.516Z",
+      "readTime": 7,
+      "tags": [
+        "HOA rental restrictions for investors",
+        "HOA rental caps",
+        "HOA rental rules",
+        "investing in HOA communities",
+        "rental restriction bylaws"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-shreveport-la-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Shreveport LA: The Investor's Complete Guide for 2024",
       "excerpt": "Shreveport, Louisiana is quietly becoming one of the South's most accessible markets for real estate investors, with low entry prices and strong rental demand. This guide covers the best neighborhoods, deal types, and practical strategies for finding profitable real estate deals in Shreveport LA.",
@@ -15,7 +32,7 @@
         "Shreveport rental properties",
         "flip houses Shreveport Louisiana"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-jackson-ms-a-complete-investor-s-guide-for-2024",
