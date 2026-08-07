@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-baltimore-md-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Baltimore MD: The Investor's Complete Guide for 2024",
+      "excerpt": "Baltimore is one of the most underrated markets for real estate investors on the East Coast, offering low entry prices and strong rental demand. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Baltimore MD.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-07T12:02:29.202Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Baltimore MD",
+        "Baltimore real estate investing",
+        "wholesale real estate Baltimore",
+        "Baltimore investment properties",
+        "Baltimore rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-albuquerque-nm-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Albuquerque NM: The Investor's Complete Guide for 2024",
       "excerpt": "Albuquerque, NM is quietly becoming one of the Southwest's most attractive markets for real estate investors, with affordable home prices, strong rental demand, and a growing economy. Discover the best neighborhoods, deal types, and strategies to find profitable real estate deals in Albuquerque NM right now.",
@@ -15,7 +32,7 @@
         "Albuquerque rental properties",
         "fix and flip Albuquerque"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-buy-your-first-rental-property-with-little-money-2025-guide",
