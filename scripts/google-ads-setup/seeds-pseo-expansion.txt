@@ -1,0 +1,59 @@
+# pSEO expansion seeds — candidate pillars for new topical clusters.
+# Run: node reddit-discovery.js --batch seeds-pseo-expansion.txt --csv
+# Run: node google-suggest.js --batch seeds-pseo-expansion.txt --deep --csv
+#
+# Each block is a candidate pillar. Volume + intent will be validated via
+# RapidAPI seo-kw (cheap) and Google Ads Keyword Planner (when Basic Access
+# approved) before committing to building pages.
+
+# --- Creative finance / subject-to ---
+subject to real estate
+seller financing real estate
+creative real estate financing
+lease option real estate
+wraparound mortgage
+
+# --- Tax strategy verticals ---
+tax lien investing
+tax deed investing
+1031 exchange real estate
+self directed ira real estate
+opportunity zone investing
+
+# --- Short-term rental / Airbnb ---
+airbnb investing
+short term rental investing
+airbnb arbitrage
+vacation rental investing
+str regulations by city
+
+# --- Note investing / mortgage notes ---
+mortgage note investing
+real estate notes for sale
+note investing for beginners
+performing vs non performing notes
+
+# --- Land / mobile home / niche assets ---
+land flipping
+mobile home park investing
+mobile home wholesaling
+storage unit investing
+billboard investing
+
+# --- Syndication / passive ---
+real estate syndication
+passive real estate investing
+crowdfunded real estate
+real estate fund of funds
+
+# --- Foreclosure & distress ---
+foreclosure auction investing
+sheriff sale real estate
+hud home investing
+reo property investing
+
+# --- New / commercial ---
+new construction investing
+commercial real estate investing
+triple net lease investing
+small multifamily investing
