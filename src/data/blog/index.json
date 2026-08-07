@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-albuquerque-nm-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Albuquerque NM: The Investor's Complete Guide for 2024",
+      "excerpt": "Albuquerque, NM is quietly becoming one of the Southwest's most attractive markets for real estate investors, with affordable home prices, strong rental demand, and a growing economy. Discover the best neighborhoods, deal types, and strategies to find profitable real estate deals in Albuquerque NM right now.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-07T12:01:12.181Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Albuquerque NM",
+        "Albuquerque real estate investing",
+        "wholesale real estate Albuquerque",
+        "Albuquerque rental properties",
+        "fix and flip Albuquerque"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-buy-your-first-rental-property-with-little-money-2025-guide",
       "title": "How to Buy Your First Rental Property with Little Money (2025 Guide)",
       "excerpt": "You don't need a six-figure savings account to get into rental property investing. This guide breaks down the most practical strategies for buying your first rental property with little money down.",
@@ -15,7 +32,7 @@
         "FHA loan rental property",
         "seller financing real estate"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-joint-ventures-how-to-structure-them-for-maximum-profit",
