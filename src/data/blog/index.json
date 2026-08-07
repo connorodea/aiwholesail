@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-modesto-ca-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Modesto CA: A Complete Investor's Guide for 2024",
+      "excerpt": "Modesto, California is one of the Central Valley's most underrated markets for real estate investors. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Modesto CA.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-07T18:01:51.050Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Modesto CA",
+        "Modesto real estate investing",
+        "wholesale deals Modesto",
+        "investment properties Modesto California",
+        "Central Valley real estate"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-manchester-nh-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Manchester NH: The Investor's Complete Guide for 2024",
       "excerpt": "Manchester, NH is one of New England's most underrated markets for real estate investors, offering affordable entry points and strong rental demand. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Manchester NH.",
@@ -15,7 +32,7 @@
         "fix and flip Manchester NH",
         "rental properties Manchester NH"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-baltimore-md-the-investor-s-complete-guide-for-2024",
