@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-manchester-nh-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Manchester NH: The Investor's Complete Guide for 2024",
+      "excerpt": "Manchester, NH is one of New England's most underrated markets for real estate investors, offering affordable entry points and strong rental demand. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Manchester NH.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-07T18:01:05.617Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Manchester NH",
+        "Manchester NH investment properties",
+        "wholesale deals Manchester NH",
+        "fix and flip Manchester NH",
+        "rental properties Manchester NH"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-baltimore-md-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Baltimore MD: The Investor's Complete Guide for 2024",
       "excerpt": "Baltimore is one of the most underrated markets for real estate investors on the East Coast, offering low entry prices and strong rental demand. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Baltimore MD.",
@@ -15,7 +32,7 @@
         "Baltimore investment properties",
         "Baltimore rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-albuquerque-nm-the-investor-s-complete-guide-for-2024",
