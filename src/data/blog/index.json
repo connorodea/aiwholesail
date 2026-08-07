@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-joint-ventures-how-to-structure-them-for-maximum-profit",
+      "title": "Real Estate Joint Ventures: How to Structure Them for Maximum Profit",
+      "excerpt": "Joint ventures let real estate investors pool capital, skills, and connections to close deals they couldn't tackle alone. Learn how to structure a real estate joint venture the right way — from choosing a partner to splitting profits.",
+      "category": "Strategy",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-07T06:01:02.120Z",
+      "readTime": 7,
+      "tags": [
+        "real estate joint ventures",
+        "how to structure a joint venture",
+        "real estate JV deal",
+        "joint venture agreement real estate",
+        "real estate partnership structure"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-jackson-ms-the-investor-s-complete-guide-to-this-underrated",
       "title": "Real Estate Deals in Jackson MS: The Investor's Complete Guide to This Underrated Market",
       "excerpt": "Jackson, Mississippi is one of the most affordable real estate markets in the country, offering investors strong cash flow potential and low entry costs. Here's everything you need to know to find profitable real estate deals in Jackson MS.",
@@ -15,7 +32,7 @@
         "investment properties Jackson Mississippi",
         "Jackson MS rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-huntington-wv-a-complete-investor-s-guide",
