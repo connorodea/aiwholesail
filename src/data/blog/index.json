@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-buy-your-first-rental-property-with-little-money-2025-guide",
+      "title": "How to Buy Your First Rental Property with Little Money (2025 Guide)",
+      "excerpt": "You don't need a six-figure savings account to get into rental property investing. This guide breaks down the most practical strategies for buying your first rental property with little money down.",
+      "category": "Beginner Guide",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-07T06:02:13.305Z",
+      "readTime": 7,
+      "tags": [
+        "how to buy your first rental property with little money",
+        "first rental property low down payment",
+        "house hacking",
+        "FHA loan rental property",
+        "seller financing real estate"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-joint-ventures-how-to-structure-them-for-maximum-profit",
       "title": "Real Estate Joint Ventures: How to Structure Them for Maximum Profit",
       "excerpt": "Joint ventures let real estate investors pool capital, skills, and connections to close deals they couldn't tackle alone. Learn how to structure a real estate joint venture the right way — from choosing a partner to splitting profits.",
@@ -15,7 +32,7 @@
         "joint venture agreement real estate",
         "real estate partnership structure"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-jackson-ms-the-investor-s-complete-guide-to-this-underrated",
