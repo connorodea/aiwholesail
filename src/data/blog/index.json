@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-chattanooga-tn-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Chattanooga TN: The Investor's Complete Guide for 2024",
+      "excerpt": "Chattanooga is one of Tennessee's most overlooked real estate markets, offering strong rental demand, affordable entry points, and growing ARVs across multiple investor-friendly neighborhoods. Here's everything you need to know to find profitable deals in the Scenic City.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-08T12:01:12.735Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Chattanooga TN",
+        "Chattanooga real estate investing",
+        "wholesale real estate Chattanooga",
+        "Chattanooga rental properties",
+        "flipping houses Chattanooga"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-structure-a-real-estate-joint-venture-agreement-step-by-step-guide",
       "title": "How to Structure a Real Estate Joint Venture Agreement (Step-by-Step Guide)",
       "excerpt": "A well-structured real estate joint venture agreement protects every partner and sets the deal up for success. Learn the key terms, profit splits, and legal safeguards every investor needs to know before signing.",
@@ -15,7 +32,7 @@
         "real estate partnership agreement",
         "JV deal structure"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-vs-index-funds-a-honest-comparison-for-investors-in-2024",
