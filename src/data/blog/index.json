@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-vs-index-funds-a-honest-comparison-for-investors-in-2024",
+      "title": "Real Estate vs Index Funds: A Honest Comparison for Investors in 2024",
+      "excerpt": "Trying to decide between real estate and index funds? This in-depth comparison breaks down returns, risks, effort, and tax advantages so you can choose the right path for your wealth-building goals.",
+      "category": "Comparison",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-08T06:00:49.503Z",
+      "readTime": 7,
+      "tags": [
+        "real estate vs index funds comparison",
+        "real estate investing returns",
+        "index fund investing",
+        "passive income real estate",
+        "S&P 500 vs real estate"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-modesto-ca-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Modesto CA: A Complete Investor's Guide for 2024",
       "excerpt": "Modesto, California is one of the Central Valley's most underrated markets for real estate investors. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Modesto CA.",
@@ -15,7 +32,7 @@
         "investment properties Modesto California",
         "Central Valley real estate"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-manchester-nh-the-investor-s-complete-guide-for-2024",
