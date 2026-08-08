@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-structure-a-real-estate-joint-venture-agreement-step-by-step-guide",
+      "title": "How to Structure a Real Estate Joint Venture Agreement (Step-by-Step Guide)",
+      "excerpt": "A well-structured real estate joint venture agreement protects every partner and sets the deal up for success. Learn the key terms, profit splits, and legal safeguards every investor needs to know before signing.",
+      "category": "Legal",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-08T06:02:38.197Z",
+      "readTime": 7,
+      "tags": [
+        "how to structure a real estate joint venture agreement",
+        "real estate JV agreement",
+        "joint venture real estate investing",
+        "real estate partnership agreement",
+        "JV deal structure"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-vs-index-funds-a-honest-comparison-for-investors-in-2024",
       "title": "Real Estate vs Index Funds: A Honest Comparison for Investors in 2024",
       "excerpt": "Trying to decide between real estate and index funds? This in-depth comparison breaks down returns, risks, effort, and tax advantages so you can choose the right path for your wealth-building goals.",
@@ -15,7 +32,7 @@
         "passive income real estate",
         "S&P 500 vs real estate"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-modesto-ca-a-complete-investor-s-guide-for-2024",
