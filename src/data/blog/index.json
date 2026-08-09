@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-spokane-wa-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Spokane WA: A Complete Investor's Guide for 2024",
+      "excerpt": "Spokane, Washington is quietly becoming one of the Pacific Northwest's most attractive markets for real estate investors. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Spokane WA.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-09T18:01:42.019Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Spokane WA",
+        "Spokane real estate investing",
+        "Spokane wholesale deals",
+        "Spokane fix and flip",
+        "Spokane rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-salem-or-the-investor-s-complete-guide-to-oregon-s-capital-",
       "title": "Real Estate Deals in Salem OR: The Investor's Complete Guide to Oregon's Capital City",
       "excerpt": "Salem, Oregon is quietly becoming one of the Pacific Northwest's most attractive markets for real estate investors. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Salem OR.",
@@ -15,7 +32,7 @@
         "Salem OR investment properties",
         "flip houses Salem Oregon"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-hialeah-fl-a-complete-investor-s-guide-for-2024",
