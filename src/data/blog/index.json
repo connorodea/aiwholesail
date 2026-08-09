@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-salem-or-the-investor-s-complete-guide-to-oregon-s-capital-",
+      "title": "Real Estate Deals in Salem OR: The Investor's Complete Guide to Oregon's Capital City",
+      "excerpt": "Salem, Oregon is quietly becoming one of the Pacific Northwest's most attractive markets for real estate investors. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Salem OR.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-09T18:01:07.784Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Salem OR",
+        "Salem Oregon real estate investing",
+        "wholesale real estate Salem",
+        "Salem OR investment properties",
+        "flip houses Salem Oregon"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-hialeah-fl-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Hialeah FL: A Complete Investor's Guide for 2024",
       "excerpt": "Hialeah, FL is one of South Florida's most overlooked markets for real estate investors — offering wholesale deals, fix-and-flips, and strong rental demand just minutes from Miami. This guide breaks down where to find profitable real estate deals in Hialeah FL and how to make the numbers work.",
@@ -15,7 +32,7 @@
         "fix and flip Hialeah FL",
         "Hialeah rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-norfolk-va-a-complete-investor-s-guide-for-2024",
