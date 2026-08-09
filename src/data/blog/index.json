@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "hoa-rental-restrictions-for-investors-what-you-must-know-before-you-buy",
+      "title": "HOA Rental Restrictions for Investors: What You Must Know Before You Buy",
+      "excerpt": "HOA rental restrictions can turn a promising investment property into a money pit overnight. Learn how to identify, evaluate, and navigate these rules before you close on your next deal.",
+      "category": "Legal",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-09T06:01:03.869Z",
+      "readTime": 7,
+      "tags": [
+        "HOA rental restrictions for investors",
+        "HOA rental caps",
+        "HOA rules for landlords",
+        "investing in HOA properties",
+        "rental restriction bylaws"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-concord-nh-the-investor-s-guide-to-new-hampshire-s-capital-",
       "title": "Real Estate Deals in Concord NH: The Investor's Guide to New Hampshire's Capital City",
       "excerpt": "Concord NH is quietly becoming one of New England's most attractive markets for real estate investors. Discover the best neighborhoods, deal types, and strategies to find profitable real estate deals in Concord NH before the competition catches on.",
@@ -15,7 +32,7 @@
         "fix and flip Concord NH",
         "rental properties Concord NH"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-jacksonville-fl-the-investor-s-complete-guide-for-2024",
