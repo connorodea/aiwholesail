@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-syndication-preferred-return-explained-what-every-investor-needs-to-",
+      "title": "Real Estate Syndication Preferred Return Explained: What Every Investor Needs to Know",
+      "excerpt": "Understanding the preferred return in a real estate syndication can mean the difference between a smart investment and a costly mistake. This guide breaks down exactly how preferred returns work, what to look for in a deal, and how to protect your capital.",
+      "category": "Strategy",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-09T06:01:14.158Z",
+      "readTime": 7,
+      "tags": [
+        "real estate syndication preferred return explained",
+        "syndication preferred return",
+        "real estate syndication investing",
+        "passive real estate investing",
+        "equity waterfall"
+      ],
+      "featured": true
+    },
+    {
       "slug": "hoa-rental-restrictions-for-investors-what-you-must-know-before-you-buy",
       "title": "HOA Rental Restrictions for Investors: What You Must Know Before You Buy",
       "excerpt": "HOA rental restrictions can turn a promising investment property into a money pit overnight. Learn how to identify, evaluate, and navigate these rules before you close on your next deal.",
@@ -15,7 +32,7 @@
         "investing in HOA properties",
         "rental restriction bylaws"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-concord-nh-the-investor-s-guide-to-new-hampshire-s-capital-",
