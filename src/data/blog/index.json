@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-hialeah-fl-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Hialeah FL: A Complete Investor's Guide for 2024",
+      "excerpt": "Hialeah, FL is one of South Florida's most overlooked markets for real estate investors — offering wholesale deals, fix-and-flips, and strong rental demand just minutes from Miami. This guide breaks down where to find profitable real estate deals in Hialeah FL and how to make the numbers work.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-09T12:02:40.808Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Hialeah FL",
+        "Hialeah real estate investing",
+        "wholesale deals Hialeah",
+        "fix and flip Hialeah FL",
+        "Hialeah rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-norfolk-va-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Norfolk VA: A Complete Investor's Guide for 2024",
       "excerpt": "Norfolk, Virginia is one of the Mid-Atlantic's most underrated markets for real estate investors, offering affordable entry points, strong rental demand, and a growing economy. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Norfolk VA.",
@@ -15,7 +32,7 @@
         "fix and flip Norfolk Virginia",
         "Norfolk rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-syndication-preferred-return-explained-what-every-investor-needs-to-",
