@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "billboard-land-lease-investing-how-to-earn-passive-income-from-your-land",
+      "title": "Billboard Land Lease Investing: How to Earn Passive Income from Your Land",
+      "excerpt": "Billboard land lease investing is one of the most overlooked ways to generate passive income from real estate. Learn how landowners and investors can earn $500 to $3,000 per month by simply leasing their property to billboard companies.",
+      "category": "Strategy",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-10T06:01:01.610Z",
+      "readTime": 7,
+      "tags": [
+        "billboard land lease investing passive income",
+        "billboard lease rates",
+        "passive income real estate",
+        "land lease investing",
+        "billboard advertising income"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-spokane-wa-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Spokane WA: A Complete Investor's Guide for 2024",
       "excerpt": "Spokane, Washington is quietly becoming one of the Pacific Northwest's most attractive markets for real estate investors. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Spokane WA.",
@@ -15,7 +32,7 @@
         "Spokane fix and flip",
         "Spokane rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-salem-or-the-investor-s-complete-guide-to-oregon-s-capital-",
