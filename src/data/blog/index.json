@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-find-profitable-real-estate-deals-in-denver-co-2024-investor-guide",
+      "title": "How to Find Profitable Real Estate Deals in Denver CO (2024 Investor Guide)",
+      "excerpt": "Denver's booming population and tight housing inventory make it one of the most competitive — and rewarding — markets for real estate investors. This guide breaks down the best neighborhoods, deal types, and strategies for finding real estate deals in Denver CO.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-10T18:01:09.540Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Denver CO",
+        "Denver real estate investing",
+        "wholesale real estate Denver",
+        "flip houses Denver",
+        "Denver investment properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-anaheim-ca-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Anaheim CA: The Investor's Complete Guide for 2024",
       "excerpt": "Anaheim, CA offers real estate investors a unique mix of high-demand rentals, flip opportunities, and wholesale deals driven by tourism, job growth, and housing scarcity. This guide breaks down the best neighborhoods, current market trends, and actionable strategies for finding profitable real estate deals in Anaheim CA.",
@@ -15,7 +32,7 @@
         "fix and flip Anaheim CA",
         "Anaheim rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-escondido-ca-a-complete-investor-s-guide-for-2024",
