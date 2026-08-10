@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-kent-wa-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Kent WA: A Complete Investor's Guide for 2024",
+      "excerpt": "Kent, Washington is one of the Puget Sound region's most overlooked markets for real estate investors, offering strong rental demand, below-Seattle pricing, and serious wholesale opportunities. This guide breaks down everything you need to know to find and close profitable real estate deals in Kent WA.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-10T18:01:28.208Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Kent WA",
+        "Kent Washington real estate investing",
+        "wholesale deals Kent WA",
+        "investment properties Kent Washington",
+        "flip houses Kent WA"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-find-profitable-real-estate-deals-in-denver-co-2024-investor-guide",
       "title": "How to Find Profitable Real Estate Deals in Denver CO (2024 Investor Guide)",
       "excerpt": "Denver's booming population and tight housing inventory make it one of the most competitive — and rewarding — markets for real estate investors. This guide breaks down the best neighborhoods, deal types, and strategies for finding real estate deals in Denver CO.",
@@ -15,7 +32,7 @@
         "flip houses Denver",
         "Denver investment properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-anaheim-ca-the-investor-s-complete-guide-for-2024",
