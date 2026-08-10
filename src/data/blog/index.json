@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-anaheim-ca-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Anaheim CA: The Investor's Complete Guide for 2024",
+      "excerpt": "Anaheim, CA offers real estate investors a unique mix of high-demand rentals, flip opportunities, and wholesale deals driven by tourism, job growth, and housing scarcity. This guide breaks down the best neighborhoods, current market trends, and actionable strategies for finding profitable real estate deals in Anaheim CA.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-10T12:01:56.618Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Anaheim CA",
+        "Anaheim real estate investing",
+        "wholesale deals Anaheim",
+        "fix and flip Anaheim CA",
+        "Anaheim rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-escondido-ca-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Escondido CA: A Complete Investor's Guide for 2024",
       "excerpt": "Escondido is one of San Diego County's most overlooked markets for real estate investors, offering a mix of affordable entry points and strong rental demand. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Escondido CA.",
@@ -15,7 +32,7 @@
         "flip houses Escondido",
         "Escondido rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "commercial-real-estate-for-beginners-2026-your-complete-getting-started-guide",
