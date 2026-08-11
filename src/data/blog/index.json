@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-westminster-co-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Westminster CO: The Investor's Complete Guide for 2024",
+      "excerpt": "Westminster, Colorado offers real estate investors a rare combination of Denver suburb affordability, strong rental demand, and consistent appreciation. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Westminster CO.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-11T12:02:47.972Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Westminster CO",
+        "Westminster Colorado real estate investing",
+        "wholesale deals Westminster CO",
+        "investment properties Westminster Colorado",
+        "off-market deals Westminster"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-newark-nj-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Newark NJ: The Investor's Complete Guide for 2024",
       "excerpt": "Newark, NJ is one of the most overlooked yet profitable real estate markets in the Northeast, offering wholesale deals, fix-and-flips, and strong rental yields just minutes from New York City. This guide breaks down the best neighborhoods, current market trends, and actionable strategies for finding profitable real estate deals in Newark NJ.",
@@ -15,7 +32,7 @@
         "fix and flip Newark NJ",
         "Newark rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "dscr-loan-explained-for-real-estate-investors-the-complete-guide",
