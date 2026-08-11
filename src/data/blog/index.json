@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-find-profitable-real-estate-deals-in-nashville-tn-2024-investor-guide",
+      "title": "How to Find Profitable Real Estate Deals in Nashville TN (2024 Investor Guide)",
+      "excerpt": "Nashville's booming economy and population growth make it one of the hottest markets for real estate investors in the Southeast. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Nashville TN.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-11T18:01:12.977Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Nashville TN",
+        "Nashville real estate investing",
+        "Nashville wholesale deals",
+        "Nashville fix and flip",
+        "Nashville rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-marietta-ga-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Marietta GA: The Investor's Complete Guide for 2024",
       "excerpt": "Marietta, GA is one of metro Atlanta's most overlooked markets for real estate investors, offering strong rental demand, appreciating home values, and plenty of wholesale and flip opportunities. This guide breaks down exactly where to find profitable real estate deals in Marietta GA and how to analyze them like a pro.",
@@ -15,7 +32,7 @@
         "flipping houses Marietta GA",
         "Marietta rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-westminster-co-the-investor-s-complete-guide-for-2024",
