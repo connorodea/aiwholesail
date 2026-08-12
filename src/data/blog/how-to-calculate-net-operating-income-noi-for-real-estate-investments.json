@@ -1,0 +1,225 @@
+{
+  "slug": "how-to-calculate-net-operating-income-noi-for-real-estate-investments",
+  "title": "How to Calculate Net Operating Income (NOI) for Real Estate Investments",
+  "excerpt": "Net operating income is one of the most important numbers in real estate investing, yet many investors get it wrong. Learn the exact formula, common mistakes to avoid, and how to use NOI to evaluate any rental property.",
+  "category": "Calculator",
+  "author": "AIWholesail Team",
+  "publishedAt": "2026-08-12T06:02:26.490Z",
+  "readTime": 7,
+  "tags": [
+    "how to calculate net operating income NOI",
+    "NOI formula real estate",
+    "net operating income rental property",
+    "NOI calculation example",
+    "real estate investing metrics"
+  ],
+  "metaDescription": "Learn how to calculate net operating income (NOI) step by step. Includes the formula, real examples, and tips to evaluate rental property deals accurately.",
+  "metaKeywords": "how to calculate net operating income NOI, NOI formula real estate, net operating income rental property, NOI calculation example, real estate investing metrics, rental property analysis",
+  "sections": [
+    {
+      "type": "paragraph",
+      "content": "If you want to know whether a rental property will actually make you money, you need to know how to calculate net operating income (NOI). It is one of the most fundamental numbers in real estate investing. Lenders use it to approve loans. Appraisers use it to value commercial properties. And smart investors use it to separate good deals from bad ones before they ever make an offer. If you are just getting started with property analysis, check out our complete guide [How to Analyze Real Estate Deals Like a Pro](https://aiwholesail.com/guides/real-estate-deal-analysis) for a full breakdown of the metrics that matter most."
+    },
+    {
+      "type": "heading",
+      "content": "What Is Net Operating Income (NOI)?"
+    },
+    {
+      "type": "paragraph",
+      "content": "Net operating income is the total income a property generates after subtracting all operating expenses, but before accounting for mortgage payments, taxes on income, or depreciation. It gives you a clean picture of how profitable a property is based purely on its operations. Think of it as the property's earning power, independent of how you finance it."
+    },
+    {
+      "type": "quote",
+      "content": "NOI tells you what the property can do on its own. Your financing strategy is a separate conversation entirely. Always evaluate the asset before you evaluate the deal."
+    },
+    {
+      "type": "heading",
+      "content": "The NOI Formula"
+    },
+    {
+      "type": "paragraph",
+      "content": "The formula for net operating income is straightforward:"
+    },
+    {
+      "type": "list",
+      "items": [
+        "NOI = Gross Operating Income − Operating Expenses",
+        "Gross Operating Income = Gross Potential Rent − Vacancy and Credit Losses + Other Income",
+        "Operating Expenses = Property taxes + Insurance + Property management + Maintenance and repairs + Utilities (if paid by owner) + Landscaping + Accounting/legal fees"
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": "Notice what is NOT included in operating expenses: your mortgage payment (principal and interest), income taxes, and depreciation. These are excluded because NOI is designed to measure the property's performance, not your personal financial situation or loan terms."
+    },
+    {
+      "type": "heading",
+      "content": "Step-by-Step NOI Calculation Example"
+    },
+    {
+      "type": "paragraph",
+      "content": "Let's walk through a real-world example using a small residential rental property. Suppose you are analyzing a 4-unit apartment building in Atlanta. Each unit rents for $1,200 per month. Here is how you would calculate NOI from scratch."
+    },
+    {
+      "type": "subheading",
+      "content": "Step 1: Calculate Gross Potential Rent (GPR)"
+    },
+    {
+      "type": "paragraph",
+      "content": "Gross Potential Rent is the total rent you would collect if every unit were occupied and paying on time for the full year. For our Atlanta property: 4 units × $1,200/month × 12 months = $57,600 per year. This is your starting point, but it is not realistic income yet because vacancies and late payments happen."
+    },
+    {
+      "type": "subheading",
+      "content": "Step 2: Subtract Vacancy and Credit Loss"
+    },
+    {
+      "type": "paragraph",
+      "content": "Most investors use a vacancy rate between 5% and 10% depending on the local market. In strong rental markets like [Atlanta](https://aiwholesail.com/markets/atlanta-ga) or [Dallas](https://aiwholesail.com/markets/dallas-tx), a 5% vacancy rate is common. Using 7% here: $57,600 × 0.07 = $4,032 in expected vacancy loss. Gross Operating Income = $57,600 − $4,032 = $53,568."
+    },
+    {
+      "type": "subheading",
+      "content": "Step 3: Add Other Income"
+    },
+    {
+      "type": "paragraph",
+      "content": "Other income includes laundry machines, parking fees, pet rent, storage unit fees, or late payment fees. For this property, let's say you charge $50 per month per unit for a covered parking spot. That adds $2,400 per year. Total Gross Operating Income = $53,568 + $2,400 = $55,968."
+    },
+    {
+      "type": "subheading",
+      "content": "Step 4: Calculate Total Operating Expenses"
+    },
+    {
+      "type": "paragraph",
+      "content": "Now list every recurring cost to run the property. For our 4-unit example:"
+    },
+    {
+      "type": "list",
+      "items": [
+        "Property taxes: $4,800/year",
+        "Insurance: $2,400/year",
+        "Property management (10% of collected rent): $5,357/year",
+        "Maintenance and repairs: $3,000/year",
+        "Landscaping: $1,200/year",
+        "Accounting: $500/year",
+        "Total Operating Expenses: $17,257/year"
+      ]
+    },
+    {
+      "type": "subheading",
+      "content": "Step 5: Calculate NOI"
+    },
+    {
+      "type": "paragraph",
+      "content": "NOI = $55,968 − $17,257 = $38,711 per year. That is the property's net operating income. Now you have a reliable number to compare against other properties, run a cap rate calculation, or present to a lender."
+    },
+    {
+      "type": "tip",
+      "content": "Pro Tip: Always use actual or market-rate expenses when calculating NOI, not the seller's numbers. Sellers sometimes underreport expenses or omit property management costs if they self-manage. Rebuilding the expense sheet yourself using real market data gives you a much more accurate picture. Use our free [Cash Flow Calculator](https://aiwholesail.com/tools/cash-flow-calculator) to model different expense scenarios quickly."
+    },
+    {
+      "type": "heading",
+      "content": "How to Use NOI in Real Estate Analysis"
+    },
+    {
+      "type": "subheading",
+      "content": "Cap Rate Calculation"
+    },
+    {
+      "type": "paragraph",
+      "content": "NOI is the top of the cap rate formula. Cap Rate = NOI ÷ Property Value. If our Atlanta property is listed at $450,000 and the NOI is $38,711, the cap rate is $38,711 ÷ $450,000 = 8.6%. Whether that is a good cap rate depends on your market. In a hot market like [Phoenix](https://aiwholesail.com/markets/phoenix-az), cap rates for similar properties might run 5% to 6%, making 8.6% look very attractive. Understanding cap rates and NOI together helps you make faster, smarter offers."
+    },
+    {
+      "type": "subheading",
+      "content": "Valuing a Property Using NOI"
+    },
+    {
+      "type": "paragraph",
+      "content": "You can also flip the formula to estimate property value. If you know the market cap rate for similar properties is 7%, you can estimate value as: NOI ÷ Cap Rate = $38,711 ÷ 0.07 = $553,014. This is called income-based valuation and is especially useful for multifamily and commercial properties. It is a different approach than the comparable sales method discussed in our guide on [After Repair Value (ARV): How to Calculate It](https://aiwholesail.com/blog/how-to-calculate-arv-step-by-step), which focuses more on residential and fix-and-flip deals."
+    },
+    {
+      "type": "subheading",
+      "content": "NOI vs. Cash Flow"
+    },
+    {
+      "type": "paragraph",
+      "content": "NOI and cash flow are related but not the same thing. Cash flow is what hits your bank account after you subtract your mortgage payment from NOI. For a full breakdown of how to turn NOI into actual returns, read our article on [How to Calculate ROI on Rental Property](https://aiwholesail.com/blog/how-to-calculate-roi-rental). For beginner investors who want a broader foundation, our [Rental Property Investing for Beginners](https://aiwholesail.com/guides/rental-property-investing-guide) guide is a great next step."
+    },
+    {
+      "type": "heading",
+      "content": "Common NOI Mistakes to Avoid"
+    },
+    {
+      "type": "list",
+      "items": [
+        "Including mortgage payments in operating expenses — debt service is never part of NOI",
+        "Using gross rent instead of effective gross income — always account for vacancy",
+        "Forgetting capital expenditure reserves — while CapEx is sometimes excluded from NOI, ignoring it entirely leads to surprise losses",
+        "Trusting seller-provided financials without verification — always rebuild the numbers yourself",
+        "Ignoring property management costs even if you self-manage — your time has value, and you may not always manage it yourself",
+        "Failing to adjust comps properly when comparing NOI across similar properties — see our guide on [How to Adjust Comps for Property Differences](https://aiwholesail.com/blog/how-to-adjust-real-estate-comps)"
+      ]
+    },
+    {
+      "type": "heading",
+      "content": "What Is a Good NOI?"
+    },
+    {
+      "type": "paragraph",
+      "content": "There is no universal answer because a good NOI depends on the purchase price, your financing, and local market cap rates. The real question is whether the NOI supports your investment goals. A property in Dallas with a $30,000 NOI might be a great deal at $375,000 (8% cap rate) or a poor one at $600,000 (5% cap rate). Always evaluate NOI in context. Compare it against the asking price, your expected debt service, and similar properties in the market."
+    },
+    {
+      "type": "tip",
+      "content": "Pro Tip: Track NOI over time, not just at acquisition. Rising expenses or declining rents will shrink your NOI and erode your returns. Reviewing NOI annually keeps you ahead of problems before they become expensive."
+    },
+    {
+      "type": "cta",
+      "content": "Ready to run NOI calculations on real deals in minutes? AIWholesail gives you access to AI-powered deal analysis tools, including a free Cash Flow Calculator at aiwholesail.com/tools/cash-flow-calculator, that crunch the numbers so you can focus on finding great investments. Start your free trial at aiwholesail.com and analyze your first deal today — no credit card required."
+    }
+  ],
+  "relatedLinks": {
+    "pillarPage": {
+      "title": "How to Analyze Real Estate Deals Like a Pro",
+      "url": "/guides/real-estate-deal-analysis"
+    },
+    "siblingArticles": [
+      {
+        "title": "How to Calculate ROI on Rental Property",
+        "url": "/blog/how-to-calculate-roi-rental"
+      },
+      {
+        "title": "How to Adjust Comps for Property Differences",
+        "url": "/blog/how-to-adjust-real-estate-comps"
+      },
+      {
+        "title": "After Repair Value (ARV): How to Calculate It",
+        "url": "/blog/how-to-calculate-arv-step-by-step"
+      }
+    ],
+    "relatedGuides": [
+      {
+        "title": "Rental Property Investing for Beginners",
+        "url": "/guides/rental-property-investing-guide"
+      }
+    ],
+    "relatedTools": [
+      {
+        "tool": "Cash Flow Calculator",
+        "url": "/tools/cash-flow-calculator"
+      }
+    ],
+    "relatedMarkets": [
+      {
+        "slug": "atlanta-ga",
+        "url": "/markets/atlanta-ga"
+      },
+      {
+        "slug": "dallas-tx",
+        "url": "/markets/dallas-tx"
+      },
+      {
+        "slug": "phoenix-az",
+        "url": "/markets/phoenix-az"
+      }
+    ]
+  }
+}

@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-calculate-net-operating-income-noi-for-real-estate-investments",
+      "title": "How to Calculate Net Operating Income (NOI) for Real Estate Investments",
+      "excerpt": "Net operating income is one of the most important numbers in real estate investing, yet many investors get it wrong. Learn the exact formula, common mistakes to avoid, and how to use NOI to evaluate any rental property.",
+      "category": "Calculator",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-12T06:02:26.490Z",
+      "readTime": 7,
+      "tags": [
+        "how to calculate net operating income NOI",
+        "NOI formula real estate",
+        "net operating income rental property",
+        "NOI calculation example",
+        "real estate investing metrics"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-invest-during-a-housing-downturn-a-strategic-guide-for-real-estate-invest",
       "title": "How to Invest During a Housing Downturn: A Strategic Guide for Real Estate Investors",
       "excerpt": "A housing downturn doesn't have to mean disaster for real estate investors — in fact, it can be one of the best times to build long-term wealth. This guide breaks down exactly how to invest during a housing downturn with practical strategies, real numbers, and actionable steps.",
@@ -15,7 +32,7 @@
         "recession real estate strategy",
         "wholesale real estate downturn"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-find-profitable-real-estate-deals-in-nashville-tn-2024-investor-guide",
