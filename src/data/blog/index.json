@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-chattanooga-tn-a-complete-investor-s-guide-for-2025",
+      "title": "Real Estate Deals in Chattanooga TN: A Complete Investor's Guide for 2025",
+      "excerpt": "Chattanooga, TN is quietly becoming one of the Southeast's hottest markets for real estate investors. Discover the best neighborhoods, deal types, and strategies to find profitable real estate deals in Chattanooga TN right now.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-12T12:01:27.528Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Chattanooga TN",
+        "Chattanooga real estate investing",
+        "wholesale real estate Chattanooga",
+        "flip houses Chattanooga",
+        "Chattanooga rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-warwick-ri-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Warwick RI: A Complete Investor's Guide for 2024",
       "excerpt": "Warwick, Rhode Island is quietly becoming one of New England's most attractive markets for real estate investors. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Warwick RI.",
@@ -15,7 +32,7 @@
         "investment properties Warwick RI",
         "flipping houses Warwick RI"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-calculate-net-operating-income-noi-for-real-estate-investments",
