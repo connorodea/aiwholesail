@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-las-cruces-nm-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Las Cruces NM: A Complete Investor's Guide for 2024",
+      "excerpt": "Las Cruces, New Mexico is emerging as one of the Southwest's most overlooked real estate markets, offering affordable entry points and strong rental demand. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Las Cruces NM.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-12T18:02:08.293Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Las Cruces NM",
+        "Las Cruces real estate investing",
+        "wholesale real estate New Mexico",
+        "Las Cruces rental properties",
+        "off-market deals Las Cruces"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-alexandria-va-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Alexandria VA: A Complete Investor's Guide for 2024",
       "excerpt": "Alexandria, VA is one of the most competitive real estate markets in the DMV area, but savvy investors are still finding profitable deals. This guide breaks down the best neighborhoods, deal types, and strategies to win in this high-demand market.",
@@ -15,7 +32,7 @@
         "fix and flip Alexandria VA",
         "rental properties Alexandria VA"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-chattanooga-tn-a-complete-investor-s-guide-for-2025",
