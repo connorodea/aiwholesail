@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-jersey-city-nj-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Jersey City NJ: The Investor's Complete Guide for 2024",
+      "excerpt": "Jersey City is one of the hottest real estate markets on the East Coast, offering wholesale deals, flips, and high-yield rentals just minutes from Manhattan. This guide breaks down the best neighborhoods, current prices, and exactly how to find profitable real estate deals in Jersey City NJ.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-13T18:02:03.721Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Jersey City NJ",
+        "Jersey City real estate investing",
+        "wholesale deals Jersey City",
+        "fix and flip Jersey City",
+        "Jersey City rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-find-profitable-real-estate-deals-in-rancho-cucamonga-ca",
       "title": "How to Find Profitable Real Estate Deals in Rancho Cucamonga CA",
       "excerpt": "Rancho Cucamonga is one of the Inland Empire's hottest markets for real estate investors, offering strong rental demand, solid appreciation, and motivated sellers. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Rancho Cucamonga CA.",
@@ -15,7 +32,7 @@
         "flip houses Rancho Cucamonga",
         "Rancho Cucamonga rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-plano-tx-the-investor-s-complete-guide-for-2024",
