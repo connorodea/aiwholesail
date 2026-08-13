@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "fsbo-negotiation-tips-for-real-estate-investors-close-more-deals-directly-with-s",
+      "title": "FSBO Negotiation Tips for Real Estate Investors: Close More Deals Directly With Sellers",
+      "excerpt": "For-sale-by-owner properties are one of the best sources of below-market deals — if you know how to approach the conversation. These FSBO negotiation tips for real estate investors will help you build trust, uncover seller motivation, and close more deals.",
+      "category": "Negotiation",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-13T06:01:00.368Z",
+      "readTime": 7,
+      "tags": [
+        "FSBO negotiation tips for real estate investors",
+        "how to negotiate with FSBO sellers",
+        "buying FSBO properties",
+        "real estate investor negotiation",
+        "motivated seller negotiation"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-las-cruces-nm-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Las Cruces NM: A Complete Investor's Guide for 2024",
       "excerpt": "Las Cruces, New Mexico is emerging as one of the Southwest's most overlooked real estate markets, offering affordable entry points and strong rental demand. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Las Cruces NM.",
@@ -15,7 +32,7 @@
         "Las Cruces rental properties",
         "off-market deals Las Cruces"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-alexandria-va-a-complete-investor-s-guide-for-2024",
