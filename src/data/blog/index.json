@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-find-profitable-real-estate-deals-in-phoenix-az-2024-guide",
+      "title": "How to Find Profitable Real Estate Deals in Phoenix AZ (2024 Guide)",
+      "excerpt": "Phoenix is one of the hottest real estate markets in the country, offering strong opportunities for wholesalers, flippers, and rental investors. This guide covers the best neighborhoods, deal types, market trends, and tips for finding profitable real estate deals in Phoenix AZ.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-14T18:02:14.192Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Phoenix AZ",
+        "Phoenix real estate investing",
+        "wholesale real estate Phoenix",
+        "flip houses Phoenix",
+        "Phoenix rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "finding-profitable-real-estate-deals-in-clarksville-tn-a-complete-investor-s-gui",
       "title": "Finding Profitable Real Estate Deals in Clarksville TN: A Complete Investor's Guide",
       "excerpt": "Clarksville, Tennessee is one of the South's fastest-growing cities, offering real estate investors a rare mix of affordable prices, strong rental demand, and consistent appreciation. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Clarksville TN.",
@@ -15,7 +32,7 @@
         "flip houses Clarksville TN",
         "rental properties Clarksville TN"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-cape-coral-fl-the-investor-s-complete-guide-for-2024",
