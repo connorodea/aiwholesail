@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-handle-the-tenant-eviction-process-legally-a-step-by-step-guide-for-landl",
+      "title": "How to Handle the Tenant Eviction Process Legally: A Step-by-Step Guide for Landlords",
+      "excerpt": "Evicting a tenant is one of the most stressful situations a landlord can face, but handling it correctly protects your investment and keeps you out of legal trouble. This guide walks you through every step of the legal eviction process so you can move forward with confidence.",
+      "category": "Property Management",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-14T06:02:07.944Z",
+      "readTime": 7,
+      "tags": [
+        "how to handle tenant eviction process legally",
+        "tenant eviction process",
+        "eviction laws for landlords",
+        "landlord eviction steps",
+        "evicting a tenant legally"
+      ],
+      "featured": true
+    },
+    {
       "slug": "what-credit-score-do-you-need-for-an-investment-property-loan",
       "title": "What Credit Score Do You Need for an Investment Property Loan?",
       "excerpt": "Your credit score plays a major role in qualifying for an investment property loan and determining your interest rate. This guide breaks down the exact numbers lenders look for and how to get approved even with less-than-perfect credit.",
@@ -15,7 +32,7 @@
         "investment property financing",
         "DSCR loan credit score"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-jersey-city-nj-the-investor-s-complete-guide-for-2024",
