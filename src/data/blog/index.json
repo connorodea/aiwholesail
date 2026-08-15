@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-portland-or-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Portland OR: The Investor's Complete Guide for 2024",
+      "excerpt": "Portland, Oregon offers real estate investors a dynamic market with strong rental demand, motivated sellers, and neighborhoods primed for appreciation. This guide breaks down where to find the best deals, what to expect from local prices, and how to profit whether you're flipping, wholesaling, or buying rentals.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-15T12:01:07.581Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Portland OR",
+        "Portland Oregon real estate investing",
+        "wholesale real estate Portland",
+        "Portland fix and flip",
+        "Portland rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-find-wholesale-real-estate-deals-in-my-area-2024-guide",
       "title": "How to Find Wholesale Real Estate Deals in My Area (2024 Guide)",
       "excerpt": "Struggling to find profitable wholesale deals in your local market? This step-by-step guide breaks down the best strategies, tools, and resources to locate motivated sellers and undervalued properties in your area.",
@@ -15,7 +32,7 @@
         "wholesale deals near me",
         "real estate wholesaling strategies"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "common-mistakes-when-buying-fsbo-properties-and-how-to-avoid-them",
