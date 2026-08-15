@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "common-mistakes-when-buying-fsbo-properties-and-how-to-avoid-them",
+      "title": "Common Mistakes When Buying FSBO Properties (And How to Avoid Them)",
+      "excerpt": "FSBO properties can be goldmines for real estate investors — but only if you know what pitfalls to avoid. Learn the most common mistakes buyers make with For Sale By Owner deals and how to protect your investment.",
+      "category": "Strategy",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-15T06:00:54.735Z",
+      "readTime": 7,
+      "tags": [
+        "common mistakes when buying FSBO properties",
+        "FSBO real estate investing",
+        "for sale by owner tips",
+        "wholesale FSBO deals",
+        "motivated seller leads"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-find-profitable-real-estate-deals-in-phoenix-az-2024-guide",
       "title": "How to Find Profitable Real Estate Deals in Phoenix AZ (2024 Guide)",
       "excerpt": "Phoenix is one of the hottest real estate markets in the country, offering strong opportunities for wholesalers, flippers, and rental investors. This guide covers the best neighborhoods, deal types, market trends, and tips for finding profitable real estate deals in Phoenix AZ.",
@@ -15,7 +32,7 @@
         "flip houses Phoenix",
         "Phoenix rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "finding-profitable-real-estate-deals-in-clarksville-tn-a-complete-investor-s-gui",
