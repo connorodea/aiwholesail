@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-find-wholesale-real-estate-deals-in-my-area-2024-guide",
+      "title": "How to Find Wholesale Real Estate Deals in My Area (2024 Guide)",
+      "excerpt": "Struggling to find profitable wholesale deals in your local market? This step-by-step guide breaks down the best strategies, tools, and resources to locate motivated sellers and undervalued properties in your area.",
+      "category": "Deal Finding",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-15T06:01:02.127Z",
+      "readTime": 7,
+      "tags": [
+        "how to find wholesale real estate deals in my area",
+        "wholesale real estate deals",
+        "find motivated sellers",
+        "wholesale deals near me",
+        "real estate wholesaling strategies"
+      ],
+      "featured": true
+    },
+    {
       "slug": "common-mistakes-when-buying-fsbo-properties-and-how-to-avoid-them",
       "title": "Common Mistakes When Buying FSBO Properties (And How to Avoid Them)",
       "excerpt": "FSBO properties can be goldmines for real estate investors — but only if you know what pitfalls to avoid. Learn the most common mistakes buyers make with For Sale By Owner deals and how to protect your investment.",
@@ -15,7 +32,7 @@
         "wholesale FSBO deals",
         "motivated seller leads"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-find-profitable-real-estate-deals-in-phoenix-az-2024-guide",
