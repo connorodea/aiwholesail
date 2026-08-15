@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-alexandria-va-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Alexandria VA: A Complete Investor's Guide for 2024",
+      "excerpt": "Alexandria, VA is one of the DC metro area's most competitive yet rewarding markets for real estate investors. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Alexandria VA.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-15T18:02:56.250Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Alexandria VA",
+        "Alexandria VA real estate investing",
+        "wholesale deals Alexandria",
+        "fix and flip Alexandria VA",
+        "rental properties Alexandria VA"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-lubbock-tx-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Lubbock TX: The Investor's Complete Guide for 2024",
       "excerpt": "Lubbock, Texas is quietly becoming one of the Southwest's most attractive markets for real estate investors. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Lubbock TX.",
@@ -15,7 +32,7 @@
         "Lubbock TX rental properties",
         "flip houses Lubbock Texas"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "finding-profitable-real-estate-deals-in-cedar-rapids-ia-a-complete-investor-s-gu",
