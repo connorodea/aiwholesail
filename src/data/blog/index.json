@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "finding-profitable-real-estate-deals-in-cedar-rapids-ia-a-complete-investor-s-gu",
+      "title": "Finding Profitable Real Estate Deals in Cedar Rapids IA: A Complete Investor's Guide",
+      "excerpt": "Cedar Rapids, Iowa is quietly becoming one of the Midwest's most attractive markets for real estate investors, with affordable home prices and strong rental demand. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Cedar Rapids IA.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-15T12:02:46.328Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Cedar Rapids IA",
+        "Cedar Rapids real estate investing",
+        "wholesale real estate Cedar Rapids",
+        "house flipping Cedar Rapids Iowa",
+        "Cedar Rapids rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-portland-or-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Portland OR: The Investor's Complete Guide for 2024",
       "excerpt": "Portland, Oregon offers real estate investors a dynamic market with strong rental demand, motivated sellers, and neighborhoods primed for appreciation. This guide breaks down where to find the best deals, what to expect from local prices, and how to profit whether you're flipping, wholesaling, or buying rentals.",
@@ -15,7 +32,7 @@
         "Portland fix and flip",
         "Portland rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-find-wholesale-real-estate-deals-in-my-area-2024-guide",
