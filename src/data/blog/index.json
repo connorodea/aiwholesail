@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-topeka-ks-the-investor-s-complete-guide-to-this-underrated-",
+      "title": "Real Estate Deals in Topeka KS: The Investor's Complete Guide to This Underrated Market",
+      "excerpt": "Topeka, Kansas offers real estate investors affordable entry points, strong rental demand, and consistent deal flow that bigger markets can't match. Here's everything you need to know to find profitable real estate deals in Topeka KS.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-16T12:01:06.331Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Topeka KS",
+        "Topeka Kansas real estate investing",
+        "wholesale deals Topeka",
+        "investment properties Topeka",
+        "Topeka rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-much-do-real-estate-wholesalers-make-per-deal-real-numbers-inside",
       "title": "How Much Do Real Estate Wholesalers Make Per Deal? (Real Numbers Inside)",
       "excerpt": "Wondering how much real estate wholesalers make per deal? This guide breaks down average assignment fees, what affects your profit, and how to maximize earnings on every wholesale deal.",
@@ -15,7 +32,7 @@
         "real estate wholesaler profit",
         "assignment of contract fee"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-set-financial-goals-for-real-estate-investing-step-by-step-guide",
