@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-set-financial-goals-for-real-estate-investing-step-by-step-guide",
+      "title": "How to Set Financial Goals for Real Estate Investing (Step-by-Step Guide)",
+      "excerpt": "Setting clear financial goals is the foundation of every successful real estate investing career. Learn how to define your numbers, build a realistic timeline, and choose the right investing strategy to hit your targets.",
+      "category": "Getting Started",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-16T06:00:57.464Z",
+      "readTime": 7,
+      "tags": [
+        "how to set financial goals for real estate investing",
+        "real estate investing goals",
+        "real estate financial planning",
+        "wholesale real estate goals",
+        "real estate investment strategy"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-alexandria-va-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Alexandria VA: A Complete Investor's Guide for 2024",
       "excerpt": "Alexandria, VA is one of the DC metro area's most competitive yet rewarding markets for real estate investors. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Alexandria VA.",
@@ -15,7 +32,7 @@
         "fix and flip Alexandria VA",
         "rental properties Alexandria VA"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-lubbock-tx-the-investor-s-complete-guide-for-2024",
