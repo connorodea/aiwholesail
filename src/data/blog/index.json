@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-much-do-real-estate-wholesalers-make-per-deal-real-numbers-inside",
+      "title": "How Much Do Real Estate Wholesalers Make Per Deal? (Real Numbers Inside)",
+      "excerpt": "Wondering how much real estate wholesalers make per deal? This guide breaks down average assignment fees, what affects your profit, and how to maximize earnings on every wholesale deal.",
+      "category": "Beginner Guide",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-16T06:01:29.452Z",
+      "readTime": 7,
+      "tags": [
+        "how much do real estate wholesalers make per deal",
+        "wholesale assignment fee",
+        "wholesaling real estate income",
+        "real estate wholesaler profit",
+        "assignment of contract fee"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-set-financial-goals-for-real-estate-investing-step-by-step-guide",
       "title": "How to Set Financial Goals for Real Estate Investing (Step-by-Step Guide)",
       "excerpt": "Setting clear financial goals is the foundation of every successful real estate investing career. Learn how to define your numbers, build a realistic timeline, and choose the right investing strategy to hit your targets.",
@@ -15,7 +32,7 @@
         "wholesale real estate goals",
         "real estate investment strategy"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-alexandria-va-a-complete-investor-s-guide-for-2024",
