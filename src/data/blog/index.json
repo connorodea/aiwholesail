@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "small-multifamily-investing-the-complete-2-4-unit-property-guide",
+      "title": "Small Multifamily Investing: The Complete 2-4 Unit Property Guide",
+      "excerpt": "Small multifamily properties — duplexes, triplexes, and fourplexes — offer one of the best entry points into real estate investing. This guide walks you through everything you need to know to find, analyze, and profit from 2-4 unit deals.",
+      "category": "Beginner Guide",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-17T06:01:31.133Z",
+      "readTime": 7,
+      "tags": [
+        "small multifamily investing",
+        "2-4 unit property guide",
+        "duplex investing",
+        "triplex investing",
+        "fourplex investing"
+      ],
+      "featured": true
+    },
+    {
       "slug": "landlord-insurance-vs-homeowners-insurance-the-key-differences-every-investor-mu",
       "title": "Landlord Insurance vs Homeowners Insurance: The Key Differences Every Investor Must Know",
       "excerpt": "Choosing the wrong insurance policy for a rental property can leave you exposed to thousands of dollars in uncovered losses. Learn the critical differences between landlord insurance and homeowners insurance so you can protect your investment the right way.",
@@ -15,7 +32,7 @@
         "dwelling fire insurance",
         "investment property coverage"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-charleston-wv-the-investor-s-complete-guide-to-west-virgini",
