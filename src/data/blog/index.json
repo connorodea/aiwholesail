@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-fort-myers-fl-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Fort Myers FL: The Investor's Complete Guide for 2024",
+      "excerpt": "Fort Myers, FL is one of Florida's most active markets for real estate investors, with strong rental demand, motivated sellers, and post-hurricane opportunities still in play. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Fort Myers FL.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-17T12:01:09.438Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Fort Myers FL",
+        "Fort Myers real estate investing",
+        "wholesale real estate Fort Myers",
+        "flip houses Fort Myers",
+        "Fort Myers rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "small-multifamily-investing-the-complete-2-4-unit-property-guide",
       "title": "Small Multifamily Investing: The Complete 2-4 Unit Property Guide",
       "excerpt": "Small multifamily properties — duplexes, triplexes, and fourplexes — offer one of the best entry points into real estate investing. This guide walks you through everything you need to know to find, analyze, and profit from 2-4 unit deals.",
@@ -15,7 +32,7 @@
         "triplex investing",
         "fourplex investing"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "landlord-insurance-vs-homeowners-insurance-the-key-differences-every-investor-mu",
