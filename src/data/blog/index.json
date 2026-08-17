@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-shreveport-la-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Shreveport LA: The Investor's Complete Guide for 2024",
+      "excerpt": "Shreveport, Louisiana is quietly becoming one of the South's most overlooked real estate markets, offering investors strong cash flow potential and low entry prices. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Shreveport LA.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-17T18:01:37.440Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Shreveport LA",
+        "Shreveport real estate investing",
+        "wholesale real estate Shreveport",
+        "Shreveport rental properties",
+        "fix and flip Shreveport"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-columbia-mo-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Columbia MO: A Complete Investor's Guide for 2024",
       "excerpt": "Columbia, Missouri is one of the Midwest's most overlooked real estate markets, offering strong rental demand, affordable entry points, and consistent appreciation. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Columbia MO.",
@@ -15,7 +32,7 @@
         "Columbia MO rental properties",
         "off-market deals Columbia Missouri"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-las-cruces-nm-a-complete-investor-s-guide-for-2024",
