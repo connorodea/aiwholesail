@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "landlord-insurance-vs-homeowners-insurance-the-key-differences-every-investor-mu",
+      "title": "Landlord Insurance vs Homeowners Insurance: The Key Differences Every Investor Must Know",
+      "excerpt": "Choosing the wrong insurance policy for a rental property can leave you exposed to thousands of dollars in uncovered losses. Learn the critical differences between landlord insurance and homeowners insurance so you can protect your investment the right way.",
+      "category": "Insurance",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-17T06:00:57.439Z",
+      "readTime": 7,
+      "tags": [
+        "landlord insurance vs homeowners insurance difference",
+        "rental property insurance",
+        "landlord policy",
+        "dwelling fire insurance",
+        "investment property coverage"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-charleston-wv-the-investor-s-complete-guide-to-west-virgini",
       "title": "Real Estate Deals in Charleston WV: The Investor's Complete Guide to West Virginia's Capital City",
       "excerpt": "Charleston, WV is an overlooked gem for real estate investors, offering low entry prices, strong rental demand, and motivated sellers. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Charleston WV.",
@@ -15,7 +32,7 @@
         "flip houses Charleston WV",
         "rental properties Charleston WV"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-find-profitable-real-estate-deals-in-santa-clarita-ca",
