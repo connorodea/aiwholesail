@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-fargo-nd-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Fargo ND: A Complete Investor's Guide for 2024",
+      "excerpt": "Fargo, North Dakota is one of the Midwest's most underrated real estate markets, offering strong rental demand, affordable home prices, and steady appreciation. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Fargo ND.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-18T18:01:07.215Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Fargo ND",
+        "Fargo real estate investing",
+        "Fargo ND wholesale deals",
+        "Fargo rental properties",
+        "Fargo house flipping"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-kenosha-wi-a-complete-investor-s-guide-for-2024",
       "title": "Real Estate Deals in Kenosha WI: A Complete Investor's Guide for 2024",
       "excerpt": "Kenosha, Wisconsin is quietly becoming one of the Midwest's most attractive markets for real estate investors. This guide covers the best neighborhoods, deal types, average prices, and practical tips for finding profitable real estate deals in Kenosha WI.",
@@ -15,7 +32,7 @@
         "Kenosha investment properties",
         "Kenosha WI house flipping"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-bakersfield-ca-the-investor-s-complete-guide-for-2024",
