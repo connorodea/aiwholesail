@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-buy-a-small-commercial-building-a-step-by-step-guide-for-real-estate-inve",
+      "title": "How to Buy a Small Commercial Building: A Step-by-Step Guide for Real Estate Investors",
+      "excerpt": "Buying a small commercial building can generate strong cash flow and long-term wealth — but only if you know what to look for. This guide walks you through every step, from financing options to closing the deal.",
+      "category": "Beginner Guide",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-18T06:01:34.523Z",
+      "readTime": 7,
+      "tags": [
+        "how to buy a small commercial building",
+        "commercial real estate investing",
+        "small commercial property",
+        "commercial building purchase",
+        "CRE investing for beginners"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-find-cash-buyers-for-wholesale-deals-fast-proven-methods-that-work",
       "title": "How to Find Cash Buyers for Wholesale Deals Fast (Proven Methods That Work)",
       "excerpt": "Finding cash buyers quickly is the difference between a deal that closes and a contract that expires. This guide covers the fastest, most effective ways to build a reliable cash buyer list for your wholesale business.",
@@ -15,7 +32,7 @@
         "find cash buyers",
         "real estate wholesaling"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-shreveport-la-the-investor-s-complete-guide-for-2024",
