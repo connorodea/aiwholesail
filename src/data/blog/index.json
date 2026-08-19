@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-cedar-rapids-ia-the-investor-s-complete-guide-for-2024",
+      "title": "Real Estate Deals in Cedar Rapids IA: The Investor's Complete Guide for 2024",
+      "excerpt": "Cedar Rapids, Iowa is one of the Midwest's most underrated markets for real estate investors. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Cedar Rapids IA.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-19T12:01:02.144Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Cedar Rapids IA",
+        "Cedar Rapids real estate investing",
+        "wholesale deals Cedar Rapids",
+        "flip houses Cedar Rapids Iowa",
+        "Cedar Rapids rental properties"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-wholesale-real-estate-step-by-step-a-beginner-s-complete-playbook",
       "title": "How to Wholesale Real Estate Step by Step: A Beginner's Complete Playbook",
       "excerpt": "Wholesaling real estate is one of the fastest ways to break into investing with little to no money down. This step-by-step guide walks you through exactly how to find deals, negotiate contracts, and close your first assignment fee.",
@@ -15,7 +32,7 @@
         "how to find wholesale deals",
         "assignment contract real estate"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-invest-during-a-housing-downturn-a-practical-guide-for-real-estate-invest",
