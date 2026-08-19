@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "how-to-wholesale-real-estate-step-by-step-a-beginner-s-complete-playbook",
+      "title": "How to Wholesale Real Estate Step by Step: A Beginner's Complete Playbook",
+      "excerpt": "Wholesaling real estate is one of the fastest ways to break into investing with little to no money down. This step-by-step guide walks you through exactly how to find deals, negotiate contracts, and close your first assignment fee.",
+      "category": "Beginner Guide",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-19T06:02:44.685Z",
+      "readTime": 7,
+      "tags": [
+        "how to wholesale real estate step by step",
+        "wholesaling real estate for beginners",
+        "real estate wholesale guide",
+        "how to find wholesale deals",
+        "assignment contract real estate"
+      ],
+      "featured": true
+    },
+    {
       "slug": "how-to-invest-during-a-housing-downturn-a-practical-guide-for-real-estate-invest",
       "title": "How to Invest During a Housing Downturn: A Practical Guide for Real Estate Investors",
       "excerpt": "A housing downturn doesn't have to mean disaster for your real estate portfolio. Learn proven strategies to find profitable deals, protect your capital, and position yourself for long-term gains when the market cools.",
@@ -15,7 +32,7 @@
         "housing market decline strategies",
         "real estate recession investing"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "real-estate-deals-in-st-petersburg-fl-the-investor-s-complete-guide-for-2024",
