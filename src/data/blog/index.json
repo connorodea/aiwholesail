@@ -1,6 +1,23 @@
 {
   "articles": [
     {
+      "slug": "real-estate-deals-in-bridgeport-ct-a-complete-investor-s-guide-for-2024",
+      "title": "Real Estate Deals in Bridgeport CT: A Complete Investor's Guide for 2024",
+      "excerpt": "Bridgeport, CT is one of the most underrated markets for real estate investors on the East Coast, offering affordable entry points and strong rental demand. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Bridgeport CT.",
+      "category": "Market Insights",
+      "author": "AIWholesail Team",
+      "publishedAt": "2026-08-19T12:02:00.468Z",
+      "readTime": 7,
+      "tags": [
+        "real estate deals in Bridgeport CT",
+        "Bridgeport CT investment properties",
+        "wholesale real estate Bridgeport",
+        "Bridgeport CT rental properties",
+        "fix and flip Bridgeport CT"
+      ],
+      "featured": true
+    },
+    {
       "slug": "real-estate-deals-in-cedar-rapids-ia-the-investor-s-complete-guide-for-2024",
       "title": "Real Estate Deals in Cedar Rapids IA: The Investor's Complete Guide for 2024",
       "excerpt": "Cedar Rapids, Iowa is one of the Midwest's most underrated markets for real estate investors. This guide breaks down the best neighborhoods, deal types, and strategies for finding profitable real estate deals in Cedar Rapids IA.",
@@ -15,7 +32,7 @@
         "flip houses Cedar Rapids Iowa",
         "Cedar Rapids rental properties"
       ],
-      "featured": true
+      "featured": false
     },
     {
       "slug": "how-to-wholesale-real-estate-step-by-step-a-beginner-s-complete-playbook",
