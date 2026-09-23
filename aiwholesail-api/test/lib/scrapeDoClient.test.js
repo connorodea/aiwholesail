@@ -32,6 +32,7 @@ function loadClientWithMockAxios(axiosImpl) {
 
 test('scrapeDoClient', async (t) => {
   process.env.SCRAPE_DO_API_TOKEN = process.env.SCRAPE_DO_API_TOKEN || 'test-token';
+  delete process.env.SCRAPINGBEE_API_KEY; // these cases cover the scrape.do transport
 
   await t.test('isTransient400 matches scrape.do concurrent-limit body', () => {
     const { mod, restore } = loadClientWithMockAxios(async () => ({ status: 200, data: '', headers: {} }));
