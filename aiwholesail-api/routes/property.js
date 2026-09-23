@@ -10,6 +10,7 @@ const { logEvent, EVENTS } = require('../lib/events');
 const { mapCachedRowToProperty, validateZpid } = require('../lib/property-mapper');
 const { geocodeMany, normalizeAddress } = require('../lib/geocode');
 const { autocomplete: zillowAutocompleteScrapeDo } = require('../lib/scrapers/zillowAutocompleteScrapeDo');
+const { isConfigured: scrapeClientConfigured } = require('../lib/scrapers/scrapeDoClient');
 const { withZillowFallback } = require('../lib/zillowFallback');
 
 const RAPIDAPI_KEY = process.env.RAPIDAPI_KEY;
@@ -618,7 +619,7 @@ router.post('/heatmap-coords', authenticate, asyncHandler(async (req, res) => {
  * Errors:
  *   400  `q` shorter than 2 chars (we don't want to bill scrape.do for
  *        single-letter queries that match thousands of regions).
- *   503  SCRAPE_DO_API_TOKEN not configured — surface so the caller
+ *   503  no scraper key (SCRAPINGBEE_API_KEY / SCRAPE_DO_API_TOKEN) — surface so the caller
  *        knows the feature is degraded, vs. silently returning [].
  *   502  scrape.do is up but Zillow refused (rare — auto-retried in
  *        the scrape.do client first).
@@ -631,7 +632,7 @@ router.get('/autocomplete', optionalAuth, asyncHandler(async (req, res) => {
   const rawLimit = Number(req.query.limit);
   const limit = Number.isFinite(rawLimit) && rawLimit > 0 ? Math.min(20, Math.floor(rawLimit)) : 8;
 
-  if (!process.env.SCRAPE_DO_API_TOKEN) {
+  if (!scrapeClientConfigured()) {
     return res.status(503).json({ error: 'autocomplete not configured' });
   }
 

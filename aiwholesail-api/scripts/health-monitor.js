@@ -219,15 +219,16 @@ const SCRAPE_DO_FAIL_PCT = 70;
 function checkScrapeDoToken() {
   // Without this token the scrape.do fallback is silently dead — every call
   // would fail auth and route back to RapidAPI. We want to know immediately.
-  const token = process.env.SCRAPE_DO_API_TOKEN;
-  if (!token || !token.trim()) {
+  const { getProvider, isConfigured } = require('../lib/scrapers/scrapeDoClient');
+  const provider = getProvider();
+  if (!isConfigured()) {
     return {
       name: 'scrape.do token',
       status: 'fail',
-      detail: 'SCRAPE_DO_API_TOKEN env var missing or empty',
+      detail: `${provider} key env var missing or empty`,
     };
   }
-  return { name: 'scrape.do token', status: 'ok', detail: 'env var present' };
+  return { name: 'scrape.do token', status: 'ok', detail: `${provider} key present` };
 }
 
 async function checkScrapeDoSuccessRate() {

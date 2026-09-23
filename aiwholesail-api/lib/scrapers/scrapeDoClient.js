@@ -25,11 +25,21 @@
  * once with backoff lifts our successful-fetch rate without burning tokens
  * on genuinely-bad URLs (those usually 400 with "Invalid url" / "Invalid
  * token" — those bodies are excluded from retry).
+ *
+ * Transport: ScrapingBee or scrape.do. The scrape.do account went inactive
+ * (HTTP 401 on every call, 2026-09), so ScrapingBee is now the default
+ * whenever SCRAPINGBEE_API_KEY is set. SCRAPER_PROVIDER=scrapedo|scrapingbee
+ * forces one. Callers keep the scrape.do-shaped options; buildQuery maps them:
+ *   render   → render_js (ScrapingBee renders by default, so we always send it)
+ *   geoCode  → country_code (needs premium_proxy, which Zillow needs anyway)
+ *   super    → stealth_proxy
+ *   headers  → forward_headers=true + "Spb-" prefix on each header
  */
 
 const axios = require('axios');
 
 const SCRAPE_DO_BASE = 'https://api.scrape.do';
+const SCRAPINGBEE_BASE = 'https://app.scrapingbee.com/api/v1/';
 const DEFAULT_TIMEOUT_MS = 30_000;
 const DEFAULT_MAX_RETRIES = 2;
 const RETRY_BACKOFF_MS = 1500;
@@ -87,6 +97,33 @@ class ScrapeDoError extends Error {
   }
 }
 
+function getProvider() {
+  const forced = (process.env.SCRAPER_PROVIDER || '').trim().toLowerCase();
+  if (forced === 'scrapedo' || forced === 'scrape.do') return 'scrapedo';
+  if (forced === 'scrapingbee') return 'scrapingbee';
+  return process.env.SCRAPINGBEE_API_KEY ? 'scrapingbee' : 'scrapedo';
+}
+
+function providerLabel() {
+  return getProvider() === 'scrapingbee' ? 'scrapingbee' : 'scrape.do';
+}
+
+function isConfigured() {
+  const v =
+    getProvider() === 'scrapingbee'
+      ? process.env.SCRAPINGBEE_API_KEY
+      : process.env.SCRAPE_DO_API_TOKEN;
+  return !!(v && v.trim());
+}
+
+function getBeeKey() {
+  const k = process.env.SCRAPINGBEE_API_KEY;
+  if (!k) {
+    throw new ScrapeDoError('SCRAPINGBEE_API_KEY not configured');
+  }
+  return k;
+}
+
 function getToken() {
   const t = process.env.SCRAPE_DO_API_TOKEN;
   if (!t) {
@@ -96,7 +133,9 @@ function getToken() {
 }
 
 function isRetryableStatus(status) {
-  return status === 429 || status === 502 || status === 503 || status === 504;
+  if (status === 429 || status === 502 || status === 503 || status === 504) return true;
+  // ScrapingBee documents 500 as "retry" and does not bill it.
+  return status === 500 && getProvider() === 'scrapingbee';
 }
 
 function isTransient400(body) {
@@ -105,7 +144,30 @@ function isTransient400(body) {
   return TRANSIENT_400_PATTERNS.some((re) => re.test(snippet));
 }
 
+function buildBeeQuery(targetUrl, opts) {
+  const params = new URLSearchParams();
+  params.set('api_key', getBeeKey());
+  params.set('url', targetUrl);
+  params.set('render_js', opts.render ? 'true' : 'false');
+  if (opts.super) params.set('stealth_proxy', 'true');
+  else params.set('premium_proxy', 'true');
+  if (opts.geoCode) params.set('country_code', opts.geoCode);
+  if (opts.customHeaders) params.set('forward_headers', 'true');
+  if (opts.waitFor) params.set('wait', String(opts.waitFor));
+  return `${SCRAPINGBEE_BASE}?${params.toString()}`;
+}
+
+function toBeeHeaders(headers) {
+  const out = {};
+  for (const [k, v] of Object.entries(headers || {})) {
+    if (k.toLowerCase() === 'content-type') out[k] = v;
+    else out[`Spb-${k}`] = v;
+  }
+  return out;
+}
+
 function buildQuery(targetUrl, opts) {
+  if (getProvider() === 'scrapingbee') return buildBeeQuery(targetUrl, opts);
   const params = new URLSearchParams();
   params.set('token', getToken());
   params.set('url', targetUrl);
@@ -150,7 +212,8 @@ async function scrape(targetUrl, opts = {}) {
   };
 
   if (opts.headers && wantsHeaders) {
-    axiosConfig.headers = opts.headers;
+    axiosConfig.headers =
+      getProvider() === 'scrapingbee' ? toBeeHeaders(opts.headers) : opts.headers;
   }
   if (method === 'POST' && opts.body !== undefined) {
     axiosConfig.data =
@@ -161,6 +224,7 @@ async function scrape(targetUrl, opts = {}) {
     };
   }
 
+  const label = providerLabel();
   let lastErr = null;
   let retries400 = 0;
   // Loop bound includes the 400 retry budget so the bounded-400 path still
@@ -173,7 +237,7 @@ async function scrape(targetUrl, opts = {}) {
     try {
       res = await axios(axiosConfig);
     } catch (err) {
-      lastErr = new ScrapeDoError(`scrape.do network error: ${err.message}`, {
+      lastErr = new ScrapeDoError(`${label} network error: ${err.message}`, {
         status: 0,
         attempts: attempt,
       });
@@ -214,7 +278,7 @@ async function scrape(targetUrl, opts = {}) {
     }
 
     if (isRetryableStatus(res.status) && attempt <= maxRetries) {
-      lastErr = new ScrapeDoError(`scrape.do HTTP ${res.status}`, {
+      lastErr = new ScrapeDoError(`${label} HTTP ${res.status}`, {
         status: res.status,
         attempts: attempt,
         upstream: typeof res.data === 'string' ? res.data.slice(0, 200) : undefined,
@@ -232,7 +296,7 @@ async function scrape(targetUrl, opts = {}) {
       isTransient400(res.data)
     ) {
       retries400 += 1;
-      lastErr = new ScrapeDoError(`scrape.do HTTP 400 (transient)`, {
+      lastErr = new ScrapeDoError(`${label} HTTP 400 (transient)`, {
         status: 400,
         attempts: attempt,
         upstream: typeof res.data === 'string' ? res.data.slice(0, 200) : undefined,
@@ -241,14 +305,14 @@ async function scrape(targetUrl, opts = {}) {
       continue;
     }
 
-    throw new ScrapeDoError(`scrape.do HTTP ${res.status}`, {
+    throw new ScrapeDoError(`${label} HTTP ${res.status}`, {
       status: res.status,
       attempts: attempt,
       upstream: typeof res.data === 'string' ? res.data.slice(0, 500) : undefined,
     });
   }
 
-  throw lastErr || new ScrapeDoError('scrape.do retries exhausted');
+  throw lastErr || new ScrapeDoError(`${label} retries exhausted`);
 }
 
 function sleep(ms) {
@@ -259,6 +323,8 @@ module.exports = {
   scrape,
   ScrapeDoError,
   buildQuery,
+  getProvider,
+  isConfigured,
   isRetryableStatus,
   isTransient400,
   looksLikeCaptcha,
