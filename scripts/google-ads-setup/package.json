@@ -8,8 +8,10 @@
     "ads": "node keyword-research-gaps.js",
     "gsc": "node gsc-opportunity-report.js",
     "all": "node oauth-refresh-multi.js && node keyword-research-gaps.js && node gsc-opportunity-report.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "kw": "node seo-kw-research.js"
+    "test": "node google-suggest.test.js && node reddit-discovery.test.js && node aggregate-lsi.test.js && node lsi-to-blog-keywords.test.js",
+    "kw": "node seo-kw-research.js",
+    "suggest": "node google-suggest.js",
+    "reddit": "node reddit-discovery.js"
   },
   "keywords": [],
   "author": "",
