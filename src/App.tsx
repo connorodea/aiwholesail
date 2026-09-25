@@ -49,6 +49,7 @@ const GuidePage = lazy(() => import("./pages/GuidePage"));
 // /app?mode=off-market where the unified search renders AbsenteeOwnerSearch.
 const Analyzer = lazy(() => import("./pages/Analyzer"));
 const Favorites = lazy(() => import("./pages/Favorites"));
+const Auctions = lazy(() => import("./pages/Auctions"));
 const Alerts = lazy(() => import("./pages/Alerts"));
 const AdminFlags = lazy(() => import("./pages/AdminFlags"));
 const Pipeline = lazy(() => import("./pages/Pipeline"));
@@ -163,6 +164,11 @@ const App = () => (
                 {/* /app/off-market is the legacy route. Now redirects into
                     the unified search on /app with mode=off-market preset. */}
                 <Route path="/app/off-market" element={<Navigate to="/app?mode=off-market" replace />} />
+                <Route path="/app/auctions" element={
+                  <ProtectedRoute>
+                    <Auctions />
+                  </ProtectedRoute>
+                } />
                 <Route path="/admin/flags" element={
                   <ProtectedRoute>
                     <AdminFlags />
