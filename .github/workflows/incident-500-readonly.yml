@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Read-only provider diagnostics
+      - name: Read-only fallback diagnostics
         env:
           DEPLOY_HOST: ${{ secrets.HETZNER_CO_HOST }}
           DEPLOY_USER: ${{ secrets.HETZNER_CO_USER }}
@@ -55,61 +55,46 @@ jobs:
             emit('runtime_environment', {available: false});
           }
           const effective = {...fileEnv, ...bootEnv};
-          const effectiveKey = effective.SCRAPINGBEE_API_KEY || '';
-          emit('configuration', {
-            provider: ['scrapedo', 'scrape.do', 'scrapingbee'].includes(effective.SCRAPER_PROVIDER) ? effective.SCRAPER_PROVIDER : 'automatic',
-            bee_key_present: Boolean(effectiveKey),
-            bee_key_has_outer_whitespace: effectiveKey !== effectiveKey.trim(),
-            bee_env_override: Boolean(bootEnv.SCRAPINGBEE_API_KEY),
-            bee_file_key_differs: Boolean(fileEnv.SCRAPINGBEE_API_KEY && effectiveKey !== fileEnv.SCRAPINGBEE_API_KEY),
-            scrapedo_key_present: Boolean(effective.SCRAPE_DO_API_TOKEN),
-            rapidapi_key_present: Boolean(effective.RAPIDAPI_KEY)
-          });
-          function classify(text) {
+          function classify(body) {
+            const text = JSON.stringify(body);
             const patterns = {
               invalid_key: /invalid.{0,20}(?:api.?key|token)|(?:api.?key|token).{0,20}invalid/i,
               out_of_credits: /(?:out of|not enough|insufficient|no more|exhausted).{0,30}credits|credits.{0,30}(?:exhausted|limit reached)/i,
               not_subscribed: /not subscribed|unsubscribed|inactive account|account.{0,20}inactive/i,
-              rate_limited: /rate.?limit|too many requests|quota exceeded/i
+              rate_limited: /rate.?limit|too many requests|quota exceeded/i,
+              upstream_request_failed: /Zillow API request failed/i
             };
             return Object.keys(patterns).filter(k => patterns[k].test(text));
           }
-          async function usage(label, key) {
-            if (!key) return;
-            try {
-              const response = await axios.get('https://app.scrapingbee.com/api/v1/usage', {
-                headers: {Authorization: `Bearer ${key.trim()}`}, timeout: 15000,
-                maxRedirects: 0, validateStatus: () => true
-              });
-              const body = response.data;
-              const out = {status: response.status, classifications: classify(JSON.stringify(body))};
-              if (body && typeof body === 'object') {
-                for (const name of ['max_api_credit', 'used_api_credit', 'max_concurrency', 'current_concurrency']) {
-                  if (typeof body[name] === 'number') out[name] = body[name];
-                }
-              }
-              emit(label, out);
-            } catch (_) { emit(label, {request_failed: true}); }
-          }
           (async () => {
             emit('checked_at', new Date().toISOString());
-            await usage('scrapingbee_effective_key_usage', effectiveKey);
-            if (fileEnv.SCRAPINGBEE_API_KEY && fileEnv.SCRAPINGBEE_API_KEY !== effectiveKey) {
-              await usage('scrapingbee_file_key_usage', fileEnv.SCRAPINGBEE_API_KEY);
-            }
-            try {
-              const logs = cp.execFileSync('sudo', ['-n', 'journalctl', '-u', 'aiwholesail-api', '--since', '30 minutes ago', '--no-pager', '-n', '400', '-o', 'cat'], {encoding:'utf8', stdio:['ignore','pipe','pipe']});
-              const summary = {};
-              for (const line of logs.split('\n')) {
-                const tags = classify(line);
-                const status = line.match(/(?:HTTP|status(?: code)?)[ :]+([45][0-9]{2})/i);
-                const provider = /scrapingbee/i.test(line) ? 'scrapingbee' : /scrape\.do/i.test(line) ? 'scrapedo' : /rapidapi/i.test(line) ? 'rapidapi' : 'other';
-                if (status || tags.length) {
-                  const key = JSON.stringify({provider, status: status ? Number(status[1]) : null, tags});
-                  summary[key] = (summary[key] || 0) + 1;
+            if (effective.SCRAPE_DO_API_TOKEN) {
+              try {
+                const r = await axios.get('https://api.scrape.do/info', {
+                  params: {token: effective.SCRAPE_DO_API_TOKEN.trim()},
+                  timeout: 15000, maxRedirects: 0, validateStatus: () => true
+                });
+                const out = {status: r.status, classifications: classify(r.data)};
+                for (const k of ['IsActive', 'ConcurrentRequest', 'MaxMonthlyRequest', 'RemainingConcurrentRequest', 'RemainingMonthlyRequest']) {
+                  if (typeof r.data?.[k] === 'number' || typeof r.data?.[k] === 'boolean') out[k] = r.data[k];
                 }
-              }
-              emit('recent_provider_error_classes', Object.entries(summary).map(([key,count]) => ({...JSON.parse(key),count})));
-            } catch (_) { emit('recent_provider_error_classes', {available: false}); }
+                emit('scrapedo_account', out);
+              } catch (_) { emit('scrapedo_account', {request_failed: true}); }
+            }
+            const proxyUrl = effective.ZILLOW_PROXY_URL || 'http://127.0.0.1:3201/zillow';
+            const parsed = new URL(proxyUrl);
+            if (!['127.0.0.1', 'localhost', '[::1]'].includes(parsed.hostname)) {
+              emit('legacy_fallback', {skipped: 'nonlocal_configuration'});
+            } else if (!effective.ZILLOW_PROXY_SECRET) {
+              emit('legacy_fallback', {skipped: 'secret_not_configured'});
+            } else {
+              try {
+                const r = await axios.post(proxyUrl, {action: 'search', searchParams: {location: 'Denver, CO', page: 1}}, {
+                  headers: {'Content-Type': 'application/json', 'x-api-key': effective.ZILLOW_PROXY_SECRET},
+                  timeout: 25000, maxRedirects: 0, validateStatus: () => true
+                });
+                emit('legacy_fallback', {status: r.status, success: r.data?.success === true, classifications: classify(r.data)});
+              } catch (_) { emit('legacy_fallback', {request_failed: true}); }
+            }
           })().catch(() => { emit('diagnostic', {failed: true}); process.exitCode = 1; });
           NODE
